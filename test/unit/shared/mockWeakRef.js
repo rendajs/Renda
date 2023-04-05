@@ -2,7 +2,11 @@ const originalFinalizationRegistry = globalThis.FinalizationRegistry;
 const originalWeakRef = globalThis.WeakRef;
 const originalWeakMap = globalThis.WeakMap;
 
-/** @type {Map<object, RegistryItem>} */
+/**
+ * A collection of objects that have been registered with a FinalizationRegistry.
+ * WeakMaps, WeakSets, and WeakRefs are not included in this collection.
+ * @type {Map<object, RegistryItem>}
+ */
 const registry = new Map();
 
 /**
@@ -10,7 +14,10 @@ const registry = new Map();
  * @property {object} target
  */
 
-/** @type {Set<RegisteredWeakRef>} */
+/**
+ * A collection of objects that have been registered with a WeakMap, WeakSet or WeakRef.
+ * @type {Set<RegisteredWeakRef>}
+ */
 const registeredWeakRefs = new Set();
 
 class RegistryItem {
@@ -113,6 +120,7 @@ class MockWeakMap {
 	 * @param {any} value
 	 */
 	set(key, value) {
+		if ((typeof key !== "object" && typeof key !== "function" && typeof key !== "symbol") || key === null) throw new TypeError("Invalid value used as weak map key");
 		const registeredWeakRef = {target: key};
 		registeredWeakRefs.add(registeredWeakRef);
 		this.#map.set(key, {value, registeredWeakRef});
@@ -149,7 +157,7 @@ class MockWeakMap {
 		if (item) {
 			registeredWeakRefs.delete(item.registeredWeakRef);
 		}
-		this.#map.delete(key);
+		return this.#map.delete(key);
 	}
 }
 
@@ -160,12 +168,16 @@ export function installMockWeakRef() {
 }
 
 export function uninstallMockWeakRef() {
+	forceCleanupAll(false);
 	globalThis.FinalizationRegistry = originalFinalizationRegistry;
 	globalThis.WeakRef = originalWeakRef;
 	globalThis.WeakMap = originalWeakMap;
 }
 
 /**
+ * Acts as if this object has been garbage collected, even though there might still be a reference to it inside a test.
+ * In the case of WeakMaps, the key should be provided. This is because WeakMaps hold a weak reference to the key, not the value.
+ * I.e. in the real world a key would never be garbage collected as long as the key is still accessible.
  * @param {any} target
  */
 export function forceCleanup(target) {
@@ -177,4 +189,21 @@ export function forceCleanup(target) {
 			registeredWeakRefs.delete(weakRef);
 		}
 	}
+}
+
+/**
+ * Cleans up all entries that have ever been registered.
+ */
+export function forceCleanupAll(fireFinalizationRegistryCallbacks = true) {
+	if (fireFinalizationRegistryCallbacks) {
+		for (const item of registry.values()) {
+			item.forceCleanup();
+		}
+	}
+	registry.clear();
+
+	for (const weakRef of registeredWeakRefs) {
+		registeredWeakRefs.delete(weakRef);
+	}
+	registeredWeakRefs.clear();
 }
