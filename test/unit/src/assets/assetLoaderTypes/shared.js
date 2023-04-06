@@ -7,6 +7,11 @@ import {bundledAssetDataToArrayBufferOrString} from "../../../../../studio/src/t
 /**
  * This allows you to test both the serialization logic of a ProjectAssetType
  * as well as the buffer parsing logic of an AssetLoaderType.
+ * This runs close to a full flow of:
+ * - loading asset data from disk inside a project.
+ * - serializing it to binary before it is bundled with other assets.
+ * - deserializing it again to an object
+ * - handling that data in the respective AssetLoaderType which turns it into an instance of a class.
  * @param {object} options
  * @param {import("../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructorAny} options.ProjectAssetTypeConstructor
  * @param {typeof import("../../../../../src/assets/assetLoaderTypes/AssetLoaderType.js").AssetLoaderType} options.AssetLoaderType
