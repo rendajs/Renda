@@ -250,7 +250,7 @@ Deno.test({
 		};
 
 		try {
-			/** @type {import("../../../../../../src/mod.js").UuidString[]} */
+			/** @type {(import("../../../../../../src/mod.js").UuidString | null | undefined)[]} */
 			const result = [];
 			for await (const uuid of projectAsset.getReferencedAssetUuids()) {
 				result.push(uuid);

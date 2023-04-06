@@ -860,6 +860,7 @@ export class AssetManager {
 			if (foundUuids.has(assetUuid) || excludeUuidsRecursive.has(assetUuid)) return;
 			if (!excludeUuids.has(assetUuid)) yield assetUuid;
 			for await (const referenceUuid of projectAsset.getReferencedAssetUuids()) {
+				if (!referenceUuid) continue;
 				for await (const subReferenceUuid of this.#collectAllAssetReferencesHelper(referenceUuid, foundUuids, excludeUuids, excludeUuidsRecursive)) {
 					yield this.resolveDefaultAssetLinkUuid(subReferenceUuid);
 				}

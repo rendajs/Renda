@@ -937,7 +937,7 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * @returns {AsyncGenerator<import("../../../src/util/mod.js").UuidString>}
+	 * @returns {AsyncGenerator<import("../../../src/util/mod.js").UuidString | null | undefined>}
 	 */
 	async *getReferencedAssetUuids() {
 		await this.waitForInit();
