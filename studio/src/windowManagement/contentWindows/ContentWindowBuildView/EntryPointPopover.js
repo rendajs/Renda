@@ -3,7 +3,7 @@ import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/Proje
 import {Button} from "../../../ui/Button.js";
 import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {DroppableGui} from "../../../ui/DroppableGui.js";
-import { Popover } from "../../../ui/popoverMenus/Popover.js";
+import {Popover} from "../../../ui/popoverMenus/Popover.js";
 
 const ENTRY_POINTS_SETTING_KEY = "buildView.entryPoints";
 const SELECTED_ENTRY_POINT_KEY = "selectedEntryPoint";
