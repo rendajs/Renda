@@ -89,6 +89,7 @@ export class ContentWindowBuildView extends ContentWindow {
 				}
 
 				const popover = this.studioInstance.popoverManager.createPopover(EntryPointPopover);
+				popover.setNeedsCurtain(false);
 				popover.initialize(projectSettings, assetManager, this.persistentData);
 				popover.setPos(this.entryPointButton);
 			},
