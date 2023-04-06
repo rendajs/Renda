@@ -22,5 +22,6 @@
 		"**/.denoTypes/**",
 		"**/npm_packages/**",
 		"**/node_modules/**",
-	]
+	],
+	"files.eol": "\n",
 }

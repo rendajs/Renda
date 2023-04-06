@@ -1,8 +1,8 @@
-import {getMockArgs} from "./shared.js";
-import {ContentWindowBuildView} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js";
-import {runWithDom} from "../../../shared/runWithDom.js";
-import {GestureInProgressManager} from "../../../../../../studio/src/misc/GestureInProgressManager.js";
-import {TypedMessenger} from "../../../../../../src/util/TypedMessenger.js";
+import {getMockArgs} from "../shared.js";
+import {ContentWindowBuildView} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js";
+import {runWithDom} from "../../../../shared/runWithDom.js";
+import {GestureInProgressManager} from "../../../../../../../studio/src/misc/GestureInProgressManager.js";
+import {TypedMessenger} from "../../../../../../../src/util/TypedMessenger.js";
 import {assertEquals} from "std/testing/asserts.ts";
 
 Deno.test({
@@ -19,7 +19,7 @@ Deno.test({
 				mockStudioInstance.gestureInProgressManager = new GestureInProgressManager();
 
 				/**
-				 * @type {TypedMessenger<import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers, {}>}
+				 * @type {TypedMessenger<import("../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers, {}>}
 				 */
 				const iframeWindowMessenger = new TypedMessenger();
 
