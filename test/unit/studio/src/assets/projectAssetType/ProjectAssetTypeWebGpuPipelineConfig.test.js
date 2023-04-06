@@ -1,10 +1,10 @@
 import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
-import {AssetLoaderTypeWebGpuPipelineConfig, WebGpuPipelineConfig} from "../../../../../src/mod.js";
-import {ProjectAssetTypeWebGpuPipelineConfig} from "../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
+import {AssetLoaderTypeWebGpuPipelineConfig, WebGpuPipelineConfig} from "../../../../../../src/mod.js";
+import {ProjectAssetTypeWebGpuPipelineConfig} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
 import {serializeAndLoad} from "./shared.js";
 
 Deno.test({
-	name: "Loading the defaults",
+	name: "Serializing and loading the defaults",
 	async fn() {
 		const result = await serializeAndLoad({
 			ProjectAssetTypeConstructor: ProjectAssetTypeWebGpuPipelineConfig,
@@ -28,7 +28,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "primitiveTopology is serialized",
+	name: "primitiveTopology is serialized and loaded",
 	async fn() {
 		const {loadResult} = await serializeAndLoad({
 			ProjectAssetTypeConstructor: ProjectAssetTypeWebGpuPipelineConfig,
@@ -46,7 +46,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Shader uuids are serialized",
+	name: "Shader uuids are serialized and loaded",
 	async fn() {
 		const VERTEX_UUID = "00000000-0000-0000-0000-000000000001";
 		const FRAGMENT_UUID = "00000000-0000-0000-0000-000000000002";
@@ -69,7 +69,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "blendState is serialized",
+	name: "blendState is serialized and loaded",
 	async fn() {
 		const {loadResult} = await serializeAndLoad({
 			ProjectAssetTypeConstructor: ProjectAssetTypeWebGpuPipelineConfig,
