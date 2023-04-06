@@ -118,7 +118,8 @@ export class DroppableGui {
 		return /** @type {DroppableGui<InstanceType<T>>} */ (new DroppableGui(opts));
 	}
 
-	#shortcutFocusValueSetter;
+	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter").ShorcutConditionValueSetter<boolean>?} */
+	#shortcutFocusValueSetter = null;
 
 	/**
 	 * @typedef {(value: import("../../../src/mod.js").UuidString?) => void} OnValueChangeCallback
@@ -178,11 +179,14 @@ export class DroppableGui {
 		this.el.addEventListener("focusout", this.#onFocusOut);
 		document.addEventListener("paste", this.#onPasteEvent);
 
-		const shortcutManager = getStudioInstance().keyboardShortcutManager;
-		shortcutManager.onCommand("droppableGui.pasteUuid", this.#onPasteShortcut);
-		shortcutManager.onCommand("droppableGui.unlink", this.#onUnlinkShortcut);
-		const focusCondition = shortcutManager.getCondition("droppableGui.focusSelected");
-		this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
+		const shortcutManager = getStudioInstance()?.keyboardShortcutManager;
+		// DroppableGuis are sometimes used in tests without a mocked shortcut manager
+		if (shortcutManager) {
+			shortcutManager.onCommand("droppableGui.pasteUuid", this.#onPasteShortcut);
+			shortcutManager.onCommand("droppableGui.unlink", this.#onUnlinkShortcut);
+			const focusCondition = shortcutManager.getCondition("droppableGui.focusSelected");
+			this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
+		}
 
 		/** @type {import("../../../src/util/mod.js").UuidString?}*/
 		this.defaultAssetLinkUuid = null;
@@ -210,9 +214,12 @@ export class DroppableGui {
 		document.removeEventListener("paste", this.#onPasteEvent);
 
 		const shortcutManager = getStudioInstance().keyboardShortcutManager;
-		shortcutManager.removeOnCommand("droppableGui.pasteUuid", this.#onPasteShortcut);
-		shortcutManager.removeOnCommand("droppableGui.unlink", this.#onUnlinkShortcut);
-		this.#shortcutFocusValueSetter.destructor();
+		// DroppableGuis are used in tests sometimes without a shortcut manager
+		if (shortcutManager) {
+			shortcutManager.removeOnCommand("droppableGui.pasteUuid", this.#onPasteShortcut);
+			shortcutManager.removeOnCommand("droppableGui.unlink", this.#onUnlinkShortcut);
+		}
+		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.destructor();
 
 		if (this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
@@ -858,7 +865,7 @@ export class DroppableGui {
 		}
 		if (hasFocusWithin == this.hasFocusWithin) return;
 		this.hasFocusWithin = hasFocusWithin;
-		this.#shortcutFocusValueSetter.setValue(hasFocusWithin);
+		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.setValue(hasFocusWithin);
 	}
 
 	#onPasteShortcut = async () => {

@@ -326,6 +326,7 @@ export class TreeView {
 		}
 
 		const studio = getMaybeStudioInstance();
+		// TreeViews are sometimes used in tests without a mocked shortcut manager
 		if (studio && studio.keyboardShortcutManager) {
 			const renamingCondition = studio.keyboardShortcutManager.getCondition("treeView.renaming");
 			this.#renamingShortcutCondition = /** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
@@ -1381,6 +1382,7 @@ export class TreeView {
 			}
 
 			const shortcutManager = getMaybeStudioInstance()?.keyboardShortcutManager;
+			// TreeViews are sometimes used in tests without a mocked shortcut manager
 			if (shortcutManager) {
 				if (needsEventHandlers) {
 					shortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
