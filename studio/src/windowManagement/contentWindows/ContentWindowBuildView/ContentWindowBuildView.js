@@ -85,8 +85,9 @@ export class ContentWindowBuildView extends ContentWindow {
 				const projectSettings = this.studioInstance.projectManager.projectSettings;
 				const assetManager = this.studioInstance.projectManager.assetManager;
 
-				if (!projectSettings || !assetManager)
+				if (!projectSettings || !assetManager) {
 					throw new Error("Assertion failed, no project settings or asset manager.");
+				}
 
 				const popover = this.studioInstance.popoverManager.createPopover(EntryPointPopover);
 				popover.initialize(projectSettings, assetManager, this.persistentData);

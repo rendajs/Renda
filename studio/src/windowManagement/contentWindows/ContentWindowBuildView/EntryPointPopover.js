@@ -84,9 +84,8 @@ export class EntryPointPopover extends Popover {
 				this.#onAddButtonClick();
 			},
 		});
+
 		addContainer.appendChild(addButton.el);
-
-
 	}
 
 	/**
@@ -95,8 +94,9 @@ export class EntryPointPopover extends Popover {
 	 * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} persistentData
 	 */
 	initialize(projectSettingsManager, assetManager, persistentData) {
-		if(this.#projectSettings)
+		if (this.#projectSettings) {
 			throw new Error("Error initializing EntryPointPopover: already initialized.");
+		}
 
 		this.#projectSettings = projectSettingsManager;
 		this.#assetManager = assetManager;
@@ -106,8 +106,9 @@ export class EntryPointPopover extends Popover {
 	}
 
 	async #loadPreferences() {
-		if(!this.#projectSettings || !this.#assetManager || !this.#persistentData)
+		if (!this.#projectSettings || !this.#assetManager || !this.#persistentData) {
 			throw new Error("Error loading preferences for EntryPointPopover: not initialized.");
+		}
 
 		const items = await getEntryPointsSetting(this.#projectSettings);
 		let entryPoint = null;
@@ -124,8 +125,9 @@ export class EntryPointPopover extends Popover {
 	 * @param {import("../../../../../src/mod.js").UuidString?} selectedEntryPoint
 	 */
 	async #updateSelector(items, selectedEntryPoint) {
-		if(!this.#assetManager)
+		if (!this.#assetManager) {
 			throw new Error("Error updating selector for EntryPointPopover: not initialized.");
+		}
 
 		/**
 		 * @typedef ItemData
@@ -175,8 +177,9 @@ export class EntryPointPopover extends Popover {
 				if (!itemData) {
 					throw new Error("Assertion failed, item data doesn't exist");
 				}
-				if(!this.#persistentData)
+				if (!this.#persistentData) {
 					throw new Error("Error updating selector for EntryPointPopover: persistentData is not initialized.");
+				}
 				this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, itemData.uuid);
 			});
 			this.#currentSelectorEl = selector.el;
@@ -185,8 +188,9 @@ export class EntryPointPopover extends Popover {
 	}
 
 	async #onAddButtonClick() {
-		if(!this.#projectSettings || !this.#persistentData)
+		if (!this.#projectSettings || !this.#persistentData) {
 			throw new Error("Error adding entry point: not initialized.");
+		}
 
 		const addValue = this.#droppableGui.value;
 		if (!addValue) return;
