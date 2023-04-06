@@ -62,13 +62,11 @@ export class EntryPointPopover extends Popover {
 		super(...args);
 
 		this.#selectorContainer = document.createElement("div");
-		// TODO: double check "this" works
 		this.el.appendChild(this.#selectorContainer);
 
 		const addContainer = document.createElement("div");
 		addContainer.style.display = "flex";
 		addContainer.style.width = "150px";
-		// TODO: double check
 		this.el.appendChild(addContainer);
 
 		this.#droppableGui = DroppableGui.of({
