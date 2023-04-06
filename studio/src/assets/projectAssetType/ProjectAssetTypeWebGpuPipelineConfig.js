@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPipelineConfig} from "../../../../src/mod.js";
+import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, WebGpuPipelineConfig} from "../../../../src/mod.js";
 import {ProjectAssetTypeShaderSource} from "./ProjectAssetTypeShaderSource.js";
 import {blendFactor, blendOperation, compareFunction, primitiveTopologyTypes} from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeWebGpuPipelineConfig.js";
 import {createTreeViewEntryOptions} from "../../ui/propertiesTreeView/createStructureHelpers.js";
