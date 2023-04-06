@@ -11,7 +11,7 @@ import {createTreeViewEntryOptions} from "../../ui/propertiesTreeView/createStru
  * @property {GPUPrimitiveTopology} [primitiveTopology]
  * @property {GPUCompareFunction} [depthCompareFunction]
  * @property {boolean} [depthWriteEnabled]
- * @property {import("../../../../src/util/types.js").RecursivePartial<GPUBlendState>} [blendState]
+ * @property {import("../../../../src/util/types.js").RecursivePartial<GPUBlendState>} [blend]
  * @property {number} [renderOrder]
  */
 
@@ -87,7 +87,7 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 				defaultValue: true,
 			},
 		},
-		blendState: {
+		blend: {
 			type: "object",
 			guiOpts: {
 				structure: {
@@ -154,24 +154,24 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			}
 		}
 		/** @type {GPUBlendState | undefined} */
-		let blendState;
-		if (fileData.blendState) {
-			blendState = {
+		let blend;
+		if (fileData.blend) {
+			blend = {
 				color: {},
 				alpha: {},
 			};
 			// TODO: if any of these have not been set, they will be undefined.
 			// WebGPU doesn't support undefined and properties need to be explicitly omitted,
 			// otherwise it will cause an error.
-			if (fileData.blendState.color) {
-				blendState.color.operation = fileData.blendState.color.operation;
-				blendState.color.srcFactor = fileData.blendState.color.srcFactor;
-				blendState.color.dstFactor = fileData.blendState.color.dstFactor;
+			if (fileData.blend.color) {
+				blend.color.operation = fileData.blend.color.operation;
+				blend.color.srcFactor = fileData.blend.color.srcFactor;
+				blend.color.dstFactor = fileData.blend.color.dstFactor;
 			}
-			if (fileData.blendState.alpha) {
-				blendState.alpha.operation = fileData.blendState.alpha.operation;
-				blendState.alpha.srcFactor = fileData.blendState.alpha.srcFactor;
-				blendState.alpha.dstFactor = fileData.blendState.alpha.dstFactor;
+			if (fileData.blend.alpha) {
+				blend.alpha.operation = fileData.blend.alpha.operation;
+				blend.alpha.srcFactor = fileData.blend.alpha.srcFactor;
+				blend.alpha.dstFactor = fileData.blend.alpha.dstFactor;
 			}
 		}
 		const liveAsset = new WebGpuPipelineConfig({
@@ -180,7 +180,7 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			depthCompareFunction: fileData.depthCompareFunction,
 			depthWriteEnabled: fileData.depthWriteEnabled,
 			renderOrder: fileData.renderOrder,
-			blendState,
+			blend,
 		});
 		return {liveAsset, studioData: null};
 	}

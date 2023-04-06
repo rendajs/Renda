@@ -10,18 +10,34 @@ export const blendOperation = ["add", "subtract", "reverse-subtract", "min", "ma
 
 export const blendFactor = ["zero", "one", "src", "one-minus-src", "src-alpha", "one-minus-src-alpha", "dst", "one-minus-dst", "dst-alpha", "one-minus-dst-alpha", "src-alpha-saturated", "constant", "one-minus-constant"];
 
+const blendComponentStructure = {
+	operation: blendOperation,
+	srcFactor: blendFactor,
+	dstFactor: blendFactor,
+};
+
 const binarySerializationOpts = {
 	structure: {
 		vertexShader: StorageType.ASSET_UUID,
 		fragmentShader: StorageType.ASSET_UUID,
 		primitiveTopology: primitiveTopologyTypes,
 		preloadVertexStates: [StorageType.ASSET_UUID],
+		blend: {
+			color: blendComponentStructure,
+			alpha: blendComponentStructure,
+		},
 	},
 	nameIds: {
 		vertexShader: 1,
 		fragmentShader: 2,
 		primitiveTopology: 3,
 		preloadVertexStates: 4,
+		blend: 5,
+		color: 6,
+		alpha: 7,
+		operation: 8,
+		srcFactor: 9,
+		dstFactor: 10,
 	},
 };
 

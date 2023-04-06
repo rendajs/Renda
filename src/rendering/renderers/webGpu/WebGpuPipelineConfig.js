@@ -6,7 +6,7 @@ export class WebGpuPipelineConfig {
 	 * @param {GPUPrimitiveTopology} [options.primitiveTopology]
 	 * @param {GPUCompareFunction} [options.depthCompareFunction]
 	 * @param {boolean} [options.depthWriteEnabled]
-	 * @param {GPUBlendState} [options.blendState]
+	 * @param {GPUBlendState} [options.blend]
 	 * @param {number} [options.renderOrder]
 	 */
 	constructor({
@@ -15,7 +15,7 @@ export class WebGpuPipelineConfig {
 		primitiveTopology = "triangle-list",
 		depthCompareFunction = "less",
 		depthWriteEnabled = true,
-		blendState,
+		blend,
 		renderOrder = 0,
 	} = {}) {
 		this.fragmentShader = fragmentShader;
@@ -23,7 +23,7 @@ export class WebGpuPipelineConfig {
 		this.primitiveTopology = primitiveTopology;
 		this.depthCompareFunction = depthCompareFunction;
 		this.depthWriteEnabled = depthWriteEnabled;
-		this.blendState = blendState;
+		this.blend = blend;
 		this.renderOrder = renderOrder;
 	}
 }

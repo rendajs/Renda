@@ -20,13 +20,33 @@ Deno.test({
 		assertEquals(config.primitiveTopology, "triangle-list");
 		assertEquals(config.depthCompareFunction, "less");
 		assertEquals(config.depthWriteEnabled, true);
-		assertEquals(config.blendState, undefined);
+		// TODO: #509 we want this to be undefined in the future,
+		// but for now the full default value is being serialized/deserialized.
+		// assertEquals(config.blend, undefined);
 		assertEquals(config.renderOrder, 0);
 	},
 });
 
 Deno.test({
-	name: "Loading a custom config",
+	name: "primitiveTopology is serialized",
+	async fn() {
+		const {loadResult} = await serializeAndLoad({
+			ProjectAssetTypeConstructor: ProjectAssetTypeWebGpuPipelineConfig,
+			AssetLoaderType: AssetLoaderTypeWebGpuPipelineConfig,
+			jsonFileData: {
+				asset: {
+					primitiveTopology: "triangle-strip",
+				},
+			},
+		});
+
+		assertInstanceOf(loadResult, WebGpuPipelineConfig);
+		assertEquals(loadResult.primitiveTopology, "triangle-strip");
+	},
+});
+
+Deno.test({
+	name: "Shader uuids are serialized",
 	async fn() {
 		const VERTEX_UUID = "00000000-0000-0000-0000-000000000001";
 		const FRAGMENT_UUID = "00000000-0000-0000-0000-000000000002";
@@ -37,7 +57,6 @@ Deno.test({
 				asset: {
 					vertexShader: VERTEX_UUID,
 					fragmentShader: FRAGMENT_UUID,
-					primitiveTopology: "triangle-strip",
 				},
 			},
 		});
@@ -46,6 +65,41 @@ Deno.test({
 		assertInstanceOf(loadResult, WebGpuPipelineConfig);
 		assertStrictEquals(loadResult.fragmentShader, getRequestedAsset(FRAGMENT_UUID));
 		assertStrictEquals(loadResult.vertexShader, getRequestedAsset(VERTEX_UUID));
-		assertEquals(loadResult.primitiveTopology, "triangle-strip");
+	},
+});
+
+Deno.test({
+	name: "blendState is serialized",
+	async fn() {
+		const {loadResult} = await serializeAndLoad({
+			ProjectAssetTypeConstructor: ProjectAssetTypeWebGpuPipelineConfig,
+			AssetLoaderType: AssetLoaderTypeWebGpuPipelineConfig,
+			jsonFileData: {
+				asset: {
+					blend: {
+						color: {
+							srcFactor: "src-alpha",
+						},
+						alpha: {
+							dstFactor: "one",
+						},
+					},
+				},
+			},
+		});
+
+		assertInstanceOf(loadResult, WebGpuPipelineConfig);
+		assertEquals(loadResult.blend, {
+			color: {
+				operation: "add",
+				srcFactor: "src-alpha",
+				dstFactor: "zero",
+			},
+			alpha: {
+				operation: "add",
+				srcFactor: "one",
+				dstFactor: "one",
+			},
+		});
 	},
 });
