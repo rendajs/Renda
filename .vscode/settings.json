@@ -15,5 +15,6 @@
 	},
 	"search.exclude": {
 		"deno.lock": true,
-	}
+	},
+	"files.eol": "\n",
 }
