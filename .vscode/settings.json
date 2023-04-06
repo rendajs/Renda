@@ -15,5 +15,12 @@
 	},
 	"search.exclude": {
 		"deno.lock": true,
-	}
+	},
+	"relativePath.ignore": [
+		"**/.git/**",
+		"**/.coverage/**",
+		"**/.denoTypes/**",
+		"**/npm_packages/**",
+		"**/node_modules/**",
+	]
 }
