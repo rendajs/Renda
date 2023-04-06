@@ -1,6 +1,5 @@
 import {ContentWindow} from "../ContentWindow.js";
 import {Button} from "../../../ui/Button.js";
-import {getStudioInstance} from "../../../studioInstance.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {EntryPointPopover, getSelectedEntryPoint} from "./EntryPointPopover.js";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
@@ -114,7 +113,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.updateIframeVisibility();
 		this.updateFrameSrc();
 		if (isRunning) {
-			getStudioInstance().projectManager.markCurrentProjectAsWorthSaving();
+			this.studioInstance.projectManager.markCurrentProjectAsWorthSaving();
 		}
 	}
 
@@ -127,7 +126,7 @@ export class ContentWindowBuildView extends ContentWindow {
 
 	async updateFrameSrc(allowReload = false) {
 		if (this.isRunning) {
-			const projectManager = getStudioInstance().projectManager;
+			const projectManager = this.studioInstance.projectManager;
 			const assetManager = projectManager.assetManager;
 			const projectSettings = projectManager.projectSettings;
 			if (!assetManager) {
