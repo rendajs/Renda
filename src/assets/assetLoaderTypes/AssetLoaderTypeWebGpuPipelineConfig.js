@@ -6,6 +6,10 @@ export const primitiveTopologyTypes = ["point-list", "line-list", "line-strip", 
 
 export const compareFunction = ["never", "less", "equal", "less-equal", "greater", "not-equal", "greater-equal", "always"];
 
+export const blendOperation = ["add", "subtract", "reverse-subtract", "min", "max"];
+
+export const blendFactor = ["zero", "one", "src", "one-minus-src", "src-alpha", "one-minus-src-alpha", "dst", "one-minus-dst", "dst-alpha", "one-minus-dst-alpha", "src-alpha-saturated", "constant", "one-minus-constant"];
+
 const binarySerializationOpts = {
 	structure: {
 		vertexShader: StorageType.ASSET_UUID,

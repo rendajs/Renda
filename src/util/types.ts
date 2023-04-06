@@ -14,3 +14,7 @@ export type UnionToIntersection<Union> = (
 	) extends ((mergedIntersection: infer Intersection) => void)
 		? Intersection
 		: never;
+
+export type RecursivePartial<T> = {
+	[P in keyof T]?: RecursivePartial<T[P]>;
+}

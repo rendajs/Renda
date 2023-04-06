@@ -1,7 +1,8 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPipelineConfig} from "../../../../src/mod.js";
 import {ProjectAssetTypeShaderSource} from "./ProjectAssetTypeShaderSource.js";
-import {compareFunction, primitiveTopologyTypes} from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeWebGpuPipelineConfig.js";
+import {blendFactor, blendOperation, compareFunction, primitiveTopologyTypes} from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeWebGpuPipelineConfig.js";
+import {createTreeViewEntryOptions} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 
 /**
  * @typedef WebGpuPipelineConfigAssetData
@@ -10,8 +11,38 @@ import {compareFunction, primitiveTopologyTypes} from "../../../../src/assets/as
  * @property {GPUPrimitiveTopology} [primitiveTopology]
  * @property {GPUCompareFunction} [depthCompareFunction]
  * @property {boolean} [depthWriteEnabled]
+ * @property {import("../../../../src/util/types.js").RecursivePartial<GPUBlendState>} [blendState]
  * @property {number} [renderOrder]
  */
+
+const gpuBlendComponentStructure = createTreeViewEntryOptions({
+	type: "object",
+	guiOpts: {
+		structure: {
+			operation: {
+				type: "dropdown",
+				guiOpts: {
+					items: blendOperation,
+					defaultValue: "add",
+				},
+			},
+			srcFactor: {
+				type: "dropdown",
+				guiOpts: {
+					items: blendFactor,
+					defaultValue: "one",
+				},
+			},
+			dstFactor: {
+				type: "dropdown",
+				guiOpts: {
+					items: blendFactor,
+					defaultValue: "zero",
+				},
+			},
+		},
+	},
+});
 
 /**
  * @extends {ProjectAssetType<WebGpuPipelineConfig, null, WebGpuPipelineConfigAssetData>}
@@ -54,6 +85,15 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			type: "boolean",
 			guiOpts: {
 				defaultValue: true,
+			},
+		},
+		blendState: {
+			type: "object",
+			guiOpts: {
+				structure: {
+					color: gpuBlendComponentStructure,
+					alpha: gpuBlendComponentStructure,
+				},
 			},
 		},
 		renderOrder: {
@@ -113,12 +153,34 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 				fragmentShader = shader;
 			}
 		}
+		/** @type {GPUBlendState | undefined} */
+		let blendState;
+		if (fileData.blendState) {
+			blendState = {
+				color: {},
+				alpha: {},
+			};
+			// TODO: if any of these have not been set, they will be undefined.
+			// WebGPU doesn't support undefined and properties need to be explicitly omitted,
+			// otherwise it will cause an error.
+			if (fileData.blendState.color) {
+				blendState.color.operation = fileData.blendState.color.operation;
+				blendState.color.srcFactor = fileData.blendState.color.srcFactor;
+				blendState.color.dstFactor = fileData.blendState.color.dstFactor;
+			}
+			if (fileData.blendState.alpha) {
+				blendState.alpha.operation = fileData.blendState.alpha.operation;
+				blendState.alpha.srcFactor = fileData.blendState.alpha.srcFactor;
+				blendState.alpha.dstFactor = fileData.blendState.alpha.dstFactor;
+			}
+		}
 		const liveAsset = new WebGpuPipelineConfig({
 			vertexShader, fragmentShader,
 			primitiveTopology: fileData.primitiveTopology,
 			depthCompareFunction: fileData.depthCompareFunction,
 			depthWriteEnabled: fileData.depthWriteEnabled,
 			renderOrder: fileData.renderOrder,
+			blendState,
 		});
 		return {liveAsset, studioData: null};
 	}

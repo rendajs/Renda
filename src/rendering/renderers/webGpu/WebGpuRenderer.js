@@ -604,6 +604,7 @@ export class WebGpuRenderer extends Renderer {
 					targets: [
 						{
 							format: outputFormat,
+							blend: pipelineConfig.blendState,
 						},
 					],
 				},
