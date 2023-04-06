@@ -103,15 +103,6 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 				step: 1,
 			},
 		},
-		preloadVertexStates: {
-			type: "array",
-			guiOpts: {
-				arrayType: "droppable",
-				arrayGuiOpts: {
-					supportedAssetTypes: [VertexState],
-				},
-			},
-		},
 	};
 
 	static expectedLiveAssetConstructor = WebGpuPipelineConfig;

@@ -21,7 +21,6 @@ const binarySerializationOpts = {
 		vertexShader: StorageType.ASSET_UUID,
 		fragmentShader: StorageType.ASSET_UUID,
 		primitiveTopology: primitiveTopologyTypes,
-		preloadVertexStates: [StorageType.ASSET_UUID],
 		blend: {
 			color: blendComponentStructure,
 			alpha: blendComponentStructure,
@@ -31,7 +30,6 @@ const binarySerializationOpts = {
 		vertexShader: 1,
 		fragmentShader: 2,
 		primitiveTopology: 3,
-		preloadVertexStates: 4,
 		blend: 5,
 		color: 6,
 		alpha: 7,
