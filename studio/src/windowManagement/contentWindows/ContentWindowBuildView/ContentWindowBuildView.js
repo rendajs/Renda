@@ -2,7 +2,7 @@ import {ContentWindow} from "../ContentWindow.js";
 import {Button} from "../../../ui/Button.js";
 import {getStudioInstance} from "../../../studioInstance.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
-import {EntryPointManager, getSelectedEntryPoint} from "./EntryPointManager.js";
+import {EntryPointPopover, getSelectedEntryPoint} from "./EntryPointPopover.js";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
@@ -86,9 +86,8 @@ export class ContentWindowBuildView extends ContentWindow {
 				const projectSettings = studio.projectManager.projectSettings;
 				const assetManager = studio.projectManager.assetManager;
 				if (!projectSettings || !assetManager) return;
-				const popover = studio.popoverManager.createPopover();
-				// eslint-disable-next-line no-new
-				new EntryPointManager(popover, projectSettings, assetManager, this.persistentData);
+				const popover = studio.popoverManager.createPopover(EntryPointPopover);
+				popover.initialize(projectSettings, assetManager, this.persistentData);
 
 				popover.setNeedsCurtain(false);
 				popover.setPos(this.entryPointButton);

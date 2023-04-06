@@ -3,6 +3,7 @@ import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/Proje
 import {Button} from "../../../ui/Button.js";
 import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {DroppableGui} from "../../../ui/DroppableGui.js";
+import { Popover } from "../../../ui/popoverMenus/Popover.js";
 
 const ENTRY_POINTS_SETTING_KEY = "buildView.entryPoints";
 const SELECTED_ENTRY_POINT_KEY = "selectedEntryPoint";
@@ -38,34 +39,37 @@ export async function getSelectedEntryPoint(projectSettingsManager, contentWindo
 	return entryPoints[0] || null;
 }
 
-export class EntryPointManager {
-	#projectSettings;
-	#assetManager;
-	#persistentData;
+export class EntryPointPopover extends Popover {
+	/** @type {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager?} */
+	#projectSettings = null;
+
+	/** @type {import("../../../assets/AssetManager.js").AssetManager?} */
+	#assetManager = null;
+
+	/** @type {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData?} */
+	#persistentData = null;
 
 	/** @type {HTMLElement?} */
 	#currentSelectorEl = null;
+
 	#selectorContainer;
 	#droppableGui;
 
 	/**
-	 * @param {import("../../../ui/popoverMenus/Popover.js").Popover} popover
-	 * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
-	 * @param {import("../../../assets/AssetManager.js").AssetManager} assetManager
-	 * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} persistentData
+	 * @param {ConstructorParameters<typeof Popover>} args
 	 */
-	constructor(popover, projectSettingsManager, assetManager, persistentData) {
-		this.#projectSettings = projectSettingsManager;
-		this.#assetManager = assetManager;
-		this.#persistentData = persistentData;
+	constructor(...args) {
+		super(...args);
 
 		this.#selectorContainer = document.createElement("div");
-		popover.el.appendChild(this.#selectorContainer);
+		// TODO: double check "this" works
+		this.el.appendChild(this.#selectorContainer);
 
 		const addContainer = document.createElement("div");
 		addContainer.style.display = "flex";
 		addContainer.style.width = "150px";
-		popover.el.appendChild(addContainer);
+		// TODO: double check
+		this.el.appendChild(addContainer);
 
 		this.#droppableGui = DroppableGui.of({
 			supportedAssetTypes: [ProjectAssetTypeHtml, ProjectAssetTypeJavascript],
@@ -82,12 +86,32 @@ export class EntryPointManager {
 		});
 		addContainer.appendChild(addButton.el);
 
+
+	}
+
+	/**
+	 * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
+	 * @param {import("../../../assets/AssetManager.js").AssetManager} assetManager
+	 * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} persistentData
+	 */
+	initialize(projectSettingsManager, assetManager, persistentData) {
+		if(this.#projectSettings)
+			throw new Error("Error initializing EntryPointPopover: already initialized.");
+
+		this.#projectSettings = projectSettingsManager;
+		this.#assetManager = assetManager;
+		this.#persistentData = persistentData;
+
 		this.#loadPreferences();
 	}
 
 	async #loadPreferences() {
+		if(!this.#projectSettings || !this.#assetManager || !this.#persistentData)
+			throw new Error("Error loading preferences for EntryPointPopover: not initialized.");
+
 		const items = await getEntryPointsSetting(this.#projectSettings);
 		let entryPoint = null;
+
 		const entryPointSetting = await this.#persistentData.get(SELECTED_ENTRY_POINT_KEY);
 		if (typeof entryPointSetting == "string") {
 			entryPoint = entryPointSetting;
@@ -100,6 +124,9 @@ export class EntryPointManager {
 	 * @param {import("../../../../../src/mod.js").UuidString?} selectedEntryPoint
 	 */
 	async #updateSelector(items, selectedEntryPoint) {
+		if(!this.#assetManager)
+			throw new Error("Error updating selector for EntryPointPopover: not initialized.");
+
 		/**
 		 * @typedef ItemData
 		 * @property {string} fileName
@@ -148,6 +175,8 @@ export class EntryPointManager {
 				if (!itemData) {
 					throw new Error("Assertion failed, item data doesn't exist");
 				}
+				if(!this.#persistentData)
+					throw new Error("Error updating selector for EntryPointPopover: persistentData is not initialized.");
 				this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, itemData.uuid);
 			});
 			this.#currentSelectorEl = selector.el;
@@ -156,6 +185,9 @@ export class EntryPointManager {
 	}
 
 	async #onAddButtonClick() {
+		if(!this.#projectSettings || !this.#persistentData)
+			throw new Error("Error adding entry point: not initialized.");
+
 		const addValue = this.#droppableGui.value;
 		if (!addValue) return;
 		const settingsValue = await getEntryPointsSetting(this.#projectSettings);
