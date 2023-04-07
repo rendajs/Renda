@@ -9,6 +9,7 @@ import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
+import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePreferencesLocation.js";
 
 /**
  * @typedef {object} StoredProjectEntryBase
@@ -51,8 +52,12 @@ import {ContentWindowConnections} from "../windowManagement/contentWindows/Conte
 
 export class ProjectManager {
 	#boundOnFileSystemRootNameChange;
-
 	#boundSaveContentWindowPersistentData;
+
+	/** @type {FilePreferencesLocation?} */
+	#currentPreferencesLocation = null;
+	/** @type {FilePreferencesLocation?} */
+	#currentVersionControlPreferencesLocation = null;
 
 	/** @type {Set<import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeCallback>} */
 	#onFileChangeCbs = new Set();
@@ -195,6 +200,23 @@ export class ProjectManager {
 			gitIgnoreManager.addEntry(localSettingsPath);
 		});
 
+		const studio = getStudioInstance();
+
+		if (this.#currentPreferencesLocation) {
+			studio.preferencesManager.removeLocation(this.#currentPreferencesLocation);
+		}
+		if (this.#currentVersionControlPreferencesLocation) {
+			studio.preferencesManager.removeLocation(this.#currentVersionControlPreferencesLocation);
+		}
+		const localPreferencesPath = ["ProjectSettings", "preferencesLocal.json"];
+		this.#currentPreferencesLocation = new FilePreferencesLocation("project", fileSystem, localPreferencesPath, fromUserGesture);
+		this.#currentPreferencesLocation.onFileCreated(() => {
+			gitIgnoreManager.addEntry(localPreferencesPath);
+		});
+		studio.preferencesManager.addLocation(this.#currentPreferencesLocation);
+		this.#currentVersionControlPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, ["ProjectSettings", "preferences.json"], fromUserGesture);
+		studio.preferencesManager.addLocation(this.#currentVersionControlPreferencesLocation);
+
 		this.loadStudioConnectionsAllowIncomingInstance.run();
 
 		fileSystem.onChange(this.#onFileSystemChange);
@@ -203,7 +225,6 @@ export class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
 		this.removeAssetManager();
-		const studio = getStudioInstance();
 		studio.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		studio.windowManager.removeOnContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
 		await studio.windowManager.reloadCurrentWorkspace();
@@ -391,6 +412,7 @@ export class ProjectManager {
 			name,
 			isWorthSaving: false,
 		}, true);
+		this.markCurrentProjectAsWorthSaving();
 	}
 
 	/**
@@ -527,6 +549,9 @@ export class ProjectManager {
 		if (hasValidProject && (this.currentProjectIsRemote || this.studioConnectionsAllowRemoteIncoming)) {
 			let endpoint = this.studioConnectionsDiscoveryEndpoint;
 			if (!endpoint) endpoint = this.studioConnectionsManager.getDefaultEndPoint();
+			if (!endpoint.startsWith("ws://") && !endpoint.startsWith("wss://")) {
+				endpoint = "wss://" + endpoint;
+			}
 			this.studioConnectionsManager.setDiscoveryEndpoint(endpoint);
 		} else {
 			this.studioConnectionsManager.setDiscoveryEndpoint(null);

@@ -1,8 +1,7 @@
 import {ContentWindow} from "../ContentWindow.js";
 import {Button} from "../../../ui/Button.js";
-import {getStudioInstance} from "../../../studioInstance.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
-import {EntryPointManager, getSelectedEntryPoint} from "./EntryPointManager.js";
+import {EntryPointPopover, getSelectedEntryPoint} from "./EntryPointPopover.js";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
@@ -44,7 +43,7 @@ export class ContentWindowBuildView extends ContentWindow {
 
 		window.addEventListener("message", this.onIframeMessage);
 
-		const colorizerFilterManager = getStudioInstance().colorizerFilterManager;
+		const colorizerFilterManager = this.studioInstance.colorizerFilterManager;
 
 		const playStateButtonsGroup = new ButtonGroup();
 		this.addTopBarEl(playStateButtonsGroup.el);
@@ -82,15 +81,16 @@ export class ContentWindowBuildView extends ContentWindow {
 			hasDownArrow: true,
 			colorizerFilterManager,
 			onClick: () => {
-				const studio = getStudioInstance();
-				const projectSettings = studio.projectManager.projectSettings;
-				const assetManager = studio.projectManager.assetManager;
-				if (!projectSettings || !assetManager) return;
-				const popover = studio.popoverManager.createPopover();
-				// eslint-disable-next-line no-new
-				new EntryPointManager(popover, projectSettings, assetManager, this.persistentData);
+				const projectSettings = this.studioInstance.projectManager.projectSettings;
+				const assetManager = this.studioInstance.projectManager.assetManager;
 
+				if (!projectSettings || !assetManager) {
+					throw new Error("Assertion failed, no project settings or asset manager.");
+				}
+
+				const popover = this.studioInstance.popoverManager.createPopover(EntryPointPopover);
 				popover.setNeedsCurtain(false);
+				popover.initialize(projectSettings, assetManager, this.persistentData);
 				popover.setPos(this.entryPointButton);
 			},
 		});
@@ -114,7 +114,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.updateIframeVisibility();
 		this.updateFrameSrc();
 		if (isRunning) {
-			getStudioInstance().projectManager.markCurrentProjectAsWorthSaving();
+			this.studioInstance.projectManager.markCurrentProjectAsWorthSaving();
 		}
 	}
 
@@ -127,7 +127,7 @@ export class ContentWindowBuildView extends ContentWindow {
 
 	async updateFrameSrc(allowReload = false) {
 		if (this.isRunning) {
-			const projectManager = getStudioInstance().projectManager;
+			const projectManager = this.studioInstance.projectManager;
 			const assetManager = projectManager.assetManager;
 			const projectSettings = projectManager.projectSettings;
 			if (!assetManager) {
@@ -170,7 +170,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	getIframeResponseHandlers() {
 		return {
 			requestInternalDiscoveryUrl() {
-				const url = new URL("internalDiscovery.html", window.location.href);
+				const url = new URL("internalDiscovery", window.location.href);
 				return url.href;
 			},
 		};

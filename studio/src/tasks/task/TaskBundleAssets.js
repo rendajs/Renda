@@ -51,29 +51,41 @@ function getResponseHandlers(assetManager, fileStreams) {
 			// TODO: Ideally assets without an asset type are filtered out before the initial message is sent to the worker.
 			if (!assetTypeUuid) throw new Error(`Failed to bundle asset data, the asset with uuid ${assetUuid} has no asset type.`);
 
-			let assetData = await asset.getBundledAssetData();
-			if (!assetData) assetData = "";
-
-			if (assetData instanceof Blob) {
-				assetData = await assetData.arrayBuffer();
-			} else if (ArrayBuffer.isView(assetData)) {
-				assetData = assetData.buffer.slice(assetData.byteOffset, assetData.byteOffset + assetData.byteLength);
-			}
+			const assetData = await asset.getBundledAssetData();
+			const bufferOrString = await bundledAssetDataToArrayBufferOrString(assetData);
 
 			/** @type {Transferable[]} */
 			let transfer = [];
-			if (typeof assetData != "string") {
-				transfer = [assetData];
+			if (typeof bufferOrString != "string") {
+				transfer = [bufferOrString];
 			}
 
 			return {
 				returnValue: {
-					assetTypeUuid, assetData,
+					assetTypeUuid,
+					assetData: bufferOrString,
 				},
 				transfer,
 			};
 		},
 	};
+}
+
+/**
+ * Turns the return value of `ProjectAsset.getBundledAssetData` into an ArrayBuffer or string.
+ * This also slices the buffer if it is a view.
+ * You can use this to directly pass the result as an argument when writing to a file.
+ * @param {import("../../assets/ProjectAsset.js").GetBundledAssetDataReturnType} bundledAssetData
+ */
+export async function bundledAssetDataToArrayBufferOrString(bundledAssetData) {
+	if (!bundledAssetData) return "";
+
+	if (bundledAssetData instanceof Blob) {
+		return await bundledAssetData.arrayBuffer();
+	} else if (ArrayBuffer.isView(bundledAssetData)) {
+		return bundledAssetData.buffer.slice(bundledAssetData.byteOffset, bundledAssetData.byteOffset + bundledAssetData.byteLength);
+	}
+	return bundledAssetData;
 }
 
 /**

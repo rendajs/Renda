@@ -68,16 +68,18 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 
 /**
  * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
- * @typedef {T["assertExists"] extends true ?
- * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>> :
- * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>>?} AssetAssertionOptionsToProjectAsset
+ * @typedef {AssetAssertionOptionsToProjectAssetType<T> extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny ?
+ *	T["assertExists"] extends true ?
+ * 		import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>> :
+ * 		import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>>? :
+ * never} AssetAssertionOptionsToProjectAsset
  */
 
 /**
  * @template {AssetAssertionOptions} T
  * @typedef {AssetAssertionOptionsToProjectAsset<T> extends infer ProjectAsset ?
- * 	ProjectAsset extends import("./ProjectAsset.js").ProjectAsset<infer ProjectAssetType> ?
- * 		ProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer TLiveAsset, any, any, any> ?
+ * 	ProjectAsset extends import("./ProjectAsset.js").ProjectAsset<infer TProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny> ?
+ * 		TProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer TLiveAsset, any, any, any> ?
  * 			TLiveAsset :
  * 			never :
  * 		never :
@@ -94,8 +96,8 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 /**
  * @template {AssetAssertionOptions} T
  * @typedef {AssetAssertionOptionsToProjectAsset<T> extends infer ProjectAsset ?
- * 	ProjectAsset extends import("./ProjectAsset.js").ProjectAsset<infer ProjectAssetType> ?
- * 		ProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer TFileData, any> ?
+ * 	ProjectAsset extends import("./ProjectAsset.js").ProjectAsset<infer ProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny> ?
+ * 		ProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer TFileData extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetDiskDataType, any> ?
  * 			TFileData :
  * 			never :
  * 		never :
@@ -193,6 +195,7 @@ export class AssetManager {
 
 		const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath, {
 			prompt: this.loadAssetSettingsFromUserGesture,
+			writable: false,
 		});
 		if (this.loadAssetSettingsFromUserGesture || hasPermissions) {
 			this.#onPermissionPromptResultCbs.forEach(cb => cb(hasPermissions));
@@ -208,8 +211,7 @@ export class AssetManager {
 		}
 
 		if (await this.fileSystem.isFile(this.assetSettingsPath)) {
-			/** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
-			const json = await this.fileSystem.readJson(this.assetSettingsPath);
+			const json = /** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */ (await this.fileSystem.readJson(this.assetSettingsPath));
 			if (json) {
 				if (json.assets) {
 					for (const [uuid, assetData] of Object.entries(json.assets)) {
@@ -858,6 +860,7 @@ export class AssetManager {
 			if (foundUuids.has(assetUuid) || excludeUuidsRecursive.has(assetUuid)) return;
 			if (!excludeUuids.has(assetUuid)) yield assetUuid;
 			for await (const referenceUuid of projectAsset.getReferencedAssetUuids()) {
+				if (!referenceUuid) continue;
 				for await (const subReferenceUuid of this.#collectAllAssetReferencesHelper(referenceUuid, foundUuids, excludeUuids, excludeUuidsRecursive)) {
 					yield this.resolveDefaultAssetLinkUuid(subReferenceUuid);
 				}

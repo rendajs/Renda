@@ -179,13 +179,51 @@ export class TypedMessenger {
 	 * But when this is true you should return an object with the format
 	 * `{returnValue: any, transfer?: Transferable[]}`.
 	 * Note that transferring objects that are passed in as arguments is always
-	 * supported. You can use {@linkcode _sendInternal} for this. This option
+	 * supported. You can use {@linkcode sendWithTransfer} for this. This option
 	 * is only useful if you wish to transfer objects from return values.
 	 * For more info see
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
+	 * @param {((error: unknown) => unknown)?} [options.serializeErrorHook] This hook allows you to
+	 * serialize thrown errors before transferring them to the other TypedMessenger.
+	 * If you are using a worker or iframe, regular 'Error' objects are automatically serialized.
+	 * But if you have extended the 'Error' object, or you are sending json to websockets, then you'll have to
+	 * serialize your errors manually.
+	 *
+	 * ## Example
+	 * This hook is called whenever an error is about to get sent to the other end, giving you a chance to transform it.
+	 * For instance you could check if the error is an instance of your custom error like so:
+	 *
+	 * ```js
+	 * const messenger = new TypedMessenger({
+	 * 	serializeErrorHook(error) {
+	 * 		if (error instanceof MyError) {
+	 * 			return {
+	 * 				type: "MyError",
+	 * 				message: error.message,
+	 * 			}
+	 * 		}
+	 * 		return error;
+	 * 	},
+	 * });
+	 * ```
+	 *
+	 * Then on the receiving end:
+	 * ```js
+	 * const messenger = new TypedMessenger({
+	 * 	deserializeErrorHook(error) {
+	 * 		if (error.type == "MyError") {
+	 * 			return new MyError(error.message);
+	 * 		}
+	 * 		return error;
+	 * 	},
+	 * });
+	 * ```
+	 * @param {((error: unknown) => unknown)?} [options.deserializeErrorHook] See {@linkcode serializeErrorHook}.
 	 */
 	constructor({
 		returnTransferSupport = /** @type {TRequireHandlerReturnObjects} */ (false),
+		serializeErrorHook = null,
+		deserializeErrorHook = null,
 	} = {}) {
 		/** @private */
 		this.returnTransferSupport = returnTransferSupport;
@@ -201,6 +239,11 @@ export class TypedMessenger {
 
 		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq, TRequireHandlerReturnObjects>) => void>>} */
 		this.onRequestIdMessageCbs = new Map();
+
+		/** @private */
+		this.serializeErrorHook = serializeErrorHook;
+		/** @private */
+		this.deserializeErrorHook = deserializeErrorHook;
 
 		const proxy = new Proxy({}, {
 			get: (target, prop, receiver) => {
@@ -244,6 +287,8 @@ export class TypedMessenger {
 		});
 		/**
 		 * This is the same as {@linkcode send}, but the first argument is an array
+		 * that contains the objects that should be transferred.
+		 * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
 		 */
 		this.sendWithTransfer = /** @type {TypedMessengerWithTransferProxy<TReq, TRequireHandlerReturnObjects>} */ (sendWithTransferProxy);
 	}
@@ -340,6 +385,9 @@ export class TypedMessenger {
 					returnValue = await handler(...data.args);
 				} catch (e) {
 					returnValue = e;
+					if (this.serializeErrorHook) {
+						returnValue = this.serializeErrorHook(returnValue);
+					}
 					didThrow = true;
 				}
 			}
@@ -432,7 +480,12 @@ export class TypedMessenger {
 		const promise = new Promise((resolve, reject) => {
 			this.onResponseMessage(requestId, message => {
 				if (message.didThrow) {
-					reject(message.returnValue);
+					/** @type {unknown} */
+					let rejectValue = message.returnValue;
+					if (this.deserializeErrorHook) {
+						rejectValue = this.deserializeErrorHook(rejectValue);
+					}
+					reject(rejectValue);
 				} else {
 					resolve(message.returnValue);
 				}

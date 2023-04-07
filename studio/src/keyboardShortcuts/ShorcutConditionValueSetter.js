@@ -17,6 +17,7 @@ export class ShorcutConditionValueSetter {
 
 		/** @type {Set<Function>} */
 		this.onValueChangeCbs = new Set();
+		/** @private */
 		this.destructed = false;
 	}
 

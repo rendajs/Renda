@@ -2,7 +2,7 @@ import {KeyboardShortcutManager} from "../../../../../studio/src/keyboardShortcu
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {KeyboardEvent} from "fake-dom/FakeKeyboardEvent.js";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertThrows} from "std/testing/asserts.ts";
 import {incrementTime, installMockTime, uninstallMockTime} from "../../../shared/mockTime.js";
 
 /**
@@ -46,6 +46,50 @@ function basicSetup({
 		uninstallFakeDocument();
 	}
 }
+
+Deno.test({
+	name: "onCommand fires",
+	fn() {
+		basicSetup({
+			fn({manager, commandSpy, fireKeyEvent}) {
+				manager.registerCommand({
+					command: "cmd",
+					defaultKeys: ["a"],
+				});
+				manager.onCommand("cmd", commandSpy);
+
+				const keyEvent = fireKeyEvent("KeyA", true);
+				assertSpyCalls(commandSpy, 1);
+				assertEquals(keyEvent.defaultPrevented, true);
+				fireKeyEvent("KeyA", false);
+
+				manager.fireCommand("cmd");
+				assertSpyCalls(commandSpy, 2);
+				assertEquals(commandSpy.calls[1].args[0].command.holdStateActive, false);
+
+				// Stops firing when unregistered
+				manager.removeOnCommand("cmd", commandSpy);
+				manager.fireCommand("cmd");
+				fireKeyEvent("KeyA", true);
+				fireKeyEvent("KeyA", false);
+				assertSpyCalls(commandSpy, 2);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "fireCommand throws when the command is not registered",
+	fn() {
+		basicSetup({
+			fn({manager}) {
+				assertThrows(() => {
+					manager.fireCommand("does not exist");
+				}, Error, 'Shortcut Command "does not exist" has not been registered.');
+			},
+		});
+	},
+});
 
 Deno.test({
 	name: "holdType single",
@@ -260,6 +304,63 @@ Deno.test({
 
 				fireKeyEvent("KeyB", true);
 				assertSpyCalls(commandSpy, 1);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Shortcuts are not fired when a textfield has focus",
+	fn() {
+		basicSetup({
+			fn({manager, commandSpy, fireKeyEvent}) {
+				manager.registerCommand({
+					command: "cmd",
+					defaultKeys: ["a"],
+				});
+				manager.onCommand("cmd", commandSpy);
+
+				// @ts-ignore
+				document.activeElement = {
+					tagName: "INPUT",
+				};
+
+				const event1 = fireKeyEvent("KeyA", true);
+				assertSpyCalls(commandSpy, 0);
+				assertEquals(event1.defaultPrevented, false);
+
+				const event2 = fireKeyEvent("KeyA", false);
+				assertSpyCalls(commandSpy, 0);
+				assertEquals(event2.defaultPrevented, false);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Shortcuts with captureInsideTextFields are fired when a textfield has focus",
+	fn() {
+		basicSetup({
+			fn({manager, commandSpy, fireKeyEvent}) {
+				manager.registerCommand({
+					command: "cmd",
+					defaultKeys: ["a"],
+					captureInsideTextFields: true,
+				});
+				manager.onCommand("cmd", commandSpy);
+
+				// @ts-ignore
+				document.activeElement = {
+					tagName: "INPUT",
+				};
+
+				const event1 = fireKeyEvent("KeyA", true);
+				assertSpyCalls(commandSpy, 1);
+				assertEquals(event1.defaultPrevented, true);
+
+				const event2 = fireKeyEvent("KeyA", false);
+				assertSpyCalls(commandSpy, 1);
+				assertEquals(event2.defaultPrevented, false);
 			},
 		});
 	},

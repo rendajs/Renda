@@ -24,6 +24,7 @@ function getMockContext({
 				if (uuidOrData === BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID) {
 					return pipeLineConfigAsset;
 				}
+				return null;
 			},
 			async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
 				if (uuidOrData === BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID) {

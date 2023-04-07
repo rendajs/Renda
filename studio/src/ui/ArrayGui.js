@@ -24,7 +24,7 @@ import {Button} from "./Button.js";
 
 /**
  * @template TObjectGuiInstance
- * @template TOpts
+ * @template {import("./propertiesTreeView/types.js").AllPossibleGetValueOpts} TOpts
  * @template {import("./propertiesTreeView/types.js").RecursionLimitNumbers} [TRecursionLimit = import("./propertiesTreeView/types.js").DefaultRecursionLimit]
  * @typedef {TObjectGuiInstance extends ArrayGui<infer TStructure, 3> ?
  * 		import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<TStructure, TOpts, TRecursionLimit> :

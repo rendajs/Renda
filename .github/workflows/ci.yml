@@ -10,7 +10,7 @@ on:
 env:
   # be sure to also update these in build.yml
   DENO_DIR: deno_dir
-  DENO_VERSION: "1.30.2"
+  DENO_VERSION: "1.32.1"
 
 jobs:
   lint:
@@ -117,7 +117,7 @@ jobs:
           deno-version: ${{ env.DENO_VERSION }}
 
       - name: Run e2e tests
-        run: deno task test test/e2e --separate-browser-processes
+        run: deno task test test/e2e
 
   build:
     if: ${{ github.event_name != 'pull_request' }}

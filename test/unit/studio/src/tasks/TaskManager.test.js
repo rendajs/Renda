@@ -108,7 +108,7 @@ function basicTaskRunningSetup({
 } = {}) {
 	/**
 	 * @typedef RegisteredAssetData
-	 * @property {import("std/testing/mock.ts").Spy<import("../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny, [fileData: unknown], Promise<void>>} writeAssetDataSpy
+	 * @property {import("std/testing/mock.ts").Spy<import("../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny, [fileData: import("../../../../../studio/src/assets/projectAssetType/ProjectAssetType").ProjectAssetDiskDataType], Promise<void>>} writeAssetDataSpy
 	 */
 	/** @type {RegisteredAssetData[]} */
 	const registeredAssets = [];

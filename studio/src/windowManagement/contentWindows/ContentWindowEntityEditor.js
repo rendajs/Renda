@@ -5,7 +5,6 @@ import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAsset
 import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
 import {ButtonGroup} from "../../ui/ButtonGroup.js";
-import {getStudioInstance} from "../../studioInstance.js";
 import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
@@ -58,12 +57,12 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			items: [
 				{
 					icon: "static/icons/entityEditor/translate.svg",
-					colorizerFilterManager: getStudioInstance().colorizerFilterManager,
+					colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 					tooltip: "Translate Mode",
 				},
 				{
 					icon: "static/icons/entityEditor/rotate.svg",
-					colorizerFilterManager: getStudioInstance().colorizerFilterManager,
+					colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 					tooltip: "Rotate Mode",
 				},
 			],
@@ -73,14 +72,14 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		});
 		this.addTopBarEl(this.translationModeSelector.el);
 
-		getStudioInstance().keyboardShortcutManager.onCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
-		getStudioInstance().keyboardShortcutManager.onCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
+		this.studioInstance.keyboardShortcutManager.onCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
+		this.studioInstance.keyboardShortcutManager.onCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
 
 		this.transformationSpaceButton = new Button({
 			onClick: () => {
 				this.toggleTransformationSpace();
 			},
-			colorizerFilterManager: getStudioInstance().colorizerFilterManager,
+			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			tooltip: "Transformation Space",
 		});
 
@@ -88,7 +87,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			onClick: () => {
 				this.toggleTransformationPivot();
 			},
-			colorizerFilterManager: getStudioInstance().colorizerFilterManager,
+			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			tooltip: "Transformation Pivot",
 		});
 		const pivotControlsGroup = new ButtonGroup();
@@ -174,31 +173,46 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {Map<Entity, Map<import("../../../../src/mod.js").Component, import("../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();
 
-		this.ignoreNextPersistentDataOrbitChange = false;
-		this.persistentData.onDataLoad(async () => {
-			const lookPos = this.persistentData.get("orbitLookPos");
-			if (lookPos) {
-				this.orbitControls.lookPos = /** @type {import("../../../../src/mod.js").Vec3} */ (lookPos);
-			}
-			const lookRot = this.persistentData.get("orbitLookRot");
-			if (lookRot) {
-				this.orbitControls.lookRot = /** @type {import("../../../../src/mod.js").Quat} */ (lookRot);
-			}
-			const dist = this.persistentData.get("orbitLookDist");
-			if (dist != undefined) {
-				this.orbitControls.lookDist = /** @type {number} */ (dist);
-			}
-			this.ignoreNextPersistentDataOrbitChange = true;
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookPos", e => {
+			if (e.trigger == "application") return;
+			if (!Array.isArray(e.value)) return;
+			// @ts-ignore
+			this.orbitControls.lookPos = e.value;
+		}, {
+			contentWindowUuid: this.uuid,
+		});
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookRot", e => {
+			if (e.trigger == "application") return;
+			if (!Array.isArray(e.value)) return;
+			// @ts-ignore
+			this.orbitControls.lookRot = e.value;
+		}, {
+			contentWindowUuid: this.uuid,
+		});
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookDist", e => {
+			if (e.trigger == "application") return;
+			this.orbitControls.lookDist = e.value;
+		}, {
+			contentWindowUuid: this.uuid,
+		});
 
-			const loadedEntityPath = this.persistentData.get("loadedEntityPath");
-			if (loadedEntityPath) {
-				const castLoadedEntityPath = /** @type {string[]} */ (loadedEntityPath);
+		// TODO #467
+		// We store the loaded entity by path rather than uuid because the entity might not have a persistent uuid.
+		// We could make the uuid persistent but this would cause assetSettings.json to be updated.
+		// assetSettings.json is expected to be tracked in version control and we don't want to surprise the user
+		// with unexpected changed files.
+		this.studioInstance.preferencesManager.onChange("entityEditor.loadedEntityPath", async e => {
+			if (e.trigger == "application") return;
+			if (Array.isArray(e.value)) {
+				const castLoadedEntityPath = /** @type {string[]} */ (e.value);
 				const assetManager = await this.studioInstance.projectManager.getAssetManager();
 				const assetUuid = await assetManager.getAssetUuidFromPath(castLoadedEntityPath);
 				if (assetUuid) {
 					this.loadEntityAsset(assetUuid, true);
 				}
 			}
+		}, {
+			contentWindowUuid: this.uuid,
 		});
 	}
 
@@ -211,8 +225,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.selectionGroup.destructor();
 		this.gizmos.destructor();
 
-		getStudioInstance().keyboardShortcutManager.removeOnCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
-		getStudioInstance().keyboardShortcutManager.removeOnCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
+		this.studioInstance.keyboardShortcutManager.removeOnCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
+		this.studioInstance.keyboardShortcutManager.removeOnCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
 	}
 
 	get editingEntity() {
@@ -269,7 +283,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
 		if (!fromContentWindowLoad) {
-			this.persistentData.set("loadedEntityPath", projectAsset.path);
+			this.studioInstance.preferencesManager.set("entityEditor.loadedEntityPath", projectAsset.path, {
+				contentWindowUuid: this.uuid,
+				location: "contentwindow-project",
+			});
 		}
 	}
 
@@ -281,35 +298,74 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		await asset.saveLiveAssetData();
 	}
 
+	/**
+	 * Sets a preference but only if it has been changed.
+	 * @param {"entityEditor.orbitLookPos" | "entityEditor.orbitLookRot"} preference
+	 * @param {number[]} newValue
+	 */
+	#setOrbitPreference(preference, newValue) {
+		const currentValue = this.studioInstance.preferencesManager.get(preference, {contentWindowUuid: this.uuid});
+		if (currentValue && Array.isArray(currentValue) && currentValue.length == newValue.length) {
+			let same = true;
+			for (let i = 0; i < currentValue.length; i++) {
+				if (currentValue[i] != newValue[i]) {
+					same = false;
+					break;
+				}
+			}
+			if (same) return;
+		}
+		this.studioInstance.preferencesManager.set(preference, newValue, {
+			contentWindowUuid: this.uuid,
+			location: "contentwindow-project",
+			flush: false,
+		});
+		this.orbitControlsValuesDirty = true;
+	}
+
 	loop() {
-		if (this.orbitControls) {
+		// If no entity is loaded, we don't want orbit controls to have any effect.
+		// Not only will this prevent the user from accidentally moving the camera very far away from the origin,
+		// it also prevents the orbit position from being written to the project settings.
+		// Without this, empty projects will be marked as worth saving even though nothing was changed.
+		if (this.editingEntity) {
 			const camChanged = this.orbitControls.loop();
 			if (camChanged) {
 				this.markRenderDirty();
-				this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
-				this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
-				this.persistentData.set("orbitLookDist", this.orbitControls.lookDist, false);
-				this.orbitControlsValuesDirty = true;
-				this.lastOrbitControlsValuesChangeTime = Date.now();
+
+				this.#setOrbitPreference("entityEditor.orbitLookPos", this.orbitControls.lookPos.toArray());
+				this.#setOrbitPreference("entityEditor.orbitLookRot", this.orbitControls.lookRot.toArray());
+
+				const currentDist = this.studioInstance.preferencesManager.get("entityEditor.orbitLookDist", {contentWindowUuid: this.uuid});
+				if (this.orbitControls.lookDist != currentDist) {
+					this.studioInstance.preferencesManager.set("entityEditor.orbitLookDist", this.orbitControls.lookDist, {
+						contentWindowUuid: this.uuid,
+						location: "contentwindow-project",
+						flush: false,
+					});
+					this.orbitControlsValuesDirty = true;
+				}
+
+				if (this.orbitControlsValuesDirty) {
+					this.lastOrbitControlsValuesChangeTime = Date.now();
+				}
 			}
 
+			// Add a delay to the flush to prevent it from flushing with every scroll event.
 			if (this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
-				if (!this.ignoreNextPersistentDataOrbitChange) {
-					(async () => {
-						try {
-							await this.persistentData.flush();
-						} catch (e) {
-							if (e instanceof DOMException && e.name == "SecurityError") {
-								// The flush was probably triggered by scrolling, which doesn't cause
-								// transient activation. If this is the case a security error is thrown.
-								// This is fine though, since storing the orbit state doesn't have a high priority.
-							} else {
-								throw e;
-							}
+				(async () => {
+					try {
+						await this.studioInstance.preferencesManager.flush();
+					} catch (e) {
+						if (e instanceof DOMException && e.name == "SecurityError") {
+							// The flush was probably triggered by scrolling, which doesn't cause
+							// transient activation. If this is the case a security error is thrown.
+							// This is fine though, since storing the orbit state doesn't have a high priority.
+						} else {
+							throw e;
 						}
-					})();
-				}
-				this.ignoreNextPersistentDataOrbitChange = false;
+					}
+				})();
 				this.orbitControlsValuesDirty = false;
 			}
 		}

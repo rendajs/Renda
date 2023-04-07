@@ -27,7 +27,7 @@ import {PropertiesTreeView} from "./propertiesTreeView/PropertiesTreeView.js";
 
 /**
  * @template TObjectGuiInstance
- * @template TOpts
+ * @template {ObjectGuiOptions<any>} TOpts
  * @typedef {TObjectGuiInstance extends ObjectGui<infer TStructure> ?
  * 		import("./propertiesTreeView/types.js").GetStructureValuesReturnType<TStructure, TOpts> :
  * 		never} GetObjectValueTypeForOptions

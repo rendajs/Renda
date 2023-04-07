@@ -25,23 +25,6 @@ export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 			type: "number",
 			guiOpts: {min: 1, step: 1},
 		},
-		fragmentTargets: {
-			type: "array",
-			guiOpts: {
-				arrayType: "object",
-				arrayGuiOpts: {
-					structure: {
-						format: {
-							type: "dropdown",
-							guiOpts: {
-								items: ["bgra8unorm", "rgba16float"],
-								defaultValue: "bgra8unorm",
-							},
-						},
-					},
-				},
-			},
-		},
 	};
 
 	static expectedLiveAssetConstructor = RenderOutputConfig;

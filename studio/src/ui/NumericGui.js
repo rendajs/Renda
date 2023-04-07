@@ -1,3 +1,5 @@
+import {getMaybeStudioInstance} from "../studioInstance.js";
+
 /**
  * @typedef {object} NumericGuiOptionsType
  * @property {number?} [min = null] The minimum allowed value.
@@ -61,6 +63,8 @@
  */
 
 export class NumericGui {
+	#shortcutFocusValueSetter;
+
 	/**
 	 * @param {NumericGuiOptions} opts
 	 */
@@ -119,7 +123,6 @@ export class NumericGui {
 		this.boundOnMouseUp = this.onMouseUp.bind(this);
 		this.boundOnWheel = this.onWheel.bind(this);
 		this.boundOnInput = this.onInput.bind(this);
-		this.boundOnKeyDown = this.onKeyDown.bind(this);
 		this.el.addEventListener("mouseenter", this.boundShowCursor);
 		this.el.addEventListener("mouseleave", this.boundShowCursor);
 		this.el.addEventListener("mousemove", this.boundShowCursor);
@@ -128,7 +131,18 @@ export class NumericGui {
 		this.el.addEventListener("mousedown", this.boundOnMouseDown);
 		this.el.addEventListener("wheel", this.boundOnWheel);
 		this.el.addEventListener("input", this.boundOnInput);
-		this.el.addEventListener("keydown", this.boundOnKeyDown);
+
+		const studio = getMaybeStudioInstance();
+		// We allow running without a studio instance to make this easier to use in tests
+		if (studio) {
+			const shortcutManager = studio.keyboardShortcutManager;
+			if (shortcutManager) {
+				shortcutManager.onCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
+				shortcutManager.onCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
+				const focusCondition = shortcutManager.getCondition("numericGui.hasFocus");
+				this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
+			}
+		}
 
 		this.setIsTextAdjusting(false);
 		this.setValue(defaultValue);
@@ -145,7 +159,17 @@ export class NumericGui {
 		this.el.removeEventListener("mousedown", this.boundOnMouseDown);
 		this.el.removeEventListener("wheel", this.boundOnWheel);
 		this.el.removeEventListener("input", this.boundOnInput);
-		this.el.removeEventListener("keydown", this.boundOnKeyDown);
+
+		const studio = getMaybeStudioInstance();
+		if (studio) {
+			const shortcutManager = studio.keyboardShortcutManager;
+			if (shortcutManager) {
+				shortcutManager.removeOnCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
+				shortcutManager.removeOnCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
+			}
+		}
+		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.destructor();
+
 		this.removeEventListeners();
 		this.onValueChangeCbs = [];
 	}
@@ -252,12 +276,14 @@ export class NumericGui {
 		this.setIsTextAdjusting(true);
 		const valueText = this.el.value;
 		this.el.setSelectionRange(this.suffix.length, valueText.length - this.prefix.length);
+		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.setValue(true);
 	}
 
 	onBlur() {
 		this.setIsTextAdjusting(false);
 		this.updateTextValue();
 		this.unroundedValue = this.internalValue;
+		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.setValue(false);
 	}
 
 	/**
@@ -366,23 +392,19 @@ export class NumericGui {
 		return parseFloat(value);
 	}
 
-	/**
-	 * @param {KeyboardEvent} e
-	 */
-	onKeyDown(e) {
-		if (e.code == "ArrowUp") {
-			e.preventDefault();
-			this.handleCaretAdjust(1);
-		} else if (e.code == "ArrowDown") {
-			e.preventDefault();
-			this.handleCaretAdjust(-1);
-		}
-	}
+	#incrementAtCaret = () => {
+		this.#handleCaretAdjust(1);
+	};
+
+	#decrementAtCaret = () => {
+		this.#handleCaretAdjust(-1);
+	};
 
 	/**
 	 * @param {number} delta
 	 */
-	handleCaretAdjust(delta) {
+	#handleCaretAdjust = delta => {
+		if (document.activeElement != this.el) return;
 		const value = this.el.value;
 		const caretPos = this.el.selectionStart;
 		if (caretPos == null) return;
@@ -454,7 +476,7 @@ export class NumericGui {
 
 			this.onInput();
 		}
-	}
+	};
 
 	/**
 	 * Gets the amount of digits before or after the dot.

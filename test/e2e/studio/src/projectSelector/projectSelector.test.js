@@ -1,6 +1,6 @@
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
-import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
 import {log} from "../../../shared/log.js";
+import {runE2eTest} from "../../../shared/runE2eTest.js";
 import {click} from "../../../shared/util.js";
 import {createAsset, getAssetTreeView, waitForAssetDissappear} from "../../shared/assets.js";
 import {getMaybeContentWindowConnectionsElement, waitForContentWindowConnectionsElement} from "../../shared/contentWindows/connections.js";
@@ -9,16 +9,14 @@ import {openProjectSelector, setupNewProject, waitForProjectOpen, waitForProject
 import {reloadPage} from "../../shared/reloadPage.js";
 import {waitForStudioLoad} from "../../shared/studio.js";
 import {waitSeconds} from "../../shared/waitSeconds.js";
+import {getPage} from "../../../shared/browser.js";
 
-Deno.test({
+await runE2eTest({
 	name: "Rename a project and refresh the page, it should open the latest project",
-	ignore: true,
-	...puppeteerSanitizers,
-	fn: async () => {
-		const {page, disconnect} = await getContext();
-
+	async fn() {
+		const {page} = await getPage();
 		const newProjectName = "New Project Name";
-		const projectWindowSelector = "[data-content-window-type-id='project']";
+		const projectWindowSelector = "[data-content-window-type-id='renda:project']";
 		const rootNameTreeViewSelector = `${projectWindowSelector} .studio-content-window-content > .treeViewItem`;
 
 		await setupNewProject(page);
@@ -35,7 +33,7 @@ Deno.test({
 		// todo: wait for new name to be saved to indexeddb
 		await waitSeconds(5);
 
-		reloadPage(page);
+		await reloadPage(page);
 
 		await waitForProjectOpen(page);
 
@@ -49,7 +47,7 @@ Deno.test({
 				if (!(contentWindowProjectEl instanceof HTMLElement)) throw new Error("Assertion failed, contentWindowProjectEl is not a HTMLElement");
 				const contentWindowProject = globalThis.studio.windowManager.getWindowByElement(contentWindowProjectEl);
 				if (!contentWindowProject) throw new Error("No project window found");
-				const ContentWindowProjectConstructor = globalThis.studio.windowManager.registeredContentWindows.get("project");
+				const ContentWindowProjectConstructor = globalThis.studio.windowManager.registeredContentWindows.get("renda:project");
 				const ContentWindowProject = /** @type {typeof import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (ContentWindowProjectConstructor);
 				if (!(contentWindowProject instanceof ContentWindowProject)) {
 					throw new Error("content window is not of type project");
@@ -64,17 +62,13 @@ Deno.test({
 			});
 			assertEquals(projectName, newProjectName);
 		}
-
-		await disconnect();
 	},
 });
 
-Deno.test({
+await runE2eTest({
 	name: "Empty db projects do not persist",
-	...puppeteerSanitizers,
 	async fn() {
-		const {page, disconnect} = await getContext();
-
+		const {page} = await getPage();
 		await setupNewProject(page);
 
 		// Since what we're testing for can be triggered by anything, there's
@@ -91,17 +85,13 @@ Deno.test({
 		});
 
 		assert(!exists, "Expected localProjectSettings.json to not exist");
-
-		await disconnect();
 	},
 });
 
-Deno.test({
+await runE2eTest({
 	name: "Deleting db project closes it if it currently open",
-	...puppeteerSanitizers,
 	async fn() {
-		const {page, disconnect} = await getContext();
-
+		const {page} = await getPage();
 		await setupNewProject(page);
 
 		// Create an asset to mark the project as isWorthSaving
@@ -119,31 +109,23 @@ Deno.test({
 		await clickContextMenuItem(page, ["Delete"]);
 		log("Wait for new project to be created");
 		await waitForAssetDissappear(page, ["New Entity.json"]);
-
-		await disconnect();
 	},
 });
 
-Deno.test({
+await runE2eTest({
 	name: "Connect remote project opens the connections window",
-	...puppeteerSanitizers,
 	async fn() {
-		const {page, disconnect} = await getContext();
+		const {page} = await getPage();
+		const projectSelectorEl = await waitForProjectSelector(page);
+		await waitForStudioLoad(page);
 
-		try {
-			const projectSelectorEl = await waitForProjectSelector(page);
-			await waitForStudioLoad(page);
+		// Verify that the connections window doesn't exist yet.
+		// If we ever end up changing the default workspace in the future
+		// the connections content window might already exist, rendering this test useless.
+		const connectionsEl = await getMaybeContentWindowConnectionsElement(page);
+		assertEquals(connectionsEl, null);
 
-			// Verify that the connections window doesn't exist yet.
-			// If we ever end up changing the default workspace in the future
-			// the connections content window might already exist, rendering this test useless.
-			const connectionsEl = await getMaybeContentWindowConnectionsElement(page);
-			assertEquals(connectionsEl, null);
-
-			await click(projectSelectorEl, ".project-selector-actions-list-container > .project-selector-list > .project-selector-button:nth-child(3)");
-			await waitForContentWindowConnectionsElement(page);
-		} finally {
-			await disconnect();
-		}
+		await click(projectSelectorEl, ".project-selector-actions-list-container > .project-selector-list > .project-selector-button:nth-child(3)");
+		await waitForContentWindowConnectionsElement(page);
 	},
 });

@@ -54,7 +54,7 @@ Deno.test({
 				const castManager = /** @type {{constructorArgs: ConstructorParameters<typeof import("../../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryManager>}} */ (/** @type {unknown} */ (manager.internalDiscovery));
 				assertEquals(castManager.constructorArgs, [
 					{
-						fallbackDiscoveryUrl: "https://renda.studio/internalDiscovery.html",
+						fallbackDiscoveryUrl: "https://renda.studio/internalDiscovery",
 					},
 				]);
 			},

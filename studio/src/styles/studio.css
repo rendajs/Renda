@@ -1,16 +1,3 @@
-body, html{
-	overflow: hidden;
-	position: relative;
-	margin: 0;
-	height: 100%;
-	user-select: none;
-	-webkit-user-select: none;
-	-webkit-touch-callout: none;
-	font-family: ui-sans-serif,system-ui,sans-serif;
-	background: var(--panel-borders-color);
-	color: var(--text-color-level0);
-}
-
 .tabDragFeedback {
 	background: var(--color-selected-blue);
 	opacity: 0.4;

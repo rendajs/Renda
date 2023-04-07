@@ -101,5 +101,5 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 /**
  * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.js").GuiTypeInstances} T
- * @typedef {PropertiesTreeViewEntry<T> & import("../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView<T>} MockPropertiesTreeViewEntry
+ * @typedef {PropertiesTreeViewEntry<T> & import("../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<T>} MockPropertiesTreeViewEntry
  */

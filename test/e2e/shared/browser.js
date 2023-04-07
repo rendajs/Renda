@@ -1,30 +1,19 @@
 import puppeteer from "puppeteer";
 import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
 
-import {PUPPETEER_WS_ENDPOINT_ARG, SEPARATE_BROWSER_PROCESSES_ARG, parseArgs} from "../../../scripts/testArgs.js";
-
-function getMainPageUrl() {
-	const prefix = "--test-server-addr=";
-	for (const arg of Deno.args) {
-		if (arg.startsWith(prefix)) {
-			return arg.substring(prefix.length);
-		}
-	}
-	throw new Error("Failed to get main page url, no test server address provided via args.");
-}
-
+let mainPageUrl = "";
 /**
- * A collection of sanitizer options for tests that are using puppeteer.
- * Use this of setting sanitizer options yourself so that they can easily be
- * modified globally in the future. This is in case new sanitizers are added
- * to Deno. Or if a way is added to easily find out where async ops are being
- * leaked.
+ * @param {string} url
  */
-export const puppeteerSanitizers = {
-	sanitizeOps: false,
-	sanitizeExit: false,
-	sanitizeResources: false,
-};
+export function setMainPageUrl(url) {
+	mainPageUrl = url;
+}
+function getMainPageUrl() {
+	if (!mainPageUrl) {
+		throw new Error("Failed to get main page url, no test server address provided via args.");
+	}
+	return mainPageUrl;
+}
 
 globalThis.addEventListener("error", e => {
 	if (e.message.includes("WebSocket protocol error: Connection reset without closing handshake")) {
@@ -32,7 +21,7 @@ globalThis.addEventListener("error", e => {
 	}
 });
 
-export async function installIfNotInstalled() {
+async function installIfNotInstalled() {
 	const fetcher = puppeteer.createBrowserFetcher({
 		product: "chrome",
 	});
@@ -50,46 +39,38 @@ export async function installIfNotInstalled() {
 	return revisionInfo.executablePath;
 }
 
+/** @type {import("puppeteer").Browser?} */
+let browser = null;
+
 /**
  * @param {object} options
  * @param {boolean} options.headless
- * @param {string} options.executablePath
  */
-export async function launch({headless, executablePath}) {
-	return await puppeteer.launch({
+export async function launch({headless}) {
+	const executablePath = await installIfNotInstalled();
+	browser = await puppeteer.launch({
 		headless,
 		args: ["--enable-unsafe-webgpu"],
 		devtools: !headless,
 		executablePath,
 	});
+	return browser;
 }
 
+/** @type {Set<import("puppeteer").BrowserContext>} */
+const contexts = new Set();
+
 /**
- * Connects to the browser instance created by the test runner and creates a new
- * incognito page.
+ * Creates a new incognito context and a page.
+ * Contexts are automatically cleaned up after each test, even if the test fails.
  */
-export async function getContext(url = getMainPageUrl() + "/studio/") {
-	let wsEndpoint = null;
-	for (const arg of Deno.args) {
-		if (arg.startsWith(PUPPETEER_WS_ENDPOINT_ARG)) {
-			wsEndpoint = arg.slice(PUPPETEER_WS_ENDPOINT_ARG.length);
-		}
-	}
-	const {separateBrowserProcesses, headless} = parseArgs();
-	let browser;
-	if (separateBrowserProcesses) {
-		const executablePath = await installIfNotInstalled();
-		browser = await launch({headless, executablePath});
-	} else {
-		if (!wsEndpoint) {
-			throw new Error(`Failed to connect to browser, no ws endpoint provided. Either provide one using '${PUPPETEER_WS_ENDPOINT_ARG}' or use '${SEPARATE_BROWSER_PROCESSES_ARG}' to create a new browser process for every test.`);
-		}
-		browser = await puppeteer.connect({
-			browserWSEndpoint: wsEndpoint,
-		});
+export async function getPage(url = getMainPageUrl() + "/studio/") {
+	if (!browser) {
+		throw new Error("Assertion failed, browser was not launched, call `launch` first.");
 	}
 
 	const context = await browser.createIncognitoBrowserContext();
+	contexts.add(context);
 	const page = await context.newPage();
 	page.on("console", async message => {
 		const jsonArgs = [];
@@ -99,19 +80,26 @@ export async function getContext(url = getMainPageUrl() + "/studio/") {
 		console.log(...jsonArgs);
 	});
 	await page.goto(url);
-	const browserRef = browser;
 	return {
 		context,
 		page,
-		async disconnect() {
-			await page.close();
-			if (separateBrowserProcesses) {
-				await browserRef.close();
-			} else {
-				browserRef.disconnect();
-			}
+		async discard() {
+			contexts.delete(context);
+			await context.close();
 		},
 	};
+}
+
+/**
+ * Discards all created contexts. Called by the test runner at the end of a test.
+ */
+export async function discardCurrentContexts() {
+	const promises = [];
+	for (const context of contexts) {
+		promises.push(context.close());
+	}
+	contexts.clear();
+	await Promise.all(promises);
 }
 
 /**
@@ -132,5 +120,5 @@ export async function openBasicScriptPage(scriptLocation, relativeTo) {
 	const pageUrl = new URL(`${getMainPageUrl()}/test/e2e/resources/basicScriptPage/page.html`);
 	pageUrl.searchParams.set("script", "/" + relativeScriptLocation);
 
-	return await getContext(pageUrl.href);
+	return await getPage(pageUrl.href);
 }

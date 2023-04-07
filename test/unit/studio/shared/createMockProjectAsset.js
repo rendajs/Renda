@@ -1,6 +1,7 @@
 /**
  * @param {object} options
  * @param {import("../../../../src/mod.js").UuidString} [options.uuid]
+ * @param {string[]} [options.path]
  * @param {unknown} [options.liveAsset]
  * @param {boolean} [options.allowImmediateLiveAssetReturn]
  * @param {unknown} [options.readAssetDataReturnValue]
@@ -8,6 +9,7 @@
  */
 export function createMockProjectAsset({
 	uuid = "default mock project asset uuid",
+	path = ["path", "to", "asset"],
 	liveAsset = null,
 	allowImmediateLiveAssetReturn = true,
 	readAssetDataReturnValue = null,
@@ -23,6 +25,7 @@ export function createMockProjectAsset({
 
 	const projectAsset = /** @type {import("../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({
 		uuid,
+		path,
 		async waitForInit() {},
 		async getLiveAsset() {
 			if (!allowImmediateLiveAssetReturn) {

@@ -7,7 +7,9 @@
 		"module": "esnext",
 		"useDefineForClassFields": true,
 		"strict": true,
-		"typeRoots": [".denoTypes/@types"]
+		"typeRoots": [".denoTypes/@types"],
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true
 	},
 	"include": [
 		"src/**/*.js",

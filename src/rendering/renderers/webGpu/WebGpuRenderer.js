@@ -79,7 +79,7 @@ export class WebGpuRenderer extends Renderer {
 		this.cachedMaterialData = new WeakMap();
 
 		/** @type {MultiKeyWeakMap<*[], GPURenderPipeline>} */
-		this.cachedPipelines = new MultiKeyWeakMap();
+		this.cachedPipelines = new MultiKeyWeakMap([], {allowNonObjects: true});
 
 		/** @type {WeakMap<Mesh, CachedMeshData>} */
 		this.cachedMeshData = new WeakMap();
@@ -232,7 +232,7 @@ export class WebGpuRenderer extends Renderer {
 	 */
 	render(domTarget, camera) {
 		if (!this.isInit) return;
-		if (!domTarget.ready) return;
+		if (!domTarget.ready || !domTarget.swapChainFormat) return;
 		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.placeHolderSampler) {
 			// All these objects should exist when this.isInit is true, which we already checked for above.
 			throw new Error("Assertion failed, some required objects do not exist");
@@ -313,7 +313,7 @@ export class WebGpuRenderer extends Renderer {
 			if (!light.entity) continue;
 			this.lightsBuffer.appendData(light.entity.pos);
 			this.lightsBuffer.skipBytes(4);
-			this.lightsBuffer.appendData(light.color);
+			this.lightsBuffer.appendData(light.color.clone().multiplyScalar(light.intensity));
 			this.lightsBuffer.skipBytes(4);
 		}
 		this.lightsBuffer.writeAllChunksToGpu();
@@ -350,7 +350,7 @@ export class WebGpuRenderer extends Renderer {
 				if (!forwardPipelineConfig || !forwardPipelineConfig.vertexShader || !forwardPipelineConfig.fragmentShader) continue;
 				const pipelineLayout = materialData.getPipelineLayout(material);
 				if (!pipelineLayout) continue;
-				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
+				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, renderData.component.mesh.vertexState, domTarget.swapChainFormat, outputConfig, camera.clusteredLightsConfig);
 
 				let pipelineRenderData = pipelineRenderDatas.get(forwardPipeline);
 				if (!pipelineRenderData) {
@@ -532,10 +532,11 @@ export class WebGpuRenderer extends Renderer {
 	 * @param {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} pipelineConfig
 	 * @param {GPUPipelineLayout} pipelineLayout
 	 * @param {import("../../VertexState.js").VertexState} vertexState
+	 * @param {GPUTextureFormat} outputFormat
 	 * @param {import("../../RenderOutputConfig.js").RenderOutputConfig} outputConfig
 	 * @param {import("../../ClusteredLightsConfig.js").ClusteredLightsConfig?} clusteredLightsConfig
 	 */
-	getPipeline(pipelineConfig, pipelineLayout, vertexState, outputConfig, clusteredLightsConfig) {
+	getPipeline(pipelineConfig, pipelineLayout, vertexState, outputFormat, outputConfig, clusteredLightsConfig) {
 		if (!pipelineConfig.vertexShader) {
 			throw new Error("Failed to create pipeline, pipeline config has no vertex shader");
 		}
@@ -546,7 +547,7 @@ export class WebGpuRenderer extends Renderer {
 			throw new Error("Renderer is not initialized");
 		}
 		/** @type {*[]} */
-		const keys = [outputConfig, vertexState, pipelineConfig, pipelineLayout];
+		const keys = [outputFormat, outputConfig, vertexState, pipelineConfig, pipelineLayout];
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig) {
 			keys.push(clusteredLightsConfig);
 		}
@@ -600,7 +601,12 @@ export class WebGpuRenderer extends Renderer {
 				fragment: {
 					module: fragmentModule,
 					entryPoint: "main",
-					targets: outputConfig.fragmentTargets,
+					targets: [
+						{
+							format: outputFormat,
+							blend: pipelineConfig.blend,
+						},
+					],
 				},
 			});
 			this.cachedPipelines.set(keys, pipeline);

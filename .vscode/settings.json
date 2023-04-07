@@ -1,5 +1,5 @@
 {
-	"typescript.tsdk": "./npm_packages/typescript/4.9.5/lib",
+	"typescript.tsdk": "./npm_packages/typescript/5.0.2/lib",
 	"typescript.enablePromptUseWorkspaceTsdk": true,
 	"deno.enable": false,
 	"deno.lint": false,
@@ -15,5 +15,13 @@
 	},
 	"search.exclude": {
 		"deno.lock": true,
-	}
+	},
+	"relativePath.ignore": [
+		"**/.git/**",
+		"**/.coverage/**",
+		"**/.denoTypes/**",
+		"**/npm_packages/**",
+		"**/node_modules/**",
+	],
+	"files.eol": "\n",
 }

@@ -176,8 +176,9 @@ export function createBasicGui({
 		},
 		async makeAssetUuidPersistent(asset) {},
 		createEmbeddedAsset: /** @type {typeof createEmbeddedAssetFn} */ (createEmbeddedAssetSpy),
-		getProjectAssetFromUuidOrEmbeddedAssetDataSync: /** @type {typeof getProjectAssetFromUuidOrEmbeddedAssetDataSyncFn} */ (getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy),
 	});
+	// @ts-ignore
+	mockAssetManager.getProjectAssetFromUuidOrEmbeddedAssetDataSync = getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy;
 
 	const mockProjectManager = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
 		assertAssetManagerExists() {
@@ -218,12 +219,24 @@ export function createBasicGui({
 			}
 			cbs.add(cb);
 		},
+		removeOnCommand(command, cb) {
+			const cbs = shortcutCommandCallbacks.get(command);
+			if (cbs) {
+				cbs.delete(cb);
+				if (cbs.size == 0) {
+					shortcutCommandCallbacks.delete(command);
+				}
+			}
+		},
 		getCondition(name) {
 			const condition = /** @type {import("../../../../../../studio/src/keyboardShortcuts/ShortcutCondition.js").ShortcutCondition<any>} */ ({
 				requestValueSetter() {
 					const valueSetter = /** @type {import("../../../../../../studio/src/keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<any>} */ ({
 						setValue(value) {
 							shortcutConditions.set(name, value);
+						},
+						destructor() {
+							shortcutConditions.delete(name);
 						},
 					});
 					return valueSetter;

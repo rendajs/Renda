@@ -185,7 +185,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.registerNewEventType("propertiestreeviewentryvaluechange");
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.onValueChange?.(newValue => {
-			/** @type {import("./types.js").PropertiesTreeViewChangeEvent<T>} */
+			/** @type {import("./types.js").PropertiesTreeViewChangeEvent<any>} */
 			const event = {
 				target: this,
 				newValue,

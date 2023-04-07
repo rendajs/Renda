@@ -84,7 +84,7 @@ export class CameraComponent extends Component {
 
 		if (STUDIO_DEFAULTS_IN_COMPONENTS) {
 			const defaultClusteredLightsConfigAssetLinkUuid = "f676813d-a631-4a39-9bb4-1ea1f291af19";
-			const guiOpts = /** @type {import("../../../studio/src/ui/DroppableGui.js").DroppableGuiOptions<unknown>} */ (structure.clusteredLightsConfig.guiOpts);
+			const guiOpts = /** @type {import("../../../studio/src/ui/DroppableGui.js").DroppableGuiOptions<any>} */ (structure.clusteredLightsConfig.guiOpts);
 			guiOpts.defaultValue = defaultClusteredLightsConfigAssetLinkUuid;
 		}
 

@@ -8,14 +8,16 @@
 import {serveDir} from "std/http/file_server.ts";
 import {Server} from "std/http/server.ts";
 import {Application as DevSocket} from "../studio/devSocket/src/Application.js";
-import {Application as StudioDiscovery} from "../studio/studioDiscoveryServer/src/Application.js";
-import {resolve} from "std/path/mod.ts";
+import {Application as StudioDiscovery} from "https://raw.githubusercontent.com/rendajs/studio-discovery-server/52fac72d9218402e491a63f69670b349529df39e/src/main.js";
+import * as path from "std/path/mod.ts";
+import * as fs from "std/fs/mod.ts";
 
 export class DevServer {
 	#port;
 	#serverName;
 	#devSocket;
-	#studioDiscovery;
+	/** @type {Promise<StudioDiscovery>} */
+	#studioDiscoveryPromise;
 	#httpServer;
 
 	/**
@@ -29,22 +31,25 @@ export class DevServer {
 	}) {
 		this.#port = port;
 		this.#serverName = serverName;
-		const builtInAssetsPath = resolve(Deno.cwd(), "./studio/builtInAssets/");
+		const builtInAssetsPath = path.resolve(Deno.cwd(), "./studio/builtInAssets/");
 		this.#devSocket = new DevSocket({
 			builtInAssetsPath,
 		});
-		this.#studioDiscovery = new StudioDiscovery();
 
 		const fsRoot = Deno.cwd();
 		this.#httpServer = new Server({
 			port,
-			handler: (request, connInfo) => {
+			handler: async (request, connInfo) => {
 				const url = new URL(request.url);
 				if (url.pathname == "/devSocket") {
 					return this.#devSocket.webSocketManager.handleRequest(request);
 				}
 				if (url.pathname == "/studioDiscovery") {
-					return this.#studioDiscovery.webSocketManager.handleRequest(request, connInfo);
+					const studioDiscovery = await this.#studioDiscoveryPromise;
+					return studioDiscovery.webSocketManager.handleRequest(request, connInfo);
+				}
+				if (url.pathname == "/studio/internalDiscovery") {
+					request = new Request(request.url + ".html", request);
 				}
 				return serveDir(request, {
 					fsRoot,
@@ -54,6 +59,8 @@ export class DevServer {
 				});
 			},
 		});
+
+		this.#studioDiscoveryPromise = this.loadStudioDiscovery();
 	}
 
 	start() {
@@ -62,6 +69,21 @@ export class DevServer {
 		const addrs = this.getAddrs().map(addr => ` - ${addr}`);
 		console.log(`Started ${this.#serverName} on:
 ${addrs.join("\n")}`);
+	}
+
+	async loadStudioDiscovery() {
+		// We check if the studio-discovery-server repository is installed on the current system,
+		// and if so we use that instead. This allows you to run the discovery server locally for development.
+		// The studio-discovery-server repository does not have any capabilities for hosting included,
+		// so if you want to work on it you need to run the dev script from this repository using `deno task dev`.
+		const discoveryRepositoryEntryPoint = path.resolve(path.dirname(path.fromFileUrl(import.meta.url)), "../../studio-discovery-server/src/main.js");
+		// TODO: use `isFile` when https://github.com/denoland/deno_std/pull/2785 lands.
+		let StudioDiscoveryConstructor = StudioDiscovery;
+		if (fs.existsSync(discoveryRepositoryEntryPoint)) {
+			const {Application} = await import(discoveryRepositoryEntryPoint);
+			StudioDiscoveryConstructor = Application;
+		}
+		return new StudioDiscoveryConstructor();
 	}
 
 	getAddrs() {
