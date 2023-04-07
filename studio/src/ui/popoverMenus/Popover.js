@@ -58,6 +58,11 @@ export class Popover {
 		}
 	}
 
+	/**
+	 * @type {((...args: any[]) => void) | null}
+	 */
+	initialize = null;
+
 	destructor() {
 		if (this.el) {
 			if (this.el.parentElement) this.el.parentElement.removeChild(this.el);
@@ -65,7 +70,7 @@ export class Popover {
 	}
 
 	close() {
-		this.manager.onPopoverClosed(this);
+		this.manager.removePopover(this);
 		this.destructor();
 	}
 
