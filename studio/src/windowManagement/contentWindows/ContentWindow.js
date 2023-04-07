@@ -1,6 +1,7 @@
 import {ContentWindowPreferencesLocation} from "../../preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {STUDIO_ENV} from "../../studioDefines.js";
 import {Button} from "../../ui/Button.js";
+import PopoverToggleButton from "../../ui/popoverMenus/PopoverToggleButton.js";
 import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
 import {PreferencesPopover} from "../PreferencesPopover.js";
 
@@ -198,14 +199,18 @@ export class ContentWindow {
 		if (this.#preferencesButton) {
 			throw new Error("A preferences button has already been added.");
 		}
-		const button = new Button({
+
+		const button = new PopoverToggleButton(PreferencesPopover, this.studioInstance.popoverManager, {
 			icon: "static/icons/preferences.svg",
 			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			onClick: () => {
-				const popover = /** @type {import("../PreferencesPopover.js").PreferencesPopover} */ (this.studioInstance.popoverManager.addPopover(PreferencesPopover));
-				popover.initialize(this.studioInstance.preferencesManager, preferenceIds, button.el, this.uuid);
-			},
-		});
+				button.togglePopover((popover) => {
+					popover.initialize(this.studioInstance.preferencesManager, preferenceIds, button.el, this.uuid);
+				});
+
+			}
+		})
+
 		this.#preferencesButton = button;
 		button.el.classList.add("content-window-preferences-button");
 		this.addTopBarEl(button.el);
