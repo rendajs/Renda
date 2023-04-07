@@ -30,7 +30,11 @@ Deno.test({
 			const mockStudioInstance = /** @type {import("../../../../../../../studio/src/Studio.js").Studio} */ ({
 				preferencesManager,
 				popoverManager: {
-					initialize: initializeSpy,
+					addPopover() {
+							return {
+								initialize: initializeSpy,
+							};
+					},
 				},
 			});
 
