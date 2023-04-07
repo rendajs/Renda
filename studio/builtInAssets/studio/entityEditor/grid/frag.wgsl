@@ -51,6 +51,6 @@ fn main(input: FragmentInput) -> FragmentOutput {
 
 	// TODO: Make the color configurable
 	var color = vec3<f32>(0.3, 0.3, 0.3);
-	fragOut.color = vec4<f32>(color.rgb * grid, 1.0);
+	fragOut.color = vec4<f32>(color, grid);
 	return fragOut;
 }

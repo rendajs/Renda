@@ -9,7 +9,14 @@
 						"forwardPipelineConfig": {
 							"vertexShader": "c90b3e99-2e94-497e-b10f-52e1b3cf0029",
 							"fragmentShader": "2b0900bd-7804-4344-b85f-90a57454277b",
-							"preloadVertexStates": []
+							"depthWriteEnabled": false,
+							"blend": {
+								"color": {
+									"srcFactor": "src-alpha",
+									"dstFactor": "one-minus-src-alpha"
+								}
+							},
+							"renderOrder": 1000
 						}
 					}
 				}
