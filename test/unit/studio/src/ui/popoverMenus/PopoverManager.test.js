@@ -72,12 +72,12 @@ Deno.test({
 		try {
 			assertEquals(manager.curtainEl.parentElement, null);
 
-			const contextMenu = manager.addContextMenu();
+			const contextMenu = manager.createContextMenu();
 			assertExists(manager.curtainEl.parentElement);
 			assertStrictEquals(manager.getPopover(contextMenu), contextMenu);
 
 			assertThrows(() => {
-				manager.addContextMenu();
+				manager.createContextMenu();
 			}, Error, "Cannot create a popover while one is already open.");
 
 			assertEquals(manager.removePopover(contextMenu), true);
