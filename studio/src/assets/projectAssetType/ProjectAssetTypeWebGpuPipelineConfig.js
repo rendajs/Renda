@@ -116,10 +116,9 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {WebGpuPipelineConfigAssetData} fileData
-	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<WebGpuPipelineConfig, null>>}
 	 */
-	async getLiveAssetData(fileData, recursionTracker) {
+	async getLiveAssetData(fileData) {
 		const fragmentShaderAsset = await this.assetManager.getProjectAssetFromUuid(fileData.fragmentShader, {
 			assertAssetType: ProjectAssetTypeShaderSource,
 		});
@@ -151,19 +150,24 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 				color: {},
 				alpha: {},
 			};
-			// TODO: if any of these have not been set, they will be undefined.
-			// WebGPU doesn't support undefined and properties need to be explicitly omitted,
-			// otherwise it will cause an error.
-			if (fileData.blend.color) {
-				blend.color.operation = fileData.blend.color.operation;
-				blend.color.srcFactor = fileData.blend.color.srcFactor;
-				blend.color.dstFactor = fileData.blend.color.dstFactor;
+
+			/**
+			 * @param {import("../../../../src/util/types.js").RecursivePartial<GPUBlendComponent> | undefined} blendComponent
+			 */
+			function parseBlendComponent(blendComponent) {
+				if (!blendComponent) return;
+				/** @type {GPUBlendComponent} */
+				const result = {};
+				if (blendComponent.operation) result.operation = blendComponent.operation;
+				if (blendComponent.srcFactor) result.srcFactor = blendComponent.srcFactor;
+				if (blendComponent.dstFactor) result.dstFactor = blendComponent.dstFactor;
+				return result;
 			}
-			if (fileData.blend.alpha) {
-				blend.alpha.operation = fileData.blend.alpha.operation;
-				blend.alpha.srcFactor = fileData.blend.alpha.srcFactor;
-				blend.alpha.dstFactor = fileData.blend.alpha.dstFactor;
-			}
+
+			const color = parseBlendComponent(fileData.blend.color);
+			if (color) blend.color = color;
+			const alpha = parseBlendComponent(fileData.blend.alpha);
+			if (alpha) blend.alpha = alpha;
 		}
 		const liveAsset = new WebGpuPipelineConfig({
 			vertexShader, fragmentShader,

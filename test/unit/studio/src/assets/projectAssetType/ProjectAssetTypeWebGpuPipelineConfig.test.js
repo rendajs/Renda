@@ -1,7 +1,37 @@
 import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
 import {AssetLoaderTypeWebGpuPipelineConfig, WebGpuPipelineConfig} from "../../../../../../src/mod.js";
 import {ProjectAssetTypeWebGpuPipelineConfig} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
-import {serializeAndLoad} from "./shared.js";
+import {createMockDependencies, serializeAndLoad} from "./shared.js";
+
+/**
+ * @param {unknown} pipelineConfig
+ */
+function assertDefaults(pipelineConfig) {
+	assertInstanceOf(pipelineConfig, WebGpuPipelineConfig);
+	assertEquals(pipelineConfig.fragmentShader, null);
+	assertEquals(pipelineConfig.vertexShader, null);
+	assertEquals(pipelineConfig.primitiveTopology, "triangle-list");
+	assertEquals(pipelineConfig.depthCompareFunction, "less");
+	assertEquals(pipelineConfig.depthWriteEnabled, true);
+
+	// TODO: #509 we want this to be undefined in the future,
+	// but for now the full default value is being serialized/deserialized.
+	// assertEquals(pipelineConfig.blend, undefined);
+}
+
+Deno.test({
+	name: "getLiveAssetData() with an empty object",
+	async fn() {
+		const {projectAssetTypeArgs} = createMockDependencies();
+		const projectAssetType = new ProjectAssetTypeWebGpuPipelineConfig(...projectAssetTypeArgs);
+		const {liveAsset, studioData} = await projectAssetType.getLiveAssetData({});
+
+		assertEquals(studioData, null);
+
+		assertDefaults(liveAsset);
+		assertEquals(liveAsset.blend, undefined);
+	},
+});
 
 Deno.test({
 	name: "Serializing and loading the defaults",
@@ -14,15 +44,7 @@ Deno.test({
 
 		assertEquals(result.referencedAssetUuids, [null, null]);
 		const config = result.loadResult;
-		assertInstanceOf(config, WebGpuPipelineConfig);
-		assertEquals(config.fragmentShader, null);
-		assertEquals(config.vertexShader, null);
-		assertEquals(config.primitiveTopology, "triangle-list");
-		assertEquals(config.depthCompareFunction, "less");
-		assertEquals(config.depthWriteEnabled, true);
-		// TODO: #509 we want this to be undefined in the future,
-		// but for now the full default value is being serialized/deserialized.
-		// assertEquals(config.blend, undefined);
+		assertDefaults(config);
 		assertEquals(config.renderOrder, 0);
 	},
 });
@@ -46,10 +68,25 @@ Deno.test({
 });
 
 Deno.test({
+	name: "getLiveAssetData() with primitiveTopology",
+	async fn() {
+		const {projectAssetTypeArgs} = createMockDependencies();
+		const projectAssetType = new ProjectAssetTypeWebGpuPipelineConfig(...projectAssetTypeArgs);
+		const {liveAsset} = await projectAssetType.getLiveAssetData({
+			primitiveTopology: "triangle-strip",
+		});
+
+		assertInstanceOf(liveAsset, WebGpuPipelineConfig);
+		assertEquals(liveAsset.primitiveTopology, "triangle-strip");
+	},
+});
+
+const VERTEX_UUID = "00000000-0000-0000-0000-000000000001";
+const FRAGMENT_UUID = "00000000-0000-0000-0000-000000000002";
+
+Deno.test({
 	name: "Shader uuids are serialized and loaded",
 	async fn() {
-		const VERTEX_UUID = "00000000-0000-0000-0000-000000000001";
-		const FRAGMENT_UUID = "00000000-0000-0000-0000-000000000002";
 		const {referencedAssetUuids, loadResult, getRequestedAsset} = await serializeAndLoad({
 			ProjectAssetTypeConstructor: ProjectAssetTypeWebGpuPipelineConfig,
 			AssetLoaderType: AssetLoaderTypeWebGpuPipelineConfig,
@@ -100,6 +137,59 @@ Deno.test({
 				srcFactor: "one",
 				dstFactor: "one",
 			},
+		});
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData() with blend state",
+	async fn() {
+		const {projectAssetTypeArgs} = createMockDependencies();
+		const projectAssetType = new ProjectAssetTypeWebGpuPipelineConfig(...projectAssetTypeArgs);
+		const {liveAsset} = await projectAssetType.getLiveAssetData({
+			blend: {
+				color: {
+					srcFactor: "src-alpha",
+					operation: "max",
+				},
+				alpha: {
+					dstFactor: "one",
+				},
+			},
+		});
+
+		assertInstanceOf(liveAsset, WebGpuPipelineConfig);
+		assertEquals(liveAsset.blend, {
+			color: {
+				srcFactor: "src-alpha",
+				operation: "max",
+			},
+			alpha: {
+				dstFactor: "one",
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData() with blend state, missing one component",
+	async fn() {
+		const {projectAssetTypeArgs} = createMockDependencies();
+		const projectAssetType = new ProjectAssetTypeWebGpuPipelineConfig(...projectAssetTypeArgs);
+		const {liveAsset} = await projectAssetType.getLiveAssetData({
+			blend: {
+				color: {
+					srcFactor: "src-alpha",
+				},
+			},
+		});
+
+		assertInstanceOf(liveAsset, WebGpuPipelineConfig);
+		assertEquals(liveAsset.blend, {
+			color: {
+				srcFactor: "src-alpha",
+			},
+			alpha: {},
 		});
 	},
 });
