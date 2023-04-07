@@ -44,9 +44,10 @@ export class PopoverManager {
 	 * Adds a new popover instance to the manager. Returns the instantiated popover which can then be further configured
 	 * using the instantiate() method.
 	 *
-	 * @param {new (...args: any[]) => Popover} PopoverConstructor - The popover class constructor to add. Defaults to Popover.
+	 * @template {Popover} T
+	 * @param {new (...args: any[]) => T} PopoverConstructor - The popover class constructor to add. Defaults to Popover.
 	 */
-	addPopover(PopoverConstructor = /** @type  {new (...args: any[]) => Popover} */ (Popover)) {
+	addPopover(PopoverConstructor = /** @type  {new (...args: any[]) => T} */ (Popover)) {
 		const popover = new PopoverConstructor(this);
 
 		popover.onNeedsCurtainChange(this.#updateCurtainActive);
@@ -60,7 +61,7 @@ export class PopoverManager {
 			this.#updateBodyClickListener();
 		});
 
-		return /** @type {Popover} */ (popover);
+		return /** @type {T} */ (popover);
 	}
 
 	/**
