@@ -1,4 +1,5 @@
 import {waitForEventLoop} from "../../../../src/util/util.js";
+import { ContextMenu } from "./ContextMenu.js";
 import {Popover} from "./Popover.js";
 
 export class PopoverManager {
@@ -69,6 +70,32 @@ export class PopoverManager {
 	}
 
 	/**
+	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
+	 *
+	 * @returns {ContextMenu}
+	 */
+	addContextMenu(structure = null) {
+		const contextMenu = new ContextMenu(this, {structure});
+
+		contextMenu.onNeedsCurtainChange(this.#updateCurtainActive);
+		this.#activePopovers.push(contextMenu);
+		this.#updateCurtainActive();
+
+		// If a popover is opened as part of clicking a button, the click event will fire on the body immediately
+		// after clicking that button. This would cause the popover to immediately close again.
+		// To prevent this, we run this code in the next event loop.
+
+		// TODO: this may be redundant if we prevent event bubbling by
+		// 				1. using stopPropagation() in the button click handler to prevent event bubbling
+		//        2. using useCapture to activate the event at the capture phase, instead of the bubbling phase
+		waitForEventLoop().then(() => {
+			this.#updateBodyClickListener();
+		});
+
+		return contextMenu;
+	}
+
+	/**
 	 * @param {Popover} popover - The popover instance to retrieve.
 	 *
 	 * @returns {Popover}
@@ -81,16 +108,21 @@ export class PopoverManager {
 	}
 
 	/**
+	 * Removes the specified popover from the manager.
 	 *
 	 * @param {Popover} popover
+	 *
+	 * @returns {boolean} - Returns true if the popover was successfully removed, false otherwise
 	 */
 	removePopover(popover) {
 		if(!this.#activePopovers.includes(popover)) {
-			throw new Error("Error removing popover from manager: Popover does not exist");
+			return false;
 		}
+
 		this.#activePopovers = this.#activePopovers.filter(p => p !== popover);
 		this.#updateCurtainActive();
 		this.#updateBodyClickListener();
+		return true;
 	}
 
 	#updateBodyClickListener() {
