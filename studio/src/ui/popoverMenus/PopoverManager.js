@@ -74,7 +74,7 @@ export class PopoverManager {
 	 *
 	 * @returns {ContextMenu}
 	 */
-	addContextMenu(structure = null) {
+	createContextMenu(structure = null) {
 		const contextMenu = new ContextMenu(this, {structure});
 
 		contextMenu.onNeedsCurtainChange(this.#updateCurtainActive);
