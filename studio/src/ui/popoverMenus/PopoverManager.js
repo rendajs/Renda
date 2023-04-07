@@ -58,10 +58,6 @@ export class PopoverManager {
 		// If a popover is opened as part of clicking a button, the click event will fire on the body immediately
 		// after clicking that button. This would cause the popover to immediately close again.
 		// To prevent this, we run this code in the next event loop.
-
-		// TODO: this may be redundant if we prevent event bubbling by
-		// 				1. using stopPropagation() in the button click handler to prevent event bubbling
-		//        2. using useCapture to activate the event at the capture phase, instead of the bubbling phase
 		waitForEventLoop().then(() => {
 			this.#updateBodyClickListener();
 		});
@@ -84,10 +80,6 @@ export class PopoverManager {
 		// If a popover is opened as part of clicking a button, the click event will fire on the body immediately
 		// after clicking that button. This would cause the popover to immediately close again.
 		// To prevent this, we run this code in the next event loop.
-
-		// TODO: this may be redundant if we prevent event bubbling by
-		// 				1. using stopPropagation() in the button click handler to prevent event bubbling
-		//        2. using useCapture to activate the event at the capture phase, instead of the bubbling phase
 		waitForEventLoop().then(() => {
 			this.#updateBodyClickListener();
 		});
@@ -115,11 +107,13 @@ export class PopoverManager {
 	 * @returns {boolean} - Returns true if the popover was successfully removed, false otherwise
 	 */
 	removePopover(popover) {
-		if(!this.#activePopovers.includes(popover)) {
+		const idx = this.#activePopovers.indexOf(popover);
+
+		if(idx === -1) {
 			return false;
 		}
 
-		this.#activePopovers = this.#activePopovers.filter(p => p !== popover);
+		this.activePopovers.splice(idx, 1);
 		this.#updateCurtainActive();
 		this.#updateBodyClickListener();
 		return true;
@@ -145,9 +139,7 @@ export class PopoverManager {
 		if(this.#activePopovers.length === 0) return;
 
 		this.#activePopovers.forEach(p => {
-			if(p.el.contains(/** @type {Node} */ (e.target))) {
-				p.close();
-			}
+			p.close();
 		});
 	};
 
