@@ -45,8 +45,6 @@ export class PopoverManager {
 	 * using the instantiate() method.
 	 *
 	 * @param {new (...args: any[]) => Popover} PopoverConstructor - The popover class constructor to add. Defaults to Popover.
-	 *
-	 * @returns {Popover}
 	 */
 	addPopover(PopoverConstructor = /** @type  {new (...args: any[]) => Popover} */ (Popover)) {
 		const popover = new PopoverConstructor(this);

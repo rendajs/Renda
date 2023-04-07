@@ -31,9 +31,9 @@ Deno.test({
 				preferencesManager,
 				popoverManager: {
 					addPopover() {
-							return {
-								initialize: initializeSpy,
-							};
+						return {
+							initialize: initializeSpy,
+						};
 					},
 				},
 			});
