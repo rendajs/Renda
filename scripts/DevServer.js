@@ -51,12 +51,14 @@ export class DevServer {
 				if (url.pathname == "/studio/internalDiscovery") {
 					request = new Request(request.url + ".html", request);
 				}
-				return serveDir(request, {
+				const response = await serveDir(request, {
 					fsRoot,
 					showDirListing: true,
 					showDotfiles: true,
 					quiet: true,
 				});
+				response.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+				return response;
 			},
 		});
 
