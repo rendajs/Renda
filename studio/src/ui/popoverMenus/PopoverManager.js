@@ -1,5 +1,5 @@
 import {waitForEventLoop} from "../../../../src/util/util.js";
-import { ContextMenu } from "./ContextMenu.js";
+import {ContextMenu} from "./ContextMenu.js";
 import {Popover} from "./Popover.js";
 
 export class PopoverManager {
@@ -45,7 +45,7 @@ export class PopoverManager {
 	 * using the instantiate() method.
 	 *
 	 * @template {Popover} T
-	 * @param {new (...args: any[]) => T} PopoverConstructor - The popover class constructor to add. Defaults to Popover.
+	 * @param {new (...args: any[]) => T} PopoverConstructor The popover class constructor to add. Defaults to Popover.
 	 */
 	addPopover(PopoverConstructor = /** @type  {new (...args: any[]) => T} */ (Popover)) {
 		const popover = new PopoverConstructor(this);
@@ -66,7 +66,6 @@ export class PopoverManager {
 
 	/**
 	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
-	 *
 	 * @returns {ContextMenu}
 	 */
 	createContextMenu(structure = null) {
@@ -87,12 +86,11 @@ export class PopoverManager {
 	}
 
 	/**
-	 * @param {Popover} popover - The popover instance to retrieve.
-	 *
+	 * @param {Popover} popover The popover instance to retrieve.
 	 * @returns {Popover}
 	 */
 	getPopover(popover) {
-		if(!this.#activePopovers.includes(popover)) {
+		if (!this.#activePopovers.includes(popover)) {
 			throw new Error("Error retrieving popover from manager: Popover does not exist");
 		}
 		return popover;
@@ -102,13 +100,12 @@ export class PopoverManager {
 	 * Removes the specified popover from the manager.
 	 *
 	 * @param {Popover} popover
-	 *
-	 * @returns {boolean} - Returns true if the popover was successfully removed, false otherwise
+	 * @returns {boolean} Returns true if the popover was successfully removed, false otherwise
 	 */
 	removePopover(popover) {
 		const idx = this.#activePopovers.indexOf(popover);
 
-		if(idx === -1) {
+		if (idx === -1) {
 			return false;
 		}
 
@@ -135,7 +132,7 @@ export class PopoverManager {
 	 * @param {MouseEvent} e
 	 */
 	#onBodyClick = e => {
-		if(this.#activePopovers.length === 0) return;
+		if (this.#activePopovers.length === 0) return;
 
 		this.#activePopovers.forEach(p => {
 			p.close();
@@ -144,7 +141,7 @@ export class PopoverManager {
 
 	#updateCurtainActive = () => {
 		const needsCurtains = this.#activePopovers.some(p => p.needsCurtain);
-		if(needsCurtains) {
+		if (needsCurtains) {
 			document.body.appendChild(this.curtainEl);
 		} else {
 			this.curtainEl.remove();

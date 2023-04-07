@@ -101,7 +101,7 @@ export class EntryPointPopover extends Popover {
 		this.#persistentData = persistentData;
 
 		this.#loadPreferences();
-	}
+	};
 
 	async #loadPreferences() {
 		if (!this.#projectSettings || !this.#assetManager || !this.#persistentData) {

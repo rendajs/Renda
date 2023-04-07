@@ -5,7 +5,7 @@ import {EntryPointPopover, getSelectedEntryPoint} from "./EntryPointPopover.js";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
-import PopoverToggleButton from "../../../ui/popoverMenus/PopoverToggleButton.js";
+import {PopoverToggleButton} from "../../../ui/popoverMenus/PopoverToggleButton.js";
 
 /**
  * @typedef {ReturnType<ContentWindowBuildView["getIframeResponseHandlers"]>} BuildViewIframeResponseHandlers
@@ -89,13 +89,13 @@ export class ContentWindowBuildView extends ContentWindow {
 					throw new Error("Assertion failed, no project settings or asset manager.");
 				}
 
-				this.entryPointButton.togglePopover((popover) => {
+				this.entryPointButton.togglePopover(popover => {
 					popover.setNeedsCurtain(false);
 					popover.initialize(projectSettings, assetManager, this.persistentData);
 					popover.setPos(this.entryPointButton);
 				});
-			}
-		})
+			},
+		});
 
 		this.addTopBarEl(this.entryPointButton.el);
 

@@ -109,7 +109,6 @@ export class Button {
 		return {el, iconEl, textEl};
 	}
 
-
 	/**
 	 * @param {MouseEvent} e
 	 */
