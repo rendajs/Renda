@@ -29,7 +29,9 @@ Deno.test({
 			const preferencesManager = new PreferencesManager();
 			const mockStudioInstance = /** @type {import("../../../../../../../studio/src/Studio.js").Studio} */ ({
 				preferencesManager,
-				popoverManager: {},
+				popoverManager: {
+					initialize: initializeSpy,
+				},
 			});
 
 			const mockWindowManager = /** @type {import("../../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
