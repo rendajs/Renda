@@ -6,17 +6,10 @@ const binarySerializationOpts = {
 	structure: {
 		depthStencilFormat: ["stencil8", "depth16unorm", "depth24plus", "depth24plus-stencil8", "depth32float"],
 		multisampleCount: StorageType.UINT8,
-		fragmentTargets: [
-			{
-				format: ["bgra8unorm", "rgba16float"],
-			},
-		],
 	},
 	nameIds: {
 		depthStencilFormat: 1,
 		multisampleCount: 2,
-		fragmentTargets: 3,
-		format: 4,
 	},
 };
 
