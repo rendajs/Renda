@@ -9,6 +9,7 @@ import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("../../../../../../../studio/src/studioInstance.js");
+importer.makeReal("../../../../../../../studio/src/ui/popoverMenus/popoverToggleButton.js");
 importer.fakeModule("../../../../../../../studio/src/windowManagement/PreferencesPopover.js", `
 export class PreferencesPopover {}
 `);

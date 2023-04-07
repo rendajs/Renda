@@ -48,7 +48,10 @@ Deno.test({
 			assertEquals(manager.removePopover(popover2), false);
 
 			popover2.close();
-			assertEquals(manager.getPopover(popover2), null);
+			assertThrows(() => {
+				manager.getPopover(popover2);
+			},
+			Error, "Popover is not managed by this manager.");
 
 			// Creating popover with custom class
 			class ExtendedPopOver extends Popover {
