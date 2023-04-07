@@ -1,5 +1,5 @@
-import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
-import {Vec3, createPlane} from "../../../../../src/mod.js";
+import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
+import {Vec3, VertexState, createPlane} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 
 Deno.test({
@@ -75,5 +75,16 @@ Deno.test({
 		}
 		assertVecAlmostEquals(min, [-2.5, 0, -1.5]);
 		assertVecAlmostEquals(max, [2.5, 0, 1.5]);
+	},
+});
+
+Deno.test({
+	name: "Sets vertexstate",
+	fn() {
+		const vertexState = new VertexState();
+		const mesh = createPlane({
+			vertexState,
+		});
+		assertStrictEquals(mesh.vertexState, vertexState);
 	},
 });
