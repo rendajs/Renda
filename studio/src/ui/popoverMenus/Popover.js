@@ -31,6 +31,8 @@ export class Popover {
 	} = {}) {
 		this.manager = manager;
 
+		this.isRemoved = false;
+
 		this.el = document.createElement("div");
 		this.el.classList.add("popover");
 		document.body.appendChild(this.el);
@@ -64,9 +66,8 @@ export class Popover {
 	initialize = null;
 
 	destructor() {
-		if (this.el) {
-			if (this.el.parentElement) this.el.parentElement.removeChild(this.el);
-		}
+		if (this.el.parentElement) this.el.parentElement.removeChild(this.el);
+		this.isRemoved = true;
 	}
 
 	close() {
