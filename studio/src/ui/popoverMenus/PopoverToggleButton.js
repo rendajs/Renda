@@ -1,5 +1,5 @@
-import { Button } from "../Button";
-import { Popover } from "./Popover";
+import { Button } from "../Button.js"
+import { Popover } from "./Popover.js";
 
 /**
  * @template {Popover} T

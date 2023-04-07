@@ -202,7 +202,7 @@ export class ContentWindow {
 			icon: "static/icons/preferences.svg",
 			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			onClick: () => {
-				const popover = this.studioInstance.popoverManager.createPopover(PreferencesPopover);
+				const popover = /** @type {import("../PreferencesPopover.js").PreferencesPopover} */ (this.studioInstance.popoverManager.addPopover(PreferencesPopover));
 				popover.initialize(this.studioInstance.preferencesManager, preferenceIds, button.el, this.uuid);
 			},
 		});
