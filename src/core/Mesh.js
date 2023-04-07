@@ -17,11 +17,11 @@ import {MeshAttributeBuffer} from "./MeshAttributeBuffer.js";
 
 export class Mesh {
 	constructor() {
-		/** @type {MeshAttributeBuffer[]} */
+		/** @private @type {MeshAttributeBuffer[]} */
 		this._buffers = [];
-		/** @type {Map<number, MeshAttributeBuffer>} */
+		/** @private @type {Map<number, MeshAttributeBuffer>} */
 		this._unusedBuffers = new Map();
-		/** @type {import("../rendering/VertexState.js").VertexState?} */
+		/** @private @type {import("../rendering/VertexState.js").VertexState?} */
 		this._vertexState = null;
 		this.indexBuffer = new ArrayBuffer(0);
 		/** @type {ArrayBuffer?} */
