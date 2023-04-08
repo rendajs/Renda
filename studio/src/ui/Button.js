@@ -57,7 +57,7 @@ export class Button {
 
 		this.onClick = onClick;
 		this.boundClick = this.click.bind(this);
-		this.el.addEventListener("click", this.boundClick, true);
+		this.el.addEventListener("click", this.boundClick);
 		this.disabled = disabled;
 
 		if (draggable) {
@@ -115,7 +115,6 @@ export class Button {
 	click(e) {
 		if (this.disabled) return;
 		if (this.onClick) this.onClick({});
-		e.stopPropagation();
 	}
 
 	/**
