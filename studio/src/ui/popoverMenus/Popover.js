@@ -60,11 +60,6 @@ export class Popover {
 		}
 	}
 
-	/**
-	 * @type {((...args: any[]) => void) | null}
-	 */
-	initialize = null;
-
 	destructor() {
 		if (this.el.parentElement) this.el.parentElement.removeChild(this.el);
 		this.destroyed = true;
