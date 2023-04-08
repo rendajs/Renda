@@ -49,7 +49,7 @@ Deno.test({
 
 			popover2.close();
 			assertThrows(() => {
-					manager.getPopover(popover2);
+				manager.getPopover(popover2);
 			});
 
 			// Creating popover with custom class
