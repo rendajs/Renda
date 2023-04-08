@@ -426,7 +426,7 @@ export class TabsStudioWindow extends StudioWindow {
 								);
 								if (isCurrentWorkspace) {
 									submenu.push({
-										text: "Revert to saved state",
+										text: "Revert to Saved State",
 										onClick: () => {
 											this.windowManager.workspaceManager.revertCurrentWorkspace();
 										},
