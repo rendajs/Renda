@@ -27,7 +27,7 @@ Deno.test({
 
 			const popover = manager.addPopover();
 			assertExists(manager.curtainEl.parentElement);
-			assertStrictEquals(manager.getPopover(popover), popover);
+			assertStrictEquals(manager.getLastPopover(), popover);
 
 			// The event listener is added in the next event loop, so we need to wait for this.
 			await waitForMicrotasks();
@@ -36,7 +36,7 @@ Deno.test({
 			const mouseEvent1 = new FakeMouseEvent("click");
 			popover.el.dispatchEvent(mouseEvent1);
 			assertExists(manager.curtainEl.parentElement);
-			assertStrictEquals(manager.getPopover(popover), popover);
+			assertStrictEquals(manager.getLastPopover(), popover);
 
 			// But clicking any other element should
 			const mouseEvent2 = new FakeMouseEvent("click");
@@ -49,7 +49,7 @@ Deno.test({
 
 			popover2.close();
 			assertThrows(() => {
-				manager.getPopover(popover2);
+				manager.getLastPopover();
 			});
 
 			// Creating popover with custom class
@@ -76,7 +76,7 @@ Deno.test({
 
 			const contextMenu = manager.createContextMenu();
 			assertExists(manager.curtainEl.parentElement);
-			assertStrictEquals(manager.getPopover(contextMenu), contextMenu);
+			assertStrictEquals(manager.getLastPopover(), contextMenu);
 
 			const contextMenu2 = manager.createContextMenu();
 			assertExists(manager.curtainEl.parentElement);
@@ -109,7 +109,7 @@ Deno.test({
 			const mouseEvent1 = new FakeMouseEvent("click");
 			popover.el.dispatchEvent(mouseEvent1);
 			assertEquals(manager.curtainEl.parentElement, null);
-			assertStrictEquals(manager.getPopover(popover), popover);
+			assertStrictEquals(manager.getLastPopover(), popover);
 
 			// But clicking any other element should
 			const mouseEvent2 = new FakeMouseEvent("click");

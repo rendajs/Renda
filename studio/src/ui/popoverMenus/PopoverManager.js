@@ -81,18 +81,10 @@ export class PopoverManager {
 		return contextMenu;
 	}
 
-	/**
-	 * @param {Popover} popover The popover instance to retrieve.
-	 * @returns {Popover}
-	 */
-	getPopover(popover) {
-		if (!this.#activePopovers.includes(popover)) {
-			throw new Error("Error retrieving popover from manager: Popover does not exist");
-		}
-		return popover;
-	}
-
 	getLastPopover() {
+		if(this.#activePopovers.length === 0) {
+			throw new Error("Error retrieving last popover from manager: No popovers exist");
+		}
 		return this.#activePopovers.at(-1);
 	}
 
@@ -109,7 +101,7 @@ export class PopoverManager {
 			return false;
 		}
 
-		this.activePopovers.splice(idx, 1);
+		this.#activePopovers.splice(idx, 1);
 		this.#updateCurtainActive();
 		this.#updateBodyClickListener();
 		return true;
