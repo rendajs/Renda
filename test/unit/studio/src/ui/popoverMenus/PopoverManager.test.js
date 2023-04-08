@@ -1,6 +1,6 @@
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {assertEquals, assertExists, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertInstanceOf, assertStrictEquals, assertThrows, fail} from "std/testing/asserts.ts";
 import {Popover} from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
 import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
@@ -113,7 +113,13 @@ Deno.test({
 
 			// But clicking any other element should
 			const mouseEvent2 = new FakeMouseEvent("click");
-			document.body.dispatchEvent(mouseEvent2);
+
+			try{
+				document.body.dispatchEvent(mouseEvent2);
+			} catch (e) {
+				fail();
+			}
+
 			assertEquals(manager.curtainEl.parentElement, null);
 		} finally {
 			uninstall();

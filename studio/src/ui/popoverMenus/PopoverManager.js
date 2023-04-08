@@ -124,7 +124,9 @@ export class PopoverManager {
 	 * @param {MouseEvent} e
 	 */
 	#onBodyClick = e => {
-		if (this.#activePopovers.length === 0) return;
+		if (this.#activePopovers.length === 0) {
+			throw new Error("Error handling body click: No popovers exist");
+		}
 
 		this.#activePopovers.forEach(p => {
 			p.close();
