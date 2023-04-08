@@ -52,12 +52,13 @@ export class PreferencesPopover extends Popover {
 	}
 
 	/**
+	 * @override
 	 * @param {import("../preferences/PreferencesManager.js").PreferencesManager<any>} preferencesManager
 	 * @param {string[]} preferenceIds
 	 * @param {HTMLElement} buttonEl
 	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
 	 */
-	initialize = (preferencesManager, preferenceIds, buttonEl, contentWindowUuid) => {
+	initialize(preferencesManager, preferenceIds, buttonEl, contentWindowUuid) {
 		if (this.#preferencesManager) {
 			throw new Error("Already initialized");
 		}
@@ -91,7 +92,7 @@ export class PreferencesPopover extends Popover {
 		this.#updateEntryValues();
 
 		this.setPos(buttonEl);
-	};
+	}
 
 	#getCurrentLocation() {
 		const index = this.locationDropDown.getValue({getAsString: false}) - 1;

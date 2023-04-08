@@ -36,10 +36,6 @@ export class PopoverManager {
 		this.#updateCurtainActive();
 	}
 
-	get activePopovers() {
-		return this.#activePopovers || null;
-	}
-
 	/**
 	 * Adds a new popover instance to the manager. Returns the instantiated popover which can then be further configured
 	 * using the instantiate() method.
@@ -94,6 +90,10 @@ export class PopoverManager {
 			throw new Error("Error retrieving popover from manager: Popover does not exist");
 		}
 		return popover;
+	}
+
+	getLastPopover() {
+		return this.#activePopovers.at(-1);
 	}
 
 	/**
