@@ -1,6 +1,5 @@
 import {ContentWindowPreferencesLocation} from "../../preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {STUDIO_ENV} from "../../studioDefines.js";
-import {Button} from "../../ui/Button.js";
 import {PopoverToggleButton} from "../../ui/popoverMenus/PopoverToggleButton.js";
 import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
 import {PreferencesPopover} from "../PreferencesPopover.js";
@@ -33,7 +32,7 @@ export class ContentWindow {
 	static scrollable = true;
 
 	#projectPreferencesLocation;
-	/** @type {Button?} */
+	/** @type {import("../../ui/Button.js").Button?} */
 	#preferencesButton = null;
 
 	/**
