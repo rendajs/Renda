@@ -58,7 +58,7 @@ export class PreferencesPopover extends Popover {
 	 * @param {HTMLElement} buttonEl
 	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
 	 */
-	initialize(preferencesManager, preferenceIds, buttonEl, contentWindowUuid) {
+	initialize = (preferencesManager, preferenceIds, buttonEl, contentWindowUuid) => {
 		if (this.#preferencesManager) {
 			throw new Error("Already initialized");
 		}
