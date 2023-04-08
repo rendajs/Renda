@@ -39,7 +39,7 @@ export class PopoverToggleButton extends Button {
 	 * @returns {boolean} true if the popover is added to the popoverManager, false if the popover is removed from the popoverManager.
 	 */
 	togglePopover(successCallback = null) {
-		if (!this.#popoverConstructorInstance || this.#popoverConstructorInstance.isRemoved) {
+		if (!this.#popoverConstructorInstance || this.#popoverConstructorInstance.destroyed) {
 			this.#popoverConstructorInstance = /** @type {T} */ (this.#popoverManager.addPopover(this.PopoverConstructor));
 			if (successCallback) {
 				successCallback(this.#popoverConstructorInstance);
