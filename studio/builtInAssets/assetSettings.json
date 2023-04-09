@@ -1,5 +1,41 @@
 {
 	"assets": {
+		"873ade41-8986-4371-b2a3-5bc1aff9d938": {
+			"path": ["DefaultAssets\\Default Material\\Default Material Map.json"]
+		},
+		"542fb96a-d3f8-4150-9963-9f1bf803da67": {
+			"path": ["DefaultAssets\\Default Material\\Default Material.json"]
+		},
+		"f4f9f550-4a46-40b8-b364-c9e67afd49e6": {
+			"path": ["DefaultAssets\\Default Material\\Default Pipeline Configuration.json"]
+		},
+		"6e258624-2df6-47db-8a89-08dd14412d30": {
+			"path": ["gizmos\\billboard gizmo\\Material Map.json"]
+		},
+		"6ebfe5aa-6754-406e-a238-ec052eefa7df": {
+			"path": ["gizmos\\billboard gizmo\\Material.json"]
+		},
+		"35d23791-e1d4-4bae-830f-d1ff52e392b5": {
+			"path": ["gizmos\\billboard gizmo\\Pipeline Config.json"]
+		},
+		"9d9ebd2e-c657-4252-b7af-b5889a4986c3": {
+			"path": ["gizmos\\billboard gizmo\\Vertex State.json"]
+		},
+		"360d0012-577e-4bdc-85bc-82e75be40f53": {
+			"path": ["gizmos\\billboard gizmo\\vert.wgsl"]
+		},
+		"2f144ab0-49c2-422e-8ea1-b3bd9c1fdddb": {
+			"path": ["gizmos\\mesh gizmo\\Material Map.json"]
+		},
+		"47f64a6d-9629-4921-8b1a-a244af1aa568": {
+			"path": ["gizmos\\mesh gizmo\\Material.json"]
+		},
+		"a816c8bd-5ace-4e64-abf6-a9aeffd76977": {
+			"path": ["gizmos\\mesh gizmo\\Pipeline Config.json"]
+		},
+		"1e48d7b4-4e74-4d66-bdf6-8f8c65771768": {
+			"path": ["gizmos\\mesh gizmo\\vert.wgsl"]
+		},
 		"2c2abb9a-8c5a-4faf-a605-066d33242391": {
 			"path": ["webgpuExterns.js"]
 		},
@@ -18,44 +54,17 @@
 		"f7f15715-6457-47fb-b8b1-0b5b2e7aeda2": {
 			"path": ["studio", "readme.md"]
 		},
-		"873ade41-8986-4371-b2a3-5bc1aff9d938": {
-			"path": ["DefaultAssets", "Default Material", "Default Material Map.json"]
-		},
-		"542fb96a-d3f8-4150-9963-9f1bf803da67": {
-			"path": ["DefaultAssets", "Default Material", "Default Material.json"]
-		},
 		"abc1df88-ae0b-4a5d-8ac4-0a98c1602a32": {
 			"path": ["DefaultAssets", "Default Material", "Default Pipeline Configuration.json"]
 		},
-		"6e258624-2df6-47db-8a89-08dd14412d30": {
-			"path": ["gizmos", "billboard gizmo", "Material Map.json"]
-		},
-		"6ebfe5aa-6754-406e-a238-ec052eefa7df": {
-			"path": ["gizmos", "billboard gizmo", "Material.json"]
-		},
 		"3b9f6940-f13d-4edb-a85e-768f88f74df7": {
 			"path": ["gizmos", "billboard gizmo", "Pipeline Config.json"]
-		},
-		"9d9ebd2e-c657-4252-b7af-b5889a4986c3": {
-			"path": ["gizmos", "billboard gizmo", "Vertex State.json"]
-		},
-		"360d0012-577e-4bdc-85bc-82e75be40f53": {
-			"path": ["gizmos", "billboard gizmo", "vert.wgsl"]
-		},
-		"2f144ab0-49c2-422e-8ea1-b3bd9c1fdddb": {
-			"path": ["gizmos", "mesh gizmo", "Material Map.json"]
-		},
-		"47f64a6d-9629-4921-8b1a-a244af1aa568": {
-			"path": ["gizmos", "mesh gizmo", "Material.json"]
 		},
 		"f9704f9a-92b3-4525-9870-3fca18605614": {
 			"path": ["gizmos", "mesh gizmo", "Pipeline Config.json"]
 		},
 		"2a5ca9e6-6790-441b-8764-a07fbb438d1a": {
 			"path": ["gizmos", "mesh gizmo", "Vertex State.json"]
-		},
-		"1e48d7b4-4e74-4d66-bdf6-8f8c65771768": {
-			"path": ["gizmos", "mesh gizmo", "vert.wgsl"]
 		},
 		"cf617a8f-4afa-4147-8afa-71bb6314a554": {
 			"path": ["gizmos", "wgsl", "Frag.wgsl"]
