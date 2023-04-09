@@ -31,7 +31,7 @@ export class PopoverToggleButton extends Button {
 		const innerOnClick = buttonArgs.onClick;
 
 		buttonArgs.onClick = ctx => {
-			if (!this.#popoverConstructorInstance || this.#popoverConstructorInstance.destroyed) {
+			if (!this.#popoverConstructorInstance || this.#popoverConstructorInstance.destructed) {
 				this.#popoverConstructorInstance = /** @type {T} */ (popoverManager.addPopover(PopoverConstructor));
 				this.#onPopoverCreatedCbs.forEach(cb => cb(/** @type {T} */ (this.#popoverConstructorInstance)));
 			} else {

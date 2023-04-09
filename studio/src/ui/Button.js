@@ -109,10 +109,7 @@ export class Button {
 		return {el, iconEl, textEl};
 	}
 
-	/**
-	 * @param {MouseEvent} e
-	 */
-	click(e) {
+	click() {
 		if (this.disabled) return;
 		if (this.onClick) this.onClick({});
 	}

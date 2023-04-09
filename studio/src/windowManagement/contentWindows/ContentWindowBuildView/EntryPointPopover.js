@@ -91,7 +91,7 @@ export class EntryPointPopover extends Popover {
 	 * @param {import("../../../assets/AssetManager.js").AssetManager} assetManager
 	 * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} persistentData
 	 */
-	initialize = (projectSettingsManager, assetManager, persistentData) => {
+	initialize(projectSettingsManager, assetManager, persistentData) {
 		if (this.#projectSettings) {
 			throw new Error("Error initializing EntryPointPopover: already initialized.");
 		}

@@ -126,14 +126,20 @@ export class PopoverManager {
 			throw new Error("Error handling body click: No popovers exist");
 		}
 
+		if (this.#activePopovers.some(p => p.el === e.target || p.el.contains(/** @type {Node} */(e.target)))) {
+			return;
+		}
+
+		console.log("Body click detected, closing all popovers", e)
+
 		this.#activePopovers.forEach(p => {
 			p.close();
 		});
 	};
 
 	#updateCurtainActive = () => {
-		const needsCurtains = this.#activePopovers.some(p => p.needsCurtain);
-		if (needsCurtains) {
+		const needsCurtain = this.#activePopovers.some(p => p.needsCurtain);
+		if (needsCurtain) {
 			document.body.appendChild(this.curtainEl);
 		} else {
 			this.curtainEl.remove();

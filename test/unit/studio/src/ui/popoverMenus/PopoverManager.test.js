@@ -114,11 +114,7 @@ Deno.test({
 			// But clicking any other element should
 			const mouseEvent2 = new FakeMouseEvent("click");
 
-			try {
-				document.body.dispatchEvent(mouseEvent2);
-			} catch (e) {
-				fail();
-			}
+			document.body.dispatchEvent(mouseEvent2);
 
 			assertEquals(manager.curtainEl.parentElement, null);
 		} finally {

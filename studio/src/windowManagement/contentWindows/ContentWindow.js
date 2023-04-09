@@ -199,9 +199,6 @@ export class ContentWindow {
 			throw new Error("A preferences button has already been added.");
 		}
 
-		/**
-		 * @type {import("../../ui/popoverMenus/PopoverToggleButton.js").PopoverToggleButton<PreferencesPopover>}
-		 */
 		const button = new PopoverToggleButton(PreferencesPopover, this.studioInstance.popoverManager, {
 			icon: "static/icons/preferences.svg",
 			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
