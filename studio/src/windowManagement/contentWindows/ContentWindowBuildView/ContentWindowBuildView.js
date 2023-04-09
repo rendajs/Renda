@@ -81,20 +81,19 @@ export class ContentWindowBuildView extends ContentWindow {
 			text: "Entry Point",
 			hasDownArrow: true,
 			colorizerFilterManager,
-			onClick: () => {
-				const projectSettings = this.studioInstance.projectManager.projectSettings;
-				const assetManager = this.studioInstance.projectManager.assetManager;
+		});
 
-				if (!projectSettings || !assetManager) {
-					throw new Error("Assertion failed, no project settings or asset manager.");
-				}
+		this.entryPointButton.onPopoverCreated(popover => {
+			const projectSettings = this.studioInstance.projectManager.projectSettings;
+			const assetManager = this.studioInstance.projectManager.assetManager;
 
-				this.entryPointButton.togglePopover(popover => {
-					popover.setNeedsCurtain(false);
-					popover.initialize(projectSettings, assetManager, this.persistentData);
-					popover.setPos(this.entryPointButton);
-				});
-			},
+			if (!projectSettings || !assetManager) {
+				throw new Error("Assertion failed, no project settings or asset manager.");
+			}
+
+			popover.setNeedsCurtain(false);
+			popover.initialize(projectSettings, assetManager, this.persistentData);
+			popover.setPos(this.entryPointButton);
 		});
 
 		this.addTopBarEl(this.entryPointButton.el);

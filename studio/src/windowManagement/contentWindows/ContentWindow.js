@@ -205,11 +205,10 @@ export class ContentWindow {
 		const button = new PopoverToggleButton(PreferencesPopover, this.studioInstance.popoverManager, {
 			icon: "static/icons/preferences.svg",
 			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
-			onClick: () => {
-				button.togglePopover(popover => {
-					popover.initialize(this.studioInstance.preferencesManager, preferenceIds, button.el, this.uuid);
-				});
-			},
+		});
+
+		button.onPopoverCreated(popover => {
+			popover.initialize(this.studioInstance.preferencesManager, preferenceIds, button.el, this.uuid);
 		});
 
 		this.#preferencesButton = button;
