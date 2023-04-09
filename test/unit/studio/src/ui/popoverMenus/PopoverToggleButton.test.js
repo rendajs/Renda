@@ -1,12 +1,11 @@
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {assertEquals, assertExists, assertThrows} from "std/testing/asserts.ts";
+import {assertExists, assertThrows} from "std/testing/asserts.ts";
 import {Popover} from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
 import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import {PopoverToggleButton} from "../../../../../../studio/src/ui/popoverMenus/PopoverToggleButton.js";
 import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import { runWithDom } from "../../../shared/runWithDom.js";
+import {runWithDom} from "../../../shared/runWithDom.js";
 
 Deno.test({
 	name: "Creates a button",
@@ -65,7 +64,7 @@ Deno.test({
 
 			button.el.dispatchEvent(mouseEvent);
 			assertThrows(() => {
-				manager.getLastPopover()
+				manager.getLastPopover();
 			});
 		});
 	},
