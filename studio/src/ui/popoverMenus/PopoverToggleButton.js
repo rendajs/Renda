@@ -52,4 +52,15 @@ export class PopoverToggleButton extends Button {
 		 */
 		this.PopoverConstructor = PopoverConstructor;
 	}
+
+	get popoverInstance() {
+		return this.#popoverConstructorInstance;
+	}
+
+	/**
+	 * @param {(popover: T) => void} cb
+	 */
+	onPopoverCreated(cb) {
+		this.#onPopoverCreatedCbs.add(cb);
+	}
 }
