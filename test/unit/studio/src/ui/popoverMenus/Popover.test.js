@@ -22,7 +22,7 @@ async function basicPopoverTest(cb) {
 	try {
 		const colorizerFilterManager = new ColorizerFilterManager();
 		const manager = new PopoverManager(colorizerFilterManager);
-		const popover = manager.createPopover();
+		const popover = manager.addPopover();
 
 		cb({
 			manager,

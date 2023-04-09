@@ -3,8 +3,10 @@ import {ContextMenu} from "./ContextMenu.js";
 import {Popover} from "./Popover.js";
 
 export class PopoverManager {
-	/** @type {Popover?} */
-	#activePopover = null;
+	/**
+	 * @type {Popover[]}
+	 */
+	#activePopovers = [];
 
 	/**
 	 * @param {import("../../util/colorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} colorizerFilterManager
@@ -34,81 +36,77 @@ export class PopoverManager {
 		this.#updateCurtainActive();
 	}
 
-	get current() {
-		if (this.#activePopover && this.#activePopover.el) return this.#activePopover;
-		return null;
-	}
-
 	/**
+	 * Adds a new popover instance to the manager. Returns the instantiated popover which can then be further configured
+	 * using the instantiate() method.
+	 *
 	 * @template {Popover} T
-	 * @param {new (...args: any[]) => T} PopoverConstructor
+	 * @param {new (...args: any[]) => T} PopoverConstructor The popover class constructor to add. Defaults to Popover.
 	 */
-	createPopover(PopoverConstructor = /** @type {new (...args: any[]) => T} */ (Popover)) {
-		if (this.#activePopover && this.#activePopover.el) {
-			throw new Error("Cannot create a popover while one is already open.");
-		}
-
-		const popover = new PopoverConstructor(this);
-		this.#popoverCreated(popover);
-		return /** @type {T} */ (popover);
+	addPopover(PopoverConstructor = /** @type  {new (...args: any[]) => T} */ (Popover)) {
+		return this.#setupPopover(new PopoverConstructor(this));
 	}
 
 	/**
 	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
+	 * @returns {ContextMenu}
 	 */
 	createContextMenu(structure = null) {
-		if (this.#activePopover && this.#activePopover.el) {
-			throw new Error("Cannot create a popover while one is already open.");
-		}
-
-		const contextMenu = new ContextMenu(this, {structure});
-		this.#popoverCreated(contextMenu);
-		return contextMenu;
+		return this.#setupPopover(new ContextMenu(this, {structure}));
 	}
 
 	/**
-	 * @param {Popover} popover
+	 * Performs setup code common to addPopover and createContextMenu.
+	 * TODO: integrate createContextMenu and addPopover into a single method, and remove this method.
+	 *
+	 * @template {Popover} T
+	 * @param {T} popover Popover to set up
+	 * @returns {T}
 	 */
-	async #popoverCreated(popover) {
+	#setupPopover(popover) {
 		popover.onNeedsCurtainChange(this.#updateCurtainActive);
-		this.#activePopover = popover;
+		this.#activePopovers.push(popover);
 		this.#updateCurtainActive();
+
 		// If a popover is opened as part of clicking a button, the click event will fire on the body immediately
 		// after clicking that button. This would cause the popover to immediately close again.
 		// To prevent this, we run this code in the next event loop.
-		await waitForEventLoop();
-		this.#updateBodyClickListener();
+		waitForEventLoop().then(() => {
+			this.#updateBodyClickListener();
+		});
+
+		return popover;
 	}
 
-	get currentContextMenu() {
-		const popover = this.current;
-		if (popover instanceof ContextMenu) {
-			return popover;
+	getLastPopover() {
+		if (this.#activePopovers.length > 0) {
+			return this.#activePopovers[this.#activePopovers.length - 1];
+		} else {
+			throw new Error("Error retrieving last popover from manager: No popovers exist");
 		}
-		return null;
-	}
-
-	closeCurrent() {
-		if (this.current) {
-			this.current.close();
-			return true;
-		}
-		return false;
 	}
 
 	/**
+	 * Removes the specified popover from the manager.
+	 *
 	 * @param {Popover} popover
+	 * @returns {boolean} Returns true if the popover was successfully removed, false otherwise
 	 */
-	onPopoverClosed(popover) {
-		if (popover == this.#activePopover) {
-			this.#activePopover = null;
-			this.#updateCurtainActive();
-			this.#updateBodyClickListener();
+	removePopover(popover) {
+		const idx = this.#activePopovers.indexOf(popover);
+
+		if (idx === -1) {
+			return false;
 		}
+
+		this.#activePopovers.splice(idx, 1);
+		this.#updateCurtainActive();
+		this.#updateBodyClickListener();
+		return true;
 	}
 
 	#updateBodyClickListener() {
-		const needsListener = Boolean(this.current);
+		const needsListener = Boolean(this.#activePopovers.length);
 		if (needsListener == this.#hasBodyClickListener) return;
 		if (needsListener) {
 			document.body.addEventListener("click", this.#onBodyClick);
@@ -119,17 +117,27 @@ export class PopoverManager {
 	}
 
 	#hasBodyClickListener = false;
+
 	/**
 	 * @param {MouseEvent} e
 	 */
 	#onBodyClick = e => {
-		if (this.current && !this.current.el.contains(/** @type {Node} */ (e.target))) {
-			this.closeCurrent();
+		if (this.#activePopovers.length === 0) {
+			throw new Error("Error handling body click: No popovers exist");
 		}
+
+		if (this.#activePopovers.some(p => p.el === e.target || p.el.contains(/** @type {Node} */(e.target)))) {
+			return;
+		}
+
+		this.#activePopovers.forEach(p => {
+			p.close();
+		});
 	};
 
 	#updateCurtainActive = () => {
-		if (this.current && this.current.needsCurtain) {
+		const needsCurtain = this.#activePopovers.some(p => p.needsCurtain);
+		if (needsCurtain) {
 			document.body.appendChild(this.curtainEl);
 		} else {
 			this.curtainEl.remove();

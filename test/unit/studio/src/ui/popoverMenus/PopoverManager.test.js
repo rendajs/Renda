@@ -25,14 +25,9 @@ Deno.test({
 		try {
 			assertEquals(manager.curtainEl.parentElement, null);
 
-			const popover = manager.createPopover();
+			const popover = manager.addPopover();
 			assertExists(manager.curtainEl.parentElement);
-			assertStrictEquals(manager.current, popover);
-			assertEquals(manager.currentContextMenu, null);
-
-			assertThrows(() => {
-				manager.createPopover();
-			}, Error, "Cannot create a popover while one is already open.");
+			assertStrictEquals(manager.getLastPopover(), popover);
 
 			// The event listener is added in the next event loop, so we need to wait for this.
 			await waitForMicrotasks();
@@ -41,26 +36,27 @@ Deno.test({
 			const mouseEvent1 = new FakeMouseEvent("click");
 			popover.el.dispatchEvent(mouseEvent1);
 			assertExists(manager.curtainEl.parentElement);
-			assertStrictEquals(manager.current, popover);
+			assertStrictEquals(manager.getLastPopover(), popover);
 
 			// But clicking any other element should
 			const mouseEvent2 = new FakeMouseEvent("click");
 			document.body.dispatchEvent(mouseEvent2);
 			assertEquals(manager.curtainEl.parentElement, null);
 
-			const popover2 = manager.createPopover();
-			assertEquals(manager.closeCurrent(), true);
-			assertEquals(manager.closeCurrent(), false);
+			const popover2 = manager.addPopover();
+			assertEquals(manager.removePopover(popover2), true);
+			assertEquals(manager.removePopover(popover2), false);
 
 			popover2.close();
-			assertEquals(manager.current, null);
-			assertEquals(manager.currentContextMenu, null);
+			assertThrows(() => {
+				manager.getLastPopover();
+			});
 
 			// Creating popover with custom class
 			class ExtendedPopOver extends Popover {
 
 			}
-			const popover3 = manager.createPopover(ExtendedPopOver);
+			const popover3 = manager.addPopover(ExtendedPopOver);
 			assertInstanceOf(popover3, ExtendedPopOver);
 
 			// Wait for click event listener to get removed
@@ -80,15 +76,16 @@ Deno.test({
 
 			const contextMenu = manager.createContextMenu();
 			assertExists(manager.curtainEl.parentElement);
-			assertStrictEquals(manager.current, contextMenu);
-			assertStrictEquals(manager.currentContextMenu, contextMenu);
+			assertStrictEquals(manager.getLastPopover(), contextMenu);
 
-			assertThrows(() => {
-				manager.createContextMenu();
-			}, Error, "Cannot create a popover while one is already open.");
+			const contextMenu2 = manager.createContextMenu();
+			assertExists(manager.curtainEl.parentElement);
 
-			assertEquals(manager.closeCurrent(), true);
-			assertEquals(manager.closeCurrent(), false);
+			assertStrictEquals(manager.removePopover(contextMenu2), true);
+			assertStrictEquals(manager.removePopover(contextMenu2), false);
+
+			assertEquals(manager.removePopover(contextMenu), true);
+			assertEquals(manager.removePopover(contextMenu), false);
 		} finally {
 			uninstall();
 		}
@@ -100,7 +97,7 @@ Deno.test({
 	async fn() {
 		const {manager, uninstall} = basicManager();
 		try {
-			const popover = manager.createPopover();
+			const popover = manager.addPopover();
 			popover.setNeedsCurtain(false);
 
 			assertEquals(manager.curtainEl.parentElement, null);
@@ -112,11 +109,13 @@ Deno.test({
 			const mouseEvent1 = new FakeMouseEvent("click");
 			popover.el.dispatchEvent(mouseEvent1);
 			assertEquals(manager.curtainEl.parentElement, null);
-			assertStrictEquals(manager.current, popover);
+			assertStrictEquals(manager.getLastPopover(), popover);
 
 			// But clicking any other element should
 			const mouseEvent2 = new FakeMouseEvent("click");
+
 			document.body.dispatchEvent(mouseEvent2);
+
 			assertEquals(manager.curtainEl.parentElement, null);
 		} finally {
 			uninstall();
