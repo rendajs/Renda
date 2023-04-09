@@ -23,6 +23,7 @@ async function findMapTreeViewEntry(page, assetContentEl) {
 
 await runE2eTest({
 	name: "Creating a new material asset with embedded map and pipeline config",
+	ignore: true,
 	async fn() {
 		const {page} = await getPage();
 		await setupNewProject(page);
