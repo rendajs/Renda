@@ -58,7 +58,7 @@ export class ContentWindowAbout extends ContentWindow {
 		aboutEl.innerHTML = html;
 
 		const licensesTreeView = new TreeView({
-			name: "Third party software",
+			name: "Third Party Software",
 			selectable: false,
 			collapsed: true,
 		});
