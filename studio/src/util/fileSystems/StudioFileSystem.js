@@ -120,7 +120,7 @@ export class StudioFileSystem {
 
 	/**
 	 * To be used internally by the file system.
-	 * Returns an WriteOperation object that can be used to let the file system
+	 * Returns a WriteOperation object that can be used to let the file system
 	 * know when the operation is finished.
 	 * This is used for resolving {@linkcode waitForWritesFinish}.
 	 */
