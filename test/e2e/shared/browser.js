@@ -76,9 +76,7 @@ const pages = new Set();
  * Contexts are automatically cleaned up after each test, even if the test fails.
  */
 export async function getPage(url = getMainPageUrl() + "/studio/") {
-	if (!browser) {
-		throw new Error("Assertion failed, browser was not launched, call `launch` first.");
-	}
+	const browser = await launch({headless: true});
 
 	const context = await browser.createIncognitoBrowserContext();
 	contexts.add(context);
@@ -101,6 +99,7 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 			contexts.delete(context);
 			await updateDefaultPageVisibility();
 			await context.close();
+			await browser.close();
 		},
 	};
 }
@@ -138,16 +137,13 @@ async function updateDefaultPageVisibility() {
  * Discards all created contexts. Called by the test runner at the end of a test.
  */
 export async function discardCurrentContexts() {
-	const contextsCopy = [...contexts];
 	contexts.clear();
 	pages.clear();
-	await updateDefaultPageVisibility();
 
-	const promises = [];
-	for (const context of contextsCopy) {
-		promises.push(context.close());
+	if (browser) {
+		await browser.close();
 	}
-	await Promise.all(promises);
+	browser = null;
 }
 
 /**
