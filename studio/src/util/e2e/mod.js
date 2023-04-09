@@ -6,3 +6,4 @@
  */
 
 export * from "./treeView.js";
+export * from "./indexedDb.js";

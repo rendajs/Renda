@@ -67,14 +67,6 @@ await runE2eTest({
 		assertExists(checkbox);
 		await click(page, checkbox);
 
-		await page.evaluate(async () => {
-			const studio = globalThis.studio;
-			if (!studio) return;
-			const fs = studio.projectManager.currentProjectFileSystem;
-			if (!fs) return;
-			await fs.waitForWritesFinish();
-		});
-
 		await reloadPage(page);
 
 		await waitForProjectOpen(page);
