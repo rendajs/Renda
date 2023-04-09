@@ -28,20 +28,19 @@ export class PopoverToggleButton extends Button {
 	 * @param {import("../Button.js").ButtonGuiOptions} buttonArgs
 	 */
 	constructor(PopoverConstructor, popoverManager, buttonArgs) {
-		const {onClick} = buttonArgs;
+		const innerOnClick = buttonArgs.onClick;
 
 		buttonArgs.onClick = ctx => {
 			if (!this.#popoverConstructorInstance || this.#popoverConstructorInstance.destroyed) {
 				this.#popoverConstructorInstance = /** @type {T} */ (popoverManager.addPopover(PopoverConstructor));
 				this.#onPopoverCreatedCbs.forEach(cb => cb(/** @type {T} */ (this.#popoverConstructorInstance)));
-			}
-
-			if (this.#popoverConstructorInstance) {
+			} else {
 				this.#popoverConstructorInstance.close();
 				this.#popoverConstructorInstance = null;
 			}
-			if (onClick) {
-				onClick(ctx);
+
+			if (innerOnClick) {
+				innerOnClick(ctx);
 			}
 		};
 
