@@ -48,6 +48,7 @@ let browser = null;
  */
 export async function launch({headless}) {
 	const executablePath = await installIfNotInstalled();
+	console.log(`Launching ${executablePath}`);
 	browser = await puppeteer.launch({
 		headless,
 		args: ["--enable-unsafe-webgpu"],

@@ -63,6 +63,23 @@ For example, calling `e2e.logTreeViewPath($0)` will tell you the path that would
 `getTreeViewItemElement()` function in `test/e2e/studio/shared/treeView.js`.
 In this case `$0` is [the most recently selected node](https://developer.chrome.com/blog/the-currently-selected-dom-node/).
 
+### Inspecting on Linux
+
+If you're running Linux and the e2e tests keep hanging at 'Launching [path to chrome]',
+This is likely because some executables are missing the required permissions.
+You can verify this by trying to execute the path to chrome manually.
+When doing so, you'll likely see something like:
+
+```
+spawn_subprocess.cc(221)] posix_spawn: Permission denied
+```
+
+You can solve this by adding execute permissions to `chrome_crashpad_handler`:
+
+```
+chmod +x chrome_crashpad_handler
+```
+
 ## Shared folders
 
 Some folders contain a `shared` folder, these contain code shared by more than one test file,
