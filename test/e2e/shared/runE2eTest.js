@@ -6,6 +6,11 @@ import {discardCurrentContexts} from "./browser.js";
  * @property {string} name
  * @property {boolean} [ignore]
  * @property {() => Promise<void> | void} fn
+ * @property {number} [forceRunCount] When set, the test will be run this many times, regardless of the success rate.
+ * You can use this to debug flaky tests. I.e. set it to 100 or 500 or so to check the success rate.
+ *
+ * This is also useful to check if your changes made a test more flaky or not.
+ * Just make your changes and run it again a bunch of times, then compare the difference.
  */
 
 let currentPath = "";
@@ -21,6 +26,14 @@ let failedTests = [];
 
 const MAX_ATTEMPTS = 10;
 const REQUIRED_SUCCESS_RATE = 0.7;
+
+/**
+ * @param {number} successCount
+ * @param {number} attempts
+ */
+function wasSuccessful(successCount, attempts) {
+	return successCount / attempts >= REQUIRED_SUCCESS_RATE;
+}
 
 let isRunningTest = false;
 /**
@@ -80,21 +93,28 @@ export async function runE2eTest(config) {
 				console.log(`attempt ${attempts} ${status}`);
 			}
 
-			if (attempts >= MAX_ATTEMPTS) break;
-
-			// If enough runs have succeeded, we can stop
-			if (successCount / attempts > REQUIRED_SUCCESS_RATE) {
-				success = true;
-				break;
-			}
-
-			// If too many runs have failed, and we're never able to reach the success rate, there's no point in continuing
-			{
-				const remainingAttempts = MAX_ATTEMPTS - attempts;
-				const maxPossibleSuccessCount = successCount + remainingAttempts;
-				const maxPossibleSuccessRate = maxPossibleSuccessCount / MAX_ATTEMPTS;
-				if (maxPossibleSuccessRate <= REQUIRED_SUCCESS_RATE) {
+			if (config.forceRunCount) {
+				if (attempts >= config.forceRunCount) {
+					success = wasSuccessful(successCount, attempts);
 					break;
+				}
+			} else {
+				if (attempts >= MAX_ATTEMPTS) break;
+
+				// If enough runs have succeeded, we can stop
+				if (wasSuccessful(successCount, attempts)) {
+					success = true;
+					break;
+				}
+
+				// If too many runs have failed, and we're never able to reach the success rate, there's no point in continuing
+				{
+					const remainingAttempts = MAX_ATTEMPTS - attempts;
+					const maxPossibleSuccessCount = successCount + remainingAttempts;
+					const maxPossibleSuccessRate = maxPossibleSuccessCount / MAX_ATTEMPTS;
+					if (maxPossibleSuccessRate <= REQUIRED_SUCCESS_RATE) {
+						break;
+					}
 				}
 			}
 		}
