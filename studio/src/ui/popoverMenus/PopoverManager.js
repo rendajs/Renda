@@ -130,8 +130,6 @@ export class PopoverManager {
 			return;
 		}
 
-		console.log("Body click detected, closing all popovers", e)
-
 		this.#activePopovers.forEach(p => {
 			p.close();
 		});
