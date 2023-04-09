@@ -52,7 +52,6 @@ export class PreferencesPopover extends Popover {
 	}
 
 	/**
-	 * @override
 	 * @param {import("../preferences/PreferencesManager.js").PreferencesManager<any>} preferencesManager
 	 * @param {string[]} preferenceIds
 	 * @param {HTMLElement} buttonEl
