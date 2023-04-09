@@ -91,7 +91,7 @@ export class PreferencesPopover extends Popover {
 		this.#updateEntryValues();
 
 		this.setPos(buttonEl);
-	}
+	};
 
 	#getCurrentLocation() {
 		const index = this.locationDropDown.getValue({getAsString: false}) - 1;

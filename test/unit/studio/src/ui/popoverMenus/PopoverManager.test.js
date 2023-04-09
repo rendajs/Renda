@@ -114,7 +114,7 @@ Deno.test({
 			// But clicking any other element should
 			const mouseEvent2 = new FakeMouseEvent("click");
 
-			try{
+			try {
 				document.body.dispatchEvent(mouseEvent2);
 			} catch (e) {
 				fail();
