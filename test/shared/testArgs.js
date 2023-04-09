@@ -1,7 +1,11 @@
-export const PUPPETEER_NO_HEADLESS_ARG = "--no-headless";
+import {parse} from "std/flags/mod.ts";
 
 export function parseArgs() {
-	const inspect = Deno.args.includes("--inspect") || Deno.args.includes("--inspect-brk") || Deno.args.includes("-i");
-	const headless = !Deno.args.includes(PUPPETEER_NO_HEADLESS_ARG) && !inspect;
+	const parsed = parse(Deno.args);
+	const inspect = parsed.inspect || parsed["inspect-brk"] || parsed.i;
+	let headless = !inspect;
+	if (parsed.headless || parsed.h) {
+		headless = !headless;
+	}
 	return {inspect, headless};
 }

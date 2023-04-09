@@ -10,7 +10,7 @@ export function setMainPageUrl(url) {
 }
 function getMainPageUrl() {
 	if (!mainPageUrl) {
-		throw new Error("Failed to get main page url, no test server address provided via args.");
+		throw new Error("Failed to get main page url, use `setMainPageUrl` first.");
 	}
 	return mainPageUrl;
 }
@@ -41,6 +41,10 @@ async function installIfNotInstalled() {
 
 /** @type {import("puppeteer").Browser?} */
 let browser = null;
+let browserStartedWithHeadless = false;
+
+/** @type {import("puppeteer").Page?} */
+let defaultPage = null;
 
 /**
  * @param {object} options
@@ -48,17 +52,24 @@ let browser = null;
  */
 export async function launch({headless}) {
 	const executablePath = await installIfNotInstalled();
+	console.log(`Launching ${executablePath}`);
 	browser = await puppeteer.launch({
 		headless,
 		args: ["--enable-unsafe-webgpu"],
 		devtools: !headless,
 		executablePath,
 	});
+	browserStartedWithHeadless = headless;
+	const pages = await browser.pages();
+	defaultPage = pages[0];
 	return browser;
 }
 
 /** @type {Set<import("puppeteer").BrowserContext>} */
 const contexts = new Set();
+
+/** @type {Set<import("puppeteer").Page>} */
+const pages = new Set();
 
 /**
  * Creates a new incognito context and a page.
@@ -72,6 +83,8 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 	const context = await browser.createIncognitoBrowserContext();
 	contexts.add(context);
 	const page = await context.newPage();
+	pages.add(page);
+	await updateDefaultPageVisibility();
 	page.on("console", async message => {
 		const jsonArgs = [];
 		for (const arg of message.args()) {
@@ -84,21 +97,56 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 		context,
 		page,
 		async discard() {
+			pages.delete(page);
 			contexts.delete(context);
+			await updateDefaultPageVisibility();
 			await context.close();
 		},
 	};
 }
 
 /**
+ * The page from the default context is always empty and only sits in the way.
+ * But the Chrome process exits when the last page is closed, herefore we can't close it on startup.
+ * Instead we'll close it once at least one other page is opened.
+ * Then we open it again right before the last page is closed.
+ * That way the browser process never exits.
+ */
+async function updateDefaultPageVisibility() {
+	// If we're in headless mode, let's not do any of this.
+	// We don't want to make ci more flaky.
+	// Even though in headless mode the browser does not seem to exit when the last page is closed.
+	if (browserStartedWithHeadless) return;
+
+	if (!browser) {
+		throw new Error("Assertion failed, browser was not launched.");
+	}
+	const needsDefaultPage = pages.size === 0;
+	const hasDefaultPage = Boolean(defaultPage);
+	if (needsDefaultPage != hasDefaultPage) {
+		if (defaultPage) {
+			await defaultPage.close();
+			defaultPage = null;
+		} else {
+			const ctx = browser.defaultBrowserContext();
+			defaultPage = await ctx.newPage();
+		}
+	}
+}
+
+/**
  * Discards all created contexts. Called by the test runner at the end of a test.
  */
 export async function discardCurrentContexts() {
+	const contextsCopy = [...contexts];
+	contexts.clear();
+	pages.clear();
+	await updateDefaultPageVisibility();
+
 	const promises = [];
-	for (const context of contexts) {
+	for (const context of contextsCopy) {
 		promises.push(context.close());
 	}
-	contexts.clear();
 	await Promise.all(promises);
 }
 

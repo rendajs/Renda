@@ -12,9 +12,9 @@ You can optionally provide a path to only run a specific portion of the test sui
 The test script takes some optional parameters:
 
 - `-i`, `--inspect` to wait for a debugger to connect, this also automatically disables headless mode for e2e tests.
+- `-h`, `--headless` toggles the default headless behaviour. Headless mode is disabled by default unless `-i` or `--inspect` have been specified.
 - `-c`, `--coverage` generates a coverage file in `.lcov` format. This is useful if your IDE supports it.
 - `--html` generates a coverage file in `.html` format. `genhtml` needs to be installed for this to work. The generated html can be found at `.coverage/html`.
-- `--no-headless` to disable headless mode in e2e tests.
 
 ## Unit tests
 
@@ -62,6 +62,23 @@ This module also contains functions not called by tests, but that you can use to
 For example, calling `e2e.logTreeViewPath($0)` will tell you the path that would need to be passed into the
 `getTreeViewItemElement()` function in `test/e2e/studio/shared/treeView.js`.
 In this case `$0` is [the most recently selected node](https://developer.chrome.com/blog/the-currently-selected-dom-node/).
+
+### Inspecting on Linux
+
+If you're running Linux and the e2e tests keep hanging at 'Launching [path to chrome]',
+This is likely because some executables are missing the required permissions.
+You can verify this by trying to execute the path to chrome manually.
+When doing so, you'll likely see something like:
+
+```
+spawn_subprocess.cc(221)] posix_spawn: Permission denied
+```
+
+You can solve this by adding execute permissions to `chrome_crashpad_handler`:
+
+```
+chmod +x chrome_crashpad_handler
+```
 
 ## Shared folders
 
