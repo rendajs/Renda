@@ -1,6 +1,6 @@
-import {assertEquals, assertExists, assertThrows} from "std/testing/asserts.ts";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
+import {assertEquals, assertExists, assertThrows} from "std/testing/asserts.ts";
 import {Popover} from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
 import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import {PopoverToggleButton} from "../../../../../../studio/src/ui/popoverMenus/PopoverToggleButton.js";
@@ -19,69 +19,78 @@ function basicManager() {
 	};
 }
 
-Deno.test("Creates a button", async () => {
-	const {manager, uninstall} = basicManager();
-	try {
-		const button = new PopoverToggleButton(Popover, manager, {});
+Deno.test({
+	name: "Creates a button",
+	async fn() {
+		const {manager, uninstall} = basicManager();
+		try {
+			const button = new PopoverToggleButton(Popover, manager, {});
 
-		assertExists(button.el);
-	} finally {
-		uninstall();
-	}
+			assertExists(button.el);
+		} finally {
+			uninstall();
+		}
+	},
 });
 
-Deno.test("Instantiates a Popover on click when one does not exist", async () => {
-	const {manager, uninstall} = basicManager();
-	try {
-		const button = new PopoverToggleButton(Popover, manager, {
-			text: "Test",
-		});
+Deno.test({
+	name: "Instantiates a Popover on click when one does not exist",
+	async fn() {
+		const {manager, uninstall} = basicManager();
+		try {
+			const button = new PopoverToggleButton(Popover, manager, {
+				text: "Test",
+			});
 
-		assertExists(button.el);
+			assertExists(button.el);
 
-		button.onPopoverCreated(async popover => {
-			assertEquals(popover.el.parentElement, document.body);
-			assertExists(manager.getLastPopover());
-		});
-
-		await waitForMicrotasks();
-
-		const mouseEvent = new FakeMouseEvent("click");
-		button.el.dispatchEvent(mouseEvent);
-	} finally {
-		uninstall();
-	}
-});
-
-Deno.test("Closes the Popover on click when one exists", async () => {
-	const {manager, uninstall} = basicManager();
-	try {
-		const button = new PopoverToggleButton(Popover, manager, {
-			text: "Test",
-		});
-
-		assertExists(button.el);
-
-		button.onPopoverCreated(async popover => {
-			assertEquals(popover.el.parentElement, document.body);
-			assertExists(manager.getLastPopover());
-
-			const mouseEvent2 = new FakeMouseEvent("click");
-
-			button.el.dispatchEvent(mouseEvent2);
+			button.onPopoverCreated(async popover => {
+				assertEquals(popover.el.parentElement, document.body);
+				assertExists(manager.getLastPopover());
+			});
 
 			await waitForMicrotasks();
 
-			assertThrows(() => {
-				assertExists(manager.getLastPopover());
+			const mouseEvent = new FakeMouseEvent("click");
+			button.el.dispatchEvent(mouseEvent);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Closes the Popover on click when one exists",
+	async fn() {
+		const {manager, uninstall} = basicManager();
+		try {
+			const button = new PopoverToggleButton(Popover, manager, {
+				text: "Test",
 			});
-		});
 
-		await waitForMicrotasks();
+			assertExists(button.el);
 
-		const mouseEvent = new FakeMouseEvent("click");
-		button.el.dispatchEvent(mouseEvent);
-	} finally {
-		uninstall();
-	}
+			button.onPopoverCreated(async popover => {
+				assertEquals(popover.el.parentElement, document.body);
+				assertExists(manager.getLastPopover());
+
+				const mouseEvent2 = new FakeMouseEvent("click");
+
+				button.el.dispatchEvent(mouseEvent2);
+
+				await waitForMicrotasks();
+
+				assertThrows(() => {
+					assertExists(manager.getLastPopover());
+				});
+			});
+
+			await waitForMicrotasks();
+
+			const mouseEvent = new FakeMouseEvent("click");
+			button.el.dispatchEvent(mouseEvent);
+		} finally {
+			uninstall();
+		}
+	},
 });
