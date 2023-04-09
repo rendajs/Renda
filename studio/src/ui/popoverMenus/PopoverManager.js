@@ -44,8 +44,26 @@ export class PopoverManager {
 	 * @param {new (...args: any[]) => T} PopoverConstructor The popover class constructor to add. Defaults to Popover.
 	 */
 	addPopover(PopoverConstructor = /** @type  {new (...args: any[]) => T} */ (Popover)) {
-		const popover = new PopoverConstructor(this);
+		return this.#setupPopover(new PopoverConstructor(this));
+	}
 
+	/**
+	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
+	 * @returns {ContextMenu}
+	 */
+	createContextMenu(structure = null) {
+		return this.#setupPopover(new ContextMenu(this, {structure}));
+	}
+
+	/**
+	 * Performs setup code common to addPopover and createContextMenu.
+	 * TODO: integrate createContextMenu and addPopover into a single method, and remove this method.
+	 *
+	 * @template {Popover} T
+	 * @param {T} popover Popover to set up
+	 * @returns {T}
+	 */
+	#setupPopover(popover) {
 		popover.onNeedsCurtainChange(this.#updateCurtainActive);
 		this.#activePopovers.push(popover);
 		this.#updateCurtainActive();
@@ -57,28 +75,7 @@ export class PopoverManager {
 			this.#updateBodyClickListener();
 		});
 
-		return /** @type {T} */ (popover);
-	}
-
-	/**
-	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
-	 * @returns {ContextMenu}
-	 */
-	createContextMenu(structure = null) {
-		const contextMenu = new ContextMenu(this, {structure});
-
-		contextMenu.onNeedsCurtainChange(this.#updateCurtainActive);
-		this.#activePopovers.push(contextMenu);
-		this.#updateCurtainActive();
-
-		// If a popover is opened as part of clicking a button, the click event will fire on the body immediately
-		// after clicking that button. This would cause the popover to immediately close again.
-		// To prevent this, we run this code in the next event loop.
-		waitForEventLoop().then(() => {
-			this.#updateBodyClickListener();
-		});
-
-		return contextMenu;
+		return popover;
 	}
 
 	getLastPopover() {
