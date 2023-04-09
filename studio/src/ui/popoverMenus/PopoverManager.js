@@ -79,10 +79,11 @@ export class PopoverManager {
 	}
 
 	getLastPopover() {
-		if (this.#activePopovers.length === 0) {
+		if (this.#activePopovers.length > 0) {
+			return this.#activePopovers[this.#activePopovers.length - 1];
+		} else {
 			throw new Error("Error retrieving last popover from manager: No popovers exist");
 		}
-		return this.#activePopovers.at(-1);
 	}
 
 	/**
