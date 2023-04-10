@@ -53,7 +53,6 @@ export class ContextMenuItem {
 		this.contentEl.appendChild(this.pictureEl);
 
 		this.textEl = document.createElement("span");
-		this.textEl.textContent = text;
 		this.textEl.title = tooltip;
 		this.textEl.classList.add("contextMenuItemText");
 
@@ -99,6 +98,8 @@ export class ContextMenuItem {
 				cb();
 			}
 		});
+
+		this.setText(text);
 	}
 
 	get reserveIconSpace() {
