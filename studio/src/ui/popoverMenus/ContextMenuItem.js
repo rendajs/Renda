@@ -25,22 +25,18 @@ export class ContextMenuItem {
 		this.containingContextMenu = containingContextMenu;
 
 		if (horizontalLine) {
-			this.el = document.createElement("hr");
+			this.el = document.createElement("div");
 			this.el.classList.add("context-menu-divider");
-
-			// return because rest of constructor is unnecessary;
-			// divider is purely semantic and doesn't have icons, text, etc.
-			return;
 		} else {
 			this.el = document.createElement("button");
 			this.el.classList.add("context-menu-item");
 			this.el.disabled = disabled;
-
-			this.contentEl = document.createElement("div");
-			this.contentEl.classList.add("context-menu-item-content");
-
-			this.el.appendChild(this.contentEl);
 		}
+
+		this.contentEl = document.createElement("div");
+		this.contentEl.classList.add("context-menu-item-content");
+
+		this.el.appendChild(this.contentEl);
 
 		this.iconEl = document.createElement("div");
 		this.iconEl.classList.add("context-menu-item-icon");

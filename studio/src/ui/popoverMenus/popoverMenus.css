@@ -87,7 +87,6 @@ span.context-menu-item-text {
 }
 
 .context-menu-divider {
-	border: none;
 	background: var(--overlay-panel-borders-color);
 	height: 1px;
 	margin: 5px 3px;
