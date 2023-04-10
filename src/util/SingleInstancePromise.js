@@ -122,9 +122,10 @@ export class SingleInstancePromise {
 	 * Resolves immediately if the function is not running, either because it is done or if it has already run.
 	 */
 	async waitForFinishIfRunning() {
-		if (!this._isEmptyingQueue) return;
-		/** @type {Promise<void>} */
-		const promise = new Promise(r => this._onFinishCbs.add(r));
-		await promise;
+		while (this._isEmptyingQueue) {
+			/** @type {Promise<void>} */
+			const promise = new Promise(r => this._onFinishCbs.add(r));
+			await promise;
+		}
 	}
 }
