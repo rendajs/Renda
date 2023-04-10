@@ -175,7 +175,7 @@ Deno.test({
 		const instance = new SingleInstancePromise(async () => {}, {once: true});
 		await assertRejects(async () => {
 			await instance.waitForFinish();
-		}, Error, "waitForFinish() will stay pending forever when once has been set, use waitForFinishOnce() instead.");
+		}, Error, "waitForFinish() would stay pending forever when once has been set, use waitForFinishOnce() instead.");
 	},
 });
 
@@ -214,6 +214,32 @@ Deno.test({
 			await resolvePromise("");
 			await assertPromiseResolved(instance.waitForFinishIfRunning(), true);
 		});
+	},
+});
+
+Deno.test({
+	name: "waitForFinishIfRunning does not resolve when the queue is not empty yet",
+	async fn() {
+		const basic = basicSpyFn();
+		const instance = new SingleInstancePromise(basic.spyFn);
+		const promiseA = instance.run("a");
+		const promiseB = instance.run("b");
+
+		const waitPromise = instance.waitForFinishIfRunning();
+		await assertPromiseResolved(promiseA, false);
+		await assertPromiseResolved(promiseB, false);
+		await assertPromiseResolved(waitPromise, false);
+
+		await basic.resolvePromise("resolved");
+		await assertPromiseResolved(promiseA, true);
+		assertEquals(await promiseA, "aresolved");
+		await assertPromiseResolved(promiseB, false);
+		await assertPromiseResolved(waitPromise, false);
+
+		await basic.resolvePromise("resolved");
+		await assertPromiseResolved(promiseB, true);
+		assertEquals(await promiseB, "bresolved");
+		await assertPromiseResolved(waitPromise, true);
 	},
 });
 
