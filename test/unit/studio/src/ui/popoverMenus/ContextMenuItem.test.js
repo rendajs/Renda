@@ -1,8 +1,9 @@
-import { assertEquals } from "std/testing/asserts.ts";
+import { assertEquals, assertExists } from "std/testing/asserts.ts";
 import { ContextMenuItem } from "../../../../../../studio/src/ui/popoverMenus/ContextMenuItem.js";
 import { ContextMenu } from "../../../../../../studio/src/ui/popoverMenus/ContextMenu.js";
 import { PopoverManager } from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import { ColorizerFilterManager } from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
+import { runWithDom } from "../../../shared/runWithDom.js";
 
 /**
  * @returns {ContextMenu}
@@ -14,48 +15,84 @@ function createContextMenu() {
 }
 
 Deno.test({
-	name: "Creates a new context menu item",
+	name: "Creates a ContextMenuItem with text",
 	fn: () => {
-		const contextMenu = createContextMenu();
+		runWithDom(() => {
+			const contextMenu = createContextMenu();
 
-		const contextMenuItem = new ContextMenuItem(contextMenu,{
-			text: "Test",
-			onClick: () => {},
+			const contextMenuItem = new ContextMenuItem(contextMenu, {
+				text: "Test",
+			});
+
+			assertExists(contextMenuItem.textEl);
+			assertEquals(contextMenuItem.textEl.textContent, "Test");
+		})
+	},
+});
+
+Deno.test({
+	name: "Creates a contextMenu visual divider",
+	fn: () => {
+		runWithDom(() => {
+			const contextMenu = createContextMenu();
+
+			const contextMenuItem = new ContextMenuItem(contextMenu, {
+				horizontalLine: true,
+			});
+
+			console.log(contextMenuItem.el.tagName);
+			assertEquals(contextMenuItem.el.tagName === "HR", true);
 		});
-
-		assertEquals(contextMenuItem.textEl?.innerText, "Test");
-		assertEquals(contextMenuItem.onClick, () => {});
-	}
+	},
 });
 
 Deno.test({
-	name: "Creates a context menu divider",
-	fn: () => {}
-});
-
-Deno.test({
-	name: "Creates context menu with proper tag structure",
+	name: "Creates a ContextMenuItem with an icon",
 	fn: () => {
+		runWithDom(() => {
+			const contextMenu = createContextMenu();
 
-	}
+			const contextMenuItem = new ContextMenuItem(contextMenu, {
+				showBullet: true,
+			});
+
+			assertEquals(contextMenuItem.iconEl?.src.includes("contextMenuBullet"), true);
+		});
+	},
 });
 
 Deno.test({
-	name: "",
-	fn: () => {}
+	name: "May change ContextMenuItem text",
+	fn: () => {
+		runWithDom(() => {
+			const contextMenu = createContextMenu();
+
+			const contextMenuItem = new ContextMenuItem(contextMenu, {
+				text: "Test",
+			});
+
+			contextMenuItem.setText("Test2");
+
+			assertEquals(contextMenuItem.textEl?.textContent, "Test2");
+		});
+	},
 });
 
 Deno.test({
-	name: "",
-	fn: () => {}
-});
+	name: "May change ContextMenuItem icon",
+	fn: () => {
+		runWithDom(() => {
+			const contextMenu = createContextMenu();
 
-Deno.test({
-	name: "",
-	fn: () => {}
-});
+			const contextMenuItem = new ContextMenuItem(contextMenu, {
+				text: "Test",
+				showBullet: true,
+			});
 
-Deno.test({
-	name: "",
-	fn: () => {}
+			contextMenuItem.showBullet = false;
+			contextMenuItem.showCheckmark = true;
+
+			assertEquals(contextMenuItem.iconEl?.src.includes("contextMenuCheck"), true);
+		});
+	},
 });
