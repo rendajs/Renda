@@ -73,8 +73,8 @@ await runE2eTest({
 				if (!studio) throw new Error("Assertion failed, studio is not defined");
 				const fs = studio.projectManager.currentProjectFileSystem;
 				if (!fs) throw new Error("Assertion failed, fs is not defined");
-				return fs.readJson(["New Material.json"]);
-			});
+				return fs.readJson(["New Material.json"])
+			})
 			const str = JSON.stringify(fileContents, null, 2);
 			console.log(str);
 		}

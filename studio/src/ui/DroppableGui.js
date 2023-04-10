@@ -4,8 +4,6 @@ import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {ProjectAssetType} from "../assets/projectAssetType/ProjectAssetType.js";
 import {isUuid} from "../../../src/mod.js";
 
-let instanceId = 0;
-
 /**
  * @template {new (...args: any) => any} T
  * @typedef {object} DroppableGuiOptionsType
@@ -147,8 +145,6 @@ export class DroppableGui {
 		this.embeddedParentAsset = embeddedParentAsset;
 		/** @private @type {unknown} */
 		this.embeddedParentAssetPersistenceKey = embeddedParentAssetPersistenceKey;
-
-		this.instance = instanceId++;
 
 		this.el = document.createElement("div");
 		this.el.classList.add("droppableGui", "empty");
@@ -462,7 +458,6 @@ export class DroppableGui {
 	 * @param {typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} projectAssetType
 	 */
 	createEmbeddedAsset(projectAssetType) {
-		console.log("createEmbeddedAsset", this.instance)
 		const assetManager = getStudioInstance().projectManager.assertAssetManagerExists();
 		if (!this.embeddedParentAsset) {
 			throw new Error("Tried to create an embedded asset from a DroppableGui that has no embeddedParentAsset set.");
