@@ -1,9 +1,9 @@
-import { assertEquals, assertExists } from "std/testing/asserts.ts";
-import { ContextMenuItem } from "../../../../../../studio/src/ui/popoverMenus/ContextMenuItem.js";
-import { ContextMenu } from "../../../../../../studio/src/ui/popoverMenus/ContextMenu.js";
-import { PopoverManager } from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
-import { ColorizerFilterManager } from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
-import { runWithDom } from "../../../shared/runWithDom.js";
+import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {ContextMenuItem} from "../../../../../../studio/src/ui/popoverMenus/ContextMenuItem.js";
+import {ContextMenu} from "../../../../../../studio/src/ui/popoverMenus/ContextMenu.js";
+import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
+import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
+import {runWithDom} from "../../../shared/runWithDom.js";
 
 /**
  * @returns {ContextMenu}
@@ -26,7 +26,7 @@ Deno.test({
 
 			assertExists(contextMenuItem.textEl);
 			assertEquals(contextMenuItem.textEl.textContent, "Test");
-		})
+		});
 	},
 });
 

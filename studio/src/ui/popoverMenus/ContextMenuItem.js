@@ -24,7 +24,7 @@ export class ContextMenuItem {
 	} = {}) {
 		this.containingContextMenu = containingContextMenu;
 
-		if(horizontalLine) {
+		if (horizontalLine) {
 			this.el = document.createElement("hr");
 			this.el.classList.add("contextMenuDivider");
 
@@ -140,7 +140,7 @@ export class ContextMenuItem {
 	updateIconStyle() {
 		const needsSpace = this.containingContextMenu.hasResevedIconSpaceItem || this.showCheckmark || this.showBullet || this.icon;
 
-		if(!this.iconEl) return;
+		if (!this.iconEl) return;
 
 		this.iconEl.classList.toggle("hidden", !needsSpace);
 		let iconUrl = null;
@@ -166,7 +166,7 @@ export class ContextMenuItem {
 	 * @param {string} text
 	 */
 	setText(text) {
-		if(this.textEl) this.textEl.textContent = text;
+		if (this.textEl) this.textEl.textContent = text;
 	}
 
 	/**
