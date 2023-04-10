@@ -34,16 +34,21 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			},
 		});
 		this.mapTreeView.onValueChange(async () => {
+			console.log("onValueChange", this.isUpdatingUi);
 			if (this.isUpdatingUi) return;
 
 			// todo: support multiselect
 			const asset = this.currentSelection[0];
+			console.log("waiting for getLiveAssetData");
 			const {liveAsset: material} = await asset.getLiveAssetData();
+			console.log("done waiting for getLiveAssetData");
 
 			const mapAsset = this.mapTreeView.getValue({purpose: "script"});
 			material.setMaterialMap(mapAsset);
 
+			console.log("waiting for loadMapValues");
 			await this.loadMapValues();
+			console.log("done waiting for loadMapValues");
 			this.notifyEntityEditorsMaterialChanged();
 			this.saveAsset();
 		});
@@ -71,6 +76,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	async loadAssetFn() {
 		// todo: handle multiple selected items or no selection
 
+		console.log("set isUpdatingUi true")
 		this.isUpdatingUi = true;
 
 		const material = await this.getFirstSelectedLiveAsset();
@@ -82,11 +88,14 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		this.mapTreeView.setValue(material.materialMap);
 		await this.loadMapValues();
 
+		console.log("set isUpdatingUi false")
 		this.isUpdatingUi = false;
 	}
 
 	async waitForAssetLoad() {
-		await this.#loadAssetInstance.waitForFinishOnce();
+		console.log("waitForAssetLoad called");
+		await this.#loadAssetInstance.waitForFinishIfRunning();
+		console.log("waitForAssetLoad done");
 	}
 
 	async saveAsset() {
