@@ -97,7 +97,7 @@ export class SingleInstancePromise {
 	 */
 	async waitForFinish() {
 		if (this.once) {
-			throw new Error("waitForFinish() will stay pending forever when once has been set, use waitForFinishOnce() instead.");
+			throw new Error("waitForFinish() would stay pending forever when once has been set, use waitForFinishOnce() instead.");
 		}
 		/** @type {Promise<void>} */
 		const promise = new Promise(r => this._onFinishCbs.add(r));
@@ -118,13 +118,16 @@ export class SingleInstancePromise {
 	}
 
 	/**
-	 * Returns a promise that will resolve once the function is done running.
+	 * Returns a promise that will resolve once all calls to the function is done running.
 	 * Resolves immediately if the function is not running, either because it is done or if it has already run.
+	 * If a new call is made to `run` while the function was still running,
+	 * this promise will not resolve until that run is done as well.
 	 */
 	async waitForFinishIfRunning() {
-		if (!this._isEmptyingQueue) return;
-		/** @type {Promise<void>} */
-		const promise = new Promise(r => this._onFinishCbs.add(r));
-		await promise;
+		while (this._isEmptyingQueue) {
+			/** @type {Promise<void>} */
+			const promise = new Promise(r => this._onFinishCbs.add(r));
+			await promise;
+		}
 	}
 }
