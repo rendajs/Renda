@@ -71,6 +71,10 @@ const contexts = new Set();
 /** @type {Set<import("puppeteer").Page>} */
 const pages = new Set();
 
+/** @type {{location: string, argsPromise: Promise<unknown[]>}[]} */
+let consoleQueue = [];
+let isDrainingConsoleQueue = false;
+
 /**
  * Creates a new incognito context and a page.
  * Contexts are automatically cleaned up after each test, even if the test fails.
@@ -85,13 +89,18 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 	const page = await context.newPage();
 	pages.add(page);
 	await updateDefaultPageVisibility();
+
 	page.on("console", async message => {
-		const jsonArgs = [];
-		for (const arg of message.args()) {
-			jsonArgs.push(await arg.jsonValue());
-		}
-		console.log(...jsonArgs);
+		// We need to request `jsonValue` right away, if we only add the message
+		// to the queue and request it later the browser context might already be lost.
+		const argsPromises = message.args().map(arg => arg.jsonValue());
+		consoleQueue.push({
+			location: message.location().url || "unknown",
+			argsPromise: Promise.all(argsPromises),
+		});
+		drainConsoleQueue();
 	});
+
 	await page.goto(url);
 	return {
 		context,
@@ -103,6 +112,22 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 			await context.close();
 		},
 	};
+}
+
+async function drainConsoleQueue() {
+	if (isDrainingConsoleQueue) return;
+	isDrainingConsoleQueue = true;
+
+	while (true) {
+		const message = consoleQueue.shift();
+		if (!message) break;
+
+		const jsonArgs = await message.argsPromise;
+		console.log(`Browser console message from ${message.location}:`);
+		console.log(...jsonArgs);
+	}
+
+	isDrainingConsoleQueue = false;
 }
 
 /**
