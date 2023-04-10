@@ -67,9 +67,24 @@ await runE2eTest({
 		assertExists(checkbox);
 		await click(page, checkbox);
 
+		async function logMaterial() {
+			const fileContents = await page.evaluate(() => {
+				const studio = globalThis.studio;
+				if (!studio) throw new Error("Assertion failed, studio is not defined");
+				const fs = studio.projectManager.currentProjectFileSystem;
+				if (!fs) throw new Error("Assertion failed, fs is not defined");
+				return fs.readJson(["New Material.json"])
+			})
+			const str = JSON.stringify(fileContents, null, 2);
+			console.log(str);
+		}
+		await logMaterial();
+
 		await reloadPage(page);
 
 		await waitForProjectOpen(page);
+
+		await logMaterial();
 
 		log("Verify if changes were saved");
 		await clickAsset(page, MATERIAL_ASSET_PATH);

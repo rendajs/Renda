@@ -268,6 +268,7 @@ export class StudioFileSystem {
 	async writeText(path, text, {
 		type = "text/plain",
 	} = {}) {
+		console.log("WRITE", path, text);
 		await this.writeFile(path, new File([text], "", {type}));
 	}
 
