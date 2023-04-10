@@ -36,46 +36,61 @@
 	stroke-width: 1px;
 }
 
-.contextMenuItem{
-	padding: 1px 8px;
+button.contextMenuItem {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	border: none;
+	padding: 2px 8px;
+	background-color: transparent;
 }
-.contextMenuItemText {
-	display: inline;
-}
-.contextMenuItemIcon {
-	display: inline-block;
-	width: 20px;
-	height: 1em;
-	background-size: contain;
-	background-repeat: no-repeat;
-	vertical-align: text-top;
-}
-.contextMenuItemIcon.hidden {
-	display: none;
-}
-.contextMenuItem.disabled{
+button.contextMenuItem[disabled] {
 	color: var(--default-text-color-disabled-context-menu);
 }
 
-.contextMenuItem:hover:not(.disabled){
+.contextMenuItemContent {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+picture.contextMenuIcon {
+	display: inline-block;
+}
+picture.contextMenuIcon.hidden {
+	display: none;
+}
+picture.contextMenuIcon > img {
+	width: 20px;
+	height: 1em;
+	object-fit: contain;
+	vertical-align: middle;
+}
+
+span.contextMenuItemText {
+	display: inline;
+}
+.contextMenuItem:hover:not([disabled]){
 	background: var(--color-selected-blue);
 	color: var(--selected-text-color);
 }
 
-.contextMenuRightArrow{
+.contextMenuItem > .rightArrow{
+	display: inline-block;
 	width: 0px;
 	height: 0px;
-	display: inline-block;
+	margin-left: 6px;
 	border: 5px solid transparent;
 	border-left: 10px solid var(--text-color-level0);
 	border-right: 0px solid transparent;
-	margin-left: 6px;
 }
-.contextMenuItem:hover:not(.disabled) .contextMenuRightArrow{
+.contextMenuItem:hover:not([disabled]) .rightArrow{
 	border-left: 10px solid var(--selected-text-color);
 }
 
-.contextMenuItemHorizontalLine {
+.contextMenuDivider {
+	border: none;
 	background: var(--overlay-panel-borders-color);
 	height: 1px;
 	margin: 5px 3px;

@@ -1,4 +1,10 @@
 export class ContextMenuItem {
+	/** @type {Set<function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void>} */
+	onClickCbs = new Set();
+
+	/** @type {Set<() => void>} */
+	onHoverCbs = new Set();
+
 	/**
 	 * @param {import("./ContextMenu.js").ContextMenu} containingContextMenu
 	 * @param {import("./ContextMenu.js").ContextMenuItemOpts} opts
@@ -17,22 +23,46 @@ export class ContextMenuItem {
 		icon = null,
 	} = {}) {
 		this.containingContextMenu = containingContextMenu;
-		this.el = document.createElement("div");
-		this.el.classList.add("contextMenuItem");
-		this.el.classList.toggle("disabled", disabled || horizontalLine);
 
-		this.iconEl = document.createElement("div");
-		this.iconEl.classList.add("contextMenuItemIcon");
-		this.textEl = document.createElement("div");
+		if(horizontalLine) {
+			this.el = document.createElement("hr");
+			this.el.classList.add("contextMenuDivider");
+
+			// return because rest of constructor is unnecessary;
+			// divider is purely semantic and doesn't have icons, text, etc.
+			return;
+		} else {
+			this.el = document.createElement("button");
+			this.el.classList.add("contextMenuItem");
+			this.el.disabled = disabled;
+
+			this.contentEl = document.createElement("div");
+			this.contentEl.classList.add("contextMenuItemContent");
+
+			this.el.appendChild(this.contentEl);
+		}
+
+		this.pictureEl = document.createElement("picture");
+		this.pictureEl.classList.add("contextMenuIcon");
+
+		this.iconEl = document.createElement("img");
+		// use empty alt to convey as decorative image
+		this.iconEl.alt = "";
+
+		this.pictureEl.appendChild(this.iconEl);
+		this.contentEl.appendChild(this.pictureEl);
+
+		this.textEl = document.createElement("span");
+		this.textEl.textContent = text;
 		this.textEl.title = tooltip;
 		this.textEl.classList.add("contextMenuItemText");
-		if (!horizontalLine) {
-			this.el.appendChild(this.iconEl);
-			this.el.appendChild(this.textEl);
-		} else {
-			const lineEl = document.createElement("div");
-			lineEl.classList.add("contextMenuItemHorizontalLine");
-			this.el.appendChild(lineEl);
+
+		this.contentEl.appendChild(this.textEl);
+
+		if (showRightArrow) {
+			const arrowEl = document.createElement("div");
+			arrowEl.classList.add("rightArrow");
+			this.el.appendChild(arrowEl);
 		}
 
 		this._reserveIconSpace = reserveIconSpace;
@@ -42,12 +72,7 @@ export class ContextMenuItem {
 		this.disabled = disabled;
 		this.updateIconStyle();
 
-		/** @type {Set<function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void>} */
-		this.onClickCbs = new Set();
 		if (onClick) this.onClick(onClick);
-
-		/** @type {Set<() => void>} */
-		this.onHoverCbs = new Set();
 		if (onHover) this.onHover(onHover);
 
 		this.el.addEventListener("click", () => {
@@ -67,20 +92,13 @@ export class ContextMenuItem {
 				this.containingContextMenu.onItemClicked();
 			}
 		});
+
 		this.el.addEventListener("mouseenter", () => {
 			if (this.disabled) return;
 			for (const cb of this.onHoverCbs) {
 				cb();
 			}
 		});
-
-		if (showRightArrow) {
-			const arrowEl = document.createElement("div");
-			arrowEl.classList.add("contextMenuRightArrow");
-			this.el.appendChild(arrowEl);
-		}
-
-		this.setText(text);
 	}
 
 	get reserveIconSpace() {
@@ -121,6 +139,9 @@ export class ContextMenuItem {
 
 	updateIconStyle() {
 		const needsSpace = this.containingContextMenu.hasResevedIconSpaceItem || this.showCheckmark || this.showBullet || this.icon;
+
+		if(!this.iconEl) return;
+
 		this.iconEl.classList.toggle("hidden", !needsSpace);
 		let iconUrl = null;
 		if (this.showCheckmark) {
@@ -131,9 +152,9 @@ export class ContextMenuItem {
 			iconUrl = this.icon;
 		}
 		if (iconUrl) {
-			this.iconEl.style.backgroundImage = `url(${iconUrl})`;
+			this.iconEl.src = iconUrl;
 		} else {
-			this.iconEl.style.backgroundImage = "";
+			this.iconEl.src = "";
 		}
 	}
 
@@ -145,7 +166,7 @@ export class ContextMenuItem {
 	 * @param {string} text
 	 */
 	setText(text) {
-		this.textEl.textContent = text;
+		if(this.textEl) this.textEl.textContent = text;
 	}
 
 	/**
