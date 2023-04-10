@@ -175,7 +175,7 @@ Deno.test({
 		const instance = new SingleInstancePromise(async () => {}, {once: true});
 		await assertRejects(async () => {
 			await instance.waitForFinish();
-		}, Error, "waitForFinish() will stay pending forever when once has been set, use waitForFinishOnce() instead.");
+		}, Error, "waitForFinish() would stay pending forever when once has been set, use waitForFinishOnce() instead.");
 	},
 });
 
