@@ -26,41 +26,36 @@ export class ContextMenuItem {
 
 		if (horizontalLine) {
 			this.el = document.createElement("hr");
-			this.el.classList.add("contextMenuDivider");
+			this.el.classList.add("context-menu-divider");
 
 			// return because rest of constructor is unnecessary;
 			// divider is purely semantic and doesn't have icons, text, etc.
 			return;
 		} else {
 			this.el = document.createElement("button");
-			this.el.classList.add("contextMenuItem");
+			this.el.classList.add("context-menu-item");
 			this.el.disabled = disabled;
 
 			this.contentEl = document.createElement("div");
-			this.contentEl.classList.add("contextMenuItemContent");
+			this.contentEl.classList.add("context-menu-item-content");
 
 			this.el.appendChild(this.contentEl);
 		}
 
-		this.pictureEl = document.createElement("picture");
-		this.pictureEl.classList.add("contextMenuIcon");
+		this.iconEl = document.createElement("div");
+		this.iconEl.classList.add("context-menu-item-icon");
 
-		this.iconEl = document.createElement("img");
-		// use empty alt to convey as decorative image
-		this.iconEl.alt = "";
-
-		this.pictureEl.appendChild(this.iconEl);
-		this.contentEl.appendChild(this.pictureEl);
+		this.contentEl.appendChild(this.iconEl);
 
 		this.textEl = document.createElement("span");
 		this.textEl.title = tooltip;
-		this.textEl.classList.add("contextMenuItemText");
+		this.textEl.classList.add("context-menu-item-text");
 
 		this.contentEl.appendChild(this.textEl);
 
 		if (showRightArrow) {
 			const arrowEl = document.createElement("div");
-			arrowEl.classList.add("rightArrow");
+			arrowEl.classList.add("right-arrow");
 			this.el.appendChild(arrowEl);
 		}
 
@@ -153,9 +148,9 @@ export class ContextMenuItem {
 			iconUrl = this.icon;
 		}
 		if (iconUrl) {
-			this.iconEl.src = iconUrl;
+			this.iconEl.style.backgroundImage = `url(${iconUrl})`;
 		} else {
-			this.iconEl.src = "";
+			this.iconEl.style.backgroundImage = "";
 		}
 	}
 
