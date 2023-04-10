@@ -1,9 +1,9 @@
 export class ContextMenuItem {
 	/** @type {Set<function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void>} */
-	onClickCbs = new Set();
+	#onClickCbs = new Set();
 
 	/** @type {Set<() => void>} */
-	onHoverCbs = new Set();
+	#onHoverCbs = new Set();
 
 	/**
 	 * @param {import("./ContextMenu.js").ContextMenu} containingContextMenu
@@ -78,7 +78,7 @@ export class ContextMenuItem {
 		this.el.addEventListener("click", () => {
 			if (this.disabled) return;
 			let preventMenuClose = false;
-			for (const cb of this.onClickCbs) {
+			for (const cb of this.#onClickCbs) {
 				/** @type {import("./ContextMenu.js").ContextMenuItemClickEvent} */
 				const event = {
 					item: this,
@@ -95,7 +95,7 @@ export class ContextMenuItem {
 
 		this.el.addEventListener("mouseenter", () => {
 			if (this.disabled) return;
-			for (const cb of this.onHoverCbs) {
+			for (const cb of this.#onHoverCbs) {
 				cb();
 			}
 		});
@@ -159,7 +159,7 @@ export class ContextMenuItem {
 	}
 
 	destructor() {
-		this.onClickCbs.clear();
+		this.#onClickCbs.clear();
 	}
 
 	/**
@@ -173,13 +173,13 @@ export class ContextMenuItem {
 	 * @param {function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void} cb
 	 */
 	onClick(cb) {
-		this.onClickCbs.add(cb);
+		this.#onClickCbs.add(cb);
 	}
 
 	/**
 	 * @param {() => void} cb
 	 */
 	onHover(cb) {
-		this.onHoverCbs.add(cb);
+		this.#onHoverCbs.add(cb);
 	}
 }
