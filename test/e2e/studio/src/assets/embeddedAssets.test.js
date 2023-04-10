@@ -40,7 +40,7 @@ await runE2eTest({
 			await assetContent.waitForAssetLoad();
 		}, assetContentReference);
 
-		log("Create embedded asset");
+		log("Find material map tree view entry");
 		const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
 		await createEmbeddedAssetAndOpen(page, mapTreeViewEntry);
 
