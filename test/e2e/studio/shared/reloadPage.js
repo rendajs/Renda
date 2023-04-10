@@ -1,6 +1,5 @@
 import {log} from "../../shared/log.js";
 import {flushProjectIndexedDb} from "./indexedDb.js";
-import { waitSeconds } from "./waitSeconds.js";
 
 /**
  * Reloads the page.
@@ -13,7 +12,6 @@ export async function reloadPage(page, waitForFileOperations = true) {
 	if (waitForFileOperations) {
 		await flushProjectIndexedDb(page);
 	}
-	await waitSeconds(20);
 	log("Reload the page");
 	await page.reload();
 }
