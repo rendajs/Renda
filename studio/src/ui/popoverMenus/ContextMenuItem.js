@@ -130,7 +130,7 @@ export class ContextMenuItem {
 	}
 
 	updateIconStyle() {
-		const needsSpace = this.containingContextMenu.hasResevedIconSpaceItem || this.showCheckmark || this.showBullet || this.icon;
+		const needsSpace = this.containingContextMenu.hasReservedIconSpace || this.showCheckmark || this.showBullet || this.icon;
 
 		if (!this.iconEl) return;
 

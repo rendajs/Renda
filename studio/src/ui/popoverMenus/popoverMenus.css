@@ -62,6 +62,9 @@ button.context-menu-item[disabled] {
 	background-repeat:no-repeat;
 	vertical-align: middle;
 }
+.context-menu-item-icon.hidden {
+	display: none;
+}
 
 span.context-menu-item-text {
 	display: inline;
