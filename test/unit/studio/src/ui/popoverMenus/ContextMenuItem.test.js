@@ -56,7 +56,7 @@ Deno.test({
 				showBullet: true,
 			});
 
-			assertEquals(contextMenuItem.iconEl?.src.includes("contextMenuBullet"), true);
+			assertEquals(contextMenuItem.iconEl?.style.backgroundImage.includes("contextMenuBullet"), true);
 		});
 	},
 });
@@ -92,7 +92,7 @@ Deno.test({
 			contextMenuItem.showBullet = false;
 			contextMenuItem.showCheckmark = true;
 
-			assertEquals(contextMenuItem.iconEl?.src.includes("contextMenuCheck"), true);
+			assertEquals(contextMenuItem.iconEl?.style.backgroundImage.includes("contextMenuCheck"), true);
 		});
 	},
 });
