@@ -20,18 +20,18 @@ for await (const entry of fs.walk(e2eTestsDir)) {
 }
 
 // Start test server
-const testServer = new DevServer({
-	port: 0,
-	serverName: "test server",
-});
-testServer.start();
-const testServerAddrs = testServer.getAddrs();
-if (testServerAddrs.length <= 0) {
-	throw new Error("Failed to get test server url.");
-}
+// const testServer = new DevServer({
+// 	port: 0,
+// 	serverName: "test server",
+// });
+// testServer.start();
+// const testServerAddrs = testServer.getAddrs();
+// if (testServerAddrs.length <= 0) {
+// 	throw new Error("Failed to get test server url.");
+// }
 
-// Start browser
-setMainPageUrl(testServerAddrs[0]);
+// // Start browser
+// setMainPageUrl(testServerAddrs[0]);
 
 const filterPaths = [];
 for (const arg of Deno.args) {
@@ -75,7 +75,7 @@ for (const testFilePath of testFiles) {
 	}
 }
 
-testServer.close();
+// testServer.close();
 
 if (failedTests.length > 0) {
 	console.log(red("Some tests failed"));
