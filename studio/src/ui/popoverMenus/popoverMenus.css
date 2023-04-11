@@ -57,7 +57,7 @@ button.context-menu-item[disabled] {
 
 .context-menu-item-icon {
 	width: 20px;
-	height: 1em;
+	height: var(--default-font-size);
 	background-size: contain;
 	background-repeat:no-repeat;
 	vertical-align: middle;
@@ -68,6 +68,8 @@ button.context-menu-item[disabled] {
 
 span.context-menu-item-text {
 	display: inline;
+	font-size: var(--default-font-size);
+	font-family: var(----default-font-family);
 	color: var(--text-color-level0);
 }
 
