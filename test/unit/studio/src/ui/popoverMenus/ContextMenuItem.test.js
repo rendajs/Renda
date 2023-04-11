@@ -24,7 +24,6 @@ Deno.test({
 				text: "Test",
 			});
 
-			assertExists(contextMenuItem.textEl);
 			assertEquals(contextMenuItem.textEl.textContent, "Test");
 		});
 	},
@@ -40,8 +39,7 @@ Deno.test({
 				horizontalLine: true,
 			});
 
-			console.log(contextMenuItem.el.tagName);
-			assertEquals(contextMenuItem.el.tagName === "HR", true);
+			assertEquals(contextMenuItem.el.classList.contains("context-menu-divider"), true);
 		});
 	},
 });
@@ -56,7 +54,7 @@ Deno.test({
 				showBullet: true,
 			});
 
-			assertEquals(contextMenuItem.iconEl?.style.backgroundImage.includes("contextMenuBullet"), true);
+			assertEquals(contextMenuItem.iconEl.style.backgroundImage.includes("contextMenuBullet"), true);
 		});
 	},
 });
@@ -73,7 +71,7 @@ Deno.test({
 
 			contextMenuItem.setText("Test2");
 
-			assertEquals(contextMenuItem.textEl?.textContent, "Test2");
+			assertEquals(contextMenuItem.textEl.textContent, "Test2");
 		});
 	},
 });
@@ -92,7 +90,23 @@ Deno.test({
 			contextMenuItem.showBullet = false;
 			contextMenuItem.showCheckmark = true;
 
-			assertEquals(contextMenuItem.iconEl?.style.backgroundImage.includes("contextMenuCheck"), true);
+			assertEquals(contextMenuItem.iconEl.style.backgroundImage.includes("contextMenuCheck"), true);
+		});
+	},
+});
+
+Deno.test({
+	name: "shows right arrow",
+	fn: () => {
+		runWithDom(() => {
+			const contextMenu = createContextMenu();
+
+			const contextMenuItem = new ContextMenuItem(contextMenu, {
+				text: "Test",
+				showRightArrow: true,
+			});
+
+			assertEquals(contextMenuItem.el.children[1].classList.contains("right-arrow"), true);
 		});
 	},
 });

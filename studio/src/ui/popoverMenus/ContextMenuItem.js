@@ -132,8 +132,6 @@ export class ContextMenuItem {
 	updateIconStyle() {
 		const needsSpace = this.containingContextMenu.hasReservedIconSpace || this.showCheckmark || this.showBullet || this.icon;
 
-		if (!this.iconEl) return;
-
 		this.iconEl.classList.toggle("hidden", !needsSpace);
 		let iconUrl = null;
 		if (this.showCheckmark) {
