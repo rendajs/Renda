@@ -91,7 +91,7 @@ export async function runE2eTest(config) {
 			let createdTimeout;
 			const timeoutPromise = (async () => {
 				await new Promise(resolve => {
-					createdTimeout = setTimeout(resolve, 90_000);
+					createdTimeout = setTimeout(resolve, 30_000);
 				});
 				if (testFinished) return;
 				testFinished = true;
