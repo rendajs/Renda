@@ -46,8 +46,6 @@ export async function createEmbeddedAssetAndOpen(page, propertiesTreeViewEntryEl
 	await clickContextMenuItem(page, ["Create embedded asset"]);
 	await waitForDroppableGuiHasValue(page, droppableGuiEl);
 
-	await waitSeconds(3);
-
 	// Open the embedded asset
 	await click(page, droppableGuiEl, {
 		clickCount: 2,
