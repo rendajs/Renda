@@ -1,4 +1,4 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {ContextMenuItem} from "../../../../../../studio/src/ui/popoverMenus/ContextMenuItem.js";
 import {ContextMenu} from "../../../../../../studio/src/ui/popoverMenus/ContextMenu.js";
 import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
