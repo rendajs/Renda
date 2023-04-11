@@ -30,7 +30,7 @@ if (testServerAddrs.length <= 0) {
 	throw new Error("Failed to get test server url.");
 }
 
-// setMainPageUrl(testServerAddrs[0]);
+setMainPageUrl(testServerAddrs[0]);
 
 const filterPaths = [];
 for (const arg of Deno.args) {
