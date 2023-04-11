@@ -1,6 +1,5 @@
 import {bgRed, gray, green, red, yellow} from "std/fmt/colors.ts";
-import {discardCurrentContexts, setMainPageUrl} from "./browser.js";
-import { DevServer } from "../../../scripts/DevServer.js";
+import {discardCurrentContexts} from "./browser.js";
 
 /**
  * @typedef E2eTestConfig
@@ -64,20 +63,6 @@ export async function runE2eTest(config) {
 				attemptText = " " + gray(`(attempt ${attempts})`);
 			}
 			console.log(gray("TEST: ") + config.name + attemptText);
-
-			const testServer = new DevServer({
-				port: 0,
-				serverName: "test server",
-			});
-			testServer.start();
-			const testServerAddrs = testServer.getAddrs();
-			if (testServerAddrs.length <= 0) {
-				throw new Error("Failed to get test server url.");
-			}
-
-			// Start browser
-			setMainPageUrl(testServerAddrs[0]);
-
 			const testPromise = (async () => {
 				try {
 					await config.fn();
@@ -101,7 +86,6 @@ export async function runE2eTest(config) {
 			await Promise.race([testPromise, timeoutPromise]);
 			clearTimeout(createdTimeout);
 			await discardCurrentContexts();
-			testServer.close();
 			if (ok) successCount++;
 			attempts++;
 			if (attempts > 1 || !ok) {
