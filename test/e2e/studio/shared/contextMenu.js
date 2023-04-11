@@ -43,7 +43,7 @@ export async function clickContextMenuItem(page, menuPath) {
 					requestAnimationFrame(resolve);
 				});
 			}
-			const item = currentMenu.addedItems.find(item => .textContent == itemName);
+			const item = currentMenu.addedItems.find(item => item.textEl.textContent == itemName);
 			if (!item) {
 				throw new Error(`The submenu "${menuPath.join(" > ")}" does not exist. "${itemName}" at index ${submenuCount} does not exist.`);
 			}
