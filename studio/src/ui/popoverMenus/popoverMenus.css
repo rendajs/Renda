@@ -60,7 +60,6 @@ button.context-menu-item[disabled] {
 	height: var(--default-font-size);
 	background-size: contain;
 	background-repeat:no-repeat;
-	vertical-align: middle;
 }
 .context-menu-item-icon.hidden {
 	display: none;
