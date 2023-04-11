@@ -76,6 +76,10 @@ span.context-menu-item-text {
 	color: var(--selected-text-color);
 }
 
+.context-menu-item:hover:not([disabled]) .context-menu-item-text {
+	color: var(--selected-text-color);
+}
+
 .context-menu-item > .right-arrow {
 	display: inline-block;
 	width: 0px;
@@ -85,6 +89,7 @@ span.context-menu-item-text {
 	border-left: 10px solid var(--text-color-level0);
 	border-right: 0px solid transparent;
 }
+
 .context-menu-item:hover:not([disabled]) .right-arrow {
 	border-left: 10px solid var(--selected-text-color);
 }
