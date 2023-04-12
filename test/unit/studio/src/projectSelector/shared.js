@@ -32,8 +32,8 @@ export function basicSetup() {
 	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async fromUserGesture => {});
 	const openProjectFromLocalDirectorySpy = stub(mockStudio.projectManager, "openProjectFromLocalDirectory", async () => {});
 
-	const newProjectButton = projectSelector.actionsListEl.children[0];
-	const openProjectButton = projectSelector.actionsListEl.children[1];
+	const newProjectButton = projectSelector.actionsListEl.children[0].children[0];
+	const openProjectButton = projectSelector.actionsListEl.children[1].children[0];
 
 	function triggerStudioLoad() {
 		projectSelector.setStudioLoaded(mockStudio);
