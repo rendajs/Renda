@@ -127,14 +127,24 @@ export class ProjectSelector {
 		/** @type {typeof this.indexedDb.get<StoredProjectEntryAny[]>} */
 		const dbGetProjectsList = this.indexedDb.get.bind(this.indexedDb);
 		this.recentProjectsList = await dbGetProjectsList("recentProjectsList") || [];
-		const databases = await indexedDB.databases();
-		const databaseNames = databases.map(db => db.name);
-		this.recentProjectsList = this.recentProjectsList.filter(entry => {
-			if (entry.fileSystemType != "db") return true;
+		/** @type {string[]?} */
+		let databaseNames = null;
+		try {
+			const databases = await indexedDB.databases();
+			const unfilteredNames = databases.map(db => db.name);
+			databaseNames = /** @type {string[]} */ (unfilteredNames.filter(db => Boolean(db)));
+		} catch {
+			// Some browsers don't support `databases()`, in that case we just don't filter the list.
+		}
+		if (databaseNames) {
+			const certainNames = databaseNames;
+			this.recentProjectsList = this.recentProjectsList.filter(entry => {
+				if (entry.fileSystemType != "db") return true;
 
-			const dbName = IndexedDbStudioFileSystem.getDbName(entry.projectUuid);
-			return databaseNames.includes(dbName);
-		});
+				const dbName = IndexedDbStudioFileSystem.getDbName(entry.projectUuid);
+				return certainNames.includes(dbName);
+			});
+		}
 		this.getRecentsWaiter.fire();
 	}
 
