@@ -103,13 +103,19 @@
 }
 
 .project-selector-button {
+	border: none;
+	background-color: transparent;
+	color: var(--text-color-level0);
 	width: fit-content;
 	box-sizing: border-box;
 	padding: 2px 3px;
 	border-radius: var(--default-border-radius);
 }
+button.project-selector-button[disabled] {
+	color: var(--default-text-color-disabled-context-menu);
+}
 
-.project-selector-button:hover {
+.project-selector-button:hover:not([disabled]) {
 	background-color: var(--default-button-color);
 	color: var(--default-button-text-color);
 }
