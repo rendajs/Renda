@@ -163,11 +163,17 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	/**
 	 * Checks if the filesystem database with specified name exists.
 	 * @param {string} fileSystemName
-	 * @returns {Promise<boolean>}
+	 * @returns {Promise<boolean?>} True or false if the database is known to exist,
+	 * null if the browser has no support for querying a list of existing databases.
 	 */
 	static async exists(fileSystemName) {
 		const dbName = IndexedDbStudioFileSystem.getDbName(fileSystemName);
-		const databases = await indexedDB.databases();
+		let databases;
+		try {
+			databases = await indexedDB.databases();
+		} catch {
+			return null;
+		}
 		return databases.some(db => db.name == dbName);
 	}
 
