@@ -100,7 +100,7 @@ await runE2eTest({
 
 		const projectSelectorEl = await openProjectSelector(page);
 
-		await click(projectSelectorEl, ".project-selector-recent-list-container > .project-selector-list > .project-selector-button:nth-child(1)", {
+		await click(projectSelectorEl, ".project-selector-recent-list-container > .project-selector-list > li:nth-child(1) > button", {
 			button: "right",
 		});
 		page.on("dialog", async dialog => {
@@ -125,7 +125,7 @@ await runE2eTest({
 		const connectionsEl = await getMaybeContentWindowConnectionsElement(page);
 		assertEquals(connectionsEl, null);
 
-		await click(projectSelectorEl, ".project-selector-actions-list-container > .project-selector-list > .project-selector-button:nth-child(3)");
+		await click(projectSelectorEl, ".project-selector-actions-list-container > .project-selector-list > li:nth-child(3) > button");
 		await waitForContentWindowConnectionsElement(page);
 	},
 });
