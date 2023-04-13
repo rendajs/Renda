@@ -42,6 +42,8 @@ button.context-menu-item {
 	justify-content: space-between;
 	width: 100%;
 	border: none;
+	font-size: var(--default-font-size);
+	font-family: var(--default-font-family);
 	padding: 2px 8px;
 	background-color: transparent;
 }
@@ -57,7 +59,7 @@ button.context-menu-item[disabled] {
 
 .context-menu-item-icon {
 	width: 20px;
-	height: var(--default-font-size);
+	height: 1em;
 	background-size: contain;
 	background-repeat:no-repeat;
 }
@@ -67,8 +69,6 @@ button.context-menu-item[disabled] {
 
 span.context-menu-item-text {
 	display: inline;
-	font-size: var(--default-font-size);
-	font-family: var(----default-font-family);
 	color: var(--text-color-level0);
 }
 
