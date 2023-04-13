@@ -24,10 +24,10 @@ export class PopoverManager {
 
 		const styleBlock = document.createElement("style");
 		styleBlock.textContent = `
-			.contextMenuItemIcon {
+			.context-menu-item-icon {
 				filter: url(#${iconDefaultColorFilter.getFilterId()});
 			}
-			.contextMenuItem:hover:not(.disabled) .contextMenuItemIcon {
+			.context-menu-item:hover:not(.disabled) .context-menu-item-icon {
 				filter: url(#${iconHoverColorFilter.getFilterId()});
 			}
 		`;

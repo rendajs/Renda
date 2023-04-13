@@ -37,6 +37,8 @@
 	--droppable-border-color: #2d2d2d;
 	--droppable-filled-color: #525252;
 	--droppable-filled-text-color: #f3f3f3;
+	--default-font-size: 16px;
+	--default-font-family: ui-sans-serif, system-ui, sans-serif;
 }
 @media(prefers-color-scheme: light){
 	:root{
