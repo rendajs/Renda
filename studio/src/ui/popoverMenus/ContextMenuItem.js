@@ -1,4 +1,10 @@
 export class ContextMenuItem {
+	/** @type {Set<function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void>} */
+	#onClickCbs = new Set();
+
+	/** @type {Set<() => void>} */
+	#onHoverCbs = new Set();
+
 	/**
 	 * @param {import("./ContextMenu.js").ContextMenu} containingContextMenu
 	 * @param {import("./ContextMenu.js").ContextMenuItemOpts} opts
@@ -17,22 +23,36 @@ export class ContextMenuItem {
 		icon = null,
 	} = {}) {
 		this.containingContextMenu = containingContextMenu;
-		this.el = document.createElement("div");
-		this.el.classList.add("contextMenuItem");
-		this.el.classList.toggle("disabled", disabled || horizontalLine);
+
+		if (horizontalLine) {
+			this.el = document.createElement("div");
+			this.el.classList.add("context-menu-divider");
+		} else {
+			this.el = document.createElement("button");
+			this.el.classList.add("context-menu-item");
+			this.el.disabled = disabled;
+		}
+
+		this.contentEl = document.createElement("div");
+		this.contentEl.classList.add("context-menu-item-content");
+
+		this.el.appendChild(this.contentEl);
 
 		this.iconEl = document.createElement("div");
-		this.iconEl.classList.add("contextMenuItemIcon");
-		this.textEl = document.createElement("div");
+		this.iconEl.classList.add("context-menu-item-icon");
+
+		this.contentEl.appendChild(this.iconEl);
+
+		this.textEl = document.createElement("span");
 		this.textEl.title = tooltip;
-		this.textEl.classList.add("contextMenuItemText");
-		if (!horizontalLine) {
-			this.el.appendChild(this.iconEl);
-			this.el.appendChild(this.textEl);
-		} else {
-			const lineEl = document.createElement("div");
-			lineEl.classList.add("contextMenuItemHorizontalLine");
-			this.el.appendChild(lineEl);
+		this.textEl.classList.add("context-menu-item-text");
+
+		this.contentEl.appendChild(this.textEl);
+
+		if (showRightArrow) {
+			const arrowEl = document.createElement("div");
+			arrowEl.classList.add("right-arrow");
+			this.el.appendChild(arrowEl);
 		}
 
 		this._reserveIconSpace = reserveIconSpace;
@@ -42,18 +62,13 @@ export class ContextMenuItem {
 		this.disabled = disabled;
 		this.updateIconStyle();
 
-		/** @type {Set<function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void>} */
-		this.onClickCbs = new Set();
 		if (onClick) this.onClick(onClick);
-
-		/** @type {Set<() => void>} */
-		this.onHoverCbs = new Set();
 		if (onHover) this.onHover(onHover);
 
 		this.el.addEventListener("click", () => {
 			if (this.disabled) return;
 			let preventMenuClose = false;
-			for (const cb of this.onClickCbs) {
+			for (const cb of this.#onClickCbs) {
 				/** @type {import("./ContextMenu.js").ContextMenuItemClickEvent} */
 				const event = {
 					item: this,
@@ -67,18 +82,13 @@ export class ContextMenuItem {
 				this.containingContextMenu.onItemClicked();
 			}
 		});
+
 		this.el.addEventListener("mouseenter", () => {
 			if (this.disabled) return;
-			for (const cb of this.onHoverCbs) {
+			for (const cb of this.#onHoverCbs) {
 				cb();
 			}
 		});
-
-		if (showRightArrow) {
-			const arrowEl = document.createElement("div");
-			arrowEl.classList.add("contextMenuRightArrow");
-			this.el.appendChild(arrowEl);
-		}
 
 		this.setText(text);
 	}
@@ -120,7 +130,8 @@ export class ContextMenuItem {
 	}
 
 	updateIconStyle() {
-		const needsSpace = this.containingContextMenu.hasResevedIconSpaceItem || this.showCheckmark || this.showBullet || this.icon;
+		const needsSpace = this.containingContextMenu.hasReservedIconSpace || this.showCheckmark || this.showBullet || this.icon;
+
 		this.iconEl.classList.toggle("hidden", !needsSpace);
 		let iconUrl = null;
 		if (this.showCheckmark) {
@@ -138,27 +149,27 @@ export class ContextMenuItem {
 	}
 
 	destructor() {
-		this.onClickCbs.clear();
+		this.#onClickCbs.clear();
 	}
 
 	/**
 	 * @param {string} text
 	 */
 	setText(text) {
-		this.textEl.textContent = text;
+		if (this.textEl) this.textEl.textContent = text;
 	}
 
 	/**
 	 * @param {function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void} cb
 	 */
 	onClick(cb) {
-		this.onClickCbs.add(cb);
+		this.#onClickCbs.add(cb);
 	}
 
 	/**
 	 * @param {() => void} cb
 	 */
 	onHover(cb) {
-		this.onHoverCbs.add(cb);
+		this.#onHoverCbs.add(cb);
 	}
 }

@@ -8,7 +8,7 @@ body, html{
 	user-select: none;
 	-webkit-user-select: none;
 	-webkit-touch-callout: none;
-	font-family: ui-sans-serif,system-ui,sans-serif;
+	font-family: var(--default-font-family);
 	background: var(--panel-borders-color);
 	color: var(--text-color-level0);
 }
