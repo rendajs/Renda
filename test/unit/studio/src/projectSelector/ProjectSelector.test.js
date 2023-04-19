@@ -41,6 +41,128 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Lists recent projects",
+	async fn() {
+		const {projectSelector, uninstall} = basicSetup({
+			async databasesImpl() {
+				return [
+					{
+						name: "fileSystem_uuid1",
+						version: 1,
+					},
+					{
+						name: "fileSystem_uuid2",
+						version: 1,
+					},
+				];
+			},
+			initializeIndexedDbHook(indexedDb) {
+				/** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny[]} */
+				const entries = [
+					{
+						name: "project1",
+						fileSystemType: "db",
+						projectUuid: "uuid1",
+						isWorthSaving: true,
+					},
+					{
+						name: "project2",
+						fileSystemType: "db",
+						projectUuid: "uuid2",
+						isWorthSaving: true,
+					},
+				];
+				indexedDb.set("recentProjectsList", entries);
+			},
+		});
+
+		try {
+			await waitForMicrotasks();
+			assertEquals(projectSelector.recentListEl.children.length, 2);
+		} finally {
+			await uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Don't lists recent projects that have been deleted",
+	async fn() {
+		const {projectSelector, uninstall} = basicSetup({
+			async databasesImpl() {
+				return [
+					{
+						name: "fileSystem_uuid1",
+						version: 1,
+					},
+				];
+			},
+			initializeIndexedDbHook(indexedDb) {
+				/** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny[]} */
+				const entries = [
+					{
+						name: "project1",
+						fileSystemType: "db",
+						projectUuid: "uuid1",
+						isWorthSaving: true,
+					},
+					{
+						name: "project2",
+						fileSystemType: "db",
+						projectUuid: "uuid2",
+						isWorthSaving: true,
+					},
+				];
+				indexedDb.set("recentProjectsList", entries);
+			},
+		});
+
+		try {
+			await waitForMicrotasks();
+			assertEquals(projectSelector.recentListEl.children.length, 1);
+		} finally {
+			await uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Lists all recent projects when databases() is not supported",
+	async fn() {
+		const {projectSelector, uninstall} = basicSetup({
+			async databasesImpl() {
+				throw new Error("emulating a browser without databases() support.");
+			},
+			initializeIndexedDbHook(indexedDb) {
+				/** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny[]} */
+				const entries = [
+					{
+						name: "project1",
+						fileSystemType: "db",
+						projectUuid: "uuid1",
+						isWorthSaving: true,
+					},
+					{
+						name: "project2",
+						fileSystemType: "db",
+						projectUuid: "uuid2",
+						isWorthSaving: true,
+					},
+				];
+				indexedDb.set("recentProjectsList", entries);
+			},
+		});
+
+		try {
+			await waitForMicrotasks();
+			assertEquals(projectSelector.recentListEl.children.length, 2);
+		} finally {
+			await uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "Opening new project by clicking only opens a new project once",
 	async fn() {
 		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerStudioLoad, uninstall} = basicSetup();
