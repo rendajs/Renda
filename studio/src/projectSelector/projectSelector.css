@@ -110,6 +110,8 @@
 	box-sizing: border-box;
 	padding: 2px 3px;
 	border-radius: var(--default-border-radius);
+	font-size: var(--default-font-size);
+	font-family: var(--default-font-family);
 }
 button.project-selector-button[disabled] {
 	color: var(--default-text-color-disabled-context-menu);
