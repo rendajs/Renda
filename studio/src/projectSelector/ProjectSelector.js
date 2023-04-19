@@ -63,7 +63,7 @@ export class ProjectSelector {
 		});
 		if (!("showDirectoryPicker" in globalThis)) {
 			openProjectButton.disabled = true;
-			openProjectButton.title = "Opening local projects is not supported in this browser.";
+			openProjectButton.title = "Opening local projects is not supported by your browser.";
 		}
 
 		this.createAction("Connect Remote Project", async () => {
