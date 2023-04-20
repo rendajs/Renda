@@ -79,6 +79,9 @@ jobs:
               repo: context.repo.repo,
               ref: BUILD_COMMIT_SHA,
               environment: "PR preview",
+              auto_merge: false,
+              auto_inactive: false,
+              task: "deploy_pr:" + PR_ID,
               required_contexts: ["build / build"],
             });
 
