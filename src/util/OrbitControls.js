@@ -4,7 +4,7 @@ import {Vec3} from "../math/Vec3.js";
 export class OrbitControls {
 	/**
 	 * @param {import("../core/Entity.js").Entity} cameraEntity
-	 * @param {HTMLElement} eventElement
+	 * @param {HTMLElement} [eventElement]
 	 */
 	constructor(cameraEntity, eventElement) {
 		this.camera = cameraEntity;
@@ -76,6 +76,7 @@ export class OrbitControls {
 	}
 
 	/**
+	 * @private
 	 * @param {WheelEvent} e
 	 */
 	onWheel(e) {
