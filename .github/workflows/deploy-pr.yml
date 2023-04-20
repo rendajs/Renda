@@ -81,6 +81,7 @@ jobs:
               environment: "PR preview",
               auto_merge: false,
               auto_inactive: false,
+              transient_environment: true,
               task: "deploy_pr:" + PR_ID,
               required_contexts: ["build / build"],
             });
