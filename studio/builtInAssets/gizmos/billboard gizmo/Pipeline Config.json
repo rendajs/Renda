@@ -3,6 +3,9 @@
 	"asset": {
 		"vertexShader": "360d0012-577e-4bdc-85bc-82e75be40f53",
 		"fragmentShader": "cf617a8f-4afa-4147-8afa-71bb6314a554",
-		"primitiveTopology": "line-list"
+		"primitiveTopology": "line-list",
+		"depthCompareFunction": "always",
+		"depthWriteEnabled": false,
+		"renderOrder": 100
 	}
 }
