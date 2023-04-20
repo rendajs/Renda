@@ -1,9 +1,11 @@
 import {assertEquals} from "std/testing/asserts.ts";
+import {assertSpyCalls, stub} from "std/testing/mock.ts";
 import {Entity, OrbitControls, Quat, Vec3} from "../../../../src/mod.js";
 import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 import {runWithDom} from "../../studio/shared/runWithDom.js";
 import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {WheelEvent} from "fake-dom/FakeWheelEvent.js";
+import {PointerEvent} from "fake-dom/FakePointerEvent.js";
 
 /**
  * After making a change, the transform should be dirty.
@@ -181,6 +183,45 @@ Deno.test({
 			}));
 
 			assertEquals(controls.loop(), false);
+		});
+	},
+});
+
+Deno.test({
+	name: "Orbit using pointer click",
+	fn() {
+		runWithDom(() => {
+			const setCaptureSpy = stub(document.body, "setPointerCapture");
+			const cam = new Entity();
+			const el = new HtmlElement();
+			const controls = new OrbitControls(cam, el);
+
+			assertLoopCall(controls);
+
+			el.dispatchEvent(new PointerEvent("pointerdown", {
+				clientX: 10,
+				clientY: 10,
+				button: 1,
+			}));
+
+			document.body.dispatchEvent(new PointerEvent("pointermove", {
+				clientX: 10,
+				clientY: 20,
+				ctrlKey: true,
+			}));
+			assertLoopCall(controls);
+			assertEquals(controls.lookDist, 2.9);
+			assertSpyCalls(setCaptureSpy, 1);
+
+			document.body.dispatchEvent(new PointerEvent("pointerup", {
+			}));
+
+			document.body.dispatchEvent(new PointerEvent("pointermove", {
+				clientX: 10,
+				clientY: 30,
+				ctrlKey: true,
+			}));
+			assertEquals(controls.lookDist, 2.9);
 		});
 	},
 });

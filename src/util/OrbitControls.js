@@ -1,4 +1,5 @@
 import {Quat} from "../math/Quat.js";
+import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 
 export class OrbitControls {
@@ -26,7 +27,17 @@ export class OrbitControls {
 		this._lookDist = 3;
 
 		/** @private */
-		this._boundOnWheel = this.onWheel.bind(this);
+		this._boundOnWheel = this._onWheel.bind(this);
+		/** @private */
+		this._boundOnPointerDown = this._onPointerDown.bind(this);
+		/** @private */
+		this._registeredClickDraggingEvents = false;
+		/** @private */
+		this._boundBodyOnPointerUp = this._bodyOnPointerUp.bind(this);
+		/** @private */
+		this._boundBodyOnPointerMove = this._bodyOnPointerMove.bind(this);
+		this._lastPointerPos = new Vec2();
+
 		/** @private @type {HTMLElement[]} */
 		this._addedEventElements = [];
 		if (eventElement) this.addEventElement(eventElement);
@@ -73,27 +84,82 @@ export class OrbitControls {
 	addEventElement(elem) {
 		this._addedEventElements.push(elem);
 		elem.addEventListener("wheel", this._boundOnWheel);
+		elem.addEventListener("pointerdown", this._boundOnPointerDown);
+	}
+
+	/**
+	 * Translates, rotates, or changes the lookDist depending on modifier keys used.
+	 * @param {number} deltaX
+	 * @param {number} deltaY
+	 * @param {MouseEvent} event
+	 */
+	_inputOffset(deltaX, deltaY, event) {
+		if (event.ctrlKey) {
+			this.lookDist -= deltaY * 0.01;
+		} else if (event.shiftKey) {
+			const xDir = Vec3.right.rotate(this.lookRot).multiply(-deltaX * 0.01);
+			const yDir = Vec3.up.rotate(this.lookRot).multiply(deltaY * 0.01);
+			this.lookPos.add(xDir).add(yDir);
+		} else {
+			this.lookRot.rotateAxisAngle(new Vec3(0, 1, 0), deltaX * 0.01);
+			const pitchAxis = Vec3.right.rotate(this.lookRot);
+			this.lookRot.rotateAxisAngle(pitchAxis, deltaY * 0.01);
+		}
 	}
 
 	/**
 	 * @private
 	 * @param {WheelEvent} e
 	 */
-	onWheel(e) {
+	_onWheel(e) {
 		e.preventDefault();
 		const dx = this.invertScrollX ? e.deltaX : -e.deltaX;
 		const dy = this.invertScrollY ? e.deltaY : -e.deltaY;
-		if (e.ctrlKey) {
-			this.lookDist -= dy * 0.01;
-		} else if (e.shiftKey) {
-			const xDir = Vec3.right.rotate(this.lookRot).multiply(-dx * 0.01);
-			const yDir = Vec3.up.rotate(this.lookRot).multiply(dy * 0.01);
-			this.lookPos.add(xDir).add(yDir);
+		this._inputOffset(dx, dy, e);
+	}
+
+	/**
+	 * @private
+	 * @param {PointerEvent} e
+	 */
+	_onPointerDown(e) {
+		if (e.button != 1) return;
+		this._lastPointerPos.set(e.clientX, e.clientY);
+		document.body.setPointerCapture(e.pointerId);
+		this._setClickDraggingEventsRegistered(true);
+	}
+
+	/**
+	 * @param {boolean} registered
+	 */
+	_setClickDraggingEventsRegistered(registered) {
+		if (registered == this._registeredClickDraggingEvents) return;
+		this._registeredClickDraggingEvents = registered;
+		if (registered) {
+			document.body.addEventListener("pointerup", this._boundBodyOnPointerUp);
+			document.body.addEventListener("pointermove", this._boundBodyOnPointerMove);
 		} else {
-			this.lookRot.rotateAxisAngle(new Vec3(0, 1, 0), dx * 0.01);
-			const pitchAxis = Vec3.right.rotate(this.lookRot);
-			this.lookRot.rotateAxisAngle(pitchAxis, dy * 0.01);
+			document.body.removeEventListener("pointerup", this._boundBodyOnPointerUp);
+			document.body.removeEventListener("pointermove", this._boundBodyOnPointerMove);
 		}
+	}
+
+	/**
+	 * @private
+	 */
+	_bodyOnPointerUp() {
+		this._setClickDraggingEventsRegistered(false);
+	}
+
+	/**
+	 * @private
+	 * @param {PointerEvent} e
+	 */
+	_bodyOnPointerMove(e) {
+		const newPos = new Vec2(e.clientX, e.clientY);
+		const delta = newPos.clone().sub(this._lastPointerPos);
+		this._lastPointerPos.set(newPos);
+		this._inputOffset(delta.x, delta.y, e);
 	}
 
 	loop() {
