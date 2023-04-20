@@ -25,7 +25,7 @@ const autoRegisterPreferences = /** @type {const} */ ({
 	}),
 	"entityEditor.orbitLookDist": pref({
 		type: "number",
-		default: 0,
+		default: 2.5,
 	}),
 	"entityEditor.loadedEntityPath": pref({type: "unknown"}),
 });
