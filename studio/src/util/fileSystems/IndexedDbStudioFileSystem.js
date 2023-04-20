@@ -167,7 +167,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	 * null if the browser has no support for querying a list of existing databases.
 	 */
 	static async exists(fileSystemName) {
-		const dbName = IndexedDbStudioFileSystem.getDbName(fileSystemName);
+		const dbName = this.getDbName(fileSystemName);
 		let databases;
 		try {
 			databases = await indexedDB.databases();

@@ -1,5 +1,7 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {stub} from "std/testing/mock.ts";
+import {IndexedDbStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js";
 
 Deno.test({
 	name: "assertDbExists() should throw after using deleteDb()",
@@ -79,5 +81,70 @@ Deno.test({
 
 		const newEntryCount = getEntryCount();
 		assertEquals(newEntryCount, originalEntryCount);
+	},
+});
+
+Deno.test({
+	name: "exists(), false",
+	async fn() {
+		globalThis.indexedDB = /** @type {any} */ ({});
+		const databasesStub = stub(globalThis.indexedDB, "databases", async () => {
+			return [
+				{
+					name: "fileSystem_othername",
+					version: 1,
+				},
+				{
+					name: "not_a_filesystem",
+					version: 1,
+				},
+			];
+		});
+
+		try {
+			const result = await IndexedDbStudioFileSystem.exists("name");
+			assertEquals(result, false);
+		} finally {
+			databasesStub.restore();
+		}
+	},
+});
+
+Deno.test({
+	name: "exists(), true",
+	async fn() {
+		globalThis.indexedDB = /** @type {any} */ ({});
+		const databasesStub = stub(globalThis.indexedDB, "databases", async () => {
+			return [
+				{
+					name: "fileSystem_name",
+					version: 1,
+				},
+			];
+		});
+
+		try {
+			const result = await IndexedDbStudioFileSystem.exists("name");
+			assertEquals(result, true);
+		} finally {
+			databasesStub.restore();
+		}
+	},
+});
+
+Deno.test({
+	name: "exists(), unknown",
+	async fn() {
+		globalThis.indexedDB = /** @type {any} */ ({});
+		const databasesStub = stub(globalThis.indexedDB, "databases", async () => {
+			throw new Error("Simulating a browser without databases() support.");
+		});
+
+		try {
+			const result = await IndexedDbStudioFileSystem.exists("name");
+			assertEquals(result, null);
+		} finally {
+			databasesStub.restore();
+		}
 	},
 });
