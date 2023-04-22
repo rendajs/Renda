@@ -37,7 +37,7 @@ import {Button} from "./Button.js";
  */
 export class ArrayGui {
 	/**
-	 * @typedef {(value: import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, {}, TRecursionLimit>) => void} OnValueChangeCallback
+	 * @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, {}, TRecursionLimit>>} OnValueChangeCallback
 	 */
 
 	/**
@@ -67,14 +67,14 @@ export class ArrayGui {
 			text: "-",
 			onClick: () => {
 				// todo: add support for removing selected entry
-				this.removeItem();
+				this.removeItem(-1, "user");
 			},
 		});
 		this.addRemoveButtonGroup.addButton(this.removeItemButton);
 		this.addItemButton = new Button({
 			text: "+",
 			onClick: () => {
-				this.addItem();
+				this.addItem("user");
 			},
 		});
 		this.addRemoveButtonGroup.addButton(this.addItemButton);
@@ -103,8 +103,10 @@ export class ArrayGui {
 		this.treeView.forceContainerRecursionDepth(depth);
 	}
 
-	// adds new item to the end of the array
-	addItem(extraArrayOpts = {}) {
+	/**
+	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 */
+	addItem(trigger = "application") {
 		const index = this.value.length;
 		/** @type {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
 		const addItemOpts = {
@@ -113,21 +115,24 @@ export class ArrayGui {
 				smallLabel: true,
 				label: String(index),
 				...this.arrayGuiOpts,
-				...extraArrayOpts,
 			},
 		};
 		const addedItem = this.treeView.addItem(addItemOpts);
-		addedItem.onValueChange(() => {
-			this.fireValueChange();
+		addedItem.onValueChange(changeEvent => {
+			this.#fireValueChange(changeEvent.trigger);
 		});
 		if (this.disabled) addedItem.setDisabled(true);
 		this.valueItems.push(addedItem);
-		this.fireValueChange();
+		this.#fireValueChange(trigger);
 		return addedItem;
 	}
 
-	// remove array item by index, counts from the back when negative
-	removeItem(index = -1) {
+	/**
+	 * remove array item by index, counts from the back when negative
+	 * @param {number} index
+	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 */
+	removeItem(index = -1, trigger = "application") {
 		if (index < 0) index = this.valueItems.length + index;
 
 		if (index < 0 || index >= this.valueItems.length) {
@@ -135,7 +140,7 @@ export class ArrayGui {
 		}
 		this.treeView.removeChildIndex(index);
 		this.valueItems.splice(index, 1);
-		this.fireValueChange();
+		this.#fireValueChange(trigger);
 	}
 
 	/**
@@ -147,7 +152,7 @@ export class ArrayGui {
 		const removeCount = this.valueItems.length - value.length;
 		if (removeCount > 0) {
 			for (let i = 0; i < removeCount; i++) {
-				this.removeItem();
+				this.removeItem(-1);
 			}
 		}
 		const castValueAny = /** @type {any[]} */ (value);
@@ -199,8 +204,14 @@ export class ArrayGui {
 		this.onValueChangeCbs.add(cb);
 	}
 
-	fireValueChange() {
-		this.onValueChangeCbs.forEach(cb => cb(this.value));
+	/**
+	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 */
+	#fireValueChange(trigger) {
+		this.onValueChangeCbs.forEach(cb => cb({
+			trigger,
+			value: this.value,
+		}));
 	}
 
 	/**
