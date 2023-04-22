@@ -4,3 +4,4 @@ studio/deps/
 .coverage
 npm_packages
 deno.lock
+npmPackage

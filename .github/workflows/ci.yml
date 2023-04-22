@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 env:
-  # be sure to also update these in build.yml
+  # be sure to also update these in other workflows
   DENO_DIR: deno_dir
   DENO_VERSION: "1.32.1"
 
