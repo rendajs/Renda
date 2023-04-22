@@ -85,7 +85,7 @@ export async function parseJsonData(jsonData, {
 		const scenesResult = parseScenes(jsonData.scenes, jsonData.nodes);
 		entity = scenesResult.entity;
 		const entityNodeIds = scenesResult.entityNodeIds;
-		applyMeshComponents(jsonData, entityNodeIds, {
+		await applyMeshComponents(jsonData, entityNodeIds, {
 			getBufferFn,
 			getMaterialFn,
 		});
