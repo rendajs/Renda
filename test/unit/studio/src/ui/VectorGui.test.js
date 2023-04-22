@@ -1,5 +1,5 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
+import {assertSpyCalls} from "std/testing/mock.ts";
 import {VectorGui} from "../../../../../studio/src/ui/VectorGui.js";
 import {runWithDom} from "../../shared/runWithDom.js";
 import {createOnChangeEventSpy} from "./shared.js";
