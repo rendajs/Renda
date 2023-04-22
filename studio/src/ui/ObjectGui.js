@@ -40,6 +40,8 @@ export class ObjectGui {
 	/**
 	 * @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<import("./propertiesTreeView/types.js").GetStructureValuesReturnType<T, {}>>} OnValueChangeCallback
 	 */
+	/** @type {Set<OnValueChangeCallback>} */
+	#onValueChangeCbs = new Set();
 
 	/**
 	 * @param {ObjectGuiOptions<T>} options
@@ -53,8 +55,6 @@ export class ObjectGui {
 		this.structure = structure;
 		this.treeView = PropertiesTreeView.withStructure(structure);
 		this.treeView.renderContainer = true;
-		/** @type {Set<OnValueChangeCallback>} */
-		this.onValueChangeCbs = new Set();
 		this.treeView.onChildValueChange(changeEvent => {
 			this.#fireValueChange(changeEvent.trigger);
 		});
@@ -97,7 +97,7 @@ export class ObjectGui {
 	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
-		this.onValueChangeCbs.add(cb);
+		this.#onValueChangeCbs.add(cb);
 	}
 
 	/**
@@ -105,7 +105,7 @@ export class ObjectGui {
 	 */
 	#fireValueChange(trigger) {
 		const value = this.value;
-		for (const cb of this.onValueChangeCbs) {
+		for (const cb of this.#onValueChangeCbs) {
 			cb({value, trigger});
 		}
 	}
