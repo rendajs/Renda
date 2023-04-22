@@ -47,7 +47,7 @@ button.context-menu-item {
 	padding: 2px 8px;
 	background-color: transparent;
 }
-button.context-menu-item[disabled] {
+button.context-menu-item[disabled] .context-menu-item-text {
 	color: var(--default-text-color-disabled-context-menu);
 }
 
