@@ -91,6 +91,7 @@ export async function parseJsonData(jsonData, {
 		});
 	} else {
 		// TODO: parse glTF as if it is a library of assets
+		throw new Error("Parsing gltf without scenes is not supported yet");
 	}
 
 	return {entity};
