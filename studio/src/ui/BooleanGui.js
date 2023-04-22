@@ -2,6 +2,9 @@
 
 export class BooleanGui {
 	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<boolean>} OnValueChangeCallback */
+	/** @type {Set<OnValueChangeCallback>} */
+	#onValueChangeCbs = new Set();
+
 	constructor({
 		defaultValue = false,
 		disabled = false,
@@ -13,16 +16,13 @@ export class BooleanGui {
 		this.el.type = "checkbox";
 		this.el.classList.add("booleanGui", "buttonLike", "resetInput", "textInput");
 
-		/** @type {Set<OnValueChangeCallback>} */
-		this.onValueChangeCbs = new Set();
-		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
-		this.el.addEventListener("change", this.boundFireOnChangeCbs);
+		this.el.addEventListener("change", this.#fireOnChangeCbs);
 
 		this.setValue(defaultValue);
 	}
 
 	destructor() {
-		this.el.removeEventListener("change", this.boundFireOnChangeCbs);
+		this.el.removeEventListener("change", this.#fireOnChangeCbs);
 	}
 
 	/**
@@ -40,17 +40,17 @@ export class BooleanGui {
 	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
-		this.onValueChangeCbs.add(cb);
+		this.#onValueChangeCbs.add(cb);
 	}
 
-	fireOnChangeCbs() {
-		for (const cb of this.onValueChangeCbs) {
+	#fireOnChangeCbs = () => {
+		for (const cb of this.#onValueChangeCbs) {
 			cb({
 				value: this.value,
 				trigger: "user",
 			});
 		}
-	}
+	};
 
 	/**
 	 * @param {boolean} disabled
