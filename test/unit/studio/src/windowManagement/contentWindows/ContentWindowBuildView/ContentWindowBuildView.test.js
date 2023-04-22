@@ -1,6 +1,6 @@
 import {getMockArgs} from "../shared.js";
 import {ContentWindowBuildView} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js";
-import {runWithDom} from "../../../../shared/runWithDom.js";
+import {runWithDom, runWithDomAsync} from "../../../../shared/runWithDom.js";
 import {GestureInProgressManager} from "../../../../../../../studio/src/misc/GestureInProgressManager.js";
 import {TypedMessenger} from "../../../../../../../src/util/TypedMessenger.js";
 import {assertEquals} from "std/testing/asserts.ts";
@@ -8,7 +8,7 @@ import {assertEquals} from "std/testing/asserts.ts";
 Deno.test({
 	name: "requestInternalDiscoveryUrl()",
 	async fn() {
-		await runWithDom(async () => {
+		await runWithDomAsync(async () => {
 			const oldLocation = window.location;
 			window.location = /** @type {Location} */ ({
 				href: "https://example.com",
