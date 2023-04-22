@@ -76,10 +76,12 @@ Deno.test({
 			assertEquals(gui.getValue({getIndex: true}), 1);
 			assertSpyCalls(spyFn, 1);
 			assertSpyCall(spyFn, 0, {
-				args: [{
-					value: "myVariable",
-					trigger: "user",
-				}],
+				args: [
+					{
+						value: "myVariable",
+						trigger: "user",
+					},
+				],
 			});
 
 			const mouseEvent2 = new FakeMouseEvent("click");
@@ -91,10 +93,12 @@ Deno.test({
 			assertEquals(gui.getValue({getIndex: true}), 2);
 			assertSpyCalls(spyFn, 2);
 			assertSpyCall(spyFn, 1, {
-				args: [{
-					value: "my_variable",
-					trigger: "user",
-				}],
+				args: [
+					{
+						value: "my_variable",
+						trigger: "user",
+					},
+				],
 			});
 
 			const mouseEvent3 = new FakeMouseEvent("click");
@@ -106,10 +110,12 @@ Deno.test({
 			assertEquals(gui.getValue({getIndex: true}), null);
 			assertSpyCalls(spyFn, 3);
 			assertSpyCall(spyFn, 2, {
-				args: [{
-					value: null,
-					trigger: "user",
-				}],
+				args: [
+					{
+						value: null,
+						trigger: "user",
+					},
+				],
 			});
 		});
 	},
@@ -172,10 +178,12 @@ Deno.test({
 			assertEquals(gui.getValue({getIndex: true}), 1);
 			assertSpyCalls(spyFn, 1);
 			assertSpyCall(spyFn, 0, {
-				args: [{
-					value: "myVariable",
-					trigger: "user",
-				}],
+				args: [
+					{
+						value: "myVariable",
+						trigger: "user",
+					},
+				],
 			});
 
 			const mouseEvent2 = new FakeMouseEvent("click");
@@ -215,10 +223,12 @@ Deno.test({
 			assertEquals(gui.value, 0);
 			assertSpyCalls(spyFn, 1);
 			assertSpyCall(spyFn, 0, {
-				args: [{
-					value: 0,
-					trigger: "user",
-				}],
+				args: [
+					{
+						value: 0,
+						trigger: "user",
+					},
+				],
 			});
 
 			const mouseEvent2 = new FakeMouseEvent("click");
@@ -226,10 +236,12 @@ Deno.test({
 			assertEquals(gui.value, 1);
 			assertSpyCalls(spyFn, 2);
 			assertSpyCall(spyFn, 1, {
-				args: [{
-					value: 1,
-					trigger: "user",
-				}],
+				args: [
+					{
+						value: 1,
+						trigger: "user",
+					},
+				],
 			});
 
 			const mouseEvent3 = new FakeMouseEvent("click");
@@ -237,10 +249,12 @@ Deno.test({
 			assertEquals(gui.value, null);
 			assertSpyCalls(spyFn, 3);
 			assertSpyCall(spyFn, 2, {
-				args: [{
-					value: null,
-					trigger: "user",
-				}],
+				args: [
+					{
+						value: null,
+						trigger: "user",
+					},
+				],
 			});
 		});
 	},

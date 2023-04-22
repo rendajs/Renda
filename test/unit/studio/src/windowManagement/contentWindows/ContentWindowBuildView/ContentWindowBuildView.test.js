@@ -1,6 +1,6 @@
 import {getMockArgs} from "../shared.js";
 import {ContentWindowBuildView} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js";
-import {runWithDom, runWithDomAsync} from "../../../../shared/runWithDom.js";
+import {runWithDomAsync} from "../../../../shared/runWithDom.js";
 import {GestureInProgressManager} from "../../../../../../../studio/src/misc/GestureInProgressManager.js";
 import {TypedMessenger} from "../../../../../../../src/util/TypedMessenger.js";
 import {assertEquals} from "std/testing/asserts.ts";
