@@ -130,6 +130,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		});
 
 		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
+		/**
+		 * Flag to check whether the current orbit values have been touched
+		 * and should be written to disk.
+		 */
 		this.orbitControlsValuesDirty = false;
 		this.lastOrbitControlsValuesChangeTime = 0;
 
@@ -341,25 +345,25 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			if (this.isEditingProjectEntity) {
 				this.#setOrbitPreference("entityEditor.orbitLookPos", this.orbitControls.lookPos.toArray());
 				this.#setOrbitPreference("entityEditor.orbitLookRot", this.orbitControls.lookRot.toArray());
-			}
 
-			const currentDist = this.studioInstance.preferencesManager.get("entityEditor.orbitLookDist", {contentWindowUuid: this.uuid});
-			if (this.orbitControls.lookDist != currentDist) {
-				this.studioInstance.preferencesManager.set("entityEditor.orbitLookDist", this.orbitControls.lookDist, {
-					contentWindowUuid: this.uuid,
-					location: "contentwindow-project",
-					flush: false,
-				});
-				this.orbitControlsValuesDirty = true;
-			}
+				const currentDist = this.studioInstance.preferencesManager.get("entityEditor.orbitLookDist", {contentWindowUuid: this.uuid});
+				if (this.orbitControls.lookDist != currentDist) {
+					this.studioInstance.preferencesManager.set("entityEditor.orbitLookDist", this.orbitControls.lookDist, {
+						contentWindowUuid: this.uuid,
+						location: "contentwindow-project",
+						flush: false,
+					});
+					this.orbitControlsValuesDirty = true;
+				}
 
-			if (this.orbitControlsValuesDirty) {
-				this.lastOrbitControlsValuesChangeTime = Date.now();
+				if (this.orbitControlsValuesDirty) {
+					this.lastOrbitControlsValuesChangeTime = Date.now();
+				}
 			}
 		}
 
 		// Add a delay to the flush to prevent it from flushing with every scroll event.
-		if (this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
+		if (this.isEditingProjectEntity && this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
 			(async () => {
 				try {
 					await this.studioInstance.preferencesManager.flush();
