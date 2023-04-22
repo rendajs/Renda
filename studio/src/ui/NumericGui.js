@@ -63,9 +63,9 @@ import {getMaybeStudioInstance} from "../studioInstance.js";
  */
 
 export class NumericGui {
-	/**
-	 * @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<number>} OnValueChangeCallback
-	 */
+	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<number>} OnValueChangeCallback */
+	/** @type {Set<OnValueChangeCallback>} */
+	#onValueChangeCbs = new Set();
 
 	#shortcutFocusValueSetter;
 
@@ -115,9 +115,6 @@ export class NumericGui {
 		this.isMouseAdjusting = false;
 		this.hasMovedWhileAdjusting = false;
 		this.isTextAdjusting = false;
-
-		/** @type {Set<OnValueChangeCallback>} */
-		this.onValueChangeCbs = new Set();
 
 		this.boundShowCursor = this.showCursor.bind(this);
 		this.boundOnFocus = this.onFocus.bind(this);
@@ -174,7 +171,7 @@ export class NumericGui {
 		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.destructor();
 
 		this.removeEventListeners();
-		this.onValueChangeCbs.clear();
+		this.#onValueChangeCbs.clear();
 	}
 
 	/**
@@ -200,7 +197,7 @@ export class NumericGui {
 			this.internalValue = Math.round((this.internalValue - this.stepStart) / this.step) * this.step + this.stepStart;
 		}
 		if (updateTextValue) this.updateTextValue();
-		this.fireOnChangeCbs(trigger);
+		this.#fireOnChange(trigger);
 	}
 
 	get value() {
@@ -239,15 +236,14 @@ export class NumericGui {
 	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
-		this.onValueChangeCbs.add(cb);
+		this.#onValueChangeCbs.add(cb);
 	}
 
 	/**
-	 * @private
 	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
 	 */
-	fireOnChangeCbs(trigger) {
-		for (const cb of this.onValueChangeCbs) {
+	#fireOnChange(trigger) {
+		for (const cb of this.#onValueChangeCbs) {
 			cb({
 				value: this.value,
 				trigger,
