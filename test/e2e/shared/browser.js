@@ -122,8 +122,9 @@ async function drainConsoleQueue() {
 		if (!message) break;
 
 		const jsonArgs = await message.argsPromise;
-		console.log(`Browser console message from ${message.location}:`);
+		console.log(`-- Browser console message from ${message.location}:`);
 		console.log(...jsonArgs);
+		console.log("--");
 	}
 
 	isDrainingConsoleQueue = false;
