@@ -71,7 +71,7 @@ const contexts = new Set();
 /** @type {Set<import("puppeteer").Page>} */
 const pages = new Set();
 
-/** @type {{location: string, argsPromise: Promise<unknown[]>}[]} */
+/** @type {{location: import("puppeteer").ConsoleMessageLocation, argsPromise: Promise<unknown[]>}[]} */
 let consoleQueue = [];
 let isDrainingConsoleQueue = false;
 
@@ -93,7 +93,7 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 		// to the queue and request it later the browser context might already be lost.
 		const argsPromises = message.args().map(arg => arg.jsonValue());
 		consoleQueue.push({
-			location: message.location().url || "unknown",
+			location: message.location(),
 			argsPromise: Promise.all(argsPromises),
 		});
 		drainConsoleQueue();
@@ -122,7 +122,33 @@ async function drainConsoleQueue() {
 		if (!message) break;
 
 		const jsonArgs = await message.argsPromise;
-		console.log(`-- Browser console message from ${message.location}:`);
+		let locationString;
+
+		// Strip domain name if it is localhost
+		const urlstring = message.location.url;
+		if (urlstring) {
+			let locationUrl;
+			try {
+				locationUrl = new URL(urlstring);
+			} catch {
+				// We'll just use the raw string instead
+			}
+
+			if (locationUrl && locationUrl.hostname == "localhost") {
+				locationString = locationUrl.pathname;
+			}
+		}
+		if (!locationString) {
+			locationString = message.location.url || "unknown";
+		}
+		if (message.location.lineNumber) {
+			locationString += ":" + message.location.lineNumber;
+			if (message.location.columnNumber) {
+				locationString += ":" + message.location.columnNumber;
+			}
+		}
+
+		console.log(`-- Browser console message from ${locationString}`);
 		console.log(...jsonArgs);
 		console.log("--");
 	}
