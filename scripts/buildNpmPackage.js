@@ -25,7 +25,7 @@ if (!version) {
 	throw new Error("No version provided, specify the package.json version using the first command. I.e. `deno task build-npm-package 1.2.3`");
 }
 const packageJson = JSON.stringify({
-	name: "Renda",
+	name: "renda",
 	version,
 	description: "A modern rendering engine for the web.",
 	type: "module",
