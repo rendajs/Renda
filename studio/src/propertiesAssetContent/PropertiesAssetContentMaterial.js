@@ -34,16 +34,21 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			},
 		});
 		this.mapTreeView.onValueChange(async () => {
+			console.log("material ui on value change");
 			if (this.isUpdatingUi) return;
 
 			// todo: support multiselect
 			const asset = this.currentSelection[0];
+			console.log("before getliveassetdata");
 			const {liveAsset: material} = await asset.getLiveAssetData();
+			console.log("after getliveassetdata");
 
 			const mapAsset = this.mapTreeView.getValue({purpose: "script"});
 			material.setMaterialMap(mapAsset);
 
+			console.log("before loadMapValues");
 			await this.loadMapValues();
+			console.log("after loadMapValues");
 			this.notifyEntityEditorsMaterialChanged();
 			this.saveAsset();
 		});
@@ -90,6 +95,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	}
 
 	async saveAsset() {
+		console.log("material ui saveAsset");
 		// todo: handle multiple selected items or no selection
 		const asset = this.currentSelection[0];
 		const {liveAsset} = await asset.getLiveAssetData();
