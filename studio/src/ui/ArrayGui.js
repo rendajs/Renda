@@ -40,6 +40,9 @@ export class ArrayGui {
 	 * @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, {}, TRecursionLimit>>} OnValueChangeCallback
 	 */
 
+	/** @type {Set<OnValueChangeCallback>} */
+	#onValueChangeCbs = new Set();
+
 	/**
 	 * @param {T} options
 	 */
@@ -58,8 +61,6 @@ export class ArrayGui {
 		this.valueItems = [];
 		this.type = arrayType;
 		this.arrayGuiOpts = arrayGuiOpts;
-		/** @type {Set<OnValueChangeCallback>} */
-		this.onValueChangeCbs = new Set();
 
 		this.addRemoveButtonGroup = new ButtonGroup();
 		this.el.appendChild(this.addRemoveButtonGroup.el);
@@ -201,14 +202,14 @@ export class ArrayGui {
 	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
-		this.onValueChangeCbs.add(cb);
+		this.#onValueChangeCbs.add(cb);
 	}
 
 	/**
 	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
 	 */
 	#fireValueChange(trigger) {
-		this.onValueChangeCbs.forEach(cb => cb({
+		this.#onValueChangeCbs.forEach(cb => cb({
 			trigger,
 			value: this.value,
 		}));
