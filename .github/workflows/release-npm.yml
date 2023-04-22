@@ -1,4 +1,5 @@
-name: Publish package to npm when a GitHub release is created
+# Publishes a package to npm when a GitHub release is created
+name: Publish npm
 on:
   release:
     types: [published]
