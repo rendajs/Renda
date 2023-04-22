@@ -107,7 +107,7 @@ export class VectorGui {
 			this.numericGuis.push(numericGui);
 			this.el.appendChild(numericGui.el);
 			numericGui.onValueChange(changeEvent => {
-				this.fireValueChange(changeEvent.trigger);
+				this.#fireValueChange(changeEvent.trigger);
 			});
 		}
 
@@ -201,7 +201,7 @@ export class VectorGui {
 	/**
 	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
 	 */
-	fireValueChange(trigger) {
+	#fireValueChange(trigger) {
 		for (const cb of this.#onValueChangeCbs) {
 			const value = /** @type {T} */ (this.value.clone());
 			cb({value, trigger});
