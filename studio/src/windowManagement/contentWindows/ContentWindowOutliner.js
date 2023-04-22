@@ -140,7 +140,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	updateTreeView() {
-		if (this.linkedEntityEditor && this.linkedEntityEditor.editingEntity) {
+		if (this.linkedEntityEditor) {
 			this.updateTreeViewRecursive(this.treeView, this.linkedEntityEditor.editingEntity, {
 				passedEntities: [],
 			});
@@ -186,7 +186,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {string} name
 	 */
 	createNew(name) {
-		if (!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return;
+		if (!this.linkedEntityEditor) return;
 		const rootEnt = this.linkedEntityEditor.editingEntity;
 		let createdAny = false;
 		// todo: use selection manager
@@ -221,7 +221,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @returns {Entity?}
 	 */
 	getEntityByIndicesPath(indicesPath) {
-		if (!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return null;
+		if (!this.linkedEntityEditor) return null;
 		return this.linkedEntityEditor.editingEntity.getEntityByIndicesPath(indicesPath);
 	}
 

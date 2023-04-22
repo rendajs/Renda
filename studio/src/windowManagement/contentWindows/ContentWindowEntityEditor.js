@@ -130,6 +130,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		});
 
 		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
+		/**
+		 * Flag to check whether the current orbit values have been touched
+		 * and should be written to disk.
+		 */
 		this.orbitControlsValuesDirty = false;
 		this.lastOrbitControlsValuesChangeTime = 0;
 
@@ -145,8 +149,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		});
 
 		this.editingEntityUuid = null;
-		/** @type {Entity?} */
-		this._editingEntity = null;
+		/** @private @type {Entity} */
+		this._editingEntity = new Entity();
+		this.editorScene.add(this._editingEntity);
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../misc/EntitySelection.js").EntitySelection>} */
 		this.selectionGroup = this.studioInstance.selectionManager.createSelectionGroup();
 
@@ -221,7 +226,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		this.domTarget.destructor();
 		this.editorScene.destructor();
-		this._editingEntity = null;
 		this.selectionGroup.destructor();
 		this.gizmos.destructor();
 
@@ -247,6 +251,14 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			outliner.entityEditorUpdated({target: this});
 		}
 		this.updateLiveAssetChangeListeners();
+	}
+
+	/**
+	 * True when the currently editing entity exists as a project asset.
+	 * False when a warning should be shown to the user that changes are not autosaved.
+	 */
+	get isEditingProjectEntity() {
+		return Boolean(this.editingEntityUuid);
 	}
 
 	/**
@@ -324,15 +336,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	loop() {
-		// If no entity is loaded, we don't want orbit controls to have any effect.
-		// Not only will this prevent the user from accidentally moving the camera very far away from the origin,
-		// it also prevents the orbit position from being written to the project settings.
-		// Without this, empty projects will be marked as worth saving even though nothing was changed.
-		if (this.editingEntity) {
-			const camChanged = this.orbitControls.loop();
-			if (camChanged) {
-				this.markRenderDirty();
+		const camChanged = this.orbitControls.loop();
+		if (camChanged) {
+			this.markRenderDirty();
 
+			// We only want to save the orbit state when a project entity is loaded.
+			// Otherwise, empty projects will be marked as worth saving even though nothing was changed.
+			if (this.isEditingProjectEntity) {
 				this.#setOrbitPreference("entityEditor.orbitLookPos", this.orbitControls.lookPos.toArray());
 				this.#setOrbitPreference("entityEditor.orbitLookRot", this.orbitControls.lookRot.toArray());
 
@@ -350,24 +360,24 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					this.lastOrbitControlsValuesChangeTime = Date.now();
 				}
 			}
+		}
 
-			// Add a delay to the flush to prevent it from flushing with every scroll event.
-			if (this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
-				(async () => {
-					try {
-						await this.studioInstance.preferencesManager.flush();
-					} catch (e) {
-						if (e instanceof DOMException && e.name == "SecurityError") {
-							// The flush was probably triggered by scrolling, which doesn't cause
-							// transient activation. If this is the case a security error is thrown.
-							// This is fine though, since storing the orbit state doesn't have a high priority.
-						} else {
-							throw e;
-						}
+		// Add a delay to the flush to prevent it from flushing with every scroll event.
+		if (this.isEditingProjectEntity && this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
+			(async () => {
+				try {
+					await this.studioInstance.preferencesManager.flush();
+				} catch (e) {
+					if (e instanceof DOMException && e.name == "SecurityError") {
+						// The flush was probably triggered by scrolling, which doesn't cause
+						// transient activation. If this is the case a security error is thrown.
+						// This is fine though, since storing the orbit state doesn't have a high priority.
+					} else {
+						throw e;
 					}
-				})();
-				this.orbitControlsValuesDirty = false;
-			}
+				}
+			})();
+			this.orbitControlsValuesDirty = false;
 		}
 
 		if (this.renderDirty && this.studioInstance.renderer.isInit) {
@@ -661,11 +671,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	updateGizmos() {
 		const unusedEntities = new Map(this.currentLinkedGizmos);
-		if (this.editingEntity) {
-			for (const child of this.editingEntity.traverseDown()) {
-				this.updateGizmosForEntity(child);
-				unusedEntities.delete(child);
-			}
+		for (const child of this.editingEntity.traverseDown()) {
+			this.updateGizmosForEntity(child);
+			unusedEntities.delete(child);
 		}
 
 		for (const [entity, linkedComponentGizmos] of unusedEntities) {
@@ -738,22 +746,20 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.createdLiveAssetChangeListeners.clear();
 
-		if (this.editingEntity) {
-			for (const child of this.editingEntity.traverseDown()) {
-				for (const component of child.components) {
-					const componentConstructor = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
-					if (componentConstructor.guiStructure) {
-						const castComponentA = /** @type {unknown} */ (component);
-						const castComponentB = /** @type {Object<string, unknown>} */ (castComponentA);
-						/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
-						const structure = {
-							type: "object",
-							guiOpts: {
-								structure: componentConstructor.guiStructure,
-							},
-						};
-						this.addComponentLiveAssetListeners(component, structure, castComponentB);
-					}
+		for (const child of this.editingEntity.traverseDown()) {
+			for (const component of child.components) {
+				const componentConstructor = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
+				if (componentConstructor.guiStructure) {
+					const castComponentA = /** @type {unknown} */ (component);
+					const castComponentB = /** @type {Object<string, unknown>} */ (castComponentA);
+					/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+					const structure = {
+						type: "object",
+						guiOpts: {
+							structure: componentConstructor.guiStructure,
+						},
+					};
+					this.addComponentLiveAssetListeners(component, structure, castComponentB);
 				}
 			}
 		}
@@ -817,7 +823,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {EntityChangedEventType} type
 	 */
 	notifyEntityChanged(entity, type) {
-		if (!this.editingEntity) return;
 		if (!this.editingEntity.containsChild(entity) && type != "delete") return;
 
 		this.markRenderDirty();
