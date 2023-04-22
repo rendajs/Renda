@@ -244,10 +244,20 @@ export type StructureToSetObject<T extends StringKeyMap> = {
 	[x in keyof T]: SetValueType<GetGuiInstanceForOpts<T[x]>>;
 }
 
+export type ChangeEventTriggerType = "user" | "application";
+
 export type PropertiesTreeViewChangeEvent<T extends PropertiesTreeViewStructure> = TreeViewEvent & {
 	newValue: StructureToGetObject<T, {}>;
 	target: PropertiesTreeViewEntry<any>;
+	trigger: ChangeEventTriggerType;
 }
+
+export interface GuiInterfaceValueChangeEvent<T> {
+	value: T;
+	trigger: ChangeEventTriggerType;
+}
+
+export type PropertiesTreeViewEntryChangeCallback<T> = (event: GuiInterfaceValueChangeEvent<T>) => void;
 
 type SetValueTypeHelper<T extends GuiInterface> =
 	T extends {setValue: (value: infer V, opts: infer O) => any} ?
