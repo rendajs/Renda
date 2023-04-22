@@ -237,12 +237,10 @@ export class DroppableGui {
 	 * until after the live asset is loaded. This is useful if valueChange callbacks immediately try to request live assets
 	 * when they fire. If they use `getValue({returnLiveAsset: true})`, it is possible for the returned value to be
 	 * `null`. Setting this flag to true makes sure the callbacks are fired after the live asset is loaded.
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} [options.trigger]
 	 */
 	setValue(value, {
 		isDiskData = false,
 		preloadLiveAsset = false,
-		trigger = "application",
 	} = {}) {
 		let projectAsset = null;
 		this.setDefaultAssetLinkUuid(null);
@@ -275,7 +273,7 @@ export class DroppableGui {
 				projectAsset = assetManager.getProjectAssetForLiveAsset(value);
 			}
 		}
-		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset, trigger});
+		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset});
 	}
 
 	/**

@@ -5,6 +5,7 @@ import {basicSetupForContextMenus} from "./shared.js";
 import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
+import {createOnChangeEventSpy} from "../shared.js";
 
 const BASIC_PASTED_ASSET_UUID = "a75c1304-5347-4f86-ae7a-3f57c1fb3ebf";
 
@@ -133,11 +134,23 @@ Deno.test({
 		const {gui, dispatchContextMenuEvent, assertContextMenu, clickPaste, uninstall} = await basicSetupForPastingUuid();
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchContextMenuEvent();
 			await assertContextMenu(true);
 			await clickPaste();
 			const value = gui.getValue();
 			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_PASTED_ASSET_UUID,
+						trigger: "user",
+					},
+				],
+			});
 		} finally {
 			uninstall();
 		}
@@ -298,19 +311,31 @@ Deno.test({
 	name: "paste uuid via context menu makes asset uuid persistent",
 	ignore: true,
 	async fn() {
-		const {mockStudio, dispatchContextMenuEvent, assertContextMenu, clickPaste, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
+		const {mockStudio, dispatchContextMenuEvent, gui, assertContextMenu, clickPaste, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
 
 		try {
 			const assetManager = mockStudio.projectManager.assetManager;
 			assertExists(assetManager);
 			const makePersistentSpy = spy(assetManager, "makeAssetUuidPersistent");
+			const onChangeSpy = createOnChangeEventSpy(gui);
 
 			await dispatchContextMenuEvent();
 			await assertContextMenu(true);
 			await clickPaste();
+
 			assertSpyCalls(makePersistentSpy, 1);
 			assertSpyCall(makePersistentSpy, 0, {
 				args: [mockProjectAsset],
+			});
+
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_PASTED_ASSET_UUID,
+						trigger: "user",
+					},
+				],
 			});
 		} finally {
 			uninstall();
@@ -324,10 +349,22 @@ Deno.test({
 		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchFocusEvent(true);
 			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
 			const value = gui.getValue();
 			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_PASTED_ASSET_UUID,
+						trigger: "user",
+					},
+				],
+			});
 		} finally {
 			uninstall();
 		}
@@ -340,9 +377,13 @@ Deno.test({
 		const {gui, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+
 			const value = gui.getValue();
 			assertEquals(value, null);
+			assertSpyCalls(onChangeSpy, 0);
 		} finally {
 			uninstall();
 		}
@@ -355,11 +396,15 @@ Deno.test({
 		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchFocusEvent(true);
 			await dispatchFocusEvent(false);
 			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+
 			const value = gui.getValue();
 			assertEquals(value, null);
+			assertSpyCalls(onChangeSpy, 0);
 		} finally {
 			uninstall();
 		}
@@ -372,10 +417,14 @@ Deno.test({
 		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchFocusEvent(true);
 			await dispatchPasteEvent("");
+
 			const value = gui.getValue();
 			assertEquals(value, null);
+			assertSpyCalls(onChangeSpy, 0);
 		} finally {
 			uninstall();
 		}
@@ -388,10 +437,14 @@ Deno.test({
 		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchFocusEvent(true);
 			await dispatchPasteEvent("6b62e5c5-5cc7-4fef-9f43-83a0d99cd4e1");
+
 			const value = gui.getValue();
 			assertEquals(value, null);
+			assertSpyCalls(onChangeSpy, 0);
 		} finally {
 			uninstall();
 		}
@@ -407,10 +460,14 @@ Deno.test({
 		});
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchFocusEvent(true);
 			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+
 			const value = gui.getValue();
 			assertEquals(value, null);
+			assertSpyCalls(onChangeSpy, 0);
 		} finally {
 			uninstall();
 		}
@@ -427,10 +484,22 @@ Deno.test({
 		});
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchFocusEvent(true);
 			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+
 			const value = gui.getValue();
 			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_PASTED_ASSET_UUID,
+						trigger: "user",
+					},
+				],
+			});
 		} finally {
 			uninstall();
 		}
@@ -459,10 +528,22 @@ Deno.test({
 		const {gui, dispatchFocusEvent, triggerPasteShortcut, uninstall} = await basicSetupForPastingUuid();
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchFocusEvent(true);
 			await triggerPasteShortcut();
+
 			const value = gui.getValue();
 			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_PASTED_ASSET_UUID,
+						trigger: "user",
+					},
+				],
+			});
 		} finally {
 			uninstall();
 		}
@@ -475,9 +556,13 @@ Deno.test({
 		const {gui, triggerPasteShortcut, uninstall} = await basicSetupForPastingUuid();
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await triggerPasteShortcut();
+
 			const value = gui.getValue();
 			assertEquals(value, null);
+			assertSpyCalls(onChangeSpy, 0);
 		} finally {
 			uninstall();
 		}
@@ -493,10 +578,14 @@ Deno.test({
 		});
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchFocusEvent(true);
 			await triggerPasteShortcut();
+
 			const value = gui.getValue();
 			assertEquals(value, null);
+			assertSpyCalls(onChangeSpy, 0);
 		} finally {
 			uninstall();
 		}
@@ -513,10 +602,22 @@ Deno.test({
 		});
 
 		try {
+			const onChangeSpy = createOnChangeEventSpy(gui);
+
 			await dispatchFocusEvent(true);
 			await triggerPasteShortcut();
+
 			const value = gui.getValue();
 			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_PASTED_ASSET_UUID,
+						trigger: "user",
+					},
+				],
+			});
 		} finally {
 			uninstall();
 		}
