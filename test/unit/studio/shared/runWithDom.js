@@ -5,11 +5,11 @@ import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.
  * Ensures global scope is cleaned up after running, even if errors are thrown.
  * @param {() => (void | Promise<void>)} fn
  */
-export function runWithDom(fn) {
+export async function runWithDom(fn) {
 	installFakeDocument();
 
 	try {
-		return fn();
+		await fn();
 	} finally {
 		uninstallFakeDocument();
 	}
