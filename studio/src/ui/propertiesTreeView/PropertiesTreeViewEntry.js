@@ -13,7 +13,6 @@ import {ObjectGui} from "../ObjectGui.js";
 
 import {prettifyVariableName} from "../../util/util.js";
 import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
-import {VALUE_CHANGE_EVENT_NAME} from "./PropertiesTreeView.js";
 
 /**
  * @typedef {object} GuiInterface
@@ -21,7 +20,7 @@ import {VALUE_CHANGE_EVENT_NAME} from "./PropertiesTreeView.js";
  * @property {any} [defaultValue]
  * @property {(...args: any) => any} [getValue]
  * @property {*} [value]
- * @property {(cb: (event: import("./types.js").GuiInterfaceValueChangeEvent<any>) => void) => void} [onValueChange]
+ * @property {function((value: any) => any) : void} [onValueChange]
  * @property {() => any} [destructor]
  * @property {(value: any, options: any) => any} [setValue]
  * @property {(disabled: boolean) => any} [setDisabled]
@@ -183,16 +182,15 @@ export class PropertiesTreeViewEntry extends TreeView {
 		// todo: maybe instead of calling setvalue inside the constructor
 		// of every gui class, call setValue over here
 
-		this.registerNewEventType(VALUE_CHANGE_EVENT_NAME);
+		this.registerNewEventType("propertiestreeviewentryvaluechange");
 		const castGui = /** @type {GuiInterface} */ (this.gui);
-		castGui?.onValueChange?.(guiChangeEvent => {
+		castGui?.onValueChange?.(newValue => {
 			/** @type {import("./types.js").PropertiesTreeViewChangeEvent<any>} */
 			const event = {
 				target: this,
-				newValue: guiChangeEvent.value,
-				trigger: guiChangeEvent.trigger,
+				newValue,
 			};
-			this.fireEvent(VALUE_CHANGE_EVENT_NAME, event);
+			this.fireEvent("propertiestreeviewentryvaluechange", event);
 		});
 	}
 
@@ -231,7 +229,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @param {import("./types.js").PropertiesTreeViewEntryChangeCallback<import("./types.js").GetValueType<T>>} cb
+	 * @param {(value: import("./types.js").GetValueType<T>) => any} cb
 	 */
 	onValueChange(cb) {
 		const castGui = /** @type {GuiInterface} */ (this.gui);

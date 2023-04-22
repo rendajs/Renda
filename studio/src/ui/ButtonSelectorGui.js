@@ -39,7 +39,7 @@ import {ButtonGroup} from "./ButtonGroup.js";
  */
 
 /** @typedef {string | number | null} ButtonSelectorGuiValueTypes */
-/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<ButtonSelectorGuiValueTypes>} OnButtonselectorGuiValueChange */
+/** @typedef {(newValue: ButtonSelectorGuiValueTypes) => void} OnButtonselectorGuiValueChange */
 
 /**
  * A button group where only a single value can be selected at a time.
@@ -80,11 +80,11 @@ export class ButtonSelectorGui {
 					if (this.currentValueIndex == i) {
 						if (this.allowSelectNone) {
 							this.setValue(null);
-							this.fireOnChangeCbs("user");
+							this.fireOnChangeCbs();
 						}
 					} else {
 						this.setValue(i);
-						this.fireOnChangeCbs("user");
+						this.fireOnChangeCbs();
 					}
 				},
 			};
@@ -191,15 +191,9 @@ export class ButtonSelectorGui {
 		this.onValueChangeCbs.add(cb);
 	}
 
-	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
-	 */
-	fireOnChangeCbs(trigger) {
+	fireOnChangeCbs() {
 		for (const cb of this.onValueChangeCbs) {
-			cb({
-				value: this.value,
-				trigger,
-			});
+			cb(this.value);
 		}
 	}
 }

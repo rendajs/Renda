@@ -7,7 +7,6 @@
  */
 
 export class TextGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<string>} OnChangeCallback */
 	/**
 	 * @param {TextGuiOptions} opts
 	 */
@@ -24,16 +23,17 @@ export class TextGui {
 		this.el.spellcheck = false;
 		this.el.placeholder = placeholder;
 
-		/** @type {Set<OnChangeCallback>} */
+		/** @type {Set<(value: string) => any>} */
 		this.onValueChangeCbs = new Set();
-		this.el.addEventListener("change", this.#fireOnChangeCbs);
+		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
+		this.el.addEventListener("change", this.boundFireOnChangeCbs);
 
 		this.setValue(defaultValue);
 		this.setDisabled(disabled);
 	}
 
 	destructor() {
-		this.el.removeEventListener("change", this.#fireOnChangeCbs);
+		this.el.removeEventListener("change", this.boundFireOnChangeCbs);
 	}
 
 	/**
@@ -41,7 +41,7 @@ export class TextGui {
 	 */
 	setValue(value) {
 		this.el.value = value;
-		this.#fireOnChangeCbs();
+		this.fireOnChangeCbs();
 	}
 
 	get value() {
@@ -53,20 +53,17 @@ export class TextGui {
 	}
 
 	/**
-	 * @param {OnChangeCallback} cb
+	 * @param {(value: string) => any} cb
 	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
 	}
 
-	#fireOnChangeCbs = () => {
+	fireOnChangeCbs() {
 		for (const cb of this.onValueChangeCbs) {
-			cb({
-				value: this.value,
-				trigger: "user",
-			});
+			cb(this.value);
 		}
-	};
+	}
 
 	/**
 	 * @param {boolean} disabled

@@ -63,10 +63,6 @@ import {getMaybeStudioInstance} from "../studioInstance.js";
  */
 
 export class NumericGui {
-	/**
-	 * @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<number>} OnValueChangeCallback
-	 */
-
 	#shortcutFocusValueSetter;
 
 	/**
@@ -116,8 +112,8 @@ export class NumericGui {
 		this.hasMovedWhileAdjusting = false;
 		this.isTextAdjusting = false;
 
-		/** @type {Set<OnValueChangeCallback>} */
-		this.onValueChangeCbs = new Set();
+		/** @type {((value: number) => any)[]} */
+		this.onValueChangeCbs = [];
 
 		this.boundShowCursor = this.showCursor.bind(this);
 		this.boundOnFocus = this.onFocus.bind(this);
@@ -126,6 +122,7 @@ export class NumericGui {
 		this.boundOnMouseMove = this.onMouseMove.bind(this);
 		this.boundOnMouseUp = this.onMouseUp.bind(this);
 		this.boundOnWheel = this.onWheel.bind(this);
+		this.boundOnInput = this.onInput.bind(this);
 		this.el.addEventListener("mouseenter", this.boundShowCursor);
 		this.el.addEventListener("mouseleave", this.boundShowCursor);
 		this.el.addEventListener("mousemove", this.boundShowCursor);
@@ -133,7 +130,7 @@ export class NumericGui {
 		this.el.addEventListener("blur", this.boundOnBlur);
 		this.el.addEventListener("mousedown", this.boundOnMouseDown);
 		this.el.addEventListener("wheel", this.boundOnWheel);
-		this.el.addEventListener("input", this.#onInput);
+		this.el.addEventListener("input", this.boundOnInput);
 
 		const studio = getMaybeStudioInstance();
 		// We allow running without a studio instance to make this easier to use in tests
@@ -161,7 +158,7 @@ export class NumericGui {
 		this.el.removeEventListener("blur", this.boundOnBlur);
 		this.el.removeEventListener("mousedown", this.boundOnMouseDown);
 		this.el.removeEventListener("wheel", this.boundOnWheel);
-		this.el.removeEventListener("input", this.#onInput);
+		this.el.removeEventListener("input", this.boundOnInput);
 
 		const studio = getMaybeStudioInstance();
 		if (studio) {
@@ -174,7 +171,7 @@ export class NumericGui {
 		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.destructor();
 
 		this.removeEventListeners();
-		this.onValueChangeCbs.clear();
+		this.onValueChangeCbs = [];
 	}
 
 	/**
@@ -182,7 +179,6 @@ export class NumericGui {
 	 */
 	setValue(value, {
 		updateTextValue = true,
-		trigger = /** @type {import("./propertiesTreeView/types.js").ChangeEventTriggerType} */ ("application"),
 	} = {}) {
 		if (typeof value == "string") {
 			if (this.inverseMappedStringValues.has(value)) {
@@ -200,7 +196,7 @@ export class NumericGui {
 			this.internalValue = Math.round((this.internalValue - this.stepStart) / this.step) * this.step + this.stepStart;
 		}
 		if (updateTextValue) this.updateTextValue();
-		this.fireOnChangeCbs(trigger);
+		this.fireOnChangeCbs();
 	}
 
 	get value() {
@@ -236,22 +232,15 @@ export class NumericGui {
 	}
 
 	/**
-	 * @param {OnValueChangeCallback} cb
+	 * @param {(value: number) => any} cb
 	 */
 	onValueChange(cb) {
-		this.onValueChangeCbs.add(cb);
+		this.onValueChangeCbs.push(cb);
 	}
 
-	/**
-	 * @private
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
-	 */
-	fireOnChangeCbs(trigger) {
+	fireOnChangeCbs() {
 		for (const cb of this.onValueChangeCbs) {
-			cb({
-				value: this.value,
-				trigger,
-			});
+			cb(this.value);
 		}
 	}
 
@@ -365,7 +354,7 @@ export class NumericGui {
 		const desiredAfterDotLength = Math.max(oldAfterDotLength, deltaAfterDotLength);
 		const roundAmount = 10 ** desiredAfterDotLength;
 		newValue = Math.round(newValue * roundAmount) / roundAmount;
-		this.setValue(newValue, {trigger: "user"});
+		this.setValue(newValue);
 	}
 
 	/**
@@ -387,10 +376,10 @@ export class NumericGui {
 		this.el.classList.remove("no-cursor");
 	}
 
-	#onInput = () => {
+	onInput() {
 		const value = this.parseCurrentValue();
-		this.setValue(value, {updateTextValue: false, trigger: "user"});
-	};
+		this.setValue(value, {updateTextValue: false});
+	}
 
 	parseCurrentValue() {
 		let value = this.el.value;
@@ -485,7 +474,7 @@ export class NumericGui {
 			this.el.selectionStart = newCaretPos;
 			this.el.selectionEnd = newCaretPos + 1;
 
-			this.#onInput();
+			this.onInput();
 		}
 	};
 

@@ -57,7 +57,7 @@ import {prettifyVariableName} from "../util/util.js";
  */
 
 export class DropDownGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<string | number>} OnValueChangeCallback */
+	/** @typedef {(selectedIndex: string | number) => void} OnValueChangeCallback */
 	/**
 	 * @param {DropDownGuiOptions} opts
 	 */
@@ -220,15 +220,9 @@ export class DropDownGui {
 		this.onValueChangeCbs.add(cb);
 	}
 
-	/**
-	 * @private
-	 */
 	fireOnChangeCbs() {
 		for (const cb of this.onValueChangeCbs) {
-			cb({
-				value: this.value,
-				trigger: "user",
-			});
+			cb(this.value);
 		}
 	}
 

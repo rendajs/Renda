@@ -1,7 +1,8 @@
 /** @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase} BooleanGuiOptions */
 
+/** @typedef {(value: boolean) => void} OnValueChangeCallback */
+
 export class BooleanGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<boolean>} OnValueChangeCallback */
 	constructor({
 		defaultValue = false,
 		disabled = false,
@@ -45,10 +46,7 @@ export class BooleanGui {
 
 	fireOnChangeCbs() {
 		for (const cb of this.onValueChangeCbs) {
-			cb({
-				value: this.value,
-				trigger: "user",
-			});
+			cb(this.value);
 		}
 	}
 

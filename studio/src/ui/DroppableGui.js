@@ -108,10 +108,6 @@ import {isUuid} from "../../../src/mod.js";
  * @template {object} T
  */
 export class DroppableGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<import("../../../src/mod.js").UuidString?>} OnValueChangeCallback  */
-	/** @type {Set<OnValueChangeCallback>} */
-	#onValueChangeCbs = new Set();
-
 	/**
 	 * Creates a new DroppableGui. Unlike `new DroppableGui`, which does not
 	 * infer the correct generics, this function does.
@@ -124,6 +120,10 @@ export class DroppableGui {
 
 	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter").ShorcutConditionValueSetter<boolean>?} */
 	#shortcutFocusValueSetter = null;
+
+	/**
+	 * @typedef {(value: import("../../../src/mod.js").UuidString?) => void} OnValueChangeCallback
+	 */
 
 	/**
 	 * This constructor does not infer the correct generics, use `DroppableGui.of()` instead.
@@ -148,6 +148,8 @@ export class DroppableGui {
 
 		this.el = document.createElement("div");
 		this.el.classList.add("droppableGui", "empty");
+		/** @type {OnValueChangeCallback[]} */
+		this.onValueChangeCbs = [];
 
 		this.supportedAssetTypes = /** @type {any[]} */ (supportedAssetTypes);
 		this.defaultValue = defaultValue;
@@ -237,12 +239,10 @@ export class DroppableGui {
 	 * until after the live asset is loaded. This is useful if valueChange callbacks immediately try to request live assets
 	 * when they fire. If they use `getValue({returnLiveAsset: true})`, it is possible for the returned value to be
 	 * `null`. Setting this flag to true makes sure the callbacks are fired after the live asset is loaded.
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} [options.trigger]
 	 */
 	setValue(value, {
 		isDiskData = false,
 		preloadLiveAsset = false,
-		trigger = "application",
 	} = {}) {
 		let projectAsset = null;
 		this.setDefaultAssetLinkUuid(null);
@@ -275,7 +275,7 @@ export class DroppableGui {
 				projectAsset = assetManager.getProjectAssetForLiveAsset(value);
 			}
 		}
-		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset, trigger});
+		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset});
 	}
 
 	/**
@@ -330,12 +330,10 @@ export class DroppableGui {
 	 * until after the live asset is loaded. This is useful if valueChange callbacks immediately try to request live assets
 	 * when they fire. If they use `getValue({returnLiveAsset: true})`, it is possible for the returned value to be
 	 * `null`. Setting this flag to true makes sure the callbacks are fired after the live asset is loaded.
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} [options.trigger]
 	 */
 	async setValueFromProjectAsset(projectAsset, {
 		clearDefaultAssetLink = true,
 		preloadLiveAsset = false,
-		trigger = "application",
 	} = {}) {
 		if (clearDefaultAssetLink) {
 			this.defaultAssetLinkUuid = null;
@@ -347,7 +345,7 @@ export class DroppableGui {
 			await projectAsset?.getLiveAsset();
 		}
 
-		this.fireValueChange(trigger);
+		this.fireValueChange();
 		this.updateContent();
 		this.updateDeletedState();
 	}
@@ -369,9 +367,8 @@ export class DroppableGui {
 	 * Normally when using {@linkcode setValue} the value gets set to null when
 	 * the uuid is invalid.
 	 * @param {import("../../../src/util/mod.js").UuidString | null | undefined} uuid
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
 	 */
-	async #setValueFromAssetUuid(uuid, trigger) {
+	async #setValueFromAssetUuid(uuid) {
 		if (!uuid || !isUuid(uuid)) return;
 
 		const assetManager = getStudioInstance().projectManager.assertAssetManagerExists();
@@ -380,7 +377,7 @@ export class DroppableGui {
 		if (!this.#validateAssetType(await projectAsset.getProjectAssetTypeConstructor())) return;
 		await assetManager.makeAssetUuidPersistent(projectAsset);
 		this.setDefaultAssetLinkUuid(uuid);
-		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset: true, trigger});
+		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset: true});
 	}
 
 	/**
@@ -459,9 +456,8 @@ export class DroppableGui {
 	/**
 	 * @private
 	 * @param {typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} projectAssetType
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
 	 */
-	createEmbeddedAsset(projectAssetType, trigger) {
+	createEmbeddedAsset(projectAssetType) {
 		const assetManager = getStudioInstance().projectManager.assertAssetManagerExists();
 		if (!this.embeddedParentAsset) {
 			throw new Error("Tried to create an embedded asset from a DroppableGui that has no embeddedParentAsset set.");
@@ -469,7 +465,6 @@ export class DroppableGui {
 		const projectAsset = assetManager.createEmbeddedAsset(projectAssetType, this.embeddedParentAsset, this.embeddedParentAssetPersistenceKey);
 		this.setValueFromProjectAsset(projectAsset, {
 			preloadLiveAsset: true,
-			trigger,
 		});
 	}
 
@@ -477,18 +472,12 @@ export class DroppableGui {
 	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
-		this.#onValueChangeCbs.add(cb);
+		this.onValueChangeCbs.push(cb);
 	}
 
-	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
-	 */
-	fireValueChange(trigger) {
-		for (const cb of this.#onValueChangeCbs) {
-			cb({
-				value: this.value,
-				trigger,
-			});
+	fireValueChange() {
+		for (const cb of this.onValueChangeCbs) {
+			cb(this.value);
 		}
 	}
 
@@ -600,7 +589,7 @@ export class DroppableGui {
 			const dragData = this.getDraggingProjectAssetData(mimeType);
 			if (this.validateMimeType(dragData)) {
 				const assetUuid = dragData.draggingProjectAssetData.assetUuid;
-				this.#setValueFromAssetUuid(assetUuid, "user");
+				this.#setValueFromAssetUuid(assetUuid);
 				break;
 			}
 		}
@@ -708,7 +697,7 @@ export class DroppableGui {
 
 				if (availableTypes.length == 1) {
 					createEmbeddedStructure.onClick = () => {
-						this.createEmbeddedAsset(availableTypes[0], "user");
+						this.createEmbeddedAsset(availableTypes[0]);
 					};
 				} else {
 					createEmbeddedStructure.submenu = () => {
@@ -718,7 +707,7 @@ export class DroppableGui {
 							submenuStructure.push({
 								text: projectAssetType.getUiName(),
 								onClick: () => {
-									this.createEmbeddedAsset(projectAssetType, "user");
+									this.createEmbeddedAsset(projectAssetType);
 								},
 							});
 						}
@@ -782,7 +771,7 @@ export class DroppableGui {
 						disabled,
 						onClick: async () => {
 							const uuid = await navigator.clipboard.readText();
-							await this.#setValueFromAssetUuid(uuid, "user");
+							await this.#setValueFromAssetUuid(uuid);
 						},
 					});
 				}
@@ -887,7 +876,7 @@ export class DroppableGui {
 		});
 		if (permission.state != "denied") {
 			const uuid = await navigator.clipboard.readText();
-			this.#setValueFromAssetUuid(uuid, "user");
+			this.#setValueFromAssetUuid(uuid);
 		}
 	};
 
@@ -896,7 +885,7 @@ export class DroppableGui {
 		if (!this.hasFocusWithin) return;
 		e.preventDefault();
 		const uuid = e.clipboardData?.getData("text/plain");
-		this.#setValueFromAssetUuid(uuid, "user");
+		this.#setValueFromAssetUuid(uuid);
 	};
 
 	get visibleAssetName() {
