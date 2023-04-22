@@ -9,17 +9,26 @@ importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../share
 const ProjectSelectorMod = await importer.import("../../../../../studio/src/projectSelector/ProjectSelector.js");
 const {ProjectSelector} = ProjectSelectorMod;
 
-const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../src/util/IndexedDbUtil.js");
+const {forcePendingOperations: forcePendingOperationsImported, IndexedDbUtil} = await importer.import("../../../../../src/util/IndexedDbUtil.js");
 const forcePendingOperations = /** @type {typeof import("../../shared/MockIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
 export {forcePendingOperations, ProjectSelector};
 
-export function basicSetup() {
+/**
+ * @param {object} [options]
+ * @param {() => Promise<IDBDatabaseInfo[]>} [options.databasesImpl]
+ * @param {(indexedDb: import("../../../../../src/util/IndexedDbUtil.js").IndexedDbUtil) => void} [options.initializeIndexedDbHook]
+ */
+export function basicSetup({
+	databasesImpl = async () => [],
+	initializeIndexedDbHook = () => {},
+} = {}) {
 	installFakeDocument();
 	globalThis.indexedDB = /** @type {any} */ ({});
-	const databasesStub = stub(globalThis.indexedDB, "databases", async () => {
-		return [];
-	});
+	const databasesStub = stub(globalThis.indexedDB, "databases", databasesImpl);
+
+	const indexedDb = new IndexedDbUtil("projectSelector");
+	initializeIndexedDbHook(indexedDb);
 
 	const projectSelector = new ProjectSelector();
 
@@ -32,8 +41,8 @@ export function basicSetup() {
 	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async fromUserGesture => {});
 	const openProjectFromLocalDirectorySpy = stub(mockStudio.projectManager, "openProjectFromLocalDirectory", async () => {});
 
-	const newProjectButton = projectSelector.actionsListEl.children[0];
-	const openProjectButton = projectSelector.actionsListEl.children[1];
+	const newProjectButton = projectSelector.actionsListEl.children[0].children[0];
+	const openProjectButton = projectSelector.actionsListEl.children[1].children[0];
 
 	function triggerStudioLoad() {
 		projectSelector.setStudioLoaded(mockStudio);

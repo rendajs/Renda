@@ -52,7 +52,7 @@ export async function waitForProjectSelector(page) {
  */
 export async function setupNewProject(page) {
 	log("Create a new project");
-	await click(page, ".project-selector-actions-list-container > .project-selector-list > .project-selector-button:nth-child(1)");
+	await click(page, ".project-selector-actions-list-container > .project-selector-list > li:nth-child(1) > button");
 
 	await waitForProjectOpen(page);
 }

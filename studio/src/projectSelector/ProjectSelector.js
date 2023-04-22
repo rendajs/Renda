@@ -54,12 +54,18 @@ export class ProjectSelector {
 			}
 			this.setVisibility(false);
 		});
-		this.createAction("Open Project", async () => {
+
+		const {buttonEl: openProjectButton} = this.createAction("Open Project", async () => {
 			this.willOpenProjectAfterLoad();
 			const studio = await this.waitForStudio();
 			studio.projectManager.openProjectFromLocalDirectory();
 			this.setVisibility(false);
 		});
+		if (!("showDirectoryPicker" in globalThis)) {
+			openProjectButton.disabled = true;
+			openProjectButton.title = "Opening local projects is not supported by your browser.";
+		}
+
 		this.createAction("Connect Remote Project", async () => {
 			this.willOpenProjectAfterLoad();
 			const studio = await this.waitForStudio();
@@ -106,7 +112,7 @@ export class ProjectSelector {
 	 * @param {function() : void} onClick
 	 */
 	createAction(name, onClick) {
-		this.createListButton(this.actionsListEl, name, onClick);
+		return this.createListButton(this.actionsListEl, name, onClick);
 	}
 
 	/**
@@ -116,25 +122,39 @@ export class ProjectSelector {
 	 */
 	createListButton(listEl, name, onClick) {
 		const item = document.createElement("li");
-		item.classList.add("project-selector-button");
-		item.textContent = name;
-		item.addEventListener("click", onClick);
 		listEl.appendChild(item);
-		return item;
+		const button = document.createElement("button");
+		item.appendChild(button);
+		button.classList.add("project-selector-button");
+		button.textContent = name;
+		button.addEventListener("click", onClick);
+		return {
+			buttonEl: button,
+		};
 	}
 
 	async startGetRecentProjects() {
 		/** @type {typeof this.indexedDb.get<StoredProjectEntryAny[]>} */
 		const dbGetProjectsList = this.indexedDb.get.bind(this.indexedDb);
 		this.recentProjectsList = await dbGetProjectsList("recentProjectsList") || [];
-		const databases = await indexedDB.databases();
-		const databaseNames = databases.map(db => db.name);
-		this.recentProjectsList = this.recentProjectsList.filter(entry => {
-			if (entry.fileSystemType != "db") return true;
+		/** @type {string[]?} */
+		let databaseNames = null;
+		try {
+			const databases = await indexedDB.databases();
+			const unfilteredNames = databases.map(db => db.name);
+			databaseNames = /** @type {string[]} */ (unfilteredNames.filter(db => Boolean(db)));
+		} catch {
+			// Some browsers don't support `databases()`, in that case we just don't filter the list.
+		}
+		if (databaseNames) {
+			const certainNames = databaseNames;
+			this.recentProjectsList = this.recentProjectsList.filter(entry => {
+				if (entry.fileSystemType != "db") return true;
 
-			const dbName = IndexedDbStudioFileSystem.getDbName(entry.projectUuid);
-			return databaseNames.includes(dbName);
-		});
+				const dbName = IndexedDbStudioFileSystem.getDbName(entry.projectUuid);
+				return certainNames.includes(dbName);
+			});
+		}
 		this.getRecentsWaiter.fire();
 	}
 
@@ -169,7 +189,7 @@ export class ProjectSelector {
 			if (entry.alias) {
 				text = entry.alias;
 			}
-			const el = this.createListButton(this.recentListEl, text, async () => {
+			const {buttonEl} = this.createListButton(this.recentListEl, text, async () => {
 				this.willOpenProjectAfterLoad();
 				const studio = await this.waitForStudio();
 				studio.projectManager.openExistingProject(entry, true);
@@ -188,8 +208,8 @@ export class ProjectSelector {
 					tooltip += " (WebRTC Connection)";
 				}
 			}
-			el.title = tooltip;
-			el.addEventListener("contextmenu", e => {
+			buttonEl.title = tooltip;
+			buttonEl.addEventListener("contextmenu", e => {
 				if (this.loadedStudio) {
 					e.preventDefault();
 					let deleteText = "Remove from Recents";

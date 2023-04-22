@@ -53,7 +53,7 @@ export class ContextMenu extends Popover {
 		/** @type {import("./Popover.js").PopoverSetPosItem?} */
 		this.lastSetPosItem = null;
 
-		this.hasResevedIconSpaceItem = false;
+		this.hasReservedIconSpace = false;
 
 		if (structure) {
 			this.createStructure(structure);
@@ -210,7 +210,7 @@ export class ContextMenu extends Popover {
 	}
 
 	updateHasReservedIconSpaceItem() {
-		this.hasResevedIconSpaceItem = this.addedItems.some(item => item.reserveIconSpace);
+		this.hasReservedIconSpace = this.addedItems.some(item => item.reserveIconSpace);
 		for (const item of this.addedItems) {
 			item.updateIconStyle();
 		}
