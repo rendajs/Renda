@@ -239,9 +239,12 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.selectionGroup.changeSelection(changeData);
 	}
 
-	/** @override */
-	activate() {
-		this.treeView.focusIfNotFocused();
+	/**
+	 * @override
+	 * @param {boolean} mayChangeFocus
+	 */
+	activate(mayChangeFocus) {
+		if (mayChangeFocus) this.treeView.focusIfNotFocused();
 		this.selectionGroup?.activate();
 	}
 
