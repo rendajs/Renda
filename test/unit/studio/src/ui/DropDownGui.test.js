@@ -44,3 +44,22 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Does not fire events when the gui has been destructed",
+	fn() {
+		runWithDom(() => {
+			const gui = new DropDownGui({
+				items: ["item1", "item2", "item3"],
+			});
+			const changeSpy = createOnChangeEventSpy(gui);
+
+			gui.destructor();
+			gui.el.value = "1";
+			gui.el.selectedIndex = 1;
+			gui.el.dispatchEvent(new Event("change"));
+
+			assertSpyCalls(changeSpy, 0);
+		});
+	},
+});
