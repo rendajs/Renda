@@ -81,8 +81,8 @@ export class ContentWindowConnections extends ContentWindow {
 				placeholder: this.studioInstance.projectManager.studioConnectionsManager.getDefaultEndPoint(),
 			},
 		});
-		discoveryServerEndpointField.onValueChange(endPoint => {
-			this.studioInstance.projectManager.setStudioConnectionsDiscoveryEndpoint(endPoint);
+		discoveryServerEndpointField.onValueChange(changeEvent => {
+			this.studioInstance.projectManager.setStudioConnectionsDiscoveryEndpoint(changeEvent.value);
 		});
 		const discoveryServerStatusLabel = this.headerTreeView.addItem({
 			type: "label",
@@ -104,8 +104,8 @@ export class ContentWindowConnections extends ContentWindow {
 				label: "Allow Remote Incoming Connections",
 			},
 		});
-		allowRemoteIncomingCheckbox.onValueChange(allowIncoming => {
-			this.studioInstance.projectManager.setStudioConnectionsAllowRemoteIncoming(allowIncoming);
+		allowRemoteIncomingCheckbox.onValueChange(changeEvent => {
+			this.studioInstance.projectManager.setStudioConnectionsAllowRemoteIncoming(changeEvent.value);
 		});
 
 		const allowInternalIncomingCheckbox = studioHostConnectionTreeView.addItem({
@@ -115,8 +115,8 @@ export class ContentWindowConnections extends ContentWindow {
 				label: "Allow Internal Incoming Connections",
 			},
 		});
-		allowInternalIncomingCheckbox.onValueChange(allowIncoming => {
-			this.studioInstance.projectManager.setStudioConnectionsAllowInternalIncoming(allowIncoming);
+		allowInternalIncomingCheckbox.onValueChange(changeEvent => {
+			this.studioInstance.projectManager.setStudioConnectionsAllowInternalIncoming(changeEvent.value);
 		});
 
 		return {studioHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox};

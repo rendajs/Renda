@@ -57,7 +57,11 @@ import {prettifyVariableName} from "../util/util.js";
  */
 
 export class DropDownGui {
-	/** @typedef {(selectedIndex: string | number) => void} OnValueChangeCallback */
+	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<string | number>} OnValueChangeCallback */
+
+	/** @type {Set<OnValueChangeCallback>} */
+	#onValueChangeCbs = new Set();
+
 	/**
 	 * @param {DropDownGuiOptions} opts
 	 */
@@ -77,11 +81,7 @@ export class DropDownGui {
 
 		this.el = document.createElement("select");
 		this.el.classList.add("buttonLike", "resetInput", "textInput");
-
-		/** @type {Set<OnValueChangeCallback>} */
-		this.onValueChangeCbs = new Set();
-		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
-		this.el.addEventListener("change", this.boundFireOnChangeCbs);
+		this.el.addEventListener("change", this.#fireOnChange);
 		if (enumObject) this.setEnumObject(enumObject);
 		this.updateOptions();
 
@@ -90,7 +90,7 @@ export class DropDownGui {
 	}
 
 	destructor() {
-		this.el.removeEventListener("change", this.boundFireOnChangeCbs);
+		this.el.removeEventListener("change", this.#fireOnChange);
 	}
 
 	/**
@@ -217,14 +217,17 @@ export class DropDownGui {
 	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
-		this.onValueChangeCbs.add(cb);
+		this.#onValueChangeCbs.add(cb);
 	}
 
-	fireOnChangeCbs() {
-		for (const cb of this.onValueChangeCbs) {
-			cb(this.value);
+	#fireOnChange = () => {
+		for (const cb of this.#onValueChangeCbs) {
+			cb({
+				value: this.value,
+				trigger: "user",
+			});
 		}
-	}
+	};
 
 	/**
 	 * @param {boolean} disabled

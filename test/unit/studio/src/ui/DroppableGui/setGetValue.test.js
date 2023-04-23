@@ -1,18 +1,32 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {BASIC_ASSET_UUID, DEFAULTASSETLINK_LINK_UUID, createBasicGui} from "./shared.js";
+import {createOnChangeEventSpy} from "../shared.js";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 
 Deno.test({
 	name: "setValue() to null",
 	fn() {
 		const {gui, uninstall} = createBasicGui();
+		const onChangeSpy = createOnChangeEventSpy(gui);
 
-		gui.setValue(null);
+		try {
+			gui.setValue(null);
 
-		assertEquals(gui.projectAssetValue, null);
-		assertEquals(gui.defaultAssetLink, null);
-		assertEquals(gui.defaultAssetLinkUuid, null);
-
-		uninstall();
+			assertEquals(gui.projectAssetValue, null);
+			assertEquals(gui.defaultAssetLink, null);
+			assertEquals(gui.defaultAssetLinkUuid, null);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: null,
+						trigger: "application",
+					},
+				],
+			});
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -20,14 +34,26 @@ Deno.test({
 	name: "setValue() with an uuid",
 	fn() {
 		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+		const onChangeSpy = createOnChangeEventSpy(gui);
 
-		gui.setValue(BASIC_ASSET_UUID);
+		try {
+			gui.setValue(BASIC_ASSET_UUID);
 
-		assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
-		assertEquals(gui.defaultAssetLink, null);
-		assertEquals(gui.defaultAssetLinkUuid, null);
-
-		uninstall();
+			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
+			assertEquals(gui.defaultAssetLink, null);
+			assertEquals(gui.defaultAssetLinkUuid, null);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_ASSET_UUID,
+						trigger: "application",
+					},
+				],
+			});
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -35,14 +61,28 @@ Deno.test({
 	name: "setValue() with an invalid uuid",
 	fn() {
 		const {gui, uninstall} = createBasicGui();
+		const onChangeSpy = createOnChangeEventSpy(gui);
 
-		gui.setValue("invalid");
+		try {
+			gui.setValue("invalid");
 
-		assertEquals(gui.projectAssetValue, null);
-		assertEquals(gui.defaultAssetLink, null);
-		assertEquals(gui.defaultAssetLinkUuid, null);
+			assertEquals(gui.projectAssetValue, null);
+			assertEquals(gui.defaultAssetLink, null);
+			assertEquals(gui.defaultAssetLinkUuid, null);
 
-		uninstall();
+			// TODO: Make sure this doesn't fire maybe?
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: null,
+						trigger: "application",
+					},
+				],
+			});
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -50,6 +90,7 @@ Deno.test({
 	name: "setValue() with an uuid and isDiskData = true",
 	fn() {
 		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
 			gui.setValue(BASIC_ASSET_UUID, {isDiskData: true});
@@ -57,6 +98,15 @@ Deno.test({
 			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
 			assertEquals(gui.defaultAssetLink, null);
 			assertEquals(gui.defaultAssetLinkUuid, null);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_ASSET_UUID,
+						trigger: "application",
+					},
+				],
+			});
 		} finally {
 			uninstall();
 		}
@@ -67,14 +117,26 @@ Deno.test({
 	name: "setValue() with an assetlink uuid",
 	fn() {
 		const {gui, mockProjectAsset, mockDefaultAssetLink, uninstall} = createBasicGui();
+		const onChangeSpy = createOnChangeEventSpy(gui);
 
-		gui.setValue(DEFAULTASSETLINK_LINK_UUID);
+		try {
+			gui.setValue(DEFAULTASSETLINK_LINK_UUID);
 
-		assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
-		assertStrictEquals(gui.defaultAssetLink, mockDefaultAssetLink);
-		assertEquals(gui.defaultAssetLinkUuid, DEFAULTASSETLINK_LINK_UUID);
-
-		uninstall();
+			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
+			assertStrictEquals(gui.defaultAssetLink, mockDefaultAssetLink);
+			assertEquals(gui.defaultAssetLinkUuid, DEFAULTASSETLINK_LINK_UUID);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: DEFAULTASSETLINK_LINK_UUID,
+						trigger: "application",
+					},
+				],
+			});
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -82,14 +144,26 @@ Deno.test({
 	name: "setValue() using a ProjectAsset",
 	fn() {
 		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+		const onChangeSpy = createOnChangeEventSpy(gui);
 
-		gui.setValue(mockProjectAsset);
+		try {
+			gui.setValue(mockProjectAsset);
 
-		assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
-		assertEquals(gui.defaultAssetLink, null);
-		assertEquals(gui.defaultAssetLinkUuid, null);
-
-		uninstall();
+			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
+			assertEquals(gui.defaultAssetLink, null);
+			assertEquals(gui.defaultAssetLinkUuid, null);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_ASSET_UUID,
+						trigger: "application",
+					},
+				],
+			});
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -97,6 +171,7 @@ Deno.test({
 	name: "setValue() using a ProjectAsset and isDiskData = true",
 	fn() {
 		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
 			gui.setValue(mockProjectAsset, {isDiskData: true});
@@ -104,6 +179,15 @@ Deno.test({
 			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
 			assertEquals(gui.defaultAssetLink, null);
 			assertEquals(gui.defaultAssetLinkUuid, null);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_ASSET_UUID,
+						trigger: "application",
+					},
+				],
+			});
 		} finally {
 			uninstall();
 		}
@@ -114,14 +198,26 @@ Deno.test({
 	name: "setValue() using a live asset",
 	fn() {
 		const {gui, mockLiveAsset, mockProjectAsset, uninstall} = createBasicGui();
+		const onChangeSpy = createOnChangeEventSpy(gui);
 
-		gui.setValue(mockLiveAsset);
+		try {
+			gui.setValue(mockLiveAsset);
 
-		assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
-		assertEquals(gui.defaultAssetLink, null);
-		assertEquals(gui.defaultAssetLinkUuid, null);
-
-		uninstall();
+			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
+			assertEquals(gui.defaultAssetLink, null);
+			assertEquals(gui.defaultAssetLinkUuid, null);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: BASIC_ASSET_UUID,
+						trigger: "application",
+					},
+				],
+			});
+		} finally {
+			uninstall();
+		}
 	},
 });
 

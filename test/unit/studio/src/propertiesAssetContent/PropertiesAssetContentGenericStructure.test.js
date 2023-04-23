@@ -1,6 +1,6 @@
 import "../../shared/initializeStudio.js";
 import {PropertiesAssetContentGenericStructure} from "../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
-import {runWithDom} from "../../shared/runWithDom.js";
+import {runWithDom, runWithDomAsync} from "../../shared/runWithDom.js";
 import {assertTreeViewStructureEquals} from "../../shared/treeViewUtil.js";
 import {assertEquals, assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
@@ -52,7 +52,7 @@ Deno.test({
 Deno.test({
 	name: "loading and saving",
 	async fn() {
-		await runWithDom(async () => {
+		await runWithDomAsync(async () => {
 			const content = new PropertiesAssetContentGenericStructure(mockStudio);
 			content.setStructure({
 				foo: {

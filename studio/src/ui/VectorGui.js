@@ -62,6 +62,11 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  * @template {Vec2 | Vec3 | Vec4} T
  */
 export class VectorGui {
+	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<T>} OnValueChangeCallback  */
+
+	/** @type {Set<OnValueChangeCallback>} */
+	#onValueChangeCbs = new Set();
+
 	/**
 	 * @param {VectorGuiOptions<T>} opts
 	 */
@@ -86,8 +91,6 @@ export class VectorGui {
 		this.el = document.createElement("div");
 		this.el.classList.add("vectorGui", "buttonGroupLike");
 		this.numericGuis = [];
-		/** @type {((value: T) => any)[]} */
-		this.onValueChangeCbs = [];
 		this.disabled = false;
 		this.size = size;
 
@@ -103,7 +106,9 @@ export class VectorGui {
 			});
 			this.numericGuis.push(numericGui);
 			this.el.appendChild(numericGui.el);
-			numericGui.onValueChange(() => this.fireValueChange());
+			numericGui.onValueChange(changeEvent => {
+				this.#fireValueChange(changeEvent.trigger);
+			});
 		}
 
 		this.setValue(defaultValue);
@@ -152,10 +157,10 @@ export class VectorGui {
 	}
 
 	/**
-	 * @param {(value: T) => any} cb
+	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
-		this.onValueChangeCbs.push(cb);
+		this.#onValueChangeCbs.add(cb);
 	}
 
 	/**
@@ -193,10 +198,13 @@ export class VectorGui {
 		return castValue;
 	}
 
-	fireValueChange() {
-		for (const cb of this.onValueChangeCbs) {
+	/**
+	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 */
+	#fireValueChange(trigger) {
+		for (const cb of this.#onValueChangeCbs) {
 			const value = /** @type {T} */ (this.value.clone());
-			cb(value);
+			cb({value, trigger});
 		}
 	}
 

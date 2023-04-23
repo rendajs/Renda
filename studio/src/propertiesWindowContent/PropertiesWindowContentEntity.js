@@ -38,12 +38,12 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				label: "Position",
 			},
 		});
-		this.positionProperty.onValueChange(newValue => {
+		this.positionProperty.onValueChange(changeEvent => {
 			if (this.isSettingTransformationValues) return;
 			if (!this.currentSelection) return;
 			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
-					entity.pos = newValue;
+					entity.pos = changeEvent.value;
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
@@ -57,12 +57,12 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				label: "Rotation",
 			},
 		});
-		this.rotationProperty.onValueChange(newValue => {
+		this.rotationProperty.onValueChange(changeEvent => {
 			if (this.isSettingTransformationValues) return;
 			if (!this.currentSelection) return;
 			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
-					entity.rot.setFromAxisAngle(newValue);
+					entity.rot.setFromAxisAngle(changeEvent.value);
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
@@ -76,12 +76,12 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				label: "Scale",
 			},
 		});
-		this.scaleProperty.onValueChange(newValue => {
+		this.scaleProperty.onValueChange(changeEvent => {
 			if (this.isSettingTransformationValues) return;
 			if (!this.currentSelection) return;
 			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
-					entity.scale = newValue;
+					entity.scale = changeEvent.value;
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
