@@ -349,8 +349,9 @@ export class WindowManager {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
 			});
-			castWindow.onClickWithin(() => {
-				this.addContentWindowToLastClicked(castWindow.activeTab);
+			castWindow.onClickWithin(e => {
+				const mayChangeFocus = (e.target == castWindow.activeTab.contentEl);
+				this.#addContentWindowToLastClicked(castWindow.activeTab, mayChangeFocus);
 			});
 			castWindow.onFocusedWithinChange(hasFocus => {
 				if (hasFocus) {
@@ -365,12 +366,17 @@ export class WindowManager {
 	}
 
 	/**
-	 * @private
 	 * @param {ContentWindow} contentWindow
+	 * @param {boolean} mayChangeFocus
 	 */
-	addContentWindowToLastClicked(contentWindow) {
+	#addContentWindowToLastClicked(contentWindow, mayChangeFocus) {
 		this.lastClickedContentWindow = contentWindow;
-		contentWindow.activate();
+		// We call activate regardless of whether we already called it before or not.
+		// This is because in the previous call `mayChangeFocus` may have been false
+		// and we want to notify the contentWindow if this is the case.
+		// In the future we could possibly keep track of this state and prevent multiple calls when the state hasn't changed.
+		// But since no content window has any issues with the current behaviour, we'll keep it like this for now.
+		contentWindow.activate(mayChangeFocus);
 		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
 		this.#lastClickedValueSetter?.setValue(castConstructor.contentWindowTypeId);
 	}
