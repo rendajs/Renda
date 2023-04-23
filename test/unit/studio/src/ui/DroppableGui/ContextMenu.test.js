@@ -1,6 +1,6 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {assertContextMenuStructureEquals} from "../../../shared/contextMenuHelpers.js";
-import {BASIC_ASSET_UUID, basicSetupForContextMenus, createMockProjectAsset, createMockProjectAssetType} from "./shared.js";
+import {BASIC_ASSET_UUID, basicSetupForContextMenus, createMockDroppableProjectAsset, createMockProjectAssetType} from "./shared.js";
 
 Deno.test({
 	name: "context menu event creates a new context menu",
@@ -141,7 +141,7 @@ Deno.test({
 Deno.test({
 	name: "context menu with embedded assets enabled and one supported asset type",
 	async fn() {
-		const mockParent = createMockProjectAsset();
+		const mockParent = createMockDroppableProjectAsset();
 		const {MockLiveAssetConstructor, ProjectAssetType} = createMockProjectAssetType();
 		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
@@ -164,7 +164,7 @@ Deno.test({
 Deno.test({
 	name: "context menu with embedded assets enabled and two supported asset types",
 	async fn() {
-		const mockParent = createMockProjectAsset();
+		const mockParent = createMockDroppableProjectAsset();
 		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiName: "Mock Live Asset 1"});
 		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiName: "Mock Live Asset 2"});
 		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({

@@ -1,137 +1,12 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assertContextMenuStructureContains, assertContextMenuStructureNotContainsText, triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
-import {basicSetupForContextMenus} from "./shared.js";
-import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {createOnChangeEventSpy} from "../shared.js";
-
-const BASIC_PASTED_ASSET_UUID = "a75c1304-5347-4f86-ae7a-3f57c1fb3ebf";
-
-/**
- * @param {object} options
- * @param {string} [options.clipboardAsset] The content that is currently in the clipboard
- * @param {PermissionState} [options.clipboardReadPermissionState] The content that is currently in the clipboard
- * @param {string[]} [options.supportedAssetTypes] A mock liveasset constructor will be added to the supportedAssetTypes
- * option of the gui.
- * @param {boolean} [options.includeMockProjectAssetTypeAsSupported] Whether to add the MockProjectAssetTypeConstructor
- * from the pasted asset to the supported asset types.
- */
-async function basicSetupForPastingUuid({
-	clipboardAsset = BASIC_PASTED_ASSET_UUID,
-	clipboardReadPermissionState = "granted",
-	supportedAssetTypes: supportedAssetTypeStrings = [],
-	includeMockProjectAssetTypeAsSupported = false,
-} = {}) {
-	/** @type {any[]} */
-	const supportedAssetTypes = [];
-	/** @type {[new (...args: any[]) => any, any[]][]} */
-	const liveAssetProjectAssetTypeCombinations = [];
-	for (const str of supportedAssetTypeStrings) {
-		const mockLiveAsset = class {};
-		supportedAssetTypes.push(mockLiveAsset);
-		liveAssetProjectAssetTypeCombinations.push([
-			mockLiveAsset, [
-				{
-					type: str,
-					expectedLiveAssetConstructor: mockLiveAsset,
-				},
-			],
-		]);
-	}
-
-	class MockLiveAsset {}
-
-	const MockProjectAssetTypeConstructor = {
-		type: "pasted asset type",
-		expectedLiveAssetConstructor: MockLiveAsset,
-	};
-	if (includeMockProjectAssetTypeAsSupported) {
-		supportedAssetTypes.push(MockLiveAsset);
-		liveAssetProjectAssetTypeCombinations.push([MockLiveAsset, [MockProjectAssetTypeConstructor]]);
-	}
-
-	const returnValue = await basicSetupForContextMenus({
-		basicGuiOptions: {
-			clipboardReadTextReturn: clipboardAsset,
-			clipboardReadPermissionState,
-			valueType: "none",
-			guiOpts: {
-				supportedAssetTypes,
-			},
-			liveAssetProjectAssetTypeCombinations,
-		},
-		dispatchContextMenuEvent: false,
-	});
-
-	const {projectAsset: mockProjectAsset} = createMockProjectAsset({
-		uuid: BASIC_PASTED_ASSET_UUID,
-		projectAssetTypeConstructor: MockProjectAssetTypeConstructor,
-	});
-	returnValue.addMockProjectAsset(BASIC_PASTED_ASSET_UUID, mockProjectAsset);
-
-	const assetManager = returnValue.mockStudio.projectManager.assetManager;
-	assertExists(assetManager);
-	stub(assetManager, "getProjectAssetFromUuid", async uuid => {
-		if (uuid == BASIC_PASTED_ASSET_UUID) {
-			return mockProjectAsset;
-		}
-		return null;
-	});
-
-	return {
-		...returnValue,
-		/**
-		 * @param {string} clipboardData
-		 */
-		async dispatchPasteEvent(clipboardData) {
-			const event = new ClipboardEvent("paste");
-			event.clipboardData.setData("text/plain", clipboardData);
-			returnValue.document.dispatchEvent(event);
-			await waitForMicrotasks();
-		},
-		async triggerPasteShortcut() {
-			await returnValue.triggerShortcutCommand("droppableGui.pasteUuid");
-		},
-		async dispatchContextMenuEvent() {
-			await returnValue.dispatchContextMenuEvent();
-		},
-		/**
-		 * @param {boolean} visible
-		 */
-		async assertContextMenu(visible, disabled = false, tooltip = "") {
-			const {createContextMenuCalls} = returnValue;
-			const call = createContextMenuCalls[0];
-			const itemText = "Paste asset UUID";
-			if (visible) {
-				assertExists(call);
-				await assertContextMenuStructureContains(call, {
-					text: itemText,
-					disabled,
-					tooltip,
-				});
-			} else {
-				if (call) {
-					await assertContextMenuStructureNotContainsText(call, "Paste asset UUID");
-				}
-			}
-		},
-		async clickPaste() {
-			const {createContextMenuCalls} = returnValue;
-			assertExists(createContextMenuCalls[0]);
-			await triggerContextMenuItem(createContextMenuCalls[0], ["Paste asset UUID"]);
-		},
-		uninstall() {
-			returnValue.uninstall();
-		},
-	};
-}
+import {BASIC_ASSET_UUID_FOR_SETTING, basicSetupForSettingByUuid} from "./shared.js";
 
 Deno.test({
 	name: "paste uuid via context menu",
 	async fn() {
-		const {gui, dispatchContextMenuEvent, assertContextMenu, clickPaste, uninstall} = await basicSetupForPastingUuid();
+		const {gui, dispatchContextMenuEvent, assertContextMenu, clickPaste, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const onChangeSpy = createOnChangeEventSpy(gui);
@@ -140,13 +15,13 @@ Deno.test({
 			await assertContextMenu(true);
 			await clickPaste();
 			const value = gui.getValue();
-			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+			assertEquals(value, BASIC_ASSET_UUID_FOR_SETTING);
 
 			assertSpyCalls(onChangeSpy, 1);
 			assertSpyCall(onChangeSpy, 0, {
 				args: [
 					{
-						value: BASIC_PASTED_ASSET_UUID,
+						value: BASIC_ASSET_UUID_FOR_SETTING,
 						trigger: "user",
 					},
 				],
@@ -160,7 +35,7 @@ Deno.test({
 Deno.test({
 	name: "paste via context menu, paste permission denied",
 	async fn() {
-		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForSettingByUuid({
 			clipboardReadPermissionState: "denied",
 		});
 
@@ -176,7 +51,7 @@ Deno.test({
 Deno.test({
 	name: "paste via context menu, permission is prompt",
 	async fn() {
-		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForSettingByUuid({
 			clipboardReadPermissionState: "prompt",
 		});
 
@@ -192,7 +67,7 @@ Deno.test({
 Deno.test({
 	name: "paste via context menu, clipboard contains no uuid",
 	async fn() {
-		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForSettingByUuid({
 			clipboardAsset: "not an uuid",
 		});
 
@@ -208,7 +83,7 @@ Deno.test({
 Deno.test({
 	name: "paste via context menu, asset uuid not in project",
 	async fn() {
-		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForSettingByUuid({
 			clipboardAsset: "ac6364f9-65f3-479e-9d7b-266a1ca22ff7",
 		});
 
@@ -224,8 +99,8 @@ Deno.test({
 Deno.test({
 	name: "paste via context menu, valid asset type, one supported",
 	async fn() {
-		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
-			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForSettingByUuid({
+			clipboardAsset: BASIC_ASSET_UUID_FOR_SETTING,
 			supportedAssetTypes: ["type1"],
 			includeMockProjectAssetTypeAsSupported: true,
 		});
@@ -242,8 +117,8 @@ Deno.test({
 Deno.test({
 	name: "paste via context menu, invalid asset type, one supported",
 	async fn() {
-		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
-			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForSettingByUuid({
+			clipboardAsset: BASIC_ASSET_UUID_FOR_SETTING,
 			supportedAssetTypes: ["type1"],
 		});
 
@@ -259,8 +134,8 @@ Deno.test({
 Deno.test({
 	name: "paste via context menu, invalid asset type, two supported",
 	async fn() {
-		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
-			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForSettingByUuid({
+			clipboardAsset: BASIC_ASSET_UUID_FOR_SETTING,
 			supportedAssetTypes: ["type1", "type2"],
 		});
 
@@ -276,8 +151,8 @@ Deno.test({
 Deno.test({
 	name: "paste via context menu, invalid asset type, three supported",
 	async fn() {
-		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
-			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForSettingByUuid({
+			clipboardAsset: BASIC_ASSET_UUID_FOR_SETTING,
 			supportedAssetTypes: ["type1", "type2", "type3"],
 		});
 
@@ -293,8 +168,8 @@ Deno.test({
 Deno.test({
 	name: "paste via context menu, invalid asset type, four supported",
 	async fn() {
-		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
-			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForSettingByUuid({
+			clipboardAsset: BASIC_ASSET_UUID_FOR_SETTING,
 			supportedAssetTypes: ["type1", "type2", "type3", "type4"],
 		});
 
@@ -311,7 +186,7 @@ Deno.test({
 	name: "paste uuid via context menu makes asset uuid persistent",
 	ignore: true,
 	async fn() {
-		const {mockStudio, dispatchContextMenuEvent, gui, assertContextMenu, clickPaste, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
+		const {mockStudio, dispatchContextMenuEvent, gui, assertContextMenu, clickPaste, mockProjectAsset, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const assetManager = mockStudio.projectManager.assetManager;
@@ -332,7 +207,7 @@ Deno.test({
 			assertSpyCall(onChangeSpy, 0, {
 				args: [
 					{
-						value: BASIC_PASTED_ASSET_UUID,
+						value: BASIC_ASSET_UUID_FOR_SETTING,
 						trigger: "user",
 					},
 				],
@@ -346,21 +221,21 @@ Deno.test({
 Deno.test({
 	name: "paste event, valid uuid",
 	async fn() {
-		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
+		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const onChangeSpy = createOnChangeEventSpy(gui);
 
 			await dispatchFocusEvent(true);
-			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+			await dispatchPasteEvent(BASIC_ASSET_UUID_FOR_SETTING);
 			const value = gui.getValue();
-			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+			assertEquals(value, BASIC_ASSET_UUID_FOR_SETTING);
 
 			assertSpyCalls(onChangeSpy, 1);
 			assertSpyCall(onChangeSpy, 0, {
 				args: [
 					{
-						value: BASIC_PASTED_ASSET_UUID,
+						value: BASIC_ASSET_UUID_FOR_SETTING,
 						trigger: "user",
 					},
 				],
@@ -374,12 +249,12 @@ Deno.test({
 Deno.test({
 	name: "paste event, never had focus",
 	async fn() {
-		const {gui, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
+		const {gui, dispatchPasteEvent, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const onChangeSpy = createOnChangeEventSpy(gui);
 
-			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+			await dispatchPasteEvent(BASIC_ASSET_UUID_FOR_SETTING);
 
 			const value = gui.getValue();
 			assertEquals(value, null);
@@ -393,14 +268,14 @@ Deno.test({
 Deno.test({
 	name: "paste event, focus removed",
 	async fn() {
-		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
+		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const onChangeSpy = createOnChangeEventSpy(gui);
 
 			await dispatchFocusEvent(true);
 			await dispatchFocusEvent(false);
-			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+			await dispatchPasteEvent(BASIC_ASSET_UUID_FOR_SETTING);
 
 			const value = gui.getValue();
 			assertEquals(value, null);
@@ -414,7 +289,7 @@ Deno.test({
 Deno.test({
 	name: "paste event, empty string",
 	async fn() {
-		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
+		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const onChangeSpy = createOnChangeEventSpy(gui);
@@ -434,7 +309,7 @@ Deno.test({
 Deno.test({
 	name: "paste event, uuid not in the project",
 	async fn() {
-		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
+		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const onChangeSpy = createOnChangeEventSpy(gui);
@@ -454,8 +329,8 @@ Deno.test({
 Deno.test({
 	name: "paste event, invalid asset type",
 	async fn() {
-		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid({
-			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForSettingByUuid({
+			clipboardAsset: BASIC_ASSET_UUID_FOR_SETTING,
 			supportedAssetTypes: ["type1"],
 		});
 
@@ -463,7 +338,7 @@ Deno.test({
 			const onChangeSpy = createOnChangeEventSpy(gui);
 
 			await dispatchFocusEvent(true);
-			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+			await dispatchPasteEvent(BASIC_ASSET_UUID_FOR_SETTING);
 
 			const value = gui.getValue();
 			assertEquals(value, null);
@@ -477,8 +352,8 @@ Deno.test({
 Deno.test({
 	name: "paste event, valid asset type",
 	async fn() {
-		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid({
-			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForSettingByUuid({
+			clipboardAsset: BASIC_ASSET_UUID_FOR_SETTING,
 			supportedAssetTypes: ["type1"],
 			includeMockProjectAssetTypeAsSupported: true,
 		});
@@ -487,15 +362,15 @@ Deno.test({
 			const onChangeSpy = createOnChangeEventSpy(gui);
 
 			await dispatchFocusEvent(true);
-			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+			await dispatchPasteEvent(BASIC_ASSET_UUID_FOR_SETTING);
 
 			const value = gui.getValue();
-			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+			assertEquals(value, BASIC_ASSET_UUID_FOR_SETTING);
 			assertSpyCalls(onChangeSpy, 1);
 			assertSpyCall(onChangeSpy, 0, {
 				args: [
 					{
-						value: BASIC_PASTED_ASSET_UUID,
+						value: BASIC_ASSET_UUID_FOR_SETTING,
 						trigger: "user",
 					},
 				],
@@ -509,7 +384,7 @@ Deno.test({
 Deno.test({
 	name: "focus updates shortcut condition",
 	async fn() {
-		const {dispatchFocusEvent, getLastShortcutCondition, uninstall} = await basicSetupForPastingUuid();
+		const {dispatchFocusEvent, getLastShortcutCondition, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			await dispatchFocusEvent(true);
@@ -525,7 +400,7 @@ Deno.test({
 Deno.test({
 	name: "trigger shortcut command via shortcut manager",
 	async fn() {
-		const {gui, dispatchFocusEvent, triggerPasteShortcut, uninstall} = await basicSetupForPastingUuid();
+		const {gui, dispatchFocusEvent, triggerPasteShortcut, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const onChangeSpy = createOnChangeEventSpy(gui);
@@ -534,12 +409,12 @@ Deno.test({
 			await triggerPasteShortcut();
 
 			const value = gui.getValue();
-			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+			assertEquals(value, BASIC_ASSET_UUID_FOR_SETTING);
 			assertSpyCalls(onChangeSpy, 1);
 			assertSpyCall(onChangeSpy, 0, {
 				args: [
 					{
-						value: BASIC_PASTED_ASSET_UUID,
+						value: BASIC_ASSET_UUID_FOR_SETTING,
 						trigger: "user",
 					},
 				],
@@ -553,7 +428,7 @@ Deno.test({
 Deno.test({
 	name: "trigger shortcut command via shortcut manager without focus",
 	async fn() {
-		const {gui, triggerPasteShortcut, uninstall} = await basicSetupForPastingUuid();
+		const {gui, triggerPasteShortcut, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const onChangeSpy = createOnChangeEventSpy(gui);
@@ -572,8 +447,8 @@ Deno.test({
 Deno.test({
 	name: "trigger shortcut command via shortcut manager, invalid asset type",
 	async fn() {
-		const {gui, dispatchFocusEvent, triggerPasteShortcut, uninstall} = await basicSetupForPastingUuid({
-			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+		const {gui, dispatchFocusEvent, triggerPasteShortcut, uninstall} = await basicSetupForSettingByUuid({
+			clipboardAsset: BASIC_ASSET_UUID_FOR_SETTING,
 			supportedAssetTypes: ["type1"],
 		});
 
@@ -595,8 +470,8 @@ Deno.test({
 Deno.test({
 	name: "trigger shortcut command via shortcut manager, valid asset type with supported list",
 	async fn() {
-		const {gui, dispatchFocusEvent, triggerPasteShortcut, uninstall} = await basicSetupForPastingUuid({
-			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+		const {gui, dispatchFocusEvent, triggerPasteShortcut, uninstall} = await basicSetupForSettingByUuid({
+			clipboardAsset: BASIC_ASSET_UUID_FOR_SETTING,
 			supportedAssetTypes: ["type1"],
 			includeMockProjectAssetTypeAsSupported: true,
 		});
@@ -608,12 +483,12 @@ Deno.test({
 			await triggerPasteShortcut();
 
 			const value = gui.getValue();
-			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+			assertEquals(value, BASIC_ASSET_UUID_FOR_SETTING);
 			assertSpyCalls(onChangeSpy, 1);
 			assertSpyCall(onChangeSpy, 0, {
 				args: [
 					{
-						value: BASIC_PASTED_ASSET_UUID,
+						value: BASIC_ASSET_UUID_FOR_SETTING,
 						trigger: "user",
 					},
 				],
@@ -628,7 +503,7 @@ Deno.test({
 	name: "paste event makes asset uuid persistent",
 	ignore: true,
 	async fn() {
-		const {mockStudio, dispatchFocusEvent, dispatchPasteEvent, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
+		const {mockStudio, dispatchFocusEvent, dispatchPasteEvent, mockProjectAsset, uninstall} = await basicSetupForSettingByUuid();
 
 		try {
 			const assetManager = mockStudio.projectManager.assetManager;
@@ -636,7 +511,7 @@ Deno.test({
 			const makePersistentSpy = spy(assetManager, "makeAssetUuidPersistent");
 
 			await dispatchFocusEvent(true);
-			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+			await dispatchPasteEvent(BASIC_ASSET_UUID_FOR_SETTING);
 			assertSpyCalls(makePersistentSpy, 1);
 			assertSpyCall(makePersistentSpy, 0, {
 				args: [mockProjectAsset],
