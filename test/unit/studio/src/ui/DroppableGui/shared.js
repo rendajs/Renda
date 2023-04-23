@@ -468,6 +468,7 @@ export async function basicSetupForSettingByUuid({
 
 	return {
 		...returnValue,
+		mockProjectAsset,
 		/**
 		 * @param {string} clipboardData
 		 */
