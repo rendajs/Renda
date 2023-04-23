@@ -1,4 +1,4 @@
-import {spy} from "std/testing/mock.ts";
+import {spy, stub} from "std/testing/mock.ts";
 import {ProjectAsset} from "../../../../../../studio/src/assets/ProjectAsset.js";
 import {DroppableGui} from "../../../../../../studio/src/ui/DroppableGui.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
@@ -7,6 +7,10 @@ import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {FocusEvent} from "fake-dom/FakeFocusEvent.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
+import {assertContextMenuStructureContains, assertContextMenuStructureNotContainsText, triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
+import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
+import {assertExists} from "std/testing/asserts.ts";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 
 export const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 export const DEFAULTASSETLINK_LINK_UUID = "DEFAULTASSETLINK_LINK_UUID";
@@ -37,7 +41,7 @@ export function applyProjectAssetInstanceOf() {
  * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetSync() to behave
  * like the real ProjectAsset.
  */
-export function createMockProjectAsset({
+export function createMockDroppableProjectAsset({
 	uuid = BASIC_ASSET_UUID,
 	mockLiveAsset = {},
 	isEmbedded = false,
@@ -101,7 +105,7 @@ export function createBasicGui({
 
 	const mockLiveAsset = {};
 
-	const mockProjectAsset = createMockProjectAsset({mockLiveAsset, needsLiveAssetPreload});
+	const mockProjectAsset = createMockDroppableProjectAsset({mockLiveAsset, needsLiveAssetPreload});
 
 	const mockDefaultAssetLink = /** @type {import("../../../../../../studio/src/assets/DefaultAssetLink.js").DefaultAssetLink} */ ({});
 
@@ -131,7 +135,7 @@ export function createBasicGui({
 	 * @param {string} persistenceKey
 	 */
 	function createEmbeddedAssetFn(assetType, parent, persistenceKey) {
-		return createMockProjectAsset({
+		return createMockDroppableProjectAsset({
 			mockLiveAsset,
 			isEmbedded: true,
 			needsLiveAssetPreload,
@@ -144,7 +148,7 @@ export function createBasicGui({
 	 * @param {import("../../../../../../studio/src/assets/AssetManager.js").GetLiveAssetFromUuidOrEmbeddedAssetDataOptions} options
 	 */
 	function getProjectAssetFromUuidOrEmbeddedAssetDataSyncFn(uuidOrData, options) {
-		return createMockProjectAsset({
+		return createMockDroppableProjectAsset({
 			mockLiveAsset,
 			isEmbedded: true,
 			needsLiveAssetPreload,
@@ -262,7 +266,7 @@ export function createBasicGui({
 	} else if (valueType == "defaultAssetLink") {
 		gui.setValue(DEFAULTASSETLINK_LINK_UUID);
 	} else if (valueType == "embedded") {
-		const projectAsset = createMockProjectAsset({
+		const projectAsset = createMockDroppableProjectAsset({
 			mockLiveAsset,
 			isEmbedded: true,
 			needsLiveAssetPreload,
@@ -273,6 +277,7 @@ export function createBasicGui({
 		gui,
 		document,
 		mockStudio,
+		mockAssetManager,
 		mockDefaultAssetLink,
 		mockLiveAsset,
 		mockProjectAsset,
@@ -385,5 +390,127 @@ export async function basicSetupForContextMenus({
 		...returnValue,
 		createContextMenuCalls,
 		dispatchContextMenuEvent: dispatchContextMenuEventFn,
+	};
+}
+
+export const BASIC_ASSET_UUID_FOR_SETTING = "a75c1304-5347-4f86-ae7a-3f57c1fb3ebf";
+
+/**
+ * @param {object} options
+ * @param {string} [options.clipboardAsset] The content that is currently in the clipboard
+ * @param {PermissionState} [options.clipboardReadPermissionState] The content that is currently in the clipboard
+ * @param {string[]} [options.supportedAssetTypes] A mock liveasset constructor will be added to the supportedAssetTypes
+ * option of the gui.
+ * @param {boolean} [options.includeMockProjectAssetTypeAsSupported] Whether to add the MockProjectAssetTypeConstructor
+ * from the pasted asset to the supported asset types.
+ */
+export async function basicSetupForSettingByUuid({
+	clipboardAsset = BASIC_ASSET_UUID_FOR_SETTING,
+	clipboardReadPermissionState = "granted",
+	supportedAssetTypes: supportedAssetTypeStrings = [],
+	includeMockProjectAssetTypeAsSupported = false,
+} = {}) {
+	/** @type {any[]} */
+	const supportedAssetTypes = [];
+	/** @type {[new (...args: any[]) => any, any[]][]} */
+	const liveAssetProjectAssetTypeCombinations = [];
+	for (const str of supportedAssetTypeStrings) {
+		const mockLiveAsset = class {};
+		supportedAssetTypes.push(mockLiveAsset);
+		liveAssetProjectAssetTypeCombinations.push([
+			mockLiveAsset, [
+				{
+					type: str,
+					expectedLiveAssetConstructor: mockLiveAsset,
+				},
+			],
+		]);
+	}
+
+	class MockLiveAsset {}
+
+	const MockProjectAssetTypeConstructor = {
+		type: "pasted asset type",
+		expectedLiveAssetConstructor: MockLiveAsset,
+	};
+	if (includeMockProjectAssetTypeAsSupported) {
+		supportedAssetTypes.push(MockLiveAsset);
+		liveAssetProjectAssetTypeCombinations.push([MockLiveAsset, [MockProjectAssetTypeConstructor]]);
+	}
+
+	const returnValue = await basicSetupForContextMenus({
+		basicGuiOptions: {
+			clipboardReadTextReturn: clipboardAsset,
+			clipboardReadPermissionState,
+			valueType: "none",
+			guiOpts: {
+				supportedAssetTypes,
+			},
+			liveAssetProjectAssetTypeCombinations,
+		},
+		dispatchContextMenuEvent: false,
+	});
+
+	const {projectAsset: mockProjectAsset} = createMockProjectAsset({
+		uuid: BASIC_ASSET_UUID_FOR_SETTING,
+		projectAssetTypeConstructor: MockProjectAssetTypeConstructor,
+	});
+	returnValue.addMockProjectAsset(BASIC_ASSET_UUID_FOR_SETTING, mockProjectAsset);
+
+	const assetManager = returnValue.mockStudio.projectManager.assetManager;
+	assertExists(assetManager);
+	stub(assetManager, "getProjectAssetFromUuid", async uuid => {
+		if (uuid == BASIC_ASSET_UUID_FOR_SETTING) {
+			return mockProjectAsset;
+		}
+		return null;
+	});
+
+	return {
+		...returnValue,
+		mockProjectAsset,
+		/**
+		 * @param {string} clipboardData
+		 */
+		async dispatchPasteEvent(clipboardData) {
+			const event = new ClipboardEvent("paste");
+			event.clipboardData.setData("text/plain", clipboardData);
+			returnValue.document.dispatchEvent(event);
+			await waitForMicrotasks();
+		},
+		async triggerPasteShortcut() {
+			await returnValue.triggerShortcutCommand("droppableGui.pasteUuid");
+		},
+		async dispatchContextMenuEvent() {
+			await returnValue.dispatchContextMenuEvent();
+		},
+		/**
+		 * @param {boolean} visible
+		 */
+		async assertContextMenu(visible, disabled = false, tooltip = "") {
+			const {createContextMenuCalls} = returnValue;
+			const call = createContextMenuCalls[0];
+			const itemText = "Paste asset UUID";
+			if (visible) {
+				assertExists(call);
+				await assertContextMenuStructureContains(call, {
+					text: itemText,
+					disabled,
+					tooltip,
+				});
+			} else {
+				if (call) {
+					await assertContextMenuStructureNotContainsText(call, "Paste asset UUID");
+				}
+			}
+		},
+		async clickPaste() {
+			const {createContextMenuCalls} = returnValue;
+			assertExists(createContextMenuCalls[0]);
+			await triggerContextMenuItem(createContextMenuCalls[0], ["Paste asset UUID"]);
+		},
+		uninstall() {
+			returnValue.uninstall();
+		},
 	};
 }

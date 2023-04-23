@@ -85,12 +85,13 @@ export async function parseJsonData(jsonData, {
 		const scenesResult = parseScenes(jsonData.scenes, jsonData.nodes);
 		entity = scenesResult.entity;
 		const entityNodeIds = scenesResult.entityNodeIds;
-		applyMeshComponents(jsonData, entityNodeIds, {
+		await applyMeshComponents(jsonData, entityNodeIds, {
 			getBufferFn,
 			getMaterialFn,
 		});
 	} else {
 		// TODO: parse glTF as if it is a library of assets
+		throw new Error("Parsing gltf without scenes is not supported yet");
 	}
 
 	return {entity};

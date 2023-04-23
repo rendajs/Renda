@@ -27,7 +27,7 @@ export async function applyMeshComponents(jsonData, entityNodeIds, {
 	getMaterialFn,
 }) {
 	// If no entities have been created, there are no meshes to create.
-	if (entityNodeIds.size < 0) return;
+	if (entityNodeIds.size <= 0) return;
 
 	if (!jsonData.nodes) {
 		throw new Error("Assertion failed: nodes are referenced but the glTF data does not contain nodes.");

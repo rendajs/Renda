@@ -4,9 +4,8 @@ import {getStudioInstance} from "../studioInstance.js";
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase} PathGuiOptions
  */
 
-/** @typedef {(path: import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath) => void} OnPathGuiChangeCallback */
-
 export class PathGui {
+	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath>} OnPathGuiChangeCallback */
 	/** @type {Set<OnPathGuiChangeCallback>} */
 	#onValueChangeCbs = new Set();
 
@@ -29,7 +28,7 @@ export class PathGui {
 		this.el.spellcheck = false;
 		this.el.addEventListener("input", e => {
 			this.#updateContent();
-			this.#fireOnChangeCbs();
+			this.#fireOnChangeCbs("user");
 		});
 	}
 
@@ -52,9 +51,15 @@ export class PathGui {
 		this.#onValueChangeCbs.add(cb);
 	}
 
-	#fireOnChangeCbs() {
+	/**
+	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 */
+	#fireOnChangeCbs(trigger) {
 		for (const cb of this.#onValueChangeCbs) {
-			cb(this.value);
+			cb({
+				value: this.value,
+				trigger,
+			});
 		}
 	}
 

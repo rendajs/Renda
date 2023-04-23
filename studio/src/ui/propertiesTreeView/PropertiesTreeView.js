@@ -14,6 +14,8 @@ import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
  * @typedef {PropertiesTreeViewEventCbMapType<T> & import("../TreeView.js").TreeViewEventCbMap} PropertiesTreeViewEventCbMap
  */
 
+export const VALUE_CHANGE_EVENT_NAME = "propertiestreeviewentryvaluechange";
+
 /**
  * @template {import("./types.js").PropertiesTreeViewStructure} [T = any]
  */
@@ -47,7 +49,7 @@ export class PropertiesTreeView extends TreeView {
 		/** @type {Object<string, PropertiesTreeViewEntry<any>>} */
 		this.currentSerializableStructureItems = {};
 
-		this.registerNewEventType("propertiestreeviewentryvaluechange");
+		this.registerNewEventType(VALUE_CHANGE_EVENT_NAME);
 	}
 
 	/**
@@ -78,7 +80,7 @@ export class PropertiesTreeView extends TreeView {
 	 * @param {function(import("./types.js").PropertiesTreeViewChangeEvent<T>) : void} cb
 	 */
 	onChildValueChange(cb) {
-		this.addEventListener("propertiestreeviewentryvaluechange", cb);
+		this.addEventListener(VALUE_CHANGE_EVENT_NAME, cb);
 	}
 
 	/**

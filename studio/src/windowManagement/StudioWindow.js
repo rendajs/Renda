@@ -2,7 +2,7 @@ export class StudioWindow {
 	#focusWithin = false;
 	/** @type {Set<(hasFocus: boolean) => any>} */
 	#onFocusedChangeCbs = new Set();
-	/** @type {Set<() => any>} */
+	/** @type {Set<(e: MouseEvent) => any>} */
 	#onClickWithinCbs = new Set();
 
 	/**
@@ -17,8 +17,8 @@ export class StudioWindow {
 		this.windowManager = windowManager;
 		this.isRoot = false;
 
-		this.el.addEventListener("click", () => {
-			this.#onClickWithinCbs.forEach(cb => cb());
+		this.el.addEventListener("click", e => {
+			this.#onClickWithinCbs.forEach(cb => cb(e));
 		});
 		this.el.addEventListener("focusin", e => {
 			this.#updateFocusWithin(e.target);
@@ -69,7 +69,7 @@ export class StudioWindow {
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * @param {(e: MouseEvent) => void} cb
 	 */
 	onClickWithin(cb) {
 		this.#onClickWithinCbs.add(cb);

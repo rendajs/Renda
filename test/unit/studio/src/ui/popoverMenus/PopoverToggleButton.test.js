@@ -5,11 +5,11 @@ import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/Popov
 import {PopoverToggleButton} from "../../../../../../studio/src/ui/popoverMenus/PopoverToggleButton.js";
 import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {runWithDom} from "../../../shared/runWithDom.js";
+import {runWithDom, runWithDomAsync} from "../../../shared/runWithDom.js";
 
 Deno.test({
 	name: "Creates a button",
-	async fn() {
+	fn() {
 		runWithDom(() => {
 			const colorizerFilterManager = new ColorizerFilterManager();
 			const manager = new PopoverManager(colorizerFilterManager);
@@ -23,8 +23,8 @@ Deno.test({
 
 Deno.test({
 	name: "Instantiates a Popover on click when one does not exist",
-	fn() {
-		runWithDom(async () => {
+	async fn() {
+		await runWithDomAsync(async () => {
 			const colorizerFilterManager = new ColorizerFilterManager();
 			const manager = new PopoverManager(colorizerFilterManager);
 
@@ -49,7 +49,7 @@ Deno.test({
 Deno.test({
 	name: "Closes the Popover on click when one exists",
 	fn() {
-		runWithDom(async () => {
+		runWithDomAsync(async () => {
 			const colorizerFilterManager = new ColorizerFilterManager();
 			const manager = new PopoverManager(colorizerFilterManager);
 

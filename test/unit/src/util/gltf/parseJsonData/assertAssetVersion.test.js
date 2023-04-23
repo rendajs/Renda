@@ -9,6 +9,7 @@ Deno.test({
 			asset: {
 				version: "2.0",
 			},
+			scenes: [],
 		}, getBasicOptions());
 	},
 });
@@ -21,6 +22,7 @@ Deno.test({
 				version: "2.0",
 				minVersion: "2.0",
 			},
+			scenes: [],
 		}, getBasicOptions());
 	},
 });
@@ -72,6 +74,7 @@ Deno.test({
 			asset: {
 				version: "2.1",
 			},
+			scenes: [],
 		}, getBasicOptions());
 	},
 });

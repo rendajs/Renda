@@ -1,22 +1,7 @@
 import "../../../shared/initializeStudio.js";
 import {ProjectAssetTypeGltf} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {createMockDependencies} from "./shared.js";
-import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
-
-Deno.test({
-	name: "getLiveAssetData() with null",
-	async fn() {
-		const {projectAssetTypeArgs} = createMockDependencies();
-
-		const projectAssetType = new ProjectAssetTypeGltf(...projectAssetTypeArgs);
-		const result = await projectAssetType.getLiveAssetData(null);
-
-		assertEquals(result, {
-			liveAsset: null,
-			studioData: null,
-		});
-	},
-});
+import {assertExists, assertRejects} from "std/testing/asserts.ts";
 
 Deno.test({
 	name: "getLiveAssetData() with a gltf file",

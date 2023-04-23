@@ -1,5 +1,5 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {stub} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, stub} from "std/testing/mock.ts";
 import {NumericGui} from "../../../../../studio/src/ui/NumericGui.js";
 import {runWithDom} from "../../shared/runWithDom.js";
 import {WheelEvent} from "fake-dom/FakeWheelEvent.js";
@@ -7,6 +7,7 @@ import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {FocusEvent} from "fake-dom/FakeFocusEvent.js";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
 import {KeyboardShortcutManager} from "../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js";
+import {createOnChangeEventSpy} from "./shared.js";
 
 /**
  * @typedef NumericGuiTestContext
@@ -102,6 +103,7 @@ Deno.test({
 		basicTest(({keyboardShortcutManager}) => {
 			const numericGui = new NumericGui();
 			stub(numericGui.el, "setSelectionRange");
+			const onChangeSpy = createOnChangeEventSpy(numericGui);
 
 			// @ts-ignore
 			document.activeElement = numericGui.el;
@@ -110,9 +112,27 @@ Deno.test({
 
 			keyboardShortcutManager.fireCommand("numericGui.incrementAtCaret");
 			assertEquals(numericGui.value, 1);
+			assertSpyCalls(onChangeSpy, 1);
+			assertSpyCall(onChangeSpy, 0, {
+				args: [
+					{
+						value: 1,
+						trigger: "user",
+					},
+				],
+			});
 
 			keyboardShortcutManager.fireCommand("numericGui.decrementAtCaret");
 			assertEquals(numericGui.value, 0);
+			assertSpyCalls(onChangeSpy, 2);
+			assertSpyCall(onChangeSpy, 1, {
+				args: [
+					{
+						value: 0,
+						trigger: "user",
+					},
+				],
+			});
 		});
 	},
 });

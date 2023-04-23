@@ -83,6 +83,22 @@ function basicTest() {
 }
 
 Deno.test({
+	name: "Has an empty entity by default",
+	async fn() {
+		const {args, uninstall} = basicTest();
+		try {
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			contentWindow.setProjectPreferencesLocationData({});
+
+			assertExists(contentWindow.editingEntity);
+			assertEquals(contentWindow.isEditingProjectEntity, false);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "last loaded entity and orbit controls are saved and loaded",
 	async fn() {
 		const {args, preferencesFlushSpy, getProjectAssetFromUuidResults, uninstall} = basicTest();
@@ -133,6 +149,42 @@ Deno.test({
 			assertVecAlmostEquals(contentWindow2.orbitControls.lookPos, [1, 2, 3]);
 			assertQuatAlmostEquals(contentWindow2.orbitControls.lookRot, newLookRot);
 			assertEquals(contentWindow2.orbitControls.lookDist, 123);
+		} finally {
+			uninstall();
+			time.restore();
+		}
+	},
+});
+
+Deno.test({
+	name: "Orbit controls are not saved when editing a non project entity",
+	async fn() {
+		const {args, preferencesFlushSpy, uninstall} = basicTest();
+		const time = new FakeTime();
+		try {
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			contentWindow.setProjectPreferencesLocationData({});
+
+			// Orbit controls should not be saved when nothing has changed
+			contentWindow.loop();
+			await time.tickAsync(10_000);
+			contentWindow.loop();
+
+			const newLookRot = Quat.fromAxisAngle(0, 1, 0, Math.PI);
+
+			contentWindow.orbitControls.lookPos.set(1, 2, 3);
+			contentWindow.orbitControls.lookRot.set(newLookRot);
+			contentWindow.orbitControls.lookDist = 123;
+			contentWindow.loop();
+			await time.tickAsync(10_000);
+			contentWindow.loop();
+			assertSpyCalls(preferencesFlushSpy, 0);
+
+			// Double check that no preferences have been touched, otherwise they might
+			// get written once preferences get flushed somewhere else.
+			const preferencesData = contentWindow.getProjectPreferencesLocationData();
+			assertEquals(preferencesData, null);
+			contentWindow.destructor();
 		} finally {
 			uninstall();
 			time.restore();

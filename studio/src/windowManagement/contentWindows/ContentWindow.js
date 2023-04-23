@@ -134,8 +134,11 @@ export class ContentWindow {
 	 * Gets called when the user clicks this content window so that it receives focus.
 	 * Normally you would use this to activate any selection groups related to the contentwindow.
 	 * This maybe called multiple times even though the window is already active.
+	 * @param {boolean} mayChangeFocus If this is false, an input element was clicked
+	 * and you should refrain from changing the focus to another element,
+	 * since that could move the focus away from the clicked element.
 	 */
-	activate() {}
+	activate(mayChangeFocus) {}
 
 	/**
 	 * @param {number} w

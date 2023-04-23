@@ -6,7 +6,7 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
 import {ProjectAssetTypeSampler} from "./ProjectAssetTypeSampler.js";
 
 /**
- * @extends {ProjectAssetType<import("../../../../src/core/Entity.js").Entity?, null, "binary">}
+ * @extends {ProjectAssetType<import("../../../../src/core/Entity.js").Entity, null, "binary">}
  */
 export class ProjectAssetTypeGltf extends ProjectAssetType {
 	static type = "renda:gltf";
@@ -28,15 +28,9 @@ export class ProjectAssetTypeGltf extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {Blob?} blob
+	 * @param {Blob} blob
 	 */
 	async getLiveAssetData(blob) {
-		if (!blob) {
-			return {
-				liveAsset: null,
-				studioData: null,
-			};
-		}
 		const arrayBuffer = await blob.arrayBuffer();
 		const defaultMaterial = await this.assetManager.getLiveAsset("542fb96a-d3f8-4150-9963-9f1bf803da67", {
 			assertAssetType: ProjectAssetTypeMaterial,
