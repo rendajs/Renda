@@ -34,12 +34,10 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 		this.meshSettingsTree = this.treeView.addCollapsable("Mesh Settings");
 		this.meshSettingsTree.renderContainer = true;
 		this.meshSettingsTree.generateFromSerializableStructure(this.meshSettingsStructure);
-		this.meshSettingsTree.onChildValueChange(() => {
-			if (this.isUpdatingUi) return;
+		this.meshSettingsTree.onChildValueChange(changeEvent => {
+			if (changeEvent.trigger != "user") return;
 			this.saveAsset();
 		});
-
-		this.isUpdatingUi = false;
 	}
 
 	async loadAssetData() {
@@ -47,7 +45,6 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 
 		const asset = this.currentSelection[0];
 		const {liveAsset, studioData} = await asset.getLiveAssetData();
-		this.isUpdatingUi = true;
 
 		if (liveAsset && studioData) {
 			const attributeNames = [];
@@ -62,8 +59,6 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 				attributes: attributeNames,
 			});
 		}
-
-		this.isUpdatingUi = false;
 	}
 
 	async saveAsset() {

@@ -24,7 +24,6 @@ export const environmentVariablesStructure = createTreeViewStructure({
  * @extends {PropertiesAssetContent<import("../assets/projectAssetType/ProjectAssetTypeTask.js").ProjectAssetTypeTask>}
  */
 export class PropertiesAssetContentTask extends PropertiesAssetContent {
-	#isLoadingTaskAssets = false;
 	/** @type {string?} */
 	#currentSelectedTaskType = null;
 	/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?} */
@@ -39,15 +38,15 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		this.environmentVariablesTree = this.treeView.addCollapsable("Environment Variables");
 		this.environmentVariablesTree.renderContainer = true;
 		this.environmentVariablesTree.generateFromSerializableStructure(environmentVariablesStructure);
-		this.environmentVariablesTree.onChildValueChange(() => {
-			if (this.#isLoadingTaskAssets) return;
+		this.environmentVariablesTree.onChildValueChange(changeEvent => {
+			if (changeEvent.trigger != "user") return;
 			this.saveTaskAsset();
 		});
 
 		this.taskConfigTree = this.treeView.addCollapsable("Task Settings");
 		this.taskConfigTree.renderContainer = true;
-		this.taskConfigTree.onChildValueChange(() => {
-			if (this.#isLoadingTaskAssets) return;
+		this.taskConfigTree.onChildValueChange(changeEvent => {
+			if (changeEvent.trigger != "user") return;
 			this.saveTaskAsset();
 		});
 
@@ -76,7 +75,6 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 	}
 
 	async loadTaskAssets() {
-		this.#isLoadingTaskAssets = true;
 		this.runTaskButton.setDisabled(true);
 
 		if (this.currentSelection.length == 0) {
@@ -113,7 +111,6 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 			this.taskConfigTree.clearChildren();
 		}
 		this.runTaskButton.setDisabled(false);
-		this.#isLoadingTaskAssets = false;
 	}
 
 	async saveTaskAsset() {

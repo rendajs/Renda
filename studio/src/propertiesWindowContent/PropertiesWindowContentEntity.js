@@ -31,7 +31,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			this.updateTransformationValues();
 		});
 
-		this.isSettingTransformationValues = false;
 		this.positionProperty = entitySection.addItem({
 			type: "vec3",
 			guiOpts: {
@@ -39,7 +38,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			},
 		});
 		this.positionProperty.onValueChange(changeEvent => {
-			if (this.isSettingTransformationValues) return;
+			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
 			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
@@ -58,7 +57,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			},
 		});
 		this.rotationProperty.onValueChange(changeEvent => {
-			if (this.isSettingTransformationValues) return;
+			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
 			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
@@ -77,7 +76,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			},
 		});
 		this.scaleProperty.onValueChange(changeEvent => {
-			if (this.isSettingTransformationValues) return;
+			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
 			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
@@ -143,7 +142,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 	}
 
 	updateTransformationValues() {
-		this.isSettingTransformationValues = true;
 		if (!this.currentSelection) return;
 
 		// todo: support multiple selections
@@ -155,7 +153,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		} else if (this.editingModeGui.value == "instance") {
 			throw new Error("Not implemented");
 		}
-		this.isSettingTransformationValues = false;
 	}
 
 	/**

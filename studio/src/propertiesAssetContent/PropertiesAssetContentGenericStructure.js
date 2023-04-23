@@ -14,12 +14,10 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 
 		this.assetTreeView = this.treeView.addCollapsable();
 		this.assetTreeView.renderContainer = true;
-		this.assetTreeView.onChildValueChange(() => {
-			if (this.isUpdatingUi) return;
+		this.assetTreeView.onChildValueChange(changeEvent => {
+			if (changeEvent.trigger != "user") return;
 			this.saveAsset();
 		});
-
-		this.isUpdatingUi = false;
 	}
 
 	/**
@@ -56,12 +54,9 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 		// todo: handle multiple selected items or no selection
 		const asset = this.currentSelection[0];
 		const assetData = await asset.readAssetData();
-		this.isUpdatingUi = true;
 
 		const castAssetData = /** @type {Object<string, unknown>} */ (assetData);
 		this.assetTreeView.fillSerializableStructureValues(castAssetData);
-
-		this.isUpdatingUi = false;
 	}
 
 	async saveAsset() {
