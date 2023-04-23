@@ -1,10 +1,10 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, returnsNext, spy, stub} from "std/testing/mock.ts";
+import {assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {DragEvent} from "fake-dom/FakeDragEvent.js";
 import {BASIC_ASSET_UUID_FOR_SETTING, basicSetupForSettingByUuid, createBasicGui} from "./shared.js";
 import {ProjectAssetType} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
 import {DroppableGui} from "../../../../../../studio/src/ui/DroppableGui.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 
 const BASIC_DRAGGING_DATA_UUID = "BASIC_DRAGGING_DATA_UUID";
 const VALID_DRAG_TYPE = `text/renda; dragtype=projectasset; draggingdata=${BASIC_DRAGGING_DATA_UUID}`;
