@@ -14,7 +14,6 @@ export async function flushProjectIndexedDb(page) {
 		if (!globalThis.e2e) {
 			throw new Error("e2e module not initialized");
 		}
-		console.log("running it");
 		return globalThis.e2e.flushProjectIndexedDb();
 	});
 }
