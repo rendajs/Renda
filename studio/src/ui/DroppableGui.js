@@ -335,7 +335,6 @@ export class DroppableGui {
 		preloadLiveAsset = false,
 		trigger = "application",
 	} = {}) {
-		console.log("setValueFromProjectAsset", clearDefaultAssetLink, preloadLiveAsset);
 		if (clearDefaultAssetLink) {
 			this.defaultAssetLinkUuid = null;
 			this.defaultAssetLink = null;
@@ -343,7 +342,6 @@ export class DroppableGui {
 		this.projectAssetValue = projectAsset;
 
 		if (preloadLiveAsset) {
-			console.log("preload live asset");
 			await projectAsset?.getLiveAsset();
 		}
 
@@ -484,7 +482,6 @@ export class DroppableGui {
 	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
 	 */
 	fireValueChange(trigger) {
-		console.log("fireValueChange");
 		for (const cb of this.#onValueChangeCbs) {
 			cb({
 				value: this.value,
@@ -709,7 +706,6 @@ export class DroppableGui {
 
 				if (availableTypes.length == 1) {
 					createEmbeddedStructure.onClick = () => {
-						console.log("create embedded clicked");
 						this.createEmbeddedAsset(availableTypes[0], "user");
 					};
 				} else {

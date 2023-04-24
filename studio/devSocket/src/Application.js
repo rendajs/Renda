@@ -33,8 +33,6 @@ export class Application {
 		}
 
 		this.webSocketManager.registerRoundTripOp("writeBuiltInAsset", async data => {
-			console.log("======================= tried to write built in asset!!!")
-			console.log(data);
 			throw new Error("Tried to write built-in asset!");
 			return await this.builtInAssetManager.writeAssetData(data.path, data.writeData);
 		});

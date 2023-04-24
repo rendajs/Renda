@@ -738,9 +738,7 @@ export class ProjectAsset {
 	 * @param {FileDataType} fileData
 	 */
 	async writeAssetData(fileData) {
-		console.log("writeAssetData wait for init", this.path);
 		await this.waitForInit();
-		console.log("writeAssetData done waiting for init", this.path);
 		await this.#writeAssetDataInstance.run(fileData);
 	}
 
@@ -748,16 +746,13 @@ export class ProjectAsset {
 	 * @param {FileDataType} fileData
 	 */
 	#writeAssetDataImpl = async fileData => {
-		console.log("writeAssetDataImpl", this.path);
 		if (!this.projectAssetTypeConstructorSync) {
 			throw new Error("Unable to write asset data without a ProjectAssetType");
 		}
 
 		if (this.projectAssetTypeConstructorSync.storeInProjectAsJson) {
 			if (this.isEmbedded) {
-				console.log("before writeEmbeddedAssetData", this.path);
 				await this.writeEmbeddedAssetData(fileData);
-				console.log("after writeEmbeddedAssetData", this.path);
 			} else {
 				let json = null;
 				if (this.projectAssetTypeConstructorSync.wrapProjectJsonWithStudioMetaData) {
@@ -771,9 +766,7 @@ export class ProjectAsset {
 				if (this.isBuiltIn || !this.fileSystem) {
 					await this.builtInAssetManager.writeJson(this.path, json);
 				} else {
-					console.log("before writeJson", this.path);
 					await this.fileSystem.writeJson(this.path, json);
-					console.log("after writeJson", this.path);
 				}
 			}
 		} else if (this.projectAssetTypeConstructorSync.storeInProjectAsText) {
