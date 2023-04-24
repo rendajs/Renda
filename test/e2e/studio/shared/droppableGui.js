@@ -3,7 +3,6 @@ import {log} from "../../shared/log.js";
 import {click} from "../../shared/util.js";
 import {clickContextMenuItem} from "./contextMenu.js";
 import {getPropertiesTreeViewEntryValueEl} from "./treeView.js";
-import { waitSeconds } from "./waitSeconds.js";
 
 /**
  * @param {import("puppeteer").Page} page
@@ -45,8 +44,6 @@ export async function createEmbeddedAssetAndOpen(page, propertiesTreeViewEntryEl
 	// Click the create embedded asset context menu
 	await clickContextMenuItem(page, ["Create embedded asset"]);
 	await waitForDroppableGuiHasValue(page, droppableGuiEl);
-
-	await waitSeconds(1);
 
 	// Open the embedded asset
 	await click(page, droppableGuiEl, {
