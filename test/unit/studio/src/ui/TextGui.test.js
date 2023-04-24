@@ -4,7 +4,7 @@ import {runWithDom} from "../../shared/runWithDom.js";
 import {createOnChangeEventSpy} from "./shared.js";
 
 Deno.test({
-	name: "Fires events when changed",
+	name: "Fires events when changed by user",
 	fn() {
 		runWithDom(() => {
 			const gui = new TextGui();
@@ -19,6 +19,28 @@ Deno.test({
 					{
 						value: "hello",
 						trigger: "user",
+					},
+				],
+			});
+		});
+	},
+});
+
+Deno.test({
+	name: "Fires events when changed by application",
+	fn() {
+		runWithDom(() => {
+			const gui = new TextGui();
+			const changeSpy = createOnChangeEventSpy(gui);
+
+			gui.setValue("hello");
+
+			assertSpyCalls(changeSpy, 1);
+			assertSpyCall(changeSpy, 0, {
+				args: [
+					{
+						value: "hello",
+						trigger: "application",
 					},
 				],
 			});

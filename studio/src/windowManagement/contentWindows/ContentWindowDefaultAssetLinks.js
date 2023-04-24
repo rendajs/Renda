@@ -14,7 +14,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		super(...args);
 
 		this.builtInAssetLinksTreeView = new PropertiesTreeView();
-		this.builtInAssetLinksTreeView.onChildValueChange(() => this.handleGuiValueChange());
+		this.builtInAssetLinksTreeView.onChildValueChange(this.#handleGuiValueChange);
 		this.contentEl.appendChild(this.builtInAssetLinksTreeView.el);
 
 		this.builtInAssetLinkGuiStructure = createTreeViewEntryOptions({
@@ -42,7 +42,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 
 		this.isLoadingAssetLinks = true;
 		this.isParsingValueChange = false;
-		this.treeView.onChildValueChange(() => this.handleGuiValueChange());
+		this.treeView.onChildValueChange(this.#handleGuiValueChange);
 
 		this.loadDefaultAssetLinks();
 	}
@@ -115,8 +115,11 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		return /** @type {T extends true ? typeof restStructure : (typeof nameStructure & typeof restStructure)} */ (fullStructure);
 	}
 
-	handleGuiValueChange() {
-		if (this.isLoadingAssetLinks || this.isParsingValueChange) return;
+	/**
+	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewChangeEvent<any>} changeEvent
+	 */
+	#handleGuiValueChange(changeEvent) {
+		if (changeEvent.trigger != "user") return;
 		this.isParsingValueChange = true;
 
 		/** @type {import("../../assets/AssetManager.js").SetDefaultBuiltInAssetLinkData[]} */

@@ -90,7 +90,8 @@ Deno.test({
 			assertEquals(gui.value, "bar");
 
 			// Update a value to cause it to save
-			gui.value = "baz";
+			gui.el.value = "baz";
+			gui.el.dispatchEvent(new Event("change"));
 
 			assertSpyCalls(fillValuesSpy, 1);
 			assertSpyCalls(writeAssetSpy, 1);

@@ -31,9 +31,8 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 		this.assetContentTree = this.treeView.addCollapsable("Asset Content");
 		this.assetContentTree.rowVisible = false;
 
-		this.isUpdatingAssetSettingsUi = false;
-		this.assetSettingsTree.onChildValueChange(() => {
-			if (this.isUpdatingAssetSettingsUi) return;
+		this.assetSettingsTree.onChildValueChange(changeEvent => {
+			if (changeEvent.trigger != "user") return;
 			this.saveAssetSettings();
 		});
 	}
@@ -82,10 +81,8 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 		};
 
 		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, {callbacksContext});
-		this.isUpdatingAssetSettingsUi = true;
 		const castSettingsValues = /** @type {import("../ui/propertiesTreeView/types.js").StructureToSetObject<any>} */ (settingsValues);
 		this.assetSettingsTree.fillSerializableStructureValues(castSettingsValues);
-		this.isUpdatingAssetSettingsUi = false;
 	}
 
 	// todo: make sure only one instance runs at a time

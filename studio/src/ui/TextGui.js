@@ -41,7 +41,7 @@ export class TextGui {
 	 */
 	setValue(value) {
 		this.el.value = value;
-		this.#fireOnChangeCbs();
+		this.#fireOnChangeCbsWithTrigger("application");
 	}
 
 	get value() {
@@ -60,13 +60,20 @@ export class TextGui {
 	}
 
 	#fireOnChangeCbs = () => {
+		this.#fireOnChangeCbsWithTrigger("user");
+	};
+
+	/**
+	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 */
+	#fireOnChangeCbsWithTrigger(trigger) {
 		for (const cb of this.onValueChangeCbs) {
 			cb({
 				value: this.value,
-				trigger: "user",
+				trigger,
 			});
 		}
-	};
+	}
 
 	/**
 	 * @param {boolean} disabled
