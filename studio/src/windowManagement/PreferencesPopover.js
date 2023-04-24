@@ -16,7 +16,6 @@ export class PreferencesPopover extends Popover {
 
 	/** @type {Map<string, CreatedEntryData>} */
 	#createdEntries = new Map();
-	#isLoadingValues = false;
 
 	locationDropDown;
 
@@ -75,8 +74,8 @@ export class PreferencesPopover extends Popover {
 					label: uiName,
 				},
 			});
-			entry.onValueChange(() => {
-				if (this.#isLoadingValues) return;
+			entry.onValueChange(changeEvent => {
+				if (changeEvent.trigger != "user") return;
 				preferencesManager.set(id, entry.getValue(), {
 					location: this.#getCurrentLocation(),
 					contentWindowUuid,
@@ -115,7 +114,6 @@ export class PreferencesPopover extends Popover {
 			throw new Error("Assertion failed, popover has not been initialized");
 		}
 
-		this.#isLoadingValues = true;
 		const location = this.#getCurrentLocation();
 		for (const [id, {entry, type}] of this.#createdEntries) {
 			let value = this.#preferencesManager.getUiValueAtLocation(id, location, {
@@ -132,6 +130,5 @@ export class PreferencesPopover extends Popover {
 			}
 			entry.setValue(value);
 		}
-		this.#isLoadingValues = false;
 	}
 }

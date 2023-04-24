@@ -33,9 +33,9 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				defaultValue: DEFAULT_MATERIAL_MAP_UUID,
 			},
 		});
-		this.mapTreeView.onValueChange(async () => {
+		this.mapTreeView.onValueChange(async changeEvent => {
 			console.log("material ui on value change");
-			if (this.isUpdatingUi) return;
+			if (changeEvent.trigger != "user") return;
 
 			// todo: support multiselect
 			const asset = this.currentSelection[0];
@@ -59,8 +59,6 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 
 		this.mapValuesTreeView = materialTree.addCollapsable("Material Properties");
 		this.mapValuesTreeView.renderContainer = true;
-
-		this.isUpdatingUi = false;
 	}
 
 	/**
@@ -76,8 +74,6 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	async loadAssetFn() {
 		// todo: handle multiple selected items or no selection
 
-		this.isUpdatingUi = true;
-
 		const material = await this.getFirstSelectedLiveAsset();
 		if (this.currentSelection.length > 1) {
 			this.mapTreeView.gui.removeEmbeddedAssetSupport();
@@ -86,8 +82,6 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		}
 		this.mapTreeView.setValue(material.materialMap);
 		await this.loadMapValues();
-
-		this.isUpdatingUi = false;
 	}
 
 	async waitForAssetLoad() {
@@ -158,9 +152,8 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			if (value !== undefined) {
 				entry.setValue(value);
 			}
-			entry.onValueChange(async () => {
-				if (this.isUpdatingUi) return;
-
+			entry.onValueChange(async changeEvent => {
+				if (changeEvent.trigger != "user") return;
 				const newValue = entry.getValue({
 					purpose: "script",
 				});

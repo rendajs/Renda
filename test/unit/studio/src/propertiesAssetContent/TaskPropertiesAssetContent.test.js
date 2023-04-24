@@ -213,6 +213,15 @@ Deno.test({
 	},
 });
 
+/**
+ * @param {TextGui} textGui
+ * @param {string} value
+ */
+function setTextGuiValue(textGui, value) {
+	textGui.el.value = value;
+	textGui.el.dispatchEvent(new Event("change"));
+}
+
 Deno.test({
 	name: "Environment variables ui changes are saved to disk",
 	async fn() {
@@ -229,7 +238,9 @@ Deno.test({
 			const variablesTreeView = assetContent.environmentVariablesTree.getSerializableStructureEntry("environmentVariables");
 			const firstArrayItemGui = variablesTreeView.gui.valueItems[0].gui;
 			const valueGui = firstArrayItemGui.treeView.getSerializableStructureEntry("value").gui;
-			valueGui.setValue("baz");
+
+			// change value to trigger a save
+			setTextGuiValue(valueGui, "baz");
 
 			assertSpyCalls(writeAssetDataSpy, 1);
 			assertSpyCall(writeAssetDataSpy, 0, {
@@ -267,7 +278,7 @@ Deno.test({
 			const valueGui = firstArrayItemGui.treeView.getSerializableStructureEntry("value").gui;
 
 			// Empty value
-			valueGui.setValue("");
+			setTextGuiValue(valueGui, "");
 			assertSpyCalls(writeAssetDataSpy, 1);
 			assertSpyCall(writeAssetDataSpy, 0, {
 				args: [
@@ -281,8 +292,8 @@ Deno.test({
 			});
 
 			// Empty key
-			keyGui.setValue("");
-			valueGui.setValue("value");
+			setTextGuiValue(keyGui, "");
+			setTextGuiValue(valueGui, "value");
 			assertSpyCalls(writeAssetDataSpy, 3);
 			assertSpyCall(writeAssetDataSpy, 1, {
 				args: [
@@ -300,7 +311,7 @@ Deno.test({
 			});
 
 			// Empty key and empty value
-			valueGui.setValue("");
+			setTextGuiValue(valueGui, "");
 			assertSpyCalls(writeAssetDataSpy, 4);
 			assertSpyCall(writeAssetDataSpy, 3, {
 				args: [
@@ -332,7 +343,7 @@ Deno.test({
 			assertInstanceOf(fooNode, PropertiesTreeViewEntry);
 			const fooGui = fooNode.gui;
 			assertInstanceOf(fooGui, TextGui);
-			fooNode.setValue("baz");
+			setTextGuiValue(fooGui, "baz");
 
 			assertSpyCalls(writeAssetDataSpy, 1);
 			assertEquals(writeAssetDataSpy.calls[0].args[0], {
@@ -364,7 +375,7 @@ Deno.test({
 			assertInstanceOf(fooNode, PropertiesTreeViewEntry);
 			const fooGui = fooNode.gui;
 			assertInstanceOf(fooGui, TextGui);
-			fooNode.setValue("");
+			setTextGuiValue(fooGui, "");
 
 			assertSpyCalls(writeAssetDataSpy, 1);
 			assertEquals(writeAssetDataSpy.calls[0].args[0], {

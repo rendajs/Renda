@@ -6,11 +6,11 @@ coverage:
     # https://docs.codecov.com/docs/commit-status#project-status
     project:
       default:
-        informational: true
+        only_pulls: true
     # https://docs.codecov.com/docs/commit-status#patch-status
     patch:
       default:
-        informational: true
+        only_pulls: true
 
 # https://docs.codecov.com/docs/pull-request-comments#disable-comment
 comment: false
