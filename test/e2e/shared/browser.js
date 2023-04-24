@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer";
 import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
-import { parseArgs } from "../../shared/testArgs.js";
+import {parseArgs} from "../../shared/testArgs.js";
 
 let mainPageUrl = "";
 /**
