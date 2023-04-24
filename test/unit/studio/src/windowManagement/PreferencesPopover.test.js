@@ -166,7 +166,7 @@ Deno.test({
 
 			assertInstanceOf(numEntry, PropertiesTreeViewEntry);
 			assertSpyCalls(setSpy, 0);
-			numEntry.setValue(123);
+			numEntry.setValue(123, {trigger: "user"});
 			assertSpyCalls(setSpy, 1);
 			assertSpyCall(setSpy, 0, {
 				args: [
@@ -180,7 +180,7 @@ Deno.test({
 			popover.locationDropDown.setValue(1);
 			popover.locationDropDown.el.dispatchEvent(new Event("change"));
 
-			numEntry.setValue(456);
+			numEntry.setValue(456, {trigger: "user"});
 			assertSpyCalls(setSpy, 2);
 			assertSpyCall(setSpy, 1, {
 				args: [
@@ -194,7 +194,7 @@ Deno.test({
 			popover.locationDropDown.setValue(0);
 			popover.locationDropDown.el.dispatchEvent(new Event("change"));
 
-			numEntry.setValue(789);
+			numEntry.setValue(789, {trigger: "user"});
 			assertSpyCalls(setSpy, 3);
 			assertSpyCall(setSpy, 2, {
 				args: [
