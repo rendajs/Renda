@@ -72,7 +72,7 @@ const contexts = new Set();
 const pages = new Set();
 
 /** @type {{location: import("puppeteer").ConsoleMessageLocation, argsPromise: Promise<unknown[]>}[]} */
-let consoleQueue = [];
+const consoleQueue = [];
 let isDrainingConsoleQueue = false;
 
 /**
