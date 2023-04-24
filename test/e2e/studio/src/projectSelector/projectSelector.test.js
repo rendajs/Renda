@@ -30,6 +30,7 @@ await runE2eTest({
 		await page.keyboard.type(newProjectName);
 		await page.keyboard.press("Enter");
 
+		await waitSeconds(1);
 		await reloadPage(page);
 
 		await waitForProjectOpen(page);
