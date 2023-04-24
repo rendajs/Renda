@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
+import { parseArgs } from "../../shared/testArgs.js";
 
 let mainPageUrl = "";
 /**
@@ -75,12 +76,14 @@ const pages = new Set();
 const consoleQueue = [];
 let isDrainingConsoleQueue = false;
 
+const args = parseArgs();
+
 /**
  * Creates a new incognito context and a page.
  * Contexts are automatically cleaned up after each test, even if the test fails.
  */
 export async function getPage(url = getMainPageUrl() + "/studio/") {
-	const browser = await launch({headless: true});
+	const browser = await launch({headless: args.headless});
 
 	const context = await browser.createIncognitoBrowserContext();
 	contexts.add(context);

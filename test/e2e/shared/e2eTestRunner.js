@@ -3,13 +3,10 @@ import * as fs from "std/fs/mod.ts";
 import {DevServer} from "../../../scripts/DevServer.js";
 import {setMainPageUrl} from "./browser.js";
 import {popFailedTests, setPath} from "./runE2eTest.js";
-// import {parseArgs} from "../../shared/testArgs.js";
 import {gray, red} from "std/fmt/colors.ts";
 import {setCwd} from "chdir-anywhere";
 setCwd();
 Deno.chdir("../../..");
-
-// const {headless} = parseArgs();
 
 const e2eTestsDir = path.resolve("test/e2e");
 const testFiles = [];
