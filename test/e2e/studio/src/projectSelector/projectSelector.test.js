@@ -30,9 +30,7 @@ await runE2eTest({
 		await page.keyboard.type(newProjectName);
 		await page.keyboard.press("Enter");
 
-		// todo: wait for new name to be saved to indexeddb
-		await waitSeconds(5);
-
+		await waitSeconds(1);
 		await reloadPage(page);
 
 		await waitForProjectOpen(page);

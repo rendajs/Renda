@@ -11,6 +11,8 @@ import {discardCurrentContexts} from "./browser.js";
  *
  * This is also useful to check if your changes made a test more flaky or not.
  * Just make your changes and run it again a bunch of times, then compare the difference.
+ * @property {boolean} [failFast] Useful when debugging with `forceRunCount`.
+ * Causes the test to stop making attempts once it has failed.
  */
 
 let currentPath = "";
@@ -88,10 +90,12 @@ export async function runE2eTest(config) {
 			await discardCurrentContexts();
 			if (ok) successCount++;
 			attempts++;
-			if (attempts > 1 || !ok) {
+			if (attempts > 1 || !ok || config.failFast) {
 				const status = ok ? green("ok") : red("error");
 				console.log(`attempt ${attempts} ${status}`);
 			}
+
+			if (!ok && config.failFast) break;
 
 			if (config.forceRunCount) {
 				if (attempts >= config.forceRunCount) {
@@ -117,6 +121,9 @@ export async function runE2eTest(config) {
 					}
 				}
 			}
+		}
+		if (config.failFast && successCount < attempts) {
+			success = false;
 		}
 		if (success) {
 			status = green("ok");

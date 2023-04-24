@@ -23,7 +23,6 @@ async function findMapTreeViewEntry(page, assetContentEl) {
 
 await runE2eTest({
 	name: "Creating a new material asset with embedded map and pipeline config",
-	ignore: true,
 	async fn() {
 		const {page} = await getPage();
 		await setupNewProject(page);
@@ -40,7 +39,7 @@ await runE2eTest({
 			await assetContent.waitForAssetLoad();
 		}, assetContentReference);
 
-		log("Create embedded asset");
+		log("Find material map tree view entry");
 		const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
 		await createEmbeddedAssetAndOpen(page, mapTreeViewEntry);
 
@@ -66,14 +65,6 @@ await runE2eTest({
 		const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
 		assertExists(checkbox);
 		await click(page, checkbox);
-
-		await page.evaluate(async () => {
-			const studio = globalThis.studio;
-			if (!studio) return;
-			const fs = studio.projectManager.currentProjectFileSystem;
-			if (!fs) return;
-			await fs.waitForWritesFinish();
-		});
 
 		await reloadPage(page);
 

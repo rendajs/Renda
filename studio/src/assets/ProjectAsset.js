@@ -620,10 +620,10 @@ export class ProjectAsset {
 	/**
 	 * Gets called when one of the children of this asset is an embedded asset
 	 * and it's just been changed.
-	 * Depending on the capabilities of the project asset type, this will do
+	 * Depending on the capabilities of this project asset type, this will do
 	 * one of the following:
 	 * - Calls `saveLiveAssetData` that triggers a write to disk. Even though
-	 * the embedded live asset hasn't been changed yet, it's embedded asset
+	 * the embedded live asset hasn't been changed yet, its embedded asset
 	 * data has, so this is what will be written when
 	 * `getAssetUuidOrEmbeddedAssetDataFromLiveAsset()` is called.
 	 * - If the project asset type has `propertiesAssetContentStructure` set,

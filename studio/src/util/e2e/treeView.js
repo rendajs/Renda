@@ -1,6 +1,7 @@
 /**
+ * @deprecated Use one of the functions in `test/e2e/studio/shared/treeView.js` instead.
+ *
  * Tries to find the element of a treeview from a specified path.
- * @deprecated Don't call this from e2e tests, instead use one of the functions in `test/e2e/studio/shared/treeView.js`
  * @param {Element} treeViewElement The element to start searching from
  * @param {(string | number)[]} itemsPath An array of items to search for. Items can either be a number to get
  * a specific index of a TreeView, or a string to get the name of the tree view or the label of a PropertiesTreeViewEntry.

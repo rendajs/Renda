@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
+import {parseArgs} from "../../shared/testArgs.js";
 
 let mainPageUrl = "";
 /**
@@ -71,27 +72,36 @@ const contexts = new Set();
 /** @type {Set<import("puppeteer").Page>} */
 const pages = new Set();
 
+/** @type {{location: import("puppeteer").ConsoleMessageLocation, argsPromise: Promise<unknown[]>}[]} */
+const consoleQueue = [];
+let isDrainingConsoleQueue = false;
+
+const args = parseArgs();
+
 /**
  * Creates a new incognito context and a page.
  * Contexts are automatically cleaned up after each test, even if the test fails.
  */
 export async function getPage(url = getMainPageUrl() + "/studio/") {
-	if (!browser) {
-		throw new Error("Assertion failed, browser was not launched, call `launch` first.");
-	}
+	const browser = await launch({headless: args.headless});
 
 	const context = await browser.createIncognitoBrowserContext();
 	contexts.add(context);
 	const page = await context.newPage();
 	pages.add(page);
 	await updateDefaultPageVisibility();
+
 	page.on("console", async message => {
-		const jsonArgs = [];
-		for (const arg of message.args()) {
-			jsonArgs.push(await arg.jsonValue());
-		}
-		console.log(...jsonArgs);
+		// We need to request `jsonValue` right away, if we only add the message
+		// to the queue and request it later the browser context might already be lost.
+		const argsPromises = message.args().map(arg => arg.jsonValue());
+		consoleQueue.push({
+			location: message.location(),
+			argsPromise: Promise.all(argsPromises),
+		});
+		drainConsoleQueue();
 	});
+
 	await page.goto(url);
 	return {
 		context,
@@ -101,8 +111,52 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 			contexts.delete(context);
 			await updateDefaultPageVisibility();
 			await context.close();
+			await browser.close();
 		},
 	};
+}
+
+async function drainConsoleQueue() {
+	if (isDrainingConsoleQueue) return;
+	isDrainingConsoleQueue = true;
+
+	while (true) {
+		const message = consoleQueue.shift();
+		if (!message) break;
+
+		const jsonArgs = await message.argsPromise;
+		let locationString;
+
+		// Strip domain name if it is localhost
+		const urlstring = message.location.url;
+		if (urlstring) {
+			let locationUrl;
+			try {
+				locationUrl = new URL(urlstring);
+			} catch {
+				// We'll just use the raw string instead
+			}
+
+			if (locationUrl && locationUrl.hostname == "localhost") {
+				locationString = locationUrl.pathname;
+			}
+		}
+		if (!locationString) {
+			locationString = message.location.url || "unknown";
+		}
+		if (message.location.lineNumber) {
+			locationString += ":" + message.location.lineNumber;
+			if (message.location.columnNumber) {
+				locationString += ":" + message.location.columnNumber;
+			}
+		}
+
+		console.log(`-- Browser console message from ${locationString}`);
+		console.log(...jsonArgs);
+		console.log("--");
+	}
+
+	isDrainingConsoleQueue = false;
 }
 
 /**
@@ -138,16 +192,13 @@ async function updateDefaultPageVisibility() {
  * Discards all created contexts. Called by the test runner at the end of a test.
  */
 export async function discardCurrentContexts() {
-	const contextsCopy = [...contexts];
 	contexts.clear();
 	pages.clear();
-	await updateDefaultPageVisibility();
 
-	const promises = [];
-	for (const context of contextsCopy) {
-		promises.push(context.close());
+	if (browser) {
+		await browser.close();
 	}
-	await Promise.all(promises);
+	browser = null;
 }
 
 /**
