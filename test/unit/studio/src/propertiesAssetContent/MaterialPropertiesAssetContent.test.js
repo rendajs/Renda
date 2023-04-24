@@ -279,7 +279,7 @@ Deno.test({
 		const mockTreeView = castTreeView(assetContent.mapTreeView);
 		const materialMap = new MaterialMap();
 		mockTreeView.mock.setGetValueReturn(materialMap);
-		mockTreeView.mock.fireOnValueChangeCbs(DEFAULT_ASSET_MAP_UUID);
+		mockTreeView.mock.fireOnValueChangeCbs({value: DEFAULT_ASSET_MAP_UUID, trigger: "user"});
 
 		await waitForMicrotasks();
 
@@ -308,7 +308,7 @@ Deno.test({
 		const mockTreeView = castTreeView(assetContent.mapTreeView);
 		const materialMap = new MaterialMap();
 		mockTreeView.mock.setGetValueReturn(materialMap);
-		mockTreeView.mock.fireOnValueChangeCbs(DEFAULT_ASSET_MAP_UUID);
+		mockTreeView.mock.fireOnValueChangeCbs({value: DEFAULT_ASSET_MAP_UUID, trigger: "application"});
 
 		triggerLiveAssetReturns();
 		await waitForMicrotasks();
