@@ -235,7 +235,7 @@ Deno.test({
 Deno.test({
 	name: "getting an asset with the incorrect LoaderType throws",
 	async fn() {
-		const {assetLoader, expectedAsset, uninstall} = basicSetup();
+		const {assetLoader, uninstall} = basicSetup();
 
 		/** @extends {AssetLoaderType<unknown>} */
 		class WrongAssetLoaderType extends AssetLoaderType {}
@@ -288,7 +288,7 @@ Deno.test({
 	name: "getting an asset with the correct Instance type doesn't throw",
 	async fn() {
 		class Foo {}
-		const {assetLoader, ExtendedAssetLoaderType, expectedAsset, uninstall} = basicSetup({
+		const {assetLoader, expectedAsset, uninstall} = basicSetup({
 			expectedAsset: new Foo(),
 		});
 
@@ -317,7 +317,7 @@ Deno.test({
 	async fn() {
 		class Foo {}
 		class Bar {}
-		const {assetLoader, ExtendedAssetLoaderType, expectedAsset, uninstall} = basicSetup({
+		const {assetLoader, uninstall} = basicSetup({
 			expectedAsset: new Foo(),
 		});
 
