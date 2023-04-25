@@ -3,6 +3,9 @@ import {binaryToObject, binaryToObjectWithAssetLoader} from "../../util/binarySe
 
 /**
  * @template {import("../../util/binarySerialization.js").ObjectToBinaryOptions<any>} TSerializationOptions
+ * @template TReturnType
+ * @template [TAssetOpts = undefined]
+ * @extends {AssetLoaderType<TReturnType, TAssetOpts>}
  */
 export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 	/**

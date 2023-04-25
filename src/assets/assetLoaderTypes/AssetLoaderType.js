@@ -1,3 +1,7 @@
+/**
+ * @template TReturnType
+ * @template [TAssetOpts = undefined]
+ */
 export class AssetLoaderType {
 	/**
 	 * Uuid of the loader type. This should match the uuid used in
@@ -24,8 +28,10 @@ export class AssetLoaderType {
 	 * instance of the desired class such as a Mesh or Texture.
 	 * @param {ArrayBuffer} buffer
 	 * @param {import("../RecursionTracker.js").RecursionTracker} recursionTracker
-	 * @param {*} [assetOpts]
-	 * @returns {Promise<*>}
+	 * @param {TAssetOpts} [assetOpts]
+	 * @returns {Promise<TReturnType>}
 	 */
-	async parseBuffer(buffer, recursionTracker, assetOpts) {}
+	async parseBuffer(buffer, recursionTracker, assetOpts) {
+		throw new Error("parseBuffer has not been implemented for this loader type.");
+	}
 }

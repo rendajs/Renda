@@ -8,7 +8,7 @@ export class AssetLoader {
 		/** @type {Set<AssetBundle>} */
 		this.bundles = new Set();
 
-		/** @type {Map<string, AssetLoaderType>} */
+		/** @type {Map<string, AssetLoaderType<unknown, unknown>>} */
 		this.registeredLoaderTypes = new Map();
 
 		/** @type {Map<import("../mod.js").UuidString, WeakRef<any>>} */
@@ -45,9 +45,8 @@ export class AssetLoader {
 		return instance;
 	}
 
-	// TODO: more options for deciding whether unfinished bundles
+	// TODO: more options for deciding whether unfinished bundles should be searched as well
 	// TODO: If an asset is already being loaded, resolve using the same promise
-	// should be searched as well
 	/**
 	 * @param {import("../util/util.js").UuidString} uuid
 	 * @param {object} options
@@ -113,7 +112,8 @@ export class AssetLoader {
 		const asset = await loaderType.parseBuffer(buffer, recursionTracker, assetOpts);
 
 		if (!createNewInstance) {
-			const weakRef = new WeakRef(asset);
+			// TODO: #611 Improve the error message when the asset is a string, null, number etc.
+			const weakRef = new WeakRef(/** @type {object} */ (asset));
 			this.loadedAssets.set(uuid, weakRef);
 		}
 

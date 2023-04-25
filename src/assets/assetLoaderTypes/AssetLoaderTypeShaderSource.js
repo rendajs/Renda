@@ -1,6 +1,11 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
 import {ShaderSource} from "../../rendering/ShaderSource.js";
 
+// TODO: Make the return type a generic based on whether 'raw' was true.
+
+/**
+ * @extends {AssetLoaderType<ShaderSource | string>}
+ */
 export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	static get typeUuid() {
 		return "e7253ad6-8459-431f-ac16-609150538a24";

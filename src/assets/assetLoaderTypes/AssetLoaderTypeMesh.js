@@ -2,6 +2,9 @@ import {AssetLoaderType} from "./AssetLoaderType.js";
 import {Mesh} from "../../core/Mesh.js";
 import {BinaryDecomposer} from "../../util/BinaryDecomposer.js";
 
+/**
+ * @extends {AssetLoaderType<Mesh>}
+ */
 export class AssetLoaderTypeMesh extends AssetLoaderType {
 	static get typeUuid() {
 		return "f202aae6-673a-497d-806d-c2d4752bb146";
@@ -22,7 +25,9 @@ export class AssetLoaderTypeMesh extends AssetLoaderType {
 	 */
 	async parseBuffer(arrayBuffer) {
 		const decomposer = new BinaryDecomposer(arrayBuffer);
-		if (decomposer.getUint32() != this.magicHeader) return null;
+		if (decomposer.getUint32() != this.magicHeader) {
+			throw new Error("Asset is not a Renda mesh");
+		}
 		if (decomposer.getUint16() != 1) {
 			throw new Error("mesh version is too new");
 		}

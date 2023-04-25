@@ -14,7 +14,7 @@ const binarySerializationOpts = {
 };
 
 /**
- * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts>}
+ * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts, ClusteredLightsConfig>}
  */
 export class AssetLoaderTypeClusteredLightsConfig extends AssetLoaderTypeGenericStructure {
 	static get typeUuid() {

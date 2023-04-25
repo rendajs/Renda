@@ -82,6 +82,9 @@ export const materialMapBinaryOptions = createObjectToBinaryOptions({
 	},
 });
 
+/**
+ * @extends {AssetLoaderType<MaterialMap>}
+ */
 export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 	static get typeUuid() {
 		return "dd28f2f7-254c-4447-b041-1770ae451ba9";
