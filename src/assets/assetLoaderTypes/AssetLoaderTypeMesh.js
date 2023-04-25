@@ -1,6 +1,7 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
 import {Mesh} from "../../core/Mesh.js";
 import {BinaryDecomposer} from "../../util/BinaryDecomposer.js";
+import {VertexState} from "../../rendering/VertexState.js";
 
 /**
  * @extends {AssetLoaderType<Mesh>}
@@ -35,7 +36,11 @@ export class AssetLoaderTypeMesh extends AssetLoaderType {
 
 		const vertexStateUuid = decomposer.getUuid();
 		if (vertexStateUuid) {
-			const vertexState = await this.assetLoader.getAsset(vertexStateUuid);
+			const vertexState = await this.assetLoader.getAsset(vertexStateUuid, {
+				assertionOptions: {
+					assertInstanceType: VertexState,
+				},
+			});
 			mesh.setVertexState(vertexState);
 		}
 
