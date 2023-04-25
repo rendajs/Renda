@@ -3,6 +3,20 @@ import {AssetLoaderType} from "./assetLoaderTypes/AssetLoaderType.js";
 import {isUuid} from "../util/util.js";
 import {RecursionTracker} from "./RecursionTracker.js";
 
+/**
+ * @template {new (...args: any[]) => import("./assetLoaderTypes/AssetLoaderType.js").AssetLoaderType<any, any>} [TLoaderType = new (...args: any[]) => import("./assetLoaderTypes/AssetLoaderType.js").AssetLoaderType<any, any>]
+ * @template {new (...args: any[]) => any} [TInstanceType = new (...args: any[]) => any]
+ * @typedef AssetLoaderAssertionOptions
+ * @property {TLoaderType | null} [assertLoaderType]
+ * @property {TInstanceType | null} [assertInstanceType]
+ */
+
+/**
+ * @typedef AssetLoaderAssertionOptionsDefaults
+ * @property {null} assertLoaderType
+ * @property {null} assertInstanceType
+ */
+
 export class AssetLoader {
 	constructor() {
 		/** @type {Set<AssetBundle>} */
@@ -45,11 +59,23 @@ export class AssetLoader {
 		return instance;
 	}
 
+	/**
+	 * @template {AssetLoaderAssertionOptions} [T = AssetLoaderAssertionOptionsDefaults]
+	 * @typedef {T["assertInstanceType"] extends (new (...args: any[]) => infer ProjectAssetType) ?
+	 * 	ProjectAssetType :
+	 * T["assertLoaderType"] extends (new (...args: any[]) => AssetLoaderType<infer TReturnType, any>) ?
+	 * 	TReturnType :
+	 * unknown} AssetAssertionOptionsToReturnType
+	 */
+
 	// TODO: more options for deciding whether unfinished bundles should be searched as well
 	// TODO: If an asset is already being loaded, resolve using the same promise
+	// TODO: #613 Infer assetOpts from the `assertionOptions` loader type
 	/**
+	 * @template {AssetLoaderAssertionOptions} TAssertionOptions
 	 * @param {import("../util/util.js").UuidString} uuid
 	 * @param {object} options
+	 * @param {TAssertionOptions} [options.assertionOptions]
 	 * @param {unknown} [options.assetOpts]
 	 * @param {boolean} [options.createNewInstance]
 	 * @param {RecursionTracker?} [options.recursionTracker]
@@ -57,6 +83,7 @@ export class AssetLoader {
 	async getAsset(uuid, {
 		assetOpts = undefined,
 		createNewInstance = false,
+		assertionOptions = /** @type {TAssertionOptions} */ ({}),
 		recursionTracker = null,
 	} = {}) {
 		if (!createNewInstance) {
@@ -64,7 +91,7 @@ export class AssetLoader {
 			if (weakRef) {
 				const ref = weakRef.deref();
 				if (ref) {
-					return ref;
+					return /** @type {AssetAssertionOptionsToReturnType<TAssertionOptions>} */ (ref);
 				}
 			}
 		}
@@ -108,8 +135,15 @@ export class AssetLoader {
 			// todo: remove this error in release builds
 			throw new Error(`Unable to parse asset with uuid "${uuid}". Its type is not registered, register it first with AssetLoader.registerLoaderType().`);
 		}
+		if (assertionOptions.assertLoaderType && !(loaderType instanceof assertionOptions.assertLoaderType)) {
+			throw new Error("The asset did not have the expected assertLoaderType.");
+		}
 
 		const asset = await loaderType.parseBuffer(buffer, recursionTracker, assetOpts);
+
+		if (assertionOptions.assertInstanceType && !(asset instanceof assertionOptions.assertInstanceType)) {
+			throw new Error("The asset did not have the expected assertInstanceType.");
+		}
 
 		if (!createNewInstance) {
 			// TODO: #611 Improve the error message when the asset is a string, null, number etc.
@@ -122,6 +156,6 @@ export class AssetLoader {
 			await recursionTracker.waitForAll();
 		}
 
-		return asset;
+		return /** @type {AssetAssertionOptionsToReturnType<TAssertionOptions>} */ (asset);
 	}
 }

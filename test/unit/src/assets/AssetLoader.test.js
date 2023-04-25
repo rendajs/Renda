@@ -64,13 +64,14 @@ function createBasicLoaderType({
  * @template {boolean} [TRegisterLoaderType = true]
  * @param {object} options
  * @param {TRegisterLoaderType} [options.registerLoaderType]
+ * @param {unknown} [options.expectedAsset]
  */
 function basicSetup({
 	registerLoaderType = /** @type {TRegisterLoaderType} */ (true),
+	expectedAsset = /** @type {unknown} */ ({label: "expected asset"}),
 } = {}) {
 	installMockWeakRef();
 	const assetLoader = new AssetLoader();
-	const expectedAsset = {label: "expected asset"};
 
 	const {ExtendedAssetLoaderType, setParseBufferFn} = createBasicLoaderType({
 		uuid: BASIC_ASSET_TYPE_UUID,
@@ -89,6 +90,7 @@ function basicSetup({
 		assetLoader,
 		expectedAsset,
 		loaderType: castLoaderType,
+		ExtendedAssetLoaderType,
 		setParseBufferFn,
 		uninstall() {
 			uninstallMockWeakRef();
@@ -156,17 +158,206 @@ Deno.test({
 	name: "getting an asset",
 	async fn() {
 		const {assetLoader, expectedAsset, uninstall} = basicSetup();
-		const bundle = assetLoader.addBundle("path/to/url");
-		const mockBundle = castMock(bundle);
-		mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
-		const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
-		mockBundle.setAssetAvailable(BASIC_ASSET_UUID, true);
-		const asset = await getAssetPromise;
+		try {
+			const bundle = assetLoader.addBundle("path/to/url");
+			const mockBundle = castMock(bundle);
+			mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
-		assertStrictEquals(asset, expectedAsset);
+			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
+			mockBundle.setAssetAvailable(BASIC_ASSET_UUID, true);
+			const asset = await getAssetPromise;
 
-		uninstall();
+			assertStrictEquals(asset, expectedAsset);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+testTypes({
+	name: "getAsset() return type is unknown without type assertions",
+	async fn() {
+		const assetLoader = new AssetLoader();
+		const result = await assetLoader.getAsset(BASIC_ASSET_UUID, {});
+
+		const unknownType = /** @type {unknown} */ ({});
+
+		// Verify that the type is `unknown` and nothing else
+		assertIsType(unknownType, result);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, result);
+	},
+});
+
+testTypes({
+	name: "getAsset() return type is unknown with empty assertionOptions",
+	async fn() {
+		const assetLoader = new AssetLoader();
+		const result = await assetLoader.getAsset(BASIC_ASSET_UUID, {
+			assertionOptions: {},
+		});
+
+		const unknownType = /** @type {unknown} */ ({});
+
+		// Verify that the type is `unknown` and nothing else
+		assertIsType(unknownType, result);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, result);
+	},
+});
+
+Deno.test({
+	name: "getting an asset with the correct LoaderType doesn't throw",
+	async fn() {
+		const {assetLoader, ExtendedAssetLoaderType, expectedAsset, uninstall} = basicSetup();
+
+		try {
+			const bundle = assetLoader.addBundle("path/to/url");
+			const mockBundle = castMock(bundle);
+			mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
+
+			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID, {
+				assertionOptions: {
+					assertLoaderType: ExtendedAssetLoaderType,
+				},
+			});
+			mockBundle.setAssetAvailable(BASIC_ASSET_UUID, true);
+			const asset = await getAssetPromise;
+
+			assertStrictEquals(asset, expectedAsset);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "getting an asset with the incorrect LoaderType throws",
+	async fn() {
+		const {assetLoader, expectedAsset, uninstall} = basicSetup();
+
+		/** @extends {AssetLoaderType<unknown>} */
+		class WrongAssetLoaderType extends AssetLoaderType {}
+
+		try {
+			const bundle = assetLoader.addBundle("path/to/url");
+			const mockBundle = castMock(bundle);
+			mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
+
+			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID, {
+				assertionOptions: {
+					assertLoaderType: WrongAssetLoaderType,
+				},
+			});
+			mockBundle.setAssetAvailable(BASIC_ASSET_UUID, true);
+			await assertRejects(async () => {
+				await getAssetPromise;
+			}, Error, "The asset did not have the expected assertLoaderType.");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+testTypes({
+	name: "getAsset() return type uses assertLoaderType assertion",
+	async fn() {
+		class Foo {}
+		/**
+		 * @extends {AssetLoaderType<Foo>}
+		 */
+		class ExtendedAssetLoaderType extends AssetLoaderType {}
+		const assetLoader = new AssetLoader();
+		const result = await assetLoader.getAsset(BASIC_ASSET_UUID, {
+			assertionOptions: {
+				assertLoaderType: ExtendedAssetLoaderType,
+			},
+		});
+
+		const expectedType = new Foo();
+
+		// Verify that the type is `Foo` and nothing else
+		assertIsType(expectedType, result);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, result);
+	},
+});
+
+Deno.test({
+	name: "getting an asset with the correct Instance type doesn't throw",
+	async fn() {
+		class Foo {}
+		const {assetLoader, ExtendedAssetLoaderType, expectedAsset, uninstall} = basicSetup({
+			expectedAsset: new Foo(),
+		});
+
+		try {
+			const bundle = assetLoader.addBundle("path/to/url");
+			const mockBundle = castMock(bundle);
+			mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
+
+			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID, {
+				assertionOptions: {
+					assertInstanceType: Foo,
+				},
+			});
+			mockBundle.setAssetAvailable(BASIC_ASSET_UUID, true);
+			const asset = await getAssetPromise;
+
+			assertStrictEquals(asset, expectedAsset);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "getting an asset with the incorrect Instance type throws",
+	async fn() {
+		class Foo {}
+		class Bar {}
+		const {assetLoader, ExtendedAssetLoaderType, expectedAsset, uninstall} = basicSetup({
+			expectedAsset: new Foo(),
+		});
+
+		try {
+			const bundle = assetLoader.addBundle("path/to/url");
+			const mockBundle = castMock(bundle);
+			mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
+
+			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID, {
+				assertionOptions: {
+					assertInstanceType: Bar,
+				},
+			});
+			mockBundle.setAssetAvailable(BASIC_ASSET_UUID, true);
+			await assertRejects(async () => {
+				await getAssetPromise;
+			}, Error, "The asset did not have the expected assertInstanceType.");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+testTypes({
+	name: "getAsset() return type uses assertInstanceType assertion",
+	async fn() {
+		class Foo {}
+		const assetLoader = new AssetLoader();
+		const result = await assetLoader.getAsset(BASIC_ASSET_UUID, {
+			assertionOptions: {
+				assertInstanceType: Foo,
+			},
+		});
+
+		const expectedType = new Foo();
+
+		// Verify that the type is `Foo` and nothing else
+		assertIsType(expectedType, result);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, result);
 	},
 });
 
