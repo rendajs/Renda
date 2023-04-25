@@ -362,6 +362,28 @@ testTypes({
 });
 
 Deno.test({
+	name: "AssetLoaderType does not have parseBuffer implemented",
+	async fn() {
+		/** @extends {AssetLoaderType<never>} */
+		class LoaderType extends AssetLoaderType {
+			static get typeUuid() {
+				return BASIC_ASSET_TYPE_UUID;
+			}
+		}
+		const assetLoader = new AssetLoader();
+		assetLoader.registerLoaderType(LoaderType);
+		const bundle = assetLoader.addBundle("path/to/url");
+		const mockBundle = castMock(bundle);
+		mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
+		mockBundle.setAssetAvailable(BASIC_ASSET_UUID, true);
+
+		await assertRejects(async () => {
+			await assetLoader.getAsset(BASIC_ASSET_UUID);
+		}, Error, "parseBuffer has not been implemented for this loader type.");
+	},
+});
+
+Deno.test({
 	name: "requesting the same asset twice returns the same instance by default",
 	async fn() {
 		const {assetLoader, expectedAsset, setParseBufferFn, uninstall} = basicSetup();
