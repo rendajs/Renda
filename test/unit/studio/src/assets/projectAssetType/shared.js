@@ -71,7 +71,7 @@ export function getMockRecursionTracker() {
  * - handling that data in the respective AssetLoaderType which turns it into an instance of a class.
  * @param {object} options
  * @param {import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructorAny} options.ProjectAssetTypeConstructor
- * @param {typeof import("../../../../../../src/assets/assetLoaderTypes/AssetLoaderType.js").AssetLoaderType} options.AssetLoaderType
+ * @param {typeof import("../../../../../../src/assets/assetLoaderTypes/AssetLoaderType.js").AssetLoaderType<any, any>} options.AssetLoaderType
  * @param {any} [options.jsonFileData]
  */
 export async function serializeAndLoad({

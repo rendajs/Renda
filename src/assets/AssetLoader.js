@@ -25,7 +25,7 @@ export class AssetLoader {
 	}
 
 	/**
-	 * @template {AssetLoaderType} TLoaderType
+	 * @template {AssetLoaderType<any, any>} TLoaderType
 	 * @param {new (...args: any[]) => TLoaderType} constructor
 	 * @returns {TLoaderType}
 	 */

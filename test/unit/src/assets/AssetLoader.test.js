@@ -29,6 +29,9 @@ function createBasicLoaderType({
 	uuid,
 	parseBufferFn,
 }) {
+	/**
+	 * @extends {AssetLoaderType<unknown>}
+	 */
 	class ExtendedAssetLoaderType extends AssetLoaderType {
 		static get typeUuid() {
 			return uuid;
@@ -106,6 +109,7 @@ Deno.test({
 Deno.test({
 	name: "registering an asset loader type that is missing a typeUuid property should throw",
 	fn() {
+		/** @extends {AssetLoaderType<unknown>} */
 		class Foo extends AssetLoaderType {}
 		const assetLoader = new AssetLoader();
 		assertThrows(() => {
@@ -117,6 +121,7 @@ Deno.test({
 Deno.test({
 	name: "registering an asset loader type that has an invalid typeUuid property should throw",
 	fn() {
+		/** @extends {AssetLoaderType<unknown>} */
 		class Foo extends AssetLoaderType {
 			static get typeUuid() {
 				return "not a uuid";

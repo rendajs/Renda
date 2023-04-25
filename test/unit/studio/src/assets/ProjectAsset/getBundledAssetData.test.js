@@ -46,7 +46,7 @@ Deno.test({
 			};
 
 			/**
-			 * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts>}
+			 * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts, never>}
 			 */
 			class AssetLoaderType extends AssetLoaderTypeGenericStructure {
 				static get binarySerializationOpts() {
@@ -95,7 +95,7 @@ Deno.test({
 			mocks.ProjectAssetType.prototype.createBundledAssetData = async () => null;
 
 			/**
-			 * @extends {AssetLoaderTypeGenericStructure<any>}
+			 * @extends {AssetLoaderTypeGenericStructure<any, never>}
 			 */
 			class AssetLoaderType extends AssetLoaderTypeGenericStructure {
 			}
@@ -148,7 +148,7 @@ Deno.test({
 		};
 
 		/**
-		 * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts>}
+		 * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts, never>}
 		 */
 		class AssetLoaderType extends AssetLoaderTypeGenericStructure {
 			static get binarySerializationOpts() {
@@ -218,7 +218,7 @@ Deno.test({
 		};
 
 		/**
-		 * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts>}
+		 * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts, never>}
 		 */
 		class AssetLoaderType extends AssetLoaderTypeGenericStructure {
 			static get binarySerializationOpts() {
