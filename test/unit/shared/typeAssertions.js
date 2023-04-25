@@ -83,3 +83,13 @@
  * @param {U} actualType
  */
 export function assertIsType(expectedType, actualType) {}
+
+/**
+ * This function does absolutely nothing. It is never run.
+ * It's only purpose is to make tests look nice without the linter complaining about unreachable code.
+ * The `fn` parameter can be used to write code that will never be run, but still gets type checked.
+ * @param {object} options
+ * @param {string} options.name
+ * @param {() => void | Promise<void>} options.fn
+ */
+export function testTypes({name, fn}) {}

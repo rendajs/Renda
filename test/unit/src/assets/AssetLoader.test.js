@@ -3,6 +3,7 @@ import {assertEquals, assertRejects, assertStrictEquals, assertThrows} from "std
 import {castMock} from "./MockAssetBundle.js";
 import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../shared/mockWeakRef.js";
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
+import {assertIsType, testTypes} from "../../shared/typeAssertions.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../src/assets/AssetBundle.js", "./MockAssetBundle.js");
@@ -131,6 +132,23 @@ Deno.test({
 		assertThrows(() => {
 			assetLoader.registerLoaderType(Foo);
 		}, Error, `Unable to register AssetLoaderType "Foo" because it doesn't have a valid uuid for the static 'typeUuid' set ("not a uuid").`);
+	},
+});
+
+testTypes({
+	name: "registerLoaderType() returns the correct type",
+	fn() {
+		/** @extends {AssetLoaderType<number, string>} */
+		class Foo extends AssetLoaderType {
+		}
+		const assetLoader = new AssetLoader();
+		const loaderType = assetLoader.registerLoaderType(Foo);
+
+		const expectedType = new Foo(assetLoader);
+
+		assertIsType(expectedType, loaderType);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, loaderType);
 	},
 });
 
