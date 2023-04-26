@@ -503,3 +503,139 @@ Deno.test({
 		uninstall();
 	},
 });
+
+/**
+ * @param {string[][]} initialPaths
+ * @param {string[][]} expectedPaths
+ */
+async function basicSortTest(initialPaths, expectedPaths, newFilePath = ["newFile"]) {
+	/**
+	 * @param {string[][]} paths
+	 */
+	function buildAssetSettingsJson(paths) {
+		let uuidIndex = 0;
+		/** @type {Object<string, import("../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsAssetDiskData>} */
+		const assets = {};
+		for (const path of paths) {
+			uuidIndex++;
+			assets["uuid" + uuidIndex] = {path};
+		}
+		return {assets};
+	}
+
+	/**
+	 * @param {string[]} path
+	 */
+	function pathToString(path) {
+		return "/assets/" + path.join("/");
+	}
+
+	/** @type {[string, Uint8Array][]} */
+	const initialFiles = [];
+	let fileIndex = 0;
+	for (const path of initialPaths) {
+		// Use different content in every file in order to prevent hashes from clashing
+		fileIndex++;
+		initialFiles.push([pathToString(path), new Uint8Array([fileIndex])]);
+	}
+
+	const {manager, uninstall, files, triggerWatchEvent, writeTextFileCalls} = await installMocks({
+		initialAssetSettings: buildAssetSettingsJson(initialPaths),
+		initialFiles,
+	});
+
+	try {
+		const newFilePathStr = pathToString(newFilePath);
+		files.set(newFilePathStr, new Uint8Array([0]));
+		triggerWatchEvent({
+			kind: "create",
+			paths: [newFilePathStr],
+		});
+
+		await waitForMicrotasks();
+		await manager.waitForAssetSettingsLoad();
+		await manager.waitForHandleFileChangePromises();
+
+		// Delete the created file again in order to remove its uuid.
+		// The uuid of this file will be random so it's more difficult to assert against
+		files.delete(newFilePathStr);
+
+		triggerWatchEvent({
+			kind: "remove",
+			paths: [newFilePathStr],
+		});
+
+		await waitForMicrotasks();
+		await manager.waitForAssetSettingsLoad();
+		await manager.waitForHandleFileChangePromises();
+
+		assertEquals(writeTextFileCalls.length, 2);
+		assertEquals(writeTextFileCalls[1].path, "/assets/assetSettings.json");
+		const assetSettings = JSON.parse(writeTextFileCalls[1].text);
+		/** @type {string[][]} */
+		const pathsOrder = [];
+		for (const asset of Object.values(assetSettings.assets)) {
+			pathsOrder.push(asset.path);
+		}
+		assertEquals(pathsOrder, expectedPaths);
+	} finally {
+		uninstall();
+	}
+}
+
+Deno.test({
+	name: "Sorts files when they're all in the wrong order",
+	async fn() {
+		await basicSortTest([
+			["a", "b", "b"],
+			["a", "b", "a"],
+		], [
+			["a", "b", "a"],
+			["a", "b", "b"],
+		]);
+
+		await basicSortTest([
+			["a", "c"],
+			["a", "b", "a"],
+		], [
+			["a", "b", "a"],
+			["a", "c"],
+		]);
+
+		await basicSortTest([
+			["dirA", "fileA"],
+			["dirA", "fileB"],
+			["dirB", "dirC", "fileA"],
+			["dirB", "dirC", "fileB"],
+			["dirB", "fileA"],
+			["dirB", "fileB"],
+			["file"],
+		], [
+			["dirA", "fileA"],
+			["dirA", "fileB"],
+			["dirB", "dirC", "fileA"],
+			["dirB", "dirC", "fileB"],
+			["dirB", "fileA"],
+			["dirB", "fileB"],
+			["file"],
+		]);
+
+		await basicSortTest([
+			["dirA", "fileB"],
+			["dirB", "fileB"],
+			["file"],
+			["dirB", "fileA"],
+			["dirB", "dirC", "fileA"],
+			["dirB", "dirC", "fileB"],
+			["dirA", "fileA"],
+		], [
+			["dirA", "fileA"],
+			["dirA", "fileB"],
+			["dirB", "dirC", "fileA"],
+			["dirB", "dirC", "fileB"],
+			["dirB", "fileA"],
+			["dirB", "fileB"],
+			["file"],
+		]);
+	},
+});

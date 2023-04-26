@@ -224,16 +224,14 @@ export class BuiltInAssetManager {
 		}
 		sortedUuidSettings.sort((a, b) => {
 			if (a.path && b.path) {
-				if (a.path.length != b.path.length) {
-					return a.path.length - b.path.length;
-				}
-				const joinedA = a.path.join("/");
-				const joinedB = b.path.join("/");
-				if (joinedA < joinedB) {
-					return -1;
-				}
-				if (joinedA > joinedB) {
-					return 1;
+				const minLength = Math.min(a.path.length, b.path.length);
+				for (let i = 0; i < minLength; i++) {
+					const aName = a.path[i];
+					const bName = b.path[i];
+					if (aName == bName) continue;
+					if (aName < bName) return -1;
+					if (aName > bName) return 1;
+					return 0;
 				}
 			}
 			if (a.uuid < b.uuid) {
