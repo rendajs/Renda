@@ -24,7 +24,7 @@ const binarySerializationOpts = {
 };
 
 /**
- * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts>}
+ * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts, Sampler>}
  */
 export class AssetLoaderTypeSampler extends AssetLoaderTypeGenericStructure {
 	static get typeUuid() {

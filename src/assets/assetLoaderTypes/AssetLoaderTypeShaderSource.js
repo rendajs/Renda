@@ -1,6 +1,11 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
 import {ShaderSource} from "../../rendering/ShaderSource.js";
 
+// TODO: Make the return type a generic based on whether 'raw' was true.
+
+/**
+ * @extends {AssetLoaderType<ShaderSource | string>}
+ */
 export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	static get typeUuid() {
 		return "e7253ad6-8459-431f-ac16-609150538a24";
@@ -52,8 +57,13 @@ export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	async onShaderUuidRequested(uuid) {
 		const shader = await this.assetLoader.getAsset(uuid, {
 			assetOpts: {raw: true},
-			createNewInstance: true, // todo: is this necessary?
+			// createNewInstance is required because this will return a raw string
+			// and raw strings can't be cached used WeakRefs
+			createNewInstance: true,
 		});
+		if (typeof shader != "string") {
+			throw new Error("Tried to load a shader but the resolved asset is not a string. Did you @import the wrong uuid?");
+		}
 		return shader;
 	}
 }

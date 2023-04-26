@@ -3,6 +3,9 @@ import {StorageType, binaryToObjectWithAssetLoader} from "../../util/binarySeria
 import {Material} from "../../rendering/Material.js";
 import {MaterialMap} from "../../rendering/MaterialMap.js";
 
+/**
+ * @extends {AssetLoaderType<Material>}
+ */
 export class AssetLoaderTypeMaterial extends AssetLoaderType {
 	static get typeUuid() {
 		return "430f47a8-82cc-4b4c-a664-2360794e80d6";

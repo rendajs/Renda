@@ -40,7 +40,7 @@ const binarySerializationOpts = {
 };
 
 /**
- * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts>}
+ * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts, WebGpuPipelineConfig>}
  */
 export class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderTypeGenericStructure {
 	static get typeUuid() {

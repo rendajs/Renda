@@ -34,7 +34,7 @@ const binarySerializationOpts = {
 };
 
 /**
- * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts>}
+ * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts, VertexState>}
  */
 export class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericStructure {
 	static get typeUuid() {

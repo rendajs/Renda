@@ -705,10 +705,11 @@ Deno.test({
 			ExtendedMaterialMapTypeLoader,
 			async getAssetFn(uuid) {
 				if (uuid == BASIC_SAMPLER_UUID) {
-					return sampler;
+					return /** @type {any} */ (sampler);
 				} else if (uuid == BASIC_TEXTURE_UUID) {
-					return texture;
+					return /** @type {any} */ (texture);
 				}
+				throw new Error("Uuid has not been mocked: " + uuid);
 			},
 		});
 		const materialMap = await materialMapLoader.parseBuffer(buffer);
