@@ -450,6 +450,30 @@ Deno.test({
 });
 
 Deno.test({
+	name: "setVertexData() should throw when data doesn't match the component count (3 unused with vertexstate)",
+	fn() {
+		const mockMesh = /** @type {Mesh} */ ({
+			vertexState: {},
+		});
+		const buffer = new MeshAttributeBuffer(mockMesh, {
+			isUnused: true,
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(2);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2]);
+		}, Error, 'Expected a Vec3 array but received a Number array. The provided VertexState doesn\'t contain a "POSITION" attribute. Either set the `unusedComponentCount` option of `setVertexData()` to 1, add a "POSITION" attribute to the VertexState, or provide a Vec3 array.');
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(), new Vec2()]);
+		}, Error, 'Expected a Vec3 array but received a Vec2 array. The provided VertexState doesn\'t contain a "POSITION" attribute. Either set the `unusedComponentCount` option of `setVertexData()` to 2, add a "POSITION" attribute to the VertexState, or provide a Vec3 array.');
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
+		}, Error, "Expected a Vec3 array but received a null array.");
+	},
+});
+
+Deno.test({
 	name: "setVertexData() should fire onBufferChanged callbacks",
 	fn() {
 		const buffer = new MeshAttributeBuffer(mockMesh, {
