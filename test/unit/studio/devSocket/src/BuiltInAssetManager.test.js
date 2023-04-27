@@ -639,3 +639,17 @@ Deno.test({
 		]);
 	},
 });
+
+Deno.test({
+	name: "Directories should be sorted at the top",
+	async fn() {
+		// Dirs should be at the top
+		await basicSortTest([
+			["a"],
+			["b", "file"],
+		], [
+			["b", "file"],
+			["a"],
+		]);
+	},
+});

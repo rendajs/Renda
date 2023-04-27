@@ -226,6 +226,9 @@ export class BuiltInAssetManager {
 			if (a.path && b.path) {
 				const minLength = Math.min(a.path.length, b.path.length);
 				for (let i = 0; i < minLength; i++) {
+					if (i == minLength - 1 && a.path.length != b.path.length) {
+						return b.path.length - a.path.length;
+					}
 					const aName = a.path[i];
 					const bName = b.path[i];
 					if (aName == bName) continue;
