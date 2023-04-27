@@ -131,21 +131,8 @@ export class MeshAttributeBuffer {
 			const expectedSentence = `Expected a ${expectedText} array but received a ${dataType} array.`;
 			let extraSentence;
 			const attributeName = Mesh.getAttributeNameForType(attributeSettings.attributeType);
-			if (this.isUnused) {
-				let firstPart;
-				let addVertexStatePart;
-				if (this.mesh.vertexState == null) {
-					firstPart = "The mesh has no vertex state.";
-					addVertexStatePart = `add a VertexState with "${attributeName}" attribute`;
-				} else {
-					firstPart = `The provided VertexState doesn't contain a "${attributeName}" attribute.`;
-					addVertexStatePart = `add a "${attributeName}" attribute to the VertexState`;
-				}
-				extraSentence = `${firstPart} Either set the \`unusedComponentCount\` option of \`setVertexData()\` to ${receivedComponentCount}, ${addVertexStatePart}, or provide a ${expectedText} array.`;
-			} else {
-				if (receivedComponentCount !== null) {
-					extraSentence = `The VertexState for this attribute has a componentCount of ${attributeSettings.componentCount}. Either set the componentCount of "${attributeName}" in your VertexState to ${receivedComponentCount}, or provide a ${expectedText} array.`;
-				}
+			if (receivedComponentCount !== null) {
+				extraSentence = `The VertexState for this attribute has a componentCount of ${attributeSettings.componentCount}. Either set the componentCount of "${attributeName}" in your VertexState to ${receivedComponentCount}, or provide a ${expectedText} array.`;
 			}
 			let fullMessage = expectedSentence;
 			if (extraSentence) fullMessage = fullMessage + " " + extraSentence;
