@@ -2,7 +2,10 @@ import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../studioDefines.js";
 
 /** @typedef {Parameters<import("./AssetLoader.js").AssetLoader["getAsset"]>} GetAssetArgs */
 /** @typedef {(...args: GetAssetArgs) => any} GetEngineAssetHandler */
-/** @typedef {(asset: any) => any} WatchAssetCallback */
+/**
+ * @template TAssetType
+ * @typedef {(asset: TAssetType) => any} WatchAssetCallback
+ */
 
 /**
  * This class is responsible for loading assets that are being used by the
@@ -26,7 +29,7 @@ export class EngineAssetsManager {
 		/** @type {Set<GetEngineAssetHandler>} */
 		this.getAssetHandlers = new Set();
 
-		/** @type {Map<import("../util/util.js").UuidString, Set<WatchAssetCallback>>} */
+		/** @type {Map<import("../util/util.js").UuidString, Set<WatchAssetCallback<any>>>} */
 		this.watchingAssetCbs = new Map();
 	}
 
@@ -47,7 +50,7 @@ export class EngineAssetsManager {
 	 * @template {import("./AssetLoader.js").AssetLoaderAssertionOptions} TAssertionOptions
 	 * @param {import("../util/util.js").UuidString} uuid
 	 * @param {import("./AssetLoader.js").AssetLoaderGetAssetOptions<TAssertionOptions>} options
-	 * @param {WatchAssetCallback} onAssetChangeCb
+	 * @param {WatchAssetCallback<import("./AssetLoader.js").AssetLoaderAssertionOptionsToReturnType<TAssertionOptions>>} onAssetChangeCb
 	 */
 	async watchAsset(uuid, options, onAssetChangeCb) {
 		const asset = await this.getAsset(uuid, options);

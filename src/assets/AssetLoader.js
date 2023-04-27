@@ -26,6 +26,15 @@ import {RecursionTracker} from "./RecursionTracker.js";
  * @property {RecursionTracker?} [recursionTracker]
  */
 
+/**
+ * @template {AssetLoaderAssertionOptions} [T = AssetLoaderAssertionOptionsDefaults]
+ * @typedef {T["assertInstanceType"] extends (new (...args: any[]) => infer ProjectAssetType) ?
+ * 	ProjectAssetType :
+ * T["assertLoaderType"] extends (new (...args: any[]) => AssetLoaderType<infer TReturnType, any>) ?
+ * 	TReturnType :
+ * unknown} AssetLoaderAssertionOptionsToReturnType
+ */
+
 export class AssetLoader {
 	constructor() {
 		/** @type {Set<AssetBundle>} */
@@ -68,15 +77,6 @@ export class AssetLoader {
 		return instance;
 	}
 
-	/**
-	 * @template {AssetLoaderAssertionOptions} [T = AssetLoaderAssertionOptionsDefaults]
-	 * @typedef {T["assertInstanceType"] extends (new (...args: any[]) => infer ProjectAssetType) ?
-	 * 	ProjectAssetType :
-	 * T["assertLoaderType"] extends (new (...args: any[]) => AssetLoaderType<infer TReturnType, any>) ?
-	 * 	TReturnType :
-	 * unknown} AssetAssertionOptionsToReturnType
-	 */
-
 	// TODO: more options for deciding whether unfinished bundles should be searched as well
 	// TODO: If an asset is already being loaded, resolve using the same promise
 	// TODO: #613 Infer assetOpts from the `assertionOptions` loader type
@@ -96,7 +96,7 @@ export class AssetLoader {
 			if (weakRef) {
 				const ref = weakRef.deref();
 				if (ref) {
-					return /** @type {AssetAssertionOptionsToReturnType<TAssertionOptions>} */ (ref);
+					return /** @type {AssetLoaderAssertionOptionsToReturnType<TAssertionOptions>} */ (ref);
 				}
 			}
 		}
@@ -161,6 +161,6 @@ export class AssetLoader {
 			await recursionTracker.waitForAll();
 		}
 
-		return /** @type {AssetAssertionOptionsToReturnType<TAssertionOptions>} */ (asset);
+		return /** @type {AssetLoaderAssertionOptionsToReturnType<TAssertionOptions>} */ (asset);
 	}
 }
