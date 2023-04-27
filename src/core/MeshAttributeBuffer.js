@@ -24,7 +24,7 @@ export class MeshAttributeBuffer {
 	} = {}) {
 		this.mesh = mesh;
 		if (isUnused && attributes.length != 1) {
-			throw new Error("Unused attribute buffers must have exactly 1 attribute");
+			throw new Error("Unused attribute buffers must have exactly 1 attribute.");
 		}
 		this.arrayStride = null;
 		this.attributes = attributes;
@@ -114,10 +114,19 @@ export class MeshAttributeBuffer {
 	_assertVertexDataType(assertion, attributeSettings, expectedText, dataArray) {
 		if (!assertion) {
 			let dataType;
-			if (dataArray[0] != null && dataArray[0] != undefined) {
-				dataType = dataArray[0].constructor.name;
+			const firstArrayItem = dataArray[0];
+			let receivedComponentCount = null;
+			if (typeof firstArrayItem == "number") {
+				receivedComponentCount = 1;
+			} else if (firstArrayItem instanceof Vec2) {
+				receivedComponentCount = 2;
+			} else if (firstArrayItem instanceof Vec3) {
+				receivedComponentCount = 3;
+			}
+			if (firstArrayItem != null && firstArrayItem != undefined) {
+				dataType = firstArrayItem.constructor.name;
 			} else {
-				dataType = String(dataArray[0]);
+				dataType = String(firstArrayItem);
 			}
 			const expectedSentence = `Expected a ${expectedText} array but received a ${dataType} array.`;
 			let extraSentence;
@@ -132,11 +141,15 @@ export class MeshAttributeBuffer {
 					firstPart = `The provided VertexState doesn't contain a "${attributeName}" attribute.`;
 					addVertexStatePart = `add a "${attributeName}" attribute to the VertexState`;
 				}
-				extraSentence = `${firstPart} Either set the \`unusedComponentCount\` option of \`setVertexData()\` to ${attributeSettings.componentCount}, ${addVertexStatePart}, or provide a ${expectedText} array.`;
+				extraSentence = `${firstPart} Either set the \`unusedComponentCount\` option of \`setVertexData()\` to ${receivedComponentCount}, ${addVertexStatePart}, or provide a ${expectedText} array.`;
 			} else {
-				extraSentence = `The VertexState for this attribute has a componentCount of ${attributeSettings.componentCount}. Either set the componentCount of "${attributeName}" in your VertexState to ${attributeSettings.componentCount}, or provide a ${expectedText} array.`;
+				if (receivedComponentCount !== null) {
+					extraSentence = `The VertexState for this attribute has a componentCount of ${attributeSettings.componentCount}. Either set the componentCount of "${attributeName}" in your VertexState to ${receivedComponentCount}, or provide a ${expectedText} array.`;
+				}
 			}
-			throw new TypeError(`${expectedSentence} ${extraSentence}`);
+			let fullMessage = expectedSentence;
+			if (extraSentence) fullMessage = fullMessage + " " + extraSentence;
+			throw new TypeError(fullMessage);
 		}
 	}
 
@@ -147,7 +160,7 @@ export class MeshAttributeBuffer {
 	setVertexData(attributeType, data) {
 		const attributeSettings = this.getAttributeSettings(attributeType);
 		if (!attributeSettings) {
-			throw new Error("Attribute type not found in vertex state");
+			throw new Error("Attribute type not found in vertex state.");
 		}
 		const dataView = this.getDataView();
 
@@ -186,7 +199,7 @@ export class MeshAttributeBuffer {
 				return;
 			} else if (attributeSettings.componentCount == 1) {
 				let i = 0;
-				this._assertVertexDataType(typeof data[0] == "number", attributeSettings, "a number", data);
+				this._assertVertexDataType(typeof data[0] == "number", attributeSettings, "number", data);
 				const castData = /** @type {number[]} */ (data);
 				while (i < castData.length) {
 					for (let j = 0; j < attributeSettings.componentCount; j++) {

@@ -342,7 +342,7 @@ Deno.test({
 		}, Error, 'Expected a number array but received a Vec3 array. The VertexState for this attribute has a componentCount of 1. Either set the componentCount of "POSITION" in your VertexState to 3, or provide a number array.');
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
-		}, Error, 'Expected a number array but received a null array. The VertexState for this attribute has a componentCount of 1. Either set the componentCount of "POSITION" in your VertexState to 1, or provide a number array.');
+		}, Error, "Expected a number array but received a null array.");
 	},
 });
 
@@ -362,7 +362,7 @@ Deno.test({
 		}, Error, 'Expected a Vec2 array but received a Vec3 array. The VertexState for this attribute has a componentCount of 2. Either set the componentCount of "POSITION" in your VertexState to 3, or provide a Vec2 array.');
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
-		}, Error, 'Expected a Vec2 array but received a null array. The VertexState for this attribute has a componentCount of 2. Either set the componentCount of "POSITION" in your VertexState to 2, or provide a Vec2 array.');
+		}, Error, "Expected a Vec2 array but received a null array.");
 	},
 });
 
@@ -382,7 +382,7 @@ Deno.test({
 		}, Error, 'Expected a Vec3 array but received a Vec2 array. The VertexState for this attribute has a componentCount of 3. Either set the componentCount of "POSITION" in your VertexState to 2, or provide a Vec3 array.');
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
-		}, Error, 'Expected a Vec3 array but received a null array. The VertexState for this attribute has a componentCount of 3. Either set the componentCount of "POSITION" in your VertexState to 3, or provide a Vec3 array.');
+		}, Error, "Expected a Vec3 array but received a null array.");
 	},
 });
 
