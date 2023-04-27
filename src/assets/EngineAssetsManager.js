@@ -29,7 +29,13 @@ export class EngineAssetsManager {
 		/** @type {Set<GetEngineAssetHandler>} */
 		this.getAssetHandlers = new Set();
 
-		/** @type {Map<import("../util/util.js").UuidString, Set<WatchAssetCallback<any>>>} */
+		/**
+		 * @typedef WatchingCallbackData
+		 * @property {WatchAssetCallback<any>} cb
+		 * @property {unknown} options
+		 */
+
+		/** @type {Map<import("../util/util.js").UuidString, Set<WatchingCallbackData>>} */
 		this.watchingAssetCbs = new Map();
 	}
 
@@ -61,7 +67,10 @@ export class EngineAssetsManager {
 				cbs = new Set();
 				this.watchingAssetCbs.set(uuid, cbs);
 			}
-			cbs.add(onAssetChangeCb);
+			cbs.add({
+				cb: onAssetChangeCb,
+				options,
+			});
 		}
 	}
 
@@ -84,8 +93,8 @@ export class EngineAssetsManager {
 		if (!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;
 		const cbs = this.watchingAssetCbs.get(uuid);
 		if (cbs) {
-			const asset = await this.getAsset(uuid);
-			for (const cb of cbs) {
+			for (const {cb, options} of cbs) {
+				const asset = await this.getAsset(uuid, /** @type {{}} */ (options));
 				cb(asset);
 			}
 		}

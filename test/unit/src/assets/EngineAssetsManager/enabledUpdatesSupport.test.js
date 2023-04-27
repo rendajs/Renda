@@ -88,3 +88,58 @@ Deno.test({
 		assertSpyCalls(callbackSpy, 2);
 	},
 });
+
+Deno.test({
+	name: "watchAsset options are passed when an asset changes",
+	async fn() {
+		const assetLoader = createMockAssetLoader();
+		const getAssetSpy = stub(assetLoader, "getAsset", async (uuid, options) => {
+			return options?.assetOpts;
+		});
+		const manager = new EngineAssetsManager(assetLoader);
+
+		/** @param {unknown} asset */
+		function spyFn(asset) {}
+		const callbackSpy1 = spy(spyFn);
+		const callbackSpy2 = spy(spyFn);
+
+		await manager.watchAsset("uuid", {
+			assetOpts: "watch1",
+		}, callbackSpy1);
+		await manager.watchAsset("uuid", {
+			assetOpts: "watch2",
+		}, callbackSpy2);
+
+		assertSpyCall(getAssetSpy, 0, {
+			args: ["uuid", {assetOpts: "watch1"}],
+		});
+		assertSpyCall(getAssetSpy, 1, {
+			args: ["uuid", {assetOpts: "watch2"}],
+		});
+		assertSpyCall(callbackSpy1, 0, {
+			args: ["watch1"],
+		});
+		assertSpyCall(callbackSpy2, 0, {
+			args: ["watch2"],
+		});
+
+		await manager.notifyAssetChanged("uuid");
+
+		assertSpyCall(getAssetSpy, 2, {
+			args: ["uuid", {assetOpts: "watch1"}],
+		});
+		assertSpyCall(getAssetSpy, 3, {
+			args: ["uuid", {assetOpts: "watch2"}],
+		});
+		assertSpyCall(callbackSpy1, 1, {
+			args: ["watch1"],
+		});
+		assertSpyCall(callbackSpy2, 1, {
+			args: ["watch2"],
+		});
+
+		assertSpyCalls(getAssetSpy, 4);
+		assertSpyCalls(callbackSpy1, 2);
+		assertSpyCalls(callbackSpy2, 2);
+	},
+});
