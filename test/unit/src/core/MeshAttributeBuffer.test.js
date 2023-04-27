@@ -15,7 +15,7 @@ Deno.test({
 				isUnused: true,
 				attributes: [],
 			});
-		});
+		}, Error, "Unused attribute buffers must have exactly 1 attribute.");
 
 		assertThrows(() => {
 			new MeshAttributeBuffer(mockMesh, {
@@ -25,7 +25,7 @@ Deno.test({
 					{offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.NORMAL},
 				],
 			});
-		});
+		}, Error, "Unused attribute buffers must have exactly 1 attribute.");
 	},
 });
 
@@ -322,7 +322,7 @@ Deno.test({
 		buffer.setVertexCount(2);
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(1, 2, 3), new Vec3(4, 5, 6)]);
-		});
+		}, Error, "Attribute type not found in vertex state.");
 	},
 });
 
@@ -336,13 +336,13 @@ Deno.test({
 
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(), new Vec2()]);
-		});
+		}, Error, 'Expected a number array but received a Vec2 array. The VertexState for this attribute has a componentCount of 1. Either set the componentCount of "POSITION" in your VertexState to 2, or provide a number array.');
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(), new Vec3()]);
-		});
+		}, Error, 'Expected a number array but received a Vec3 array. The VertexState for this attribute has a componentCount of 1. Either set the componentCount of "POSITION" in your VertexState to 3, or provide a number array.');
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
-		});
+		}, Error, 'Expected a number array but received a null array. The VertexState for this attribute has a componentCount of 1. Either set the componentCount of "POSITION" in your VertexState to 1, or provide a number array.');
 	},
 });
 
@@ -356,13 +356,13 @@ Deno.test({
 
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2]);
-		});
+		}, Error, 'Expected a Vec2 array but received a Number array. The VertexState for this attribute has a componentCount of 2. Either set the componentCount of "POSITION" in your VertexState to 1, or provide a Vec2 array.');
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(), new Vec3()]);
-		});
+		}, Error, 'Expected a Vec2 array but received a Vec3 array. The VertexState for this attribute has a componentCount of 2. Either set the componentCount of "POSITION" in your VertexState to 3, or provide a Vec2 array.');
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
-		});
+		}, Error, 'Expected a Vec2 array but received a null array. The VertexState for this attribute has a componentCount of 2. Either set the componentCount of "POSITION" in your VertexState to 2, or provide a Vec2 array.');
 	},
 });
 
@@ -376,13 +376,13 @@ Deno.test({
 
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2]);
-		});
+		}, Error, 'Expected a Vec3 array but received a Number array. The VertexState for this attribute has a componentCount of 3. Either set the componentCount of "POSITION" in your VertexState to 1, or provide a Vec3 array.');
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(), new Vec2()]);
-		});
+		}, Error, 'Expected a Vec3 array but received a Vec2 array. The VertexState for this attribute has a componentCount of 3. Either set the componentCount of "POSITION" in your VertexState to 2, or provide a Vec3 array.');
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
-		});
+		}, Error, 'Expected a Vec3 array but received a null array. The VertexState for this attribute has a componentCount of 3. Either set the componentCount of "POSITION" in your VertexState to 3, or provide a Vec3 array.');
 	},
 });
 
