@@ -123,7 +123,7 @@ export class MeshAttributeBuffer {
 			} else if (firstArrayItem instanceof Vec3) {
 				receivedComponentCount = 3;
 			} else {
-				throw new Error("Assertion failed, unexpected array type: "+ firstArrayItem);
+				throw new Error("Assertion failed, unexpected array type: " + firstArrayItem);
 			}
 			if (firstArrayItem != null && firstArrayItem != undefined) {
 				dataType = firstArrayItem.constructor.name;

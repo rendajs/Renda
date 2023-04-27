@@ -514,7 +514,7 @@ Potential fixes:
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(), new Vec2()]);
 		}, Error, `Expected a Vec3 array but received a Vec2 array.
-The provided VertexState doesn\'t contain a "POSITION" attribute.
+The provided VertexState doesn't contain a "POSITION" attribute.
 Potential fixes:
  - add a "POSITION" attribute to the VertexState.
  - set the \`unusedComponentCount\` option of \`setVertexData()\` to 2.
