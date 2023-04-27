@@ -30,7 +30,7 @@ function basicTest() {
 	});
 	mockStudioInstance.selectionManager = new SelectionManager();
 	mockStudioInstance.engineAssetManager = /** @type {import("../../../../../../src/mod.js").EngineAssetsManager} */ ({
-		watchAsset(assetUuid, cb) {},
+		watchAsset(assetUuid, options, cb) {},
 	});
 	/** @type {Map<string, import("../../../../../../studio/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>>} */
 	const getProjectAssetFromUuidResults = new Map();
