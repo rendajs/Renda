@@ -20,5 +20,7 @@
 		"**/npm_packages/**",
 		"**/node_modules/**",
 	],
+	"relativePath.excludedExtensions": [],
+	"relativePath.omitParts":[],
 	"files.eol": "\n",
 }
