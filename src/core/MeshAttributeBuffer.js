@@ -135,7 +135,7 @@ export class MeshAttributeBuffer {
 				let firstPart;
 				let addVertexStatePart;
 				if (this.mesh.vertexState == null) {
-					firstPart = "The mesh has no vertex state.";
+					firstPart = "The mesh has no VertexState.";
 					addVertexStatePart = `add a VertexState with "${attributeName}" attribute`;
 				} else {
 					firstPart = `The provided VertexState doesn't contain a "${attributeName}" attribute.`;
