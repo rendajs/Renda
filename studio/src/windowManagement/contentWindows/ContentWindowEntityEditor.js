@@ -1,6 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {Button} from "../../ui/Button.js";
-import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, MeshComponent, OrbitControls, TranslationGizmo, Vec3, createPlane} from "../../../../src/mod.js";
+import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, Material, MeshComponent, OrbitControls, TranslationGizmo, Vec3, VertexState, createPlane} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
@@ -113,7 +113,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const gridMeshComponent = this.grid.addComponent(MeshComponent, {
 			materials: [],
 		});
-		this.studioInstance.engineAssetManager.watchAsset("12b5f619-5651-478d-8df1-642a23a43e3e", asset => {
+		this.studioInstance.engineAssetManager.watchAsset("12b5f619-5651-478d-8df1-642a23a43e3e", {
+			assertionOptions: {
+				assertInstanceType: Material,
+			},
+		}, asset => {
 			gridMeshComponent.materials = [asset];
 			this.markRenderDirty();
 		});
@@ -124,7 +128,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			heightSegments: 10,
 		});
 		gridMeshComponent.mesh = gridMesh;
-		this.studioInstance.engineAssetManager.watchAsset("35fe0836-6ed6-42c1-83ab-06243aef04d2", asset => {
+		this.studioInstance.engineAssetManager.watchAsset("35fe0836-6ed6-42c1-83ab-06243aef04d2", {
+			assertionOptions: {
+				assertInstanceType: VertexState,
+			},
+		}, asset => {
 			gridMesh.setVertexState(asset);
 			this.markRenderDirty();
 		});

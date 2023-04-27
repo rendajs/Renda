@@ -1,4 +1,6 @@
 import {Entity} from "../core/Entity.js";
+import {Material} from "../rendering/Material.js";
+import {VertexState} from "../rendering/VertexState.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../studioDefines.js";
 import {RotateAxisGizmoDraggable} from "./draggables/RotateAxisGizmoDraggable.js";
 import {TranslateAxisGizmoDraggable} from "./draggables/TranslateAxisGizmoDraggable.js";
@@ -49,19 +51,35 @@ export class GizmoManager {
 		/** @type {import("../rendering/Material.js").Material?} */
 		this.meshMaterial = null;
 
-		engineAssetsManager.watchAsset("9d9ebd2e-c657-4252-b7af-b5889a4986c3", asset => {
+		engineAssetsManager.watchAsset("9d9ebd2e-c657-4252-b7af-b5889a4986c3", {
+			assertionOptions: {
+				assertInstanceType: VertexState,
+			},
+		}, asset => {
 			this.billboardVertexState = asset;
 			this.updateGizmoMaterials();
 		});
-		engineAssetsManager.watchAsset("6ebfe5aa-6754-406e-a238-ec052eefa7df", asset => {
+		engineAssetsManager.watchAsset("6ebfe5aa-6754-406e-a238-ec052eefa7df", {
+			assertionOptions: {
+				assertInstanceType: Material,
+			},
+		}, asset => {
 			this.billboardMaterial = asset;
 			this.updateGizmoMaterials();
 		});
-		engineAssetsManager.watchAsset("2a5ca9e6-6790-441b-8764-a07fbb438d1a", asset => {
+		engineAssetsManager.watchAsset("2a5ca9e6-6790-441b-8764-a07fbb438d1a", {
+			assertionOptions: {
+				assertInstanceType: VertexState,
+			},
+		}, asset => {
 			this.meshVertexState = asset;
 			this.updateGizmoMaterials();
 		});
-		engineAssetsManager.watchAsset("47f64a6d-9629-4921-8b1a-a244af1aa568", asset => {
+		engineAssetsManager.watchAsset("47f64a6d-9629-4921-8b1a-a244af1aa568", {
+			assertionOptions: {
+				assertInstanceType: Material,
+			},
+		}, asset => {
 			this.meshMaterial = asset;
 			this.updateGizmoMaterials();
 		});

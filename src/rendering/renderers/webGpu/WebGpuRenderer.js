@@ -20,6 +20,7 @@ import {CachedMaterialData} from "./CachedMaterialData.js";
 import {Sampler} from "../../Sampler.js";
 import {parseVertexInput} from "../../../util/wgslParsing.js";
 import {PlaceHolderTextureManager} from "./PlaceHolderTextureManager.js";
+import {ShaderSource} from "../../ShaderSource.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
@@ -151,10 +152,18 @@ export class WebGpuRenderer extends Renderer {
 				],
 			});
 
-			await this.engineAssetManager.watchAsset(CLUSTER_BOUNDS_SHADER_ASSET_UUID, asset => {
+			await this.engineAssetManager.watchAsset(CLUSTER_BOUNDS_SHADER_ASSET_UUID, {
+				assertionOptions: {
+					assertInstanceType: ShaderSource,
+				},
+			}, asset => {
 				this.computeClusterBoundsShaderCode = asset;
 			});
-			await this.engineAssetManager.watchAsset(CLUSTER_LIGHTS_SHADER_ASSET_UUID, asset => {
+			await this.engineAssetManager.watchAsset(CLUSTER_LIGHTS_SHADER_ASSET_UUID, {
+				assertionOptions: {
+					assertInstanceType: ShaderSource,
+				},
+			}, asset => {
 				this.computeClusterLightsShaderCode = asset;
 			});
 		}
