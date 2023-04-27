@@ -58,10 +58,12 @@ Deno.test({
 		function spyFn(asset) {}
 		const callbackSpy = spy(spyFn);
 
-		await manager.watchAsset("uuid", callbackSpy);
+		await manager.watchAsset("uuid", {
+			assetOpts: {foo: "bar"},
+		}, callbackSpy);
 
 		assertSpyCall(getAssetSpy, 0, {
-			args: ["uuid"],
+			args: ["uuid", {assetOpts: {foo: "bar"}}],
 		});
 		assertSpyCall(callbackSpy, 0, {
 			args: ["result"],

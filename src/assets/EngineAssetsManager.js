@@ -44,11 +44,13 @@ export class EngineAssetsManager {
 	}
 
 	/**
+	 * @template {import("./AssetLoader.js").AssetLoaderAssertionOptions} TAssertionOptions
 	 * @param {import("../util/util.js").UuidString} uuid
+	 * @param {import("./AssetLoader.js").AssetLoaderGetAssetOptions<TAssertionOptions>} options
 	 * @param {WatchAssetCallback} onAssetChangeCb
 	 */
-	async watchAsset(uuid, onAssetChangeCb) {
-		const asset = await this.getAsset(uuid);
+	async watchAsset(uuid, options, onAssetChangeCb) {
+		const asset = await this.getAsset(uuid, options);
 		onAssetChangeCb(asset);
 		if (ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) {
 			let cbs = this.watchingAssetCbs.get(uuid);

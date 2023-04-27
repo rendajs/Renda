@@ -17,6 +17,15 @@ import {RecursionTracker} from "./RecursionTracker.js";
  * @property {null} assertInstanceType
  */
 
+/**
+ * @template {AssetLoaderAssertionOptions} TAssertionOptions
+ * @typedef AssetLoaderGetAssetOptions
+ * @property {TAssertionOptions} [assertionOptions]
+ * @property {unknown} [assetOpts]
+ * @property {boolean} [createNewInstance]
+ * @property {RecursionTracker?} [recursionTracker]
+ */
+
 export class AssetLoader {
 	constructor() {
 		/** @type {Set<AssetBundle>} */
@@ -74,11 +83,7 @@ export class AssetLoader {
 	/**
 	 * @template {AssetLoaderAssertionOptions} TAssertionOptions
 	 * @param {import("../util/util.js").UuidString} uuid
-	 * @param {object} options
-	 * @param {TAssertionOptions} [options.assertionOptions]
-	 * @param {unknown} [options.assetOpts]
-	 * @param {boolean} [options.createNewInstance]
-	 * @param {RecursionTracker?} [options.recursionTracker]
+	 * @param {AssetLoaderGetAssetOptions<TAssertionOptions>} options
 	 */
 	async getAsset(uuid, {
 		assetOpts = undefined,
