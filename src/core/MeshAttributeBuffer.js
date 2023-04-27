@@ -122,34 +122,34 @@ export class MeshAttributeBuffer {
 				receivedComponentCount = 2;
 			} else if (firstArrayItem instanceof Vec3) {
 				receivedComponentCount = 3;
+			} else {
+				throw new Error("Assertion failed, unexpected array type: "+ firstArrayItem);
 			}
 			if (firstArrayItem != null && firstArrayItem != undefined) {
 				dataType = firstArrayItem.constructor.name;
 			} else {
 				dataType = String(firstArrayItem);
 			}
-			const expectedSentence = `Expected a ${expectedText} array but received a ${dataType} array.`;
-			let extraSentence;
+			const fixesList = [];
+			let vertexStateSentence;
 			const attributeName = Mesh.getAttributeNameForType(attributeSettings.attributeType);
 			if (this.isUnused) {
-				let firstPart;
-				let addVertexStatePart;
 				if (this.mesh.vertexState == null) {
-					firstPart = "The mesh has no VertexState.";
-					addVertexStatePart = `add a VertexState with "${attributeName}" attribute`;
+					vertexStateSentence = "The mesh has no VertexState.";
+					fixesList.push(`add a VertexState with "${attributeName}" attribute.`);
 				} else {
-					firstPart = `The provided VertexState doesn't contain a "${attributeName}" attribute.`;
-					addVertexStatePart = `add a "${attributeName}" attribute to the VertexState`;
+					vertexStateSentence = `The provided VertexState doesn't contain a "${attributeName}" attribute.`;
+					fixesList.push(`add a "${attributeName}" attribute to the VertexState.`);
 				}
-				extraSentence = `${firstPart} Either set the \`unusedComponentCount\` option of \`setVertexData()\` to ${receivedComponentCount}, ${addVertexStatePart}, or provide a ${expectedText} array.`;
+				fixesList.push(`set the \`unusedComponentCount\` option of \`setVertexData()\` to ${receivedComponentCount}.`);
+				fixesList.push(`provide a ${expectedText} array.`);
 			} else {
-				if (receivedComponentCount !== null) {
-					extraSentence = `The VertexState for this attribute has a componentCount of ${attributeSettings.componentCount}. Either set the componentCount of "${attributeName}" in your VertexState to ${receivedComponentCount}, or provide a ${expectedText} array.`;
-				}
+				vertexStateSentence = `The VertexState for this attribute has a componentCount of ${attributeSettings.componentCount}.`;
+				fixesList.push(`set the componentCount of "${attributeName}" in your VertexState to ${receivedComponentCount}.`);
+				fixesList.push(`provide a ${expectedText} array.`);
 			}
-			let fullMessage = expectedSentence;
-			if (extraSentence) fullMessage = fullMessage + " " + extraSentence;
-			throw new TypeError(fullMessage);
+			const fixesStr = fixesList.map(str => " - " + str).join("\n");
+			throw new TypeError(`Expected a ${expectedText} array but received a ${dataType} array.\n${vertexStateSentence}\nPotential fixes:\n${fixesStr}`);
 		}
 	}
 
