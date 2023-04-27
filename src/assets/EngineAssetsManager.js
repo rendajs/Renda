@@ -31,7 +31,7 @@ export class EngineAssetsManager {
 	}
 
 	/**
-	 * @param {GetAssetArgs} args
+	 * @type {import("./AssetLoader.js").AssetLoader["getAsset"]}
 	 */
 	async getAsset(...args) {
 		if (ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) {
