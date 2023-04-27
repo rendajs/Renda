@@ -33,6 +33,8 @@ export class ClusterComputeManager {
 		if (!this.renderer.viewBindGroupLayout) return false;
 		if (!this.renderer.computeClusterBoundsBindGroupLayout) return false;
 		if (!this.renderer.computeClusterLightsBindGroupLayout) return false;
+		if (!this.renderer.computeClusterBoundsShaderCode) return false;
+		if (!this.renderer.computeClusterLightsShaderCode) return false;
 		if (this.lastUsedConfig) {
 			const ref = this.lastUsedConfig.deref();
 			if (ref) {

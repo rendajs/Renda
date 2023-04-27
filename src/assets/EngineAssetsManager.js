@@ -2,7 +2,10 @@ import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../studioDefines.js";
 
 /** @typedef {Parameters<import("./AssetLoader.js").AssetLoader["getAsset"]>} GetAssetArgs */
 /** @typedef {(...args: GetAssetArgs) => any} GetEngineAssetHandler */
-/** @typedef {(asset: any) => any} WatchAssetCallback */
+/**
+ * @template TAssetType
+ * @typedef {(asset: TAssetType) => any} WatchAssetCallback
+ */
 
 /**
  * This class is responsible for loading assets that are being used by the
@@ -26,12 +29,18 @@ export class EngineAssetsManager {
 		/** @type {Set<GetEngineAssetHandler>} */
 		this.getAssetHandlers = new Set();
 
-		/** @type {Map<import("../util/util.js").UuidString, Set<WatchAssetCallback>>} */
+		/**
+		 * @typedef WatchingCallbackData
+		 * @property {WatchAssetCallback<any>} cb
+		 * @property {unknown} options
+		 */
+
+		/** @type {Map<import("../util/util.js").UuidString, Set<WatchingCallbackData>>} */
 		this.watchingAssetCbs = new Map();
 	}
 
 	/**
-	 * @param {GetAssetArgs} args
+	 * @type {import("./AssetLoader.js").AssetLoader["getAsset"]}
 	 */
 	async getAsset(...args) {
 		if (ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) {
@@ -44,11 +53,13 @@ export class EngineAssetsManager {
 	}
 
 	/**
+	 * @template {import("./AssetLoader.js").AssetLoaderAssertionOptions} TAssertionOptions
 	 * @param {import("../util/util.js").UuidString} uuid
-	 * @param {WatchAssetCallback} onAssetChangeCb
+	 * @param {import("./AssetLoader.js").AssetLoaderGetAssetOptions<TAssertionOptions>} options
+	 * @param {WatchAssetCallback<import("./AssetLoader.js").AssetLoaderAssertionOptionsToReturnType<TAssertionOptions>>} onAssetChangeCb
 	 */
-	async watchAsset(uuid, onAssetChangeCb) {
-		const asset = await this.getAsset(uuid);
+	async watchAsset(uuid, options, onAssetChangeCb) {
+		const asset = await this.getAsset(uuid, options);
 		onAssetChangeCb(asset);
 		if (ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) {
 			let cbs = this.watchingAssetCbs.get(uuid);
@@ -56,7 +67,10 @@ export class EngineAssetsManager {
 				cbs = new Set();
 				this.watchingAssetCbs.set(uuid, cbs);
 			}
-			cbs.add(onAssetChangeCb);
+			cbs.add({
+				cb: onAssetChangeCb,
+				options,
+			});
 		}
 	}
 
@@ -79,8 +93,8 @@ export class EngineAssetsManager {
 		if (!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;
 		const cbs = this.watchingAssetCbs.get(uuid);
 		if (cbs) {
-			const asset = await this.getAsset(uuid);
-			for (const cb of cbs) {
+			for (const {cb, options} of cbs) {
+				const asset = await this.getAsset(uuid, /** @type {{}} */ (options));
 				cb(asset);
 			}
 		}

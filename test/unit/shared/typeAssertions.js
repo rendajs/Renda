@@ -28,6 +28,23 @@
  * assertIsType("", isMaybeString);
  * ```
  *
+ * ## Checking for `any`
+ *
+ * Whenever you use this, you'd probably also want to do another check to verify
+ * that the variable or function doesn't have `any` as type. Otherwise all of
+ * the assertions you make will pass regardless of the types you are checking for.
+ *
+ * ```js
+ * // @ts-expect-error Verify that the type isn't 'any'
+ * assertIsType(true, isString);
+ * ```
+ *
+ * This works, because passing `true` as first argument lets the function know
+ * you're expecting a boolean. Since `isString` is a string, this
+ * causes a type error, which we catch using `@ts-expect-error`. If `isString`
+ * was 'any', we would not get any type errors, but this would cause `@ts-expect-error`
+ * to not catch anything and emit a type error instead.
+ *
  * ## Working with unions
  *
  * If you are working with unions, you need a few more checks.
@@ -47,23 +64,6 @@
  * ```
  * But keep in mind to also perform your first check, otherwise `typeYouWishToCheck` might contain
  * extra types in its union that you don't want.
- *
- * ## Checking for `any`
- *
- * Whenever you use this, you'd probably also want to do another check to verify
- * that the variable or function doesn't have `any` as type. Otherwise all of
- * the assertions you make will pass regardless of the types you are checking for.
- *
- * ```js
- * // @ts-expect-error Verify that the type isn't 'any'
- * assertIsType(true, isString);
- * ```
- *
- * This works, because passing `true` as first argument lets the function know
- * you're expecting a boolean. Since `isString` is a string, this
- * causes a type error, which we catch using `@ts-expect-error`. If `isString`
- * was 'any', we would not get any type errors, but this would cause `@ts-expect-error`
- * to not catch anything and emit a type error instead.
  *
  * Of course these are some pretty basic examples, and there's no need to write
  * tests for every return type of every function. This is mostly useful for functions

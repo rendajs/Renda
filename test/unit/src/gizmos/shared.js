@@ -6,9 +6,10 @@ import {spy} from "std/testing/mock.ts";
 export class FakeEngineAssetsManager {
 	/**
 	 * @param {string} id
-	 * @param {import("../../../../src/assets/EngineAssetsManager.js").WatchAssetCallback} callback
+	 * @param {import("../../../../src/assets/AssetLoader.js").AssetLoaderGetAssetOptions<any>} options
+	 * @param {import("../../../../src/assets/EngineAssetsManager.js").WatchAssetCallback<any>} callback
 	 */
-	watchAsset(id, callback) {
+	watchAsset(id, options, callback) {
 		callback(null);
 	}
 }
