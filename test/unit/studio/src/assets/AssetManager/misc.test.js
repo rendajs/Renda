@@ -32,6 +32,29 @@ Deno.test({
 });
 
 Deno.test({
+	name: "external changes from crswap are ignored",
+	async fn() {
+		const {assetManager, mockFileSystem} = await basicSetup({
+			stubAssets: [],
+		});
+
+		const swapFilePath = ["path", "to", "file.json.crswap"];
+
+		mockFileSystem.writeText(swapFilePath, "{}");
+		mockFileSystem.fireChange({
+			external: true,
+			path: swapFilePath,
+			kind: "file",
+			type: "created",
+		});
+
+		await waitForMicrotasks();
+
+		assertEquals(assetManager.projectAssets.size, 0);
+	},
+});
+
+Deno.test({
 	name: "registerAsset()",
 	async fn() {
 		const {assetManager, mockFileSystem} = await basicSetup();

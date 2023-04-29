@@ -466,6 +466,10 @@ export class AssetManager {
 	#onFileChange = async e => {
 		if (!e.external) return;
 
+		const filename = e.path.at(-1);
+		if (!filename) throw new Error("Assertion failed, path is empty");
+		if (filename.endsWith(".crswap")) return;
+
 		const projectAsset = await this.getProjectAssetFromPath(e.path, {
 			registerIfNecessary: this.assetSettingsLoaded,
 		});
