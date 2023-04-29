@@ -82,8 +82,6 @@ export class ContentWindowBuildView extends ContentWindow {
 			hasDownArrow: true,
 			colorizerFilterManager,
 		}, () => {
-			const popover = this.studioInstance.popoverManager.addPopover(EntryPointPopover);
-
 			const projectSettings = this.studioInstance.projectManager.projectSettings;
 			const assetManager = this.studioInstance.projectManager.assetManager;
 
@@ -91,8 +89,8 @@ export class ContentWindowBuildView extends ContentWindow {
 				throw new Error("Assertion failed, no project settings or asset manager.");
 			}
 
+			const popover = this.studioInstance.popoverManager.addPopover(EntryPointPopover, projectSettings, assetManager, this.persistentData);
 			popover.setNeedsCurtain(false);
-			popover.initialize(projectSettings, assetManager, this.persistentData);
 			popover.setPos(this.entryPointButton);
 
 			return popover;
