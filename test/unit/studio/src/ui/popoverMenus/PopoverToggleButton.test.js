@@ -1,6 +1,4 @@
-import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
-import {Popover} from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
 import {PopoverToggleButton} from "../../../../../../studio/src/ui/popoverMenus/PopoverToggleButton.js";
 import {runWithDom} from "../../../shared/runWithDom.js";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
