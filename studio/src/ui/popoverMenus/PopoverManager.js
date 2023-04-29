@@ -70,10 +70,6 @@ export class PopoverManager {
 		return this.addPopover(ContextMenu, {structure});
 	}
 
-	registerPopoverToggleButton() {
-
-	}
-
 	getLastPopover() {
 		if (this.#activePopovers.length > 0) {
 			return this.#activePopovers[this.#activePopovers.length - 1];
