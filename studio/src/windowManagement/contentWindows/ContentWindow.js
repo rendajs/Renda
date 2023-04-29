@@ -202,13 +202,13 @@ export class ContentWindow {
 			throw new Error("A preferences button has already been added.");
 		}
 
-		const button = new PopoverToggleButton(PreferencesPopover, this.studioInstance.popoverManager, {
+		const button = new PopoverToggleButton({
 			icon: "static/icons/preferences.svg",
 			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
-		});
-
-		button.onPopoverCreated(popover => {
+		}, () => {
+			const popover = this.studioInstance.popoverManager.addPopover(PreferencesPopover);
 			popover.initialize(this.studioInstance.preferencesManager, preferenceIds, button.el, this.uuid);
+			return popover;
 		});
 
 		this.#preferencesButton = button;

@@ -2,66 +2,37 @@ import {Button} from "../Button.js";
 
 /**
  * @template {import("./Popover.js").Popover} T
- *
- * Toggles a popover. Encapsulates the logic of creating a popover and handling toggle logic.
  */
 export class PopoverToggleButton extends Button {
-	/**
-	 * @type T | null
-	 */
-	#popoverConstructorInstance = null;
+	/** @type {T | null} */
+	#popoverInstance = null;
 
 	/**
-	 * @type {import("./PopoverManager.js").PopoverManager}
-	 */
-	#popoverManager;
-
-	/**
-	 * @typedef {(popover: T) => void} onPopoverCreatedCallback
-	 * @type {Set<onPopoverCreatedCallback>}
-	 */
-	#onPopoverCreatedCbs = new Set();
-
-	/**
-	 * @param {new (...args: any[]) => T} PopoverConstructor
-	 * @param {import("./PopoverManager.js").PopoverManager} popoverManager
+	 * Toggles a popover. Encapsulates the logic of creating a popover and handling toggle logic.
 	 * @param {import("../Button.js").ButtonGuiOptions} buttonArgs
+	 * @param {() => T} onPopoverRequiredCallback
 	 */
-	constructor(PopoverConstructor, popoverManager, buttonArgs) {
+	constructor(buttonArgs, onPopoverRequiredCallback) {
 		const innerOnClick = buttonArgs.onClick;
 
-		buttonArgs.onClick = ctx => {
-			if (!this.#popoverConstructorInstance || this.#popoverConstructorInstance.destructed) {
-				this.#popoverConstructorInstance = /** @type {T} */ (popoverManager.addPopover(PopoverConstructor));
-				this.#onPopoverCreatedCbs.forEach(cb => cb(/** @type {T} */ (this.#popoverConstructorInstance)));
-			} else {
-				this.#popoverConstructorInstance.close();
-				this.#popoverConstructorInstance = null;
-			}
+		super({
+			...buttonArgs,
+			onClick: ctx => {
+				if (!this.#popoverInstance || this.#popoverInstance.destructed) {
+					this.#popoverInstance = onPopoverRequiredCallback();
+				} else {
+					this.#popoverInstance.close();
+					this.#popoverInstance = null;
+				}
 
-			if (innerOnClick) {
-				innerOnClick(ctx);
-			}
-		};
-
-		super(buttonArgs);
-
-		this.#popoverManager = popoverManager;
-
-		/**
-		 * @type {new (...args: any[]) => T} PopoverConstructor
-		 */
-		this.PopoverConstructor = PopoverConstructor;
+				if (innerOnClick) {
+					innerOnClick(ctx);
+				}
+			},
+		});
 	}
 
 	get popoverInstance() {
-		return this.#popoverConstructorInstance;
-	}
-
-	/**
-	 * @param {(popover: T) => void} cb
-	 */
-	onPopoverCreated(cb) {
-		this.#onPopoverCreatedCbs.add(cb);
+		return this.#popoverInstance;
 	}
 }

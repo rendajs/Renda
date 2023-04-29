@@ -1,20 +1,25 @@
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {assertExists, assertThrows} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 import {Popover} from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
-import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import {PopoverToggleButton} from "../../../../../../studio/src/ui/popoverMenus/PopoverToggleButton.js";
-import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {runWithDom, runWithDomAsync} from "../../../shared/runWithDom.js";
+import {runWithDom} from "../../../shared/runWithDom.js";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
+
+function createManager() {
+	return /** @type {import("../../../../../../studio/src/ui/popoverMenus/PopoverManager.js").PopoverManager} */ ({
+		removePopover(popover) {},
+	});
+}
 
 Deno.test({
 	name: "Creates a button",
 	fn() {
 		runWithDom(() => {
-			const colorizerFilterManager = new ColorizerFilterManager();
-			const manager = new PopoverManager(colorizerFilterManager);
+			const manager = createManager();
 
-			const button = new PopoverToggleButton(Popover, manager, {});
+			const button = new PopoverToggleButton({}, () => {
+				return new Popover(manager);
+			});
 
 			assertExists(button.el);
 		});
@@ -22,26 +27,23 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Instantiates a Popover on click when one does not exist",
-	async fn() {
-		await runWithDomAsync(async () => {
-			const colorizerFilterManager = new ColorizerFilterManager();
-			const manager = new PopoverManager(colorizerFilterManager);
+	name: "Calls onPopoverRequiredCallback when no popover exists yet",
+	fn() {
+		runWithDom(() => {
+			const manager = createManager();
 
-			const button = new PopoverToggleButton(Popover, manager, {});
+			const spyFn = () => {
+				const popover = new Popover(manager);
+				return popover;
+			};
+			const onPopoverRequiredCallbackSpy = spy(spyFn);
 
-			// wait for next event loop
-			await waitForMicrotasks();
+			const button = new PopoverToggleButton({}, onPopoverRequiredCallbackSpy);
 
 			const mouseEvent = new FakeMouseEvent("click");
 			button.el.dispatchEvent(mouseEvent);
-			assertExists(manager.getLastPopover());
-
-			manager.getLastPopover().close();
-
-			assertThrows(() => {
-				manager.getLastPopover();
-			});
+			assertSpyCalls(onPopoverRequiredCallbackSpy, 1);
+			assertStrictEquals(button.popoverInstance, onPopoverRequiredCallbackSpy.calls[0].returned);
 		});
 	},
 });
@@ -49,23 +51,44 @@ Deno.test({
 Deno.test({
 	name: "Closes the Popover on click when one exists",
 	fn() {
-		runWithDomAsync(async () => {
-			const colorizerFilterManager = new ColorizerFilterManager();
-			const manager = new PopoverManager(colorizerFilterManager);
+		runWithDom(() => {
+			const manager = createManager();
 
-			const button = new PopoverToggleButton(Popover, manager, {});
-
-			// wait for next event loop
-			await waitForMicrotasks();
+			const button = new PopoverToggleButton({}, () => {
+				return new Popover(manager);
+			});
 
 			const mouseEvent = new FakeMouseEvent("click");
 			button.el.dispatchEvent(mouseEvent);
-			assertExists(manager.getLastPopover());
+			assertExists(button.popoverInstance);
 
 			button.el.dispatchEvent(mouseEvent);
-			assertThrows(() => {
-				manager.getLastPopover();
+			assertEquals(button.popoverInstance, null);
+		});
+	},
+});
+
+Deno.test({
+	name: "Original onClick callback is maintained",
+	fn() {
+		runWithDom(() => {
+			const manager = createManager();
+
+			let callcount = 0;
+			const button = new PopoverToggleButton({
+				onClick() {
+					callcount++;
+				},
+			}, () => {
+				return new Popover(manager);
 			});
+
+			const mouseEvent = new FakeMouseEvent("click");
+			button.el.dispatchEvent(mouseEvent);
+			assertEquals(callcount, 1);
+
+			button.el.dispatchEvent(mouseEvent);
+			assertEquals(callcount, 2);
 		});
 	},
 });

@@ -77,13 +77,13 @@ export class ContentWindowBuildView extends ContentWindow {
 		});
 		playStateButtonsGroup.addButton(this.reloadButton);
 
-		this.entryPointButton = new PopoverToggleButton(EntryPointPopover, this.studioInstance.popoverManager, {
+		this.entryPointButton = new PopoverToggleButton({
 			text: "Entry Point",
 			hasDownArrow: true,
 			colorizerFilterManager,
-		});
+		}, () => {
+			const popover = this.studioInstance.popoverManager.addPopover(EntryPointPopover);
 
-		this.entryPointButton.onPopoverCreated(popover => {
 			const projectSettings = this.studioInstance.projectManager.projectSettings;
 			const assetManager = this.studioInstance.projectManager.assetManager;
 
@@ -94,6 +94,8 @@ export class ContentWindowBuildView extends ContentWindow {
 			popover.setNeedsCurtain(false);
 			popover.initialize(projectSettings, assetManager, this.persistentData);
 			popover.setPos(this.entryPointButton);
+
+			return popover;
 		});
 
 		this.addTopBarEl(this.entryPointButton.el);
