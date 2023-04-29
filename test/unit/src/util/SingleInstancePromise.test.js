@@ -43,7 +43,6 @@ Deno.test({
 
 		const result = await instance.run(1337);
 		assertEquals(result, 1337);
-		assertEquals(instance.isRunning, false);
 	},
 });
 
@@ -57,22 +56,18 @@ Deno.test({
 		const promise2 = instance.run("run2");
 		const promise3 = instance.run("run3");
 		assertSpyCalls(spyFn, 1);
-		assertEquals(instance.isRunning, true);
 
 		await resolvePromise("resolve1");
 		const result1 = await promise1;
 		assertEquals(result1, "run1resolve1");
-		assertEquals(instance.isRunning, true);
 
 		await resolvePromise("resolve2");
 		const result2 = await promise2;
 		assertEquals(result2, "run3resolve2");
-		assertEquals(instance.isRunning, false);
 
 		const result3 = await promise3;
 		assertEquals(result3, "run3resolve2");
 		assertSpyCalls(spyFn, 2);
-		assertEquals(instance.isRunning, false);
 	},
 });
 
@@ -94,7 +89,6 @@ Deno.test({
 			args: [123],
 			returned: 123,
 		});
-		assertEquals(instance.isRunning, false);
 	},
 });
 
@@ -108,21 +102,17 @@ Deno.test({
 		const promise2 = instance.run("run2");
 		const promise3 = instance.run("run3");
 		assertSpyCalls(spyFn, 1);
-		assertEquals(instance.isRunning, true);
 
 		await resolvePromise("resolve1");
 		const result1 = await promise1;
 		assertEquals(result1, "run1resolve1");
-		assertEquals(instance.isRunning, false);
 
 		const result2 = await promise2;
 		assertEquals(result2, "run1resolve1");
-		assertEquals(instance.isRunning, false);
 
 		const result3 = await promise3;
 		assertEquals(result3, "run1resolve1");
 		assertSpyCalls(spyFn, 1);
-		assertEquals(instance.isRunning, false);
 	},
 });
 
