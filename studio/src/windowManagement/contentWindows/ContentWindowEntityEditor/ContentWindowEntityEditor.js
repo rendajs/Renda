@@ -299,6 +299,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const entity = await projectAsset.getLiveAsset();
 		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
+		this.entitySavingManager.setEntityDirty(false);
 		if (!fromContentWindowLoad) {
 			this.studioInstance.preferencesManager.set("entityEditor.loadedEntityPath", projectAsset.path, {
 				contentWindowUuid: this.uuid,
@@ -823,6 +824,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (!this.editingEntity.containsChild(entity) && type != "delete") return;
 
 		this.markRenderDirty();
+		this.entitySavingManager.setEntityDirty(true);
 
 		if (type == "transform") {
 			for (const e of entity.traverseDown()) {

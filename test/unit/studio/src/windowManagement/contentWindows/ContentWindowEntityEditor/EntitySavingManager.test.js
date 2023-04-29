@@ -144,3 +144,22 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Loading a new entity should disable the button",
+	async fn() {
+		await runWithDomAsync(async () => {
+			const {args, mockWindow, preferencesManager} = getMockArgs();
+
+			const manager = new EntitySavingManager(...args);
+			preferencesManager.set("entityEditor.autosaveEntities", false);
+			mockWindow.editingEntityUuid = BASIC_EDITING_ENTITY_UUID;
+
+			manager.setEntityDirty(true);
+			assertEquals(manager.saveEntityButton.disabled, false);
+
+			manager.setEntityDirty(false);
+			assertEquals(manager.saveEntityButton.disabled, true);
+		});
+	},
+});
