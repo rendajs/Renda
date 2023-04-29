@@ -5,6 +5,7 @@ import {BASIC_ASSET_UUID_FOR_SETTING, basicSetupForSettingByUuid, createBasicGui
 import {ProjectAssetType} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
 import {DroppableGui} from "../../../../../../studio/src/ui/DroppableGui.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import {testTypes} from "../../../../shared/typeAssertions.js";
 
 const BASIC_DRAGGING_DATA_UUID = "BASIC_DRAGGING_DATA_UUID";
 const VALID_DRAG_TYPE = `text/renda; dragtype=projectasset; draggingdata=${BASIC_DRAGGING_DATA_UUID}`;
@@ -257,55 +258,49 @@ Deno.test({
 	},
 });
 
-Deno.test({
-	name: "getValue() return types",
+testTypes({
+	name: "getValue() has the correct return types",
 	fn() {
-		// This doesn't test any runtime behaviour, only the types are tested for correctness.
-
-		/* eslint-disable no-unused-vars */
-		function neverCalled() {
-			class LiveAsset {
-				someMethodNotOnTheProjectAssetType() {}
-			}
-			/** @extends {ProjectAssetType<LiveAsset, null, string>} */
-			class ExtendedProjectAssetType extends ProjectAssetType {
-				static expectedLiveAssetConstructor = LiveAsset;
-
-				someMethodNotOnTheLiveAsset() {}
-			}
-
-			/** @type {CreateTypeAssertionFn<import("../../../../../../src/mod.js").UuidString | null>} */
-			const assertUuidString = () => {};
-
-			/** @type {CreateTypeAssertionFn<LiveAsset | null>} */
-			const assertLiveAsset = () => {};
-
-			// A gui with a live asset constructor as supported asset type.
-			const gui1 = DroppableGui.of({
-				supportedAssetTypes: [LiveAsset],
-			});
-
-			const val1 = gui1.getValue();
-			assertUuidString(val1, val1);
-
-			const val2 = gui1.getValue({
-				returnLiveAsset: true,
-			});
-			assertLiveAsset(val2, val2);
-
-			// A gui with a ProjectAssetType constructor as supported asset type.
-			const gui2 = DroppableGui.of({
-				supportedAssetTypes: [ExtendedProjectAssetType],
-			});
-
-			const val3 = gui2.getValue();
-			assertUuidString(val3, val3);
-
-			const val4 = gui2.getValue({
-				returnLiveAsset: true,
-			});
-			assertLiveAsset(val4, val4);
+		class LiveAsset {
+			someMethodNotOnTheProjectAssetType() {}
 		}
-		/* eslint-enable no-unused-vars */
+		/** @extends {ProjectAssetType<LiveAsset, null, string>} */
+		class ExtendedProjectAssetType extends ProjectAssetType {
+			static expectedLiveAssetConstructor = LiveAsset;
+
+			someMethodNotOnTheLiveAsset() {}
+		}
+
+		/** @type {CreateTypeAssertionFn<import("../../../../../../src/mod.js").UuidString | null>} */
+		const assertUuidString = () => {};
+
+		/** @type {CreateTypeAssertionFn<LiveAsset | null>} */
+		const assertLiveAsset = () => {};
+
+		// A gui with a live asset constructor as supported asset type.
+		const gui1 = DroppableGui.of({
+			supportedAssetTypes: [LiveAsset],
+		});
+
+		const val1 = gui1.getValue();
+		assertUuidString(val1, val1);
+
+		const val2 = gui1.getValue({
+			returnLiveAsset: true,
+		});
+		assertLiveAsset(val2, val2);
+
+		// A gui with a ProjectAssetType constructor as supported asset type.
+		const gui2 = DroppableGui.of({
+			supportedAssetTypes: [ExtendedProjectAssetType],
+		});
+
+		const val3 = gui2.getValue();
+		assertUuidString(val3, val3);
+
+		const val4 = gui2.getValue({
+			returnLiveAsset: true,
+		});
+		assertLiveAsset(val4, val4);
 	},
 });
