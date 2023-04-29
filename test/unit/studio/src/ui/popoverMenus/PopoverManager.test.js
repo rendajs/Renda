@@ -5,6 +5,7 @@ import {Popover} from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
 import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
 
 function basicManager() {
 	installFakeDocument();
@@ -64,6 +65,47 @@ Deno.test({
 		} finally {
 			uninstall();
 		}
+	},
+});
+
+testTypes({
+	name: "addPopover has the correct return type and parameter types",
+	fn() {
+		const {manager} = basicManager();
+
+		const result1 = manager.addPopover();
+
+		// Verify that the type is a Popover and nothing else
+		const popoverInstance = new Popover(manager);
+		assertIsType(popoverInstance, result1);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, result1);
+
+		class FooPopOver extends Popover {}
+		const result2 = manager.addPopover(FooPopOver);
+		// Verify that the type is a Popover and nothing else
+		const fooInstance = new FooPopOver(manager);
+		assertIsType(fooInstance, result2);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, result2);
+
+		class ArgumentsPopover extends Popover {
+			/**
+			 * @param {PopoverManager} manager
+			 * @param {number} arg1
+			 * @param {string} arg2
+			 */
+			constructor(manager, arg1, arg2) {
+				super(manager);
+			}
+		}
+		manager.addPopover(ArgumentsPopover, 1, "str");
+		// @ts-expect-error Verify that the right amount of arguments are required
+		manager.addPopover(ArgumentsPopover);
+		// @ts-expect-error Verify that the right amount of arguments are required
+		manager.addPopover(ArgumentsPopover, 1, "str", "extra arg");
+		// @ts-expect-error Verify that the right type of arguments are checked
+		manager.addPopover(ArgumentsPopover, "str", 1);
 	},
 });
 
