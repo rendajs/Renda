@@ -1,5 +1,5 @@
-import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
 import "../../../shared/initializeStudio.js";
+import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
 
 const DEFAULT_CONTENT_WINDOW_UUID = "content window uuid";
 

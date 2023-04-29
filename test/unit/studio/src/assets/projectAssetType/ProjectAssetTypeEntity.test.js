@@ -40,7 +40,7 @@ Deno.test("reload component values when changed", async () => {
 		windowManager: {
 			*getContentWindows(type) {
 				if (type == "renda:entityEditor") {
-					const w = /** @type {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor.js").ContentWindowEntityEditor} */ ({
+					const w = /** @type {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} */ ({
 						markRenderDirty() {
 							markRenderDirtyCalled = true;
 						},

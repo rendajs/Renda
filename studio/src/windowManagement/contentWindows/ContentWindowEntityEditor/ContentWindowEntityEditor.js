@@ -1,11 +1,12 @@
-import {ContentWindow} from "./ContentWindow.js";
-import {Button} from "../../ui/Button.js";
-import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, Material, MeshComponent, OrbitControls, TranslationGizmo, Vec3, VertexState, createPlane} from "../../../../src/mod.js";
-import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTypeGltf.js";
-import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
-import {ButtonGroup} from "../../ui/ButtonGroup.js";
-import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
+import {ContentWindow} from "../ContentWindow.js";
+import {Button} from "../../../ui/Button.js";
+import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, Material, MeshComponent, OrbitControls, TranslationGizmo, Vec3, VertexState, createPlane} from "../../../../../src/mod.js";
+import {ProjectAssetTypeEntity} from "../../../assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeGltf} from "../../../assets/projectAssetType/ProjectAssetTypeGltf.js";
+import {RotationGizmo} from "../../../../../src/gizmos/gizmos/RotationGizmo.js";
+import {ButtonGroup} from "../../../ui/ButtonGroup.js";
+import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
+import {EntitySavingManager} from "./EntitySavingManager.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
@@ -34,17 +35,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.setContentBehindTopBar(true);
 
 		this.addPreferencesButton(
+			"entityEditor.autosaveEntities",
 			"entityEditor.invertScrollOrbitX",
 			"entityEditor.invertScrollOrbitY"
 		);
 
-		const saveEntityButton = new Button({
-			text: "Save",
-			onClick: () => {
-				this.saveEntityAsset();
-			},
-		});
-		this.addTopBarEl(saveEntityButton.el);
+		this.entitySavingManager = new EntitySavingManager(this.studioInstance, this);
+		this.addTopBarEl(this.entitySavingManager.saveEntityButton.el);
 
 		/** @type {TransformationMode} */
 		this.transformationMode = "translate";
@@ -160,10 +157,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @private @type {Entity} */
 		this._editingEntity = new Entity();
 		this.editorScene.add(this._editingEntity);
-		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../misc/EntitySelection.js").EntitySelection>} */
+		/** @type {import("../../../misc/SelectionGroup.js").SelectionGroup<import("../../../misc/EntitySelection.js").EntitySelection>} */
 		this.selectionGroup = this.studioInstance.selectionManager.createSelectionGroup();
 
-		/** @type {Set<{projectAsset: import("../../assets/ProjectAsset.js").ProjectAssetAny, listener: () => void}>} */
+		/** @type {Set<{projectAsset: import("../../../assets/ProjectAsset.js").ProjectAssetAny, listener: () => void}>} */
 		this.createdLiveAssetChangeListeners = new Set();
 
 		this.gizmos = new GizmoManager(this.studioInstance.engineAssetManager);
@@ -183,7 +180,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.updateTransformationGizmos();
 		});
 
-		/** @type {Map<Entity, Map<import("../../../../src/mod.js").Component, import("../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
+		/** @type {Map<Entity, Map<import("../../../../../src/mod.js").Component, import("../../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();
 
 		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookPos", e => {
@@ -287,7 +284,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../../../src/util/mod.js").UuidString} entityUuid
+	 * @param {import("../../../../../src/util/mod.js").UuidString} entityUuid
 	 * @param {boolean} fromContentWindowLoad
 	 */
 	async loadEntityAsset(entityUuid, fromContentWindowLoad = false) {
@@ -302,20 +299,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const entity = await projectAsset.getLiveAsset();
 		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
+		this.entitySavingManager.setEntityDirty(false);
 		if (!fromContentWindowLoad) {
 			this.studioInstance.preferencesManager.set("entityEditor.loadedEntityPath", projectAsset.path, {
 				contentWindowUuid: this.uuid,
 				location: "contentwindow-project",
 			});
 		}
-	}
-
-	async saveEntityAsset() {
-		if (!this.editingEntityUuid) return;
-		const assetManager = await this.studioInstance.projectManager.getAssetManager();
-		const asset = await assetManager.getProjectAssetFromUuid(this.editingEntityUuid);
-		if (!asset) return;
-		await asset.saveLiveAssetData();
 	}
 
 	/**
@@ -407,7 +397,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
+	 * @param {import("../../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
 	 */
 	#translateKeyboardShortcutPressed = e => {
 		const holdState = e.command.holdStateActive;
@@ -426,7 +416,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	};
 
 	/**
-	 * @param {import("../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
+	 * @param {import("../../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
 	 */
 	#rotateKeyboardShortcutPressed = e => {
 		const holdState = e.command.holdStateActive;
@@ -708,7 +698,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			for (const component of entity.components) {
 				let componentGizmos = linkedComponentGizmos.get(component) ?? null;
 				if (!componentGizmos) {
-					const componentConstructor = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
+					const componentConstructor = /** @type {typeof import("../../../../../src/mod.js").Component} */ (component.constructor);
 					componentGizmos = this.studioInstance.componentGizmosManager.createComponentGizmosInstance(componentConstructor, component, this.gizmos);
 					if (componentGizmos) {
 						componentGizmos.entityMatrixChanged(entity.worldMatrix);
@@ -756,11 +746,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		for (const child of this.editingEntity.traverseDown()) {
 			for (const component of child.components) {
-				const componentConstructor = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
+				const componentConstructor = /** @type {typeof import("../../../../../src/mod.js").Component} */ (component.constructor);
 				if (componentConstructor.guiStructure) {
 					const castComponentA = /** @type {unknown} */ (component);
 					const castComponentB = /** @type {Object<string, unknown>} */ (castComponentA);
-					/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+					/** @type {import("../../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
 					const structure = {
 						type: "object",
 						guiOpts: {
@@ -774,8 +764,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../../../src/mod.js").Component} rootComponent
-	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} structure
+	 * @param {import("../../../../../src/mod.js").Component} rootComponent
+	 * @param {import("../../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} structure
 	 * @param {Object<string | number, unknown>} data
 	 * @param {Object<string | number, unknown>?} parentObject
 	 * @param {string | number | null} propertyChangeName
@@ -798,7 +788,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		} else if (structure.type == "array" && Array.isArray(data)) {
 			const arrayType = structure.guiOpts?.arrayType;
 			if (arrayType) {
-				/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+				/** @type {import("../../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
 				const arrayStructure = {
 					type: arrayType,
 					guiOpts: structure.guiOpts?.arrayGuiOpts,
@@ -834,6 +824,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (!this.editingEntity.containsChild(entity) && type != "delete") return;
 
 		this.markRenderDirty();
+		this.entitySavingManager.setEntityDirty(true);
 
 		if (type == "transform") {
 			for (const e of entity.traverseDown()) {

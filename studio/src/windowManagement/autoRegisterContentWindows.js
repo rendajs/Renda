@@ -3,7 +3,7 @@ import {ContentWindowBuildView} from "./contentWindows/ContentWindowBuildView/Co
 import {ContentWindowBuiltInAssets} from "./contentWindows/ContentWindowBuiltInAssets.js";
 import {ContentWindowConnections} from "./contentWindows/ContentWindowConnections.js";
 import {ContentWindowDefaultAssetLinks} from "./contentWindows/ContentWindowDefaultAssetLinks.js";
-import {ContentWindowEntityEditor} from "./contentWindows/ContentWindowEntityEditor.js";
+import {ContentWindowEntityEditor} from "./contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {ContentWindowHistory} from "./contentWindows/ContentWindowHistory.js";
 import {ContentWindowOutliner} from "./contentWindows/ContentWindowOutliner.js";
 import {ContentWindowProject} from "./contentWindows/ContentWindowProject.js";

@@ -7,7 +7,7 @@ import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.
 /**
  * Runs the function with an installed fake dom.
  * Ensures global scope is cleaned up after running, even if errors are thrown.
- * @param {() => void} fn
+ * @param {() => void | undefined} fn
  */
 export function runWithDom(fn) {
 	installFakeDocument();
