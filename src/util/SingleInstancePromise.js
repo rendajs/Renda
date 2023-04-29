@@ -89,6 +89,10 @@ export class SingleInstancePromise {
 		this._isEmptyingQueue = false;
 	}
 
+	get isRunning() {
+		return this._isEmptyingQueue;
+	}
+
 	/**
 	 * Returns a promise that will resolve once the function is done running.
 	 * Will stay pending if the function is not running, either because it is done or if it has already run.
