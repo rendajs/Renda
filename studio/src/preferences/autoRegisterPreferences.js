@@ -9,7 +9,7 @@ function pref(preference) {
 }
 
 const autoRegisterPreferences = /** @type {const} */ ({
-	"entityEditor.autoSaveEntities": pref({
+	"entityEditor.autosaveEntities": pref({
 		type: "boolean",
 		default: true,
 	}),

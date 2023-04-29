@@ -36,7 +36,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.setContentBehindTopBar(true);
 
 		this.addPreferencesButton(
-			"entityEditor.autoSaveEntities",
+			"entityEditor.autosaveEntities",
 			"entityEditor.invertScrollOrbitX",
 			"entityEditor.invertScrollOrbitY"
 		);
@@ -48,7 +48,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			},
 		});
 		this.addTopBarEl(this.#saveEntityButton.el);
-		this.studioInstance.preferencesManager.onChange("entityEditor.autoSaveEntities", () => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.autosaveEntities", () => {
 			this.#updateSaveButtonVisibility();
 		});
 
@@ -405,7 +405,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	#updateSaveButtonVisibility() {
-		const autoSave = this.studioInstance.preferencesManager.get("entityEditor.autoSaveEntities", {
+		const autoSave = this.studioInstance.preferencesManager.get("entityEditor.autosaveEntities", {
 			contentWindowUuid: this.uuid,
 		});
 		this.#saveEntityButton.setVisibility(!autoSave);
