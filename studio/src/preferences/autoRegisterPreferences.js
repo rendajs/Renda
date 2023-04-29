@@ -9,6 +9,10 @@ function pref(preference) {
 }
 
 const autoRegisterPreferences = /** @type {const} */ ({
+	"entityEditor.autoSaveEntities": pref({
+		type: "boolean",
+		default: true,
+	}),
 	"entityEditor.invertScrollOrbitX": pref({
 		type: "boolean",
 	}),

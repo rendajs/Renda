@@ -15,6 +15,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/entityEditor.svg";
 	static scrollable = false;
 
+	#saveEntityButton;
+
 	/** @typedef {"translate" | "rotate" | "scale"} TransformationMode */
 	/** @typedef {"local" | "global"} TransformationSpace */
 	/** @typedef {"center" | "multiple" | "last"} TransformationPivot */
@@ -34,17 +36,21 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.setContentBehindTopBar(true);
 
 		this.addPreferencesButton(
+			"entityEditor.autoSaveEntities",
 			"entityEditor.invertScrollOrbitX",
 			"entityEditor.invertScrollOrbitY"
 		);
 
-		const saveEntityButton = new Button({
+		this.#saveEntityButton = new Button({
 			text: "Save",
 			onClick: () => {
 				this.saveEntityAsset();
 			},
 		});
-		this.addTopBarEl(saveEntityButton.el);
+		this.addTopBarEl(this.#saveEntityButton.el);
+		this.studioInstance.preferencesManager.onChange("entityEditor.autoSaveEntities", () => {
+			this.#updateSaveButtonVisibility();
+		});
 
 		/** @type {TransformationMode} */
 		this.transformationMode = "translate";
@@ -396,6 +402,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	render() {
 		this.domTarget.render(this.editorCamComponent);
+	}
+
+	#updateSaveButtonVisibility() {
+		const autoSave = this.studioInstance.preferencesManager.get("entityEditor.autoSaveEntities", {
+			contentWindowUuid: this.uuid,
+		});
+		this.#saveEntityButton.setVisibility(!autoSave);
 	}
 
 	#updateTranslationMode() {
