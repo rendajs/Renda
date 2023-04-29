@@ -80,3 +80,67 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Button is only enabled when entity is savable",
+	fn() {
+		runWithDom(() => {
+			const {args, mockWindow, preferencesManager} = getMockArgs();
+
+			const manager = new EntitySavingManager(...args);
+			preferencesManager.set("entityEditor.autosaveEntities", false);
+
+			manager.setEntityDirty(true);
+			assertEquals(manager.saveEntityButton.disabled, true);
+
+			mockWindow.editingEntityUuid = BASIC_EDITING_ENTITY_UUID;
+			manager.setEntityDirty(true);
+			assertEquals(manager.saveEntityButton.disabled, false);
+		});
+	},
+});
+
+Deno.test({
+	name: "Button becomes disabled when there is nothing to save",
+	async fn() {
+		await runWithDomAsync(async () => {
+			const {args, mockWindow, preferencesManager} = getMockArgs();
+
+			const manager = new EntitySavingManager(...args);
+			preferencesManager.set("entityEditor.autosaveEntities", false);
+			mockWindow.editingEntityUuid = BASIC_EDITING_ENTITY_UUID;
+
+			manager.setEntityDirty(true);
+			assertEquals(manager.saveEntityButton.disabled, false);
+
+			manager.saveEntityButton.click();
+			await manager.saveEntityAssetInstance.waitForFinishIfRunning();
+
+			assertEquals(manager.saveEntityButton.disabled, true);
+
+			// Making changes to the entity should enable it again
+			manager.setEntityDirty(true);
+			assertEquals(manager.saveEntityButton.disabled, false);
+		});
+	},
+});
+
+Deno.test({
+	name: "Entities are autosaved when making changes",
+	async fn() {
+		await runWithDomAsync(async () => {
+			const {args, saveLiveAssetDataSpy, mockWindow, preferencesManager} = getMockArgs();
+
+			const manager = new EntitySavingManager(...args);
+			preferencesManager.set("entityEditor.autosaveEntities", true);
+			mockWindow.editingEntityUuid = BASIC_EDITING_ENTITY_UUID;
+
+			assertSpyCalls(saveLiveAssetDataSpy, 0);
+
+			manager.setEntityDirty(true);
+			await waitForMicrotasks();
+
+			assertSpyCalls(saveLiveAssetDataSpy, 1);
+		});
+	},
+});
