@@ -73,21 +73,23 @@ Deno.test({
 	async fn() {
 		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset} = await basicSetupForEmbeddedAssets();
 
-		const onValueChangePromise = new Promise(resolve => {
-			gui.onValueChange(() => {
-				const value = gui.getValue({returnLiveAsset: true});
-				resolve(value);
+		try {
+			const onValueChangePromise = new Promise(resolve => {
+				gui.onValueChange(() => {
+					const value = gui.getValue({returnLiveAsset: true});
+					resolve(value);
+				});
 			});
-		});
 
-		await triggerCreateEmbeddedAsset();
+			await triggerCreateEmbeddedAsset();
 
-		const promiseResult = await onValueChangePromise;
+			const promiseResult = await onValueChangePromise;
 
-		assertExists(promiseResult);
-		assertStrictEquals(promiseResult, mockLiveAsset);
-
-		uninstall();
+			assertExists(promiseResult);
+			assertStrictEquals(promiseResult, mockLiveAsset);
+		} finally {
+			uninstall();
+		}
 	},
 });
 

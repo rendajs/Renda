@@ -108,25 +108,27 @@ Deno.test({
 			},
 		});
 
-		assertTreeViewStructureEquals(contentWindow.treeView, {
-			name: "",
-			children: [
-				{
-					name: "folder",
-					children: [],
-				},
-				{
-					name: "fileA.txt",
-					children: [],
-				},
-				{
-					name: "fileB.txt",
-					children: [],
-				},
-			],
-		});
-
-		uninstall();
+		try {
+			assertTreeViewStructureEquals(contentWindow.treeView, {
+				name: "",
+				children: [
+					{
+						name: "folder",
+						children: [],
+					},
+					{
+						name: "fileA.txt",
+						children: [],
+					},
+					{
+						name: "fileB.txt",
+						children: [],
+					},
+				],
+			});
+		} finally {
+			uninstall();
+		}
 	},
 });
 

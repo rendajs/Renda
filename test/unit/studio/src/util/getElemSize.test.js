@@ -1,14 +1,13 @@
 import {assertEquals} from "std/testing/asserts.ts";
 import {getElemSize} from "../../../../../studio/src/util/util.js";
 
-const originalGetComputedStyle = globalThis.getComputedStyle;
-
 /**
  * @param {number} offsetWidth
  * @param {number} offsetHeight
  * @param {Object<string, string>} styleMap
  */
 async function setup(offsetWidth, offsetHeight, styleMap) {
+	const originalGetComputedStyle = globalThis.getComputedStyle;
 	const fakeEl = /** @type {HTMLElement} */ ({offsetWidth, offsetHeight});
 
 	globalThis.getComputedStyle = /** @type {typeof getComputedStyle} */ (el => {
@@ -25,28 +24,32 @@ async function setup(offsetWidth, offsetHeight, styleMap) {
 		};
 	});
 
-	return fakeEl;
-}
-
-function uninstall() {
-	globalThis.getComputedStyle = originalGetComputedStyle;
+	return {
+		el: fakeEl,
+		uninstall() {
+			globalThis.getComputedStyle = originalGetComputedStyle;
+		},
+	};
 }
 
 Deno.test({
 	name: "No extra styles",
 	fn: async () => {
-		const el = await setup(10, 10, {});
+		const {el, uninstall} = await setup(10, 10, {});
 
-		const result = getElemSize(el);
-
-		assertEquals(result, [10, 10]);
+		try {
+			const result = getElemSize(el);
+			assertEquals(result, [10, 10]);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "All styles",
 	fn: async () => {
-		const el = await setup(10, 10, {
+		const {el, uninstall} = await setup(10, 10, {
 			"margin-left": "10px",
 			"margin-right": "10px",
 			"margin-top": "10px",
@@ -63,18 +66,19 @@ Deno.test({
 			"padding-bottom": "10px",
 		});
 
-		const result = getElemSize(el);
-
-		assertEquals(result, [70, 70]);
-
-		uninstall();
+		try {
+			const result = getElemSize(el);
+			assertEquals(result, [70, 70]);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "Different values",
 	fn: async () => {
-		const el = await setup(10, 10, {
+		const {el, uninstall} = await setup(10, 10, {
 			"margin-left": "10px",
 			"margin-right": "20px",
 			"margin-top": "30px",
@@ -91,10 +95,11 @@ Deno.test({
 			"padding-bottom": "120px",
 		});
 
-		const result = getElemSize(el);
-
-		assertEquals(result, [340, 460]);
-
-		uninstall();
+		try {
+			const result = getElemSize(el);
+			assertEquals(result, [340, 460]);
+		} finally {
+			uninstall();
+		}
 	},
 });
