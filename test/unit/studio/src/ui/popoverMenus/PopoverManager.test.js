@@ -55,10 +55,21 @@ Deno.test({
 
 			// Creating popover with custom class
 			class ExtendedPopOver extends Popover {
-
+				/**
+				 * @param {PopoverManager} manager
+				 * @param {number} arg1
+				 * @param {string} arg2
+				 */
+				constructor(manager, arg1, arg2) {
+					super(manager);
+					this.arg1 = arg1;
+					this.arg2 = arg2;
+				}
 			}
-			const popover3 = manager.addPopover(ExtendedPopOver);
+			const popover3 = manager.addPopover(ExtendedPopOver, 123, "foo");
 			assertInstanceOf(popover3, ExtendedPopOver);
+			assertEquals(popover3.arg1, 123);
+			assertEquals(popover3.arg2, "foo");
 
 			// Wait for click event listener to get removed
 			await waitForMicrotasks();
