@@ -1,5 +1,5 @@
 import {BASIC_ENTITY_PATH, BASIC_ENTITY_UUID, basicTest} from "./shared.js";
-import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor.js";
+import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {assertSpyCalls} from "std/testing/mock.ts";
 import {FakeTime} from "std/testing/time.ts";
 import {createMockProjectAsset} from "../../../../shared/createMockProjectAsset.js";

@@ -2,7 +2,7 @@ import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../ui/TreeView.js";
 import {Button} from "../../ui/Button.js";
 import {Entity} from "../../../../src/mod.js";
-import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
+import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../misc/EntitySelection.js";
@@ -424,7 +424,7 @@ export class ContentWindowOutliner extends ContentWindow {
 
 	/**
 	 * @param {Entity} obj
-	 * @param {import("./ContentWindowEntityEditor.js").EntityChangedEventType} type
+	 * @param {import("./ContentWindowEntityEditor/ContentWindowEntityEditor.js").EntityChangedEventType} type
 	 */
 	notifyEntityEditors(obj, type) {
 		if (!this.linkedEntityEditor) return;

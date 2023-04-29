@@ -1,5 +1,5 @@
 import {basicTest} from "./shared.js";
-import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor.js";
+import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
 
 Deno.test({
