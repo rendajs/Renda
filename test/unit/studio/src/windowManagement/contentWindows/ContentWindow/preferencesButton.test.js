@@ -18,14 +18,14 @@ export class PreferencesPopover {}
 const ContentWindowMod = await importer.import("../../../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js");
 const {ContentWindow} = ContentWindowMod;
 
+/** @type {import("../../../../../../../studio/src/windowManagement/PreferencesPopover.js")} */
+const PreferencesPopoverMod = await importer.import("../../../../../../../studio/src/windowManagement/PreferencesPopover.js");
+const {PreferencesPopover} = PreferencesPopoverMod;
+
 Deno.test({
-	name: "Preferences Button",
+	name: "Preferences Button opens a preferences popover",
 	fn() {
 		runWithDom(() => {
-			/** @type {import("../../../../../../../studio/src/windowManagement/PreferencesPopover.js").PreferencesPopover["initialize"]} */
-			const spyFn = (preferencesManager, preferenceIds, el, uuid) => {};
-			const initializeSpy = spy(spyFn);
-
 			/** @type {PreferencesManager<any>} */
 			const preferencesManager = new PreferencesManager();
 			const mockStudioInstance = /** @type {import("../../../../../../../studio/src/Studio.js").Studio} */ ({
@@ -33,11 +33,12 @@ Deno.test({
 				popoverManager: {
 					addPopover() {
 						return {
-							initialize: initializeSpy,
+							setPos() {},
 						};
 					},
 				},
 			});
+			const addPopoverSpy = spy(mockStudioInstance.popoverManager, "addPopover");
 
 			const mockWindowManager = /** @type {import("../../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 
@@ -52,12 +53,12 @@ Deno.test({
 
 			preferencesButton.dispatchEvent(new MouseEvent("click"));
 
-			assertSpyCalls(initializeSpy, 1);
-			assertSpyCall(initializeSpy, 0, {
+			assertSpyCalls(addPopoverSpy, 1);
+			assertSpyCall(addPopoverSpy, 0, {
 				args: [
+					PreferencesPopover,
 					preferencesManager,
 					ids,
-					preferencesButton,
 					"uuid",
 				],
 			});

@@ -52,9 +52,8 @@ function getMocks() {
  * @param {string[]} prefIds
  */
 function initializePopover(popoverManager, preferencesManager, prefIds) {
-	const popover = new PreferencesPopover(popoverManager);
+	const popover = new PreferencesPopover(popoverManager, preferencesManager, prefIds, CONTENT_WINDOW_UUID);
 	const setPosSpy = stub(popover, "setPos", () => {});
-	popover.initialize(preferencesManager, prefIds, mockButton, CONTENT_WINDOW_UUID);
 
 	return {
 		popover,
@@ -93,20 +92,6 @@ Deno.test({
 					},
 				],
 			});
-		});
-	},
-});
-
-Deno.test({
-	name: "Can only be initialized once",
-	fn() {
-		const {popoverManager, preferencesManager} = getMocks();
-
-		runWithDom(() => {
-			const {popover} = initializePopover(popoverManager, preferencesManager, ["boolPref"]);
-			assertThrows(() => {
-				popover.initialize(preferencesManager, ["numPref"], mockButton, "other uuid");
-			}, Error, "Already initialized");
 		});
 	},
 });

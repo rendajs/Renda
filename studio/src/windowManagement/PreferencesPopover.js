@@ -3,10 +3,10 @@ import {Popover} from "../ui/popoverMenus/Popover.js";
 import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
 
 export class PreferencesPopover extends Popover {
-	/** @type {import("../preferences/PreferencesManager.js").PreferencesManager<any>?} */
-	#preferencesManager = null;
-	/** @type {import("../../../src/mod.js").UuidString?} */
-	#contentWindowUuid = null;
+	/** @type {import("../preferences/PreferencesManager.js").PreferencesManager<any>} */
+	#preferencesManager;
+	/** @type {import("../../../src/mod.js").UuidString} */
+	#contentWindowUuid;
 
 	/**
 	 * @typedef CreatedEntryData
@@ -20,10 +20,16 @@ export class PreferencesPopover extends Popover {
 	locationDropDown;
 
 	/**
-	 * @param {ConstructorParameters<typeof Popover>} args
+	 * @param {ConstructorParameters<typeof Popover>[0]} popoverManager
+	 * @param {import("../preferences/PreferencesManager.js").PreferencesManager<any>} preferencesManager
+	 * @param {string[]} preferenceIds
+	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
 	 */
-	constructor(...args) {
-		super(...args);
+	constructor(popoverManager, preferencesManager, preferenceIds, contentWindowUuid) {
+		super(popoverManager);
+
+		this.#preferencesManager = preferencesManager;
+		this.#contentWindowUuid = contentWindowUuid;
 
 		const topBarEl = document.createElement("div");
 		topBarEl.classList.add("preferences-popover-top-bar");
@@ -48,20 +54,6 @@ export class PreferencesPopover extends Popover {
 
 		this.preferencesTreeView = new PropertiesTreeView();
 		this.el.appendChild(this.preferencesTreeView.el);
-	}
-
-	/**
-	 * @param {import("../preferences/PreferencesManager.js").PreferencesManager<any>} preferencesManager
-	 * @param {string[]} preferenceIds
-	 * @param {HTMLElement} buttonEl
-	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
-	 */
-	initialize(preferencesManager, preferenceIds, buttonEl, contentWindowUuid) {
-		if (this.#preferencesManager) {
-			throw new Error("Already initialized");
-		}
-		this.#preferencesManager = preferencesManager;
-		this.#contentWindowUuid = contentWindowUuid;
 
 		for (const id of preferenceIds) {
 			const {uiName, type} = preferencesManager.getPreferenceConfig(id);
@@ -88,8 +80,6 @@ export class PreferencesPopover extends Popover {
 		}
 
 		this.#updateEntryValues();
-
-		this.setPos(buttonEl);
 	}
 
 	#getCurrentLocation() {

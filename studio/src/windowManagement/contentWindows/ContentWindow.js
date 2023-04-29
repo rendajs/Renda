@@ -206,9 +206,7 @@ export class ContentWindow {
 			icon: "static/icons/preferences.svg",
 			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 		}, () => {
-			const popover = this.studioInstance.popoverManager.addPopover(PreferencesPopover);
-			popover.initialize(this.studioInstance.preferencesManager, preferenceIds, button.el, this.uuid);
-			return popover;
+			return this.studioInstance.popoverManager.addPopover(PreferencesPopover, this.studioInstance.preferencesManager, preferenceIds, this.uuid);
 		});
 
 		this.#preferencesButton = button;
