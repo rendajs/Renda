@@ -109,26 +109,28 @@ Deno.test({
 	fn() {
 		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
 
-		// Hover over a draggable
-		const event1 = new PointerEvent("pointermove", {
-			clientX: 50,
-			clientY: 50,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
-		assertExists(pointerDevice.currentlyHoveringDraggable);
-		assertEquals(mockDraggable.overCallCount, 1);
-		assertEquals(mockDraggable.outCallCount, 0);
+		try {
+			// Hover over a draggable
+			const event1 = new PointerEvent("pointermove", {
+				clientX: 50,
+				clientY: 50,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
+			assertExists(pointerDevice.currentlyHoveringDraggable);
+			assertEquals(mockDraggable.overCallCount, 1);
+			assertEquals(mockDraggable.outCallCount, 0);
 
-		// Hover away from the draggable
-		const event2 = new PointerEvent("pointermove", {
-			clientX: 0,
-			clientY: 0,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
-		assertEquals(pointerDevice.currentlyHoveringDraggable, null);
-		assertEquals(mockDraggable.outCallCount, 1);
-
-		uninstall();
+			// Hover away from the draggable
+			const event2 = new PointerEvent("pointermove", {
+				clientX: 0,
+				clientY: 0,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
+			assertEquals(pointerDevice.currentlyHoveringDraggable, null);
+			assertEquals(mockDraggable.outCallCount, 1);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -137,19 +139,21 @@ Deno.test({
 	fn() {
 		const {pointerDevice, stubElement, stubCamera, uninstall} = basicSetup();
 
-		const event1 = new PointerEvent("pointerdown", {
-			buttons: 1,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
-		assertEquals(pointerDevice.hasActiveButton, true);
+		try {
+			const event1 = new PointerEvent("pointerdown", {
+				buttons: 1,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
+			assertEquals(pointerDevice.hasActiveButton, true);
 
-		const event2 = new PointerEvent("pointerup", {
-			buttons: 0,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
-		assertEquals(pointerDevice.hasActiveButton, false);
-
-		uninstall();
+			const event2 = new PointerEvent("pointerup", {
+				buttons: 0,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
+			assertEquals(pointerDevice.hasActiveButton, false);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -158,38 +162,40 @@ Deno.test({
 	fn() {
 		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
 
-		// Click on a draggable
-		const event1 = new PointerEvent("pointerdown", {
-			clientX: 50,
-			clientY: 50,
-			buttons: 1,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
-		assertEquals(pointerDevice.hasActiveButton, true);
-		assertEquals(mockDraggable.downCallCount, 1);
-		assertEquals(mockDraggable.upCallCount, 0);
+		try {
+			// Click on a draggable
+			const event1 = new PointerEvent("pointerdown", {
+				clientX: 50,
+				clientY: 50,
+				buttons: 1,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
+			assertEquals(pointerDevice.hasActiveButton, true);
+			assertEquals(mockDraggable.downCallCount, 1);
+			assertEquals(mockDraggable.upCallCount, 0);
 
-		// Move slightly
-		const event2 = new PointerEvent("pointermove", {
-			clientX: 50,
-			clientY: 51,
-			buttons: 1,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
-		assertEquals(pointerDevice.hasActiveButton, true);
-		assertEquals(mockDraggable.moveCallCount, 1);
+			// Move slightly
+			const event2 = new PointerEvent("pointermove", {
+				clientX: 50,
+				clientY: 51,
+				buttons: 1,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
+			assertEquals(pointerDevice.hasActiveButton, true);
+			assertEquals(mockDraggable.moveCallCount, 1);
 
-		// Release mouse button
-		const event3 = new PointerEvent("pointerup", {
-			clientX: 50,
-			clientY: 50,
-			buttons: 0,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event3);
-		assertEquals(pointerDevice.hasActiveButton, false);
-		assertEquals(mockDraggable.upCallCount, 1);
-
-		uninstall();
+			// Release mouse button
+			const event3 = new PointerEvent("pointerup", {
+				clientX: 50,
+				clientY: 50,
+				buttons: 0,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event3);
+			assertEquals(pointerDevice.hasActiveButton, false);
+			assertEquals(mockDraggable.upCallCount, 1);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -198,36 +204,38 @@ Deno.test({
 	fn() {
 		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
 
-		// Click draggable
-		const event1 = new PointerEvent("pointerdown", {
-			clientX: 50,
-			clientY: 50,
-			buttons: 1,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
-		assertEquals(pointerDevice.hasActiveButton, true);
-		assertEquals(mockDraggable.downCallCount, 1);
-		assertEquals(mockDraggable.upCallCount, 0);
+		try {
+			// Click draggable
+			const event1 = new PointerEvent("pointerdown", {
+				clientX: 50,
+				clientY: 50,
+				buttons: 1,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
+			assertEquals(pointerDevice.hasActiveButton, true);
+			assertEquals(mockDraggable.downCallCount, 1);
+			assertEquals(mockDraggable.upCallCount, 0);
 
-		// Move away from draggable
-		const event2 = new PointerEvent("pointermove", {
-			clientX: 0,
-			clientY: 0,
-			buttons: 1,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
+			// Move away from draggable
+			const event2 = new PointerEvent("pointermove", {
+				clientX: 0,
+				clientY: 0,
+				buttons: 1,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
 
-		// Release mouse button
-		const event3 = new PointerEvent("pointerup", {
-			clientX: 0,
-			clientY: 0,
-			buttons: 0,
-		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event3);
-		assertEquals(pointerDevice.hasActiveButton, false);
-		assertEquals(mockDraggable.upCallCount, 1);
-
-		uninstall();
+			// Release mouse button
+			const event3 = new PointerEvent("pointerup", {
+				clientX: 0,
+				clientY: 0,
+				buttons: 0,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event3);
+			assertEquals(pointerDevice.hasActiveButton, false);
+			assertEquals(mockDraggable.upCallCount, 1);
+		} finally {
+			uninstall();
+		}
 	},
 });
 

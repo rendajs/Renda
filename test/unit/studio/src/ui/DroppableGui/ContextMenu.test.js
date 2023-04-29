@@ -7,14 +7,16 @@ Deno.test({
 	async fn() {
 		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus();
 
-		assertExists(createContextMenuCalls[0]);
-		assertContextMenuStructureEquals(createContextMenuCalls[0], [
-			{text: "Unlink"},
-			{text: "Copy asset UUID"},
-			{text: "View location"},
-		]);
-
-		uninstall();
+		try {
+			assertExists(createContextMenuCalls[0]);
+			assertContextMenuStructureEquals(createContextMenuCalls[0], [
+				{text: "Unlink"},
+				{text: "Copy asset UUID"},
+				{text: "View location"},
+			]);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -24,16 +26,19 @@ Deno.test({
 		const {uninstall, gui, createContextMenuCalls, dispatchContextMenuEvent} = await basicSetupForContextMenus({
 			dispatchContextMenuEvent: false,
 		});
-		gui.setDisabled(true);
-		await dispatchContextMenuEvent();
 
-		assertExists(createContextMenuCalls[0]);
-		assertContextMenuStructureEquals(createContextMenuCalls[0], [
-			{text: "Copy asset UUID"},
-			{text: "View location"},
-		]);
+		try {
+			gui.setDisabled(true);
+			await dispatchContextMenuEvent();
 
-		uninstall();
+			assertExists(createContextMenuCalls[0]);
+			assertContextMenuStructureEquals(createContextMenuCalls[0], [
+				{text: "Copy asset UUID"},
+				{text: "View location"},
+			]);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -46,9 +51,11 @@ Deno.test({
 			},
 		});
 
-		assertEquals(createContextMenuCalls.length, 0);
-
-		uninstall();
+		try {
+			assertEquals(createContextMenuCalls.length, 0);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -108,12 +115,15 @@ Deno.test({
 			},
 			dispatchContextMenuEvent: false,
 		});
-		gui.setDisabled(true);
-		await dispatchContextMenuEvent();
 
-		assertEquals(createContextMenuCalls.length, 0);
+		try {
+			gui.setDisabled(true);
+			await dispatchContextMenuEvent();
 
-		uninstall();
+			assertEquals(createContextMenuCalls.length, 0);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -126,15 +136,17 @@ Deno.test({
 			},
 		});
 
-		assertExists(createContextMenuCalls[0]);
-		assertContextMenuStructureEquals(createContextMenuCalls[0], [
-			{text: "Unlink"},
-			{text: "Copy asset UUID"},
-			{text: "Copy resolved asset link UUID"},
-			{text: "View location"},
-		]);
-
-		uninstall();
+		try {
+			assertExists(createContextMenuCalls[0]);
+			assertContextMenuStructureEquals(createContextMenuCalls[0], [
+				{text: "Unlink"},
+				{text: "Copy asset UUID"},
+				{text: "Copy resolved asset link UUID"},
+				{text: "View location"},
+			]);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -154,10 +166,12 @@ Deno.test({
 			},
 		});
 
-		assertExists(createContextMenuCalls[0]);
-		assertContextMenuStructureEquals(createContextMenuCalls[0], [{text: "Create embedded asset"}]);
-
-		uninstall();
+		try {
+			assertExists(createContextMenuCalls[0]);
+			assertContextMenuStructureEquals(createContextMenuCalls[0], [{text: "Create embedded asset"}]);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -181,18 +195,20 @@ Deno.test({
 			},
 		});
 
-		assertExists(createContextMenuCalls[0]);
-		assertContextMenuStructureEquals(createContextMenuCalls[0], [
-			{
-				text: "Create embedded asset",
-				submenu: [
-					{text: "Mock Live Asset 1"},
-					{text: "Mock Live Asset 2"},
-				],
-			},
-		]);
-
-		uninstall();
+		try {
+			assertExists(createContextMenuCalls[0]);
+			assertContextMenuStructureEquals(createContextMenuCalls[0], [
+				{
+					text: "Create embedded asset",
+					submenu: [
+						{text: "Mock Live Asset 1"},
+						{text: "Mock Live Asset 2"},
+					],
+				},
+			]);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -214,8 +230,10 @@ Deno.test({
 			},
 		});
 
-		assertEquals(createContextMenuCalls.length, 0);
-
-		uninstall();
+		try {
+			assertEquals(createContextMenuCalls.length, 0);
+		} finally {
+			uninstall();
+		}
 	},
 });

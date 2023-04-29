@@ -226,11 +226,13 @@ Deno.test({
 	fn() {
 		const {gui, uninstall} = createBasicGui();
 
-		const result = gui.getValue();
+		try {
+			const result = gui.getValue();
 
-		assertEquals(result, BASIC_ASSET_UUID);
-
-		uninstall();
+			assertEquals(result, BASIC_ASSET_UUID);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -239,11 +241,13 @@ Deno.test({
 	fn() {
 		const {gui, uninstall} = createBasicGui({valueType: "none"});
 
-		const result = gui.getValue();
+		try {
+			const result = gui.getValue();
 
-		assertEquals(result, null);
-
-		uninstall();
+			assertEquals(result, null);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -252,11 +256,13 @@ Deno.test({
 	fn() {
 		const {gui, uninstall} = createBasicGui({valueType: "defaultAssetLink"});
 
-		const result = gui.getValue();
+		try {
+			const result = gui.getValue();
 
-		assertEquals(result, DEFAULTASSETLINK_LINK_UUID);
-
-		uninstall();
+			assertEquals(result, DEFAULTASSETLINK_LINK_UUID);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -265,11 +271,13 @@ Deno.test({
 	fn() {
 		const {gui, uninstall} = createBasicGui({valueType: "defaultAssetLink"});
 
-		const result = gui.getValue({resolveDefaultAssetLinks: true});
+		try {
+			const result = gui.getValue({resolveDefaultAssetLinks: true});
 
-		assertEquals(result, BASIC_ASSET_UUID);
-
-		uninstall();
+			assertEquals(result, BASIC_ASSET_UUID);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -280,11 +288,13 @@ Deno.test({
 			needsLiveAssetPreload: false,
 		});
 
-		const result = gui.getValue({returnLiveAsset: true});
+		try {
+			const result = gui.getValue({returnLiveAsset: true});
 
-		assertStrictEquals(result, mockLiveAsset);
-
-		uninstall();
+			assertStrictEquals(result, mockLiveAsset);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -293,11 +303,13 @@ Deno.test({
 	fn() {
 		const {gui, uninstall} = createBasicGui({valueType: "none"});
 
-		const result = gui.getValue({returnLiveAsset: true});
+		try {
+			const result = gui.getValue({returnLiveAsset: true});
 
-		assertEquals(result, null);
-
-		uninstall();
+			assertEquals(result, null);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -306,11 +318,13 @@ Deno.test({
 	fn() {
 		const {gui, uninstall} = createBasicGui();
 
-		const result = gui.getValue({purpose: "fileStorage"});
+		try {
+			const result = gui.getValue({purpose: "fileStorage"});
 
-		assertEquals(result, BASIC_ASSET_UUID);
-
-		uninstall();
+			assertEquals(result, BASIC_ASSET_UUID);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -319,11 +333,13 @@ Deno.test({
 	fn() {
 		const {gui, uninstall} = createBasicGui();
 
-		const result = gui.getValue({purpose: "binarySerialization"});
+		try {
+			const result = gui.getValue({purpose: "binarySerialization"});
 
-		assertEquals(result, BASIC_ASSET_UUID);
-
-		uninstall();
+			assertEquals(result, BASIC_ASSET_UUID);
+		}	finally {
+			uninstall();
+		}
 	},
 });
 
@@ -334,11 +350,13 @@ Deno.test({
 			needsLiveAssetPreload: false,
 		});
 
-		const result = gui.getValue({purpose: "script"});
+		try {
+			const result = gui.getValue({purpose: "script"});
 
-		assertStrictEquals(result, mockLiveAsset);
-
-		uninstall();
+			assertStrictEquals(result, mockLiveAsset);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -349,13 +367,15 @@ Deno.test({
 			valueType: "embedded",
 		});
 
-		const result = gui.getValue();
+		try {
+			const result = gui.getValue();
 
-		assertEquals(/** @type {unknown} */(result), {
-			num: 42,
-			str: "foo",
-		});
-
-		uninstall();
+			assertEquals(/** @type {unknown} */(result), {
+				num: 42,
+				str: "foo",
+			});
+		} finally {
+			uninstall();
+		}
 	},
 });

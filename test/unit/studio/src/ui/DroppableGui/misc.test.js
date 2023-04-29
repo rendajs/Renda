@@ -8,10 +8,12 @@ Deno.test({
 	fn() {
 		const {gui, uninstall} = createBasicGui();
 
-		assertEquals(gui.disabled, false);
-		assertEquals(gui.el.getAttribute("aria-disabled"), "false");
-
-		uninstall();
+		try {
+			assertEquals(gui.disabled, false);
+			assertEquals(gui.el.getAttribute("aria-disabled"), "false");
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -24,14 +26,16 @@ Deno.test({
 			},
 		});
 
-		assertExists(createContextMenuCalls[0]);
-		await triggerContextMenuItem(createContextMenuCalls[0], ["Unlink"]);
+		try {
+			assertExists(createContextMenuCalls[0]);
+			await triggerContextMenuItem(createContextMenuCalls[0], ["Unlink"]);
 
-		assertEquals(gui.projectAssetValue, null);
-		assertEquals(gui.defaultAssetLink, null);
-		assertEquals(gui.defaultAssetLinkUuid, null);
-
-		uninstall();
+			assertEquals(gui.projectAssetValue, null);
+			assertEquals(gui.defaultAssetLink, null);
+			assertEquals(gui.defaultAssetLinkUuid, null);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -93,19 +97,21 @@ Deno.test({
 	async fn() {
 		const {gui, mockProjectAsset, mockWindowManager, uninstall} = createBasicGui();
 
-		/** @type {unknown[][]} */
-		const openCalls = [];
-		mockProjectAsset.open = async (...args) => {
-			openCalls.push(args);
-		};
-		gui.setValue(mockProjectAsset);
+		try {
+			/** @type {unknown[][]} */
+			const openCalls = [];
+			mockProjectAsset.open = async (...args) => {
+				openCalls.push(args);
+			};
+			gui.setValue(mockProjectAsset);
 
-		gui.el.dispatchEvent(new FakeMouseEvent("dblclick"));
+			gui.el.dispatchEvent(new FakeMouseEvent("dblclick"));
 
-		assertEquals(openCalls, [[mockWindowManager]]);
-		assertStrictEquals(openCalls[0][0], mockWindowManager);
-
-		uninstall();
+			assertEquals(openCalls, [[mockWindowManager]]);
+			assertStrictEquals(openCalls[0][0], mockWindowManager);
+		} finally {
+			uninstall();
+		}
 	},
 });
 

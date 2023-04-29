@@ -337,23 +337,25 @@ Deno.test({
 	async fn() {
 		const {manager, uninstall, triggerWatchEvent, files, writeTextFileCalls} = await installMocks();
 
-		files.set("/assets/newFile.dat", new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
-		triggerWatchEvent({
-			kind: "create",
-			paths: ["/assets/newFile.dat"],
-		});
+		try {
+			files.set("/assets/newFile.dat", new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
+			triggerWatchEvent({
+				kind: "create",
+				paths: ["/assets/newFile.dat"],
+			});
 
-		await waitForMicrotasks();
-		await manager.waitForHandleFileChangePromises();
+			await waitForMicrotasks();
+			await manager.waitForHandleFileChangePromises();
 
-		assertEquals(writeTextFileCalls.length, 1);
-		assertEquals(writeTextFileCalls[0].path, "/assets/assetSettings.json");
-		const assetSettings = JSON.parse(writeTextFileCalls[0].text);
-		assertExists(assetSettings.assets);
-		assertEquals(Object.entries(assetSettings.assets).length, 1);
-		assertEquals(Object.values(assetSettings.assets)[0], {path: ["newFile.dat"]});
-
-		uninstall();
+			assertEquals(writeTextFileCalls.length, 1);
+			assertEquals(writeTextFileCalls[0].path, "/assets/assetSettings.json");
+			const assetSettings = JSON.parse(writeTextFileCalls[0].text);
+			assertExists(assetSettings.assets);
+			assertEquals(Object.entries(assetSettings.assets).length, 1);
+			assertEquals(Object.values(assetSettings.assets)[0], {path: ["newFile.dat"]});
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -371,42 +373,44 @@ Deno.test({
 			initialFiles: [["/assets/existingFile.dat", new Uint8Array([0, 1, 2])]],
 		});
 
-		assertEquals(Array.from(manager.assetSettings), [
-			[
-				"00000000-0000-0000-0000-000000000000",
-				{
-					path: ["existingFile.dat"],
+		try {
+			assertEquals(Array.from(manager.assetSettings), [
+				[
+					"00000000-0000-0000-0000-000000000000",
+					{
+						path: ["existingFile.dat"],
+					},
+				],
+			]);
+			assertEquals(Array.from(manager.fileHashes), [["ae4b3280e56e2faf83f414a6e3dabe9d5fbe18976544c05fed121accb85b53fc", "00000000-0000-0000-0000-000000000000"]]);
+
+			files.set("/assets/assetSettings.json", JSON.stringify({
+				assets: {
+					"00000000-0000-0000-0000-ffffffffffff": {
+						path: ["existingFile.dat"],
+					},
 				},
-			],
-		]);
-		assertEquals(Array.from(manager.fileHashes), [["ae4b3280e56e2faf83f414a6e3dabe9d5fbe18976544c05fed121accb85b53fc", "00000000-0000-0000-0000-000000000000"]]);
+			}));
+			triggerWatchEvent({
+				kind: "modify",
+				paths: ["/assets/assetSettings.json"],
+			});
 
-		files.set("/assets/assetSettings.json", JSON.stringify({
-			assets: {
-				"00000000-0000-0000-0000-ffffffffffff": {
-					path: ["existingFile.dat"],
-				},
-			},
-		}));
-		triggerWatchEvent({
-			kind: "modify",
-			paths: ["/assets/assetSettings.json"],
-		});
+			await waitForMicrotasks();
+			await manager.waitForAssetSettingsLoad();
 
-		await waitForMicrotasks();
-		await manager.waitForAssetSettingsLoad();
-
-		assertEquals(Array.from(manager.assetSettings), [
-			[
-				"00000000-0000-0000-0000-ffffffffffff",
-				{
-					path: ["existingFile.dat"],
-				},
-			],
-		]);
-		assertEquals(Array.from(manager.fileHashes), [["ae4b3280e56e2faf83f414a6e3dabe9d5fbe18976544c05fed121accb85b53fc", "00000000-0000-0000-0000-ffffffffffff"]]);
-
-		uninstall();
+			assertEquals(Array.from(manager.assetSettings), [
+				[
+					"00000000-0000-0000-0000-ffffffffffff",
+					{
+						path: ["existingFile.dat"],
+					},
+				],
+			]);
+			assertEquals(Array.from(manager.fileHashes), [["ae4b3280e56e2faf83f414a6e3dabe9d5fbe18976544c05fed121accb85b53fc", "00000000-0000-0000-0000-ffffffffffff"]]);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -424,37 +428,39 @@ Deno.test({
 			initialFiles: [["/assets/existingFile.dat", new Uint8Array([0, 1, 2])]],
 		});
 
-		files.set("/assets/assetSettings.json", JSON.stringify({
-			assets: {
-				"00000000-0000-0000-0000-ffffffffffff": {
-					path: ["existingFile.dat"],
+		try {
+			files.set("/assets/assetSettings.json", JSON.stringify({
+				assets: {
+					"00000000-0000-0000-0000-ffffffffffff": {
+						path: ["existingFile.dat"],
+					},
 				},
-			},
-		}));
-		triggerWatchEvent({
-			kind: "modify",
-			paths: ["/assets/assetSettings.json"],
-		});
+			}));
+			triggerWatchEvent({
+				kind: "modify",
+				paths: ["/assets/assetSettings.json"],
+			});
 
-		await waitForMicrotasks();
-		await manager.waitForAssetSettingsLoad();
+			await waitForMicrotasks();
+			await manager.waitForAssetSettingsLoad();
 
-		files.set("/assets/newFile.dat", new Uint8Array([0, 1, 2, 3]));
-		triggerWatchEvent({
-			kind: "create",
-			paths: ["/assets/newFile.dat"],
-		});
+			files.set("/assets/newFile.dat", new Uint8Array([0, 1, 2, 3]));
+			triggerWatchEvent({
+				kind: "create",
+				paths: ["/assets/newFile.dat"],
+			});
 
-		await waitForMicrotasks();
-		await manager.waitForHandleFileChangePromises();
+			await waitForMicrotasks();
+			await manager.waitForHandleFileChangePromises();
 
-		assertEquals(writeTextFileCalls.length, 1);
-		assertEquals(writeTextFileCalls[0].path, "/assets/assetSettings.json");
-		const assetSettings = JSON.parse(writeTextFileCalls[0].text);
-		assertExists(assetSettings.assets);
-		assertEquals(Object.entries(assetSettings.assets).length, 2);
-
-		uninstall();
+			assertEquals(writeTextFileCalls.length, 1);
+			assertEquals(writeTextFileCalls[0].path, "/assets/assetSettings.json");
+			const assetSettings = JSON.parse(writeTextFileCalls[0].text);
+			assertExists(assetSettings.assets);
+			assertEquals(Object.entries(assetSettings.assets).length, 2);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
@@ -463,44 +469,46 @@ Deno.test({
 	async fn() {
 		const {manager, uninstall, triggerWatchEvent, files} = await installMocks();
 
-		let didReloadAssetSettings = false;
-		manager.loadAssetSettings = async () => {
-			didReloadAssetSettings = true;
-		};
+		try {
+			let didReloadAssetSettings = false;
+			manager.loadAssetSettings = async () => {
+				didReloadAssetSettings = true;
+			};
 
-		// Two external changes should trigger two assetSettings.json writes,
-		// and as a result, two watch events for assetSettings.json
-		files.set("/assets/file1.dat", new Uint8Array([1, 1, 1]));
-		triggerWatchEvent({
-			kind: "create",
-			paths: ["/assets/file1.dat"],
-		});
-		files.set("/assets/file2.dat", new Uint8Array([2, 2, 2]));
-		triggerWatchEvent({
-			kind: "create",
-			paths: ["/assets/file2.dat"],
-		});
-		await waitForMicrotasks();
-		await manager.waitForHandleFileChangePromises();
+			// Two external changes should trigger two assetSettings.json writes,
+			// and as a result, two watch events for assetSettings.json
+			files.set("/assets/file1.dat", new Uint8Array([1, 1, 1]));
+			triggerWatchEvent({
+				kind: "create",
+				paths: ["/assets/file1.dat"],
+			});
+			files.set("/assets/file2.dat", new Uint8Array([2, 2, 2]));
+			triggerWatchEvent({
+				kind: "create",
+				paths: ["/assets/file2.dat"],
+			});
+			await waitForMicrotasks();
+			await manager.waitForHandleFileChangePromises();
 
-		assertEquals(didReloadAssetSettings, false);
+			assertEquals(didReloadAssetSettings, false);
 
-		// externally changing asset settings after a while should trigger a reload though
-		incrementTime(10_000);
+			// externally changing asset settings after a while should trigger a reload though
+			incrementTime(10_000);
 
-		files.set("/assets/assetSettings.json", JSON.stringify({
-			assets: {},
-		}));
-		triggerWatchEvent({
-			kind: "modify",
-			paths: ["/assets/assetSettings.json"],
-		});
-		await waitForMicrotasks();
-		await manager.waitForAssetSettingsLoad();
+			files.set("/assets/assetSettings.json", JSON.stringify({
+				assets: {},
+			}));
+			triggerWatchEvent({
+				kind: "modify",
+				paths: ["/assets/assetSettings.json"],
+			});
+			await waitForMicrotasks();
+			await manager.waitForAssetSettingsLoad();
 
-		assertEquals(didReloadAssetSettings, true);
-
-		uninstall();
+			assertEquals(didReloadAssetSettings, true);
+		} finally {
+			uninstall();
+		}
 	},
 });
 
