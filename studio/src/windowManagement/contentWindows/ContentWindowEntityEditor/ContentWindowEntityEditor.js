@@ -8,10 +8,12 @@ import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {EntitySavingManager} from "./EntitySavingManager.js";
 
+export const ENTITY_EDITOR_CONTENT_WINDOW_ID = /** @type {const} */ ("renda:entityEditor");
+
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
 export class ContentWindowEntityEditor extends ContentWindow {
-	static contentWindowTypeId = /** @type {const} */ ("renda:entityEditor");
+	static contentWindowTypeId = ENTITY_EDITOR_CONTENT_WINDOW_ID;
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/entityEditor.svg";
 	static scrollable = false;
