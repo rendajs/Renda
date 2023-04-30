@@ -197,6 +197,7 @@ export class SplitStudioWindow extends StudioWindow {
 		}
 		newWindow.setParent(this);
 		this.updateEls();
+		this.fireWorkspaceChangeCbs();
 	}
 
 	onResized() {
