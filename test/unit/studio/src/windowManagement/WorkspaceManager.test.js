@@ -40,7 +40,7 @@ Deno.test({
 			await manager1.addNewWorkspace("workspace 2");
 			assertEquals(await manager1.getCurrentWorkspaceId(), "workspace 2");
 
-			await manager1.saveActiveWorkspaceWindows({
+			await manager1.setActiveWorkspaceData({
 				type: "tabs",
 				tabTypes: ["type1"],
 				tabUuids: ["uuid1"],
@@ -85,7 +85,7 @@ Deno.test({
 		try {
 			const manager1 = new WorkspaceManager();
 			assertEquals(await manager1.getActiveWorkspaceData(), manager1.getDefaultWorkspace());
-			await manager1.saveActiveWorkspaceWindows({
+			await manager1.setActiveWorkspaceData({
 				type: "tabs",
 				tabTypes: ["type"],
 				tabUuids: ["uuid"],
@@ -138,7 +138,7 @@ Deno.test({
 		try {
 			const manager1 = new WorkspaceManager();
 			assertEquals(await manager1.getActiveWorkspaceData(), manager1.getDefaultWorkspace());
-			await manager1.saveActiveWorkspaceWindows({
+			await manager1.setActiveWorkspaceData({
 				type: "tabs",
 				tabTypes: ["type"],
 				tabUuids: ["uuid"],
@@ -166,7 +166,7 @@ Deno.test({
 		try {
 			const manager1 = new WorkspaceManager();
 			assertEquals(await manager1.getActiveWorkspaceData(), manager1.getDefaultWorkspace());
-			await manager1.saveActiveWorkspaceWindows({
+			await manager1.setActiveWorkspaceData({
 				type: "tabs",
 				tabTypes: ["type"],
 				tabUuids: ["uuid"],
@@ -234,7 +234,7 @@ Deno.test({
 			assertEquals(await manager2.getActiveWorkspaceData(), manager2.getDefaultWorkspace());
 
 			await manager2.addNewWorkspace("empty");
-			await manager2.saveActiveWorkspaceWindows({
+			await manager2.setActiveWorkspaceData({
 				type: "tabs",
 				tabTypes: ["type1"],
 				tabUuids: ["uuid1"],
@@ -281,7 +281,7 @@ Deno.test({
 			}, Error, "Cannot delete workspace when it's the only one.");
 
 			await manager1.addNewWorkspace("new");
-			await manager1.saveActiveWorkspaceWindows({
+			await manager1.setActiveWorkspaceData({
 				type: "tabs",
 				tabTypes: ["type1"],
 				tabUuids: ["uuid1"],
@@ -298,7 +298,7 @@ Deno.test({
 			assertEquals(await manager2.getActiveWorkspaceData(), manager2.getDefaultWorkspace());
 
 			await manager2.addNewWorkspace("new2");
-			await manager2.saveActiveWorkspaceWindows({
+			await manager2.setActiveWorkspaceData({
 				type: "tabs",
 				tabTypes: ["type2"],
 				tabUuids: ["uuid2"],

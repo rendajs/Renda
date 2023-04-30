@@ -107,7 +107,7 @@ export class WindowManager {
 	async saveWorkspace() {
 		const rootWindow = this.assertHasRootWindow();
 		const serializedRootWindow = this.serializeWorkspaceWindow(rootWindow);
-		await this.workspaceManager.saveActiveWorkspaceWindows(serializedRootWindow);
+		await this.workspaceManager.setActiveWorkspaceData(serializedRootWindow);
 	}
 
 	/**
