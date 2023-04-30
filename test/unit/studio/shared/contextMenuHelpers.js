@@ -1,4 +1,5 @@
-import {AssertionError, assertEquals, assertNotEquals, equal} from "std/testing/asserts.ts";
+import {AssertionError, assertEquals, assertExists, assertNotEquals, equal} from "std/testing/asserts.ts";
+import {spy} from "std/testing/mock.ts";
 
 /**
  * @param {import("../../../../studio/src/ui/popoverMenus/ContextMenu.js").ContextMenuItemOpts} itemOpts
@@ -131,4 +132,32 @@ export async function triggerContextMenuItem(structure, itemsPath, event = null)
 			}
 		}
 	}
+}
+
+/**
+ * Creates a popovermanager that you can use to get access to created context menus.
+ */
+export function createMockPopoverManager() {
+	const mockPopoverManager = /** @type {import("../../../../studio/src/ui/popoverMenus/PopoverManager.js").PopoverManager} */ ({
+		createContextMenu(structure) {
+			const contextMenu = /** @type {import("../../../../studio/src/ui/popoverMenus/ContextMenu.js").ContextMenu} */ ({
+				setPos(item) {},
+			});
+			return contextMenu;
+		},
+	});
+	const createContextMenuSpy = spy(mockPopoverManager, "createContextMenu");
+	return {
+		mockPopoverManager,
+		createContextMenuSpy,
+		getLastCreatedStructure() {
+			const lastCall = createContextMenuSpy.calls.at(-1);
+			if (!lastCall) {
+				throw new AssertionError("createContextMenu() was never called");
+			}
+			const structure = lastCall.args[0];
+			assertExists(structure);
+			return structure;
+		},
+	};
 }

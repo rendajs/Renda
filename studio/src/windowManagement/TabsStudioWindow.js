@@ -393,7 +393,7 @@ export class TabsStudioWindow extends StudioWindow {
 										{
 											text: "Save",
 											onClick: () => {
-												this.windowManager.saveWorkspace();
+												this.windowManager.saveActiveWorkspace();
 											},
 										},
 										{

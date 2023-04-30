@@ -2,12 +2,14 @@ import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {assert, assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
+import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
 import {assertIsType} from "../../../shared/typeAssertions.js";
+import {createMockPopoverManager, triggerContextMenuItem} from "../../shared/contextMenuHelpers.js";
+import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
@@ -64,6 +66,7 @@ const {ContentWindow} = ContentWindowMod;
 const CONTENT_WINDOW_UUID_1 = "uuid1";
 const CONTENT_WINDOW_UUID_2 = "uuid2";
 const CONTENT_WINDOW_UUID_3 = "uuid3";
+const CONTENT_WINDOW_UUID_4 = "uuid4";
 const CONTENT_WINDOW_TYPE_1 = "namespace:content window type 1";
 const CONTENT_WINDOW_TYPE_2 = "namespace:content window type 2";
 const CONTENT_WINDOW_TYPE_3 = "namespace:content window type 3";
@@ -72,29 +75,6 @@ const CONTENT_WINDOW_TYPE_4 = "namespace:content window type 4";
 /** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js")} */
 const WorkspaceManagerMod = await importer.import("../../../../../studio/src/windowManagement/WorkspaceManager.js");
 const {WorkspaceManager} = WorkspaceManagerMod;
-stub(WorkspaceManager.prototype, "getActiveWorkspaceData", async () => {
-	/** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js").WorkspaceData} */
-	const workspaceData = {
-		rootWindow: {
-			type: "split",
-			splitHorizontal: true,
-			splitPercentage: 0.5,
-			windowA: {
-				type: "tabs",
-				tabTypes: [CONTENT_WINDOW_TYPE_1, CONTENT_WINDOW_TYPE_2],
-				tabUuids: [CONTENT_WINDOW_UUID_1, CONTENT_WINDOW_UUID_2],
-				activeTabIndex: 0,
-			},
-			windowB: {
-				type: "tabs",
-				tabTypes: [CONTENT_WINDOW_TYPE_2, CONTENT_WINDOW_TYPE_3],
-				tabUuids: [CONTENT_WINDOW_UUID_2, CONTENT_WINDOW_UUID_3],
-				activeTabIndex: 0,
-			},
-		},
-	};
-	return workspaceData;
-});
 
 /**
  * @typedef {[name: string, value: string | boolean][]} SetValueCalls
@@ -126,11 +106,35 @@ const autoRegisterPreferences = /** @type {const} */ ({
 /**
  * @param {object} options
  * @param {(studio: import("../../../../../studio/src/Studio.js").Studio) => void} [options.beforeCreate]
+ * @param {import("../../../../../studio/src/windowManagement/WorkspaceManager.js").WorkspaceData} [options.getActiveWorkspaceDataReturn]
  */
 async function basicSetup({
 	beforeCreate,
+	getActiveWorkspaceDataReturn = {
+		rootWindow: {
+			type: "split",
+			splitHorizontal: true,
+			splitPercentage: 0.5,
+			windowA: {
+				type: "tabs",
+				tabTypes: [CONTENT_WINDOW_TYPE_1, CONTENT_WINDOW_TYPE_2],
+				tabUuids: [CONTENT_WINDOW_UUID_1, CONTENT_WINDOW_UUID_2],
+				activeTabIndex: 0,
+			},
+			windowB: {
+				type: "tabs",
+				tabTypes: [CONTENT_WINDOW_TYPE_2, CONTENT_WINDOW_TYPE_3],
+				tabUuids: [CONTENT_WINDOW_UUID_3, CONTENT_WINDOW_UUID_4],
+				activeTabIndex: 0,
+			},
+		},
+	},
 } = {}) {
 	installFakeDocument();
+
+	const getActiveWorkspaceDataSpy = stub(WorkspaceManager.prototype, "getActiveWorkspaceData", async () => {
+		return getActiveWorkspaceDataReturn;
+	});
 
 	/** @type {SetValueCalls} */
 	const shortcutConditionSetValueCalls = [];
@@ -165,6 +169,7 @@ async function basicSetup({
 	function cleanup() {
 		uninstallFakeDocument();
 		injectMockStudioInstance(null);
+		getActiveWorkspaceDataSpy.restore();
 	}
 
 	if (beforeCreate) beforeCreate(mockStudio);
@@ -278,6 +283,84 @@ Deno.test({
 });
 
 Deno.test({
+	name: "closing the last tab of a window",
+	async fn() {
+		const {studio, windowManager, cleanup} = await basicSetup({
+			getActiveWorkspaceDataReturn: {
+				rootWindow: {
+					type: "split",
+					splitHorizontal: true,
+					splitPercentage: 0.5,
+					windowA: {
+						type: "split",
+						splitHorizontal: true,
+						splitPercentage: 0.5,
+						windowA: {
+							type: "tabs",
+							tabTypes: [CONTENT_WINDOW_TYPE_1],
+							tabUuids: [CONTENT_WINDOW_UUID_1],
+							activeTabIndex: 0,
+						},
+						windowB: {
+							type: "tabs",
+							tabTypes: [CONTENT_WINDOW_TYPE_2],
+							tabUuids: [CONTENT_WINDOW_UUID_2],
+							activeTabIndex: 0,
+						},
+					},
+					windowB: {
+						type: "tabs",
+						tabTypes: [CONTENT_WINDOW_TYPE_2, CONTENT_WINDOW_TYPE_3],
+						tabUuids: [CONTENT_WINDOW_UUID_3, CONTENT_WINDOW_UUID_4],
+						activeTabIndex: 0,
+					},
+				},
+			},
+		});
+
+		try {
+			const {mockPopoverManager, getLastCreatedStructure} = createMockPopoverManager();
+			studio.popoverManager = mockPopoverManager;
+
+			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+			assertInstanceOf(windowManager.rootWindow.windowA, SplitStudioWindow);
+			const closingTabsWindow = windowManager.rootWindow.windowA.windowA;
+			assertInstanceOf(closingTabsWindow, TabsStudioWindow);
+
+			closingTabsWindow.onTabsContextMenu(closingTabsWindow.tabsSelectorGroup.buttons[0], new MouseEvent("contextmenu"));
+			const structure = getLastCreatedStructure();
+			triggerContextMenuItem(structure, ["Close Tab"]);
+
+			await waitForMicrotasks();
+
+			const data = await windowManager.workspaceManager.getActiveWorkspaceData();
+
+			assertEquals(data, {
+				rootWindow: {
+					splitHorizontal: true,
+					splitPercentage: 0.5,
+					type: "split",
+					windowA: {
+						type: "tabs",
+						activeTabIndex: 0,
+						tabTypes: [CONTENT_WINDOW_TYPE_2],
+						tabUuids: [CONTENT_WINDOW_UUID_2],
+					},
+					windowB: {
+						type: "tabs",
+						activeTabIndex: 0,
+						tabTypes: [CONTENT_WINDOW_TYPE_2, CONTENT_WINDOW_TYPE_3],
+						tabUuids: [CONTENT_WINDOW_UUID_3, CONTENT_WINDOW_UUID_4],
+					},
+				},
+			});
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
 	name: "lastClickedContentWindow",
 	async fn() {
 		const {windowManager, shortcutConditionSetValueCalls, cleanup} = await basicSetup();
@@ -285,8 +368,7 @@ Deno.test({
 		try {
 			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
 			assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
-			const e = new FakeMouseEvent("click");
-			windowManager.rootWindow.windowA.el.dispatchEvent(e);
+			windowManager.rootWindow.windowA.el.dispatchEvent(new MouseEvent("click"));
 
 			assertStrictEquals(windowManager.lastClickedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
 			assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastClickedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
@@ -330,8 +412,8 @@ Deno.test({
 				assertSpyCalls(addLocationSpy, 4);
 				assertEquals(addLocationSpy.calls[0].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_1);
 				assertEquals(addLocationSpy.calls[1].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
-				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
-				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
+				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
+				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_4);
 			} finally {
 				cleanup();
 			}
