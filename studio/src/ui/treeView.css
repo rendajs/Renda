@@ -18,9 +18,16 @@
 	visibility: hidden;
 }
 
-.treeViewButtons{
-	display: inline-block;
+.tree-view-after {
+	display: flex;
+	align-items: center;
 	margin-left: 5px;
+}
+
+.tree-view-after .tree-view-icon {
+	width: 1em;
+	height: 1em;
+	display: block;
 }
 
 .treeViewRenameField{
@@ -38,10 +45,10 @@
 	height: 16px;
 	border-radius: var(--selection-border-radius);
 	position: absolute;
-	transform: translate(-18px, 1px);
+	transform: translateX(-18px);
 }
 .treeViewArrowContainer:not(.collapsed){
-	transform: translate(-18px, 1px) rotate(90deg);
+	transform: translateX(-18px) rotate(90deg);
 }
 .treeViewArrowContainer.hover{
 	background: var(--text-color-level0);
@@ -73,6 +80,8 @@
 .treeViewRow{
 	border-radius: var(--selection-border-radius);
 	position: relative;
+	display: flex;
+	align-items: center;
 }
 .treeViewRow.selected{
 	background: var(--color-selected-blue);

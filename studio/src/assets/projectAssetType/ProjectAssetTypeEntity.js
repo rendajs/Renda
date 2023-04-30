@@ -4,16 +4,7 @@ import {objectToBinary} from "../../../../src/util/binarySerialization.js";
 
 export const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
 
-// This function is never called, but it is used for creating the
-// 'EntityWithAssetRootUuid' type without getting a TypeScript error.
-// See https://github.com/microsoft/TypeScript/issues/47259
-// eslint-disable-next-line no-unused-vars
-function getEntityWithAssetRootUuidType() {
-	const x = /** @type {unknown} */ (null);
-	const y = /** @type {Entity & {[entityAssetRootUuidSymbol]? : import("../../../../src/mod.js").UuidString}} */ (x);
-	return y;
-}
-/** @typedef {ReturnType<getEntityWithAssetRootUuidType>} EntityWithAssetRootUuid */
+/** @typedef {Entity & {[entityAssetRootUuidSymbol]? : import("../../../../src/mod.js").UuidString}} EntityWithAssetRootUuid */
 
 // todo: better types for generics
 /**

@@ -118,7 +118,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				this.selectEntityEditorDropDown.value = this.availableEntityEditorUuids.indexOf(this.linkedEntityEditor.uuid);
 			}
 			this.selectEntityEditorDropDownContainer.appendChild(this.selectEntityEditorDropDown.el);
-		} else if (this.selectEntityEditorDropDownContainer.hasChildNodes()) {
+		} else if (this.selectEntityEditorDropDownContainer.children.length > 0) {
 			this.selectEntityEditorDropDownContainer.removeChild(this.selectEntityEditorDropDown.el);
 		}
 	}
@@ -159,6 +159,13 @@ export class ContentWindowOutliner extends ContentWindow {
 		if (!treeView.collapsed) {
 			for (const child of entity.getChildren()) {
 				const childTreeView = treeView.addChild();
+
+				const castChild = /** @type {import("../../assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */ (child);
+				const rootUuid = castChild[entityAssetRootUuidSymbol];
+				if (rootUuid) {
+					childTreeView.addIcon("static/icons/contentWindowTabs/defaultAssetLinks.svg");
+				}
+
 				if (ctx.passedEntities.includes(child)) {
 					childTreeView.collapsed = true;
 					childTreeView.alwaysShowArrow = true;
