@@ -240,9 +240,11 @@ export class TreeView {
 
 		/** @type {import("./Button.js").Button[]} */
 		this.addedButtons = [];
-		this.buttonsEl = document.createElement("div");
-		this.buttonsEl.classList.add("treeViewButtons");
-		this.rowEl.appendChild(this.buttonsEl);
+		/** @type {HTMLSpanElement[]} */
+		this.addedIcons = [];
+		this.afterEl = document.createElement("div");
+		this.afterEl.classList.add("tree-view-after");
+		this.rowEl.appendChild(this.afterEl);
 
 		this.childrenEl = document.createElement("div");
 		this.childrenEl.classList.add("treeViewChildList");
@@ -418,7 +420,25 @@ export class TreeView {
 	 */
 	addButton(button) {
 		this.addedButtons.push(button);
-		this.buttonsEl.appendChild(button.el);
+		this.afterEl.appendChild(button.el);
+	}
+
+	/**
+	 * @param {string} iconUrl
+	 */
+	addIcon(iconUrl) {
+		const iconEl = document.createElement("span");
+		iconEl.classList.add("tree-view-icon");
+		iconEl.style.backgroundImage = `url(${iconUrl})`;
+
+		const colorizerFilterManager = getMaybeStudioInstance()?.colorizerFilterManager;
+		// TreeViews are sometimes used in tests without a mocked colorizerFilterManager
+		if (colorizerFilterManager) {
+			colorizerFilterManager.applyFilter(iconEl, "var(--default-button-text-color)");
+		}
+
+		this.addedIcons.push(iconEl);
+		this.afterEl.appendChild(iconEl);
 	}
 
 	/**
@@ -1360,6 +1380,20 @@ export class TreeView {
 			if (focus) focusSelected = true;
 		}
 		if (this.#focusSelectedShortcutCondition) this.#focusSelectedShortcutCondition.setValue(focusSelected);
+
+		const colorizerFilterManager = getMaybeStudioInstance()?.colorizerFilterManager;
+		// TreeViews are sometimes used in tests without a mocked colorizerFilterManager
+		if (colorizerFilterManager) {
+			let color;
+			if (focusSelected) {
+				color = "var(--selected-text-color)";
+			} else {
+				color = "var(--default-button-text-color)";
+			}
+			for (const iconEl of this.addedIcons) {
+				colorizerFilterManager.applyFilter(iconEl, color);
+			}
+		}
 	}
 
 	updateSelectedChildrenStyle() {
