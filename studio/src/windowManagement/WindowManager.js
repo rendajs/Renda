@@ -91,7 +91,7 @@ export class WindowManager {
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
 		this.rootWindow.onResized();
-		this.saveWorkspace();
+		this.saveActiveWorkspace();
 	}
 
 	assertHasRootWindow() {
@@ -104,7 +104,10 @@ export class WindowManager {
 		this.loadWorkspace(workspaceData);
 	}
 
-	async saveWorkspace() {
+	/**
+	 * Serializes the current state and saves it so that it is persisted across sessions.
+	 */
+	async saveActiveWorkspace() {
 		const rootWindow = this.assertHasRootWindow();
 		const serializedRootWindow = this.serializeWorkspaceWindow(rootWindow);
 		await this.workspaceManager.setActiveWorkspaceData(serializedRootWindow);
@@ -314,7 +317,7 @@ export class WindowManager {
 		rootWindow.setRoot();
 		rootWindow.onWorkspaceChange(() => {
 			if (!this.isLoadingWorkspace) {
-				this.saveWorkspace();
+				this.saveActiveWorkspace();
 			}
 		});
 	}
