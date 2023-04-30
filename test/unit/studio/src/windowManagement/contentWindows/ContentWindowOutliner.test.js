@@ -2,12 +2,13 @@ import "../../../shared/initializeStudio.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {ContentWindowOutliner} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowOutliner.js";
 import {getMockArgs} from "./shared.js";
-import {stub} from "std/testing/mock.ts";
-import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
+import {assertSpyCalls, spy, stub} from "std/testing/mock.ts";
+import {AssertionError, assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 import {ENTITY_EDITOR_CONTENT_WINDOW_ID} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {Entity} from "../../../../../../src/mod.js";
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
 import {entityAssetRootUuidSymbol} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 
 /**
  * @typedef ContentWindowOutlinerTestContext
@@ -56,6 +57,7 @@ function basictest({
 function createMockEntityEditor() {
 	const entityEditor = /** @type {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} */ ({
 		editingEntity: new Entity(),
+		notifyEntityChanged(entity, type) {},
 	});
 	return entityEditor;
 }
@@ -132,6 +134,78 @@ Deno.test({
 				const childTreeView = contentWindow.treeView.children[0];
 				assertExists(childTreeView);
 				assertEquals(childTreeView.afterEl.childElementCount, 1);
+			},
+		});
+	},
+});
+
+/**
+ * @param {ContentWindowOutliner} contentWindow
+ */
+function clickAddEntityButton(contentWindow) {
+	const buttons = Array.from(contentWindow.topButtonBar.children);
+	const button = buttons.find(el => "title" in el && el.title == "Add Entity");
+	if (!button) {
+		throw new AssertionError("Unable to find 'add entity' button");
+	}
+	button.dispatchEvent(new MouseEvent("click"));
+}
+
+Deno.test({
+	name: "'+' button creates a new entity on the root when nothing is selected",
+	fn() {
+		basictest({
+			fn({args, mockEntityEditor}) {
+				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
+				const contentWindow = new ContentWindowOutliner(...args);
+				clickAddEntityButton(contentWindow);
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "Entity",
+					children: [{name: "Entity"}],
+				});
+				assertSpyCalls(notifyEntityChangedSpy, 1);
+				assertStrictEquals(notifyEntityChangedSpy.calls[0].args[0], mockEntityEditor.editingEntity.children[0]);
+				assertEquals(notifyEntityChangedSpy.calls[0].args[1], "create");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "'+' button creates a new entity on the selected entities",
+	fn() {
+		basictest({
+			fn({args, mockEntityEditor}) {
+				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
+				const child1 = new Entity("child1");
+				mockEntityEditor.editingEntity.add(child1);
+				const child2 = new Entity("child2");
+				mockEntityEditor.editingEntity.add(child2);
+
+				const contentWindow = new ContentWindowOutliner(...args);
+				contentWindow.treeView.children[0].select();
+				contentWindow.treeView.children[1].select();
+				clickAddEntityButton(contentWindow);
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "Entity",
+					children: [
+						{
+							name: "child1",
+							children: [{name: "Entity"}],
+						},
+						{
+							name: "child2",
+							children: [{name: "Entity"}],
+						},
+					],
+				});
+				assertSpyCalls(notifyEntityChangedSpy, 2);
+
+				assertStrictEquals(notifyEntityChangedSpy.calls[0].args[0], child1.children[0]);
+				assertEquals(notifyEntityChangedSpy.calls[0].args[1], "create");
+
+				assertStrictEquals(notifyEntityChangedSpy.calls[1].args[0], child2.children[0]);
+				assertEquals(notifyEntityChangedSpy.calls[1].args[1], "create");
 			},
 		});
 	},

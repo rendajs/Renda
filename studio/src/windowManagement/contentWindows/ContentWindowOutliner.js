@@ -194,21 +194,26 @@ export class ContentWindowOutliner extends ContentWindow {
 	 */
 	createNew(name) {
 		if (!this.linkedEntityEditor) return;
-		const rootEnt = this.linkedEntityEditor.editingEntity;
-		let createdAny = false;
+		const rootEntity = this.linkedEntityEditor.editingEntity;
+		const createdEntities = [];
 		// todo: use selection manager
 		for (const indicesPath of this.treeView.getSelectionIndices()) {
-			const entity = rootEnt.getEntityByIndicesPath(indicesPath);
+			const entity = rootEntity.getEntityByIndicesPath(indicesPath);
 			if (!entity) continue;
-			const createdEnt = new Entity(name);
-			entity.add(createdEnt);
-			createdAny = true;
+			const createdEntity = new Entity(name);
+			entity.add(createdEntity);
+			createdEntities.push(createdEntity);
 		}
-		if (!createdAny) {
-			const createdEnt = new Entity(name);
-			rootEnt.add(createdEnt);
+		if (createdEntities.length == 0) {
+			const createdEntity = new Entity(name);
+			rootEntity.add(createdEntity);
+			createdEntities.push(createdEntity);
+		}
+		for (const entity of createdEntities) {
+			this.notifyEntityEditors(entity, "create");
 		}
 		this.updateTreeView();
+		return createdEntities;
 	}
 
 	/**
