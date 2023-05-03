@@ -44,7 +44,6 @@ export class WindowManager {
 		/** @type {ContentWindow?} */
 		this.lastClickedContentWindow = null;
 
-		this.isLoadingWorkspace = false;
 		this.workspaceManager = new WorkspaceManager();
 		this.workspaceManager.onActiveWorkspaceDataChange(() => {
 			this.reloadWorkspaceInstance.run();
@@ -63,7 +62,7 @@ export class WindowManager {
 
 		window.addEventListener("resize", () => {
 			if (this.rootWindow) {
-				this.rootWindow.onResized();
+				this.rootWindow.onResized("user");
 			}
 		});
 	}
@@ -80,17 +79,19 @@ export class WindowManager {
 
 	/**
 	 * @param {import("./StudioWindow.js").StudioWindow} newRootWindow
+	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 * @param {boolean} [destructOldRoot]
 	 */
-	replaceRootWindow(newRootWindow, destructOldRoot = true) {
+	replaceRootWindow(newRootWindow, trigger, destructOldRoot = true) {
 		if (this.rootWindow) {
+			this.rootWindow.removeOnWorkspaceChange(this.#onWorkspaceChange);
 			if (destructOldRoot) this.rootWindow.destructor();
 		}
 		this.rootWindow = newRootWindow;
 		this.markRootWindowAsRoot();
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
-		this.rootWindow.onResized();
+		this.rootWindow.onResized(trigger);
 		this.saveActiveWorkspace();
 	}
 
@@ -117,8 +118,6 @@ export class WindowManager {
 	 * @param {import("./WorkspaceManager.js").WorkspaceData} workspace
 	 */
 	loadWorkspace(workspace) {
-		this.isLoadingWorkspace = true;
-
 		if (this.rootWindow) {
 			this.rootWindow.destructor();
 		}
@@ -132,10 +131,23 @@ export class WindowManager {
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
 		this.rootWindow.init();
-		this.rootWindow.onResized();
-
-		this.isLoadingWorkspace = false;
+		this.rootWindow.onResized("load");
 	}
+
+	markRootWindowAsRoot() {
+		const rootWindow = this.assertHasRootWindow();
+		rootWindow.setRoot();
+		rootWindow.onWorkspaceChange(this.#onWorkspaceChange);
+	}
+
+	/**
+	 * @param {import("./StudioWindow.js").WorkspaceChangeEvent} event
+	 */
+	#onWorkspaceChange = event => {
+		if (event.trigger != "load") {
+			this.saveActiveWorkspace();
+		}
+	};
 
 	/**
 	 * @param {(data: unknown) => Promise<void>} cb
@@ -312,16 +324,6 @@ export class WindowManager {
 		this.onContentWindowPersistentDataFlushRequestCbs.delete(cb);
 	}
 
-	markRootWindowAsRoot() {
-		const rootWindow = this.assertHasRootWindow();
-		rootWindow.setRoot();
-		rootWindow.onWorkspaceChange(() => {
-			if (!this.isLoadingWorkspace) {
-				this.saveActiveWorkspace();
-			}
-		});
-	}
-
 	/**
 	 * @template {import("./WorkspaceManager.js").WorkspaceDataWindow?} T
 	 * @param {T} workspaceWindowData
@@ -344,9 +346,9 @@ export class WindowManager {
 			for (let i = 0; i < castWindowData.tabTypes.length; i++) {
 				let uuid = castWindowData.tabUuids?.[i];
 				if (!uuid) uuid = generateUuid();
-				castWindow.setTabType(i, castWindowData.tabTypes[i], uuid);
+				castWindow.setTabType(i, castWindowData.tabTypes[i], uuid, "load");
 			}
-			castWindow.setActiveTabIndex(castWindowData.activeTabIndex || 0);
+			castWindow.setActiveTabIndex(castWindowData.activeTabIndex || 0, "load");
 			castWindow.onTabChange(() => {
 				if (castWindow.activeTab) {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
@@ -463,7 +465,7 @@ export class WindowManager {
 		this.registeredContentWindows.set(constructor.contentWindowTypeId, constructor);
 
 		for (const w of this.allStudioWindows()) {
-			w.onContentWindowRegistered(constructor);
+			w.onContentWindowRegistered(constructor, "load");
 		}
 	}
 
@@ -562,7 +564,7 @@ export class WindowManager {
 					const castConstructor = /** @type {typeof ContentWindow} */ (castConstructorAny);
 					id = castConstructor.contentWindowTypeId;
 				}
-				const created = w.addTabType(id);
+				const created = w.addTabType(id, "application");
 				return /** @type {ContentWindowConstructorOrIdToInstance<T>} */ (created);
 			}
 		}
@@ -656,7 +658,7 @@ export class WindowManager {
 		if (!contentWindow) throw new Error("Failed to create content window.");
 		if (!contentWindow.parentStudioWindow) throw new Error("Assertion failed, content window has no parent window.");
 		contentWindow.parentStudioWindow.focus();
-		contentWindow.parentStudioWindow.setActiveContentWindow(contentWindow);
+		contentWindow.parentStudioWindow.setActiveContentWindow(contentWindow, "application");
 		return /** @type {ContentWindowConstructorOrIdToInstance<T>} */ (contentWindow);
 	}
 

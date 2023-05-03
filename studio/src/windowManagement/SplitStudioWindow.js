@@ -46,8 +46,6 @@ export class SplitStudioWindow extends StudioWindow {
 		this.windowB = windowB;
 		if (this.windowA) this.windowA.setParent(this);
 		if (this.windowB) this.windowB.setParent(this);
-		if (this.windowA) this.windowA.onWorkspaceChange(() => this.fireWorkspaceChangeCbs());
-		if (this.windowB) this.windowB.onWorkspaceChange(() => this.fireWorkspaceChangeCbs());
 	}
 
 	init() {
@@ -111,10 +109,11 @@ export class SplitStudioWindow extends StudioWindow {
 	 */
 	#onResizerMove = e => {
 		if (!this.resizeStartBounds) return;
-		this.calcNewPercentage(
+		this.calculateNewPercentage(
 			this.splitHorizontal ? this.resizeStartBounds.top : this.resizeStartBounds.left,
 			this.splitHorizontal ? this.resizeStartBounds.bottom : this.resizeStartBounds.right,
-			this.splitHorizontal ? e.clientY : e.clientX
+			this.splitHorizontal ? e.clientY : e.clientX,
+			"user"
 		);
 	};
 
@@ -122,19 +121,21 @@ export class SplitStudioWindow extends StudioWindow {
 	 * @param {number} boundStart
 	 * @param {number} boundEnd
 	 * @param {number} newValue
+	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 */
-	calcNewPercentage(boundStart, boundEnd, newValue) {
+	calculateNewPercentage(boundStart, boundEnd, newValue, trigger) {
 		const newPercentage = mapValue(boundStart, boundEnd, 0, 1, newValue);
-		this.setNewSplitPercentage(newPercentage);
+		this.setNewSplitPercentage(newPercentage, trigger);
 	}
 
 	/**
 	 * @param {number} newPercentage
+	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 */
-	setNewSplitPercentage(newPercentage) {
+	setNewSplitPercentage(newPercentage, trigger) {
 		this.splitPercentage = clamp01(newPercentage);
 		this.updateSplit();
-		this.onResized();
+		this.onResized(trigger);
 	}
 
 	#onResizerUp = () => {
@@ -164,8 +165,9 @@ export class SplitStudioWindow extends StudioWindow {
 
 	/**
 	 * @param {StudioWindow} closedSplitWindow
+	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 */
-	unsplitWindow(closedSplitWindow) {
+	unsplitWindow(closedSplitWindow, trigger) {
 		let remainingWindow;
 		if (closedSplitWindow === this.windowA) {
 			remainingWindow = this.windowB;
@@ -178,9 +180,9 @@ export class SplitStudioWindow extends StudioWindow {
 			throw new Error("closedSplitWindow is not a child of this split window.");
 		}
 		if (this.isRoot) {
-			this.windowManager.replaceRootWindow(remainingWindow);
+			this.windowManager.replaceRootWindow(remainingWindow, trigger);
 		} else if (this.parent && this.parent instanceof SplitStudioWindow) {
-			this.parent.replaceWindow(this, remainingWindow);
+			this.parent.replaceWindow(this, remainingWindow, trigger);
 			this.destructor();
 		}
 	}
@@ -188,8 +190,9 @@ export class SplitStudioWindow extends StudioWindow {
 	/**
 	 * @param {StudioWindow} oldWindow
 	 * @param {StudioWindow} newWindow
+	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 */
-	replaceWindow(oldWindow, newWindow) {
+	replaceWindow(oldWindow, newWindow, trigger) {
 		if (this.windowA === oldWindow) {
 			this.windowA = newWindow;
 		} else if (this.windowB === oldWindow) {
@@ -197,13 +200,16 @@ export class SplitStudioWindow extends StudioWindow {
 		}
 		newWindow.setParent(this);
 		this.updateEls();
-		this.fireWorkspaceChangeCbs();
+		this.fireWorkspaceChangeCbs({trigger});
 	}
 
-	onResized() {
-		super.onResized();
-		if (this.windowA) this.windowA.onResized();
-		if (this.windowB) this.windowB.onResized();
-		this.fireWorkspaceChangeCbs();
+	/**
+	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
+	 */
+	onResized(trigger) {
+		super.onResized(trigger);
+		if (this.windowA) this.windowA.onResized(trigger);
+		if (this.windowB) this.windowB.onResized(trigger);
+		this.fireWorkspaceChangeCbs({trigger});
 	}
 }

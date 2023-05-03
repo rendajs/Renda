@@ -104,9 +104,12 @@ export class ContentWindow {
 		this.parentStudioWindow = parentStudioWindow;
 	}
 
-	detachParentStudioWindow() {
+	/**
+	 * @param {import("../StudioWindow.js").WorkspaceChangeTrigger} trigger
+	 */
+	detachParentStudioWindow(trigger) {
 		if (!this.parentStudioWindow) return;
-		this.parentStudioWindow.contentWindowDetached(this);
+		this.parentStudioWindow.contentWindowDetached(this, trigger);
 		this.parentStudioWindow = null;
 	}
 
