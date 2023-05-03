@@ -1,9 +1,20 @@
+/** @typedef {"user" | "application" | "load"} WorkspaceChangeTrigger */
+/**
+ * @typedef WorkspaceChangeEvent
+ * @property {WorkspaceChangeTrigger} trigger
+ */
+
 export class StudioWindow {
 	#focusWithin = false;
 	/** @type {Set<(hasFocus: boolean) => any>} */
 	#onFocusedChangeCbs = new Set();
 	/** @type {Set<(e: MouseEvent) => any>} */
 	#onClickWithinCbs = new Set();
+
+	/** @typedef {(event: WorkspaceChangeEvent)  => void} OnWorkspaceChangeCallback */
+
+	/** @type {Set<OnWorkspaceChangeCallback>} */
+	#onWorkspaceChangeCbs = new Set();
 
 	/**
 	 * @param {import("./WindowManager.js").WindowManager} windowManager
@@ -26,16 +37,13 @@ export class StudioWindow {
 		this.el.addEventListener("focusout", e => {
 			this.#updateFocusWithin(e.relatedTarget);
 		});
-
-		/** @type {Set<function() : void>} */
-		this.onWorkspaceChangeCbs = new Set();
 	}
 
 	destructor() {
 		if (this.el && this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
-		this.onWorkspaceChangeCbs.clear();
+		this.#onWorkspaceChangeCbs.clear();
 	}
 
 	init() {}
@@ -83,8 +91,9 @@ export class StudioWindow {
 
 	/**
 	 * @param {typeof import("./contentWindows/ContentWindow.js").ContentWindow} constructor
+	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 */
-	onContentWindowRegistered(constructor) {}
+	onContentWindowRegistered(constructor, trigger) {}
 
 	/**
 	 * @param {StudioWindow} parent
@@ -102,21 +111,39 @@ export class StudioWindow {
 
 	/**
 	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 */
-	contentWindowDetached(contentWindow) {}
-
-	onResized() {}
+	contentWindowDetached(contentWindow, trigger) {}
 
 	/**
-	 * @param {function() : void} cb
+	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
+	 */
+	onResized(trigger) {}
+
+	/**
+	 * @param {OnWorkspaceChangeCallback} cb
 	 */
 	onWorkspaceChange(cb) {
-		this.onWorkspaceChangeCbs.add(cb);
+		this.#onWorkspaceChangeCbs.add(cb);
 	}
 
-	fireWorkspaceChangeCbs() {
-		for (const cb of this.onWorkspaceChangeCbs) {
-			cb();
+	/**
+	 * @param {OnWorkspaceChangeCallback} cb
+	 */
+	removeOnWorkspaceChange(cb) {
+		this.#onWorkspaceChangeCbs.delete(cb);
+	}
+
+	/**
+	 * @param {WorkspaceChangeEvent} event
+	 */
+	fireWorkspaceChangeCbs(event) {
+		if (this.parent) {
+			this.parent.fireWorkspaceChangeCbs(event);
+		} else {
+			for (const cb of this.#onWorkspaceChangeCbs) {
+				cb(event);
+			}
 		}
 	}
 }
