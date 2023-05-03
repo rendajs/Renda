@@ -40,14 +40,14 @@ export async function getSelectedEntryPoint(projectSettingsManager, contentWindo
 }
 
 export class EntryPointPopover extends Popover {
-	/** @type {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager?} */
-	#projectSettings = null;
+	/** @type {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} */
+	#projectSettings;
 
-	/** @type {import("../../../assets/AssetManager.js").AssetManager?} */
-	#assetManager = null;
+	/** @type {import("../../../assets/AssetManager.js").AssetManager} */
+	#assetManager;
 
-	/** @type {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData?} */
-	#persistentData = null;
+	/** @type {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} */
+	#persistentData;
 
 	/** @type {HTMLElement?} */
 	#currentSelectorEl = null;
@@ -56,10 +56,17 @@ export class EntryPointPopover extends Popover {
 	#droppableGui;
 
 	/**
-	 * @param {ConstructorParameters<typeof Popover>} args
+	 * @param {ConstructorParameters<typeof Popover>[0]} popoverManager
+	 * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
+	 * @param {import("../../../assets/AssetManager.js").AssetManager} assetManager
+	 * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} persistentData
 	 */
-	constructor(...args) {
-		super(...args);
+	constructor(popoverManager, projectSettingsManager, assetManager, persistentData) {
+		super(popoverManager);
+
+		this.#projectSettings = projectSettingsManager;
+		this.#assetManager = assetManager;
+		this.#persistentData = persistentData;
 
 		this.#selectorContainer = document.createElement("div");
 		this.el.appendChild(this.#selectorContainer);
@@ -84,21 +91,6 @@ export class EntryPointPopover extends Popover {
 		});
 
 		addContainer.appendChild(addButton.el);
-	}
-
-	/**
-	 * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
-	 * @param {import("../../../assets/AssetManager.js").AssetManager} assetManager
-	 * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} persistentData
-	 */
-	initialize(projectSettingsManager, assetManager, persistentData) {
-		if (this.#projectSettings) {
-			throw new Error("Error initializing EntryPointPopover: already initialized.");
-		}
-
-		this.#projectSettings = projectSettingsManager;
-		this.#assetManager = assetManager;
-		this.#persistentData = persistentData;
 
 		this.#loadPreferences();
 	}

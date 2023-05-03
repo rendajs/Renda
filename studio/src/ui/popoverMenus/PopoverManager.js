@@ -40,30 +40,14 @@ export class PopoverManager {
 	 * Adds a new popover instance to the manager. Returns the instantiated popover which can then be further configured
 	 * using the instantiate() method.
 	 *
-	 * @template {Popover} T
-	 * @param {new (...args: any[]) => T} PopoverConstructor The popover class constructor to add. Defaults to Popover.
+	 * @template {Popover} TConstructor
+	 * @template {any[]} TArgs
+	 * @param {new (manager: PopoverManager, ...args: TArgs) => TConstructor} PopoverConstructor The popover class constructor to add. Defaults to Popover.
+	 * @param {TArgs} args
 	 */
-	addPopover(PopoverConstructor = /** @type  {new (...args: any[]) => T} */ (Popover)) {
-		return this.#setupPopover(new PopoverConstructor(this));
-	}
+	addPopover(PopoverConstructor = /** @type  {new (...args: any[]) => TConstructor} */ (Popover), ...args) {
+		const popover = new PopoverConstructor(this, ...args);
 
-	/**
-	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
-	 * @returns {ContextMenu}
-	 */
-	createContextMenu(structure = null) {
-		return this.#setupPopover(new ContextMenu(this, {structure}));
-	}
-
-	/**
-	 * Performs setup code common to addPopover and createContextMenu.
-	 * TODO: integrate createContextMenu and addPopover into a single method, and remove this method.
-	 *
-	 * @template {Popover} T
-	 * @param {T} popover Popover to set up
-	 * @returns {T}
-	 */
-	#setupPopover(popover) {
 		popover.onNeedsCurtainChange(this.#updateCurtainActive);
 		this.#activePopovers.push(popover);
 		this.#updateCurtainActive();
@@ -76,6 +60,14 @@ export class PopoverManager {
 		});
 
 		return popover;
+	}
+
+	/**
+	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
+	 * @returns {ContextMenu}
+	 */
+	createContextMenu(structure = null) {
+		return this.addPopover(ContextMenu, {structure});
 	}
 
 	getLastPopover() {
