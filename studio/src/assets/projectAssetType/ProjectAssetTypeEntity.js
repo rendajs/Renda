@@ -72,7 +72,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (!jsonData) {
 			return new Entity();
 		}
-		const ent = new Entity({
+		const entity = new Entity({
 			name: jsonData.name || "",
 			matrix: jsonData.matrix,
 		});
@@ -84,7 +84,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 					throw new Error(`Unable to create component with uuid ${componentUuid}. Unknown component type.`);
 				}
 				const componentPropertyValues = this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
-				ent.addComponent(ComponentConstructor, componentPropertyValues, {
+				entity.addComponent(ComponentConstructor, componentPropertyValues, {
 					studioOpts: {
 						studioAssetTypeManager: this.projectAssetTypeManager,
 						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
@@ -96,8 +96,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (jsonData.children) {
 			for (const childJson of jsonData.children) {
 				if (childJson.assetUuid) {
-					const insertionIndex = ent.childCount;
-					ent.add(new Entity());
+					const insertionIndex = entity.childCount;
+					entity.add(new Entity());
 					recursionTracker.getLiveAsset(childJson.assetUuid, child => {
 						if (child) {
 							child = child.clone();
@@ -106,18 +106,18 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 						}
 						const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
 						castChild[entityAssetRootUuidSymbol] = childJson.assetUuid;
-						ent.removeAtIndex(insertionIndex); // Remove the old dummy entity
-						ent.addAtIndex(child, insertionIndex);
+						entity.removeAtIndex(insertionIndex); // Remove the old dummy entity
+						entity.addAtIndex(child, insertionIndex);
 					}, {
 						assertAssetType: ProjectAssetTypeEntity,
 					});
 				} else {
 					const child = this.createEntityFromJsonData(childJson, recursionTracker);
-					ent.add(child);
+					entity.add(child);
 				}
 			}
 		}
-		return ent;
+		return entity;
 	}
 
 	/**
