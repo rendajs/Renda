@@ -83,14 +83,14 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				if (!ComponentConstructor) {
 					throw new Error(`Unable to create component with uuid ${componentUuid}. Unknown component type.`);
 				}
-				const componentPropertyValues = this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
-				entity.addComponent(ComponentConstructor, componentPropertyValues, {
+				const createdComponent = entity.addComponent(ComponentConstructor, {}, {
 					studioOpts: {
 						studioAssetTypeManager: this.projectAssetTypeManager,
 						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 						assetManager: this.assetManager,
 					},
 				});
+				this.fillComponentPropertyValuesFromJson(createdComponent, component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
 			}
 		}
 		if (jsonData.children) {
@@ -121,19 +121,17 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	}
 
 	/**
+	 * @param {*} newParentObject
 	 * @param {*} jsonData
 	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?} componentProperties
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	getComponentPropertyValuesFromJson(jsonData, componentProperties, recursionTracker) {
-		/** @type {Object<string, unknown>} */
-		const newPropertyValues = {};
+	fillComponentPropertyValuesFromJson(newParentObject, jsonData, componentProperties, recursionTracker) {
 		if (componentProperties) {
 			for (const [name, propertyData] of Object.entries(componentProperties)) {
-				this.fillComponentPropertyValueFromJson(newPropertyValues, jsonData, name, propertyData.type, propertyData.guiOpts, recursionTracker);
+				this.fillComponentPropertyValueFromJson(newParentObject, jsonData, name, propertyData.type, propertyData.guiOpts, recursionTracker);
 			}
 		}
-		return newPropertyValues;
 	}
 
 	/**
