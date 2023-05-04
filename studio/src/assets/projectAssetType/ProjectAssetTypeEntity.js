@@ -35,7 +35,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 */
 	async getLiveAssetData(json, recursionTracker) {
 		/** @type {EntityWithAssetRootUuid} */
-		const liveAsset = await this.createEntityFromJsonData(json, recursionTracker);
+		const liveAsset = this.createEntityFromJsonData(json, recursionTracker);
 		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
 		return {liveAsset, studioData: null};
 	}
@@ -68,7 +68,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {*} jsonData
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async createEntityFromJsonData(jsonData, recursionTracker) {
+	createEntityFromJsonData(jsonData, recursionTracker) {
 		if (!jsonData) {
 			return new Entity();
 		}
@@ -83,7 +83,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				if (!ComponentConstructor) {
 					throw new Error(`Unable to create component with uuid ${componentUuid}. Unknown component type.`);
 				}
-				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
+				const componentPropertyValues = this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
 				ent.addComponent(ComponentConstructor, componentPropertyValues, {
 					studioOpts: {
 						studioAssetTypeManager: this.projectAssetTypeManager,
@@ -112,7 +112,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 						assertAssetType: ProjectAssetTypeEntity,
 					});
 				} else {
-					const child = await this.createEntityFromJsonData(childJson, recursionTracker);
+					const child = this.createEntityFromJsonData(childJson, recursionTracker);
 					ent.add(child);
 				}
 			}
@@ -125,12 +125,12 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?} componentProperties
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async getComponentPropertyValuesFromJson(jsonData, componentProperties, recursionTracker) {
+	getComponentPropertyValuesFromJson(jsonData, componentProperties, recursionTracker) {
 		/** @type {Object<string, unknown>} */
 		const newPropertyValues = {};
 		if (componentProperties) {
 			for (const [name, propertyData] of Object.entries(componentProperties)) {
-				await this.fillComponentPropertyValueFromJson(newPropertyValues, jsonData, name, propertyData.type, propertyData.guiOpts, recursionTracker);
+				this.fillComponentPropertyValueFromJson(newPropertyValues, jsonData, name, propertyData.type, propertyData.guiOpts, recursionTracker);
 			}
 		}
 		return newPropertyValues;
@@ -144,7 +144,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {import("../../ui/propertiesTreeView/types.js").GuiOptionsBase | undefined} propertyGuiOpts
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts, recursionTracker) {
+	fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts, recursionTracker) {
 		const propertyValue = originalParentObject[propertyKey];
 		if (propertyValue == null) {
 			newParentObject[propertyKey] = null;
@@ -153,7 +153,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			const newArr = [];
 			const arrayGuiOpts = /** @type {import("../../ui/ArrayGui.js").ArrayGuiOptions<any>} */ (propertyGuiOpts);
 			for (const i of propertyValue.keys()) {
-				await this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, arrayGuiOpts.arrayType, arrayGuiOpts.arrayGuiOpts, recursionTracker);
+				this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, arrayGuiOpts.arrayType, arrayGuiOpts.arrayGuiOpts, recursionTracker);
 			}
 			newParentObject[propertyKey] = newArr;
 		// todo: support for other types
