@@ -30,7 +30,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	}
 
 	/**
-	 * @param {*} json
+	 * @param {import("../../../../src/core/Entity.js").EntityJsonData} json
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(json, recursionTracker) {
@@ -65,7 +65,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	}
 
 	/**
-	 * @param {*} jsonData
+	 * @param {Object<string, any>} jsonData
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	createEntityFromJsonData(jsonData, recursionTracker) {
@@ -121,8 +121,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	}
 
 	/**
-	 * @param {*} newParentObject
-	 * @param {*} jsonData
+	 * @param {{}} newParentObject
+	 * @param {Object<string, any>} jsonData
 	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?} componentProperties
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
@@ -135,8 +135,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	}
 
 	/**
-	 * @param {*} newParentObject
-	 * @param {*} originalParentObject
+	 * @param {any} newParentObject
+	 * @param {Object<string, any>} originalParentObject
 	 * @param {string} propertyKey
 	 * @param {import("../../ui/propertiesTreeView/types.js").GuiTypes | undefined} propertyType
 	 * @param {import("../../ui/propertiesTreeView/types.js").GuiOptionsBase | undefined} propertyGuiOpts
