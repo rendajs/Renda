@@ -1,11 +1,105 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import "../../../shared/initializeStudio.js";
 import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
-import {Entity, MeshComponent} from "../../../../../../src/mod.js";
+import {Component, Entity, Mat4, MeshComponent} from "../../../../../../src/mod.js";
+import {createMockDependencies, getMockRecursionTracker} from "./shared.js";
+import {assertVecAlmostEquals} from "../../../../shared/asserts.js";
+import {createTreeViewStructure} from "../../../../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000000";
+const BASIC_COMPONENT_UUID = "basic component uuid";
+
+Deno.test({
+	name: "getLiveAssetData basic entity",
+	async fn() {
+		const {projectAssetTypeArgs} = createMockDependencies();
+		const recursionTracker = getMockRecursionTracker();
+		const assetType = new ProjectAssetTypeEntity(...projectAssetTypeArgs);
+
+		const result = await assetType.getLiveAssetData({
+			name: "my entity",
+			children: [
+				{
+					name: "child1",
+					matrix: Mat4.createTranslation(1, 2, 3).getFlatArray(),
+				},
+				{
+					name: "child2",
+				},
+			],
+		}, recursionTracker);
+		assertEquals(result.studioData, null);
+
+		const entity = result.liveAsset;
+		assertInstanceOf(entity, Entity);
+		assertEquals(entity.name, "my entity");
+		assertEquals(entity.childCount, 2);
+		assertEquals(entity.children[0].name, "child1");
+		assertVecAlmostEquals(entity.children[0].pos, [1, 2, 3]);
+		assertEquals(entity.children[1].name, "child2");
+		assertVecAlmostEquals(entity.children[1].pos, [0, 0, 0]);
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData entity with component",
+	async fn() {
+		const {projectAssetTypeArgs, studio} = createMockDependencies();
+		const recursionTracker = getMockRecursionTracker();
+		const assetType = new ProjectAssetTypeEntity(...projectAssetTypeArgs);
+
+		class FooComponent extends Component {
+			/**
+			 * @override
+			 */
+			static get guiStructure() {
+				return createTreeViewStructure({
+					foo: {
+						type: "string",
+					},
+				});
+			}
+
+			/**
+			 * @param {import("../../../../../../src/components/types.js").ComponentPropertyValues<any>} propertyValues
+			 * @param {import("../../../../../../src/components/Component.js").ComponentConstructorRestArgs} args
+			 */
+			constructor(propertyValues = {}, ...args) {
+				super();
+
+				this.foo = "bar";
+
+				this.initValues(propertyValues, ...args);
+			}
+		}
+
+		studio.componentTypeManager = /** @type {import("../../../../../../src/components/ComponentTypeManager.js").ComponentTypeManager} */ ({});
+		stub(studio.componentTypeManager, "getComponentConstructorForUuid", uuid => {
+			if (uuid == BASIC_COMPONENT_UUID) {
+				return FooComponent;
+			}
+			throw new Error("component uuid not found in test: " + uuid);
+		});
+
+		const result = await assetType.getLiveAssetData({
+			components: [
+				{
+					uuid: BASIC_COMPONENT_UUID,
+					propertyValues: {
+						foo: "baz",
+					},
+				},
+			],
+		}, recursionTracker);
+
+		assertEquals(result.liveAsset.components.length, 1);
+		const component = result.liveAsset.components[0];
+		assertInstanceOf(component, FooComponent);
+		assertEquals(component.foo, "baz");
+	},
+});
 
 Deno.test("reload component values when changed", async () => {
 	const initialMesh = {};
