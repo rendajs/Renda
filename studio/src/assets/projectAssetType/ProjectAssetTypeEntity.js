@@ -30,12 +30,12 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	}
 
 	/**
-	 * @param {*} json
+	 * @param {import("../../../../src/core/Entity.js").EntityJsonData} json
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(json, recursionTracker) {
 		/** @type {EntityWithAssetRootUuid} */
-		const liveAsset = await this.createEntityFromJsonData(json, recursionTracker);
+		const liveAsset = this.createEntityFromJsonData(json, recursionTracker);
 		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
 		return {liveAsset, studioData: null};
 	}
@@ -65,14 +65,14 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	}
 
 	/**
-	 * @param {*} jsonData
+	 * @param {Object<string, any>} jsonData
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async createEntityFromJsonData(jsonData, recursionTracker) {
+	createEntityFromJsonData(jsonData, recursionTracker) {
 		if (!jsonData) {
 			return new Entity();
 		}
-		const ent = new Entity({
+		const entity = new Entity({
 			name: jsonData.name || "",
 			matrix: jsonData.matrix,
 		});
@@ -83,21 +83,21 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				if (!ComponentConstructor) {
 					throw new Error(`Unable to create component with uuid ${componentUuid}. Unknown component type.`);
 				}
-				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
-				ent.addComponent(ComponentConstructor, componentPropertyValues, {
+				const createdComponent = entity.addComponent(ComponentConstructor, {}, {
 					studioOpts: {
 						studioAssetTypeManager: this.projectAssetTypeManager,
 						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 						assetManager: this.assetManager,
 					},
 				});
+				this.fillComponentPropertyValuesFromJson(createdComponent, component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
 			}
 		}
 		if (jsonData.children) {
 			for (const childJson of jsonData.children) {
 				if (childJson.assetUuid) {
-					const insertionIndex = ent.childCount;
-					ent.add(new Entity());
+					const insertionIndex = entity.childCount;
+					entity.add(new Entity());
 					recursionTracker.getLiveAsset(childJson.assetUuid, child => {
 						if (child) {
 							child = child.clone();
@@ -106,45 +106,43 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 						}
 						const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
 						castChild[entityAssetRootUuidSymbol] = childJson.assetUuid;
-						ent.removeAtIndex(insertionIndex); // Remove the old dummy entity
-						ent.addAtIndex(child, insertionIndex);
+						entity.removeAtIndex(insertionIndex); // Remove the old dummy entity
+						entity.addAtIndex(child, insertionIndex);
 					}, {
 						assertAssetType: ProjectAssetTypeEntity,
 					});
 				} else {
-					const child = await this.createEntityFromJsonData(childJson, recursionTracker);
-					ent.add(child);
+					const child = this.createEntityFromJsonData(childJson, recursionTracker);
+					entity.add(child);
 				}
 			}
 		}
-		return ent;
+		return entity;
 	}
 
 	/**
-	 * @param {*} jsonData
+	 * @param {{}} newParentObject
+	 * @param {Object<string, any>} jsonData
 	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?} componentProperties
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async getComponentPropertyValuesFromJson(jsonData, componentProperties, recursionTracker) {
-		/** @type {Object<string, unknown>} */
-		const newPropertyValues = {};
+	fillComponentPropertyValuesFromJson(newParentObject, jsonData, componentProperties, recursionTracker) {
 		if (componentProperties) {
 			for (const [name, propertyData] of Object.entries(componentProperties)) {
-				await this.fillComponentPropertyValueFromJson(newPropertyValues, jsonData, name, propertyData.type, propertyData.guiOpts, recursionTracker);
+				this.fillComponentPropertyValueFromJson(newParentObject, jsonData, name, propertyData.type, propertyData.guiOpts, recursionTracker);
 			}
 		}
-		return newPropertyValues;
 	}
 
 	/**
-	 * @param {*} newParentObject
-	 * @param {*} originalParentObject
+	 * @param {any} newParentObject
+	 * @param {Object<string, any>} originalParentObject
 	 * @param {string} propertyKey
 	 * @param {import("../../ui/propertiesTreeView/types.js").GuiTypes | undefined} propertyType
 	 * @param {import("../../ui/propertiesTreeView/types.js").GuiOptionsBase | undefined} propertyGuiOpts
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts, recursionTracker) {
+	fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts, recursionTracker) {
 		const propertyValue = originalParentObject[propertyKey];
 		if (propertyValue == null) {
 			newParentObject[propertyKey] = null;
@@ -153,7 +151,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			const newArr = [];
 			const arrayGuiOpts = /** @type {import("../../ui/ArrayGui.js").ArrayGuiOptions<any>} */ (propertyGuiOpts);
 			for (const i of propertyValue.keys()) {
-				await this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, arrayGuiOpts.arrayType, arrayGuiOpts.arrayGuiOpts, recursionTracker);
+				this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, arrayGuiOpts.arrayType, arrayGuiOpts.arrayGuiOpts, recursionTracker);
 			}
 			newParentObject[propertyKey] = newArr;
 		// todo: support for other types
