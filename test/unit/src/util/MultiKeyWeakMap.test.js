@@ -1,23 +1,11 @@
 import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {MultiKeyWeakMap} from "../../../../src/mod.js";
-import {forceCleanup, forceCleanupAll, installMockWeakRef, uninstallMockWeakRef} from "../../shared/mockWeakRef.js";
-
-/**
- * @param {() => void} fn
- */
-function runWithMocks(fn) {
-	try {
-		installMockWeakRef();
-		fn();
-	} finally {
-		uninstallMockWeakRef();
-	}
-}
+import {forceCleanup, forceCleanupAll, runWithMockWeakRef} from "../../shared/mockWeakRef.js";
 
 Deno.test({
 	name: "Constructing with values",
 	fn() {
-		runWithMocks(() => {
+		runWithMockWeakRef(() => {
 			const symA = Symbol("a");
 			const symB = Symbol("b");
 			const map = new MultiKeyWeakMap([
@@ -34,7 +22,7 @@ Deno.test({
 Deno.test({
 	name: "Getting and setting values with different key lengths",
 	fn() {
-		runWithMocks(() => {
+		runWithMockWeakRef(() => {
 			const map = new MultiKeyWeakMap();
 			const symA = Symbol("a");
 			const symB = Symbol("b");
@@ -75,7 +63,7 @@ Deno.test({
 Deno.test({
 	name: "Overwriting keys",
 	fn() {
-		runWithMocks(() => {
+		runWithMockWeakRef(() => {
 			const map = new MultiKeyWeakMap();
 			const symA = Symbol("a");
 			const symB = Symbol("b");
@@ -102,7 +90,7 @@ Deno.test({
 Deno.test({
 	name: "Deleting keys",
 	fn() {
-		runWithMocks(() => {
+		runWithMockWeakRef(() => {
 			const map = new MultiKeyWeakMap();
 			const symA = Symbol("a");
 			const symB = Symbol("b");
@@ -136,7 +124,7 @@ Deno.test({
 Deno.test({
 	name: "Deleting key that has been garbage collected",
 	fn() {
-		runWithMocks(() => {
+		runWithMockWeakRef(() => {
 			const map = new MultiKeyWeakMap();
 			const symA = Symbol("a");
 			const symB = Symbol("b");
@@ -155,7 +143,7 @@ Deno.test({
 Deno.test({
 	name: "Using non-objects as keys throws by default",
 	fn() {
-		runWithMocks(() => {
+		runWithMockWeakRef(() => {
 			assertThrows(() => {
 				new MultiKeyWeakMap([[["a", "b"], 1]]);
 			}, Error, "MultiKeyWeakMap only supports objects as keys. If you want to use non-objects as keys, set allowNonObjects to true.");
@@ -191,7 +179,7 @@ Deno.test({
 		];
 
 		for (const test of tests) {
-			runWithMocks(() => {
+			runWithMockWeakRef(() => {
 				const object = Symbol("object");
 				const map = new MultiKeyWeakMap([], {allowNonObjects: true});
 				map.set(test, object);
@@ -203,7 +191,7 @@ Deno.test({
 				assertEquals(map.has(test), false);
 			});
 
-			runWithMocks(() => {
+			runWithMockWeakRef(() => {
 				const object = Symbol("object");
 				const map = new MultiKeyWeakMap([], {allowNonObjects: true});
 				map.set(test, object);
@@ -221,7 +209,7 @@ Deno.test({
 Deno.test({
 	name: "Multiple strings",
 	fn() {
-		runWithMocks(() => {
+		runWithMockWeakRef(() => {
 			const map = new MultiKeyWeakMap([], {allowNonObjects: true});
 
 			const objectA = Symbol("objectA");
