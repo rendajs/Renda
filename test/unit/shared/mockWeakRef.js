@@ -207,3 +207,15 @@ export function forceCleanupAll(fireFinalizationRegistryCallbacks = true) {
 	}
 	registeredWeakRefs.clear();
 }
+
+/**
+ * @param {() => void} fn
+ */
+export function runWithMockWeakRef(fn) {
+	try {
+		installMockWeakRef();
+		fn();
+	} finally {
+		uninstallMockWeakRef();
+	}
+}
