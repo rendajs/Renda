@@ -214,7 +214,7 @@ export function createBasicGui({
 	/** @type {Map<string, Set<import("../../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallback>>} */
 	const shortcutCommandCallbacks = new Map();
 
-	const mockKeyboardShortcutManager = /** @type {import("../../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} */ ({
+	const mockKeyboardShortcutManager = /** @type {import("../../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager<any>} */ ({
 		onCommand(command, cb) {
 			let cbs = shortcutCommandCallbacks.get(command);
 			if (!cbs) {

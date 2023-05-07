@@ -7,7 +7,7 @@ import {incrementTime, installMockTime, uninstallMockTime} from "../../../shared
 
 /**
  * @typedef KeyboardShortcutManagerTestContext
- * @property {KeyboardShortcutManager} manager
+ * @property {KeyboardShortcutManager<any>} manager
  * @property {import("std/testing/mock.ts").Spy<any, [e: import("../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent], void>} commandSpy A spy that you can use to observe command events.
  * @property {(code: string, down: boolean) => KeyboardEvent} fireKeyEvent
  */
@@ -52,8 +52,7 @@ Deno.test({
 	fn() {
 		basicSetup({
 			fn({manager, commandSpy, fireKeyEvent}) {
-				manager.registerCommand({
-					command: "cmd",
+				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 				});
 				manager.onCommand("cmd", commandSpy);
@@ -96,8 +95,7 @@ Deno.test({
 	fn() {
 		basicSetup({
 			fn({manager, commandSpy, fireKeyEvent}) {
-				manager.registerCommand({
-					command: "cmd",
+				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "single",
 				});
@@ -122,8 +120,7 @@ Deno.test({
 	fn() {
 		basicSetup({
 			fn({manager, commandSpy, fireKeyEvent}) {
-				manager.registerCommand({
-					command: "cmd",
+				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "hold",
 				});
@@ -148,8 +145,7 @@ Deno.test({
 	fn() {
 		basicSetup({
 			fn({manager, commandSpy, fireKeyEvent}) {
-				manager.registerCommand({
-					command: "cmd",
+				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "toggle",
 				});
@@ -182,8 +178,7 @@ Deno.test({
 	fn() {
 		basicSetup({
 			fn({manager, commandSpy, fireKeyEvent}) {
-				manager.registerCommand({
-					command: "cmd",
+				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "smart",
 				});
@@ -216,8 +211,7 @@ Deno.test({
 	fn() {
 		basicSetup({
 			fn({manager, commandSpy, fireKeyEvent}) {
-				manager.registerCommand({
-					command: "cmd",
+				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "smart",
 				});
@@ -256,8 +250,7 @@ Deno.test({
 				installMockTime();
 
 				try {
-					manager.registerCommand({
-						command: "cmd",
+					manager.registerCommand("cmd", {
 						defaultKeys: ["a"],
 						holdType: "smart",
 					});
@@ -289,8 +282,7 @@ Deno.test({
 	fn() {
 		basicSetup({
 			fn({manager, commandSpy, fireKeyEvent}) {
-				manager.registerCommand({
-					command: "cmd",
+				manager.registerCommand("cmd", {
 					defaultKeys: ["ctrl+a b"],
 				});
 				manager.onCommand("cmd", commandSpy);
@@ -314,8 +306,7 @@ Deno.test({
 	fn() {
 		basicSetup({
 			fn({manager, commandSpy, fireKeyEvent}) {
-				manager.registerCommand({
-					command: "cmd",
+				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 				});
 				manager.onCommand("cmd", commandSpy);
@@ -342,8 +333,7 @@ Deno.test({
 	fn() {
 		basicSetup({
 			fn({manager, commandSpy, fireKeyEvent}) {
-				manager.registerCommand({
-					command: "cmd",
+				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					captureInsideTextFields: true,
 				});

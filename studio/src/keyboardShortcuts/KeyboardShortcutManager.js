@@ -17,8 +17,12 @@ const modifierKeysOrder = ["cmd", "ctrl", "alt", "shift"];
  * Commands can also be configured to only fire under certain conditions. That
  * way keystrokes don't get consumed when they are not needed, making sure
  * normal browser events still fire.
+ * @template {Object<string, import("./ShortcutCommand.js").ShortcutCommandOptions>} TRegisteredShortcuts
  */
 export class KeyboardShortcutManager {
+	/** @typedef {keyof TRegisteredShortcuts extends string ? keyof TRegisteredShortcuts : string} ShortcutTypes */
+	/** @typedef {ShortcutTypes | (string & {})} ShortcutTypesOrString */
+
 	/**
 	 * We keep a tree of every shortcut and what keys need to be pressed to trigger
 	 * it. That way we can quickly check if no shortcuts are available anymore
@@ -97,21 +101,23 @@ export class KeyboardShortcutManager {
 	}
 
 	/**
+	 * @param {ShortcutTypesOrString} command
 	 * @param {import("./ShortcutCommand.js").ShortcutCommandOptions} opts
 	 * @param {boolean} rebuildSequenceMap
 	 */
-	registerCommand(opts, rebuildSequenceMap = true) {
-		const command = new ShortcutCommand(this, opts);
-		this.registeredCommands.set(command.command, command);
+	registerCommand(command, opts, rebuildSequenceMap = true) {
+		const shortcutCommand = new ShortcutCommand(this, command, opts);
+		this.registeredCommands.set(command, shortcutCommand);
 		if (rebuildSequenceMap) this.rebuildSequenceMap();
 	}
 
 	/**
-	 * @param {import("./ShortcutCommand.js").ShortcutCommandOptions[]} commands
+	 * @param {Object<ShortcutTypesOrString, import("./ShortcutCommand.js").ShortcutCommandOptions>} commands
 	 */
 	registerCommands(commands) {
-		for (const commandOpts of commands) {
-			this.registerCommand(commandOpts, false);
+		const castCommands = /** @type {Object<string, import("./ShortcutCommand.js").ShortcutCommandOptions>} */ (commands);
+		for (const [command, commandOpts] of Object.entries(castCommands)) {
+			this.registerCommand(command, commandOpts, false);
 		}
 		this.rebuildSequenceMap();
 	}
@@ -283,7 +289,7 @@ export class KeyboardShortcutManager {
 
 	/**
 	 * Add an event listener for a specific command.
-	 * @param {string} command The identifier of the command.
+	 * @param {ShortcutTypesOrString} command The identifier of the command.
 	 * @param {CommandCallback} cb The callback to fire when the command is triggered.
 	 */
 	onCommand(command, cb) {
@@ -297,7 +303,7 @@ export class KeyboardShortcutManager {
 
 	/**
 	 * Remove an event listener for a specific command.
-	 * @param {string} command The identifier of the command.
+	 * @param {ShortcutTypesOrString} command The identifier of the command.
 	 * @param {CommandCallback} cb
 	 */
 	removeOnCommand(command, cb) {

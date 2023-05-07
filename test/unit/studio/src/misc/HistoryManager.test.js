@@ -33,7 +33,7 @@ function basicTest({
 }) {
 	/** @type {Map<string, Set<import("../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallback>>} */
 	const commandCallbacks = new Map();
-	const mockShortuctManager = /** @type {import("../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} */ ({
+	const mockShortuctManager = /** @type {import("../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager<any>} */ ({
 		onCommand(command, cb) {
 			let cbs = commandCallbacks.get(command);
 			if (!cbs) {
