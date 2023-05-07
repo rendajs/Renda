@@ -2,10 +2,6 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeEntity, Entity, StorageType, Vec3} from "../../../../src/mod.js";
 import {objectToBinary} from "../../../../src/util/binarySerialization.js";
 
-export const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
-
-/** @typedef {Entity & {[entityAssetRootUuidSymbol]? : import("../../../../src/mod.js").UuidString}} EntityWithAssetRootUuid */
-
 // todo: better types for generics
 /**
  * @extends {ProjectAssetType<Entity, null, import("../../../../src/core/Entity.js").EntityJsonData>}
@@ -20,9 +16,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	static expectedLiveAssetConstructor = Entity;
 
 	async createNewLiveAssetData() {
-		/** @type {EntityWithAssetRootUuid} */
 		const liveAsset = new Entity();
-		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
+		this.assetManager.entityAssetManager.setLinkedAssetUuid(liveAsset, this.projectAsset.uuid);
 		return {
 			liveAsset,
 			studioData: null,
@@ -34,9 +29,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(json, recursionTracker) {
-		/** @type {EntityWithAssetRootUuid} */
 		const liveAsset = this.createEntityFromJsonData(json, recursionTracker);
-		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
+		this.assetManager.entityAssetManager.setLinkedAssetUuid(liveAsset, this.projectAsset.uuid);
 		return {liveAsset, studioData: null};
 	}
 
@@ -48,7 +42,9 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			assetManager: this.assetManager,
 			assetTypeManager: this.projectAssetTypeManager,
 			usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
-			entityAssetRootUuidSymbol,
+			getLinkedAssetUuid: uuid => {
+				return this.assetManager.entityAssetManager.getLinkedAssetUuid(uuid);
+			},
 		});
 		return /** @type {import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity} */ (entityData);
 	}
@@ -96,21 +92,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (jsonData.children) {
 			for (const childJson of jsonData.children) {
 				if (childJson.assetUuid) {
-					const insertionIndex = entity.childCount;
-					entity.add(new Entity());
-					recursionTracker.getLiveAsset(childJson.assetUuid, child => {
-						if (child) {
-							child = child.clone();
-						} else {
-							child = new Entity("Missing entity asset");
-						}
-						const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
-						castChild[entityAssetRootUuidSymbol] = childJson.assetUuid;
-						entity.removeAtIndex(insertionIndex); // Remove the old dummy entity
-						entity.addAtIndex(child, insertionIndex);
-					}, {
-						assertAssetType: ProjectAssetTypeEntity,
-					});
+					const child = this.assetManager.entityAssetManager.createdTrackedEntity(childJson.assetUuid);
+					entity.add(child);
 				} else {
 					const child = this.createEntityFromJsonData(childJson, recursionTracker);
 					entity.add(child);
@@ -202,8 +185,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				const entity = await asset.getLiveAsset();
 				const generator = entity.traverseDown({
 					filter: child => {
-						const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
-						const uuid = castChild[entityAssetRootUuidSymbol];
+						const uuid = ctx.assetManager.entityAssetManager.getLinkedAssetUuid(child);
 						return !uuid || uuid == asset.uuid;
 					},
 				});

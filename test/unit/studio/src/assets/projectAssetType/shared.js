@@ -35,6 +35,9 @@ export function createMockDependencies({
 		async getProjectAssetFromUuid(uuid, options) {
 			return null;
 		},
+		entityAssetManager: {
+			setLinkedAssetUuid(liveAsset, uuid) {},
+		},
 	});
 
 	const assetTypeManager = /** @type {import("../../../../../../studio/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({});

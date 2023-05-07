@@ -1,12 +1,13 @@
 import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import "../../../shared/initializeStudio.js";
-import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeEntity} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {Component, Entity, Mat4, MeshComponent} from "../../../../../../src/mod.js";
 import {createMockDependencies, getMockRecursionTracker} from "./shared.js";
 import {assertVecAlmostEquals} from "../../../../shared/asserts.js";
 import {createTreeViewStructure} from "../../../../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
+import {EntityAssetManager} from "../../../../../../studio/src/assets/EntityAssetManager.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000000";
 const BASIC_COMPONENT_UUID = "basic component uuid";
@@ -167,6 +168,10 @@ async function basicSetupForAssetLoaderImportConfig({
 	const addImportSpy = spy(addImport);
 
 	assertExists(ProjectAssetTypeEntity.assetLoaderTypeImportConfig.extra);
+
+	const assetManager = /** @type {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({});
+	assetManager.entityAssetManager = new EntityAssetManager(assetManager);
+
 	const result = await ProjectAssetTypeEntity.assetLoaderTypeImportConfig.extra({
 		addImport: addImportSpy,
 		studio: /** @type {any} */ ({
@@ -175,7 +180,9 @@ async function basicSetupForAssetLoaderImportConfig({
 					yield MeshComponent;
 				},
 			},
+			assetManager,
 		}),
+		assetManager,
 		usedAssets,
 		includeAll,
 	});
@@ -183,6 +190,7 @@ async function basicSetupForAssetLoaderImportConfig({
 	return {
 		addImportSpy,
 		result,
+		assetManager,
 	};
 }
 
@@ -205,21 +213,19 @@ Deno.test({
 	name: "assetLoaderTypeImportConfig extra with assets",
 	async fn() {
 		const rootEntity = new Entity();
-		const castRootEntity = /** @type {import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */ (rootEntity);
-		castRootEntity[entityAssetRootUuidSymbol] = BASIC_ASSET_UUID;
 		rootEntity.addComponent(MeshComponent);
 
 		const childEntity = new Entity();
 		rootEntity.add(childEntity);
-		const castChildEntity = /** @type {import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */ (childEntity);
-		castChildEntity[entityAssetRootUuidSymbol] = "non root uuid";
 
 		const {projectAsset} = createMockProjectAsset({
 			liveAsset: rootEntity,
 		});
-		const {addImportSpy, result} = await basicSetupForAssetLoaderImportConfig({
+		const {addImportSpy, result, assetManager} = await basicSetupForAssetLoaderImportConfig({
 			usedAssets: [projectAsset],
 		});
+		assetManager.entityAssetManager.setLinkedAssetUuid(rootEntity, BASIC_ASSET_UUID);
+		assetManager.entityAssetManager.setLinkedAssetUuid(childEntity, "non root uuid");
 
 		assertEquals(result, `const componentTypeManager = new ComponentTypeManager();
 entityLoader.setComponentTypeManager(componentTypeManager);

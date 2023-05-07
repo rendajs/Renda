@@ -52,7 +52,7 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
  * @property {import("../../studio/src/assets/AssetManager.js").AssetManager} assetManager
  * @property {import("../../studio/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
  * @property {symbol} usedAssetUuidsSymbol
- * @property {symbol} entityAssetRootUuidSymbol
+ * @property {(entity: Entity) => import("../mod.js").UuidString} getLinkedAssetUuid
  */
 
 export class Entity {
@@ -834,14 +834,13 @@ export class Entity {
 		}
 
 		const children = [];
-		if (ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT && studioOpts && studioOpts.entityAssetRootUuidSymbol) {
-			const sym = studioOpts.entityAssetRootUuidSymbol;
+		if (ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT && studioOpts && studioOpts.getLinkedAssetUuid) {
 			for (const child of this.getChildren()) {
-				const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
-				if (castChild[sym]) {
+				const assetUuid = studioOpts.getLinkedAssetUuid(child);
+				if (assetUuid) {
 					/** @type {EntityJsonDataAssetEntity} */
 					const childJson = {
-						assetUuid: castChild[sym],
+						assetUuid,
 					};
 					children.push(childJson);
 				} else {

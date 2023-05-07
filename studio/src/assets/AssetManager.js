@@ -4,6 +4,7 @@ import {generateUuid} from "../../../src/util/mod.js";
 import {DefaultAssetLink} from "./DefaultAssetLink.js";
 import {ProjectAsset} from "./ProjectAsset.js";
 import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
+import {EntityAssetManager} from "./EntityAssetManager.js";
 
 /**
  * @typedef {object} SetDefaultBuiltInAssetLinkData
@@ -137,6 +138,7 @@ export class AssetManager {
 		this.builtInDefaultAssetLinksManager = builtInDefaultAssetLinksManager;
 		this.projectAssetTypeManager = projectAssetTypeManager;
 		this.fileSystem = fileSystem;
+		this.entityAssetManager = new EntityAssetManager(this);
 
 		/** @type {Map<import("../../../src/mod.js").UuidString, import("./ProjectAsset.js").ProjectAssetAny>}*/
 		this.projectAssets = new Map();
