@@ -11,7 +11,6 @@ import {MalformedSyntaxError, parseExpression, verifyExpression} from "./conditi
 /**
  * @typedef {object} ShortcutCommandOptions
  * @property {string?} [name] User friendly name of the command.
- * @property {string} command The id of the command.
  * @property {string | string[] | null} [defaultKeys] The the keys that trigger the command.
  * @property {string} [conditions] The conditions to check for before triggering the command.
  * @property {ShortcutCommandHoldType} [holdType = "single"] How to deal with keys being held down.
@@ -29,12 +28,12 @@ import {MalformedSyntaxError, parseExpression, verifyExpression} from "./conditi
  */
 export class ShortcutCommand {
 	/**
-	 * @param {import("./KeyboardShortcutManager.js").KeyboardShortcutManager} shortcutManager
+	 * @param {import("./KeyboardShortcutManager.js").KeyboardShortcutManager<any>} shortcutManager
+	 * @param {string} command
 	 * @param {ShortcutCommandOptions} opts
 	 */
-	constructor(shortcutManager, {
+	constructor(shortcutManager, command, {
 		name = null,
-		command,
 		defaultKeys = null,
 		conditions = "",
 		holdType = "single",

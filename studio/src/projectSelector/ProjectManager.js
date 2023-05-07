@@ -313,7 +313,6 @@ export class ProjectManager {
 
 	/**
 	 * If the asset manager doesn't exist, waits for it to load and returns it.
-	 * Throws an error if it still doesn't exist after loading.
 	 */
 	async getAssetManager() {
 		if (this.assetManager && this.assetManager.assetSettingsLoaded) return this.assetManager;

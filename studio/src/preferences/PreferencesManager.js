@@ -130,7 +130,8 @@ export class PreferencesManager {
 	 * @param {Object<PreferenceTypes, PreferenceConfig>} preferences
 	 */
 	registerPreferences(preferences) {
-		for (const [preference, config] of Object.entries(preferences)) {
+		const castPreferences = /** @type {Object<string, PreferenceConfig>} */ (preferences);
+		for (const [preference, config] of Object.entries(castPreferences)) {
 			this.registerPreference(preference, config);
 		}
 	}

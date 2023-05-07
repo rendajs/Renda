@@ -33,7 +33,7 @@ export class HistoryManager {
 	 */
 
 	/**
-	 * @param {import("../keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} shortcutManager
+	 * @param {import("../Studio.js").Studio["keyboardShortcutManager"]} shortcutManager
 	 */
 	constructor(shortcutManager) {
 		this.#rootNode = this.#createNode({

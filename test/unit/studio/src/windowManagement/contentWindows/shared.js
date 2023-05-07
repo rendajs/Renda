@@ -17,6 +17,12 @@ export function getMockArgs() {
 		keyboardShortcutManager: {
 			onCommand(command, cb) {},
 			removeOnCommand(command, cb) {},
+			getCondition(name) {
+				const condition = /** @type {import("../../../../../../studio/src/keyboardShortcuts/ShortcutCondition.js").ShortcutCondition<any>} */ ({
+					requestValueSetter(priority) {},
+				});
+				return condition;
+			},
 		},
 	});
 

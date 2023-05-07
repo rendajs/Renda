@@ -11,7 +11,7 @@ import {createOnChangeEventSpy} from "./shared.js";
 
 /**
  * @typedef NumericGuiTestContext
- * @property {KeyboardShortcutManager} keyboardShortcutManager
+ * @property {KeyboardShortcutManager<any>} keyboardShortcutManager
  */
 
 /**
@@ -20,12 +20,8 @@ import {createOnChangeEventSpy} from "./shared.js";
 function basicTest(fn) {
 	runWithDom(() => {
 		const keyboardShortcutManager = new KeyboardShortcutManager();
-		keyboardShortcutManager.registerCommand({
-			command: "numericGui.incrementAtCaret",
-		});
-		keyboardShortcutManager.registerCommand({
-			command: "numericGui.decrementAtCaret",
-		});
+		keyboardShortcutManager.registerCommand("numericGui.incrementAtCaret", {});
+		keyboardShortcutManager.registerCommand("numericGui.decrementAtCaret", {});
 		keyboardShortcutManager.registerCondition("numericGui.hasFocus", {type: "boolean"});
 		const studio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 			keyboardShortcutManager,

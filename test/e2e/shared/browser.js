@@ -94,7 +94,13 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 	page.on("console", async message => {
 		// We need to request `jsonValue` right away, if we only add the message
 		// to the queue and request it later the browser context might already be lost.
-		const argsPromises = message.args().map(arg => arg.jsonValue());
+		const args = message.args();
+		let argsPromises;
+		if (args.length > 0) {
+			argsPromises = message.args().map(arg => arg.jsonValue());
+		} else {
+			argsPromises = [Promise.resolve(message.text())];
+		}
 		consoleQueue.push({
 			location: message.location(),
 			argsPromise: Promise.all(argsPromises),
