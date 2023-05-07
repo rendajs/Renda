@@ -143,14 +143,21 @@ Deno.test({
 		});
 
 		const {manager} = basicSetup({sourceEntity});
-		const entity = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
 
 		// Wait for source entity to load
 		await waitForMicrotasks();
 
-		assertEquals(entity.components.length, 1);
-		assertInstanceOf(entity.components[0], LightComponent);
-		assertEquals(entity.components[0].intensity, 1);
+		assertEquals(entity1.components.length, 1);
+		assertInstanceOf(entity1.components[0], LightComponent);
+		assertEquals(entity1.components[0].intensity, 0.123);
+
+		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		assertInstanceOf(entity2.components[0], LightComponent);
+		entity2.components[0].intensity = 0.456;
+		manager.updateEntity(entity2);
+
+		assertEquals(entity1.components[0].intensity, 0.456);
 	},
 });
 

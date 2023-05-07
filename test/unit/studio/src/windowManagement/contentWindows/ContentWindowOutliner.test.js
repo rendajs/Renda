@@ -7,14 +7,15 @@ import {AssertionError, assertEquals, assertExists, assertStrictEquals} from "st
 import {ENTITY_EDITOR_CONTENT_WINDOW_ID} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {Entity} from "../../../../../../src/mod.js";
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
-import {entityAssetRootUuidSymbol} from "../../../../../../studio/src/assets/EntityAssetManager.js";
 import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
+import {EntityAssetManager} from "../../../../../../studio/src/assets/EntityAssetManager.js";
 
 /**
  * @typedef ContentWindowOutlinerTestContext
  * @property {ConstructorParameters<typeof ContentWindowOutliner>} args
  * @property {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor[]} mockEntityEditors
  * @property {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} mockEntityEditor
+ * @property {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} mockAssetManager
  */
 
 /**
@@ -28,7 +29,7 @@ function basictest({
 }) {
 	installFakeDocument();
 	try {
-		const {args, mockWindowManager} = getMockArgs();
+		const {args, mockWindowManager, mockStudioInstance} = getMockArgs();
 		/** @type {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor[]} */
 		const mockEntityEditors = [];
 		for (let i = 0; i < availableEntityEditors; i++) {
@@ -44,10 +45,16 @@ function basictest({
 		stub(mockWindowManager, "getMostSuitableContentWindow", () => {
 			return mockEntityEditors[0] || null;
 		});
+		mockStudioInstance.projectManager = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({});
+		const assetManager = /** @type {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({});
+		mockStudioInstance.projectManager.assetManager = assetManager;
+		assetManager.entityAssetManager = new EntityAssetManager(assetManager);
+
 		fn({
 			args,
 			mockEntityEditors,
 			mockEntityEditor: mockEntityEditors[0],
+			mockAssetManager: assetManager,
 		});
 	} finally {
 		uninstallFakeDocument();
@@ -123,10 +130,9 @@ Deno.test({
 	name: "Linked entity assets have a link icon",
 	fn() {
 		basictest({
-			fn({args, mockEntityEditor}) {
+			fn({args, mockEntityEditor, mockAssetManager}) {
 				const childEntity = new Entity();
-				const castChildEntity = /** @type {import("../../../../../../studio/src/assets/EntityAssetManager.js").EntityWithAssetRootUuid} */ (childEntity);
-				castChildEntity[entityAssetRootUuidSymbol] = "uuid";
+				mockAssetManager.entityAssetManager.setLinkedAssetUuid(childEntity, "uuid");
 
 				mockEntityEditor.editingEntity.add(childEntity);
 
