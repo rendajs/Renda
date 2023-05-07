@@ -121,7 +121,7 @@ export class TabsStudioWindow extends StudioWindow {
 		this.tabsEl.removeChild(contentWindow.el);
 		this.tabs.splice(tabIndex, 1);
 		this.#intendedTabTypes.splice(tabIndex, 1);
-		this.updateTabSelector(trigger);
+		this.#updateTabSelector(trigger);
 		this.destructContentWindow(contentWindow);
 		this.fireWorkspaceChangeCbs({trigger});
 	}
@@ -152,7 +152,7 @@ export class TabsStudioWindow extends StudioWindow {
 	loadContentWindow(index, constructor, uuid, trigger) {
 		const contentWindow = new constructor(getStudioInstance(), this.windowManager, uuid);
 		contentWindow.persistentData.setWindowManager(this.windowManager);
-		this.setExistingContentWindow(index, contentWindow, trigger);
+		this.#setExistingContentWindow(index, contentWindow, trigger);
 		if (this.isInit) {
 			this.initContentWindow(contentWindow);
 			contentWindow.fireOnWindowResize();
@@ -187,7 +187,7 @@ export class TabsStudioWindow extends StudioWindow {
 	 * @param {ContentWindow} contentWindow
 	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 */
-	setExistingContentWindow(index, contentWindow, trigger) {
+	#setExistingContentWindow(index, contentWindow, trigger) {
 		if (this.tabs[index]) throw new Error("Replacing existing content windows is not yet implemented.");
 		contentWindow.detachParentStudioWindow(trigger);
 		contentWindow.attachParentStudioWindow(this);
@@ -195,7 +195,7 @@ export class TabsStudioWindow extends StudioWindow {
 		const castConstructor = /** @type {ContentWindowConstructor} */ (contentWindow.constructor);
 		this.#intendedTabTypes[index] = castConstructor.contentWindowTypeId;
 		this.tabsEl.appendChild(contentWindow.el);
-		this.updateTabSelector(trigger);
+		this.#updateTabSelector(trigger);
 	}
 
 	/**
@@ -203,9 +203,9 @@ export class TabsStudioWindow extends StudioWindow {
 	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 * @param {boolean} [activate]
 	 */
-	addExistingContentWindow(contentWindow, trigger, activate = true) {
+	#addExistingContentWindow(contentWindow, trigger, activate = true) {
 		const index = this.#intendedTabTypes.length;
-		this.setExistingContentWindow(index, contentWindow, trigger);
+		this.#setExistingContentWindow(index, contentWindow, trigger);
 		if (activate) {
 			this.setActiveTabIndex(index, trigger);
 		}
@@ -221,7 +221,7 @@ export class TabsStudioWindow extends StudioWindow {
 		if (index >= 0) {
 			this.tabs.splice(index, 1);
 			this.#intendedTabTypes.splice(index, 1);
-			this.updateTabSelector(trigger);
+			this.#updateTabSelector(trigger);
 			if (this.#intendedTabTypes.length == 0) {
 				this.unsplitParent(trigger);
 			}
@@ -232,7 +232,7 @@ export class TabsStudioWindow extends StudioWindow {
 	/**
 	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 */
-	updateTabSelector(trigger) {
+	#updateTabSelector(trigger) {
 		const prevTabCount = this.tabsSelectorGroup.buttons.length;
 		const deltaCount = this.tabs.length - prevTabCount;
 		if (deltaCount > 0) {
@@ -588,13 +588,13 @@ export class TabsStudioWindow extends StudioWindow {
 		const tabUuids = await Promise.all(tabUuidPromisess);
 		if (dragPosition == "center") {
 			for (const contentWindow of this.uuidsToContentWindows(tabUuids, true)) {
-				this.addExistingContentWindow(contentWindow, "user");
+				this.#addExistingContentWindow(contentWindow, "user");
 			}
 		} else {
 			const splitHorizontal = dragPosition == "top" || dragPosition == "bottom";
 			const createdTabWindow = this.splitWindow(dragPosition, splitHorizontal, "user");
 			for (const contentWindow of this.uuidsToContentWindows(tabUuids)) {
-				createdTabWindow.addExistingContentWindow(contentWindow, "user");
+				createdTabWindow.#addExistingContentWindow(contentWindow, "user");
 			}
 		}
 	}
