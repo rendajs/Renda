@@ -242,7 +242,7 @@ export class TabsStudioWindow extends StudioWindow {
 				const newButton = new Button({
 					colorizerFilterManager: getStudioInstance().colorizerFilterManager,
 					onClick: () => {
-						this.setActiveTabIndex(tabIndex, trigger);
+						this.setActiveTabIndex(tabIndex, "user");
 					},
 					draggable: true,
 					onDragStart: e => {

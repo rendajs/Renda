@@ -145,7 +145,8 @@ export class WorkspaceManager {
 	}
 
 	/**
-	 * Stores the workspace data that is held in memory to the IndexedDb.
+	 * Stores the workspace data that is held in memory to active workspace in the IndexedDb.
+	 * Also writes to the current workspace if autosave is enabled for this workspace.
 	 */
 	async #saveActiveWorkspace() {
 		if (this.#activeWorkspaceData) {
