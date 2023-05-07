@@ -1,5 +1,5 @@
 export function createMockKeyboardShortcutManager() {
-	const keyboardShortcutManager = /** @type {import("../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} */ ({
+	const keyboardShortcutManager = /** @type {import("../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager<any>} */ ({
 		onCommand(command, cb) {},
 		getCondition(name) {
 			const mockCondition = /** @type {import("../../../../studio/src/keyboardShortcuts/ShortcutCondition.js").ShortcutCondition<any>} */ ({

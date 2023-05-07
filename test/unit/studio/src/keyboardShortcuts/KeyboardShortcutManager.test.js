@@ -4,7 +4,6 @@ import {KeyboardEvent} from "fake-dom/FakeKeyboardEvent.js";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {assertEquals, assertThrows} from "std/testing/asserts.ts";
 import {incrementTime, installMockTime, uninstallMockTime} from "../../../shared/mockTime.js";
-import {testTypes} from "../../../shared/typeAssertions.js";
 
 /**
  * @typedef KeyboardShortcutManagerTestContext
