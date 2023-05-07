@@ -286,15 +286,15 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewNameChangeEvent} e
 	 */
 	onTreeViewNameChange(e) {
-		const ent = this.getEntityByTreeViewItem(e.target);
+		const entity = this.getEntityByTreeViewItem(e.target);
 		const newName = e.target.name;
-		const oldName = ent.name;
+		const oldName = entity.name;
 		if (newName != oldName) {
 			let needsUpdate = false;
 			this.studioInstance.historyManager.executeEntry({
 				uiText: "Rename entity",
 				redo: () => {
-					ent.name = newName;
+					entity.name = newName;
 					if (needsUpdate) {
 						this.updateTreeView();
 					} else {
@@ -302,10 +302,12 @@ export class ContentWindowOutliner extends ContentWindow {
 						// treeview has already been renamed by the user
 						needsUpdate = true;
 					}
+					this.notifyEntityEditors(entity, "rename");
 				},
 				undo: () => {
-					ent.name = oldName;
+					entity.name = oldName;
 					this.updateTreeView();
+					this.notifyEntityEditors(entity, "rename");
 				},
 			});
 		}
