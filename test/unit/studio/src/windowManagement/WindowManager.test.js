@@ -361,6 +361,50 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Clicking tab buttons changes the active tab",
+	async fn() {
+		const {windowManager, cleanup} = await basicSetup();
+
+		try {
+			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+			const changingTabsWindow = windowManager.rootWindow.windowA;
+			assertInstanceOf(changingTabsWindow, TabsStudioWindow);
+			assertEquals(changingTabsWindow.activeTabIndex, 0);
+
+			const saveWorkspaceSpy = spy(windowManager.workspaceManager, "setActiveWorkspaceData");
+
+			changingTabsWindow.tabsSelectorGroup.buttons[1].click();
+
+			assertEquals(changingTabsWindow.activeTabIndex, 1);
+			assertSpyCalls(saveWorkspaceSpy, 1);
+			assertSpyCall(saveWorkspaceSpy, 0, {
+				args: [
+					{
+						type: "split",
+						splitHorizontal: true,
+						splitPercentage: 0.5,
+						windowA: {
+							type: "tabs",
+							activeTabIndex: 1,
+							tabTypes: [CONTENT_WINDOW_TYPE_1, CONTENT_WINDOW_TYPE_2],
+							tabUuids: [CONTENT_WINDOW_UUID_1, CONTENT_WINDOW_UUID_2],
+						},
+						windowB: {
+							type: "tabs",
+							activeTabIndex: 0,
+							tabTypes: [CONTENT_WINDOW_TYPE_2, CONTENT_WINDOW_TYPE_3],
+							tabUuids: [CONTENT_WINDOW_UUID_3, CONTENT_WINDOW_UUID_4],
+						},
+					},
+				],
+			});
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
 	name: "lastClickedContentWindow",
 	async fn() {
 		const {windowManager, shortcutConditionSetValueCalls, cleanup} = await basicSetup();
@@ -985,3 +1029,4 @@ Deno.test({
 		}
 	},
 });
+
