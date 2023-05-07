@@ -6,7 +6,6 @@ import {createMockAssetManager} from "../../../shared/createMockAssetManager.js"
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {runWithMockStudioAsync} from "../../../shared/runWithMockStudio.js";
-import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
 import {PropertiesTreeViewEntry} from "../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 
 function basicSetup() {
