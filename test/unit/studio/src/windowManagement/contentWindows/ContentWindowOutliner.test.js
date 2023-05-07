@@ -9,6 +9,8 @@ import {Entity} from "../../../../../../src/mod.js";
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
 import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {EntityAssetManager} from "../../../../../../studio/src/assets/EntityAssetManager.js";
+import {HistoryManager} from "../../../../../../studio/src/misc/HistoryManager.js";
+import {createMockKeyboardShortcutManager} from "../../../shared/mockKeyboardShortcutManager.js";
 
 /**
  * @typedef ContentWindowOutlinerTestContext
@@ -16,6 +18,7 @@ import {EntityAssetManager} from "../../../../../../studio/src/assets/EntityAsse
  * @property {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor[]} mockEntityEditors
  * @property {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} mockEntityEditor
  * @property {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} mockAssetManager
+ * @property {HistoryManager} historyManager
  */
 
 /**
@@ -50,11 +53,16 @@ function basictest({
 		mockStudioInstance.projectManager.assetManager = assetManager;
 		assetManager.entityAssetManager = new EntityAssetManager(assetManager);
 
+		const {keyboardShortcutManager} = createMockKeyboardShortcutManager();
+		const historyManager = new HistoryManager(keyboardShortcutManager);
+		mockStudioInstance.historyManager = historyManager;
+
 		fn({
 			args,
 			mockEntityEditors,
 			mockEntityEditor: mockEntityEditors[0],
 			mockAssetManager: assetManager,
+			historyManager,
 		});
 	} finally {
 		uninstallFakeDocument();
@@ -212,6 +220,48 @@ Deno.test({
 
 				assertStrictEquals(notifyEntityChangedSpy.calls[1].args[0], child2.children[0]);
 				assertEquals(notifyEntityChangedSpy.calls[1].args[1], "create");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "renaming a treeview renames the entity",
+	fn() {
+		basictest({
+			fn({args, mockEntityEditor, historyManager}) {
+				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
+				const childEntity = new Entity("old name");
+				mockEntityEditor.editingEntity.add(childEntity);
+				const contentWindow = new ContentWindowOutliner(...args);
+
+				const childTreeView = contentWindow.treeView.children[0];
+				assertExists(childTreeView);
+				childTreeView.name = "new name";
+				childTreeView.fireEvent("namechange", {
+					newName: "new name",
+					oldName: "old name",
+					target: childTreeView,
+				});
+
+				assertEquals(childEntity.name, "new name");
+				assertSpyCalls(notifyEntityChangedSpy, 1);
+				assertStrictEquals(notifyEntityChangedSpy.calls[0].args[0], childEntity);
+				assertEquals(notifyEntityChangedSpy.calls[0].args[1], "rename");
+
+				historyManager.undo();
+
+				assertSpyCalls(notifyEntityChangedSpy, 2);
+				assertEquals(childEntity.name, "old name");
+				assertStrictEquals(notifyEntityChangedSpy.calls[1].args[0], childEntity);
+				assertEquals(notifyEntityChangedSpy.calls[1].args[1], "rename");
+
+				historyManager.redo();
+
+				assertSpyCalls(notifyEntityChangedSpy, 3);
+				assertEquals(childEntity.name, "new name");
+				assertStrictEquals(notifyEntityChangedSpy.calls[2].args[0], childEntity);
+				assertEquals(notifyEntityChangedSpy.calls[2].args[1], "rename");
 			},
 		});
 	},
