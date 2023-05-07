@@ -41,7 +41,6 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		this.contentEl.appendChild(this.treeView.el);
 
 		this.isLoadingAssetLinks = true;
-		this.isParsingValueChange = false;
 		this.treeView.onChildValueChange(this.#handleGuiValueChange);
 
 		this.loadDefaultAssetLinks();
@@ -118,9 +117,8 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	/**
 	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewChangeEvent<any>} changeEvent
 	 */
-	#handleGuiValueChange(changeEvent) {
+	#handleGuiValueChange = changeEvent => {
 		if (changeEvent.trigger != "user") return;
-		this.isParsingValueChange = true;
 
 		/** @type {import("../../assets/AssetManager.js").SetDefaultBuiltInAssetLinkData[]} */
 		const builtInAssetLinks = [];
@@ -155,6 +153,5 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 			const defaultAssetEntry = valueItem.gui.treeView.getSerializableStructureEntry("defaultAsset");
 			defaultAssetEntry?.gui.setValue(userDefaultAssetLinkUuids[i]);
 		}
-		this.isParsingValueChange = false;
-	}
+	};
 }
