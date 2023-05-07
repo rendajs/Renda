@@ -117,7 +117,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	/**
 	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewChangeEvent<any>} changeEvent
 	 */
-	#handleGuiValueChange = (changeEvent) => {
+	#handleGuiValueChange = changeEvent => {
 		if (changeEvent.trigger != "user") return;
 
 		/** @type {import("../../assets/AssetManager.js").SetDefaultBuiltInAssetLinkData[]} */
@@ -153,5 +153,5 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 			const defaultAssetEntry = valueItem.gui.treeView.getSerializableStructureEntry("defaultAsset");
 			defaultAssetEntry?.gui.setValue(userDefaultAssetLinkUuids[i]);
 		}
-	}
+	};
 }
