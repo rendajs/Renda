@@ -7,7 +7,7 @@ import {AssertionError, assertEquals, assertExists, assertStrictEquals} from "st
 import {ENTITY_EDITOR_CONTENT_WINDOW_ID} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {Entity} from "../../../../../../src/mod.js";
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
-import {entityAssetRootUuidSymbol} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {entityAssetRootUuidSymbol} from "../../../../../../studio/src/assets/EntityAssetManager.js";
 import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 
 /**
@@ -125,7 +125,7 @@ Deno.test({
 		basictest({
 			fn({args, mockEntityEditor}) {
 				const childEntity = new Entity();
-				const castChildEntity = /** @type {import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */ (childEntity);
+				const castChildEntity = /** @type {import("../../../../../../studio/src/assets/EntityAssetManager.js").EntityWithAssetRootUuid} */ (childEntity);
 				castChildEntity[entityAssetRootUuidSymbol] = "uuid";
 
 				mockEntityEditor.editingEntity.add(childEntity);

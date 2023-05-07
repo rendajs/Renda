@@ -57,6 +57,7 @@ import {Task} from "./Task.js";
  * @template {import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
  * @typedef AssetLoaderTypeImportConfigExtraContext
  * @property {import("../../Studio.js").Studio} studio The studio instance.
+ * @property {import("../../assets/AssetManager.js").AssetManager} assetManager The asset manager instance.
  * @property {(identifier: string, moduleSpecifier: string) => void} addImport Call this function to add extra
  * imports to the top of the file. For example:
  * ```js
@@ -216,6 +217,7 @@ export class TaskGenerateServices extends Task {
 					if (config.extra) {
 						extra = await config.extra({
 							studio: this.studioInstance,
+							assetManager,
 							addImport,
 							usedAssets: Array.from(assets),
 							includeAll,

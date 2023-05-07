@@ -3,7 +3,7 @@ import {TreeView} from "../../ui/TreeView.js";
 import {Button} from "../../ui/Button.js";
 import {Entity} from "../../../../src/mod.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor/ContentWindowEntityEditor.js";
-import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../misc/EntitySelection.js";
 import {DropDownGui} from "../../ui/DropDownGui.js";
@@ -143,14 +143,21 @@ export class ContentWindowOutliner extends ContentWindow {
 		if (this.linkedEntityEditor) {
 			this.updateTreeViewRecursive(this.treeView, this.linkedEntityEditor.editingEntity, {
 				passedEntities: [],
+				assetManager: this.studioInstance.projectManager.assetManager,
 			});
 		}
 	}
 
 	/**
+	 * @typedef UpdateTreeViewRecursiveContext
+	 * @property {Entity[]} passedEntities
+	 * @property {import("../../assets/AssetManager.js").AssetManager?} assetManager
+	 */
+
+	/**
 	 * @param {TreeView} treeView
 	 * @param {Entity} entity
-	 * @param {{passedEntities: Entity[]}} ctx
+	 * @param {UpdateTreeViewRecursiveContext} ctx
 	 */
 	updateTreeViewRecursive(treeView, entity, ctx) {
 		treeView.name = entity.name;
@@ -160,10 +167,11 @@ export class ContentWindowOutliner extends ContentWindow {
 			for (const child of entity.getChildren()) {
 				const childTreeView = treeView.addChild();
 
-				const castChild = /** @type {import("../../assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */ (child);
-				const rootUuid = castChild[entityAssetRootUuidSymbol];
-				if (rootUuid) {
-					childTreeView.addIcon("static/icons/contentWindowTabs/defaultAssetLinks.svg");
+				if (ctx.assetManager) {
+					const rootUuid = ctx.assetManager.entityAssetManager.getLinkedAssetUuid(child);
+					if (rootUuid) {
+						childTreeView.addIcon("static/icons/contentWindowTabs/defaultAssetLinks.svg");
+					}
 				}
 
 				if (ctx.passedEntities.includes(child)) {
@@ -174,6 +182,7 @@ export class ContentWindowOutliner extends ContentWindow {
 						if (!childTreeView.collapsed) {
 							this.updateTreeViewRecursive(childTreeView, child, {
 								passedEntities: passedEntitiesClone,
+								assetManager: ctx.assetManager,
 							});
 						}
 					});
@@ -421,9 +430,8 @@ export class ContentWindowOutliner extends ContentWindow {
 				await assetManager.makeAssetUuidPersistent(projectAsset);
 				const entityAsset = await projectAsset.getLiveAsset();
 				if (entityAsset) {
-					/** @type {import("../../assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */
 					const clonedEntity = entityAsset.clone();
-					clonedEntity[entityAssetRootUuidSymbol] = projectAsset.uuid;
+					assetManager.entityAssetManager.setLinkedAssetUuid(clonedEntity, projectAsset.uuid);
 					parent.add(clonedEntity);
 					didDropAsset = true;
 				}

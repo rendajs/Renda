@@ -1,7 +1,7 @@
 import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import "../../../shared/initializeStudio.js";
-import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeEntity} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {Component, Entity, Mat4, MeshComponent} from "../../../../../../src/mod.js";
 import {createMockDependencies, getMockRecursionTracker} from "./shared.js";
@@ -176,6 +176,7 @@ async function basicSetupForAssetLoaderImportConfig({
 				},
 			},
 		}),
+		assetManager: /** @type {any} */ ({}),
 		usedAssets,
 		includeAll,
 	});
@@ -205,13 +206,13 @@ Deno.test({
 	name: "assetLoaderTypeImportConfig extra with assets",
 	async fn() {
 		const rootEntity = new Entity();
-		const castRootEntity = /** @type {import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */ (rootEntity);
+		const castRootEntity = /** @type {import("../../../../../../studio/src/assets/EntityAssetManager.js").EntityWithAssetRootUuid} */ (rootEntity);
 		castRootEntity[entityAssetRootUuidSymbol] = BASIC_ASSET_UUID;
 		rootEntity.addComponent(MeshComponent);
 
 		const childEntity = new Entity();
 		rootEntity.add(childEntity);
-		const castChildEntity = /** @type {import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */ (childEntity);
+		const castChildEntity = /** @type {import("../../../../../../studio/src/assets/EntityAssetManager.js").EntityWithAssetRootUuid} */ (childEntity);
 		castChildEntity[entityAssetRootUuidSymbol] = "non root uuid";
 
 		const {projectAsset} = createMockProjectAsset({
