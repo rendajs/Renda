@@ -52,6 +52,7 @@ export class Studio {
 		this.popoverManager = new PopoverManager(this.colorizerFilterManager);
 		this.gestureInProgressManager = new GestureInProgressManager();
 
+		/** @type {KeyboardShortcutManager<typeof autoRegisterShortcutCommands>} */
 		this.keyboardShortcutManager = new KeyboardShortcutManager();
 		for (const [name, options] of Object.entries(autoRegisterShortcutConditions)) {
 			this.keyboardShortcutManager.registerCondition(name, options);

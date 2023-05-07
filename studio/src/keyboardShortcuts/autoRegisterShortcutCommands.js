@@ -1,76 +1,73 @@
-/** @type {import("./ShortcutCommand.js").ShortcutCommandOptions[]} */
-const autoRegisterShortcutCommands = [
-	{
-		command: "history.undo",
+/**
+ * Takes a shortcut config type and returns it as const.
+ * This only exists to make autocompletions work.
+ * @template {import("./ShortcutCommand.js").ShortcutCommandOptions} T
+ * @param {T} preference
+ */
+function shortcut(preference) {
+	return preference;
+}
+
+const autoRegisterShortcutCommands = /** @type {const} */ ({
+	"history.undo": shortcut({
 		defaultKeys: ["ctrl+z", "z"],
-	},
-	{
-		command: "history.redo",
+	}),
+	"history.redo": shortcut({
 		defaultKeys: ["ctrl+y", "ctrl+shift+z", "shift+z"],
-	},
-	{
-		command: "treeView.selection.up",
+	}),
+	"treeView.selection.up": shortcut({
 		defaultKeys: "up",
 		conditions: "treeView.focusSelected",
-	},
-	{
-		command: "treeView.selection.down",
+	}),
+	"treeView.selection.down": shortcut({
 		defaultKeys: "down",
 		conditions: "treeView.focusSelected",
-	},
-	{
-		command: "treeView.expandSelected",
+	}),
+	"treeView.expandSelected": shortcut({
 		defaultKeys: "right",
 		conditions: "treeView.focusSelected",
-	},
-	{
-		command: "treeView.collapseSelected",
+	}),
+	"treeView.collapseSelected": shortcut({
 		defaultKeys: "left",
 		conditions: "treeView.focusSelected",
-	},
-	{
-		command: "treeView.toggleRename",
+	}),
+	"treeView.toggleRename": shortcut({
 		defaultKeys: ["enter", "f2"],
 		conditions: "treeView.focusSelected",
 		captureInsideTextFields: true,
-	},
-	{
-		command: "treeView.cancelRename",
+	}),
+	"treeView.cancelRename": shortcut({
 		defaultKeys: "escape",
 		conditions: "treeView.renaming",
 		captureInsideTextFields: true,
-	},
-	{
-		command: "numericGui.incrementAtCaret",
+	}),
+	"numericGui.incrementAtCaret": shortcut({
 		defaultKeys: "up",
 		conditions: "numericGui.hasFocus",
 		captureInsideTextFields: true,
-	},
-	{
-		command: "numericGui.decrementAtCaret",
+	}),
+	"numericGui.decrementAtCaret": shortcut({
 		defaultKeys: "down",
 		conditions: "numericGui.hasFocus",
 		captureInsideTextFields: true,
-	},
-	{
-		command: "droppableGui.unlink",
+	}),
+	"droppableGui.unlink": shortcut({
 		defaultKeys: ["backspace", "delete"],
 		conditions: "droppableGui.focusSelected",
-	},
-	{
-		command: "droppableGui.pasteUuid",
+	}),
+	"droppableGui.pasteUuid": shortcut({
 		defaultKeys: ["v"],
 		conditions: "droppableGui.focusSelected",
-	},
-	{
-		command: "entityEditor.transform.translate",
+	}),
+	"entityEditor.transform.translate": shortcut({
 		defaultKeys: ["g"],
 		holdType: "smart",
-	},
-	{
-		command: "entityEditor.transform.rotate",
+	}),
+	"entityEditor.transform.rotate": shortcut({
 		defaultKeys: ["r"],
 		holdType: "smart",
-	},
-];
+	}),
+});
+
+/** @typedef {keyof autoRegisterShortcutCommands} AutoRegisterShortcutCommands */
 export {autoRegisterShortcutCommands};

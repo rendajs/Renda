@@ -17,7 +17,7 @@ function basicTest({
 	fn,
 	shortcutConditions = {},
 }) {
-	const mockShortcutManager = /** @type {import("../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} */ ({
+	const mockShortcutManager = /** @type {import("../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager<any>} */ ({
 		getCondition(name) {
 			if (!Object.hasOwn(shortcutConditions, name)) {
 				return;
@@ -27,7 +27,7 @@ function basicTest({
 			};
 		},
 	});
-	const cmd = new ShortcutCommand(mockShortcutManager, commandOpts);
+	const cmd = new ShortcutCommand(mockShortcutManager, "cmd", commandOpts);
 	fn({cmd});
 }
 
@@ -41,7 +41,6 @@ Deno.test({
 		function sequenceTest(keys, expectedSequences) {
 			basicTest({
 				commandOpts: {
-					command: "cmd",
 					defaultKeys: keys,
 				},
 				fn({cmd}) {
@@ -77,7 +76,6 @@ Deno.test({
 		function conditionsTest(conditions, expectedResult) {
 			basicTest({
 				commandOpts: {
-					command: "cmd",
 					conditions,
 				},
 				shortcutConditions: basicConditions,
