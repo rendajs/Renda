@@ -92,22 +92,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (jsonData.children) {
 			for (const childJson of jsonData.children) {
 				if (childJson.assetUuid) {
-					// const insertionIndex = entity.childCount;
 					const child = this.assetManager.entityAssetManager.createdTrackedEntity(childJson.assetUuid);
 					entity.add(child);
-					// recursionTracker.getLiveAsset(childJson.assetUuid, child => {
-					// 	if (child) {
-					// 		child = child.clone();
-					// 	} else {
-					// 		child = new Entity("Missing entity asset");
-					// 	}
-					// 	const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
-					// 	castChild[entityAssetRootUuidSymbol] = childJson.assetUuid;
-					// 	entity.removeAtIndex(insertionIndex); // Remove the old dummy entity
-					// 	entity.addAtIndex(child, insertionIndex);
-					// }, {
-					// 	assertAssetType: ProjectAssetTypeEntity,
-					// });
 				} else {
 					const child = this.createEntityFromJsonData(childJson, recursionTracker);
 					entity.add(child);
