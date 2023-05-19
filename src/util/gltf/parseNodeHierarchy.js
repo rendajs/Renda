@@ -2,8 +2,8 @@ import {Entity} from "../../core/Entity.js";
 
 /**
  * Parses a list of scenes and puts them into a single entity.
- * @param {import("./types.js").GltfSceneData[]} scenes
- * @param {import("./types.js").GltfNodeData[]} [nodes]
+ * @param {import("./types.ts").GltfSceneData[]} scenes
+ * @param {import("./types.ts").GltfNodeData[]} [nodes]
  */
 export function parseScenes(scenes, nodes = []) {
 	const entity = new Entity();
@@ -21,8 +21,8 @@ export function parseScenes(scenes, nodes = []) {
 
 /**
  * Creates a single entity representing a scene and fills in its children.
- * @param {import("./types.js").GltfSceneData} scene
- * @param {import("./types.js").GltfNodeData[]} nodes
+ * @param {import("./types.ts").GltfSceneData} scene
+ * @param {import("./types.ts").GltfNodeData[]} nodes
  */
 export function parseScene(scene, nodes) {
 	const sceneEntity = new Entity({
@@ -55,7 +55,7 @@ export function parseScene(scene, nodes) {
 
 /**
  * @param {number} nodeId
- * @param {import("./types.js").GltfNodeData[]} nodes
+ * @param {import("./types.ts").GltfNodeData[]} nodes
  * @param {Map<number, Entity>} createdEntities
  */
 function parseNodeRecursive(nodeId, nodes, createdEntities) {

@@ -14,7 +14,7 @@ import {getGltfTextureData} from "./getTexture.js";
 /**
  * Helper function for parsing and caching gltf materials.
  *
- * @param {import("./types.js").GltfJsonData} jsonData
+ * @param {import("./types.ts").GltfJsonData} jsonData
  * @param {number | undefined} materialId The index of the material to get from the jsonData.
  * @param {Map<number, Material>} materialsCache
  * @param {GetMaterialHelperOptions} options

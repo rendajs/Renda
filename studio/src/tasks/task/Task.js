@@ -91,7 +91,7 @@ export class Task {
 
 	/**
 	 * The structure of the ui that should be rendered in the properties content window.
-	 * @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure?}
 	 */
 	static configStructure = null;
 

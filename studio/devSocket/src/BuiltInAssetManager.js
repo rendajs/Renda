@@ -32,7 +32,7 @@ export class BuiltInAssetManager {
 			await this.loadAssetSettingsFn();
 		});
 		this.assetSettingsLoaded = false;
-		/** @type {Map<import("../../../src/util/mod.js").UuidString, import("../../src/assets/AssetSettingsDiskTypes.js").AssetSettingsAssetDiskData>}*/
+		/** @type {Map<import("../../../src/util/mod.js").UuidString, import("../../src/assets/AssetSettingsDiskTypes.ts").AssetSettingsAssetDiskData>}*/
 		this.assetSettings = new Map();
 		/** @type {Map<string, import("../../../src/util/mod.js").UuidString>} */
 		this.fileHashes = new Map(); // <md5, uuid>
@@ -63,7 +63,7 @@ export class BuiltInAssetManager {
 
 	async loadAssetSettingsFn() {
 		const str = await Deno.readTextFile(this.assetSettingsPath);
-		/** @type {import("../../src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
+		/** @type {import("../../src/assets/AssetSettingsDiskTypes.ts").AssetSettingsDiskData?} */
 		let data = null;
 		try {
 			data = JSON.parse(str);

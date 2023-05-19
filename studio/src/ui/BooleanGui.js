@@ -1,7 +1,7 @@
-/** @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase} BooleanGuiOptions */
+/** @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase} BooleanGuiOptions */
 
 export class BooleanGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<boolean>} OnValueChangeCallback */
+	/** @typedef {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<boolean>} OnValueChangeCallback */
 	/** @type {Set<OnValueChangeCallback>} */
 	#onValueChangeCbs = new Set();
 

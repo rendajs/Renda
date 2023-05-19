@@ -114,16 +114,16 @@ export class StudioConnection {
 		this.messageHandler.send(sendData);
 	}
 
-	/** @typedef {import("./protocolRequestHandlers/getRequestHandlerType.js").HandlerCommands} HandlerCommands */
+	/** @typedef {import("./protocolRequestHandlers/getRequestHandlerType.ts").HandlerCommands} HandlerCommands */
 
 	/**
 	 * @template {HandlerCommands} TCommand
-	 * @typedef {import("./protocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerArgs<TCommand>} getRequestHandlerArgs
+	 * @typedef {import("./protocolRequestHandlers/getRequestHandlerType.ts").getRequestHandlerArgs<TCommand>} getRequestHandlerArgs
 	 */
 
 	/**
 	 * @template {HandlerCommands} TCommand
-	 * @typedef {import("./protocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerReturnType<TCommand>} getRequestHandlerReturnType
+	 * @typedef {import("./protocolRequestHandlers/getRequestHandlerType.ts").getRequestHandlerReturnType<TCommand>} getRequestHandlerReturnType
 	 */
 
 	/**

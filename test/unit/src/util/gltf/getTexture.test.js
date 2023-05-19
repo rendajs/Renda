@@ -4,7 +4,7 @@ import {Texture} from "../../../../../src/core/Texture.js";
 import {getGltfTextureData, getTextureHelper} from "../../../../../src/util/gltf/getTexture.js";
 
 function basicSetup() {
-	/** @type {import("../../../../../src/util/gltf/types.js").GltfJsonData} */
+	/** @type {import("../../../../../src/util/gltf/types.ts").GltfJsonData} */
 	const jsonData = {
 		asset: {version: "2.0"},
 	};
@@ -142,7 +142,7 @@ Deno.test({
 Deno.test({
 	name: "getGltfTextureData throws when the texture id doesn't exist",
 	fn() {
-		/** @type {import("../../../../../src/util/gltf/types.js").GltfJsonData} */
+		/** @type {import("../../../../../src/util/gltf/types.ts").GltfJsonData} */
 		const jsonData = {
 			asset: {version: "2.0"},
 			textures: [
@@ -162,7 +162,7 @@ Deno.test({
 Deno.test({
 	name: "getGltfTextureData throws when the textures array doesn't exist",
 	fn() {
-		/** @type {import("../../../../../src/util/gltf/types.js").GltfJsonData} */
+		/** @type {import("../../../../../src/util/gltf/types.ts").GltfJsonData} */
 		const jsonData = {
 			asset: {version: "2.0"},
 		};

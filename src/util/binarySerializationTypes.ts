@@ -1,5 +1,5 @@
-import type { AllStorageTypes, ObjectToBinaryOptions, StorageTypeEnum } from "./mod";
-import type { UuidString } from "./util";
+import type { AllStorageTypes, ObjectToBinaryOptions, StorageTypeEnum } from "./mod.js";
+import type { UuidString } from "./util.js";
 
 /**
  * @fileoverview These are some TypeScript types that can be used to convert

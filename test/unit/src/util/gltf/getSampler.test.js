@@ -4,12 +4,12 @@ import {CLAMP_TO_EDGE, LINEAR, LINEAR_MIPMAP_LINEAR, LINEAR_MIPMAP_NEAREST, MIRR
 
 /**
  * @param {object} options
- * @param {import("../../../../../src/util/gltf/types.js").GltfSamplerData} [options.samplerData]
+ * @param {import("../../../../../src/util/gltf/types.ts").GltfSamplerData} [options.samplerData]
  */
 function basicSetup({
 	samplerData = {},
 } = {}) {
-	/** @type {import("../../../../../src/util/gltf/types.js").GltfJsonData} */
+	/** @type {import("../../../../../src/util/gltf/types.ts").GltfJsonData} */
 	const jsonData = {
 		asset: {version: "2.0"},
 		samplers: [samplerData],

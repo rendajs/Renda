@@ -28,7 +28,7 @@ export const BASIC_ASSET_EXTENSION = "BASIC_ASSET_EXTENSION";
  * @param {object} options
  * @param {boolean} [options.waitForAssetListsLoad]
  * @param {StubAssetConfig[]} [options.stubAssets]
- * @param {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} [options.assetSettings]
+ * @param {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.ts").AssetSettingsDiskData?} [options.assetSettings]
  */
 export async function basicSetup({
 	waitForAssetListsLoad = true,

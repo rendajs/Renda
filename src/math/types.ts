@@ -1,4 +1,4 @@
-import type { Vec3 } from "./Vec3";
+import type { Vec3 } from "./Vec3.js";
 
 export type GetFirstParam<T> = T extends [infer P] ? P : never;
 

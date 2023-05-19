@@ -19,7 +19,7 @@ function createGltfBuffer({
 	uint32Numbers.push(0); // total length to be set later
 
 	if (hasJson) {
-		/** @type {import("../../../../../src/util/gltf/types.js").GltfJsonData} */
+		/** @type {import("../../../../../src/util/gltf/types.ts").GltfJsonData} */
 		const jsonData = {
 			asset: {
 				version: "2.0",

@@ -52,7 +52,7 @@ export class MaterialMapTypeSerializer {
 	/**
 	 * Set this to a structure to automatically load and save data for this map type.
 	 * This is optional if {@link propertiesMaterialMapContentConstructor} is set.
-	 * @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure?}
 	 */
 	static settingsStructure = null;
 

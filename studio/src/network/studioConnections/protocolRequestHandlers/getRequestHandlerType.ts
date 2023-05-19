@@ -1,5 +1,5 @@
-import type {ProtocolManagerRequestHandler, RequestMetaData} from "../ProtocolManager";
-import type {autoRegisterRequestHandlers} from "./autoRegisterRequestHandlers";
+import type {ProtocolManagerRequestHandler, RequestMetaData} from "../ProtocolManager.js";
+import type {autoRegisterRequestHandlers} from "./autoRegisterRequestHandlers.js";
 
 type HandlerTypes = typeof autoRegisterRequestHandlers extends (infer T)[] ? T : never;
 

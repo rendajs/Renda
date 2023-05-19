@@ -8,7 +8,7 @@ import {getMaterialHelper} from "../../../../../src/util/gltf/getMaterial.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 
 function basicSetup() {
-	/** @type {import("../../../../../src/util/gltf/types.js").GltfJsonData} */
+	/** @type {import("../../../../../src/util/gltf/types.ts").GltfJsonData} */
 	const jsonData = {
 		asset: {version: "2.0"},
 		materials: [

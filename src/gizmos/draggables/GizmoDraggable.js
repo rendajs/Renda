@@ -56,7 +56,7 @@ export class GizmoDraggable {
 
 		this.entity = new Entity("GizmoDraggable (" + this.constructor.name + ")");
 
-		/** @type {Set<import("../../math/types.js").RaycastShape>} */
+		/** @type {Set<import("../../math/types.ts").RaycastShape>} */
 		this.shapes = new Set();
 	}
 
@@ -72,7 +72,7 @@ export class GizmoDraggable {
 	}
 
 	/**
-	 * @param {import("../../math/types.js").RaycastShape} shape
+	 * @param {import("../../math/types.ts").RaycastShape} shape
 	 */
 	addRaycastShape(shape) {
 		this.shapes.add(shape);
@@ -103,7 +103,7 @@ export class GizmoDraggable {
 		// Convert the result back to world space
 		if (closestResult) {
 			const pos = closestResult.pos.multiply(this.entity.worldMatrix);
-			/** @type {import("../../math/types.js").RaycastResult} */
+			/** @type {import("../../math/types.ts").RaycastResult} */
 			const result = {
 				pos,
 				dist: pos.distanceTo(start),

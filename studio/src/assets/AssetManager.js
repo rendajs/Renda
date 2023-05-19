@@ -213,7 +213,7 @@ export class AssetManager {
 		}
 
 		if (await this.fileSystem.isFile(this.assetSettingsPath)) {
-			const json = /** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */ (await this.fileSystem.readJson(this.assetSettingsPath));
+			const json = /** @type {import("./AssetSettingsDiskTypes.ts").AssetSettingsDiskData?} */ (await this.fileSystem.readJson(this.assetSettingsPath));
 			if (json) {
 				if (json.assets) {
 					for (const [uuid, assetData] of Object.entries(json.assets)) {
@@ -296,11 +296,11 @@ export class AssetManager {
 	}
 
 	async saveAssetSettings() {
-		/** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
+		/** @type {import("./AssetSettingsDiskTypes.ts").AssetSettingsDiskData?} */
 		const assetSettings = {};
 
 		let hasAssets = false;
-		/** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData["assets"]} */
+		/** @type {import("./AssetSettingsDiskTypes.ts").AssetSettingsDiskData["assets"]} */
 		const assets = {};
 		for (const [uuid, projectAsset] of this.projectAssets) {
 			if (projectAsset.needsAssetSettingsSave) {
@@ -311,7 +311,7 @@ export class AssetManager {
 		if (hasAssets) {
 			assetSettings.assets = assets;
 		}
-		/** @type {import("./AssetSettingsDiskTypes.js").InternallyCreatedAssetDiskData[]} */
+		/** @type {import("./AssetSettingsDiskTypes.ts").InternallyCreatedAssetDiskData[]} */
 		const internallyCreatedAssets = [];
 		for (const [uuid, asset] of this.internallyCreatedAssets) {
 			if (!asset.needsPersistentUuid) continue;

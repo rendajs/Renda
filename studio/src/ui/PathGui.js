@@ -1,11 +1,11 @@
 import {getStudioInstance} from "../studioInstance.js";
 
 /**
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase} PathGuiOptions
+ * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase} PathGuiOptions
  */
 
 export class PathGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath>} OnPathGuiChangeCallback */
+	/** @typedef {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath>} OnPathGuiChangeCallback */
 	/** @type {Set<OnPathGuiChangeCallback>} */
 	#onValueChangeCbs = new Set();
 
@@ -52,7 +52,7 @@ export class PathGui {
 	}
 
 	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	#fireOnChangeCbs(trigger) {
 		for (const cb of this.#onValueChangeCbs) {

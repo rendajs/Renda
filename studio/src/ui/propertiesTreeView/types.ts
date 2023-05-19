@@ -1,5 +1,5 @@
 import { Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
-import { UnionToIntersection } from "../../../../src/util/types.js";
+import { UnionToIntersection } from "../../../../src/util/types.ts";
 import { ArrayGui, ArrayGuiOptions, GetArrayGuiForOptions, GetArrayGuiValueTypeForOptions } from "../ArrayGui.js";
 import { BooleanGui, BooleanGuiOptions } from "../BooleanGui.js";
 import { PathGui, PathGuiOptions } from "../PathGui.js";
@@ -8,7 +8,7 @@ import { ButtonSelectorGui, ButtonSelectorGuiOptions } from "../ButtonSelectorGu
 import { DropDownGui, DropDownGuiOptions, GetDropDownValueTypeForOptions } from "../DropDownGui.js";
 import { DroppableGui, DroppableGuiOptions, GetDroppableValueTypeForOptions, GetGuiReturnTypeForOptions } from "../DroppableGui.js";
 import { LabelGui, LabelGuiOptions } from "../LabelGui.js";
-import { GetNumericGuiValueTypeForOptions, NumericGui, NumericGuiGetValueReturn, NumericGuiOptions } from "../NumericGui.js";
+import { GetNumericGuiValueTypeForOptions, NumericGui, NumericGuiOptions } from "../NumericGui.js";
 import { GetObjectGuiForOptions, GetObjectValueTypeForOptions, ObjectGui, ObjectGuiOptions } from "../ObjectGui.js";
 import { TextGui, TextGuiOptions } from "../TextGui.js";
 import { TreeViewEvent } from "../TreeView.js";

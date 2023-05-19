@@ -26,7 +26,7 @@ export const environmentVariablesStructure = createTreeViewStructure({
 export class PropertiesAssetContentTask extends PropertiesAssetContent {
 	/** @type {string?} */
 	#currentSelectedTaskType = null;
-	/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?} */
+	/** @type {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure?} */
 	#currentConfigStructure = null;
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
@@ -103,7 +103,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		if (taskType.configStructure) {
 			this.taskConfigTree.generateFromSerializableStructure(taskType.configStructure);
 			const configData = this.studioInstance.taskManager.transformAssetToUiData(this.#currentSelectedTaskType, assetContent.taskConfig);
-			const castConfigData = /** @type {import("../ui/propertiesTreeView/types.js").StructureToSetObject<any> | undefined} */ (configData);
+			const castConfigData = /** @type {import("../ui/propertiesTreeView/types.ts").StructureToSetObject<any> | undefined} */ (configData);
 			if (castConfigData) {
 				this.taskConfigTree.fillSerializableStructureValues(castConfigData);
 			}

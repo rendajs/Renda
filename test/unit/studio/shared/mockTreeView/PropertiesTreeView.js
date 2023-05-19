@@ -27,7 +27,7 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} opts
+	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} opts
 	 */
 	addItem(opts) {
 		const entry = new PropertiesTreeViewEntry(opts);
@@ -36,20 +36,20 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} structure
 	 * @param {object} [opts]
 	 * @param {object} [opts.callbacksContext]
 	 */
 	generateFromSerializableStructure(structure, opts) {}
 
 	/**
-	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.js").StructureToSetObject<any>} values
-	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.js").AllPossibleSetValueOpts} [setValueOpts]
+	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").StructureToSetObject<any>} values
+	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").AllPossibleSetValueOpts} [setValueOpts]
 	 */
 	fillSerializableStructureValues(values, setValueOpts) {}
 }
 
 /**
- * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} Structure
+ * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} Structure
  * @typedef {PropertiesTreeView & import("../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView<Structure>} MockPropertiesTreeView
  */

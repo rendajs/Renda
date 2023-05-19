@@ -7,7 +7,7 @@ import {FLOAT, UNSIGNED_INT} from "../../../../../src/util/gltf/constants.js";
 /**
  * @param {object} options
  * @param {number} [options.indicesAccessorComponentType]
- * @param {import("../../../../../src/util/gltf/types.js").GltfAccessorType} [options.indicesAccessorType]
+ * @param {import("../../../../../src/util/gltf/types.ts").GltfAccessorType} [options.indicesAccessorType]
  */
 function basicSetup({
 	indicesAccessorComponentType = UNSIGNED_INT,
@@ -27,7 +27,7 @@ function basicSetup({
 		return new Material();
 	};
 
-	/** @type {import("../../../../../src/util/gltf/types.js").GltfJsonData} */
+	/** @type {import("../../../../../src/util/gltf/types.ts").GltfJsonData} */
 	const basicGltfJsonData = {
 		asset: {version: "2.0"},
 		nodes: [

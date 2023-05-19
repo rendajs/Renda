@@ -3,7 +3,7 @@
  * for TreeViewStructures.
  * In JavaScript, this simply returns its input. But in TypeScript, the
  * return type is inferred from the input.
- * @template {import("./types.js").PropertiesTreeViewStructure} T
+ * @template {import("./types.ts").PropertiesTreeViewStructure} T
  * @param {T} structure
  */
 export function createTreeViewStructure(structure) {
@@ -15,7 +15,7 @@ export function createTreeViewStructure(structure) {
  * for PropertiesTreeViewEntries.
  * In JavaScript, this simply returns its input. But in TypeScript, the
  * return type is inferred from the input.
- * @template {import("./types.js").PropertiesTreeViewEntryOptions} T
+ * @template {import("./types.ts").PropertiesTreeViewEntryOptions} T
  * @param {T} options
  */
 export function createTreeViewEntryOptions(options) {

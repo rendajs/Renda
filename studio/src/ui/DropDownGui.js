@@ -7,12 +7,12 @@ import {prettifyVariableName} from "../util/util.js";
  * @property {string | number} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  */
 /**
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & DropDownGuiOptionsType} DropDownGuiOptions
+ * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase & DropDownGuiOptionsType} DropDownGuiOptions
  */
 
 /**
  * @template {boolean} [T = true]
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef {object} GetValueOptions
  * @property {T} [getAsString = true] If an enumObject is set, this controls whether the number or string of
  * the enumObject is returned. If no enumObject is set, this controls whether the index or the value of the
@@ -30,7 +30,7 @@ import {prettifyVariableName} from "../util/util.js";
 
 /**
  * @template {boolean} [T = true]
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef {U extends "fileStorage" ? string :
  * U extends "binarySerialization" ? string :
  * U extends "default" | undefined ? (
@@ -44,10 +44,10 @@ import {prettifyVariableName} from "../util/util.js";
 /**
  * @template TOpts
  * @typedef {TOpts extends GetValueOptionsNoConstraints<infer T, infer U> ?
- * 		import("./propertiesTreeView/types.js").ReplaceUnknown<T, true> extends infer TDefaulted ?
- * 			import("./propertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 		import("./propertiesTreeView/types.ts").ReplaceUnknown<T, true> extends infer TDefaulted ?
+ * 			import("./propertiesTreeView/types.ts").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
  * 				TDefaulted extends boolean ?
- * 					UDefaulted extends import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
+ * 					UDefaulted extends import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose ?
  * 						GetValueReturn<TDefaulted, UDefaulted> :
  * 						never :
  * 					never :
@@ -57,7 +57,7 @@ import {prettifyVariableName} from "../util/util.js";
  */
 
 export class DropDownGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<string | number>} OnValueChangeCallback */
+	/** @typedef {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<string | number>} OnValueChangeCallback */
 
 	/** @type {Set<OnValueChangeCallback>} */
 	#onValueChangeCbs = new Set();
@@ -169,7 +169,7 @@ export class DropDownGui {
 
 	/**
 	 * @template {boolean} [T = true]
-	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+	 * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [U = "default"]
 	 * @param {GetValueOptions<T, U>} opts
 	 * @returns {GetValueReturn<T, U>}
 	 */

@@ -28,7 +28,7 @@ export function getBasicExtendedComponent() {
 		}
 
 		/**
-		 * @param {import("../../../../../src/components/types.js").ComponentPropertyValues<typeof ExtendedComponent>} propertyValues
+		 * @param {import("../../../../../src/components/types.ts").ComponentPropertyValues<typeof ExtendedComponent>} propertyValues
 		 * @param {import("../../../../../src/components/Component.js").ComponentConstructorRestArgs} args
 		 */
 		constructor(propertyValues = {}, ...args) {

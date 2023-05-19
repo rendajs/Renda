@@ -21,7 +21,7 @@ import {VALUE_CHANGE_EVENT_NAME} from "./PropertiesTreeView.js";
  * @property {any} [defaultValue]
  * @property {(...args: any) => any} [getValue]
  * @property {*} [value]
- * @property {(cb: (event: import("./types.js").GuiInterfaceValueChangeEvent<any>) => void) => void} [onValueChange]
+ * @property {(cb: (event: import("./types.ts").GuiInterfaceValueChangeEvent<any>) => void) => void} [onValueChange]
  * @property {() => any} [destructor]
  * @property {(value: any, options: any) => any} [setValue]
  * @property {(disabled: boolean) => any} [setDisabled]
@@ -35,26 +35,26 @@ import {VALUE_CHANGE_EVENT_NAME} from "./PropertiesTreeView.js";
  */
 
 /**
- * @typedef {PropertiesTreeViewEntry<import("./types.js").GuiTypeInstances>} PropertiesTreeViewEntryAny
+ * @typedef {PropertiesTreeViewEntry<import("./types.ts").GuiTypeInstances>} PropertiesTreeViewEntryAny
  */
 
 /**
- * @template {import("./types.js").GuiTypeInstances} T
+ * @template {import("./types.ts").GuiTypeInstances} T
  */
 export class PropertiesTreeViewEntry extends TreeView {
 	/**
-	 * @template {import("./types.js").PropertiesTreeViewEntryOptions} T
+	 * @template {import("./types.ts").PropertiesTreeViewEntryOptions} T
 	 * @param {T} opts
-	 * @returns {import("./types.js").TreeViewEntryFactoryReturnType<T>}
+	 * @returns {import("./types.ts").TreeViewEntryFactoryReturnType<T>}
 	 */
 	static of(opts) {
 		const x = new PropertiesTreeViewEntry(opts);
-		return /** @type {import("./types.js").TreeViewEntryFactoryReturnType<T>} */ (x);
+		return /** @type {import("./types.ts").TreeViewEntryFactoryReturnType<T>} */ (x);
 	}
 
 	/**
 	 * @deprecated Use {@link of} instead.
-	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<any>} opts
+	 * @param {import("./types.ts").PropertiesTreeViewEntryOptionsGeneric<any>} opts
 	 */
 	constructor({
 		type,
@@ -91,8 +91,8 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.customEl.appendChild(this.valueEl);
 
 		/**
-		 * @template {import("./types.js").GuiTypes} U
-		 * @typedef {import("./types.js").GetGuiOptions<U>} GetGuiOpts
+		 * @template {import("./types.ts").GuiTypes} U
+		 * @typedef {import("./types.ts").GetGuiOptions<U>} GetGuiOpts
 		 */
 
 		this.type = type;
@@ -186,7 +186,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.registerNewEventType(VALUE_CHANGE_EVENT_NAME);
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.onValueChange?.(guiChangeEvent => {
-			/** @type {import("./types.js").PropertiesTreeViewChangeEvent<any>} */
+			/** @type {import("./types.ts").PropertiesTreeViewChangeEvent<any>} */
 			const event = {
 				target: this,
 				newValue: guiChangeEvent.value,
@@ -211,8 +211,8 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @param {import("./types.js").SetValueType<T>} newValue
-	 * @param {import("./types.js").SetValueOptionsType<T>} setValueOpts
+	 * @param {import("./types.ts").SetValueType<T>} newValue
+	 * @param {import("./types.ts").SetValueOptionsType<T>} setValueOpts
 	 */
 	setValue(newValue, setValueOpts = {}) {
 		if (setValueOpts?.beforeValueSetHook && setValueOpts.setOnObject != undefined && setValueOpts.setOnObjectKey != undefined) {
@@ -231,7 +231,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @param {import("./types.js").PropertiesTreeViewEntryChangeCallback<import("./types.js").GetValueType<T>>} cb
+	 * @param {import("./types.ts").PropertiesTreeViewEntryChangeCallback<import("./types.ts").GetValueType<T>>} cb
 	 */
 	onValueChange(cb) {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
@@ -243,12 +243,12 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @template {import("./types.js").GetValueOptionsType<T> | {}} [TOpts = {}]
-	 * @param {TOpts | import("./types.js").GetValueOptionsType<T> | import("./types.js").BaseGetValueOptions} guiOpts
-	 * @returns {import("./types.js").GetValueType<T, TOpts>}
+	 * @template {import("./types.ts").GetValueOptionsType<T> | {}} [TOpts = {}]
+	 * @param {TOpts | import("./types.ts").GetValueOptionsType<T> | import("./types.ts").BaseGetValueOptions} guiOpts
+	 * @returns {import("./types.ts").GetValueType<T, TOpts>}
 	 */
-	getValue(guiOpts = /** @type {TOpts & import("./types.js").GetValueOptionsType<T>} */ ({})) {
-		if (!this.gui) return /** @type {import("./types.js").GetValueType<T, TOpts>} */ (null);
+	getValue(guiOpts = /** @type {TOpts & import("./types.ts").GetValueOptionsType<T>} */ ({})) {
+		if (!this.gui) return /** @type {import("./types.ts").GetValueType<T, TOpts>} */ (null);
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		if (castGui.getValue) {
 			return castGui.getValue(guiOpts);
@@ -270,7 +270,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	 * Useful for entries that should not have a value such as buttons, labels, etc.
 	 * Is also used for stripping default values.
 	 * @param {object} [guiOpts]
-	 * @param {import("./types.js").TreeViewStructureOutputPurpose} [guiOpts.purpose]
+	 * @param {import("./types.ts").TreeViewStructureOutputPurpose} [guiOpts.purpose]
 	 * @param {boolean} [guiOpts.stripDefaultValues]
 	 * @returns {boolean} If `true`, the value will be omitted from getSerializableStructureValues.
 	 */

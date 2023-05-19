@@ -53,7 +53,7 @@ const entityBinaryStructure = [
 
 entityBinaryStructureInline.children[0] = entityBinaryStructure;
 
-/** @typedef {import("../../util/binarySerializationTypes.js").StructureToObject<typeof entityBinaryStructure>} EnityData */
+/** @typedef {import("../../util/binarySerializationTypes.ts").StructureToObject<typeof entityBinaryStructure>} EnityData */
 
 const entityBinaryNameIds = {
 	name: 1,
