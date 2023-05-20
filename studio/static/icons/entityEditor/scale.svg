@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<path id="hexagon" d="M 0 -100 L 86.6 -50 L 86.6 50 L 0 100 L -86.6 50 L -86.6 -50 Z"/>
+		<g id="axis" style="fill: black; stroke: black;">
+			<path d="M 0 0 L 0 -200"/>
+			<use href="#hexagon" transform="translate(0, -200) scale(0.35)" />
+		</g>
+	</defs>
+  <g style="fill: transparent; stroke: black; stroke-width: 20px;" transform="translate(250, 280)">
+		<use href="#hexagon" fill="transparent" />
+		<use href="#axis" />
+		<use href="#axis" transform="rotate(120)" />
+		<use href="#axis" transform="rotate(240)" />
+  </g>
+</svg>

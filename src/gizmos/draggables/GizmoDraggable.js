@@ -14,6 +14,7 @@ import {Entity} from "../../core/Entity.js";
  * @property {import("./TranslateGizmoDraggable.js").TranslateGizmoDraggable} move
  * @property {import("./TranslateAxisGizmoDraggable.js").TranslateAxisGizmoDraggable} move-axis
  * @property {import("./RotateAxisGizmoDraggable.js").RotateAxisGizmoDraggable} rotate-axis
+ * @property {import("./ScaleGizmoDraggable.js").ScaleGizmoDraggable} scale
  */
 
 /** @typedef {keyof GizmoDraggableTypes} GizmoDraggableType */

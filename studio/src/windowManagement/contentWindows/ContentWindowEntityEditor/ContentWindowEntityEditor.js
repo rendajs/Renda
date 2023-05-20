@@ -7,6 +7,7 @@ import {RotationGizmo} from "../../../../../src/gizmos/gizmos/RotationGizmo.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {EntitySavingManager} from "./EntitySavingManager.js";
+import { ScaleGizmo } from "../../../../../src/gizmos/gizmos/ScaleGizmo.js";
 
 export const ENTITY_EDITOR_CONTENT_WINDOW_ID = /** @type {const} */ ("renda:entityEditor");
 
@@ -25,7 +26,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	/**
 	 * @typedef TransformationGizmoData
 	 * @property {Entity[]} entities The list of entities that the gizmo is controlling
-	 * @property {TranslationGizmo | RotationGizmo} gizmo
+	 * @property {TranslationGizmo | RotationGizmo | ScaleGizmo} gizmo
 	 */
 
 	/**
@@ -63,6 +64,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					icon: "static/icons/entityEditor/rotate.svg",
 					colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 					tooltip: "Rotate Mode",
+				},
+				{
+					icon: "static/icons/entityEditor/scale.svg",
+					colorizerFilterManager: this.studioInstance.colorizerFilterManager,
+					tooltip: "Scale Mode",
 				},
 			],
 		});
@@ -395,6 +401,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.setTransformationMode("translate");
 		} else if (this.translationModeSelector.value == 1) {
 			this.setTransformationMode("rotate");
+		} else if (this.translationModeSelector.value == 2) {
+			this.setTransformationMode("scale");
 		}
 	}
 
@@ -498,12 +506,14 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				expectedType = TranslationGizmo;
 			} else if (gizmoType == "rotate") {
 				expectedType = RotationGizmo;
+			} else if (gizmoType == "scale") {
+				expectedType = ScaleGizmo;
 			} else {
 				throw new Error("Unknown transformation mode");
 			}
 			for (const oldGizmoData of oldTransformationGizmos) {
 				const {gizmo, entities: gizmoEntities} = oldGizmoData;
-				const castConstructor = /** @type {typeof TranslationGizmo | typeof RotationGizmo} */ (gizmo.constructor);
+				const castConstructor = /** @type {typeof TranslationGizmo | typeof RotationGizmo | typeof ScaleGizmo} */ (gizmo.constructor);
 				if (castConstructor != expectedType) continue;
 				for (const entity of entities) {
 					if (!gizmoEntities.includes(entity)) continue;
@@ -530,6 +540,12 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					gizmo = this.gizmos.addGizmo(RotationGizmo);
 					gizmo.onDrag(e => {
 						const localMatrix = e.localDelta.toMat4();
+						this.dragSelectedEntities(localMatrix);
+					});
+				} else if (this.transformationMode == "scale") {
+					gizmo = this.gizmos.addGizmo(ScaleGizmo);
+					gizmo.onDrag(e => {
+						const localMatrix = Mat4.createScale(e.localDelta);
 						this.dragSelectedEntities(localMatrix);
 					});
 				} else {
