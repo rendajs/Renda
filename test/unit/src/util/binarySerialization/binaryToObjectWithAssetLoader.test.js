@@ -1,6 +1,7 @@
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {assertEquals} from "std/testing/asserts.ts";
 import {StorageType, binaryToObjectWithAssetLoader, createObjectToBinaryOptions, objectToBinary} from "../../../../../src/mod.js";
+import {assertIsType} from "../../../shared/typeAssertions.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000001";
 
@@ -14,12 +15,6 @@ function createMockAssetLoader() {
 	});
 	return assetLoader;
 }
-
-/** @type {CreateTypeAssertionFn<unknown>} */
-const assertIsUnknown = () => {};
-
-/** @type {CreateTypeAssertionFn<import("../../../../../src/mod.js").UuidString>} */
-const assertIsUuidString = () => {};
 
 Deno.test({
 	name: "binaryToObjectWithAssetLoader()",
@@ -127,9 +122,11 @@ Deno.test({
 			],
 		});
 
-		assertIsUnknown(result.asset, result.asset);
-		// @ts-expect-error
-		assertIsUuidString(result.asset, result.asset);
+		// Verify that the type is a `unknown` and nothing else
+		const unknown = /** @type {unknown} */ ({});
+		assertIsType(unknown, result.asset);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, result.asset);
 	},
 });
 
@@ -178,8 +175,10 @@ Deno.test({
 			},
 		});
 
-		assertIsUnknown(result.union.asset, result.union.asset);
-		// @ts-expect-error
-		assertIsUuidString(result.union.asset, result.union.asset);
+		// Verify that the type is a `unknown` and nothing else
+		const unknown = /** @type {unknown} */ ({});
+		assertIsType(unknown, result.union.asset);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, result.union.asset);
 	},
 });
