@@ -39,12 +39,16 @@ export type getRequestHandlerArgs<T extends HandlerCommands> =
 			FullArgs extends [meta: RequestMetaData, ...rest: infer Args] ?
 				[...args: Args] :
 				never :
-			[...args: FullArgs] :
+			FullArgs extends any [] ?
+				[...args: FullArgs] :
+				[] :
 		never;
 
 export type getRequestHandlerReturnType<T extends HandlerCommands> =
 	getRequestHandlerType<T> extends ProtocolManagerRequestHandler<string, any, any, infer RequestSignature, infer ResponseSignature> ?
 		hasHandleResponse<T> extends true ?
-			ReturnType<ResponseSignature> :
+			ResponseSignature extends (...args: any) => any ?
+				ReturnType<ResponseSignature> :
+				never :
 			ReturnType<RequestSignature> :
 		never;
