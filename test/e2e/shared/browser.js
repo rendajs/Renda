@@ -22,7 +22,7 @@ globalThis.addEventListener("error", e => {
 	}
 });
 
-async function installIfNotInstalled() {
+export async function installIfNotInstalled() {
 	const fetcher = puppeteer.createBrowserFetcher({
 		product: "chrome",
 	});
