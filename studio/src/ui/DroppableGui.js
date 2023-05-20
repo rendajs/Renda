@@ -122,7 +122,7 @@ export class DroppableGui {
 		return /** @type {DroppableGui<InstanceType<T>>} */ (new DroppableGui(opts));
 	}
 
-	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter").ShorcutConditionValueSetter<boolean>?} */
+	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>?} */
 	#shortcutFocusValueSetter = null;
 
 	/**
