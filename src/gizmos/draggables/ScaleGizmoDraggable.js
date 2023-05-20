@@ -3,7 +3,7 @@ import {GizmoDraggable} from "./GizmoDraggable.js";
 
 /**
  * @typedef ScaleGizmoDragEvent
- * @property {number} scaleDelta The change in distance from the starting point since the last event.
+ * @property {number} worldDelta The change in distance from the starting point since the last event.
  */
 
 /**
@@ -49,7 +49,7 @@ export class ScaleGizmoDraggable extends GizmoDraggable {
 
 		/** @type {ScaleGizmoDragEvent} */
 		const moveEvent = {
-			scaleDelta,
+			worldDelta: scaleDelta,
 		};
 		this.fireDragCallbacks(moveEvent);
 	}

@@ -94,7 +94,7 @@ export class ScaleGizmo extends Gizmo {
 		});
 		this.#centerDraggable.onDrag(e => {
 			const localDelta = new Vec3(1, 1, 1);
-			localDelta.multiplyScalar(e.scaleDelta);
+			localDelta.multiplyScalar(e.worldDelta);
 
 			this.#onDragCbs.forEach(cb => cb({
 				localDelta,
