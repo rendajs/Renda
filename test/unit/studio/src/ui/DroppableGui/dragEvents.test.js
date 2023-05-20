@@ -5,7 +5,7 @@ import {BASIC_ASSET_UUID_FOR_SETTING, basicSetupForSettingByUuid, createBasicGui
 import {ProjectAssetType} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
 import {DroppableGui} from "../../../../../../studio/src/ui/DroppableGui.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {testTypes} from "../../../../shared/typeAssertions.js";
+import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
 
 const BASIC_DRAGGING_DATA_UUID = "BASIC_DRAGGING_DATA_UUID";
 const VALID_DRAG_TYPE = `text/renda; dragtype=projectasset; draggingdata=${BASIC_DRAGGING_DATA_UUID}`;
@@ -271,24 +271,35 @@ testTypes({
 			someMethodNotOnTheLiveAsset() {}
 		}
 
-		/** @type {CreateTypeAssertionFn<import("../../../../../../src/mod.js").UuidString | null>} */
-		const assertUuidString = () => {};
-
-		/** @type {CreateTypeAssertionFn<LiveAsset | null>} */
-		const assertLiveAsset = () => {};
-
 		// A gui with a live asset constructor as supported asset type.
 		const gui1 = DroppableGui.of({
 			supportedAssetTypes: [LiveAsset],
 		});
 
+		const uuidOrNull = /** @type {import("../../../../../../src/mod.js").UuidString | null} */ ("");
+		const liveAssetOrNull = /** @type {LiveAsset | null} */ (null);
+
 		const val1 = gui1.getValue();
-		assertUuidString(val1, val1);
+		// Verify that the type is a `UuidString | null` and nothing else
+		assertIsType(uuidOrNull, val1);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, val1);
+		// Verify that the union contains `UuidString`
+		assertIsType(val1, "");
+		// Verify that the union contains `null`
+		assertIsType(val1, null);
 
 		const val2 = gui1.getValue({
 			returnLiveAsset: true,
 		});
-		assertLiveAsset(val2, val2);
+		// Verify that the type is a `LiveAsset | null` and nothing else
+		assertIsType(liveAssetOrNull, val2);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, val2);
+		// Verify that the union contains `LiveAsset`
+		assertIsType(val2, new LiveAsset());
+		// Verify that the union contains `null`
+		assertIsType(val2, null);
 
 		// A gui with a ProjectAssetType constructor as supported asset type.
 		const gui2 = DroppableGui.of({
@@ -296,11 +307,25 @@ testTypes({
 		});
 
 		const val3 = gui2.getValue();
-		assertUuidString(val3, val3);
+		// Verify that the type is a `UuidString | null` and nothing else
+		assertIsType(uuidOrNull, val3);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, val3);
+		// Verify that the union contains `UuidString`
+		assertIsType(val3, "");
+		// Verify that the union contains `null`
+		assertIsType(val3, null);
 
 		const val4 = gui2.getValue({
 			returnLiveAsset: true,
 		});
-		assertLiveAsset(val4, val4);
+		// Verify that the type is a `LiveAsset | null` and nothing else
+		assertIsType(liveAssetOrNull, val4);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, val4);
+		// Verify that the union contains `LiveAsset`
+		assertIsType(val4, new LiveAsset());
+		// Verify that the union contains `null`
+		assertIsType(val4, null);
 	},
 });
