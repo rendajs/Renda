@@ -7,7 +7,7 @@ import {RotationGizmo} from "../../../../../src/gizmos/gizmos/RotationGizmo.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {EntitySavingManager} from "./EntitySavingManager.js";
-import { ScaleGizmo } from "../../../../../src/gizmos/gizmos/ScaleGizmo.js";
+import {ScaleGizmo} from "../../../../../src/gizmos/gizmos/ScaleGizmo.js";
 
 export const ENTITY_EDITOR_CONTENT_WINDOW_ID = /** @type {const} */ ("renda:entityEditor");
 

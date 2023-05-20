@@ -3,7 +3,7 @@ import {Material} from "../rendering/Material.js";
 import {VertexState} from "../rendering/VertexState.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../studioDefines.js";
 import {RotateAxisGizmoDraggable} from "./draggables/RotateAxisGizmoDraggable.js";
-import { ScaleGizmoDraggable } from "./draggables/ScaleGizmoDraggable.js";
+import {ScaleGizmoDraggable} from "./draggables/ScaleGizmoDraggable.js";
 import {TranslateAxisGizmoDraggable} from "./draggables/TranslateAxisGizmoDraggable.js";
 import {TranslateGizmoDraggable} from "./draggables/TranslateGizmoDraggable.js";
 import {GizmoPointerDevice} from "./GizmoPointerDevice.js";
