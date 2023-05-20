@@ -187,7 +187,7 @@ Deno.test({
 
 		await assetContent.selectionUpdated([mockMaterialAsset]);
 
-		/** @type {import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions[]} */
+		/** @type {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions[]} */
 		const createdValueOptions = [];
 		for (const child of assetContent.mapValuesTreeView.children) {
 			const castChildEntry = /** @type {import("../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} */ (child);

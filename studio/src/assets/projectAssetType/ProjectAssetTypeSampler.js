@@ -23,7 +23,7 @@ export class ProjectAssetTypeSampler extends ProjectAssetType {
 	static newFileName = "New Sampler";
 	static uiName = "Sampler";
 
-	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
 		addressModeU: {
 			type: "dropdown",

@@ -9,11 +9,11 @@ import {Mat4} from "./Mat4.js";
  * @typedef {(vec: Vec4) => Vec4} vec4SetVec4Signature
  * @typedef {(x?: number, y?: number, z?: number, w?: number) => Vec4} vec4SetNumNumSignature
  * @typedef {(xyzw: number[]) => Vec4} vec4SetArraySignature
- * @typedef {import("./types.js").MergeParameters<vec4SetEmptySignature | vec4SetVec2Signature | vec4SetVec3Signature | vec4SetVec4Signature | vec4SetNumNumSignature | vec4SetArraySignature>} Vec4Parameters
+ * @typedef {import("./types.ts").MergeParameters<vec4SetEmptySignature | vec4SetVec2Signature | vec4SetVec3Signature | vec4SetVec4Signature | vec4SetNumNumSignature | vec4SetArraySignature>} Vec4Parameters
  */
 
 /**
- * @typedef {import("./types.js").GetFirstParam<Vec4Parameters>} Vec4ParameterSingle
+ * @typedef {import("./types.ts").GetFirstParam<Vec4Parameters>} Vec4ParameterSingle
  */
 
 export class Vec4 {

@@ -13,12 +13,12 @@ import {ButtonGroup} from "./ButtonGroup.js";
  * @property {ButtonSelectorGuiValueTypes} [defaultValue] The default value of the gui when it hasn't been modified by the user.
  */
 /**
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ButtonSelectorGuiOptionsType & import("./ButtonGroup.js").ButtonGroupOptions} ButtonSelectorGuiOptions
+ * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase & ButtonSelectorGuiOptionsType & import("./ButtonGroup.js").ButtonGroupOptions} ButtonSelectorGuiOptions
  */
 
 /**
  * @template {boolean} I
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} P
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} P
  * @typedef {object} ButtonSelectorGuiGetValueOptions
  * @property {I} [getIndex = false]
  * @property {P} [purpose = "default"]
@@ -32,14 +32,14 @@ import {ButtonGroup} from "./ButtonGroup.js";
 /**
  * @template {boolean} TAllowSelectNone
  * @template {boolean} [I = false]
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [P = "default"]
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [P = "default"]
  * @typedef {P extends "binarySerialization" ? IndexReturnHelper<TAllowSelectNone> :
  * 		I extends true ? IndexReturnHelper<TAllowSelectNone> :
  * 		IndexReturnHelper<TAllowSelectNone> | string} ButtonSelectorGuiGetValueReturn
  */
 
 /** @typedef {string | number | null} ButtonSelectorGuiValueTypes */
-/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<ButtonSelectorGuiValueTypes>} OnButtonselectorGuiValueChange */
+/** @typedef {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<ButtonSelectorGuiValueTypes>} OnButtonselectorGuiValueChange */
 
 /**
  * A button group where only a single value can be selected at a time.
@@ -153,7 +153,7 @@ export class ButtonSelectorGui {
 	 * returns, the string is returned. Otherwise the index of the button that
 	 * is selected is returned.
 	 * @template {boolean} [I = false]
-	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [P = "default"]
+	 * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [P = "default"]
 	 * @param {ButtonSelectorGuiGetValueOptions<I, P>} options
 	 * @returns {ButtonSelectorGuiGetValueReturn<TAllowSelectNone, I, P>}
 	 */
@@ -192,7 +192,7 @@ export class ButtonSelectorGui {
 	}
 
 	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	fireOnChangeCbs(trigger) {
 		for (const cb of this.onValueChangeCbs) {

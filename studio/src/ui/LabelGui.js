@@ -4,7 +4,7 @@
  * @property {string} [tooltip] The text to display when hovering over the label.
  */
 /**
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & LabelGuiOptionsType} LabelGuiOptions
+ * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase & LabelGuiOptionsType} LabelGuiOptions
  */
 
 export class LabelGui {

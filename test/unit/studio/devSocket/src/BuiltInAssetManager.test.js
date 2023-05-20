@@ -522,7 +522,7 @@ async function basicSortTest(initialPaths, expectedPaths, newFilePath = ["newFil
 	 */
 	function buildAssetSettingsJson(paths) {
 		let uuidIndex = 0;
-		/** @type {Object<string, import("../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsAssetDiskData>} */
+		/** @type {Object<string, import("../../../../../studio/src/assets/AssetSettingsDiskTypes.ts").AssetSettingsAssetDiskData>} */
 		const assets = {};
 		for (const path of paths) {
 			uuidIndex++;

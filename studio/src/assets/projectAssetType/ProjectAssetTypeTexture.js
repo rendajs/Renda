@@ -16,7 +16,7 @@ export class ProjectAssetTypeTexture extends ProjectAssetType {
 	static storeInProjectAsJson = false;
 	static storeInProjectAsText = false;
 
-	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 	static assetSettingsStructure = {
 
 	};

@@ -64,7 +64,7 @@ Deno.test({
 			}
 
 			/**
-			 * @param {import("../../../../../../src/components/types.js").ComponentPropertyValues<any>} propertyValues
+			 * @param {import("../../../../../../src/components/types.ts").ComponentPropertyValues<any>} propertyValues
 			 * @param {import("../../../../../../src/components/Component.js").ComponentConstructorRestArgs} args
 			 */
 			constructor(propertyValues = {}, ...args) {

@@ -2,7 +2,7 @@ import {AssetManager} from "../AssetManager.js";
 import {LoadingAsset} from "./LoadingAsset.js";
 
 {
-	/** @typedef {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} ProjectAssetType */
+	/** @typedef {import("../projectAssetType/ProjectAssetType.js").ProjectAssetType} ProjectAssetType */
 }
 
 /* eslint-disable jsdoc/require-description-complete-sentence */

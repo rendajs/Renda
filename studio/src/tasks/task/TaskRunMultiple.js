@@ -57,7 +57,7 @@ export class TaskRunMultiple extends Task {
 	static type = "renda:runMultiple";
 	static configStructure = configStructure;
 
-	/** @typedef {import("../../ui/propertiesTreeView/types.js").GetStructureValuesReturnType<typeof configStructure, {purpose: "fileStorage"}>} TransformUiConfig */
+	/** @typedef {import("../../ui/propertiesTreeView/types.ts").GetStructureValuesReturnType<typeof configStructure, {purpose: "fileStorage"}>} TransformUiConfig */
 
 	/**
 	 * @param {TransformUiConfig} uiConfigData

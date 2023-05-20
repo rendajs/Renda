@@ -3,32 +3,32 @@ import {TreeView} from "./TreeView.js";
 /**
  * @typedef {object} PropertiesTreeViewEntrySpyOnly
  * @property {unknown[][]} setValueCalls
- * @property {import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} constructorOptions
+ * @property {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} constructorOptions
  */
 /**
  * @typedef {import("./TreeView.js").TreeViewSpy & PropertiesTreeViewEntrySpyOnly} PropertiesTreeViewEntrySpy
  */
 
 /**
- * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.js").GuiTypeInstances} T
+ * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").GuiTypeInstances} T
  * @typedef {object} PropertiesTreeViewEntryMockObjectOnly
- * @property {import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<import("../../../../../studio/src/ui/propertiesTreeView/types.js").GetValueType<T>>} fireOnValueChangeCbs
+ * @property {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<import("../../../../../studio/src/ui/propertiesTreeView/types.ts").GetValueType<T>>} fireOnValueChangeCbs
  * @property {(value: unknown) => void} setGetValueReturn
  */
 /**
- * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.js").GuiTypeInstances} T
+ * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").GuiTypeInstances} T
  * @typedef {import("./TreeView.js").TreeViewMockObject & PropertiesTreeViewEntryMockObjectOnly<T>} PropertiesTreeViewEntryMockObject
  */
 
 /**
- * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.js").GuiTypeInstances} [T = any]
+ * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").GuiTypeInstances} [T = any]
  */
 export class PropertiesTreeViewEntry extends TreeView {
-	/** @typedef {import("../../../../../studio/src/ui/propertiesTreeView/types.js").GetValueType<T>} ValueType */
-	/** @typedef {(value: import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<ValueType>) => void} OnValueChangeCallback */
+	/** @typedef {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").GetValueType<T>} ValueType */
+	/** @typedef {(value: import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<ValueType>) => void} OnValueChangeCallback */
 
 	/**
-	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} opts
+	 * @param {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} opts
 	 */
 	constructor(opts) {
 		super();
@@ -51,7 +51,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 			 * @param {any} event
 			 */
 			fireOnValueChangeCbs: event => {
-				const castEvent = /** @type {import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<ValueType>} */ (event);
+				const castEvent = /** @type {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<ValueType>} */ (event);
 				this.onValueChangeCbs.forEach(cb => cb(castEvent));
 			},
 			/**
@@ -101,6 +101,6 @@ export class PropertiesTreeViewEntry extends TreeView {
 }
 
 /**
- * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.js").GuiTypeInstances} T
+ * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").GuiTypeInstances} T
  * @typedef {PropertiesTreeViewEntry<T> & import("../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<T>} MockPropertiesTreeViewEntry
  */

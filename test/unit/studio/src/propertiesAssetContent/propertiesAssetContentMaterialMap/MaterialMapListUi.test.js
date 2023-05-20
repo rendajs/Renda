@@ -47,7 +47,7 @@ Deno.test({
 			],
 		});
 
-		/** @type {import("../../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure[]} */
+		/** @type {import("../../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure[]} */
 		const expectedStructures = [
 			{
 				defaultValue: {

@@ -88,7 +88,7 @@ export class ProjectAssetTypeVertexState extends ProjectAssetType {
 	static newFileName = "New Vertex State";
 	static uiName = "Vertex State";
 
-	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = propertiesAssetContentStructure;
 
 	static expectedLiveAssetConstructor = VertexState;
@@ -111,7 +111,7 @@ export class ProjectAssetTypeVertexState extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {import("../../ui/propertiesTreeView/types.js").GetStructureValuesReturnType<typeof propertiesAssetContentStructure, {purpose: "binarySerialization"}>} data
+	 * @param {import("../../ui/propertiesTreeView/types.ts").GetStructureValuesReturnType<typeof propertiesAssetContentStructure, {purpose: "binarySerialization"}>} data
 	 */
 	static transformBundledAssetData(data) {
 		for (const buffer of data.buffers) {

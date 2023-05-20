@@ -61,7 +61,7 @@ export class LightComponent extends Component {
 	}
 
 	/**
-	 * @param {import("../types.js").ComponentPropertyValues<typeof LightComponent>} propertyValues
+	 * @param {import("../types.ts").ComponentPropertyValues<typeof LightComponent>} propertyValues
 	 * @param {import("../Component.js").ComponentConstructorRestArgs} args
 	 */
 	constructor(propertyValues = {}, ...args) {

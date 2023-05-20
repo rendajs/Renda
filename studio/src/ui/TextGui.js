@@ -3,11 +3,11 @@
  * @property {string} [placeholder = ""] The text to show when the textfield is empty.
  */
 /**
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & TextGuiOptionsType} TextGuiOptions
+ * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase & TextGuiOptionsType} TextGuiOptions
  */
 
 export class TextGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<string>} OnChangeCallback */
+	/** @typedef {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<string>} OnChangeCallback */
 	/**
 	 * @param {TextGuiOptions} opts
 	 */
@@ -64,7 +64,7 @@ export class TextGui {
 	};
 
 	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	#fireOnChangeCbsWithTrigger(trigger) {
 		for (const cb of this.onValueChangeCbs) {

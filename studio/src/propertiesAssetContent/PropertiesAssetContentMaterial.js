@@ -112,11 +112,11 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		if (!this.mapTreeView.value) return;
 
 		const mappableValues = await this.studioInstance.materialMapTypeSerializerManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
-		/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+		/** @type {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
-			/** @type {import("../ui/propertiesTreeView/types.js").GuiTypes} */
+			/** @type {import("../ui/propertiesTreeView/types.ts").GuiTypes} */
 			let guiType;
-			/** @type {import("../ui/propertiesTreeView/types.js").GetGuiOptions<import("../ui/propertiesTreeView/types.js").GuiTypes>} */
+			/** @type {import("../ui/propertiesTreeView/types.ts").GetGuiOptions<import("../ui/propertiesTreeView/types.ts").GuiTypes>} */
 			let extraGuiOpts = {};
 			if (valueData.type == "sampler") {
 				guiType = "droppable";
@@ -131,7 +131,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			} else {
 				guiType = valueData.type;
 			}
-			/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+			/** @type {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} */
 			const addItemOpts = {
 				type: guiType,
 				guiOpts: {
@@ -140,7 +140,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 					.../** @type {any} */(extraGuiOpts),
 				},
 			};
-			const castAddItemOpts = /** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */ (addItemOpts);
+			const castAddItemOpts = /** @type {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptionsGeneric<any>} */ (addItemOpts);
 			const entry = this.mapValuesTreeView.addItem(castAddItemOpts);
 			const value = currentMaterialValues[valueData.name];
 			if (value !== undefined) {

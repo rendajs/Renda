@@ -14,12 +14,12 @@ import {getMaybeStudioInstance} from "../studioInstance.js";
  * @property {number | string} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  */
 /**
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & NumericGuiOptionsType} NumericGuiOptions
+ * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase & NumericGuiOptionsType} NumericGuiOptions
  */
 
 /**
  * @template {boolean} [T = false]
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef NumericGuiGetValueOptions
  * @property {T} [mapNumericValuesToStrings = true] If true, will return a string if the value is one of `mappedStringValues`.
  * @property {U} [purpose = "default"]
@@ -35,7 +35,7 @@ import {getMaybeStudioInstance} from "../studioInstance.js";
 
 /**
  * @template {boolean} [T = false]
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef {U extends "fileStorage" ?
  * 		number | string :
  * 	U extends "binarySerialization" ?
@@ -50,10 +50,10 @@ import {getMaybeStudioInstance} from "../studioInstance.js";
 /**
  * @template TOpts
  * @typedef {TOpts extends NumericGuiGetValueOptionsNoConstraints<infer T, infer U> ?
- * 		import("./propertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
- * 			import("./propertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 		import("./propertiesTreeView/types.ts").ReplaceUnknown<T, false> extends infer TDefaulted ?
+ * 			import("./propertiesTreeView/types.ts").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
  * 				TDefaulted extends boolean ?
- * 					UDefaulted extends import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
+ * 					UDefaulted extends import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose ?
  * 						NumericGuiGetValueReturn<TDefaulted, UDefaulted> :
  * 						never :
  * 					never :
@@ -63,7 +63,7 @@ import {getMaybeStudioInstance} from "../studioInstance.js";
  */
 
 export class NumericGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<number>} OnValueChangeCallback */
+	/** @typedef {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<number>} OnValueChangeCallback */
 	/** @type {Set<OnValueChangeCallback>} */
 	#onValueChangeCbs = new Set();
 
@@ -179,7 +179,7 @@ export class NumericGui {
 	 */
 	setValue(value, {
 		updateTextValue = true,
-		trigger = /** @type {import("./propertiesTreeView/types.js").ChangeEventTriggerType} */ ("application"),
+		trigger = /** @type {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} */ ("application"),
 	} = {}) {
 		if (typeof value == "string") {
 			if (this.inverseMappedStringValues.has(value)) {
@@ -207,7 +207,7 @@ export class NumericGui {
 
 	/**
 	 * @template {boolean} [T = false]
-	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+	 * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [U = "default"]
 	 * @param {NumericGuiGetValueOptions<T, U>} opts
 	 * @returns {NumericGuiGetValueReturn<T, U>}
 	 */
@@ -240,7 +240,7 @@ export class NumericGui {
 	}
 
 	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	#fireOnChange(trigger) {
 		for (const cb of this.#onValueChangeCbs) {

@@ -28,12 +28,12 @@ import {isUuid} from "../../../src/mod.js";
  */
 /**
  * @template {new (...args: any) => any} T
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & DroppableGuiOptionsType<T>} DroppableGuiOptions
+ * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase & DroppableGuiOptionsType<T>} DroppableGuiOptions
  */
 
 /**
  * @template {boolean} U
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} V
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} V
  * @typedef {object} DroppableGuiGetValueOptions
  * @property {boolean} [resolveDefaultAssetLinks = false]
  * @property {U} [returnLiveAsset = false]
@@ -52,7 +52,7 @@ import {isUuid} from "../../../src/mod.js";
 /**
  * @template T
  * @template {boolean} [U = false]
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [V = "default"]
  * @typedef {V extends "script" ?
  * 		GetLiveAssetFromProjectAssetTypeReturnType<T>? :
  * 		U extends true ?
@@ -90,10 +90,10 @@ import {isUuid} from "../../../src/mod.js";
  * @template TDroppableInstance
  * @template TOpts
  * @typedef {TOpts extends DroppableGuiGetValueOptionsNoConstraints<infer T, infer U> ?
- * 		import("./propertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
+ * 		import("./propertiesTreeView/types.ts").ReplaceUnknown<T, false> extends infer TDefaulted ?
  * 			TDefaulted extends boolean ?
- * 				import("./propertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
- * 					UDefaulted extends import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
+ * 				import("./propertiesTreeView/types.ts").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 					UDefaulted extends import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose ?
  * 						TDroppableInstance extends DroppableGui<infer TAssetType> ?
  * 							DroppableGuiGetValueReturn<GetLiveAssetFromProjectAssetTypeReturnType<TAssetType>, TDefaulted, UDefaulted> :
  * 							never :
@@ -108,7 +108,7 @@ import {isUuid} from "../../../src/mod.js";
  * @template {object} T
  */
 export class DroppableGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<import("../../../src/mod.js").UuidString?>} OnValueChangeCallback  */
+	/** @typedef {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<import("../../../src/mod.js").UuidString?>} OnValueChangeCallback  */
 	/** @type {Set<OnValueChangeCallback>} */
 	#onValueChangeCbs = new Set();
 
@@ -122,7 +122,7 @@ export class DroppableGui {
 		return /** @type {DroppableGui<InstanceType<T>>} */ (new DroppableGui(opts));
 	}
 
-	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter").ShorcutConditionValueSetter<boolean>?} */
+	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>?} */
 	#shortcutFocusValueSetter = null;
 
 	/**
@@ -278,7 +278,7 @@ export class DroppableGui {
 
 	/**
 	 * @template {boolean} [U = false]
-	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
+	 * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [V = "default"]
 	 * @param {DroppableGuiGetValueOptions<U, V>} options
 	 * @returns {DroppableGuiGetValueReturn<T, U, V>}
 	 */
@@ -328,7 +328,7 @@ export class DroppableGui {
 	 * until after the live asset is loaded. This is useful if valueChange callbacks immediately try to request live assets
 	 * when they fire. If they use `getValue({returnLiveAsset: true})`, it is possible for the returned value to be
 	 * `null`. Setting this flag to true makes sure the callbacks are fired after the live asset is loaded.
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} [options.trigger]
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} [options.trigger]
 	 */
 	async setValueFromProjectAsset(projectAsset, {
 		clearDefaultAssetLink = true,
@@ -367,7 +367,7 @@ export class DroppableGui {
 	 * Normally when using {@linkcode setValue} the value gets set to null when
 	 * the uuid is invalid.
 	 * @param {import("../../../src/util/mod.js").UuidString | null | undefined} uuid
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	async #setValueFromAssetUuid(uuid, trigger) {
 		if (!uuid || !isUuid(uuid)) return;
@@ -457,7 +457,7 @@ export class DroppableGui {
 	/**
 	 * @private
 	 * @param {typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} projectAssetType
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	createEmbeddedAsset(projectAssetType, trigger) {
 		const assetManager = getStudioInstance().projectManager.assertAssetManagerExists();
@@ -479,7 +479,7 @@ export class DroppableGui {
 	}
 
 	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	fireValueChange(trigger) {
 		for (const cb of this.#onValueChangeCbs) {

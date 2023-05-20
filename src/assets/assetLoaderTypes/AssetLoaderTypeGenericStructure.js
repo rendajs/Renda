@@ -32,6 +32,6 @@ export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 		} else {
 			result = binaryToObject(buffer, composerOpts);
 		}
-		return /** @type {import("../../util/binarySerializationTypes.js").StructureToObjectWithMaybeAssetLoader<TSerializationOptions["structure"]>} */ (result);
+		return /** @type {import("../../util/binarySerializationTypes.ts").StructureToObjectWithMaybeAssetLoader<TSerializationOptions["structure"]>} */ (result);
 	}
 }

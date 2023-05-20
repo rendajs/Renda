@@ -1,12 +1,12 @@
 import type {UuidString} from "../../../src/mod.js";
 import {AssetLinkConfig} from "./DefaultAssetLink.js";
 
-type InternallyCreatedAssetDiskData = {
+export type InternallyCreatedAssetDiskData = {
 	uuid: UuidString;
 	persistenceData: unknown;
 }
 
-type AssetSettingsDiskData = {
+export type AssetSettingsDiskData = {
 	assets?: {
 		[x: UuidString]: AssetSettingsAssetDiskData,
 	},
@@ -16,7 +16,7 @@ type AssetSettingsDiskData = {
 	},
 }
 
-type AssetSettingsAssetDiskData = {
+export type AssetSettingsAssetDiskData = {
 	path: string[],
 	assetSettings?: Object,
 }

@@ -59,7 +59,7 @@ export class MeshComponent extends Component {
 	}
 
 	/**
-	 * @param {import("../types.js").ComponentPropertyValues<typeof MeshComponent>} propertyValues
+	 * @param {import("../types.ts").ComponentPropertyValues<typeof MeshComponent>} propertyValues
 	 * @param {import("../Component.js").ComponentConstructorRestArgs} args
 	 */
 	constructor(propertyValues = {}, ...args) {

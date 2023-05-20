@@ -53,7 +53,7 @@ export class Component {
 		return null;
 	}
 	/**
-	 * @returns {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @returns {import("../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure?}
 	 */
 	static get guiStructure() {
 		return null;
@@ -253,7 +253,7 @@ export class Component {
 	}
 
 	/**
-	 * @param {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
+	 * @param {import("../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} properties
 	 * @param {ComponentStudioOptions?} studioOpts
 	 */
 	_setDefaultValues(properties, studioOpts = null) {
@@ -265,7 +265,7 @@ export class Component {
 	/**
 	 * @param {Object<string | number, unknown>} object
 	 * @param {string} propertyName
-	 * @param {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
+	 * @param {import("../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} propertyData
 	 * @param {ComponentStudioOptions?} studioOpts
 	 */
 	setPropertyDefaultValue(object, propertyName, propertyData, studioOpts = null) {
@@ -279,7 +279,7 @@ export class Component {
 			if (defaultValue) {
 				const arrayGuiOptions = /** @type {import("../../studio/src/ui/ArrayGui.js").ArrayGuiOptions<any>} */ (propertyData.guiOpts);
 				for (const [i, value] of Object.entries(defaultValue)) {
-					/** @type {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+					/** @type {import("../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} */
 					const childPropertyData = {
 						type: arrayGuiOptions.arrayType,
 						guiOpts: {

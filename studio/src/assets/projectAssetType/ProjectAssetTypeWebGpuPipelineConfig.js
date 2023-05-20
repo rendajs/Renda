@@ -11,7 +11,7 @@ import {createTreeViewEntryOptions} from "../../ui/propertiesTreeView/createStru
  * @property {GPUPrimitiveTopology} [primitiveTopology]
  * @property {GPUCompareFunction} [depthCompareFunction]
  * @property {boolean} [depthWriteEnabled]
- * @property {import("../../../../src/util/types.js").RecursivePartial<GPUBlendState>} [blend]
+ * @property {import("../../../../src/util/types.ts").RecursivePartial<GPUBlendState>} [blend]
  * @property {number} [renderOrder]
  */
 
@@ -53,7 +53,7 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	static newFileName = "New Pipeline Config";
 	static uiName = "Pipeline Config";
 
-	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
 		vertexShader: {
 			type: "droppable",
@@ -152,7 +152,7 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			};
 
 			/**
-			 * @param {import("../../../../src/util/types.js").RecursivePartial<GPUBlendComponent> | undefined} blendComponent
+			 * @param {import("../../../../src/util/types.ts").RecursivePartial<GPUBlendComponent> | undefined} blendComponent
 			 */
 			function parseBlendComponent(blendComponent) {
 				if (!blendComponent) return;
