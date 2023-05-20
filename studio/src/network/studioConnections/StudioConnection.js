@@ -127,6 +127,7 @@ export class StudioConnection {
 	 */
 
 	/**
+	 * @private
 	 * @template {HandlerCommands} TCommand
 	 * @param {TCommand} cmd
 	 * @param {unknown | ArrayBuffer} data
