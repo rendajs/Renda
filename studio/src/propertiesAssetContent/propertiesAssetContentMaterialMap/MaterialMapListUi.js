@@ -5,7 +5,7 @@ import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView
 /**
  * @typedef {object} MappableItem
  * @property {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum} type
- * @property {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+ * @property {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} structure
  * @property {PropertiesTreeView} treeView
  */
 
@@ -28,7 +28,7 @@ export class MaterialMapListUi {
 		for (const item of items) {
 			const mappableItemTreeView = this.treeView.addCollapsable(item.name);
 			mappableItemTreeView.renderContainer = true;
-			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+			/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 			let defaultValueTypeOptions;
 			if (item.type == "sampler") {
 				defaultValueTypeOptions = {
@@ -58,7 +58,7 @@ export class MaterialMapListUi {
 					},
 				};
 			}
-			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+			/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 			const structure = {
 				visible: {
 					type: "boolean",
@@ -112,7 +112,7 @@ export class MaterialMapListUi {
 	}
 
 	/**
-	 * @param {function(import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewChangeEvent<any>) : void} cb
+	 * @param {function(import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewChangeEvent<any>) : void} cb
 	 */
 	onValueChange(cb) {
 		this.treeView.onChildValueChange(cb);

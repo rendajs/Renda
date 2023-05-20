@@ -125,7 +125,7 @@ export class ProjectAssetType {
 	 * This object will be fed into {@linkcode PropertiesTreeView.generateFromSerializableStructure}.
 	 * Leave this as null if you don't want to show any ui or if you want to create
 	 * custom ui using {@linkcode propertiesAssetContentConstructor}.
-	 * @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure?}
 	 */
 	static propertiesAssetContentStructure = null;
 
@@ -139,7 +139,7 @@ export class ProjectAssetType {
 
 	/**
 	 * Fill this with asset settings you want to appear in the properties window.
-	 * @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure}
+	 * @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure}
 	 */
 	static assetSettingsStructure = {};
 

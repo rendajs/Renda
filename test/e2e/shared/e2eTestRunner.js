@@ -1,7 +1,7 @@
 import * as path from "std/path/mod.ts";
 import * as fs from "std/fs/mod.ts";
 import {DevServer} from "../../../scripts/DevServer.js";
-import {setMainPageUrl} from "./browser.js";
+import {installIfNotInstalled, setMainPageUrl} from "./browser.js";
 import {popFailedTests, setPath} from "./runE2eTest.js";
 import {gray, red} from "std/fmt/colors.ts";
 import {setCwd} from "chdir-anywhere";
@@ -26,6 +26,11 @@ const testServerAddrs = testServer.getAddrs();
 if (testServerAddrs.length <= 0) {
 	throw new Error("Failed to get test server url.");
 }
+
+// Download chromium before running the actual tests
+// Otherwise it will get downloaded within the first test,
+// potentially causing it to time out.
+await installIfNotInstalled();
 
 setMainPageUrl(testServerAddrs[0]);
 

@@ -18,7 +18,7 @@ export class MaterialMapTypeSerializerWebGpu extends MaterialMapTypeSerializer {
 	static allowExportInAssetBundles = true;
 	static expectedLiveAssetConstructor = WebGpuMaterialMapType;
 
-	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 	static settingsStructure = {
 		forwardPipelineConfig: {
 			type: "droppable",

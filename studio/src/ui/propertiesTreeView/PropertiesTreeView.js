@@ -4,27 +4,27 @@ import {TreeView} from "../TreeView.js";
 import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
 
 /**
- * @template {import("./types.js").PropertiesTreeViewStructure} T
+ * @template {import("./types.ts").PropertiesTreeViewStructure} T
  * @typedef {object} PropertiesTreeViewEventCbMapType
- * @property {import("./types.js").PropertiesTreeViewChangeEvent<T>} propertiestreeviewentryvaluechange
+ * @property {import("./types.ts").PropertiesTreeViewChangeEvent<T>} propertiestreeviewentryvaluechange
  */
 
 /**
- * @template {import("./types.js").PropertiesTreeViewStructure} T
+ * @template {import("./types.ts").PropertiesTreeViewStructure} T
  * @typedef {PropertiesTreeViewEventCbMapType<T> & import("../TreeView.js").TreeViewEventCbMap} PropertiesTreeViewEventCbMap
  */
 
 export const VALUE_CHANGE_EVENT_NAME = "propertiestreeviewentryvaluechange";
 
 /**
- * @template {import("./types.js").PropertiesTreeViewStructure} [T = any]
+ * @template {import("./types.ts").PropertiesTreeViewStructure} [T = any]
  */
 export class PropertiesTreeView extends TreeView {
 	/**
 	 * Creates a new PropertiesTreeView and applies the structure. This is
 	 * useful if you want to create a PropertiesTreeView with the correct
 	 * generic argument set automatically.
-	 * @template {import("./types.js").PropertiesTreeViewStructure} T
+	 * @template {import("./types.ts").PropertiesTreeViewStructure} T
 	 * @param {T} structure
 	 * @param {ConstructorParameters<typeof PropertiesTreeView>} opts
 	 * @returns {PropertiesTreeView<T>}
@@ -65,9 +65,9 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @template {import("./types.js").PropertiesTreeViewEntryOptions} T
+	 * @template {import("./types.ts").PropertiesTreeViewEntryOptions} T
 	 * @param {T} opts
-	 * @returns {import("./types.js").TreeViewEntryFactoryReturnType<T>}
+	 * @returns {import("./types.ts").TreeViewEntryFactoryReturnType<T>}
 	 */
 	addItem(opts) {
 		const item = PropertiesTreeViewEntry.of(opts);
@@ -77,14 +77,14 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {function(import("./types.js").PropertiesTreeViewChangeEvent<T>) : void} cb
+	 * @param {function(import("./types.ts").PropertiesTreeViewChangeEvent<T>) : void} cb
 	 */
 	onChildValueChange(cb) {
 		this.addEventListener(VALUE_CHANGE_EVENT_NAME, cb);
 	}
 
 	/**
-	 * @param {import("./types.js").PropertiesTreeViewStructure} structure
+	 * @param {import("./types.ts").PropertiesTreeViewStructure} structure
 	 * @param {object} opts
 	 * @param {object} [opts.callbacksContext]
 	 */
@@ -94,7 +94,7 @@ export class PropertiesTreeView extends TreeView {
 		this.clearChildren();
 		this.currentSerializableStructureItems = {};
 		for (const [key, itemSettings] of Object.entries(structure)) {
-			/** @type {import("./types.js").GuiTypeOptions} */
+			/** @type {import("./types.ts").GuiTypeOptions} */
 			const guiOpts = {
 				label: key,
 				...itemSettings?.guiOpts,
@@ -104,15 +104,15 @@ export class PropertiesTreeView extends TreeView {
 				guiOpts,
 				callbacksContext,
 			};
-			const castOptions = /** @type {import("./types.js").PropertiesTreeViewEntryOptions} */ (options);
+			const castOptions = /** @type {import("./types.ts").PropertiesTreeViewEntryOptions} */ (options);
 			const addedItem = this.addItem(castOptions);
 			this.currentSerializableStructureItems[key] = addedItem;
 		}
 	}
 
 	/**
-	 * @param {import("./types.js").StructureToSetObject<T>} values
-	 * @param {import("./types.js").AllPossibleSetValueOpts} [setValueOpts]
+	 * @param {import("./types.ts").StructureToSetObject<T>} values
+	 * @param {import("./types.ts").AllPossibleSetValueOpts} [setValueOpts]
 	 */
 	fillSerializableStructureValues(values, setValueOpts) {
 		if (!values) return;
@@ -128,11 +128,11 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @template {import("./types.js").PropertiesTreeViewStructure} TStructure
-	 * @template {import("./types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
+	 * @template {import("./types.ts").PropertiesTreeViewStructure} TStructure
+	 * @template {import("./types.ts").AllPossibleGetValueOpts} [TGuiOpts = {}]
 	 * @param {TStructure} structure
 	 * @param {TGuiOpts} [guiOpts]
-	 * @returns {import("./types.js").GetStructureValuesReturnType<TStructure, TGuiOpts>}
+	 * @returns {import("./types.ts").GetStructureValuesReturnType<TStructure, TGuiOpts>}
 	 */
 	getSerializableStructureValues(structure, guiOpts) {
 		const purpose = guiOpts?.purpose ?? "default";
@@ -149,21 +149,21 @@ export class PropertiesTreeView extends TreeView {
 		for (const key of Object.keys(structure)) {
 			const entry = this.children[i++];
 			if (entry instanceof PropertiesTreeViewEntry) {
-				const castEntry = /** @type {PropertiesTreeViewEntry<import("./types.js").GuiTypeInstances>} */ (entry);
+				const castEntry = /** @type {PropertiesTreeViewEntry<import("./types.ts").GuiTypeInstances>} */ (entry);
 				if (!castEntry.omitFromSerializableStuctureValues(guiOpts)) {
 					values[key] = castEntry.getValue(guiOpts);
 					hasSetOneValue = true;
 				}
 			}
 		}
-		if (stripDefaultValues && !hasSetOneValue) return /** @type {import("./types.js").GetStructureValuesReturnType<TStructure, TGuiOpts>} */ (undefined);
-		return /** @type {import("./types.js").GetStructureValuesReturnType<TStructure, TGuiOpts>} */ (values);
+		if (stripDefaultValues && !hasSetOneValue) return /** @type {import("./types.ts").GetStructureValuesReturnType<TStructure, TGuiOpts>} */ (undefined);
+		return /** @type {import("./types.ts").GetStructureValuesReturnType<TStructure, TGuiOpts>} */ (values);
 	}
 
 	/**
 	 * @template {keyof T} TKey
 	 * @param {TKey} key
-	 * @returns {import("./types.js").GetSerializableStructureEntryReturn<T, TKey>}
+	 * @returns {import("./types.ts").GetSerializableStructureEntryReturn<T, TKey>}
 	 */
 	getSerializableStructureEntry(key) {
 		const castKey = /** @type {string} */ (key);

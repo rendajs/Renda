@@ -2,8 +2,8 @@ import {assertEquals} from "std/testing/asserts.ts";
 import {binaryToObject, objectToBinary} from "../../../../../src/util/binarySerialization.js";
 
 /**
- * @template {import("../../../../../src/util/binarySerializationTypes.js").AllowedStructureFormat} T
- * @param {import("../../../../../src/util/binarySerializationTypes.js").StructureToObject<T, true>} object
+ * @template {import("../../../../../src/util/binarySerializationTypes.ts").AllowedStructureFormat} T
+ * @param {import("../../../../../src/util/binarySerializationTypes.ts").StructureToObject<T, true>} object
  * @param {import("../../../../../src/mod.js").ObjectToBinaryOptions<T>} options
  */
 export function basicObjectToBinaryToObjectTest(object, options, {

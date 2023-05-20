@@ -12,12 +12,12 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  */
 /**
  * @template {Vec2 | Vec3 | Vec4} T
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & VectorGuiOptionsType<T>} VectorGuiOptions
+ * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase & VectorGuiOptionsType<T>} VectorGuiOptions
  */
 
 /**
  * @template {boolean} U
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} V
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} V
  * @typedef {object} VectorGuiGetValueOptions
  * @property {U} [getAsArray = false]
  * @property {V} [purpose = "default"]
@@ -35,7 +35,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
 /**
  * @template {Vec2 | Vec3 | Vec4} T
  * @template {boolean} [U = false]
- * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
+ * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [V = "default"]
  * @typedef {V extends "fileStorage" ? number[] :
  * 		V extends "binarySerialization" ? number[] :
  * 		U extends true ? number[] :
@@ -46,10 +46,10 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  * @template {Vec2 | Vec3 | Vec4} TVecType
  * @template TOpts
  * @typedef {TOpts extends VectorGuiGetValueOptionsNoConstraints<infer T, infer U> ?
- * 		import("./propertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
- * 			import("./propertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 		import("./propertiesTreeView/types.ts").ReplaceUnknown<T, false> extends infer TDefaulted ?
+ * 			import("./propertiesTreeView/types.ts").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
  * 				TDefaulted extends boolean ?
- * 					UDefaulted extends import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
+ * 					UDefaulted extends import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose ?
  * 						VectorGuiGetValueReturn<TVecType, TDefaulted, UDefaulted> :
  * 						never :
  * 					never :
@@ -62,7 +62,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  * @template {Vec2 | Vec3 | Vec4} T
  */
 export class VectorGui {
-	/** @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<T>} OnValueChangeCallback  */
+	/** @typedef {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<T>} OnValueChangeCallback  */
 
 	/** @type {Set<OnValueChangeCallback>} */
 	#onValueChangeCbs = new Set();
@@ -165,7 +165,7 @@ export class VectorGui {
 
 	/**
 	 * @template {boolean} [U = false]
-	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
+	 * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [V = "default"]
 	 * @param {VectorGuiGetValueOptions<U, V>} options
 	 */
 	getValue({
@@ -199,7 +199,7 @@ export class VectorGui {
 	}
 
 	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	#fireValueChange(trigger) {
 		for (const cb of this.#onValueChangeCbs) {
@@ -211,7 +211,7 @@ export class VectorGui {
 	/* eslint-disable jsdoc/no-undefined-types */
 	/**
 	 * @template {boolean} [U = false]
-	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
+	 * @template {import("./propertiesTreeView/types.ts").TreeViewStructureOutputPurpose} [V = "default"]
 	 * @param {VectorGuiGetValueOptions<U, V>} guiOpts
 	 */
 	isDefaultValue(guiOpts) {

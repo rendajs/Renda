@@ -21,7 +21,7 @@ export const REPEAT = 10497;
 /**
  * Helper function for getting glTF samplers.
  *
- * @param {import("./types.js").GltfJsonData} jsonData
+ * @param {import("./types.ts").GltfJsonData} jsonData
  * @param {number | undefined} samplerId The index of the image to get from the jsonData.
  * @param {Map<number, Sampler>} samplersCache
  * @param {GetSamplerHelperOptions} options

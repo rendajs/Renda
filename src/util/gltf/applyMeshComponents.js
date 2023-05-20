@@ -16,7 +16,7 @@ import {getBufferViewBuffer} from "./getBuffer.js";
 
 /**
  * Creates meshes and materials from glTF data and fills the provided entities with mesh components.
- * @param {import("./types.js").GltfJsonData} jsonData The full glTF data.
+ * @param {import("./types.ts").GltfJsonData} jsonData The full glTF data.
  * @param {Map<import("../../core/Entity.js").Entity, number>} entityNodeIds List of created entities and their corresponding node id in the glTF.
  * @param {object} options
  * @param {import("./getBuffer.js").GetBufferFn} options.getBufferFn
@@ -69,8 +69,8 @@ export async function applyMeshComponents(jsonData, entityNodeIds, {
 }
 
 /**
- * @param {import("./types.js").GltfMeshPrimitiveData} gltfMesh
- * @param {import("./types.js").GltfJsonData} gltfJsonData
+ * @param {import("./types.ts").GltfMeshPrimitiveData} gltfMesh
+ * @param {import("./types.ts").GltfJsonData} gltfJsonData
  * @param {import("./getBuffer.js").GetBufferFn} getBufferFn
  * @param {import("./getMaterial.js").GetMaterialFn} getMaterialFn
  */
@@ -140,7 +140,7 @@ async function createMeshFromGltfPrimitive(gltfMesh, gltfJsonData, getBufferFn, 
 }
 
 /**
- * @param {import("./types.js").GltfJsonData} gltfJsonData
+ * @param {import("./types.ts").GltfJsonData} gltfJsonData
  * @param {number} accessorIndex
  */
 function getAccessorData(gltfJsonData, accessorIndex) {
@@ -153,7 +153,7 @@ function getAccessorData(gltfJsonData, accessorIndex) {
 }
 
 /**
- * @param {import("./types.js").GltfJsonData} gltfJsonData
+ * @param {import("./types.ts").GltfJsonData} gltfJsonData
  * @param {number} accessorIndex
  * @param {string} attributeName
  * @param {import("./getBuffer.js").GetBufferFn} getBufferFn
@@ -267,7 +267,7 @@ async function getVertexAccessorData(gltfJsonData, accessorIndex, attributeName,
 }
 
 /**
- * @param {import("./types.js").GltfJsonData} gltfJsonData
+ * @param {import("./types.ts").GltfJsonData} gltfJsonData
  * @param {number} accessorIndex
  * @param {import("./getBuffer.js").GetBufferFn} getBufferFn
  */

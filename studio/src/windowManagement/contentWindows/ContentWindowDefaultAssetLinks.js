@@ -115,7 +115,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewChangeEvent<any>} changeEvent
+	 * @param {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewChangeEvent<any>} changeEvent
 	 */
 	#handleGuiValueChange = changeEvent => {
 		if (changeEvent.trigger != "user") return;
@@ -126,7 +126,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		const assetLinks = [];
 
 		for (const child of this.builtInAssetLinksTreeView.children) {
-			const castChild = /** @type {import("../../ui/propertiesTreeView/types.js").TreeViewEntryFactoryReturnType<typeof this.builtInAssetLinkGuiStructure>} */ (child);
+			const castChild = /** @type {import("../../ui/propertiesTreeView/types.ts").TreeViewEntryFactoryReturnType<typeof this.builtInAssetLinkGuiStructure>} */ (child);
 			const guiValues = castChild.getValue();
 			if (!guiValues.defaultAsset) continue;
 			builtInAssetLinks.push({

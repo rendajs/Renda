@@ -16,7 +16,7 @@ class ExtendedMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static typeUuid = BASIC_SERIALIZER_UUID;
 	static expectedLiveAssetConstructor = LiveAssetConstructor;
 
-	/** @type {import("../../../../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 	static settingsStructure = {
 		foo: {
 			type: "number",

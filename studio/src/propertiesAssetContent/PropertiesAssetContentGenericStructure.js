@@ -21,7 +21,7 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 	}
 
 	/**
-	 * @param {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+	 * @param {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} structure
 	 * @param {import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny?} assetType
 	 */
 	setStructure(structure, assetType) {

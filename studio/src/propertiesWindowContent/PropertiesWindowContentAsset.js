@@ -59,7 +59,7 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 	async updateAssetSettings() {
 		if (!this.currentSelection) return;
 
-		/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+		/** @type {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 		let settingsStructure = {};
 		/** @type {unknown} */
 		let settingsValues = {};
@@ -81,7 +81,7 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 		};
 
 		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, {callbacksContext});
-		const castSettingsValues = /** @type {import("../ui/propertiesTreeView/types.js").StructureToSetObject<any>} */ (settingsValues);
+		const castSettingsValues = /** @type {import("../ui/propertiesTreeView/types.ts").StructureToSetObject<any>} */ (settingsValues);
 		this.assetSettingsTree.fillSerializableStructureValues(castSettingsValues);
 	}
 

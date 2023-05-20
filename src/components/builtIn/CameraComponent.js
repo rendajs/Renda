@@ -120,7 +120,7 @@ export class CameraComponent extends Component {
 	}
 
 	/**
-	 * @param {import("../types.js").ComponentPropertyValues<typeof CameraComponent>} propertyValues
+	 * @param {import("../types.ts").ComponentPropertyValues<typeof CameraComponent>} propertyValues
 	 * @param {import("../Component.js").ComponentConstructorRestArgs} args
 	 */
 	constructor(propertyValues = {}, ...args) {

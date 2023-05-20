@@ -13,11 +13,11 @@ import {Vec4} from "./Vec4.js";
  * @typedef {(vec: Vec4) => Vec3} vec3SetVec4Signature
  * @typedef {(x?: number, y?: number, z?: number) => Vec3} vec3SetNumNumSignature
  * @typedef {(xyz: number[]) => Vec3} vec3SetArraySignature
- * @typedef {import("./types.js").MergeParameters<vec3SetEmptySignature | vec3SetVec2Signature | vec3SetVec3Signature | vec3SetVec4Signature | vec3SetNumNumSignature | vec3SetArraySignature>} Vec3Parameters
+ * @typedef {import("./types.ts").MergeParameters<vec3SetEmptySignature | vec3SetVec2Signature | vec3SetVec3Signature | vec3SetVec4Signature | vec3SetNumNumSignature | vec3SetArraySignature>} Vec3Parameters
  */
 
 /**
- * @typedef {import("./types.js").GetFirstParam<Vec3Parameters>} Vec3ParameterSingle
+ * @typedef {import("./types.ts").GetFirstParam<Vec3Parameters>} Vec3ParameterSingle
  */
 
 export class Vec3 {

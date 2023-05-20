@@ -18,7 +18,7 @@ import {getBufferViewBuffer} from "./getBuffer.js";
  * parse the 'glTF image' and return a texture from our implementation.
  * Samplers need to be parsed separately.
  *
- * @param {import("./types.js").GltfJsonData} jsonData
+ * @param {import("./types.ts").GltfJsonData} jsonData
  * @param {number | undefined} imageId The index of the image to get from the jsonData.
  * @param {Map<number, Texture>} texturesCache
  * @param {GetTextureHelperOptions} options
@@ -59,7 +59,7 @@ export async function getTextureHelper(jsonData, imageId, texturesCache, {
  * Helper function for getting texture data from a gltf file and asserting that
  * it actually exists.
  *
- * @param {import("./types.js").GltfJsonData} jsonData
+ * @param {import("./types.ts").GltfJsonData} jsonData
  * @param {number} textureId The index of the image to get from the jsonData.
  */
 export function getGltfTextureData(jsonData, textureId) {

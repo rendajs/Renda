@@ -86,7 +86,7 @@ export class ProtocolManager {
 
 	/**
 	 * @template {string} TCommand
-	 * @typedef {import("./protocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerType<TCommand>} getRequestHandlerType
+	 * @typedef {import("./protocolRequestHandlers/getRequestHandlerType.ts").getRequestHandlerType<TCommand>} getRequestHandlerType
 	 */
 
 	/**

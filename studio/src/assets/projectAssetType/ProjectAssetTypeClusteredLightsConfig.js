@@ -11,7 +11,7 @@ export class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
 	static newFileName = "New Clustered Lights Config";
 	static uiName = "Clustered Lights Config";
 
-	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
 		clusterCount: {
 			type: "vec3",

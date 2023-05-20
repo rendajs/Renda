@@ -3,41 +3,41 @@ import {ButtonGroup} from "./ButtonGroup.js";
 import {Button} from "./Button.js";
 
 /**
- * @template {import("./propertiesTreeView/types.js").GuiTypes} T
- * @typedef {T extends import("./propertiesTreeView/types.js").GuiTypes ?
+ * @template {import("./propertiesTreeView/types.ts").GuiTypes} T
+ * @typedef {T extends import("./propertiesTreeView/types.ts").GuiTypes ?
  * 	{
  * 		arrayType: T,
- * 		arrayGuiOpts?: import("./propertiesTreeView/types.js").GetGuiOptions<T>,
+ * 		arrayGuiOpts?: import("./propertiesTreeView/types.ts").GetGuiOptions<T>,
  * 		value?: any[],
  * 	} :
  * never} ArrayGuiOptionsType
  */
 /**
- * @template {import("./propertiesTreeView/types.js").GuiTypes} T
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ArrayGuiOptionsType<T>} ArrayGuiOptions
+ * @template {import("./propertiesTreeView/types.ts").GuiTypes} T
+ * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase & ArrayGuiOptionsType<T>} ArrayGuiOptions
  */
 
 /**
  * @template TOpts
- * @typedef {TOpts extends ArrayGuiOptions<import("./propertiesTreeView/types.js").GuiTypes> ? ArrayGui<TOpts> : never} GetArrayGuiForOptions
+ * @typedef {TOpts extends ArrayGuiOptions<import("./propertiesTreeView/types.ts").GuiTypes> ? ArrayGui<TOpts> : never} GetArrayGuiForOptions
  */
 
 /**
  * @template TObjectGuiInstance
- * @template {import("./propertiesTreeView/types.js").AllPossibleGetValueOpts} TOpts
- * @template {import("./propertiesTreeView/types.js").RecursionLimitNumbers} [TRecursionLimit = import("./propertiesTreeView/types.js").DefaultRecursionLimit]
+ * @template {import("./propertiesTreeView/types.ts").AllPossibleGetValueOpts} TOpts
+ * @template {import("./propertiesTreeView/types.ts").RecursionLimitNumbers} [TRecursionLimit = import("./propertiesTreeView/types.ts").DefaultRecursionLimit]
  * @typedef {TObjectGuiInstance extends ArrayGui<infer TStructure, 3> ?
- * 		import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<TStructure, TOpts, TRecursionLimit> :
+ * 		import("./propertiesTreeView/types.ts").GetArrayStructureValuesReturnType<TStructure, TOpts, TRecursionLimit> :
  * 		never} GetArrayGuiValueTypeForOptions
  */
 
 /**
- * @template {ArrayGuiOptions<import("./propertiesTreeView/types.js").GuiTypes>} T
- * @template {import("./propertiesTreeView/types.js").RecursionLimitNumbers} [TRecursionLimit = import("./propertiesTreeView/types.js").DefaultRecursionLimit]
+ * @template {ArrayGuiOptions<import("./propertiesTreeView/types.ts").GuiTypes>} T
+ * @template {import("./propertiesTreeView/types.ts").RecursionLimitNumbers} [TRecursionLimit = import("./propertiesTreeView/types.ts").DefaultRecursionLimit]
  */
 export class ArrayGui {
 	/**
-	 * @typedef {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryChangeCallback<import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, {}, TRecursionLimit>>} OnValueChangeCallback
+	 * @typedef {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<import("./propertiesTreeView/types.ts").GetArrayStructureValuesReturnType<T, {}, TRecursionLimit>>} OnValueChangeCallback
 	 */
 
 	/** @type {Set<OnValueChangeCallback>} */
@@ -57,7 +57,7 @@ export class ArrayGui {
 		this.el = document.createElement("div");
 		this.el.classList.add("arrayGui");
 
-		/** @type {import("./propertiesTreeView/types.js").GetArrayValueItemType<T>[]} */
+		/** @type {import("./propertiesTreeView/types.ts").GetArrayValueItemType<T>[]} */
 		this.valueItems = [];
 		this.type = arrayType;
 		this.arrayGuiOpts = arrayGuiOpts;
@@ -105,11 +105,11 @@ export class ArrayGui {
 	}
 
 	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	addItem(trigger = "application") {
 		const index = this.value.length;
-		/** @type {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+		/** @type {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryOptionsGeneric<any>} */
 		const addItemOpts = {
 			type: this.type,
 			guiOpts: {
@@ -131,7 +131,7 @@ export class ArrayGui {
 	/**
 	 * remove array item by index, counts from the back when negative
 	 * @param {number} index
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	removeItem(index = -1, trigger = "application") {
 		if (index < 0) index = this.valueItems.length + index;
@@ -145,8 +145,8 @@ export class ArrayGui {
 	}
 
 	/**
-	 * @param {import("./propertiesTreeView/types.js").ArrayStructureToSetObject<T>} value
-	 * @param {import("./propertiesTreeView/types.js").AllPossibleSetValueOpts} [setValueOpts]
+	 * @param {import("./propertiesTreeView/types.ts").ArrayStructureToSetObject<T>} value
+	 * @param {import("./propertiesTreeView/types.ts").AllPossibleSetValueOpts} [setValueOpts]
 	 */
 	setValue(value, setValueOpts) {
 		if (!value) value = [];
@@ -158,7 +158,7 @@ export class ArrayGui {
 		}
 		const castValueAny = /** @type {any[]} */ (value);
 		for (const [i, item] of castValueAny.entries()) {
-			/** @type {import("./propertiesTreeView/types.js").BaseSetValueOptions} */
+			/** @type {import("./propertiesTreeView/types.ts").BaseSetValueOptions} */
 			const newSetValueOpts = {
 				...setValueOpts,
 				setOnObject: value,
@@ -175,9 +175,9 @@ export class ArrayGui {
 	}
 
 	/**
-	 * @template {import("./propertiesTreeView/types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
+	 * @template {import("./propertiesTreeView/types.ts").AllPossibleGetValueOpts} [TGuiOpts = {}]
 	 * @param {TGuiOpts} [guiOpts]
-	 * @returns {import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, TGuiOpts, TRecursionLimit>}
+	 * @returns {import("./propertiesTreeView/types.ts").GetArrayStructureValuesReturnType<T, TGuiOpts, TRecursionLimit>}
 	 */
 	getValue(guiOpts) {
 		const valueArray = [];
@@ -206,7 +206,7 @@ export class ArrayGui {
 	}
 
 	/**
-	 * @param {import("./propertiesTreeView/types.js").ChangeEventTriggerType} trigger
+	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	#fireValueChange(trigger) {
 		this.#onValueChangeCbs.forEach(cb => cb({

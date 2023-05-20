@@ -7,11 +7,11 @@ import {Quat} from "./Quat.js";
  * @typedef {(mat: Mat4) => Mat4} mat4SetMat4Signature
  * @typedef {(vec: number[]) => Mat4} mat4SetNumArraySignature
  * @typedef {(vec: number[][]) => Mat4} mat4SetNumArrayArraySignature
- * @typedef {import("./types.js").MergeParameters<mat4SetEmptySignature | mat4SetFloat32ArraySignature | mat4SetMat4Signature | mat4SetNumArraySignature | mat4SetNumArrayArraySignature>} Mat4Parameters
+ * @typedef {import("./types.ts").MergeParameters<mat4SetEmptySignature | mat4SetFloat32ArraySignature | mat4SetMat4Signature | mat4SetNumArraySignature | mat4SetNumArrayArraySignature>} Mat4Parameters
  */
 
 /**
- * @typedef {import("./types.js").GetFirstParam<Mat4Parameters>} Mat4ParameterSingle
+ * @typedef {import("./types.ts").GetFirstParam<Mat4Parameters>} Mat4ParameterSingle
  */
 
 export class Mat4 {

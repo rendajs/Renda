@@ -204,7 +204,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		 * @typedef MappedValue
 		 * @property {string} originalName
 		 * @property {string} [mappedName]
-		 * @property {import("../../../../src/util/binarySerializationTypes.js").OptionsToObject<typeof materialMapBinaryOptions>} typeUnion
+		 * @property {import("../../../../src/util/binarySerializationTypes.ts").OptionsToObject<typeof materialMapBinaryOptions>} typeUnion
 		 */
 		/**
 		 * @typedef MapData
@@ -214,7 +214,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		 */
 
 		/**
-		 * @type {import("../../../../src/util/binarySerializationTypes.js").OptionsToObject<typeof materialMapBinaryOptions, false>}
+		 * @type {import("../../../../src/util/binarySerializationTypes.ts").OptionsToObject<typeof materialMapBinaryOptions, false>}
 		 */
 		const objectToBinaryData = {
 			mapDatas: [],
