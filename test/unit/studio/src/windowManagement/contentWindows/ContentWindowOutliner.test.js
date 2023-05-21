@@ -16,6 +16,7 @@ import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 /**
  * @typedef ContentWindowOutlinerTestContext
  * @property {ConstructorParameters<typeof ContentWindowOutliner>} args
+ * @property {import("../../../../../../studio/src/Studio.js").Studio} mockStudioInstance
  * @property {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor[]} mockEntityEditors
  * @property {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} mockEntityEditor
  * @property {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} mockAssetManager
@@ -60,6 +61,7 @@ async function basictest({
 
 		await fn({
 			args,
+			mockStudioInstance,
 			mockEntityEditors,
 			mockEntityEditor: mockEntityEditors[0],
 			mockAssetManager: assetManager,
@@ -158,13 +160,19 @@ Deno.test({
 	name: "TreeView is not visible when there is no asset manager",
 	async fn() {
 		await basictest({
-			async fn({args, }) {
+			async fn({args, mockStudioInstance, mockEntityEditor}) {
+				mockStudioInstance.projectManager.assetManager = null;
+				mockEntityEditor.editingEntity.add(new Entity("child"));
 
 				const contentWindow = new ContentWindowOutliner(...args);
-			}
-		})
-	}
-})
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "",
+					children: [],
+				});
+			},
+		});
+	},
+});
 
 Deno.test({
 	name: "Treeview is updated when a linked entity asset is changed",
