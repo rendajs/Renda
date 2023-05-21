@@ -155,6 +155,18 @@ Deno.test({
 });
 
 Deno.test({
+	name: "TreeView is not visible when there is no asset manager",
+	async fn() {
+		await basictest({
+			async fn({args, }) {
+
+				const contentWindow = new ContentWindowOutliner(...args);
+			}
+		})
+	}
+})
+
+Deno.test({
 	name: "Treeview is updated when a linked entity asset is changed",
 	async fn() {
 		await basictest({

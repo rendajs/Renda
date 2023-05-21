@@ -11,10 +11,7 @@ import {ScaleGizmo} from "../../../../../src/gizmos/gizmos/ScaleGizmo.js";
 
 export const ENTITY_EDITOR_CONTENT_WINDOW_ID = /** @type {const} */ ("renda:entityEditor");
 
-/**
- * @deprecated
- * @typedef {"create" | "delete" | "transform" | "component" | "componentProperty" | "rename"} EntityChangedEventType
- */
+/** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty" | "rename"} EntityChangedEventType */
 
 export class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowTypeId = ENTITY_EDITOR_CONTENT_WINDOW_ID;
