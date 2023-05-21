@@ -835,6 +835,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	/**
+	 * @deprecated Use `EntityAssetManager.updateEntity` instead.
 	 * @param {Entity} entity
 	 * @param {EntityChangedEventType} type
 	 */

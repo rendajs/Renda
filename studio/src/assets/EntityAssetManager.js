@@ -17,8 +17,53 @@
  */
 
 import {Entity} from "../../../src/mod.js";
+import {EventHandler} from "../../../src/util/EventHandler.js";
 import {IterableWeakSet} from "../../../src/util/IterableWeakSet.js";
 import {ProjectAssetTypeEntity} from "./projectAssetType/ProjectAssetTypeEntity.js";
+
+/**
+ * @readonly
+ * @enum {number}
+ */
+export const EntityChangeType = {
+	/** Special flag that is only set when loading an entity for the first time. In this case all other flags are also set as well. */
+	Load: 1 << 0,
+	/** A new child has been added to the hierarchy. */
+	Create: 1 << 1,
+	/** A child has been removed from the hierarchy. */
+	Delete: 1 << 2,
+	/** The entity or one of its children has a new name. */
+	Rename: 1 << 3,
+	/** A child has been moved to another location in the hierarchy. */
+	Rearrange: 1 << 4,
+	/** The entity or one of its children has a new position, rotation, or scale. */
+	Transform: 1 << 5,
+	/** A new component has been added to the entity or one of its children. */
+	CreateComponent: 1 << 6,
+	/** A new component has been removed from the entity or one of its children. */
+	DeleteComponent: 1 << 7,
+	/** The order of components has been changed for the entity or one of its children. */
+	RearrangeComponent: 1 << 8,
+	/** The property value of one of the components has been changed. */
+	ComponentProperty: 1 << 9,
+
+	/** Shorthand for `Create | Delete | Rename | Rearrange` */
+	Hierarchy: 0, // will be set below
+	/** Shorthand for `CreateComponent | DeleteComponent | RearrangeComponent | ComponentProperty` */
+	Component: 0, // will be set below
+
+	/** All types excluding `Load`. */
+	All: ((1 << 10) - 1) & ~(1 << 0),
+};
+EntityChangeType.Hierarchy = EntityChangeType.Create | EntityChangeType.Delete | EntityChangeType.Rename | EntityChangeType.Rearrange;
+EntityChangeType.Component = EntityChangeType.CreateComponent | EntityChangeType.DeleteComponent | EntityChangeType.RearrangeComponent | EntityChangeType.ComponentProperty;
+
+/**
+ * @typedef OnTrackedEntityChangeEvent
+ * @property {Entity} entity
+ * @property {number} type
+ */
+/** @typedef {(event: OnTrackedEntityChangeEvent) => void} OnTrackedEntityChangeCallback */
 
 export class EntityAssetManager {
 	/**
@@ -31,6 +76,9 @@ export class EntityAssetManager {
 	#assetManager;
 
 	#entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
+
+	/** @type {EventHandler<Entity, OnTrackedEntityChangeEvent>} */
+	#onTrackedEntityChangeHandler = new EventHandler();
 
 	/** @typedef {Entity & {[x: symbol]: import("../../../src/mod.js").UuidString}} EntityWithUuidSymbol */
 
@@ -90,7 +138,7 @@ export class EntityAssetManager {
 			this.#loadSourceEntity(uuid, trackedData);
 		}
 		if (trackedData.sourceEntity) {
-			this.#applyEntityClone(trackedData.sourceEntity, entity);
+			this.#applyEntityClone(trackedData.sourceEntity, entity, EntityChangeType.Load | EntityChangeType.All);
 		}
 		trackedData.trackedInstances.add(entity);
 		this.setLinkedAssetUuid(entity, uuid);
@@ -109,18 +157,18 @@ export class EntityAssetManager {
 			assertExists: true,
 		});
 		trackedData.sourceEntity = sourceEntity;
-		this.updateEntity(sourceEntity);
+		this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All);
 	}
 
 	/**
 	 * @param {Entity} entity
 	 */
 	#findRootEntityAsset(entity) {
-		for (const child of entity.traverseUp()) {
-			const uuid = this.getLinkedAssetUuid(child);
+		for (const parent of entity.traverseUp()) {
+			const uuid = this.getLinkedAssetUuid(parent);
 			if (uuid) {
 				return {
-					root: child,
+					root: parent,
 					uuid,
 				};
 			}
@@ -135,8 +183,9 @@ export class EntityAssetManager {
 	 * If the only thing you did was change the position, rotation or scale of an entity,
 	 * it's best to use {@linkcode updateEntityPosition} instead.
 	 * @param {Entity} entityInstance
+	 * @param {EntityChangeType} changeEventType
 	 */
-	updateEntity(entityInstance) {
+	updateEntity(entityInstance, changeEventType) {
 		const {uuid, root} = this.#findRootEntityAsset(entityInstance);
 		const trackedData = this.#trackedEntities.get(uuid);
 		if (!trackedData) {
@@ -147,19 +196,20 @@ export class EntityAssetManager {
 			if (!trackedData.sourceEntity) {
 				throw new Error("The source entity has not been loaded yet");
 			}
-			this.#applyEntityClone(root, trackedData.sourceEntity);
+			this.#applyEntityClone(root, trackedData.sourceEntity, changeEventType);
 		}
 		for (const trackedEntity of trackedData.trackedInstances) {
 			if (trackedEntity == root) continue;
-			this.#applyEntityClone(root, trackedEntity);
+			this.#applyEntityClone(root, trackedEntity, changeEventType);
 		}
 	}
 
 	/**
 	 * @param {Entity} sourceEntity
 	 * @param {Entity} targetEntity
+	 * @param {EntityChangeType} changeEventType
 	 */
-	#applyEntityClone(sourceEntity, targetEntity) {
+	#applyEntityClone(sourceEntity, targetEntity, changeEventType) {
 		targetEntity.name = sourceEntity.name;
 		targetEntity.localMatrix = sourceEntity.localMatrix;
 
@@ -178,6 +228,11 @@ export class EntityAssetManager {
 		for (const component of sourceEntity.components) {
 			targetEntity.addComponent(component.clone());
 		}
+
+		this.#onTrackedEntityChangeHandler.fireEvent(targetEntity, {
+			entity: targetEntity,
+			type: changeEventType,
+		});
 	}
 
 	/**
@@ -187,5 +242,28 @@ export class EntityAssetManager {
 	 */
 	updateEntityPosition(entityInstance) {
 		throw new Error("not yet implemented");
+	}
+
+	/**
+	 * Registers a callback that fires when an entity or any of its children changes.
+	 * Events are only fired on the immediate root asset. Meaning that if an entity asset A
+	 * contains another entity asset B, and a child of B changes,
+	 * events only fire when registered with the reference of entity asset B.
+	 *
+	 * Listeners are weakly held and garbage collected when the entity reference is garbage collected.
+	 *
+	 * @param {Entity} entityReference
+	 * @param {OnTrackedEntityChangeCallback} cb
+	 */
+	onTrackedEntityChange(entityReference, cb) {
+		this.#onTrackedEntityChangeHandler.addEventListener(entityReference, cb);
+	}
+
+	/**
+	 * @param {Entity} assetReference
+	 * @param {OnTrackedEntityChangeCallback} cb
+	 */
+	removeOnTrackedEntityChange(assetReference, cb) {
+		this.#onTrackedEntityChangeHandler.removeEventListener(assetReference, cb);
 	}
 }

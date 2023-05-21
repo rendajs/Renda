@@ -8,13 +8,15 @@ import {ENTITY_EDITOR_CONTENT_WINDOW_ID} from "../../../../../../studio/src/wind
 import {Entity} from "../../../../../../src/mod.js";
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
 import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {EntityAssetManager} from "../../../../../../studio/src/assets/EntityAssetManager.js";
+import {EntityAssetManager, EntityChangeType} from "../../../../../../studio/src/assets/EntityAssetManager.js";
 import {HistoryManager} from "../../../../../../studio/src/misc/HistoryManager.js";
 import {createMockKeyboardShortcutManager} from "../../../shared/mockKeyboardShortcutManager.js";
+import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 
 /**
  * @typedef ContentWindowOutlinerTestContext
  * @property {ConstructorParameters<typeof ContentWindowOutliner>} args
+ * @property {import("../../../../../../studio/src/Studio.js").Studio} mockStudioInstance
  * @property {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor[]} mockEntityEditors
  * @property {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} mockEntityEditor
  * @property {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} mockAssetManager
@@ -24,9 +26,9 @@ import {createMockKeyboardShortcutManager} from "../../../shared/mockKeyboardSho
 /**
  * @param {object} options
  * @param {number} [options.availableEntityEditors]
- * @param {(context: ContentWindowOutlinerTestContext) => void} options.fn
+ * @param {(context: ContentWindowOutlinerTestContext) => Promise<void> | void} options.fn
  */
-function basictest({
+async function basictest({
 	availableEntityEditors = 1,
 	fn,
 }) {
@@ -57,8 +59,9 @@ function basictest({
 		const historyManager = new HistoryManager(keyboardShortcutManager);
 		mockStudioInstance.historyManager = historyManager;
 
-		fn({
+		await fn({
 			args,
+			mockStudioInstance,
 			mockEntityEditors,
 			mockEntityEditor: mockEntityEditors[0],
 			mockAssetManager: assetManager,
@@ -79,8 +82,8 @@ function createMockEntityEditor() {
 
 Deno.test({
 	name: "Assigns no linked entity editor when none is available",
-	fn() {
-		basictest({
+	async fn() {
+		await basictest({
 			availableEntityEditors: 0,
 			fn({args}) {
 				const contentWindow = new ContentWindowOutliner(...args);
@@ -92,8 +95,8 @@ Deno.test({
 
 Deno.test({
 	name: "Assigns the first available linked entity editor on creation",
-	fn() {
-		basictest({
+	async fn() {
+		await basictest({
 			fn({args, mockEntityEditors}) {
 				const contentWindow = new ContentWindowOutliner(...args);
 				assertStrictEquals(contentWindow.linkedEntityEditor, mockEntityEditors[0]);
@@ -104,8 +107,8 @@ Deno.test({
 
 Deno.test({
 	name: "Initial treeview represents the hierarchy of the entity",
-	fn() {
-		basictest({
+	async fn() {
+		await basictest({
 			fn({args, mockEntityEditor}) {
 				mockEntityEditor.editingEntity.add(new Entity("child1"));
 				const child2 = new Entity("child2");
@@ -136,8 +139,8 @@ Deno.test({
 
 Deno.test({
 	name: "Linked entity assets have a link icon",
-	fn() {
-		basictest({
+	async fn() {
+		await basictest({
 			fn({args, mockEntityEditor, mockAssetManager}) {
 				const childEntity = new Entity();
 				mockAssetManager.entityAssetManager.setLinkedAssetUuid(childEntity, "uuid");
@@ -148,6 +151,99 @@ Deno.test({
 				const childTreeView = contentWindow.treeView.children[0];
 				assertExists(childTreeView);
 				assertEquals(childTreeView.afterEl.childElementCount, 1);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "TreeView is not visible when there is no asset manager",
+	async fn() {
+		await basictest({
+			async fn({args, mockStudioInstance, mockEntityEditor}) {
+				mockStudioInstance.projectManager.assetManager = null;
+				mockEntityEditor.editingEntity.add(new Entity("child"));
+
+				const contentWindow = new ContentWindowOutliner(...args);
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "",
+					children: [],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Treeview is updated when a linked entity asset is changed",
+	async fn() {
+		await basictest({
+			async fn({args, mockEntityEditor, mockAssetManager}) {
+				const TRACKED_ENTITY_UUID = "TRACKED_ENTITY_UUID";
+				stub(mockAssetManager, "getLiveAsset", async uuid => {
+					if (uuid == TRACKED_ENTITY_UUID) {
+						const entity = new Entity("tracked entity");
+						mockAssetManager.entityAssetManager.setLinkedAssetUuid(entity, TRACKED_ENTITY_UUID);
+						return entity;
+					}
+				});
+
+				const mainEntity = new Entity("main");
+				const child1 = new Entity("child1");
+				mainEntity.add(child1);
+				const trackedEntity1 = mockAssetManager.entityAssetManager.createdTrackedEntity(TRACKED_ENTITY_UUID);
+				mainEntity.add(trackedEntity1);
+
+				mockEntityEditor.editingEntity.add(mainEntity);
+
+				const contentWindow = new ContentWindowOutliner(...args);
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "Entity",
+					children: [
+						{
+							name: "main",
+							children: [
+								{name: "child1"},
+								{name: "Entity"},
+							],
+						},
+					],
+				});
+
+				await waitForMicrotasks();
+
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "Entity",
+					children: [
+						{
+							name: "main",
+							children: [
+								{name: "child1"},
+								{name: "tracked entity"},
+							],
+						},
+					],
+				});
+
+				const trackedEntity2 = mockAssetManager.entityAssetManager.createdTrackedEntity(TRACKED_ENTITY_UUID);
+				trackedEntity2.add(new Entity("new child"));
+				mockAssetManager.entityAssetManager.updateEntity(trackedEntity2, EntityChangeType.Create);
+
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "Entity",
+					children: [
+						{
+							name: "main",
+							children: [
+								{name: "child1"},
+								{
+									name: "tracked entity",
+									children: [{name: "new child"}],
+								},
+							],
+						},
+					],
+				});
 			},
 		});
 	},
@@ -167,8 +263,8 @@ function clickAddEntityButton(contentWindow) {
 
 Deno.test({
 	name: "'+' button creates a new entity on the root when nothing is selected",
-	fn() {
-		basictest({
+	async fn() {
+		await basictest({
 			fn({args, mockEntityEditor}) {
 				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
 				const contentWindow = new ContentWindowOutliner(...args);
@@ -187,8 +283,8 @@ Deno.test({
 
 Deno.test({
 	name: "'+' button creates a new entity on the selected entities",
-	fn() {
-		basictest({
+	async fn() {
+		await basictest({
 			fn({args, mockEntityEditor}) {
 				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
 				const child1 = new Entity("child1");
@@ -227,8 +323,8 @@ Deno.test({
 
 Deno.test({
 	name: "renaming a treeview renames the entity",
-	fn() {
-		basictest({
+	async fn() {
+		await basictest({
 			fn({args, mockEntityEditor, historyManager}) {
 				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
 				const childEntity = new Entity("old name");
