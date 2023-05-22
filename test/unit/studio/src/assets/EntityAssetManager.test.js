@@ -2,6 +2,7 @@ import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEqual
 import {Entity, LightComponent} from "../../../../../src/mod.js";
 import {EntityAssetManager, EntityChangeType} from "../../../../../studio/src/assets/EntityAssetManager.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
+import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 
 const BASIC_ENTITY_UUID = "basic entity uuid";
 
@@ -211,6 +212,9 @@ Deno.test({
 		assertThrows(() => {
 			manager.updateEntity(entity, EntityChangeType.Create);
 		}, Error, "Provided entity is not a child of an entity asset");
+		assertThrows(() => {
+			manager.updateEntityPosition(entity);
+		}, Error, "Provided entity is not a child of an entity asset");
 	},
 });
 
@@ -224,5 +228,68 @@ Deno.test({
 		assertThrows(() => {
 			manager.updateEntity(entity, EntityChangeType.Create);
 		}, Error, "The provided entity asset is not tracked by this EntityAssetManager");
+		assertThrows(() => {
+			manager.updateEntityPosition(entity);
+		}, Error, "The provided entity asset is not tracked by this EntityAssetManager");
+	},
+});
+
+Deno.test({
+	name: "Changing an entity position updates the others and fires events",
+	async fn() {
+		const sourceEntity = new Entity("root");
+		sourceEntity.add(new Entity("dummy"));
+		const childA = sourceEntity.add(new Entity("childA"));
+		sourceEntity.add(new Entity("dummy"));
+		childA.add(new Entity("childB"));
+		childA.add(new Entity("dummy"));
+
+		const {manager} = basicSetup({sourceEntity});
+
+		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+
+		// Wait for source entity to load
+		await waitForMicrotasks();
+
+		const child1A = entity1.children[1];
+		const child1B = child1A.children[0];
+
+		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const child2A = entity2.children[1];
+		const child2B = child2A.children[0];
+
+		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeEvent[]} */
+		const calls = [];
+		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeCallback} */
+		const onChangeFn = e => {
+			calls.push(e);
+		};
+		manager.onTrackedEntityChange(entity2, onChangeFn);
+		let originalCallCount = 0;
+		manager.onTrackedEntityChange(entity1, () => {
+			originalCallCount++;
+		});
+
+		child1A.pos.set(1, 2, 3);
+		manager.updateEntityPosition(child1A);
+		assertVecAlmostEquals(child2A.pos, [1, 2, 3]);
+		assertEquals(calls.length, 1);
+		assertEquals(calls[0].type, EntityChangeType.Transform);
+		assertStrictEquals(calls[0].entity, child2A);
+
+		child1B.pos.set(4, 5, 6);
+		manager.updateEntityPosition(child1B);
+		assertVecAlmostEquals(child2B.pos, [4, 5, 6]);
+		assertEquals(calls.length, 2);
+		assertEquals(calls[1].type, EntityChangeType.Transform);
+		assertStrictEquals(calls[1].entity, child2B);
+
+		manager.removeOnTrackedEntityChange(entity2, onChangeFn);
+		child1A.pos.set(7, 8, 9);
+		manager.updateEntityPosition(child1A);
+		assertVecAlmostEquals(child2A.worldPos, child1A.worldPos);
+		assertEquals(calls.length, 2);
+
+		assertEquals(originalCallCount, 0);
 	},
 });
