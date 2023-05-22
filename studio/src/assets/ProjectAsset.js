@@ -871,7 +871,7 @@ export class ProjectAsset {
 	/**
 	 * @param {object} liveAsset
 	 * @param {unknown} persistenceData You can use this to keep the uuid of the internal asset persistent
-	 * across sessions. This data is stored in ProjectSettings/assetSettings.json of the project and whenever
+	 * across sessions. This data is stored in .renda/assetSettings.json of the project and whenever
 	 * a new uuid is created, this file is checked first if the provided data matches the data from an
 	 * existing uuid.
 	 */
