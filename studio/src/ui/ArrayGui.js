@@ -108,7 +108,6 @@ export class ArrayGui {
 	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	addItem(trigger = "application") {
-		const index = this.value.length;
 		/** @type {import("./propertiesTreeView/types.ts").PropertiesTreeViewEntryOptionsGeneric<any>} */
 		const addItemOpts = {
 			type: this.type,
