@@ -60,7 +60,7 @@ EntityChangeType.Component = EntityChangeType.CreateComponent | EntityChangeType
 
 /**
  * @typedef OnTrackedEntityChangeEvent
- * @property {Entity} entity
+ * @property {Entity} entity The entity that was changed.
  * @property {number} type
  */
 /** @typedef {(event: OnTrackedEntityChangeEvent) => void} OnTrackedEntityChangeCallback */
@@ -164,11 +164,22 @@ export class EntityAssetManager {
 	 * @param {Entity} entity
 	 */
 	#findRootEntityAsset(entity) {
+		/** @type {number[]} */
+		const indicesPath = [];
 		for (const parent of entity.traverseUp()) {
 			const uuid = this.getLinkedAssetUuid(parent);
-			if (uuid) {
+			if (!uuid) {
+				const parentParent = parent.parent;
+				if (!parentParent) {
+					// No entity asset was found in the parent chain
+					// we'll break out of the loop and throw below
+					break;
+				}
+				indicesPath.unshift(parentParent.children.indexOf(parent));
+			} else {
 				return {
 					root: parent,
+					indicesPath,
 					uuid,
 				};
 			}
@@ -241,7 +252,34 @@ export class EntityAssetManager {
 	 * @param {Entity} entityInstance The entity for which the transformation was changed.
 	 */
 	updateEntityPosition(entityInstance) {
-		throw new Error("not yet implemented");
+		const {uuid, indicesPath, root} = this.#findRootEntityAsset(entityInstance);
+		const trackedData = this.#trackedEntities.get(uuid);
+		if (!trackedData) {
+			throw new Error("The provided entity asset is not tracked by this EntityAssetManager.");
+		}
+
+		for (const trackedEntity of trackedData.trackedInstances) {
+			if (trackedEntity == root) continue;
+			this.#applyEntityPosition(root, trackedEntity, indicesPath);
+		}
+	}
+
+	/**
+	 * @param {Entity} sourceEntity
+	 * @param {Entity} targetEntity
+	 * @param {number[]} indicesPath
+	 */
+	#applyEntityPosition(sourceEntity, targetEntity, indicesPath) {
+		const sourceChild = sourceEntity.getEntityByIndicesPath(indicesPath);
+		const targetChild = targetEntity.getEntityByIndicesPath(indicesPath);
+		if (!sourceChild || !targetChild) throw new Error("Assertion failed, source or target entity not found");
+
+		targetChild.localMatrix = sourceChild.localMatrix;
+
+		this.#onTrackedEntityChangeHandler.fireEvent(targetEntity, {
+			entity: targetChild,
+			type: EntityChangeType.Transform,
+		});
 	}
 
 	/**
