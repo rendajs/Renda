@@ -161,10 +161,3 @@
 	user-select: text;
 	-webkit-user-select: text;
 }
-.guiTreeViewEntryValue.smallLabel{
-	width: 85%;
-}
-.guiTreeViewEntryLabel.smallLabel{
-	width: 15%;
-	 min-width: 10px;
-}

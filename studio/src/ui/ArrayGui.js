@@ -113,8 +113,7 @@ export class ArrayGui {
 		const addItemOpts = {
 			type: this.type,
 			guiOpts: {
-				smallLabel: true,
-				label: String(index),
+				hideLabel: true,
 				...this.arrayGuiOpts,
 			},
 		};

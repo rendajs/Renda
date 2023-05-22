@@ -72,22 +72,22 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 		this.customEl.classList.add("guiTreeViewEntry");
 
-		const smallLabel = guiOpts.smallLabel ?? false;
-		this.label = document.createElement("div");
-		this.label.classList.add("guiTreeViewEntryLabel");
-		this.label.classList.toggle("smallLabel", smallLabel);
-		const labelText = prettifyVariableName(guiOpts.label);
-		this.label.textContent = labelText;
-		if (tooltip) {
-			this.label.title = labelText + "\n\n" + tooltip;
-		} else {
-			this.label.title = labelText;
+		const hideLabel = guiOpts.hideLabel ?? false;
+		if (!hideLabel) {
+			const label = document.createElement("div");
+			label.classList.add("guiTreeViewEntryLabel");
+			const labelText = prettifyVariableName(guiOpts.label);
+			label.textContent = labelText;
+			if (tooltip) {
+				label.title = labelText + "\n\n" + tooltip;
+			} else {
+				label.title = labelText;
+			}
+			this.customEl.appendChild(label);
 		}
-		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");
 		this.valueEl.classList.add("guiTreeViewEntryValue");
-		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
 		/**
