@@ -40,7 +40,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.addPreferencesButton(
 			"entityEditor.autosaveEntities",
 			"entityEditor.invertScrollOrbitX",
-			"entityEditor.invertScrollOrbitY"
+			"entityEditor.invertScrollOrbitY",
+			"entityEditor.showGrid"
 		);
 
 		this.entitySavingManager = new EntitySavingManager(this.studioInstance, this);
@@ -114,7 +115,21 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editorCamComponent.clusteredLightsConfig = new ClusteredLightsConfig();
 
 		this.grid = new Entity("grid");
-		this.editorScene.add(this.grid);
+		this.studioInstance.preferencesManager.onChange("entityEditor.showGrid", e => {
+			if (e.value) {
+				if (!this.grid.parent) {
+					this.editorScene.add(this.grid);
+					this.markRenderDirty();
+				}
+			} else {
+				if (this.grid.parent) {
+					this.editorScene.remove(this.grid);
+					this.markRenderDirty();
+				}
+			}
+		}, {
+			contentWindowUuid: this.uuid,
+		});
 		const gridMeshComponent = this.grid.addComponent(MeshComponent, {
 			materials: [],
 		});
