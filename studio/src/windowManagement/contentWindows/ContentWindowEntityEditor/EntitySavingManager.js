@@ -22,6 +22,8 @@ export class EntitySavingManager {
 		this.studioInstance.preferencesManager.onChange("entityEditor.autosaveEntities", () => {
 			const autosave = this.#getAutosaveValue();
 			this.saveEntityButton.setVisibility(!autosave);
+		}, {
+			contentWindowUuid: entityEditor.uuid,
 		});
 
 		this.saveEntityAssetInstance = new SingleInstancePromise(async () => {
