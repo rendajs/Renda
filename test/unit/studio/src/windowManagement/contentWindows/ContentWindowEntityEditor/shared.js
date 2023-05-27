@@ -49,6 +49,7 @@ export function basicTest() {
 	const preferencesFlushSpy = stub(mockWindowManager, "requestContentWindowPreferencesFlush");
 
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.autosaveEntities", {type: "boolean"});
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.showGrid", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitX", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitY", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookPos", {
