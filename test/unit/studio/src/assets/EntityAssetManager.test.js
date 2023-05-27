@@ -5,20 +5,32 @@ import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 
 const BASIC_ENTITY_UUID = "basic entity uuid";
+const NESTED_ENTITY_UUID = "nested entity uuid";
 
 /**
  * @param {object} options
  * @param {Entity} [options.sourceEntity]
+ * @param {Entity} [options.nestedEntity]
  */
 function basicSetup({
-	sourceEntity = new Entity("my entity"),
+	sourceEntity,
+	nestedEntity,
 } = {}) {
-	sourceEntity.add(new Entity("child"));
+	if (!sourceEntity) {
+		sourceEntity = new Entity("my entity");
+		sourceEntity.add(new Entity("child"));
+	}
+	if (!nestedEntity) {
+		nestedEntity = new Entity("nested entity");
+	}
 	const assetManager = /** @type {import("../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({
 		/** @type {import("../../../../../studio/src/assets/AssetManager.js").AssetManager["getLiveAsset"]} */
 		async getLiveAsset(uuid, options) {
 			if (uuid == BASIC_ENTITY_UUID) {
 				return /** @type {any} */ (sourceEntity);
+			}
+			if (uuid == NESTED_ENTITY_UUID) {
+				return /** @type {any} */ (nestedEntity);
 			}
 			throw new Error("Not found");
 		},
@@ -26,6 +38,7 @@ function basicSetup({
 
 	const manager = new EntityAssetManager(assetManager);
 	manager.setLinkedAssetUuid(sourceEntity, BASIC_ENTITY_UUID);
+	manager.setLinkedAssetUuid(nestedEntity, NESTED_ENTITY_UUID);
 
 	return {sourceEntity, assetManager, manager};
 }
@@ -141,7 +154,7 @@ Deno.test({
 		manager.updateEntity(entity1, EntityChangeType.Rename);
 		assertEquals(calls.length, 1);
 		assertStrictEquals(calls[0].entity, entity2);
-		assertStrictEquals(calls[0].type, EntityChangeType.Rename);
+		assertEquals(calls[0].type, EntityChangeType.Rename);
 
 		entity1.name = "new name 2";
 		manager.updateEntity(entity1, EntityChangeType.Rename);
@@ -156,6 +169,83 @@ Deno.test({
 		entity2.name = "new name 4";
 		manager.updateEntity(entity2, EntityChangeType.Rename);
 		assertEquals(calls.length, 2);
+	},
+});
+
+Deno.test({
+	name: "Changing nested entity assets updates them and fires events",
+	async fn() {
+		const {manager} = basicSetup();
+
+		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		// Wait for source entity to load
+		await waitForMicrotasks();
+		const initialChild1 = entity1.children[0];
+
+		const nestedEntityAsset1a = manager.createdTrackedEntity(NESTED_ENTITY_UUID);
+		initialChild1.add(nestedEntityAsset1a);
+
+		const nestedEntityAsset1b = manager.createdTrackedEntity(NESTED_ENTITY_UUID);
+		initialChild1.add(nestedEntityAsset1b);
+
+		// Wait for nested entity to load
+		await waitForMicrotasks();
+
+		manager.updateEntity(entity1, EntityChangeType.Create);
+
+		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		// Wait for source entity to load
+		await waitForMicrotasks();
+		const child2 = entity2.children[0];
+
+		assertEquals(entity2.name, "my entity");
+		assertEquals(entity2.children[0].name, "child");
+		assertEquals(entity2.children[0].children[0].name, "nested entity");
+		assertEquals(entity2.children[0].children[1].name, "nested entity");
+
+		// Register the events
+		/** @type {{trackedEntity: Entity, event: import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeEvent}[]} */
+		const calls = [];
+		let callCount = 0;
+		manager.onTrackedEntityChange(entity1, event => {
+			calls.push({trackedEntity: entity1, event});
+		});
+		manager.onTrackedEntityChange(nestedEntityAsset1b, event => {
+			calls.push({trackedEntity: nestedEntityAsset1b, event});
+		});
+		manager.onTrackedEntityChange(nestedEntityAsset1a, event => {
+			calls.push({trackedEntity: nestedEntityAsset1a, event});
+		});
+
+		// First we change a child that is not an entity asset.
+		// This should only fire a single event on the root entity.
+		child2.name = "new child name";
+		manager.updateEntity(child2, EntityChangeType.Rename);
+		callCount++;
+		assertEquals(calls.length, callCount);
+		assertStrictEquals(calls[0].trackedEntity, entity1);
+		assertStrictEquals(calls[0].event.entity, entity1.children[0]);
+
+		assertEquals(entity2.name, "my entity");
+		assertEquals(entity2.children[0].name, "new child name");
+		assertEquals(entity2.children[0].children[0].name, "nested entity");
+		assertEquals(entity2.children[0].children[1].name, "nested entity");
+
+		// Changing a nested child entity asset should update all the others
+		nestedEntityAsset1a.name = "new nested asset name";
+		manager.updateEntity(nestedEntityAsset1a, EntityChangeType.Rename);
+
+		callCount += 2;
+		assertEquals(calls.length, callCount);
+		assertStrictEquals(calls[1].trackedEntity, nestedEntityAsset1b);
+		assertStrictEquals(calls[1].event.entity, initialChild1.children[0]);
+		assertStrictEquals(calls[2].trackedEntity, entity1);
+		assertStrictEquals(calls[2].event.entity, initialChild1.children[0]);
+
+		assertEquals(entity2.name, "my entity");
+		assertEquals(entity2.children[0].name, "new child name");
+		assertEquals(entity2.children[0].children[0].name, "new nested asset name");
+		assertEquals(entity2.children[0].children[1].name, "new nested asset name");
 	},
 });
 
