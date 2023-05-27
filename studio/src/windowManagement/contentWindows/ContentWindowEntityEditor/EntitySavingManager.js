@@ -19,7 +19,7 @@ export class EntitySavingManager {
 				this.saveEntityAssetInstance.run();
 			},
 		});
-		this.studioInstance.preferencesManager.onChange("entityEditor.autosaveEntities", () => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.autosaveEntities", this.entityEditor.uuid, () => {
 			const autosave = this.#getAutosaveValue();
 			this.saveEntityButton.setVisibility(!autosave);
 		});
