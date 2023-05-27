@@ -17,3 +17,39 @@ Deno.test({
 		}
 	},
 });
+
+Deno.test({
+	name: "Shows the grid when toggled",
+	async fn() {
+		const {args, mockStudioInstance, uninstall} = basicTest();
+		try {
+			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", false);
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			contentWindow.setProjectPreferencesLocationData({});
+
+			assertEquals(contentWindow.editorScene.getEntityByName("grid"), null);
+			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", true);
+			assertExists(contentWindow.editorScene.getEntityByName("grid"));
+		} finally {
+			uninstall();
+		}
+	},
+});
+Deno.test({
+	name: "Hides the grid when untoggled",
+	async fn() {
+		const {args, mockStudioInstance, uninstall} = basicTest();
+		try {
+			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", true);
+
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			contentWindow.setProjectPreferencesLocationData({});
+
+			assertExists(contentWindow.editorScene.getEntityByName("grid"));
+			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", false);
+			assertEquals(contentWindow.editorScene.getEntityByName("grid"), null);
+		} finally {
+			uninstall();
+		}
+	},
+});

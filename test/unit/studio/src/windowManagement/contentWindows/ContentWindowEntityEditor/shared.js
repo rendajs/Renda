@@ -1,8 +1,9 @@
-import {getMockArgs} from "../shared.js";
+import {DEFAULT_CONTENT_WINDOW_UUID, getMockArgs} from "../shared.js";
 import {FakeHtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {stub} from "std/testing/mock.ts";
 import {SelectionManager} from "../../../../../../../studio/src/misc/SelectionManager.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
+import {ContentWindowPreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 
 export const BASIC_ENTITY_UUID = "entity uuid1";
 export const BASIC_ENTITY_PATH = ["path", "to", "entity"];
@@ -48,7 +49,10 @@ export function basicTest() {
 	stub(mockWindowManager, "getContentWindows", function *getContentWindows() {});
 	const preferencesFlushSpy = stub(mockWindowManager, "requestContentWindowPreferencesFlush");
 
+	mockStudioInstance.preferencesManager.addLocation(new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID));
+
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.autosaveEntities", {type: "boolean"});
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.showGrid", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitX", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitY", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookPos", {
