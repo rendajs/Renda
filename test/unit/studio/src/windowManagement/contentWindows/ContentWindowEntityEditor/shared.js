@@ -1,9 +1,8 @@
-import {DEFAULT_CONTENT_WINDOW_UUID, getMockArgs} from "../shared.js";
+import {getMockArgs} from "../shared.js";
 import {FakeHtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {stub} from "std/testing/mock.ts";
 import {SelectionManager} from "../../../../../../../studio/src/misc/SelectionManager.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {ContentWindowPreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 
 export const BASIC_ENTITY_UUID = "entity uuid1";
 export const BASIC_ENTITY_PATH = ["path", "to", "entity"];
