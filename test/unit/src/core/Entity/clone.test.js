@@ -1,4 +1,4 @@
-import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {Entity, LightComponent} from "../../../../../src/mod.js";
 
 function createBasicEntity() {
@@ -71,11 +71,11 @@ Deno.test({
 		const {entity} = createBasicEntity();
 
 		const result = entity.clone({
-			cloneChildHook({child, options}) {
+			cloneChildHook({child}) {
 				if (child.name == "child2") {
 					return false;
 				}
-				return child.clone(options);
+				return null;
 			},
 		});
 		assertNotStrictEquals(result, entity);
@@ -94,11 +94,11 @@ Deno.test({
 
 		const originalChild2 = entity.children[1];
 		const result = entity.clone({
-			cloneChildHook({child, options}) {
+			cloneChildHook({child}) {
 				if (child.name == "child2") {
 					return child;
 				}
-				return child.clone(options);
+				return null;
 			},
 		});
 		assertNotStrictEquals(result, entity);
@@ -126,5 +126,43 @@ Deno.test({
 			},
 		});
 		assertExactClone(entity, result);
+	},
+});
+
+Deno.test({
+	name: "cloneChildHook gets called on the root itself",
+	fn() {
+		const entity1 = new Entity("1");
+		entity1.add(new Entity("child1"));
+		const entity2 = new Entity("2");
+		entity2.add(new Entity("child2"));
+
+		let callCount = 0;
+		const result = entity1.clone({
+			cloneChildHook({child}) {
+				callCount++;
+				if (child === entity1) return entity2;
+			},
+		});
+		assertEquals(callCount, 1);
+		assertStrictEquals(result, entity2);
+	},
+});
+
+Deno.test({
+	name: "cloneChildHook returning false for the root throws",
+	fn() {
+		const entity1 = new Entity("1");
+		entity1.add(new Entity("child1"));
+		const entity2 = new Entity("2");
+		entity2.add(new Entity("child2"));
+
+		assertThrows(() => {
+			entity1.clone({
+				cloneChildHook({child}) {
+					if (child === entity1) return false;
+				},
+			});
+		}, Error, "cloneChildHook cannot return false for the root entity.");
 	},
 });

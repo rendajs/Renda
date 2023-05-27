@@ -65,12 +65,12 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 
 /**
  * @typedef EntityCloneOptions
- * @property {(hookData: CloneChildHookData) => (Entity | null | undefined | false)} [cloneChildHook] Hook that
+ * @property {(hookData: CloneChildHookData) => (Entity | null | void | false)} [cloneChildHook] Hook that
  * gets called every time a child needs to be cloned. The entity that is used depends on what is returned by the hook:
  *
- *  - Returning an entity will add that entity as child directly without any modifications.
- *  - `null` or `undefined` will clone the existing child and apply it.
- *  - `false` will remove the child from the entity. Note that this causes siblings to receive a different index in the `children` array.
+ * - Returning an entity will add that entity as child directly without any modifications.
+ * - `null` or `undefined` will clone the existing child and apply it.
+ * - `false` will remove the child from the entity. Note that this causes siblings to receive a different index in the `children` array.
  */
 
 export class Entity {
@@ -814,6 +814,22 @@ export class Entity {
 	 * @param {EntityCloneOptions} [options]
 	 */
 	clone(options = {}) {
+		if (options.cloneChildHook) {
+			const result = options.cloneChildHook({child: this, options});
+			if (result === false) {
+				throw new Error("cloneChildHook cannot return false for the root entity.");
+			}
+			if (result) return result;
+		}
+		return this._cloneInternal(options);
+	}
+
+	/**
+	 * Same as {@linkcode clone} but without firing the `cloneChildHook` on the root.
+	 * @private
+	 * @param {EntityCloneOptions} options
+	 */
+	_cloneInternal(options) {
 		const clone = new Entity({
 			name: this.name,
 		});
@@ -822,12 +838,13 @@ export class Entity {
 			clone.addComponent(component.clone());
 		}
 
-		const cloneChildHook = options.cloneChildHook || (({child}) => child.clone(options));
+		const cloneChildHook = options.cloneChildHook || (() => null);
 		for (const child of this.children) {
 			let clonedChild = cloneChildHook({child, options});
 			if (clonedChild === false) continue;
 			if (clonedChild == null || clonedChild == undefined) {
-				clonedChild = child.clone(options);
+				// eslint-disable-next-line no-underscore-dangle
+				clonedChild = child._cloneInternal(options);
 			}
 			clone.add(clonedChild);
 		}
