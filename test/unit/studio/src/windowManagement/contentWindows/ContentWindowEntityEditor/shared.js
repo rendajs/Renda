@@ -49,8 +49,6 @@ export function basicTest() {
 	stub(mockWindowManager, "getContentWindows", function *getContentWindows() {});
 	const preferencesFlushSpy = stub(mockWindowManager, "requestContentWindowPreferencesFlush");
 
-	mockStudioInstance.preferencesManager.addLocation(new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID));
-
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.autosaveEntities", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.showGrid", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitX", {type: "boolean"});
