@@ -115,7 +115,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editorCamComponent.clusteredLightsConfig = new ClusteredLightsConfig();
 
 		this.grid = new Entity("grid");
-		this.studioInstance.preferencesManager.onChange("entityEditor.showGrid", e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.showGrid", this.uuid, e => {
 			if (e.value) {
 				if (!this.grid.parent) {
 					this.editorScene.add(this.grid);
@@ -127,8 +127,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					this.markRenderDirty();
 				}
 			}
-		}, {
-			contentWindowUuid: this.uuid,
 		});
 		const gridMeshComponent = this.grid.addComponent(MeshComponent, {
 			materials: [],
