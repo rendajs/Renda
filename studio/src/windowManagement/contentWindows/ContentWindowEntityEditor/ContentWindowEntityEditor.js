@@ -150,15 +150,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.orbitControlsValuesDirty = false;
 		this.lastOrbitControlsValuesChangeTime = 0;
 
-		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitX", e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitX", this.uuid, e => {
 			this.orbitControls.invertScrollX = e.value;
-		}, {
-			contentWindowUuid: this.uuid,
 		});
-		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitY", e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitY", this.uuid, e => {
 			this.orbitControls.invertScrollY = e.value;
-		}, {
-			contentWindowUuid: this.uuid,
 		});
 
 		this.editingEntityUuid = null;
@@ -191,27 +187,21 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {Map<Entity, Map<import("../../../../../src/mod.js").Component, import("../../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();
 
-		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookPos", e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookPos", this.uuid, e => {
 			if (e.trigger == "application") return;
 			if (!Array.isArray(e.value)) return;
 			// @ts-ignore
 			this.orbitControls.lookPos = e.value;
-		}, {
-			contentWindowUuid: this.uuid,
 		});
-		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookRot", e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookRot", this.uuid, e => {
 			if (e.trigger == "application") return;
 			if (!Array.isArray(e.value)) return;
 			// @ts-ignore
 			this.orbitControls.lookRot = e.value;
-		}, {
-			contentWindowUuid: this.uuid,
 		});
-		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookDist", e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookDist", this.uuid, e => {
 			if (e.trigger == "application") return;
 			this.orbitControls.lookDist = e.value;
-		}, {
-			contentWindowUuid: this.uuid,
 		});
 
 		// TODO #467
@@ -219,7 +209,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		// We could make the uuid persistent but this would cause assetSettings.json to be updated.
 		// assetSettings.json is expected to be tracked in version control and we don't want to surprise the user
 		// with unexpected changed files.
-		this.studioInstance.preferencesManager.onChange("entityEditor.loadedEntityPath", async e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.loadedEntityPath", this.uuid, async e => {
 			if (e.trigger == "application") return;
 			if (Array.isArray(e.value)) {
 				const castLoadedEntityPath = /** @type {string[]} */ (e.value);
@@ -229,8 +219,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					this.loadEntityAsset(assetUuid, true);
 				}
 			}
-		}, {
-			contentWindowUuid: this.uuid,
 		});
 	}
 
