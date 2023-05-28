@@ -77,7 +77,7 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {function(import("./types.ts").PropertiesTreeViewChangeEvent<T>) : void} cb
+	 * @param {(event: import("./types.ts").PropertiesTreeViewChangeEvent<T>) => void} cb
 	 */
 	onChildValueChange(cb) {
 		this.addEventListener(VALUE_CHANGE_EVENT_NAME, cb);
@@ -218,7 +218,7 @@ export class PropertiesTreeView extends TreeView {
 	/**
 	 * @template {keyof PropertiesTreeViewEventCbMap<T>} E
 	 * @param {E} eventType The identifier of the event type.
-	 * @param {function(PropertiesTreeViewEventCbMap<T>[E]) : void} cb The callback to invoke when the event occurs.
+	 * @param {(event: PropertiesTreeViewEventCbMap<T>[E]) => void} cb The callback to invoke when the event occurs.
 	 */
 	addEventListener(eventType, cb) {
 		// @ts-ignore
@@ -229,7 +229,7 @@ export class PropertiesTreeView extends TreeView {
 	/**
 	 * @template {keyof PropertiesTreeViewEventCbMap<T>} E
 	 * @param {E} eventType The identifier of the event type.
-	 * @param {function(PropertiesTreeViewEventCbMap<T>[E]) : void} cb The callback to remove.
+	 * @param {(event: PropertiesTreeViewEventCbMap<T>[E]) => void} cb The callback to remove.
 	 */
 	removeEventListener(eventType, cb) {
 		// @ts-ignore

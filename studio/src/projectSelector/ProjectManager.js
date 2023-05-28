@@ -63,7 +63,7 @@ export class ProjectManager {
 	#onFileChangeCbs = new Set();
 
 	constructor() {
-		/** @type {?import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem} */
+		/** @type {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} */
 		this.currentProjectFileSystem = null;
 		/** @type {StoredProjectEntryAny?} */
 		this.currentProjectOpenEvent = null;

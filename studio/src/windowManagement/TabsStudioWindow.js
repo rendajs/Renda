@@ -7,7 +7,7 @@ import {ButtonGroup} from "../ui/ButtonGroup.js";
 import {SplitStudioWindow} from "./SplitStudioWindow.js";
 
 export class TabsStudioWindow extends StudioWindow {
-	/** @type {Array<string>} */
+	/** @type {string[]} */
 	#intendedTabTypes = [];
 	/** @type {import("../../../src/util/mod.js").UuidString[]} */
 	#intendedTabUuids = [];
@@ -560,7 +560,7 @@ export class TabsStudioWindow extends StudioWindow {
 	}
 
 	/**
-	 * @param {Array<string>} uuids
+	 * @param {string[]} uuids
 	 * @param {boolean} [fromOtherTabsOnly]
 	 */
 	*uuidsToContentWindows(uuids, fromOtherTabsOnly = false) {

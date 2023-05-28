@@ -3,8 +3,10 @@
 /** @typedef {(state: StudioConnectionState) => void} OnConnectionStateChangeCallback */
 
 export class MessageHandler {
+	/** @typedef {(data: any) => void} OnMessageCallback */
+
 	constructor() {
-		/** @type {Set<(data: any) => void>} */
+		/** @type {Set<OnMessageCallback>} */
 		this.onMessageCbs = new Set();
 		/** @type {StudioConnectionState} */
 		this.connectionState = "disconnected";
@@ -27,7 +29,7 @@ export class MessageHandler {
 	}
 
 	/**
-	 * @param {function(*) : void} cb
+	 * @param {OnMessageCallback} cb
 	 */
 	onMessage(cb) {
 		this.onMessageCbs.add(cb);

@@ -303,7 +303,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	/**
 	 * @template {keyof PropertiesTreeViewEventCbMap} T
 	 * @param {T} eventType The identifier of the event type.
-	 * @param {function(PropertiesTreeViewEventCbMap[T]) : void} cb The callback to invoke when the event occurs.
+	 * @param {(event: PropertiesTreeViewEventCbMap[T]) => void} cb The callback to invoke when the event occurs.
 	 */
 	addEventListener(eventType, cb) {
 		// @ts-ignore
@@ -314,7 +314,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	/**
 	 * @template {keyof PropertiesTreeViewEventCbMap} T
 	 * @param {T} eventType The identifier of the event type.
-	 * @param {function(PropertiesTreeViewEventCbMap[T]) : void} cb The callback to remove.
+	 * @param {(event: PropertiesTreeViewEventCbMap[T]) => void} cb The callback to remove.
 	 */
 	removeEventListener(eventType, cb) {
 		// @ts-ignore

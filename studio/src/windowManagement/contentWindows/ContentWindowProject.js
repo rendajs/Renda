@@ -236,7 +236,7 @@ export class ContentWindowProject extends ContentWindow {
 
 	/**
 	 * Updates the path and its children recursively when expanded.
-	 * @param {Array<string> | null} path Directory to update, updates the root TreeView when omitted.
+	 * @param {string[] | null} path Directory to update, updates the root TreeView when omitted.
 	 */
 	async updateTreeView(path = null) {
 		/** @type {TreeView?} */
@@ -261,8 +261,8 @@ export class ContentWindowProject extends ContentWindow {
 
 	/**
 	 * Updates a full range of directories from start to end, useful right before expanding a specific directory.
-	 * @param {Array<string>} end The directory to update, this path is relative to start.
-	 * @param {?Array<string>} start The directory to start updating from, starts updating from the root when omitted.
+	 * @param {string[]} end The directory to update, this path is relative to start.
+	 * @param {string[] | null} start The directory to start updating from, starts updating from the root when omitted.
 	 * @param {boolean} updateAll When this is false, expanded TreeViews won't be updated. Expanded TreeViews
 	 * should already be updated so you generally won't need to use this.
 	 */
@@ -304,7 +304,7 @@ export class ContentWindowProject extends ContentWindow {
 	 * Utility function for {@link ContentWindowProject.updateTreeView} that updates
 	 * a TreeView and all expanded children recursively.
 	 * @param {TreeView} treeView The TreeView to update.
-	 * @param {Array<string>} path The path this TreeView belongs to.
+	 * @param {string[]} path The path this TreeView belongs to.
 	 */
 	async updateTreeViewRecursive(treeView, path) {
 		if (this.destructed) return;
@@ -464,7 +464,7 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeView} treeView
 	 * @param {boolean} [removeLast]
-	 * @returns {Array<string>}
+	 * @returns {string[]}
 	 */
 	pathFromTreeView(treeView, removeLast = false) {
 		const path = treeView.getNamesPath();
