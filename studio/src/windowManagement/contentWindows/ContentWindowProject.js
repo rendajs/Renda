@@ -262,7 +262,7 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * Updates a full range of directories from start to end, useful right before expanding a specific directory.
 	 * @param {string[]} end The directory to update, this path is relative to start.
-	 * @param {?string[]} start The directory to start updating from, starts updating from the root when omitted.
+	 * @param {string[] | null} start The directory to start updating from, starts updating from the root when omitted.
 	 * @param {boolean} updateAll When this is false, expanded TreeViews won't be updated. Expanded TreeViews
 	 * should already be updated so you generally won't need to use this.
 	 */
