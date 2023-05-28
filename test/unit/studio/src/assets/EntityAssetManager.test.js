@@ -1,4 +1,4 @@
-import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {Entity, LightComponent} from "../../../../../src/mod.js";
 import {EntityAssetManager, EntityChangeType} from "../../../../../studio/src/assets/EntityAssetManager.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
@@ -298,29 +298,25 @@ Deno.test({
 	async fn() {
 		const {manager} = basicSetup();
 
-		const entity = new Entity();
-		assertThrows(() => {
-			manager.updateEntity(entity, EntityChangeType.Create);
-		}, Error, "Provided entity is not a child of an entity asset");
-		assertThrows(() => {
-			manager.updateEntityPosition(entity);
-		}, Error, "Provided entity is not a child of an entity asset");
+		const entity = new Entity("root");
+		const child = entity.add(new Entity("child"));
+		manager.updateEntity(entity, EntityChangeType.Create);
+		manager.updateEntityPosition(entity);
+		assertStrictEquals(entity.children[0], child);
 	},
 });
 
 Deno.test({
-	name: "Trying to change an entity that is not being tracked throws",
+	name: "Trying to change an entity that is not being tracked does nothing",
 	async fn() {
 		const {manager} = basicSetup();
 
-		const entity = new Entity();
+		const entity = new Entity("root");
+		const child = entity.add(new Entity("child"));
 		manager.setLinkedAssetUuid(entity, "non existent uuid");
-		assertThrows(() => {
-			manager.updateEntity(entity, EntityChangeType.Create);
-		}, Error, "The provided entity asset is not tracked by this EntityAssetManager");
-		assertThrows(() => {
-			manager.updateEntityPosition(entity);
-		}, Error, "The provided entity asset is not tracked by this EntityAssetManager");
+		manager.updateEntity(entity, EntityChangeType.Create);
+		manager.updateEntityPosition(entity);
+		assertStrictEquals(entity.children[0], child);
 	},
 });
 

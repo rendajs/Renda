@@ -53,6 +53,7 @@ async function basictest({
 		mockStudioInstance.projectManager = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({});
 		const assetManager = /** @type {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({});
 		mockStudioInstance.projectManager.assetManager = assetManager;
+		mockStudioInstance.projectManager.assertAssetManagerExists = () => assetManager;
 		assetManager.entityAssetManager = new EntityAssetManager(assetManager);
 
 		const {keyboardShortcutManager} = createMockKeyboardShortcutManager();
@@ -265,17 +266,23 @@ Deno.test({
 	name: "'+' button creates a new entity on the root when nothing is selected",
 	async fn() {
 		await basictest({
-			fn({args, mockEntityEditor}) {
+			fn({args, mockEntityEditor, mockAssetManager}) {
 				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
+				const updateEntitySpy = spy(mockAssetManager.entityAssetManager, "updateEntity");
 				const contentWindow = new ContentWindowOutliner(...args);
 				clickAddEntityButton(contentWindow);
 				assertTreeViewStructureEquals(contentWindow.treeView, {
 					name: "Entity",
 					children: [{name: "Entity"}],
 				});
+
 				assertSpyCalls(notifyEntityChangedSpy, 1);
 				assertStrictEquals(notifyEntityChangedSpy.calls[0].args[0], mockEntityEditor.editingEntity.children[0]);
 				assertEquals(notifyEntityChangedSpy.calls[0].args[1], "create");
+
+				assertSpyCalls(updateEntitySpy, 1);
+				assertStrictEquals(updateEntitySpy.calls[0].args[0], mockEntityEditor.editingEntity.children[0]);
+				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Create);
 			},
 		});
 	},
@@ -325,8 +332,9 @@ Deno.test({
 	name: "renaming a treeview renames the entity",
 	async fn() {
 		await basictest({
-			fn({args, mockEntityEditor, historyManager}) {
+			fn({args, mockEntityEditor, historyManager, mockAssetManager}) {
 				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
+				const updateEntitySpy = spy(mockAssetManager.entityAssetManager, "updateEntity");
 				const childEntity = new Entity("old name");
 				mockEntityEditor.editingEntity.add(childEntity);
 				const contentWindow = new ContentWindowOutliner(...args);
@@ -344,6 +352,9 @@ Deno.test({
 				assertSpyCalls(notifyEntityChangedSpy, 1);
 				assertStrictEquals(notifyEntityChangedSpy.calls[0].args[0], childEntity);
 				assertEquals(notifyEntityChangedSpy.calls[0].args[1], "rename");
+				assertSpyCalls(updateEntitySpy, 1);
+				assertStrictEquals(updateEntitySpy.calls[0].args[0], childEntity);
+				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Rename);
 
 				historyManager.undo();
 
@@ -351,6 +362,9 @@ Deno.test({
 				assertEquals(childEntity.name, "old name");
 				assertStrictEquals(notifyEntityChangedSpy.calls[1].args[0], childEntity);
 				assertEquals(notifyEntityChangedSpy.calls[1].args[1], "rename");
+				assertSpyCalls(updateEntitySpy, 2);
+				assertStrictEquals(updateEntitySpy.calls[0].args[0], childEntity);
+				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Rename);
 
 				historyManager.redo();
 
@@ -358,6 +372,9 @@ Deno.test({
 				assertEquals(childEntity.name, "new name");
 				assertStrictEquals(notifyEntityChangedSpy.calls[2].args[0], childEntity);
 				assertEquals(notifyEntityChangedSpy.calls[2].args[1], "rename");
+				assertSpyCalls(updateEntitySpy, 3);
+				assertStrictEquals(updateEntitySpy.calls[0].args[0], childEntity);
+				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Rename);
 			},
 		});
 	},
