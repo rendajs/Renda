@@ -14,8 +14,10 @@ export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowUiName = "Outliner";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/outliner.svg";
 
-	/** @type {Map<TreeView, {entity: Entity, cb: import("../../assets/EntityAssetManager.js").OnTrackedEntityChangeCallback}>} */
-	#registeredOnEntityChangeCbs = new Map();
+	/** @type {import("../../assets/EntityAssetManager.js").OnTrackedEntityChangeCallback?} */
+	#currentOnEntityChangeCallback = null;
+	/** @type {Entity?} */
+	#currentOnEntityChangeEntity = null;
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
@@ -150,6 +152,21 @@ export class ContentWindowOutliner extends ContentWindow {
 				this.treeView.clearChildren();
 				this.treeView.name = "";
 			} else {
+				if (this.#currentOnEntityChangeCallback && this.#currentOnEntityChangeEntity) {
+					assetManager.entityAssetManager.removeOnTrackedEntityChange(this.#currentOnEntityChangeEntity, this.#currentOnEntityChangeCallback);
+				}
+				this.#currentOnEntityChangeCallback = event => {
+					if (event.type & EntityChangeType.Hierarchy) {
+						const childTreeView = this.#getTreeViewByEntity(event.entity);
+						if (!childTreeView) {
+							throw new Error("Assertion failed, child treeview wasn't found");
+						}
+						this.updateTreeViewRecursive(childTreeView, event.entity, {assetManager});
+					}
+				};
+				this.#currentOnEntityChangeEntity = this.linkedEntityEditor.editingEntity;
+				assetManager.entityAssetManager.onTrackedEntityChange(this.linkedEntityEditor.editingEntity, this.#currentOnEntityChangeCallback);
+
 				this.updateTreeViewRecursive(this.treeView, this.linkedEntityEditor.editingEntity, {
 					assetManager,
 				});
@@ -169,14 +186,6 @@ export class ContentWindowOutliner extends ContentWindow {
 	 */
 	updateTreeViewRecursive(treeView, entity, ctx) {
 		treeView.name = entity.name;
-		for (const child of treeView.traverseDown()) {
-			const cbData = this.#registeredOnEntityChangeCbs.get(child);
-			if (cbData) {
-				if (cbData.entity == entity) continue;
-				ctx.assetManager?.entityAssetManager.removeOnTrackedEntityChange(cbData.entity, cbData.cb);
-			}
-			this.#registeredOnEntityChangeCbs.delete(child);
-		}
 		treeView.clearChildren();
 
 		if (!treeView.collapsed) {
@@ -186,17 +195,6 @@ export class ContentWindowOutliner extends ContentWindow {
 				const rootUuid = ctx.assetManager.entityAssetManager.getLinkedAssetUuid(child);
 				if (rootUuid) {
 					childTreeView.addIcon("static/icons/contentWindowTabs/defaultAssetLinks.svg");
-					/** @type {import("../../assets/EntityAssetManager.js").OnTrackedEntityChangeCallback} */
-					const onEntityChangeCb = event => {
-						if (event.type & EntityChangeType.Hierarchy) {
-							this.updateTreeViewRecursive(childTreeView, child, ctx);
-						}
-					};
-					this.#registeredOnEntityChangeCbs.set(childTreeView, {
-						entity: child,
-						cb: onEntityChangeCb,
-					});
-					ctx.assetManager.entityAssetManager.onTrackedEntityChange(child, onEntityChangeCb);
 				}
 
 				this.updateTreeViewRecursive(childTreeView, child, ctx);
@@ -238,9 +236,9 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {TreeView} treeView
 	 */
-	getEntityByTreeViewItem(treeView) {
+	#getEntityByTreeView(treeView) {
 		const indicesPath = treeView.getIndicesPath();
-		const entity = this.getEntityByIndicesPath(indicesPath);
+		const entity = this.#getEntityByIndicesPath(indicesPath);
 		if (!entity) {
 			throw new Error("Assertion failed, entity not found");
 		}
@@ -248,10 +246,21 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
+	 * @param {Entity} entity
+	 */
+	#getTreeViewByEntity(entity) {
+		if (!this.linkedEntityEditor) return null;
+		const rootEntity = this.linkedEntityEditor.editingEntity;
+		const indicesPath = entity.getIndicesPath({forcedRoot: rootEntity});
+		const treeView = this.treeView.findChildFromIndicesPath(indicesPath);
+		return treeView;
+	}
+
+	/**
 	 * @param {number[]} indicesPath
 	 * @returns {Entity?}
 	 */
-	getEntityByIndicesPath(indicesPath) {
+	#getEntityByIndicesPath(indicesPath) {
 		if (!this.linkedEntityEditor) return null;
 		return this.linkedEntityEditor.editingEntity.getEntityByIndicesPath(indicesPath);
 	}
@@ -284,7 +293,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 */
 	mapSelectionChangeData(treeViews) {
 		return treeViews.map(treeView => {
-			const entity = this.getEntityByTreeViewItem(treeView);
+			const entity = this.#getEntityByTreeView(treeView);
 			return new EntitySelection(entity, {
 				outlinerTreeView: treeView,
 				outliner: this,
@@ -296,7 +305,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewNameChangeEvent} e
 	 */
 	onTreeViewNameChange(e) {
-		const entity = this.getEntityByTreeViewItem(e.target);
+		const entity = this.#getEntityByTreeView(e.target);
 		const newName = e.target.name;
 		const oldName = entity.name;
 		if (newName != oldName) {
@@ -336,8 +345,8 @@ export class ContentWindowOutliner extends ContentWindow {
 					if (!parentTreeView) {
 						throw new Error("Failed to delete entity, entity not attached to a parent");
 					}
-					const parentEntity = this.getEntityByTreeViewItem(parentTreeView);
-					const entity = this.getEntityByTreeViewItem(e.target);
+					const parentEntity = this.#getEntityByTreeView(parentTreeView);
+					const entity = this.#getEntityByTreeView(e.target);
 					const index = parentEntity.children.indexOf(entity);
 					this.studioInstance.historyManager.executeEntry({
 						uiText: "Delete entity",
@@ -390,11 +399,11 @@ export class ContentWindowOutliner extends ContentWindow {
 		/** @type {{entity: Entity, oldParent: Entity, newParent: Entity, insertIndex: number | undefined, removeIndex: number}[]} */
 		const actions = [];
 		for (const movedItem of e.movedItems) {
-			const entity = this.getEntityByIndicesPath(movedItem.oldIndicesPath);
-			const oldParent = this.getEntityByIndicesPath(movedItem.oldIndicesPath.slice(0, -1));
+			const entity = this.#getEntityByIndicesPath(movedItem.oldIndicesPath);
+			const oldParent = this.#getEntityByIndicesPath(movedItem.oldIndicesPath.slice(0, -1));
 			const parentIndicesPath = movedItem.newIndicesPath.slice(0, -1);
 			const insertIndex = movedItem.newIndicesPath.at(-1);
-			const newParent = this.getEntityByIndicesPath(parentIndicesPath);
+			const newParent = this.#getEntityByIndicesPath(parentIndicesPath);
 			if (!entity || !oldParent || !newParent) {
 				throw new Error("Failed to rearrange entities");
 			}
@@ -425,7 +434,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
 	async onTreeViewDrop(e) {
-		const parent = this.getEntityByTreeViewItem(e.target);
+		const parent = this.#getEntityByTreeView(e.target);
 		if (!e.rawEvent.dataTransfer) return;
 		let didDropAsset = false;
 		for (const item of e.rawEvent.dataTransfer.items) {
@@ -442,8 +451,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				await assetManager.makeAssetUuidPersistent(projectAsset);
 				const entityAsset = await projectAsset.getLiveAsset();
 				if (entityAsset) {
-					const clonedEntity = entityAsset.clone();
-					assetManager.entityAssetManager.setLinkedAssetUuid(clonedEntity, projectAsset.uuid);
+					const clonedEntity = assetManager.entityAssetManager.createdTrackedEntity(projectAsset.uuid);
 					parent.add(clonedEntity);
 					didDropAsset = true;
 				}
