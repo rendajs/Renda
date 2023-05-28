@@ -107,8 +107,8 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 /**
  * @typedef {object} TreeViewSelectionChangeEventType
  * @property {boolean} reset
- * @property {Array<TreeView>} added
- * @property {Array<TreeView>} removed
+ * @property {TreeView[]} added
+ * @property {TreeView[]} removed
  */
 /**
  * @typedef {TreeViewEvent & TreeViewSelectionChangeEventType} TreeViewSelectionChangeEvent
@@ -1634,7 +1634,7 @@ export class TreeView {
 	/**
 	 * Gets a list of indices that can be traversed from the
 	 * root in order to get to this TreeView.
-	 * @returns {Array<number>} List of indices.
+	 * @returns {number[]} List of indices.
 	 */
 	getIndicesPath() {
 		const path = [];
@@ -1673,7 +1673,7 @@ export class TreeView {
 
 	/**
 	 * Traverses a list of names to find the specified child.
-	 * @param {Array<string>} path List of TreeView names.
+	 * @param {string[]} path List of TreeView names.
 	 * @returns {?TreeView}
 	 */
 	findChildFromNamesPath(path = []) {

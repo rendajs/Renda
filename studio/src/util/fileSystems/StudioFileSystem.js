@@ -5,7 +5,7 @@ import {WriteOperation} from "./WriteOperation.js";
 
 /** @typedef {File | BufferSource | Blob | string} AllowedWriteFileTypes */
 
-/** @typedef {{files: Array<string>, directories: Array<string>}} StudioFileSystemReadDirResult */
+/** @typedef {{files: string[], directories: string[]}} StudioFileSystemReadDirResult */
 
 /** @typedef {"file" | "directory" | "unknown"} FileSystemChangeKind */
 

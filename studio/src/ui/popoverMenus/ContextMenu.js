@@ -9,7 +9,7 @@ import {Popover} from "./Popover.js";
  * @property {ContextMenuStructure?} [structure = null]
  */
 
-/** @typedef {Array<ContextMenuItemOpts>} ContextMenuStructure */
+/** @typedef {ContextMenuItemOpts[]} ContextMenuStructure */
 
 /**
  * @typedef {object} ContextMenuItemClickEvent
@@ -45,7 +45,7 @@ export class ContextMenu extends Popover {
 		super(manager, {showArrow: false});
 		this.parentMenu = parentMenu;
 
-		/** @type {Array<ContextMenuItem>} */
+		/** @type {ContextMenuItem[]} */
 		this.addedItems = [];
 		this.activeSubmenuItem = null;
 		/** @type {ContextMenu?} */

@@ -665,7 +665,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @override
-	 * @param {Array<string>} path
+	 * @param {string[]} path
 	 * @param {import("./StudioFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {

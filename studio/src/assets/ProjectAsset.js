@@ -101,7 +101,7 @@ export class ProjectAsset {
 
 		/** @type {import("../../../src/util/mod.js").UuidString} */
 		this.uuid = uuid;
-		/** @type {Array<string>}*/
+		/** @type {string[]}*/
 		this.path = path;
 		/** @type {AssetSettigsType} */
 		this.assetSettings = assetSettings;
