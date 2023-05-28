@@ -435,6 +435,22 @@ Deno.test({
 });
 
 Deno.test({
+	name: "getIndicesPath",
+	fn() {
+		const {root, child1, child3} = createBasicStructure();
+
+		const result1 = child3.getIndicesPath();
+		assertEquals(result1, [0, 0, 2]);
+
+		const result2 = child3.getIndicesPath({forcedRoot: root});
+		assertEquals(result2, [0, 0, 2]);
+
+		const result3 = child3.getIndicesPath({forcedRoot: child1});
+		assertEquals(result3, [0, 2]);
+	},
+});
+
+Deno.test({
 	name: "getEntityByName()",
 	fn() {
 		const {root, child1, child2, child3} = createBasicStructure();
