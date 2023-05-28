@@ -10,18 +10,9 @@ import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../../../shar
 Deno.test({
 	name: "last loaded entity and orbit controls are saved and loaded",
 	async fn() {
-		const {args, preferencesFlushSpy, getProjectAssetFromUuidResults, assetManager, uninstall} = basicTest();
+		const {args, preferencesFlushSpy, uninstall} = basicTest();
 		const time = new FakeTime();
 		try {
-			const entity = new Entity("editing entity");
-			assetManager.entityAssetManager.setLinkedAssetUuid(entity, BASIC_ENTITY_UUID);
-
-			const {projectAsset: entityProjectAsset} = createMockProjectAsset({
-				uuid: BASIC_ENTITY_UUID,
-				path: BASIC_ENTITY_PATH,
-				liveAsset: entity,
-			});
-			getProjectAssetFromUuidResults.set(BASIC_ENTITY_UUID, entityProjectAsset);
 			const contentWindow1 = new ContentWindowEntityEditor(...args);
 			contentWindow1.setProjectPreferencesLocationData({});
 

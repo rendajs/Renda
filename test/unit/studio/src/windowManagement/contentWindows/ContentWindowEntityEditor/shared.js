@@ -4,6 +4,8 @@ import {stub} from "std/testing/mock.ts";
 import {SelectionManager} from "../../../../../../../studio/src/misc/SelectionManager.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {EntityAssetManager} from "../../../../../../../studio/src/assets/EntityAssetManager.js";
+import {Entity} from "../../../../../../../src/mod.js";
+import {createMockProjectAsset} from "../../../../shared/createMockProjectAsset.js";
 
 export const BASIC_ENTITY_UUID = "entity uuid1";
 export const BASIC_ENTITY_PATH = ["path", "to", "entity"];
@@ -51,6 +53,7 @@ export function basicTest() {
 		async getAssetManager() {
 			return assetManager;
 		},
+		assetManager,
 	});
 	stub(mockWindowManager, "getContentWindows", function *getContentWindows() {});
 	const preferencesFlushSpy = stub(mockWindowManager, "requestContentWindowPreferencesFlush");
@@ -72,6 +75,16 @@ export function basicTest() {
 		default: 0,
 	});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.loadedEntityPath", {type: "unknown"});
+
+	const entity = new Entity("editing entity");
+	assetManager.entityAssetManager.setLinkedAssetUuid(entity, BASIC_ENTITY_UUID);
+
+	const {projectAsset: entityProjectAsset} = createMockProjectAsset({
+		uuid: BASIC_ENTITY_UUID,
+		path: BASIC_ENTITY_PATH,
+		liveAsset: entity,
+	});
+	getProjectAssetFromUuidResults.set(BASIC_ENTITY_UUID, entityProjectAsset);
 
 	return {
 		args,

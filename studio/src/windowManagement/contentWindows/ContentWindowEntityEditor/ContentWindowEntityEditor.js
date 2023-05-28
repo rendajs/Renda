@@ -245,6 +245,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		this.studioInstance.keyboardShortcutManager.removeOnCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
 		this.studioInstance.keyboardShortcutManager.removeOnCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
+
+		this.studioInstance.projectManager.assetManager?.entityAssetManager.removeOnTrackedEntityChange(this._editingEntity, this.#onTrackedEntityChange);
 	}
 
 	get editingEntity() {
@@ -254,6 +256,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	set editingEntity(val) {
 		if (this._editingEntity) {
 			this.editorScene.remove(this._editingEntity);
+		}
+		const entityAssetManager = this.studioInstance.projectManager.assetManager?.entityAssetManager;
+		if (entityAssetManager) {
+			entityAssetManager.removeOnTrackedEntityChange(this._editingEntity, this.#onTrackedEntityChange);
+			entityAssetManager.onTrackedEntityChange(val, this.#onTrackedEntityChange);
 		}
 		this._editingEntity = val;
 		if (val) {
@@ -266,6 +273,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.updateLiveAssetChangeListeners();
 	}
+
+	#onTrackedEntityChange = () => {
+		this.markRenderDirty();
+	};
 
 	/**
 	 * True when the currently editing entity exists as a project asset.
