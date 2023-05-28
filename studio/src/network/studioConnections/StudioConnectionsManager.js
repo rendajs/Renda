@@ -40,13 +40,14 @@ import {InternalDiscoveryManager} from "../../../../src/inspector/InternalDiscov
  */
 
 export class StudioConnectionsManager {
+	/** @typedef {(status: DiscoveryServerStatusType) => void} OnDiscoveryServerStatusChangeCallback */
+	/** @typedef {(activeConnections: ActiveStudioDataList) => void} OnActiveConnectionsChangedCallback */
 	constructor() {
 		/** @type {string?} */
 		this.currentEndpoint = null;
 		this.discoveryWs = null;
 		/** @type {DiscoveryServerStatusType} */
 		this.discoveryServerStatus = "disconnected";
-		/** @typedef {(status: DiscoveryServerStatusType) => void} OnDiscoveryServerStatusChangeCallback */
 		/** @private @type {Set<OnDiscoveryServerStatusChangeCallback>} */
 		this.onDiscoveryServerStatusChangeCbs = new Set();
 		/** @private @type {Set<(success: boolean) => void>} */
@@ -75,7 +76,6 @@ export class StudioConnectionsManager {
 		 * @type {ActiveStudioDataList}
 		 */
 		this.activeConnections = new Map();
-		/** @typedef {(activeConnections: ActiveStudioDataList) => void} OnActiveConnectionsChangedCallback */
 		/** @type {Set<OnActiveConnectionsChangedCallback>} */
 		this.onActiveConnectionsChangedCbs = new Set();
 
