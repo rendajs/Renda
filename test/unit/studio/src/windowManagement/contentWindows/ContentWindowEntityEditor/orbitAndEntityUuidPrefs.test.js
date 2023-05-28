@@ -1,10 +1,9 @@
-import {BASIC_ENTITY_PATH, BASIC_ENTITY_UUID, basicTest} from "./shared.js";
+import {BASIC_ENTITY_UUID, basicTest} from "./shared.js";
 import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {assertSpyCalls} from "std/testing/mock.ts";
 import {FakeTime} from "std/testing/time.ts";
-import {createMockProjectAsset} from "../../../../shared/createMockProjectAsset.js";
-import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
-import {Entity, Quat} from "../../../../../../../src/mod.js";
+import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {Quat} from "../../../../../../../src/mod.js";
 import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../../../shared/asserts.js";
 
 Deno.test({
