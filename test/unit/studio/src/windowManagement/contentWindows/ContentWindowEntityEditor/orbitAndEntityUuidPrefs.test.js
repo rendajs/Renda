@@ -10,10 +10,12 @@ import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../../../shar
 Deno.test({
 	name: "last loaded entity and orbit controls are saved and loaded",
 	async fn() {
-		const {args, preferencesFlushSpy, getProjectAssetFromUuidResults, uninstall} = basicTest();
+		const {args, preferencesFlushSpy, getProjectAssetFromUuidResults, assetManager, uninstall} = basicTest();
 		const time = new FakeTime();
 		try {
-			const entity = new Entity();
+			const entity = new Entity("editing entity");
+			assetManager.entityAssetManager.setLinkedAssetUuid(entity, BASIC_ENTITY_UUID);
+
 			const {projectAsset: entityProjectAsset} = createMockProjectAsset({
 				uuid: BASIC_ENTITY_UUID,
 				path: BASIC_ENTITY_PATH,
@@ -26,7 +28,9 @@ Deno.test({
 			await contentWindow1.loadEntityAsset(BASIC_ENTITY_UUID, false);
 			assertSpyCalls(preferencesFlushSpy, 1);
 			assertEquals(contentWindow1.editingEntityUuid, BASIC_ENTITY_UUID);
-			assertStrictEquals(contentWindow1.editingEntity, entity);
+			// Wait for the entity to load
+			await time.runMicrotasks();
+			assertEquals(contentWindow1.editingEntity.name, "editing entity");
 
 			// Orbit controls should not be saved when nothing has changed
 			contentWindow1.loop();
@@ -53,7 +57,7 @@ Deno.test({
 			// Wait for the entity to load
 			await time.runMicrotasks();
 			assertEquals(contentWindow1.editingEntityUuid, BASIC_ENTITY_UUID);
-			assertStrictEquals(contentWindow1.editingEntity, entity);
+			assertEquals(contentWindow1.editingEntity.name, "editing entity");
 
 			assertVecAlmostEquals(contentWindow2.orbitControls.lookPos, [1, 2, 3]);
 			assertQuatAlmostEquals(contentWindow2.orbitControls.lookRot, newLookRot);

@@ -288,6 +288,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	markRenderDirty() {
 		this.renderDirty = true;
 	}
+
 	newEmptyEditingEntity() {
 		this.editingEntity = new Entity();
 	}
@@ -305,7 +306,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.newEmptyEditingEntity();
 			return;
 		}
-		const entity = await projectAsset.getLiveAsset();
+		const entity = assetManager.entityAssetManager.createdTrackedEntity(entityUuid);
 		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
 		this.entitySavingManager.setEntityDirty(false);

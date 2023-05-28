@@ -3,6 +3,7 @@ import {FakeHtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {stub} from "std/testing/mock.ts";
 import {SelectionManager} from "../../../../../../../studio/src/misc/SelectionManager.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
+import {EntityAssetManager} from "../../../../../../../studio/src/assets/EntityAssetManager.js";
 
 export const BASIC_ENTITY_UUID = "entity uuid1";
 export const BASIC_ENTITY_PATH = ["path", "to", "entity"];
@@ -39,7 +40,13 @@ export function basicTest() {
 			}
 			return null;
 		},
+		async getLiveAsset(uuid) {
+			if (!uuid) return null;
+			const projectAsset = getProjectAssetFromUuidResults.get(uuid);
+			return projectAsset?.getLiveAsset();
+		},
 	});
+	assetManager.entityAssetManager = new EntityAssetManager(assetManager);
 	mockStudioInstance.projectManager = /** @type {import("../../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
 		async getAssetManager() {
 			return assetManager;
@@ -71,6 +78,7 @@ export function basicTest() {
 		mockStudioInstance,
 		getProjectAssetFromUuidResults,
 		preferencesFlushSpy,
+		assetManager,
 		uninstall() {
 			uninstallFakeDocument();
 			requestAnimationFrameStub.restore();
