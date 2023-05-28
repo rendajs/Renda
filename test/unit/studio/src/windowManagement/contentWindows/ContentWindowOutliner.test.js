@@ -281,7 +281,7 @@ Deno.test({
 				assertEquals(notifyEntityChangedSpy.calls[0].args[1], "create");
 
 				assertSpyCalls(updateEntitySpy, 1);
-				assertStrictEquals(updateEntitySpy.calls[0].args[0], mockEntityEditor.editingEntity.children[0]);
+				assertStrictEquals(updateEntitySpy.calls[0].args[0], mockEntityEditor.editingEntity);
 				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Create);
 			},
 		});
