@@ -226,7 +226,9 @@ export class ContentWindowOutliner extends ContentWindow {
 			rootEntity.add(createdEntity);
 			createdEntities.push(createdEntity);
 		}
+		const entityAssetManager = this.#getEntityAssetManager();
 		for (const entity of createdEntities) {
+			entityAssetManager.updateEntity(entity, EntityChangeType.Create);
 			this.notifyEntityEditors(entity, "create");
 		}
 		this.updateFullTreeView();
@@ -301,6 +303,11 @@ export class ContentWindowOutliner extends ContentWindow {
 		});
 	}
 
+	#getEntityAssetManager() {
+		const assetManager = this.studioInstance.projectManager.assertAssetManagerExists();
+		return assetManager.entityAssetManager;
+	}
+
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewNameChangeEvent} e
 	 */
@@ -310,6 +317,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		const oldName = entity.name;
 		if (newName != oldName) {
 			let needsUpdate = false;
+			const entityAssetManager = this.#getEntityAssetManager();
 			this.studioInstance.historyManager.executeEntry({
 				uiText: "Rename entity",
 				redo: () => {
@@ -321,11 +329,13 @@ export class ContentWindowOutliner extends ContentWindow {
 						// treeview has already been renamed by the user
 						needsUpdate = true;
 					}
+					entityAssetManager.updateEntity(entity, EntityChangeType.Rename);
 					this.notifyEntityEditors(entity, "rename");
 				},
 				undo: () => {
 					entity.name = oldName;
 					this.updateFullTreeView();
+					entityAssetManager.updateEntity(entity, EntityChangeType.Rename);
 					this.notifyEntityEditors(entity, "rename");
 				},
 			});
@@ -348,16 +358,19 @@ export class ContentWindowOutliner extends ContentWindow {
 					const parentEntity = this.#getEntityByTreeView(parentTreeView);
 					const entity = this.#getEntityByTreeView(e.target);
 					const index = parentEntity.children.indexOf(entity);
+					const entityAssetManager = this.#getEntityAssetManager();
 					this.studioInstance.historyManager.executeEntry({
 						uiText: "Delete entity",
 						redo: () => {
 							parentEntity.remove(entity);
 							this.updateFullTreeView();
+							entityAssetManager.updateEntity(parentEntity, EntityChangeType.Delete);
 							this.notifyEntityEditors(entity, "delete");
 						},
 						undo: () => {
 							parentEntity.addAtIndex(entity, index);
 							this.updateFullTreeView();
+							entityAssetManager.updateEntity(entity, EntityChangeType.Create);
 							this.notifyEntityEditors(entity, "create");
 						},
 					});

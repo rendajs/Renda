@@ -193,7 +193,7 @@ export class EntityAssetManager {
 				};
 			}
 		}
-		throw new Error("Provided entity is not a child of an entity asset");
+		return null;
 	}
 
 	/**
@@ -206,11 +206,11 @@ export class EntityAssetManager {
 	 * @param {EntityChangeType} changeEventType
 	 */
 	updateEntity(entityInstance, changeEventType) {
-		const {uuid, root, indicesPath} = this.#findRootEntityAsset(entityInstance);
+		const rootData = this.#findRootEntityAsset(entityInstance);
+		if (!rootData) return;
+		const {uuid, root, indicesPath} = rootData;
 		const trackedData = this.#trackedEntities.get(uuid);
-		if (!trackedData) {
-			throw new Error("The provided entity asset is not tracked by this EntityAssetManager.");
-		}
+		if (!trackedData) return;
 
 		const sourceEntity = root.getEntityByIndicesPath(indicesPath);
 		if (!sourceEntity) throw new Error("Assertion failed: Source child entity was not found");
@@ -320,11 +320,11 @@ export class EntityAssetManager {
 	 * @param {Entity} entityInstance The entity for which the transformation was changed.
 	 */
 	updateEntityPosition(entityInstance) {
-		const {uuid, indicesPath, root} = this.#findRootEntityAsset(entityInstance);
+		const rootData = this.#findRootEntityAsset(entityInstance);
+		if (!rootData) return;
+		const {uuid, indicesPath, root} = rootData;
 		const trackedData = this.#trackedEntities.get(uuid);
-		if (!trackedData) {
-			throw new Error("The provided entity asset is not tracked by this EntityAssetManager.");
-		}
+		if (!trackedData) return;
 
 		for (const trackedEntity of trackedData.trackedInstances) {
 			if (trackedEntity == root) continue;
