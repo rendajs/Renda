@@ -155,17 +155,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		}
 	}
 
-	/**
-	 * @param {import("../misc/EntitySelection.js").EntitySelectionMetaData} metaData
-	 */
-	getParentDataFromEntitySelectionMetaData(metaData) {
-		const parentTreeView = metaData.outlinerTreeView.parent;
-		if (!parentTreeView) throw new Error("Failed to get parent data: TreeView has no parent.");
-		const parent = metaData.outliner.getEntityByTreeViewItem(parentTreeView);
-		const index = metaData.outlinerTreeView.index;
-		return {parent, index};
-	}
-
 	refreshComponents() {
 		this.componentsSection.clearChildren();
 		if (!this.currentSelection) return;

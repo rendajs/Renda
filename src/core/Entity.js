@@ -785,6 +785,7 @@ export class Entity {
 	}
 
 	/**
+	 * Walks down the tree of entities, picking the children at the provided indices and returning the final child.
 	 * @param {number[]} indexPath
 	 * @returns {Entity?}
 	 */
@@ -794,6 +795,28 @@ export class Entity {
 		if (index < 0 || index > this._children.length) return null;
 		const child = this.children[index];
 		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
+	}
+
+	/**
+	 * Returns an array of numbers that represent the indices that lead to this entity.
+	 * The result will be an array that can essentially be passed to {@linkcode getEntityByIndicesPath} on the root entity,
+	 * which should then return this entity.
+	 * @param {object} [options]
+	 * @param {Entity} [options.forcedRoot] The root at which the returned array starts,
+	 * when provided the indices array will start at this entity instead of the default root entity.
+	 */
+	getIndicesPath({forcedRoot} = {}) {
+		/** @type {number[]} */
+		const indices = [];
+		for (const child of this.traverseUp()) {
+			if (child == forcedRoot) break;
+			const parent = child.parent;
+			if (!parent) break;
+			const index = parent.children.indexOf(child);
+			if (index == -1) throw new Error("Assertion failed, entity was not a child of parent");
+			indices.unshift(index);
+		}
+		return indices;
 	}
 
 	/**
@@ -857,8 +880,6 @@ export class Entity {
 	 * @returns {EntityJsonData}
 	 */
 	toJson(studioOpts = null) {
-		/** @typedef {Entity & {[x: symbol] : any}} EntityWithAssetRootUuid */
-
 		/** @type {EntityJsonDataInlineEntity} */
 		const json = {
 		};
