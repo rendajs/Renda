@@ -227,9 +227,14 @@ export class ContentWindowOutliner extends ContentWindow {
 			createdEntities.push(createdEntity);
 		}
 		const entityAssetManager = this.#getEntityAssetManager();
+		/** @type {Set<Entity>} */
+		const parents = new Set();
 		for (const entity of createdEntities) {
-			entityAssetManager.updateEntity(entity, EntityChangeType.Create);
+			if (entity.parent) parents.add(entity.parent);
 			this.notifyEntityEditors(entity, "create");
+		}
+		for (const parent of parents) {
+			entityAssetManager.updateEntity(parent, EntityChangeType.Create);
 		}
 		this.updateFullTreeView();
 		return createdEntities;
