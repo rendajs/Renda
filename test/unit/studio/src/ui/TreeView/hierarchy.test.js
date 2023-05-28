@@ -1,7 +1,8 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import "../../../shared/initializeStudio.js";
 import {TreeView} from "../../../../../../studio/src/ui/TreeView.js";
 import {runWithDom} from "../../../shared/runWithDom.js";
+import {createBasicStructure} from "./shared.js";
 
 Deno.test({
 	name: "removeChild()",
@@ -162,6 +163,106 @@ Deno.test({
 
 			const depths = treeViews.map(tv => tv.recursionDepth);
 			assertEquals(depths, [0, 1, 1, 2, 3]);
+		});
+	},
+});
+
+Deno.test({
+	name: "getIndicesPath",
+	fn() {
+		runWithDom(() => {
+			const {root, child2, child3} = createBasicStructure();
+
+			const result1 = child3.getIndicesPath();
+			assertEquals(result1, [0, 0, 2]);
+			const result2 = child2.getIndicesPath();
+			assertEquals(result2, [0, 0]);
+			const result3 = root.getIndicesPath();
+			assertEquals(result3, []);
+		});
+	},
+});
+
+Deno.test({
+	name: "getNamesPath",
+	fn() {
+		runWithDom(() => {
+			const {root, child2, child3} = createBasicStructure();
+
+			const result1 = child3.getNamesPath();
+			assertEquals(result1, ["root", "child1", "child2", "child3"]);
+			const result2 = child2.getNamesPath();
+			assertEquals(result2, ["root", "child1", "child2"]);
+			const result3 = root.getNamesPath();
+			assertEquals(result3, ["root"]);
+		});
+	},
+});
+
+Deno.test({
+	name: "getTreeViewsPath",
+	fn() {
+		runWithDom(() => {
+			const {root, child1, child2, child3} = createBasicStructure();
+
+			const result1 = child3.getTreeViewsPath();
+			assertEquals(result1.length, 4);
+			assertStrictEquals(result1[0], root);
+			assertStrictEquals(result1[1], child1);
+			assertStrictEquals(result1[2], child2);
+			assertStrictEquals(result1[3], child3);
+
+			const result2 = child2.getTreeViewsPath();
+			assertEquals(result2.length, 3);
+			assertStrictEquals(result2[0], root);
+			assertStrictEquals(result2[1], child1);
+			assertStrictEquals(result2[2], child2);
+
+			const result3 = root.getTreeViewsPath();
+			assertEquals(result3.length, 1);
+			assertStrictEquals(result3[0], root);
+		});
+	},
+});
+
+Deno.test({
+	name: "findChildFromNamesPath",
+	fn() {
+		runWithDom(() => {
+			const {root, child2, child3} = createBasicStructure();
+
+			const result1 = root.findChildFromNamesPath(["child1", "child2", "child3"]);
+			assertStrictEquals(result1, child3);
+
+			const result2 = root.findChildFromNamesPath(["child1", "child2"]);
+			assertStrictEquals(result2, child2);
+
+			const result3 = root.findChildFromNamesPath([]);
+			assertStrictEquals(result3, root);
+
+			const result4 = root.findChildFromNamesPath(["child1", "nonexistent"]);
+			assertEquals(result4, null);
+		});
+	},
+});
+
+Deno.test({
+	name: "findChildFromIndicesPath",
+	fn() {
+		runWithDom(() => {
+			const {root, child2, child3} = createBasicStructure();
+
+			const result1 = root.findChildFromIndicesPath([0, 0, 2]);
+			assertStrictEquals(result1, child3);
+
+			const result2 = root.findChildFromIndicesPath([0, 0]);
+			assertStrictEquals(result2, child2);
+
+			const result3 = root.findChildFromIndicesPath([]);
+			assertStrictEquals(result3, root);
+
+			const result4 = root.findChildFromIndicesPath([0, 100]);
+			assertEquals(result4, null);
 		});
 	},
 });

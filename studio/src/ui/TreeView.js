@@ -1652,6 +1652,7 @@ export class TreeView {
 
 	/**
 	 * Gets array of TreeView names from the root traversed down until this element.
+	 * Includes both the name of the root as well as the name of this TreeView.
 	 * @returns {string[]} List of TreeView names.
 	 */
 	getNamesPath() {
@@ -1686,6 +1687,18 @@ export class TreeView {
 				return child.findChildFromNamesPath(path.slice(1));
 			}
 		}
+	}
+
+	/**
+	 * Traverses a list of indices to find the specified child.
+	 * @param {number[]} path
+	 * @returns {TreeView?}
+	 */
+	findChildFromIndicesPath(path) {
+		if (path.length <= 0) return this;
+		const child = this.children[path[0]];
+		if (!child) return null;
+		return child.findChildFromIndicesPath(path.slice(1));
 	}
 
 	/**
