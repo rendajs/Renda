@@ -496,15 +496,9 @@ Deno.test({
 					},
 				},
 			]);
-			assertEquals(preferencesManager.get("pref1", {
-				contentWindowUuid: CONTENT_WINDOW_UUID_1,
-			}), "content window 1");
-			assertEquals(preferencesManager.get("pref1", {
-				contentWindowUuid: CONTENT_WINDOW_UUID_2,
-			}), "content window 2");
-			assertEquals(preferencesManager.get("pref1", {
-				contentWindowUuid: CONTENT_WINDOW_UUID_3,
-			}), "content window 3");
+			assertEquals(preferencesManager.get("pref1", CONTENT_WINDOW_UUID_1), "content window 1");
+			assertEquals(preferencesManager.get("pref1", CONTENT_WINDOW_UUID_2), "content window 2");
+			assertEquals(preferencesManager.get("pref1", CONTENT_WINDOW_UUID_3), "content window 3");
 
 			windowManager.setContentWindowPreferences([
 				// Data with known uuids
@@ -526,23 +520,13 @@ Deno.test({
 				// Window 3 has no data, this should only delete old values
 			]);
 
-			assertEquals(preferencesManager.get("pref2", {
-				contentWindowUuid: CONTENT_WINDOW_UUID_1,
-			}), "foo");
-			assertEquals(preferencesManager.get("pref3", {
-				contentWindowUuid: CONTENT_WINDOW_UUID_2,
-			}), "bar");
+			assertEquals(preferencesManager.get("pref2", CONTENT_WINDOW_UUID_1), "foo");
+			assertEquals(preferencesManager.get("pref3", CONTENT_WINDOW_UUID_2), "bar");
 
 			// Verify that old values are deleted
-			assertEquals(preferencesManager.get("pref1", {
-				contentWindowUuid: CONTENT_WINDOW_UUID_1,
-			}), "");
-			assertEquals(preferencesManager.get("pref1", {
-				contentWindowUuid: CONTENT_WINDOW_UUID_2,
-			}), "");
-			assertEquals(preferencesManager.get("pref1", {
-				contentWindowUuid: CONTENT_WINDOW_UUID_3,
-			}), "");
+			assertEquals(preferencesManager.get("pref1", CONTENT_WINDOW_UUID_1), "");
+			assertEquals(preferencesManager.get("pref1", CONTENT_WINDOW_UUID_2), "");
+			assertEquals(preferencesManager.get("pref1", CONTENT_WINDOW_UUID_3), "");
 		} finally {
 			cleanup();
 		}

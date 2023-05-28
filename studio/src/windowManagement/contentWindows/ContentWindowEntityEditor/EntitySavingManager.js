@@ -41,9 +41,7 @@ export class EntitySavingManager {
 	}
 
 	#getAutosaveValue() {
-		return this.studioInstance.preferencesManager.get("entityEditor.autosaveEntities", {
-			contentWindowUuid: this.entityEditor.uuid,
-		});
+		return this.studioInstance.preferencesManager.get("entityEditor.autosaveEntities", this.entityEditor.uuid);
 	}
 
 	/**

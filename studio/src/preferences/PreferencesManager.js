@@ -345,14 +345,14 @@ export class PreferencesManager {
 		const oldLocationValues = new Map();
 
 		for (const uuid of this.#getContentWindowLocationUuids()) {
-			const {value} = this.#getInternal(preference, {contentWindowUuid: uuid, excludeLocations, assertRegistered: false});
+			const {value} = this.#getInternal(preference, uuid, {excludeLocations, assertRegistered: false});
 			oldLocationValues.set(uuid, value);
 		}
 
 		if (cb) cb();
 
 		for (const [uuid, oldValue] of oldLocationValues) {
-			const newValue = this.get(preference, {contentWindowUuid: uuid, assertRegistered: false});
+			const newValue = this.get(preference, uuid, {assertRegistered: false});
 			if (newValue != oldValue) {
 				this.#fireChangeEvent(preference, uuid, {
 					location: eventLocationType,
@@ -405,18 +405,17 @@ export class PreferencesManager {
 	 * @template {PreferenceTypesOrString} T
 	 * @template {boolean} [TAssertRegistered = true]
 	 * @param {T} preference
+	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
 	 * @param {object} options
-	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
 	 * @param {TAssertRegistered} [options.assertRegistered] Assert that `preference` has been registered. Set to false
 	 * to disable this assertion. Disabling the assertion will also change the returned type to include `null`,
 	 * since there is no known default value for unregistered preferences.
 	 */
-	get(preference, {
-		contentWindowUuid,
+	get(preference, contentWindowUuid, {
 		assertRegistered = /** @type {TAssertRegistered} */ (true),
 	} = {}) {
-		const {value, foundContentWindowLocation} = this.#getInternal(preference, {contentWindowUuid, assertRegistered});
-		if (contentWindowUuid && !foundContentWindowLocation) {
+		const {value, foundContentWindowLocation} = this.#getInternal(preference, contentWindowUuid, {assertRegistered});
+		if (!foundContentWindowLocation) {
 			this.#throwContentWindowUuidNotFound(contentWindowUuid);
 		}
 		return /** @type {GetPreferenceTypeWithAssertionOption<T, TAssertRegistered>} */ (value);
@@ -425,14 +424,13 @@ export class PreferencesManager {
 	/**
 	 * Same as get but with some extra options that are not meant to be a public api.
 	 * @param {string} preference
+	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
 	 * @param {object} [options]
-	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
 	 * @param {boolean} [options.assertRegistered]
 	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation[]} [options.excludeLocations] Returns a result
 	 * as if these locations don't exist or haven't been loaded yet.
 	 */
-	#getInternal(preference, {
-		contentWindowUuid,
+	#getInternal(preference, contentWindowUuid, {
 		assertRegistered = true,
 		excludeLocations = [],
 	} = {}) {
@@ -448,7 +446,6 @@ export class PreferencesManager {
 		for (const location of this.#registeredLocations) {
 			if (excludeLocations.includes(location)) continue;
 			if (location instanceof ContentWindowPreferencesLocation) {
-				if (!contentWindowUuid) continue;
 				if (location.contentWindowUuid != contentWindowUuid) continue;
 				foundContentWindowLocation = true;
 			}
@@ -545,7 +542,7 @@ export class PreferencesManager {
 		}
 		callbacks.add(cb);
 
-		const value = this.get(preference, {contentWindowUuid});
+		const value = this.get(preference, contentWindowUuid);
 		cb({
 			location: null,
 			trigger: "initial",
