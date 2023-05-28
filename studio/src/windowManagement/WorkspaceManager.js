@@ -36,7 +36,7 @@ const CURRENT_WORKSPACE_ID_KEY = "currentWorkspaceId";
 export class WorkspaceManager {
 	/** @type {string?} */
 	#activeWorkSpaceId = null;
-	/** @type {Set<function() : void>} */
+	/** @type {Set<() => void>} */
 	#onActiveWorkspaceDataChangeCbs = new Set();
 	/** @type {WorkspaceData?} */
 	#activeWorkspaceData = null;

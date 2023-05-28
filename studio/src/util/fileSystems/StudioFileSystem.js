@@ -27,8 +27,10 @@ export class StudioFileSystem {
 	/** @type {Set<FileSystemChangeCallback>} */
 	#onChangeCbs = new Set();
 
+	/** @typedef {(rootName: string) => void} OnRootNameChangeCallback */
+
 	constructor() {
-		/** @type {Set<function(string):void>} */
+		/** @type {Set<OnRootNameChangeCallback>} */
 		this.onRootNameChangeCbs = new Set();
 		/** @private @type {Set<WriteOperation>} */
 		this.writeOperations = new Set();
@@ -177,14 +179,14 @@ export class StudioFileSystem {
 	}
 
 	/**
-	 * @param {function(string):void} cb
+	 * @param {OnRootNameChangeCallback} cb
 	 */
 	onRootNameChange(cb) {
 		this.onRootNameChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {function(string):void} cb
+	 * @param {OnRootNameChangeCallback} cb
 	 */
 	removeOnRootNameChange(cb) {
 		this.onRootNameChangeCbs.delete(cb);

@@ -1,5 +1,6 @@
 export class ContextMenuItem {
-	/** @type {Set<function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void>} */
+	/** @typedef {(event: import("./ContextMenu.js").ContextMenuItemClickEvent) => void} OnClickCallback */
+	/** @type {Set<OnClickCallback>} */
 	#onClickCbs = new Set();
 
 	/** @type {Set<() => void>} */
@@ -160,7 +161,7 @@ export class ContextMenuItem {
 	}
 
 	/**
-	 * @param {function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void} cb
+	 * @param {OnClickCallback} cb
 	 */
 	onClick(cb) {
 		this.#onClickCbs.add(cb);

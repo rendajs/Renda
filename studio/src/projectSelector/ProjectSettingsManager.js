@@ -114,7 +114,7 @@ export class ProjectSettingsManager {
 	}
 
 	/**
-	 * @param {function():void} cb
+	 * @param {() => void} cb
 	 */
 	onFileCreated(cb) {
 		this.onFileCreatedCbs.add(cb);

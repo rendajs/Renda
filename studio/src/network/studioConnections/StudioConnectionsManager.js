@@ -46,7 +46,8 @@ export class StudioConnectionsManager {
 		this.discoveryWs = null;
 		/** @type {DiscoveryServerStatusType} */
 		this.discoveryServerStatus = "disconnected";
-		/** @private @type {Set<function(DiscoveryServerStatusType):void>} */
+		/** @typedef {(status: DiscoveryServerStatusType) => void} OnDiscoveryServerStatusChangeCallback */
+		/** @private @type {Set<OnDiscoveryServerStatusChangeCallback>} */
 		this.onDiscoveryServerStatusChangeCbs = new Set();
 		/** @private @type {Set<(success: boolean) => void>} */
 		this.onDiscoveryOpenOrErrorCbs = new Set();
@@ -66,7 +67,7 @@ export class StudioConnectionsManager {
 		 * @type {AvailableStudioDataList}
 		 */
 		this.availableConnections = new Map();
-		/** @private @type {Set<function() : void>} */
+		/** @private @type {Set<() => void>} */
 		this.onAvailableConnectionsChangedCbs = new Set();
 
 		/**
@@ -74,7 +75,8 @@ export class StudioConnectionsManager {
 		 * @type {ActiveStudioDataList}
 		 */
 		this.activeConnections = new Map();
-		/** @type {Set<function(ActiveStudioDataList) : void>} */
+		/** @typedef {(activeConnections: ActiveStudioDataList) => void} OnActiveConnectionsChangedCallback */
+		/** @type {Set<OnActiveConnectionsChangedCallback>} */
 		this.onActiveConnectionsChangedCbs = new Set();
 
 		this.internalDiscovery = new InternalDiscoveryManager({
@@ -171,14 +173,14 @@ export class StudioConnectionsManager {
 	}
 
 	/**
-	 * @param {function(DiscoveryServerStatusType):void} cb
+	 * @param {OnDiscoveryServerStatusChangeCallback} cb
 	 */
 	onDiscoveryServerStatusChange(cb) {
 		this.onDiscoveryServerStatusChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {function(DiscoveryServerStatusType) : void} cb
+	 * @param {OnDiscoveryServerStatusChangeCallback} cb
 	 */
 	removeOnDiscoveryServerStatusChange(cb) {
 		this.onDiscoveryServerStatusChangeCbs.delete(cb);
@@ -367,14 +369,14 @@ export class StudioConnectionsManager {
 	}
 
 	/**
-	 * @param {function() : void} cb
+	 * @param {() => void} cb
 	 */
 	onAvailableConnectionsChanged(cb) {
 		this.onAvailableConnectionsChangedCbs.add(cb);
 	}
 
 	/**
-	 * @param {function() : void} cb
+	 * @param {() => void} cb
 	 */
 	removeOnAvailableConnectionsChanged(cb) {
 		this.onAvailableConnectionsChangedCbs.delete(cb);
@@ -389,14 +391,14 @@ export class StudioConnectionsManager {
 	 * A connection is considered active when messages can be sent. I.e.
 	 * available connections from a discovery service are not listed here
 	 * unless they are also connected.
-	 * @param {function(ActiveStudioDataList) : void} cb
+	 * @param {OnActiveConnectionsChangedCallback} cb
 	 */
 	onActiveConnectionsChanged(cb) {
 		this.onActiveConnectionsChangedCbs.add(cb);
 	}
 
 	/**
-	 * @param {function(ActiveStudioDataList) : void} cb
+	 * @param {OnActiveConnectionsChangedCallback} cb
 	 */
 	removeOnActiveConnectionsChanged(cb) {
 		this.onActiveConnectionsChangedCbs.delete(cb);
