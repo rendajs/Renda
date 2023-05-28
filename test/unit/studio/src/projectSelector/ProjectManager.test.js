@@ -321,7 +321,6 @@ Deno.test({
 				const entry = createStoredProjectEntry();
 
 				await manager.openProject(fs, entry, true);
-				assertEquals(mockPreferencesManager.get("strPref"), "default");
 				assertEquals(await fs.exists(PROJECT_PREFERENCES_PATH), false);
 				assertEquals(await fs.exists(LOCAL_PROJECT_PREFERENCES_PATH), false);
 				assertEquals(await fs.exists(GITIGNORE_PATH), false);

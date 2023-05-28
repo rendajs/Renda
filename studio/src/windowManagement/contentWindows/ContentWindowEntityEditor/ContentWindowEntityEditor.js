@@ -335,7 +335,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {number[]} newValue
 	 */
 	#setOrbitPreference(preference, newValue) {
-		const currentValue = this.studioInstance.preferencesManager.get(preference, {contentWindowUuid: this.uuid});
+		const currentValue = this.studioInstance.preferencesManager.get(preference, this.uuid);
 		if (currentValue && Array.isArray(currentValue) && currentValue.length == newValue.length) {
 			let same = true;
 			for (let i = 0; i < currentValue.length; i++) {
@@ -365,7 +365,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				this.#setOrbitPreference("entityEditor.orbitLookPos", this.orbitControls.lookPos.toArray());
 				this.#setOrbitPreference("entityEditor.orbitLookRot", this.orbitControls.lookRot.toArray());
 
-				const currentDist = this.studioInstance.preferencesManager.get("entityEditor.orbitLookDist", {contentWindowUuid: this.uuid});
+				const currentDist = this.studioInstance.preferencesManager.get("entityEditor.orbitLookDist", this.uuid);
 				if (this.orbitControls.lookDist != currentDist) {
 					this.studioInstance.preferencesManager.set("entityEditor.orbitLookDist", this.orbitControls.lookDist, {
 						contentWindowUuid: this.uuid,

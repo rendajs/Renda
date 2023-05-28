@@ -4,7 +4,9 @@ import {ContentWindowPreferencesLocation} from "../../../../../studio/src/prefer
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
-import {assertIsType} from "../../../shared/typeAssertions.js";
+import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
+
+const DEFAULT_CONTENT_WINDOW_UUID = "default content window uuid";
 
 /**
  * Creates a manager and registers a bunch of test types.
@@ -60,11 +62,14 @@ function createManager() {
 		}),
 	});
 
+	const mockWindowManager = createMockWindowManager();
+
 	const locations = {
 		global: new PreferencesLocation("global"),
 		workspace: new PreferencesLocation("workspace"),
 		versionControl: new PreferencesLocation("version-control"),
 		project: new PreferencesLocation("project"),
+		contentWindowProject: new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID),
 	};
 	for (const location of Object.values(locations)) {
 		manager.addLocation(location);
@@ -80,7 +85,7 @@ function createMockWindowManager() {
 	return mockWindowManager;
 }
 
-Deno.test({
+testTypes({
 	name: "Constructor registers preferences and infers the type",
 	fn() {
 		const manager = new PreferencesManager({
@@ -92,12 +97,12 @@ Deno.test({
 			},
 		});
 
-		const boolResult = manager.get("boolPref");
+		const boolResult = manager.get("boolPref", "uuid");
 		assertIsType(true, boolResult);
 		// @ts-expect-error Verify that the type isn't 'any'
 		assertIsType("", boolResult);
 
-		const numResult = manager.get("numPref");
+		const numResult = manager.get("numPref", "uuid");
 		assertIsType(0, numResult);
 		// @ts-expect-error Verify that the type isn't 'any'
 		assertIsType("", numResult);
@@ -166,14 +171,14 @@ Deno.test({
 	fn() {
 		const {manager} = createManager();
 
-		assertEquals(manager.get("boolPref1"), false);
-		assertEquals(manager.get("boolPref2"), true);
-		assertEquals(manager.get("numPref1"), 0);
-		assertEquals(manager.get("numPref2"), 42);
-		assertEquals(manager.get("projectPref"), "");
-		assertEquals(manager.get("workspacePref"), "default");
-		assertEquals(manager.get("unknownPref1"), {some: "data"});
-		assertEquals(manager.get("unknownPref2"), [1, 2, 3]);
+		assertEquals(manager.get("boolPref1", DEFAULT_CONTENT_WINDOW_UUID), false);
+		assertEquals(manager.get("boolPref2", DEFAULT_CONTENT_WINDOW_UUID), true);
+		assertEquals(manager.get("numPref1", DEFAULT_CONTENT_WINDOW_UUID), 0);
+		assertEquals(manager.get("numPref2", DEFAULT_CONTENT_WINDOW_UUID), 42);
+		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "");
+		assertEquals(manager.get("workspacePref", DEFAULT_CONTENT_WINDOW_UUID), "default");
+		assertEquals(manager.get("unknownPref1", DEFAULT_CONTENT_WINDOW_UUID), {some: "data"});
+		assertEquals(manager.get("unknownPref2", DEFAULT_CONTENT_WINDOW_UUID), [1, 2, 3]);
 
 		manager.set("boolPref1", true);
 		manager.set("boolPref2", false);
@@ -184,15 +189,15 @@ Deno.test({
 		manager.set("unknownPref1", {someOther: "data"});
 		manager.set("unknownPref2", {not: "an array"});
 
-		const boolPref1 = manager.get("boolPref1");
+		const boolPref1 = manager.get("boolPref1", DEFAULT_CONTENT_WINDOW_UUID);
 		assertEquals(boolPref1, true);
-		assertEquals(manager.get("boolPref2"), false);
-		assertEquals(manager.get("numPref1"), 123);
-		assertEquals(manager.get("numPref2"), 456);
-		assertEquals(manager.get("projectPref"), "str");
-		assertEquals(manager.get("workspacePref"), "str2");
-		assertEquals(manager.get("unknownPref1"), {someOther: "data"});
-		assertEquals(manager.get("unknownPref2"), {not: "an array"});
+		assertEquals(manager.get("boolPref2", DEFAULT_CONTENT_WINDOW_UUID), false);
+		assertEquals(manager.get("numPref1", DEFAULT_CONTENT_WINDOW_UUID), 123);
+		assertEquals(manager.get("numPref2", DEFAULT_CONTENT_WINDOW_UUID), 456);
+		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "str");
+		assertEquals(manager.get("workspacePref", DEFAULT_CONTENT_WINDOW_UUID), "str2");
+		assertEquals(manager.get("unknownPref1", DEFAULT_CONTENT_WINDOW_UUID), {someOther: "data"});
+		assertEquals(manager.get("unknownPref2", DEFAULT_CONTENT_WINDOW_UUID), {not: "an array"});
 
 		// Verify that the type is a boolean and nothing else
 		assertIsType(true, boolPref1);
@@ -206,30 +211,30 @@ Deno.test({
 	fn() {
 		const {manager} = createManager();
 
-		assertEquals(manager.get("str"), "");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "");
 		manager.set("str", "global", {location: "global"});
-		assertEquals(manager.get("str"), "global");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "global");
 
 		manager.set("str", "project", {location: "project"});
-		assertEquals(manager.get("str"), "project");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "project");
 
 		manager.set("str", "workspace", {location: "workspace"});
-		assertEquals(manager.get("str"), "project");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "project");
 
 		manager.set("str", "version-control", {location: "version-control"});
-		assertEquals(manager.get("str"), "project");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "project");
 
 		manager.reset("str", {location: "project"});
-		assertEquals(manager.get("str"), "version-control");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "version-control");
 
 		manager.reset("str", {location: "workspace"});
-		assertEquals(manager.get("str"), "version-control");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "version-control");
 
 		manager.reset("str", {location: "version-control"});
-		assertEquals(manager.get("str"), "global");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "global");
 
 		manager.reset("str", {location: "global"});
-		assertEquals(manager.get("str"), "");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "");
 	},
 });
 
@@ -306,13 +311,13 @@ Deno.test({
 });
 
 Deno.test({
-	name: "All locations are considered when ",
+	name: "All locations are considered when getting a value",
 	fn() {
 		const {manager} = createManager();
 
 		manager.set("projectPref", "global", {location: "global"});
 		manager.set("projectPref", "project");
-		assertEquals(manager.get("projectPref"), "project");
+		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "project");
 	},
 });
 
@@ -533,14 +538,11 @@ Deno.test({
 		});
 
 		// Same for preferences in content window locations
-		const mockWindowManager = createMockWindowManager();
-		const contentWindowLocation = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "contentWindowLocation");
-		manager.addLocation(contentWindowLocation);
-		contentWindowLocation.loadPreferences({
+		locations.contentWindowProject.loadPreferences({
 			nonExistent: "foo",
 		});
 
-		const value = manager.get("nonExistent", {assertRegistered: false});
+		const value = manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID, {assertRegistered: false});
 		assertEquals(value, "foo");
 
 		// Verify that the type is `string | number | boolean | null` and nothing else
@@ -553,10 +555,10 @@ Deno.test({
 		assertIsType({}, value);
 
 		assertThrows(() => {
-			manager.get("nonExistent", {assertRegistered: true});
+			manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID, {assertRegistered: true});
 		});
 		assertThrows(() => {
-			manager.get("nonExistent");
+			manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID);
 		});
 	},
 });
@@ -583,11 +585,10 @@ Deno.test({
 			contentWindowUuid: "location2",
 		});
 
-		assertEquals(manager.get("str"), "global value");
-		assertEquals(manager.get("str", {contentWindowUuid: "location1"}), "location1 value");
-		assertEquals(manager.get("str", {contentWindowUuid: "location2"}), "location2 value");
+		assertEquals(manager.get("str", "location1"), "location1 value");
+		assertEquals(manager.get("str", "location2"), "location2 value");
 		assertThrows(() => {
-			manager.get("str", {contentWindowUuid: "non existent"});
+			manager.get("str", "non existent");
 		}, Error, 'A content window uuid was provided ("non existent") but no location for this uuid was found.');
 
 		assertThrows(() => {
@@ -603,7 +604,7 @@ Deno.test({
 			});
 		}, Error, 'A content window uuid was provided ("non existent uuid") but no location for this uuid was found.');
 
-		const str = manager.get("str", {contentWindowUuid: "location1"});
+		const str = manager.get("str", "location1");
 
 		// Verify that the type is a string and nothing else
 		assertIsType("", str);
