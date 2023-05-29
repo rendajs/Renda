@@ -770,6 +770,7 @@ export class TreeView {
 		for (const child of root.getSelectedItems()) {
 			selectedItems.add(child);
 		}
+		/** @type {TreeView[]} */
 		let draggingItems = [];
 		if (selectedItems.has(this)) {
 			draggingItems = Array.from(selectedItems);

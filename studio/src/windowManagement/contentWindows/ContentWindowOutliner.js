@@ -19,6 +19,9 @@ export class ContentWindowOutliner extends ContentWindow {
 	/** @type {Entity?} */
 	#currentOnEntityChangeEntity = null;
 
+	/** @type {Map<TreeView, import("../../../../src/mod.js").UuidString>} */
+	#draggingTreeViewUuids = new Map();
+
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
 	 */
@@ -33,6 +36,8 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
+		this.treeView.addEventListener("dragstart", this.#onTreeViewDragStart);
+		this.treeView.addEventListener("dragend", this.#onTreeViewDragEnd);
 		this.treeView.addEventListener("validatedrag", this.onTreeViewValidatedrag.bind(this));
 		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
@@ -383,6 +388,28 @@ export class ContentWindowOutliner extends ContentWindow {
 			},
 		]);
 	}
+
+	/**
+	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
+	 */
+	#onTreeViewDragStart = e => {
+		const entity = this.#getEntityByTreeView(e.target);
+		const draggingDataUuid = this.studioInstance.dragManager.registerDraggingData(entity);
+		this.#draggingTreeViewUuids.set(e.target, draggingDataUuid);
+		if (!e.rawEvent.dataTransfer) return;
+		e.rawEvent.dataTransfer.setData(`text/renda; dragtype=outlinertreeview; draggingdata=${draggingDataUuid}`, "");
+		e.rawEvent.dataTransfer.effectAllowed = "all";
+	};
+
+	/**
+	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
+	 */
+	#onTreeViewDragEnd = e => {
+		const uuid = this.#draggingTreeViewUuids.get(e.target);
+		if (uuid) {
+			this.studioInstance.dragManager.unregisterDraggingData(uuid);
+		}
+	};
 
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewValidateDragEvent} e
