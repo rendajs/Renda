@@ -107,8 +107,21 @@ export class EntityAssetManager {
 	 */
 	createdTrackedEntity(uuid) {
 		const entity = new Entity();
-		this.#trackEntity(uuid, entity);
+		this.#trackEntityAndLoad(uuid, entity, false);
 		return entity;
+	}
+
+	// TODO: Come up with better names for createdTrackedEntity and trackEntity
+
+	/**
+	 * Turns an existing entity into a tracked one.
+	 * Overwrites other instances of this uuid with the provided entity.
+	 *
+	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 * @param {Entity} entity
+	 */
+	replaceTrackEntity(uuid, entity) {
+		this.#trackEntityAndLoad(uuid, entity, true);
 	}
 
 	/**
@@ -123,7 +136,7 @@ export class EntityAssetManager {
 	/**
 	 * Marks the entity as an instance of an asset.
 	 * This only assigns an uuid to the entity, to actually start tracking for changes you should use
-	 * {@linkcode createTrackedEntity} instead.
+	 * {@linkcode createdTrackedEntity} instead.
 	 * @param {Entity} entity
 	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 */
@@ -135,8 +148,11 @@ export class EntityAssetManager {
 	/**
 	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 * @param {Entity} entity
+	 * @param {boolean} overwriteLoaded Controls which entity is applied to which instance.
+	 * - Set to true to apply the instance of the `entity` parameter onto all the existing instances.
+	 * - Set to false to discard the state of the `entity` parameter and apply what is currently loaded instead.
 	 */
-	#trackEntity(uuid, entity) {
+	#trackEntityAndLoad(uuid, entity, overwriteLoaded) {
 		let trackedData = this.#trackedEntities.get(uuid);
 		if (!trackedData) {
 			trackedData = {
@@ -144,29 +160,34 @@ export class EntityAssetManager {
 				trackedInstances: new IterableWeakSet(),
 			};
 			this.#trackedEntities.set(uuid, trackedData);
-			this.#loadSourceEntity(uuid, trackedData);
+			(async () => {
+				if (trackedData.sourceEntity) {
+					throw new Error("Source entity is already loaded");
+				}
+				const sourceEntity = await this.#assetManager.getLiveAsset(uuid, {
+					assertAssetType: ProjectAssetTypeEntity,
+					assertExists: true,
+				});
+				trackedData.sourceEntity = sourceEntity;
+				if (overwriteLoaded) {
+					this.updateEntity(entity, EntityChangeType.All);
+				} else {
+					this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All);
+				}
+			})();
 		}
 		if (trackedData.sourceEntity) {
-			this.#applyEntityClone(trackedData.sourceEntity, entity, entity, EntityChangeType.Load | EntityChangeType.All);
+			if (overwriteLoaded) {
+				this.#applyEntityClone(entity, trackedData.sourceEntity, trackedData.sourceEntity, EntityChangeType.All);
+			} else {
+				this.#applyEntityClone(trackedData.sourceEntity, entity, entity, EntityChangeType.Load | EntityChangeType.All);
+			}
 		}
 		trackedData.trackedInstances.add(entity);
 		this.setLinkedAssetUuid(entity, uuid);
-	}
-
-	/**
-	 * @param {import("../../../src/mod.js").UuidString} uuid
-	 * @param {TrackedEntityData} trackedData
-	 */
-	async #loadSourceEntity(uuid, trackedData) {
-		if (trackedData.sourceEntity) {
-			throw new Error("Source entity is already loaded");
+		if (entity.parent) {
+			this.updateEntity(entity.parent, EntityChangeType.Delete | EntityChangeType.Create);
 		}
-		const sourceEntity = await this.#assetManager.getLiveAsset(uuid, {
-			assertAssetType: ProjectAssetTypeEntity,
-			assertExists: true,
-		});
-		trackedData.sourceEntity = sourceEntity;
-		this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All);
 	}
 
 	/**

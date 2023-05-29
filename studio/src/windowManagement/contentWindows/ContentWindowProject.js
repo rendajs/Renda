@@ -669,7 +669,8 @@ export class ContentWindowProject extends ContentWindow {
 			if (droppedEntity) {
 				const assetManager = await this.studioInstance.projectManager.getAssetManager();
 				const projectAsset = await assetManager.createNewAsset(path, "renda:entity");
-				// TODO: turn entity into a tracked entity and save to the asset
+				await assetManager.makeAssetUuidPersistent(projectAsset);
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.replaceTrackEntity(projectAsset.uuid, droppedEntity);
 			}
 		}
 	};
