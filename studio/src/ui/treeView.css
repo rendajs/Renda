@@ -83,26 +83,26 @@
 	display: flex;
 	align-items: center;
 }
-.tree-view-row.selected{
+.tree-view-row.selected {
 	background: var(--color-selected-blue);
 	color: var(--selected-text-color);
 }
-.tree-view-row.selected.no-focus{
+.tree-view-row.selected.no-focus {
 	background: var(--color-selected-blue-no-focus);
 	color: var(--selected-text-color-no-focus);
 }
-.tree-view-row.highlighted{
+.tree-view-row.highlighted {
 	background: var(--color-highlighted-yellow);
 	color: var(--color-highlighted-yellow-text);
 }
-.tree-view-row.hidden{
+.tree-view-row.hidden {
 	display: none;
 }
 .tree-view-row:focus-visible {
 	outline: none;
 }
 
-.tree-view-arrow.hidden{
+.tree-view-arrow.hidden {
 	display: none;
 }
 
@@ -145,12 +145,12 @@
 	flex-grow: 1;
 }
 
-.gui-tree-view-entry:not(.multiLine),
-.gui-tree-view-entry.multiLine > .gui-tree-view-entry-label {
+.gui-tree-view-entry:not(.multi-line),
+.gui-tree-view-entry.multi-line > .gui-tree-view-entry-label {
 	padding: 0px 5px;
 }
 
-.gui-tree-view-entry.multiLine > * {
+.gui-tree-view-entry.multi-line > * {
 	width: 100%;
 }
 
@@ -161,10 +161,10 @@
 	user-select: text;
 	-webkit-user-select: text;
 }
-.gui-tree-view-entry-value.smallLabel{
+.gui-tree-view-entry-value.small-label {
 	width: 85%;
 }
-.gui-tree-view-entry-label.smallLabel{
+.gui-tree-view-entry-label.small-label {
 	width: 15%;
 	 min-width: 10px;
 }

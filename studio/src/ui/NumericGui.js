@@ -298,7 +298,7 @@ export class NumericGui {
 	 */
 	setIsTextAdjusting(value) {
 		this.isTextAdjusting = value;
-		this.el.classList.toggle("nocaret", !value);
+		this.el.classList.toggle("no-caret", !value);
 	}
 
 	onMouseDown() {
