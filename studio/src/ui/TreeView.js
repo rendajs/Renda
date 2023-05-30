@@ -186,7 +186,7 @@ export class TreeView {
 		this.el.classList.add("tree-view-item");
 
 		this.rowEl = document.createElement("div");
-		this.rowEl.classList.add("treeViewRow");
+		this.rowEl.classList.add("tree-view-row");
 		this.el.appendChild(this.rowEl);
 
 		this.boundOnRowClick = this.onRowClick.bind(this);

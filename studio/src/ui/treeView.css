@@ -77,28 +77,28 @@
 	border-left: 10px solid var(--color-selected-blue);
 }
 
-.treeViewRow{
+.tree-view-row{
 	border-radius: var(--selection-border-radius);
 	position: relative;
 	display: flex;
 	align-items: center;
 }
-.treeViewRow.selected{
+.tree-view-row.selected{
 	background: var(--color-selected-blue);
 	color: var(--selected-text-color);
 }
-.treeViewRow.selected.noFocus{
+.tree-view-row.selected.noFocus{
 	background: var(--color-selected-blue-nofocus);
 	color: var(--selected-text-color-nofocus);
 }
-.treeViewRow.highlighted{
+.tree-view-row.highlighted{
 	background: var(--color-highlighted-yellow);
 	color: var(--color-highlighted-yellow-text);
 }
-.treeViewRow.hidden{
+.tree-view-row.hidden{
 	display: none;
 }
-.treeViewRow:focus-visible {
+.tree-view-row:focus-visible {
 	outline: none;
 }
 
@@ -106,7 +106,7 @@
 	display: none;
 }
 
-.treeViewRow.drag-over-feedback, .tree-view-drag-feedback {
+.tree-view-row.drag-over-feedback, .tree-view-drag-feedback {
 	box-shadow: 0px 0px 0 2px var(--color-selected-blue), inset 0px 0px 0 2px var(--text-color-level0);
 }
 

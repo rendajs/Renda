@@ -35,8 +35,8 @@ await runE2eTest({
 		log("Drag the new child to the root");
 		{
 			const rootTreeView = await getOutlinerRootEntityTreeView(page);
-			const rootTreeViewRow = await waitFor(rootTreeView, ".treeViewRow");
-			const secondChildEl = await waitFor(rootTreeView, ".treeViewChildList > :nth-child(2) > .treeViewChildList > :nth-child(1) > .treeViewRow");
+			const rootTreeViewRow = await waitFor(rootTreeView, ".tree-view-row");
+			const secondChildEl = await waitFor(rootTreeView, ".treeViewChildList > :nth-child(2) > .treeViewChildList > :nth-child(1) > .tree-view-row");
 			await drag(page, secondChildEl, rootTreeViewRow);
 		}
 
@@ -44,7 +44,7 @@ await runE2eTest({
 		{
 			// assert that the internal entity structure matches the visual outliner structure
 			const rootTreeView = await getOutlinerRootEntityTreeView(page);
-			const rootTreeViewRow = await waitFor(rootTreeView, ".treeViewRow");
+			const rootTreeViewRow = await waitFor(rootTreeView, ".tree-view-row");
 			await click(page, rootTreeViewRow);
 		}
 

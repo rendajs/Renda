@@ -22,7 +22,7 @@ export function getTreeViewPathElement(treeViewElement, itemsPath) {
 		} else {
 			child = treeViewChildren.find(child => {
 				// First check the row name, in case this is a regular TreeView.
-				const row = child.querySelector(".treeViewRow");
+				const row = child.querySelector(".tree-view-row");
 				if (row && row.textContent == itemIdentifier) return true;
 
 				// If this is a PropertiesTreeViewEntry, check the name of the lebel.
@@ -55,7 +55,7 @@ export function logTreeViewPath(treeViewElement) {
 			let pathItem = "";
 
 			// First we check if the regular TreeView row contains text
-			const row = currentTreeView.querySelector(".treeViewRow");
+			const row = currentTreeView.querySelector(".tree-view-row");
 			if (row instanceof HTMLElement) {
 				pathItem = row.textContent || "";
 			}
