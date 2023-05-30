@@ -678,7 +678,7 @@ export class DroppableGui {
 	 * @param {boolean} valid
 	 */
 	setDragHoverValidStyle(valid) {
-		this.el.classList.toggle("dragHovering", valid);
+		this.el.classList.toggle("drag-hovering", valid);
 	}
 
 	#onUnlinkShortcut = () => {
