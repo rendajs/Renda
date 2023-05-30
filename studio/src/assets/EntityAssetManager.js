@@ -128,7 +128,7 @@ export class EntityAssetManager {
 	 */
 	getLinkedAssetUuid(entity) {
 		const castEntity = /** @type {EntityWithUuidSymbol} */ (entity);
-		return castEntity[this.#entityAssetRootUuidSymbol];
+		return castEntity[this.#entityAssetRootUuidSymbol] || null;
 	}
 
 	/**

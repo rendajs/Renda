@@ -52,7 +52,7 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
  * @property {import("../../studio/src/assets/AssetManager.js").AssetManager} assetManager
  * @property {import("../../studio/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
  * @property {symbol} usedAssetUuidsSymbol
- * @property {(entity: Entity) => import("../mod.js").UuidString} getLinkedAssetUuid
+ * @property {(entity: Entity) => import("../mod.js").UuidString?} getLinkedAssetUuid
  */
 
 /**
