@@ -1380,7 +1380,7 @@ export class TreeView {
 		if (this.selected) {
 			const root = this.findRoot();
 			const focus = root.hasFocusWithin;
-			this.rowEl.classList.toggle("noFocus", !focus);
+			this.rowEl.classList.toggle("no-focus", !focus);
 			if (focus) focusSelected = true;
 		}
 		if (this.#focusSelectedShortcutCondition) this.#focusSelectedShortcutCondition.setValue(focusSelected);

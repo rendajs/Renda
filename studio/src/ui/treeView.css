@@ -77,7 +77,7 @@
 	border-left: 10px solid var(--color-selected-blue);
 }
 
-.tree-view-row{
+.tree-view-row {
 	border-radius: var(--selection-border-radius);
 	position: relative;
 	display: flex;
@@ -87,9 +87,9 @@
 	background: var(--color-selected-blue);
 	color: var(--selected-text-color);
 }
-.tree-view-row.selected.noFocus{
-	background: var(--color-selected-blue-nofocus);
-	color: var(--selected-text-color-nofocus);
+.tree-view-row.selected.no-focus{
+	background: var(--color-selected-blue-no-focus);
+	color: var(--selected-text-color-no-focus);
 }
 .tree-view-row.highlighted{
 	background: var(--color-highlighted-yellow);
