@@ -80,7 +80,7 @@ export class EntityAssetManager {
 	/** @type {EventHandler<Entity, OnTrackedEntityChangeEvent>} */
 	#onTrackedEntityChangeHandler = new EventHandler();
 
-	/** @typedef {Entity & {[x: symbol]: import("../../../src/mod.js").UuidString}} EntityWithUuidSymbol */
+	/** @typedef {Entity & Partial<{[x: symbol]: import("../../../src/mod.js").UuidString}>} EntityWithUuidSymbol */
 
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
