@@ -156,3 +156,47 @@ export function getChildTreeViewFromIndices(treeView, ...indices) {
 	}
 	return treeView;
 }
+
+/**
+ * Fires a "validatedrag" on the treeview and returns wether
+ * @param {import("../../../../studio/src/ui/TreeView.js").TreeView} treeView
+ * @param {object} [options]
+ * @param {"file" | "string"} [options.kind]
+ * @param {import("../../../../studio/src/util/util.js").ParsedMimeType} [options.mimeType]
+ */
+export function getValidateDragResult(treeView, {
+	kind,
+	mimeType,
+} = {}) {
+	let isAcceptingEvents = true;
+	let validateEventAccepted = false;
+	let validateEventRejected = false;
+	treeView.fireEvent("validatedrag", /** @type {import("../../../../studio/src/ui/TreeView.js").TreeViewValidateDragEvent} */ ({
+		target: treeView,
+		kind,
+		mimeType,
+		accept: () => {
+			if (!isAcceptingEvents) {
+				throw new Error("Cannot accept after the event is done processing.");
+			}
+			validateEventAccepted = true;
+		},
+		reject: () => {
+			if (!isAcceptingEvents) {
+				throw new Error("Cannot reject after the event is done processing.");
+			}
+			validateEventRejected = true;
+		},
+	}));
+	isAcceptingEvents = false;
+
+	/** @type {"accepted" | "rejected" | "default"} */
+	let acceptedState = "default";
+	if (validateEventAccepted) {
+		acceptedState = "accepted";
+	} else if (validateEventRejected) {
+		acceptedState = "rejected";
+	}
+
+	return {acceptedState};
+}

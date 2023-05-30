@@ -50,7 +50,10 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @property {boolean} isSameTreeView Whether the dragged TreeView is from the same TreeView tree as the drop target.
  * @property {"string" | "file"} kind
  * @property {() => void} accept Mark the drag as accepted, renders drag feedback, and fires the drop event when dropped.
+ * When an item is dragged within the same TreeView, drag events are accepted by default, so you don't need to call this.
  * @property {() => void} reject Mark the drag as rejected. If any of the event handlers call `accept()`, this has no effect.
+ * When an item is dragged that is not a TreeView (such as external files, text elements etc.)
+ * or when an element from a different TreeView is dragged, events are rejected by default, so you don't need to call this.
  */
 /**
  * @typedef {TreeViewDragEvent & TreeViewValidateDragEventType} TreeViewValidateDragEvent
@@ -770,6 +773,7 @@ export class TreeView {
 		for (const child of root.getSelectedItems()) {
 			selectedItems.add(child);
 		}
+		/** @type {TreeView[]} */
 		let draggingItems = [];
 		if (selectedItems.has(this)) {
 			draggingItems = Array.from(selectedItems);

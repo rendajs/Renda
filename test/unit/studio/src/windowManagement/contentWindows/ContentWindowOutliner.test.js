@@ -12,6 +12,9 @@ import {EntityAssetManager, EntityChangeType} from "../../../../../../studio/src
 import {HistoryManager} from "../../../../../../studio/src/misc/HistoryManager.js";
 import {createMockKeyboardShortcutManager} from "../../../shared/mockKeyboardShortcutManager.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import {DragEvent} from "fake-dom/FakeDragEvent.js";
+import {DragManager} from "../../../../../../studio/src/misc/DragManager.js";
+import {parseMimeType} from "../../../../../../studio/src/util/util.js";
 
 /**
  * @typedef ContentWindowOutlinerTestContext
@@ -21,6 +24,7 @@ import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
  * @property {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} mockEntityEditor
  * @property {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} mockAssetManager
  * @property {HistoryManager} historyManager
+ * @property {DragManager} dragManager
  */
 
 /**
@@ -56,6 +60,9 @@ async function basictest({
 		mockStudioInstance.projectManager.assertAssetManagerExists = () => assetManager;
 		assetManager.entityAssetManager = new EntityAssetManager(assetManager);
 
+		const dragManager = new DragManager();
+		mockStudioInstance.dragManager = dragManager;
+
 		const {keyboardShortcutManager} = createMockKeyboardShortcutManager();
 		const historyManager = new HistoryManager(keyboardShortcutManager);
 		mockStudioInstance.historyManager = historyManager;
@@ -67,6 +74,7 @@ async function basictest({
 			mockEntityEditor: mockEntityEditors[0],
 			mockAssetManager: assetManager,
 			historyManager,
+			dragManager,
 		});
 	} finally {
 		uninstallFakeDocument();
@@ -192,7 +200,7 @@ Deno.test({
 				const mainEntity = new Entity("main");
 				const child1 = new Entity("child1");
 				mainEntity.add(child1);
-				const trackedEntity1 = mockAssetManager.entityAssetManager.createdTrackedEntity(TRACKED_ENTITY_UUID);
+				const trackedEntity1 = mockAssetManager.entityAssetManager.createTrackedEntity(TRACKED_ENTITY_UUID);
 				mainEntity.add(trackedEntity1);
 
 				mockEntityEditor.editingEntity.add(mainEntity);
@@ -226,7 +234,7 @@ Deno.test({
 					],
 				});
 
-				const trackedEntity2 = mockAssetManager.entityAssetManager.createdTrackedEntity(TRACKED_ENTITY_UUID);
+				const trackedEntity2 = mockAssetManager.entityAssetManager.createTrackedEntity(TRACKED_ENTITY_UUID);
 				trackedEntity2.add(new Entity("new child"));
 				mockAssetManager.entityAssetManager.updateEntity(trackedEntity2, EntityChangeType.Create);
 
@@ -375,6 +383,38 @@ Deno.test({
 				assertSpyCalls(updateEntitySpy, 3);
 				assertStrictEquals(updateEntitySpy.calls[0].args[0], childEntity);
 				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Rename);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Dragging treeviews assigns data about the entity that was dragged",
+	async fn() {
+		await basictest({
+			fn({args, mockEntityEditor, dragManager}) {
+				const childEntity = mockEntityEditor.editingEntity.add(new Entity("child"));
+
+				const contentWindow = new ContentWindowOutliner(...args);
+				const treeView = contentWindow.treeView.children[0];
+				const dragEvent = new DragEvent("dragstart");
+				treeView.rowEl.dispatchEvent(dragEvent);
+
+				const types = Array.from(dragEvent.dataTransfer.types);
+				assertEquals(types.length, 1);
+				const parsed = parseMimeType(types[0]);
+				assertExists(parsed);
+				assertEquals(parsed.type, "text");
+				assertEquals(parsed.subType, "renda");
+				assertEquals(parsed.parameters.dragtype, "outlinertreeview");
+				const draggingData = dragManager.getDraggingData(parsed.parameters.draggingdata);
+				assertStrictEquals(draggingData, childEntity);
+
+				// Data is removed when the drag event ends
+				treeView.rowEl.dispatchEvent(new DragEvent("dragend"));
+
+				const draggingData2 = dragManager.getDraggingData(parsed.parameters.draggingdata);
+				assertEquals(draggingData2, undefined);
 			},
 		});
 	},

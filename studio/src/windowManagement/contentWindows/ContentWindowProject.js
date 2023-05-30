@@ -1,7 +1,7 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../ui/TreeView.js";
 import {Button} from "../../ui/Button.js";
-import {handleDuplicateFileName} from "../../util/util.js";
+import {handleDuplicateFileName, parseMimeType} from "../../util/util.js";
 import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorInstance.js";
 
 /**
@@ -145,8 +145,8 @@ export class ContentWindowProject extends ContentWindow {
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		this.treeView.addEventListener("dragend", this.onTreeViewDragEnd.bind(this));
-		this.treeView.addEventListener("validatedrag", this.onTreeViewValidateDrag.bind(this));
-		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
+		this.treeView.addEventListener("validatedrag", this.#onTreeViewValidateDrag);
+		this.treeView.addEventListener("drop", this.#onTreeViewDrop);
 		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
 		this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
@@ -612,28 +612,68 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewValidateDragEvent} e
 	 */
-	async onTreeViewValidateDrag(e) {
-		if (e.isSameTreeView) {
-			// Only allow dropping on folders.
-			if (!e.target.alwaysShowArrow) {
-				e.reject();
-			}
-		} else if (e.kind == "file") {
-			e.accept();
+	#onTreeViewValidateDrag = async e => {
+		// Only allow dropping on folders.
+		if (!e.target.alwaysShowArrow) {
+			e.reject();
+			return;
 		}
+		if (e.kind == "file") {
+			// Allow dragging external files,
+			// they will be added to the project when dropped.
+			e.accept();
+		} else if (e.kind == "string") {
+			const draggingData = this.#validateDragMimeType(e.mimeType);
+			if (draggingData) {
+				e.accept();
+			}
+		}
+	};
+
+	/**
+	 * @param {import("../../util/util.js").ParsedMimeType} mimeType
+	 */
+	#validateDragMimeType(mimeType) {
+		if (mimeType.type == "text" &&
+			mimeType.subType == "renda" &&
+			mimeType.parameters.dragtype == "outlinertreeview"
+		) {
+			const dragData = /** @type {import("../../../../src/core/Entity.js").Entity} */ (this.studioInstance.dragManager.getDraggingData(mimeType.parameters.draggingdata));
+			const uuid = this.studioInstance.projectManager.assetManager?.entityAssetManager.getLinkedAssetUuid(dragData);
+			// If the dragged entity already is an entity asset, it's not clear what should happen in this case:
+			// - Create a duplicate of the entity asset and leave all references pointing to the old one
+			// - Create a duplicate and point all references to the new one
+			// - Move the entity asset from one location in the project to the dropped location
+			// - Something else?
+			// Because of this, we just won't allow dropping at all, removing any ambiguity.
+			if (uuid) return null;
+			return dragData;
+		}
+		return null;
 	}
 
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	async onTreeViewDrop(e) {
+	#onTreeViewDrop = async e => {
 		if (!e.rawEvent.dataTransfer) return;
 		const path = this.pathFromTreeView(e.target);
 		for (const file of e.rawEvent.dataTransfer.files) {
 			const filePath = [...path, file.name];
 			await this.fileSystem.writeFile(filePath, file);
 		}
-	}
+		for (const item of e.rawEvent.dataTransfer.items) {
+			const mimeType = parseMimeType(item.type);
+			if (!mimeType) continue;
+			const droppedEntity = this.#validateDragMimeType(mimeType);
+			if (droppedEntity) {
+				const assetManager = await this.studioInstance.projectManager.getAssetManager();
+				const projectAsset = await assetManager.createNewAsset(path, "renda:entity");
+				await assetManager.makeAssetUuidPersistent(projectAsset);
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.replaceTrackedEntity(projectAsset.uuid, droppedEntity);
+			}
+		}
+	};
 
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e

@@ -317,7 +317,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.newEmptyEditingEntity();
 			return;
 		}
-		const entity = assetManager.entityAssetManager.createdTrackedEntity(entityUuid);
+		const entity = assetManager.entityAssetManager.createTrackedEntity(entityUuid);
 		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
 		this.entitySavingManager.setEntityDirty(false);

@@ -80,7 +80,7 @@ export class EntityAssetManager {
 	/** @type {EventHandler<Entity, OnTrackedEntityChangeEvent>} */
 	#onTrackedEntityChangeHandler = new EventHandler();
 
-	/** @typedef {Entity & {[x: symbol]: import("../../../src/mod.js").UuidString}} EntityWithUuidSymbol */
+	/** @typedef {Entity & Partial<{[x: symbol]: import("../../../src/mod.js").UuidString}>} EntityWithUuidSymbol */
 
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
@@ -105,10 +105,21 @@ export class EntityAssetManager {
 	 *
 	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 */
-	createdTrackedEntity(uuid) {
+	createTrackedEntity(uuid) {
 		const entity = new Entity();
-		this.#trackEntity(uuid, entity);
+		this.#trackEntityAndLoad(uuid, entity, false);
 		return entity;
+	}
+
+	/**
+	 * Turns an existing entity into a tracked one.
+	 * Overwrites other instances of this uuid with the provided entity.
+	 *
+	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 * @param {Entity} entity
+	 */
+	replaceTrackedEntity(uuid, entity) {
+		this.#trackEntityAndLoad(uuid, entity, true);
 	}
 
 	/**
@@ -117,7 +128,7 @@ export class EntityAssetManager {
 	 */
 	getLinkedAssetUuid(entity) {
 		const castEntity = /** @type {EntityWithUuidSymbol} */ (entity);
-		return castEntity[this.#entityAssetRootUuidSymbol];
+		return castEntity[this.#entityAssetRootUuidSymbol] || null;
 	}
 
 	/**
@@ -135,8 +146,11 @@ export class EntityAssetManager {
 	/**
 	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 * @param {Entity} entity
+	 * @param {boolean} overwriteLoaded Controls which entity is applied to which instance.
+	 * - Set to true to apply the instance of the `entity` parameter onto all the existing instances.
+	 * - Set to false to discard the state of the `entity` parameter and apply what is currently loaded instead.
 	 */
-	#trackEntity(uuid, entity) {
+	#trackEntityAndLoad(uuid, entity, overwriteLoaded) {
 		let trackedData = this.#trackedEntities.get(uuid);
 		if (!trackedData) {
 			trackedData = {
@@ -144,29 +158,31 @@ export class EntityAssetManager {
 				trackedInstances: new IterableWeakSet(),
 			};
 			this.#trackedEntities.set(uuid, trackedData);
-			this.#loadSourceEntity(uuid, trackedData);
-		}
-		if (trackedData.sourceEntity) {
-			this.#applyEntityClone(trackedData.sourceEntity, entity, entity, EntityChangeType.Load | EntityChangeType.All);
+			(async () => {
+				if (trackedData.sourceEntity) throw new Error("Source entity is already loaded");
+				const sourceEntity = await this.#assetManager.getLiveAsset(uuid, {
+					assertAssetType: ProjectAssetTypeEntity,
+					assertExists: true,
+				});
+				trackedData.sourceEntity = sourceEntity;
+				if (overwriteLoaded) {
+					this.updateEntity(entity, EntityChangeType.All);
+				} else {
+					this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All);
+				}
+			})();
 		}
 		trackedData.trackedInstances.add(entity);
 		this.setLinkedAssetUuid(entity, uuid);
-	}
-
-	/**
-	 * @param {import("../../../src/mod.js").UuidString} uuid
-	 * @param {TrackedEntityData} trackedData
-	 */
-	async #loadSourceEntity(uuid, trackedData) {
-		if (trackedData.sourceEntity) {
-			throw new Error("Source entity is already loaded");
+		if (overwriteLoaded) {
+			if (trackedData.sourceEntity) {
+				this.updateEntity(entity, EntityChangeType.All);
+			}
+		} else {
+			if (trackedData.sourceEntity) {
+				this.#applyEntityClone(trackedData.sourceEntity, entity, entity, EntityChangeType.Load | EntityChangeType.All);
+			}
 		}
-		const sourceEntity = await this.#assetManager.getLiveAsset(uuid, {
-			assertAssetType: ProjectAssetTypeEntity,
-			assertExists: true,
-		});
-		trackedData.sourceEntity = sourceEntity;
-		this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All);
 	}
 
 	/**
@@ -284,7 +300,7 @@ export class EntityAssetManager {
 				const entity = entities.pop();
 				if (entity) return entity;
 			}
-			return this.createdTrackedEntity(uuid);
+			return this.createTrackedEntity(uuid);
 		};
 
 		for (const child of sourceEntity.children) {

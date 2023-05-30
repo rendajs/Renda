@@ -67,8 +67,8 @@ Deno.test({
 			const contentWindow = new ContentWindowEntityEditor(...args);
 			const markDirtySpy = spy(contentWindow, "markRenderDirty");
 			let expectedCallCount = 0;
-			const entity1 = entityAssetManager.createdTrackedEntity(BASIC_ENTITY_UUID);
-			const entity2 = entityAssetManager.createdTrackedEntity(BASIC_ENTITY_UUID);
+			const entity1 = entityAssetManager.createTrackedEntity(BASIC_ENTITY_UUID);
+			const entity2 = entityAssetManager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 			contentWindow.editingEntity = entity1;
 			assertSpyCalls(markDirtySpy, ++expectedCallCount);

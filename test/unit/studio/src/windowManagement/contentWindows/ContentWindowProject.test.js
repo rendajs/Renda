@@ -3,10 +3,15 @@ import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.
 import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
 import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {ContentWindowProject} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowProject.js";
-import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
+import {assertTreeViewStructureEquals, getValidateDragResult} from "../../../shared/treeViewUtil.js";
 import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCalls, stub} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, resolvesNext, stub} from "std/testing/mock.ts";
 import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
+import {DragManager} from "../../../../../../studio/src/misc/DragManager.js";
+import {Entity} from "../../../../../../src/mod.js";
+import {DragEvent} from "fake-dom/FakeDragEvent.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
+import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
 
@@ -52,6 +57,7 @@ async function basicSetup({
 	const mockProjectManager = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
 		currentProjectFileSystem: /** @type {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} */ (mockFileSystem),
 		onFileChange(cb) {},
+		assetManager: mockAssetManager,
 		assertAssetManagerExists() {
 			return mockAssetManager;
 		},
@@ -65,6 +71,9 @@ async function basicSetup({
 		projectManager: mockProjectManager,
 		preferencesManager: new PreferencesManager(),
 	});
+
+	const dragManager = new DragManager();
+	mockStudioInstance.dragManager = dragManager;
 
 	injectMockStudioInstance(mockStudioInstance);
 
@@ -81,6 +90,9 @@ async function basicSetup({
 	return {
 		contentWindow,
 		mockSelectionGroup,
+		dragManager,
+		mockAssetManager,
+		mockFileSystem,
 		/**
 		 * @param {boolean} granted
 		 */
@@ -221,6 +233,191 @@ Deno.test({
 			const activateSpy = stub(mockSelectionGroup, "activate", () => {});
 			contentWindow.activate();
 			assertSpyCalls(activateSpy, 1);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Hovering a dragged item does nothing on files",
+	async fn() {
+		const {contentWindow, uninstall} = await basicSetup({
+			fileSystemStructure: {
+				"folder/file.txt": "a",
+				"file.txt": "a",
+			},
+		});
+		try {
+			const fileTreeView = contentWindow.treeView.children[1];
+			const result = getValidateDragResult(fileTreeView);
+			assertEquals(result.acceptedState, "rejected");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Hovering an external file on folders accepts the event",
+	async fn() {
+		const {contentWindow, uninstall} = await basicSetup({
+			fileSystemStructure: {
+				"folder/file.txt": "a",
+			},
+		});
+		try {
+			const folderTreeView = contentWindow.treeView.children[0];
+			const result = getValidateDragResult(folderTreeView, {
+				kind: "file",
+			});
+			assertEquals(result.acceptedState, "accepted");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Hovering an outliner treeview on folders accepts the event",
+	async fn() {
+		const {contentWindow, dragManager, mockAssetManager, uninstall} = await basicSetup({
+			fileSystemStructure: {
+				"folder/file.txt": "a",
+			},
+		});
+
+		try {
+			mockAssetManager.entityAssetManager = /** @type {import("../../../../../../studio/src/assets/EntityAssetManager.js").EntityAssetManager} */ ({
+				getLinkedAssetUuid(entity) {},
+			});
+
+			const folderTreeView = contentWindow.treeView.children[0];
+			const draggingEntity = new Entity();
+			const draggingUuid = dragManager.registerDraggingData(draggingEntity);
+			const result = getValidateDragResult(folderTreeView, {
+				kind: "string",
+				mimeType: {
+					type: "text",
+					subType: "renda",
+					parameters: {
+						dragtype: "outlinertreeview",
+						draggingdata: draggingUuid,
+					},
+				},
+			});
+			assertEquals(result.acceptedState, "accepted");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Hovering an outliner treeview rejects when the entity is already an entity asset",
+	async fn() {
+		const {contentWindow, dragManager, mockAssetManager, uninstall} = await basicSetup({
+			fileSystemStructure: {
+				"folder/file.txt": "a",
+			},
+		});
+
+		try {
+			mockAssetManager.entityAssetManager = /** @type {import("../../../../../../studio/src/assets/EntityAssetManager.js").EntityAssetManager} */ ({
+				getLinkedAssetUuid(entity) {
+					return "uuid";
+				},
+			});
+
+			const folderTreeView = contentWindow.treeView.children[0];
+			const draggingEntity = new Entity();
+
+			const draggingUuid = dragManager.registerDraggingData(draggingEntity);
+			const result = getValidateDragResult(folderTreeView, {
+				kind: "string",
+				mimeType: {
+					type: "text",
+					subType: "renda",
+					parameters: {
+						dragtype: "outlinertreeview",
+						draggingdata: draggingUuid,
+					},
+				},
+			});
+			assertEquals(result.acceptedState, "default");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Dropping an outliner treeview turns it into an entity asset",
+	async fn() {
+		const {contentWindow, dragManager, mockAssetManager, uninstall} = await basicSetup({
+			fileSystemStructure: {
+				"folder/file.txt": "a",
+			},
+		});
+
+		try {
+			mockAssetManager.entityAssetManager = /** @type {import("../../../../../../studio/src/assets/EntityAssetManager.js").EntityAssetManager} */ ({
+				getLinkedAssetUuid(entity) {},
+				replaceTrackedEntity(uuid, entity) {},
+			});
+			const {projectAsset: createdProjectAsset} = createMockProjectAsset();
+			const createNewAssetSpy = stub(mockAssetManager, "createNewAsset", resolvesNext([createdProjectAsset]));
+			const makeUuidPersistentSpy = stub(mockAssetManager, "makeAssetUuidPersistent", async () => {});
+
+			const folderTreeView = contentWindow.treeView.children[0];
+			const draggingEntity = new Entity();
+			const draggingUuid = dragManager.registerDraggingData(draggingEntity);
+			const event = new DragEvent("drop");
+			event.dataTransfer.setData(`text/renda; dragtype=outlinertreeview; draggingdata=${draggingUuid}`, "");
+			folderTreeView.fireEvent("drop", /** @type {import("../../../../../../studio/src/ui/TreeView.js").TreeViewDropEvent} */ ({
+				rawEvent: /** @type {any} */ (event),
+				target: folderTreeView,
+			}));
+
+			await waitForMicrotasks();
+
+			assertSpyCalls(createNewAssetSpy, 1);
+			assertSpyCall(createNewAssetSpy, 0, {
+				args: [["folder"], "renda:entity"],
+			});
+			assertSpyCalls(makeUuidPersistentSpy, 1);
+			assertSpyCall(makeUuidPersistentSpy, 0, {
+				args: [createdProjectAsset],
+			});
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Dropping an external file writes it to disk",
+	async fn() {
+		const {contentWindow, mockFileSystem, uninstall} = await basicSetup({
+			fileSystemStructure: {
+				"folder/file.txt": "a",
+			},
+		});
+
+		try {
+			const folderTreeView = contentWindow.treeView.children[0];
+			const event = new DragEvent("drop");
+			const file = new File(["hello"], "droppedFile.txt");
+			event.dataTransfer.files.push(file);
+			folderTreeView.fireEvent("drop", /** @type {import("../../../../../../studio/src/ui/TreeView.js").TreeViewDropEvent} */ ({
+				rawEvent: /** @type {any} */ (event),
+				target: folderTreeView,
+			}));
+
+			await waitForMicrotasks();
+
+			const result = await mockFileSystem.readText(["folder", "droppedFile.txt"]);
+			assertEquals(result, "hello");
 		} finally {
 			uninstall();
 		}
