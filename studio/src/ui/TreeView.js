@@ -1297,7 +1297,7 @@ export class TreeView {
 				this.myNameEl.textContent = "";
 				const textEl = document.createElement("input");
 				this.renameTextField = textEl;
-				textEl.classList.add("resetInput", "textInput", "buttonLike", "tree-view-rename-field");
+				textEl.classList.add("reset-input", "text-input", "button-like", "tree-view-rename-field");
 				textEl.value = oldName;
 				this.myNameEl.appendChild(textEl);
 				textEl.addEventListener("input", () => {

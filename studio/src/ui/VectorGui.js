@@ -89,7 +89,7 @@ export class VectorGui {
 		}
 		this.defaultValue = defaultValue;
 		this.el = document.createElement("div");
-		this.el.classList.add("vector-gui", "buttonGroupLike");
+		this.el.classList.add("vector-gui", "button-group-like");
 		this.numericGuis = [];
 		this.disabled = false;
 		this.size = size;

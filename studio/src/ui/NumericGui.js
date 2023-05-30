@@ -90,7 +90,7 @@ export class NumericGui {
 		mappedStringValues = [],
 	} = {}) {
 		this.el = document.createElement("input");
-		this.el.classList.add("numeric-gui", "buttonLike", "resetInput", "textInput");
+		this.el.classList.add("numeric-gui", "button-like", "reset-input", "text-input");
 
 		this.defaultValue = defaultValue;
 		this.internalValue = 0;
