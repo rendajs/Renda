@@ -51,7 +51,7 @@
 	background-color: var(--default-button-color-disabled);
 }
 
-.droppableGui{
+.droppable-gui {
 	height: 18px;
 	margin: 1px;
 	border-radius: var(--selection-border-radius);
@@ -60,30 +60,30 @@
 	text-overflow: ellipsis;
 }
 
-.droppableGui:focus:not([aria-disabled='true']){
+.droppable-gui:focus:not([aria-disabled='true']) {
 	box-shadow: inset 0px 0px 0 1px var(--color-selected-blue);
 	outline: none;
 }
 
-.droppableGui.empty{
+.droppable-gui.empty {
 	background: var(--default-input-box-color);
 	box-shadow: inset 0px 0px 0px 1px var(--droppable-border-color);
 }
 
-.droppableGui.filled{
+.droppable-gui.filled {
 	background: var(--droppable-filled-color);
 	color: var(--droppable-filled-text-color);
 }
 
-.droppableGuiDeletedText{
+.droppable-gui-deleted-text {
 	font-style: italic;
 }
 
-.droppableGui.dragHovering:not([aria-disabled='true']){
+.droppable-gui.dragHovering:not([aria-disabled='true']) {
 	box-shadow: inset 0px 0px 0px 1px var(--color-selected-blue);
 }
 
-.droppableGui[aria-disabled='true']{
+.droppable-gui[aria-disabled='true'] {
 	background: var(--default-input-box-color-disabled);
 	color: var(--default-button-text-color-disabled);
 }
