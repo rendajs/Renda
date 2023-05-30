@@ -1,8 +1,8 @@
-.treeViewItem{
+.tree-view-item {
 	white-space: nowrap;
 }
 
-.treeViewItem.render-container {
+.tree-view-item.render-container {
     margin: 5px;
     padding: 5px 0px;
     border-radius: var(--default-border-radius);

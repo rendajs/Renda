@@ -183,7 +183,7 @@ export class TreeView {
 	 */
 	constructor(data = {}) {
 		this.el = document.createElement("div");
-		this.el.classList.add("treeViewItem");
+		this.el.classList.add("tree-view-item");
 
 		this.rowEl = document.createElement("div");
 		this.rowEl.classList.add("treeViewRow");

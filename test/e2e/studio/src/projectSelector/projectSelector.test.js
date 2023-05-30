@@ -17,7 +17,7 @@ await runE2eTest({
 		const {page} = await getPage();
 		const newProjectName = "New Project Name";
 		const projectWindowSelector = "[data-content-window-type-id='renda:project']";
-		const rootNameTreeViewSelector = `${projectWindowSelector} .studio-content-window-content > .treeViewItem`;
+		const rootNameTreeViewSelector = `${projectWindowSelector} .studio-content-window-content > .tree-view-item`;
 
 		await setupNewProject(page);
 
