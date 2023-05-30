@@ -214,7 +214,7 @@ export class TreeView {
 		this.rowEl.appendChild(this.arrowContainerEl);
 
 		this.arrowEl = document.createElement("div");
-		this.arrowEl.classList.add("treeViewArrow");
+		this.arrowEl.classList.add("tree-view-arrow");
 		this.arrowContainerEl.appendChild(this.arrowEl);
 
 		/** @type {(() => any)[]} */

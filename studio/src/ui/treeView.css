@@ -57,7 +57,7 @@
 	background: var(--selected-text-color);
 }
 
-.treeViewArrow{
+.tree-view-arrow {
 	width: 0px;
 	height: 0px;
 	position: absolute;
@@ -67,13 +67,13 @@
 	border-left: 10px solid var(--text-color-level0);
 	border-right: 0px solid transparent;
 }
-.tree-view-arrow-container.hover > .treeViewArrow {
+.tree-view-arrow-container.hover > .tree-view-arrow {
 	border-left: 10px solid var(--bg-color-level0);
 }
-.selected > .tree-view-arrow-container > .treeViewArrow {
+.selected > .tree-view-arrow-container > .tree-view-arrow {
 	border-left: 10px solid var(--selected-text-color);
 }
-.selected > .tree-view-arrow-container.hover > .treeViewArrow {
+.selected > .tree-view-arrow-container.hover > .tree-view-arrow {
 	border-left: 10px solid var(--color-selected-blue);
 }
 
@@ -102,7 +102,7 @@
 	outline: none;
 }
 
-.treeViewArrow.hidden{
+.tree-view-arrow.hidden{
 	display: none;
 }
 
