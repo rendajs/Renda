@@ -8,12 +8,12 @@
     border-radius: var(--default-border-radius);
 }
 
-.treeViewName{
+.tree-view-name {
 	display: inline-block;
 	position: relative;
 	vertical-align: text-top;
 }
-.treeViewName::after{
+.tree-view-name::after {
 	content: attr(data-rename-value);
 	visibility: hidden;
 }
@@ -30,7 +30,7 @@
 	display: block;
 }
 
-.treeViewRenameField{
+.tree-view-rename-field {
 	height: 24px;
 	position: absolute;
 	top: -3px;
@@ -40,20 +40,20 @@
 	width: calc(100% + 6px);
 }
 
-.treeViewArrowContainer{
+.tree-view-arrow-container {
 	width: 16px;
 	height: 16px;
 	border-radius: var(--selection-border-radius);
 	position: absolute;
 	transform: translateX(-18px);
 }
-.treeViewArrowContainer:not(.collapsed){
+.tree-view-arrow-container:not(.collapsed) {
 	transform: translateX(-18px) rotate(90deg);
 }
-.treeViewArrowContainer.hover{
+.tree-view-arrow-container.hover {
 	background: var(--text-color-level0);
 }
-.selected > .treeViewArrowContainer.hover{
+.selected > .tree-view-arrow-container.hover {
 	background: var(--selected-text-color);
 }
 
@@ -67,13 +67,13 @@
 	border-left: 10px solid var(--text-color-level0);
 	border-right: 0px solid transparent;
 }
-.treeViewArrowContainer.hover > .treeViewArrow{
+.tree-view-arrow-container.hover > .treeViewArrow {
 	border-left: 10px solid var(--bg-color-level0);
 }
-.selected > .treeViewArrowContainer > .treeViewArrow{
+.selected > .tree-view-arrow-container > .treeViewArrow {
 	border-left: 10px solid var(--selected-text-color);
 }
-.selected > .treeViewArrowContainer.hover > .treeViewArrow{
+.selected > .tree-view-arrow-container.hover > .treeViewArrow {
 	border-left: 10px solid var(--color-selected-blue);
 }
 

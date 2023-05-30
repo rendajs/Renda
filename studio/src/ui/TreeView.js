@@ -210,7 +210,7 @@ export class TreeView {
 		this.rowEl.addEventListener("contextmenu", this.boundOnContextMenuEvent);
 
 		this.arrowContainerEl = document.createElement("div");
-		this.arrowContainerEl.classList.add("treeViewArrowContainer");
+		this.arrowContainerEl.classList.add("tree-view-arrow-container");
 		this.rowEl.appendChild(this.arrowContainerEl);
 
 		this.arrowEl = document.createElement("div");
@@ -238,7 +238,7 @@ export class TreeView {
 		this.boundOnCancelRenameKeyPressed = this.onCancelRenameKeyPressed.bind(this);
 
 		this.myNameEl = document.createElement("div");
-		this.myNameEl.classList.add("treeViewName");
+		this.myNameEl.classList.add("tree-view-name");
 		this.rowEl.appendChild(this.myNameEl);
 
 		/** @type {import("./Button.js").Button[]} */
@@ -1297,7 +1297,7 @@ export class TreeView {
 				this.myNameEl.textContent = "";
 				const textEl = document.createElement("input");
 				this.renameTextField = textEl;
-				textEl.classList.add("resetInput", "textInput", "buttonLike", "treeViewRenameField");
+				textEl.classList.add("resetInput", "textInput", "buttonLike", "tree-view-rename-field");
 				textEl.value = oldName;
 				this.myNameEl.appendChild(textEl);
 				textEl.addEventListener("input", () => {
