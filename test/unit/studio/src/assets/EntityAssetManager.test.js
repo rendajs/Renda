@@ -48,7 +48,7 @@ Deno.test({
 	async fn() {
 		const {sourceEntity, manager} = basicSetup();
 
-		const entity = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		// Wait for source entity to load
 		await waitForMicrotasks();
@@ -66,12 +66,12 @@ Deno.test({
 	async fn() {
 		const {manager} = basicSetup();
 
-		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity1 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		// Wait for source entity to load
 		await waitForMicrotasks();
 
-		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		assertEquals(entity1.name, "my entity");
 		assertEquals(entity2.name, "my entity");
@@ -91,12 +91,12 @@ Deno.test({
 	async fn() {
 		const {manager} = basicSetup();
 
-		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity1 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		// Wait for source entity to load
 		await waitForMicrotasks();
 
-		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		assertEquals(entity1.children[0].name, "child");
 		assertEquals(entity2.children[0].name, "child");
@@ -115,7 +115,7 @@ Deno.test({
 	name: "Changing an entity does not update itself",
 	async fn() {
 		const {manager} = basicSetup();
-		const entity = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		// Wait for source entity to load
 		await waitForMicrotasks();
@@ -136,12 +136,12 @@ Deno.test({
 	async fn() {
 		const {manager} = basicSetup();
 
-		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity1 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		// Wait for source entity to load
 		await waitForMicrotasks();
 
-		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeEvent[]} */
 		const calls = [];
 		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeCallback} */
@@ -177,15 +177,15 @@ Deno.test({
 	async fn() {
 		const {manager} = basicSetup();
 
-		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity1 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 		// Wait for source entity to load
 		await waitForMicrotasks();
 		const initialChild1 = entity1.children[0];
 
-		const nestedEntityAsset1a = manager.createdTrackedEntity(NESTED_ENTITY_UUID);
+		const nestedEntityAsset1a = manager.createTrackedEntity(NESTED_ENTITY_UUID);
 		initialChild1.add(nestedEntityAsset1a);
 
-		const nestedEntityAsset1b = manager.createdTrackedEntity(NESTED_ENTITY_UUID);
+		const nestedEntityAsset1b = manager.createTrackedEntity(NESTED_ENTITY_UUID);
 		initialChild1.add(nestedEntityAsset1b);
 
 		// Wait for nested entity to load
@@ -193,7 +193,7 @@ Deno.test({
 
 		manager.updateEntity(entity1, EntityChangeType.Create);
 
-		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 		// Wait for source entity to load
 		await waitForMicrotasks();
 		const child2 = entity2.children[0];
@@ -253,7 +253,7 @@ Deno.test({
 	name: "newly created instances are cloned from the current state",
 	async fn() {
 		const {manager} = basicSetup();
-		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity1 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		// Wait for source entity to load
 		await waitForMicrotasks();
@@ -261,7 +261,7 @@ Deno.test({
 		entity1.name = "new name";
 		manager.updateEntity(entity1, EntityChangeType.Rename);
 
-		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 		assertEquals(entity2.name, "new name");
 	},
 });
@@ -275,7 +275,7 @@ Deno.test({
 		});
 
 		const {manager} = basicSetup({sourceEntity});
-		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity1 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		// Wait for source entity to load
 		await waitForMicrotasks();
@@ -284,7 +284,7 @@ Deno.test({
 		assertInstanceOf(entity1.components[0], LightComponent);
 		assertEquals(entity1.components[0].intensity, 0.123);
 
-		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 		assertInstanceOf(entity2.components[0], LightComponent);
 		entity2.components[0].intensity = 0.456;
 		manager.updateEntity(entity2, EntityChangeType.ComponentProperty);
@@ -332,7 +332,7 @@ Deno.test({
 
 		const {manager} = basicSetup({sourceEntity});
 
-		const entity1 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity1 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 
 		// Wait for source entity to load
 		await waitForMicrotasks();
@@ -340,7 +340,7 @@ Deno.test({
 		const child1A = entity1.children[1];
 		const child1B = child1A.children[0];
 
-		const entity2 = manager.createdTrackedEntity(BASIC_ENTITY_UUID);
+		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 		const child2A = entity2.children[1];
 		const child2B = child2A.children[0];
 

@@ -496,7 +496,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				await assetManager.makeAssetUuidPersistent(projectAsset);
 				const entityAsset = await projectAsset.getLiveAsset();
 				if (entityAsset) {
-					const clonedEntity = assetManager.entityAssetManager.createdTrackedEntity(projectAsset.uuid);
+					const clonedEntity = assetManager.entityAssetManager.createTrackedEntity(projectAsset.uuid);
 					parent.add(clonedEntity);
 					didDropAsset = true;
 				}

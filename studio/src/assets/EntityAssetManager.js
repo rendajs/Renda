@@ -105,7 +105,7 @@ export class EntityAssetManager {
 	 *
 	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 */
-	createdTrackedEntity(uuid) {
+	createTrackedEntity(uuid) {
 		const entity = new Entity();
 		this.#trackEntityAndLoad(uuid, entity, false);
 		return entity;
@@ -136,7 +136,7 @@ export class EntityAssetManager {
 	/**
 	 * Marks the entity as an instance of an asset.
 	 * This only assigns an uuid to the entity, to actually start tracking for changes you should use
-	 * {@linkcode createdTrackedEntity} instead.
+	 * {@linkcode createTrackedEntity} instead.
 	 * @param {Entity} entity
 	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 */
@@ -305,7 +305,7 @@ export class EntityAssetManager {
 				const entity = entities.pop();
 				if (entity) return entity;
 			}
-			return this.createdTrackedEntity(uuid);
+			return this.createTrackedEntity(uuid);
 		};
 
 		for (const child of sourceEntity.children) {

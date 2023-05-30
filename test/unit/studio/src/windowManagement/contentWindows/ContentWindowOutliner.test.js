@@ -192,7 +192,7 @@ Deno.test({
 				const mainEntity = new Entity("main");
 				const child1 = new Entity("child1");
 				mainEntity.add(child1);
-				const trackedEntity1 = mockAssetManager.entityAssetManager.createdTrackedEntity(TRACKED_ENTITY_UUID);
+				const trackedEntity1 = mockAssetManager.entityAssetManager.createTrackedEntity(TRACKED_ENTITY_UUID);
 				mainEntity.add(trackedEntity1);
 
 				mockEntityEditor.editingEntity.add(mainEntity);
@@ -226,7 +226,7 @@ Deno.test({
 					],
 				});
 
-				const trackedEntity2 = mockAssetManager.entityAssetManager.createdTrackedEntity(TRACKED_ENTITY_UUID);
+				const trackedEntity2 = mockAssetManager.entityAssetManager.createTrackedEntity(TRACKED_ENTITY_UUID);
 				trackedEntity2.add(new Entity("new child"));
 				mockAssetManager.entityAssetManager.updateEntity(trackedEntity2, EntityChangeType.Create);
 

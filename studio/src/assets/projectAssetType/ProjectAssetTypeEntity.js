@@ -92,7 +92,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (jsonData.children) {
 			for (const childJson of jsonData.children) {
 				if (childJson.assetUuid) {
-					const child = this.assetManager.entityAssetManager.createdTrackedEntity(childJson.assetUuid);
+					const child = this.assetManager.entityAssetManager.createTrackedEntity(childJson.assetUuid);
 					entity.add(child);
 				} else {
 					const child = this.createEntityFromJsonData(childJson, recursionTracker);
