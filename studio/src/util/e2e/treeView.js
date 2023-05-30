@@ -26,7 +26,7 @@ export function getTreeViewPathElement(treeViewElement, itemsPath) {
 				if (row && row.textContent == itemIdentifier) return true;
 
 				// If this is a PropertiesTreeViewEntry, check the name of the lebel.
-				const labelEl = child.querySelector(":scope > .treeViewCustomEl.guiTreeViewEntry > .guiTreeViewEntryLabel");
+				const labelEl = child.querySelector(":scope > .treeViewCustomEl.gui-tree-view-entry > .gui-tree-view-entry-label");
 				if (labelEl && labelEl.textContent == itemIdentifier) return true;
 
 				return false;
@@ -62,7 +62,7 @@ export function logTreeViewPath(treeViewElement) {
 
 			// And if not, we check if it's a PropertiesTreeViewEntry and use the name of the label.
 			if (!pathItem) {
-				const labelEl = currentTreeView.querySelector(":scope > .treeViewCustomEl.guiTreeViewEntry > .guiTreeViewEntryLabel");
+				const labelEl = currentTreeView.querySelector(":scope > .treeViewCustomEl.gui-tree-view-entry > .gui-tree-view-entry-label");
 				if (labelEl) pathItem = labelEl.textContent || "";
 			}
 

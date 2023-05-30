@@ -130,7 +130,7 @@
 	display: none;
 }
 
-.guiTreeViewEntry{
+.gui-tree-view-entry {
 	display: flex;
 	width: 100%;
 	flex-wrap: wrap;
@@ -139,32 +139,32 @@
 	margin-top: 1px;
 }
 
-.guiTreeViewEntry > * {
+.gui-tree-view-entry > * {
 	width: 50%;
 	 min-width: 100px;
 	flex-grow: 1;
 }
 
-.guiTreeViewEntry:not(.multiLine),
-.guiTreeViewEntry.multiLine > .guiTreeViewEntryLabel {
+.gui-tree-view-entry:not(.multiLine),
+.gui-tree-view-entry.multiLine > .gui-tree-view-entry-label {
 	padding: 0px 5px;
 }
 
-.guiTreeViewEntry.multiLine > * {
+.gui-tree-view-entry.multiLine > * {
 	width: 100%;
 }
 
-.guiTreeViewEntryLabel {
+.gui-tree-view-entry-label {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	user-select: text;
 	-webkit-user-select: text;
 }
-.guiTreeViewEntryValue.smallLabel{
+.gui-tree-view-entry-value.smallLabel{
 	width: 85%;
 }
-.guiTreeViewEntryLabel.smallLabel{
+.gui-tree-view-entry-label.smallLabel{
 	width: 15%;
 	 min-width: 10px;
 }
