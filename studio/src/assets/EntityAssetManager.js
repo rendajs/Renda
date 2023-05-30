@@ -111,8 +111,6 @@ export class EntityAssetManager {
 		return entity;
 	}
 
-	// TODO: Come up with better names for createdTrackedEntity and trackEntity
-
 	/**
 	 * Turns an existing entity into a tracked one.
 	 * Overwrites other instances of this uuid with the provided entity.
@@ -120,7 +118,7 @@ export class EntityAssetManager {
 	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 * @param {Entity} entity
 	 */
-	replaceTrackEntity(uuid, entity) {
+	replaceTrackedEntity(uuid, entity) {
 		this.#trackEntityAndLoad(uuid, entity, true);
 	}
 
@@ -161,9 +159,7 @@ export class EntityAssetManager {
 			};
 			this.#trackedEntities.set(uuid, trackedData);
 			(async () => {
-				if (trackedData.sourceEntity) {
-					throw new Error("Source entity is already loaded");
-				}
+				if (trackedData.sourceEntity) throw new Error("Source entity is already loaded");
 				const sourceEntity = await this.#assetManager.getLiveAsset(uuid, {
 					assertAssetType: ProjectAssetTypeEntity,
 					assertExists: true,
@@ -176,17 +172,16 @@ export class EntityAssetManager {
 				}
 			})();
 		}
-		if (trackedData.sourceEntity) {
-			if (overwriteLoaded) {
-				this.#applyEntityClone(entity, trackedData.sourceEntity, trackedData.sourceEntity, EntityChangeType.All);
-			} else {
-				this.#applyEntityClone(trackedData.sourceEntity, entity, entity, EntityChangeType.Load | EntityChangeType.All);
-			}
-		}
 		trackedData.trackedInstances.add(entity);
 		this.setLinkedAssetUuid(entity, uuid);
-		if (entity.parent) {
-			this.updateEntity(entity.parent, EntityChangeType.Delete | EntityChangeType.Create);
+		if (overwriteLoaded) {
+			if (trackedData.sourceEntity) {
+				this.updateEntity(entity, EntityChangeType.All);
+			}
+		} else {
+			if (trackedData.sourceEntity) {
+				this.#applyEntityClone(trackedData.sourceEntity, entity, entity, EntityChangeType.Load | EntityChangeType.All);
+			}
 		}
 	}
 

@@ -62,6 +62,53 @@ Deno.test({
 });
 
 Deno.test({
+	name: "replaceTrackedEntity starts tracking entities and replaces existing ones",
+	async fn() {
+		const {manager} = basicSetup();
+
+		const trackedEntity = manager.createTrackedEntity(BASIC_ENTITY_UUID);
+
+		// Wait for source entity to load
+		await waitForMicrotasks();
+
+		const replacement = new Entity("replacement");
+		replacement.add(new Entity("child"));
+
+		manager.replaceTrackedEntity(BASIC_ENTITY_UUID, replacement);
+
+		assertEquals(trackedEntity.name, "replacement");
+		assertEquals(trackedEntity.childCount, 1);
+		assertEquals(trackedEntity.children[0].name, "child");
+
+		// Check if the replacement is being tracked
+		replacement.name = "new name";
+		manager.updateEntity(replacement, EntityChangeType.Rename);
+		assertEquals(trackedEntity.name, "new name");
+	},
+});
+
+Deno.test({
+	name: "replaceTrackedEntity loads the source and replaces it",
+	async fn() {
+		const {manager} = basicSetup();
+
+		const replacement = new Entity("replacement");
+		replacement.add(new Entity("child"));
+
+		manager.replaceTrackedEntity(BASIC_ENTITY_UUID, replacement);
+
+		// Wait for source entity to load
+		await waitForMicrotasks();
+
+		// Newly created entities get cloned from the correct source state as well
+		const trackedEntity = manager.createTrackedEntity(BASIC_ENTITY_UUID);
+		assertEquals(trackedEntity.name, "replacement");
+		assertEquals(trackedEntity.childCount, 1);
+		assertEquals(trackedEntity.children[0].name, "child");
+	},
+});
+
+Deno.test({
 	name: "Changing an entity updates the others",
 	async fn() {
 		const {manager} = basicSetup();

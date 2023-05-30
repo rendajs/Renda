@@ -670,7 +670,7 @@ export class ContentWindowProject extends ContentWindow {
 				const assetManager = await this.studioInstance.projectManager.getAssetManager();
 				const projectAsset = await assetManager.createNewAsset(path, "renda:entity");
 				await assetManager.makeAssetUuidPersistent(projectAsset);
-				this.studioInstance.projectManager.assetManager?.entityAssetManager.replaceTrackEntity(projectAsset.uuid, droppedEntity);
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.replaceTrackedEntity(projectAsset.uuid, droppedEntity);
 			}
 		}
 	};

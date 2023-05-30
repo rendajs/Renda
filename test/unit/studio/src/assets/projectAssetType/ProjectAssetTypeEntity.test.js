@@ -1,5 +1,5 @@
-import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
+import {assertEquals, assertExists, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls, returnsNext, spy, stub} from "std/testing/mock.ts";
 import "../../../shared/initializeStudio.js";
 import {ProjectAssetTypeEntity} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
@@ -10,6 +10,7 @@ import {createTreeViewStructure} from "../../../../../../studio/src/ui/propertie
 import {EntityAssetManager} from "../../../../../../studio/src/assets/EntityAssetManager.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000000";
+const NESTED_ASSET_UUID = "nested asset uuid";
 const BASIC_COMPONENT_UUID = "basic component uuid";
 
 Deno.test({
@@ -99,6 +100,29 @@ Deno.test({
 		const component = result.liveAsset.components[0];
 		assertInstanceOf(component, FooComponent);
 		assertEquals(component.foo, "baz");
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData entity with child entity asset",
+	async fn() {
+		const {projectAssetTypeArgs, assetManager} = createMockDependencies();
+		const recursionTracker = getMockRecursionTracker();
+		const assetType = new ProjectAssetTypeEntity(...projectAssetTypeArgs);
+
+		const nestedEntity = new Entity();
+		stub(assetManager.entityAssetManager, "createTrackedEntity", returnsNext([nestedEntity]));
+
+		const result = await assetType.getLiveAssetData({
+			name: "entity",
+			children: [
+				{
+					assetUuid: NESTED_ASSET_UUID,
+				},
+			],
+		}, recursionTracker);
+		assertEquals(result.liveAsset.children.length, 1);
+		assertStrictEquals(result.liveAsset.children[0], nestedEntity);
 	},
 });
 
