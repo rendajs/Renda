@@ -1,17 +1,17 @@
-.numericGui{
+.numeric-gui {
 	cursor: crosshair;
 }
 
-.numericGui:focus{
+.numeric-gui:focus {
 	cursor: text;
 }
 
-.numericGui.nocaret:not(:disabled){
+.numeric-gui.nocaret:not(:disabled) {
 	color: transparent;
 	text-shadow: 0 0 0 var(--text-color-level0);
 }
 
-.numericGui.no-cursor {
+.numeric-gui.no-cursor {
 	cursor: none;
 }
 
