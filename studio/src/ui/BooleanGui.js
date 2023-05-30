@@ -14,7 +14,7 @@ export class BooleanGui {
 
 		this.el = document.createElement("input");
 		this.el.type = "checkbox";
-		this.el.classList.add("booleanGui", "buttonLike", "resetInput", "textInput");
+		this.el.classList.add("boolean-gui", "buttonLike", "resetInput", "textInput");
 
 		this.el.addEventListener("change", this.#fireOnChangeCbs);
 

@@ -15,11 +15,11 @@
 	cursor: none;
 }
 
-.vectorGui{
+.vector-gui {
 	display: flex;
 }
 
-.booleanGui{
+.boolean-gui {
 	width: 16px;
 	min-width: 16px;
 	height: 16px;
@@ -28,7 +28,7 @@
 	padding: 0;
 }
 
-.booleanGui:checked:after{
+.boolean-gui:checked:after {
 	content: ' ';
 	width: 16px;
 	height: 16px;
