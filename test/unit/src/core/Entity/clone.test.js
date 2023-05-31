@@ -1,5 +1,6 @@
 import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {Entity, LightComponent} from "../../../../../src/mod.js";
+import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 
 function createBasicEntity() {
 	const entity = new Entity("root");
@@ -62,6 +63,17 @@ Deno.test({
 		assertNotStrictEquals(result.components[0], component);
 		assertInstanceOf(result.components[0], LightComponent);
 		assertEquals(result.components[0].color, component.color);
+	},
+});
+
+Deno.test({
+	name: "Entity with different matrix",
+	fn() {
+		const entity = new Entity();
+		entity.pos.set(1, 2, 3);
+
+		const clone = entity.clone();
+		assertVecAlmostEquals(clone.pos, [1, 2, 3]);
 	},
 });
 
