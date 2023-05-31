@@ -58,7 +58,7 @@ export class WindowManager {
 		this.tabDragEnabled = false;
 
 		this.tabDragFeedbackEl = document.createElement("div");
-		this.tabDragFeedbackEl.classList.add("tabDragFeedback");
+		this.tabDragFeedbackEl.classList.add("tab-drag-feedback");
 
 		window.addEventListener("resize", () => {
 			if (this.rootWindow) {

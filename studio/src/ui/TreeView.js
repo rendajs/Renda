@@ -183,10 +183,10 @@ export class TreeView {
 	 */
 	constructor(data = {}) {
 		this.el = document.createElement("div");
-		this.el.classList.add("treeViewItem");
+		this.el.classList.add("tree-view-item");
 
 		this.rowEl = document.createElement("div");
-		this.rowEl.classList.add("treeViewRow");
+		this.rowEl.classList.add("tree-view-row");
 		this.el.appendChild(this.rowEl);
 
 		this.boundOnRowClick = this.onRowClick.bind(this);
@@ -210,11 +210,11 @@ export class TreeView {
 		this.rowEl.addEventListener("contextmenu", this.boundOnContextMenuEvent);
 
 		this.arrowContainerEl = document.createElement("div");
-		this.arrowContainerEl.classList.add("treeViewArrowContainer");
+		this.arrowContainerEl.classList.add("tree-view-arrow-container");
 		this.rowEl.appendChild(this.arrowContainerEl);
 
 		this.arrowEl = document.createElement("div");
-		this.arrowEl.classList.add("treeViewArrow");
+		this.arrowEl.classList.add("tree-view-arrow");
 		this.arrowContainerEl.appendChild(this.arrowEl);
 
 		/** @type {(() => any)[]} */
@@ -238,7 +238,7 @@ export class TreeView {
 		this.boundOnCancelRenameKeyPressed = this.onCancelRenameKeyPressed.bind(this);
 
 		this.myNameEl = document.createElement("div");
-		this.myNameEl.classList.add("treeViewName");
+		this.myNameEl.classList.add("tree-view-name");
 		this.rowEl.appendChild(this.myNameEl);
 
 		/** @type {import("./Button.js").Button[]} */
@@ -1297,7 +1297,7 @@ export class TreeView {
 				this.myNameEl.textContent = "";
 				const textEl = document.createElement("input");
 				this.renameTextField = textEl;
-				textEl.classList.add("resetInput", "textInput", "buttonLike", "treeViewRenameField");
+				textEl.classList.add("reset-input", "text-input", "button-like", "tree-view-rename-field");
 				textEl.value = oldName;
 				this.myNameEl.appendChild(textEl);
 				textEl.addEventListener("input", () => {
@@ -1380,7 +1380,7 @@ export class TreeView {
 		if (this.selected) {
 			const root = this.findRoot();
 			const focus = root.hasFocusWithin;
-			this.rowEl.classList.toggle("noFocus", !focus);
+			this.rowEl.classList.toggle("no-focus", !focus);
 			if (focus) focusSelected = true;
 		}
 		if (this.#focusSelectedShortcutCondition) this.#focusSelectedShortcutCondition.setValue(focusSelected);

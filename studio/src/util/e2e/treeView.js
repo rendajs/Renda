@@ -8,25 +8,25 @@
  */
 export function getTreeViewPathElement(treeViewElement, itemsPath) {
 	const jointItemsPath = itemsPath.join(" > ");
-	if (!treeViewElement.classList.contains("treeViewItem")) {
-		throw new TypeError(`Invalid root treeViewElementHandle element type received while trying to find the treeview at ${jointItemsPath}. Element is not a TreeView because it doesn't have the "treeViewItem" class.`);
+	if (!treeViewElement.classList.contains("tree-view-item")) {
+		throw new TypeError(`Invalid root treeViewElementHandle element type received while trying to find the treeview at ${jointItemsPath}. Element is not a TreeView because it doesn't have the "tree-view-item" class.`);
 	}
 	/** @type {Element} */
 	let currentTreeView = treeViewElement;
 	for (let i = 0; i < itemsPath.length; i++) {
 		const itemIdentifier = itemsPath[i];
-		const treeViewChildren = Array.from(currentTreeView.querySelectorAll(":scope > .treeViewChildList > .treeViewItem"));
+		const treeViewChildren = Array.from(currentTreeView.querySelectorAll(":scope > .treeViewChildList > .tree-view-item"));
 		let child;
 		if (typeof itemIdentifier == "number") {
 			child = treeViewChildren[itemIdentifier];
 		} else {
 			child = treeViewChildren.find(child => {
 				// First check the row name, in case this is a regular TreeView.
-				const row = child.querySelector(".treeViewRow");
+				const row = child.querySelector(".tree-view-row");
 				if (row && row.textContent == itemIdentifier) return true;
 
 				// If this is a PropertiesTreeViewEntry, check the name of the lebel.
-				const labelEl = child.querySelector(":scope > .treeViewCustomEl.guiTreeViewEntry > .guiTreeViewEntryLabel");
+				const labelEl = child.querySelector(":scope > .treeViewCustomEl.gui-tree-view-entry > .gui-tree-view-entry-label");
 				if (labelEl && labelEl.textContent == itemIdentifier) return true;
 
 				return false;
@@ -51,18 +51,18 @@ export function logTreeViewPath(treeViewElement) {
 	/** @type {Element} */
 	let currentTreeView = treeViewElement;
 	while (currentTreeView.parentElement) {
-		if (currentTreeView.classList.contains("treeViewItem")) {
+		if (currentTreeView.classList.contains("tree-view-item")) {
 			let pathItem = "";
 
 			// First we check if the regular TreeView row contains text
-			const row = currentTreeView.querySelector(".treeViewRow");
+			const row = currentTreeView.querySelector(".tree-view-row");
 			if (row instanceof HTMLElement) {
 				pathItem = row.textContent || "";
 			}
 
 			// And if not, we check if it's a PropertiesTreeViewEntry and use the name of the label.
 			if (!pathItem) {
-				const labelEl = currentTreeView.querySelector(":scope > .treeViewCustomEl.guiTreeViewEntry > .guiTreeViewEntryLabel");
+				const labelEl = currentTreeView.querySelector(":scope > .treeViewCustomEl.gui-tree-view-entry > .gui-tree-view-entry-label");
 				if (labelEl) pathItem = labelEl.textContent || "";
 			}
 
@@ -74,8 +74,8 @@ export function logTreeViewPath(treeViewElement) {
 		console.log("No TreeView elements were found in any of the parents of this element.");
 	} else {
 		console.log("The path from the root TreeView to the provided one is:", stringsPath);
-		if (!treeViewElement.classList.contains("treeViewItem")) {
-			console.log("Note that you did not provide a treeViewItem element, but rather a child of one. `getTreeViewPathElement()` will return the first parent above your provided element that contains the 'treeViewItem' class.");
+		if (!treeViewElement.classList.contains("tree-view-item")) {
+			console.log("Note that you did not provide a treeViewItem element, but rather a child of one. `getTreeViewPathElement()` will return the first parent above your provided element that contains the 'tree-view-item' class.");
 		}
 	}
 }

@@ -15,8 +15,8 @@
 	--overlay-panel-box-shadow: 3px 3px 10px 0px rgba(0,0,0,0.6);
 	--color-selected-blue: #005598;
 	--color-selected-blue-textfield: #005598fe;
-	--color-selected-blue-nofocus: #505050;
-	--selected-text-color-nofocus: #ffffff;
+	--color-selected-blue-no-focus: #505050;
+	--selected-text-color-no-focus: #ffffff;
 	--color-highlighted-yellow: #ffa500;
 	--color-highlighted-yellow-text: #000000;
 	--selected-text-color: #ffffff;
@@ -56,8 +56,8 @@
 		--color-selected-blue: #008fff;
 		--selected-text-color: #ffffff;
 		--color-selected-blue-textfield: #95c0fffe;
-		--color-selected-blue-nofocus: #d7d7d7;
-		--selected-text-color-nofocus: #292929;
+		--color-selected-blue-no-focus: #d7d7d7;
+		--selected-text-color-no-focus: #292929;
 		--color-highlighted-yellow: #FFE006;
 		--color-highlighted-yellow-text: #333333;
 		--default-button-color: #e7e7e7;

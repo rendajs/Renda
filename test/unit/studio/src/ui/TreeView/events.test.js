@@ -86,7 +86,7 @@ Deno.test({
 
 			childTreeView.select();
 			assertEquals(childTreeView.rowEl.classList.contains("selected"), true);
-			assertEquals(childTreeView.rowEl.classList.contains("noFocus"), true);
+			assertEquals(childTreeView.rowEl.classList.contains("no-focus"), true);
 
 			treeView.el.dispatchEvent(new FakeFocusEvent("focusin", {
 				relatedTarget: null,
@@ -95,7 +95,7 @@ Deno.test({
 			assertEquals(spyFn.calls[0].args[0].hasFocusWithin, true);
 			assertStrictEquals(spyFn.calls[0].args[0].target, treeView);
 			assertEquals(childTreeView.rowEl.classList.contains("selected"), true);
-			assertEquals(childTreeView.rowEl.classList.contains("noFocus"), false);
+			assertEquals(childTreeView.rowEl.classList.contains("no-focus"), false);
 
 			// No events should fire when the focus changes between two elements within the treeview
 			treeView.el.dispatchEvent(new FakeFocusEvent("focusout", {
@@ -111,7 +111,7 @@ Deno.test({
 			assertEquals(spyFn.calls[1].args[0].hasFocusWithin, false);
 			assertStrictEquals(spyFn.calls[1].args[0].target, treeView);
 			assertEquals(childTreeView.rowEl.classList.contains("selected"), true);
-			assertEquals(childTreeView.rowEl.classList.contains("noFocus"), true);
+			assertEquals(childTreeView.rowEl.classList.contains("no-focus"), true);
 
 			assertSpyCalls(childSpyFn, 0);
 		} finally {

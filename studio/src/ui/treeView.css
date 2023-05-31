@@ -1,19 +1,19 @@
-.treeViewItem{
+.tree-view-item {
 	white-space: nowrap;
 }
 
-.treeViewItem.render-container {
+.tree-view-item.render-container {
     margin: 5px;
     padding: 5px 0px;
     border-radius: var(--default-border-radius);
 }
 
-.treeViewName{
+.tree-view-name {
 	display: inline-block;
 	position: relative;
 	vertical-align: text-top;
 }
-.treeViewName::after{
+.tree-view-name::after {
 	content: attr(data-rename-value);
 	visibility: hidden;
 }
@@ -30,7 +30,7 @@
 	display: block;
 }
 
-.treeViewRenameField{
+.tree-view-rename-field {
 	height: 24px;
 	position: absolute;
 	top: -3px;
@@ -40,24 +40,24 @@
 	width: calc(100% + 6px);
 }
 
-.treeViewArrowContainer{
+.tree-view-arrow-container {
 	width: 16px;
 	height: 16px;
 	border-radius: var(--selection-border-radius);
 	position: absolute;
 	transform: translateX(-18px);
 }
-.treeViewArrowContainer:not(.collapsed){
+.tree-view-arrow-container:not(.collapsed) {
 	transform: translateX(-18px) rotate(90deg);
 }
-.treeViewArrowContainer.hover{
+.tree-view-arrow-container.hover {
 	background: var(--text-color-level0);
 }
-.selected > .treeViewArrowContainer.hover{
+.selected > .tree-view-arrow-container.hover {
 	background: var(--selected-text-color);
 }
 
-.treeViewArrow{
+.tree-view-arrow {
 	width: 0px;
 	height: 0px;
 	position: absolute;
@@ -67,46 +67,46 @@
 	border-left: 10px solid var(--text-color-level0);
 	border-right: 0px solid transparent;
 }
-.treeViewArrowContainer.hover > .treeViewArrow{
+.tree-view-arrow-container.hover > .tree-view-arrow {
 	border-left: 10px solid var(--bg-color-level0);
 }
-.selected > .treeViewArrowContainer > .treeViewArrow{
+.selected > .tree-view-arrow-container > .tree-view-arrow {
 	border-left: 10px solid var(--selected-text-color);
 }
-.selected > .treeViewArrowContainer.hover > .treeViewArrow{
+.selected > .tree-view-arrow-container.hover > .tree-view-arrow {
 	border-left: 10px solid var(--color-selected-blue);
 }
 
-.treeViewRow{
+.tree-view-row {
 	border-radius: var(--selection-border-radius);
 	position: relative;
 	display: flex;
 	align-items: center;
 }
-.treeViewRow.selected{
+.tree-view-row.selected {
 	background: var(--color-selected-blue);
 	color: var(--selected-text-color);
 }
-.treeViewRow.selected.noFocus{
-	background: var(--color-selected-blue-nofocus);
-	color: var(--selected-text-color-nofocus);
+.tree-view-row.selected.no-focus {
+	background: var(--color-selected-blue-no-focus);
+	color: var(--selected-text-color-no-focus);
 }
-.treeViewRow.highlighted{
+.tree-view-row.highlighted {
 	background: var(--color-highlighted-yellow);
 	color: var(--color-highlighted-yellow-text);
 }
-.treeViewRow.hidden{
+.tree-view-row.hidden {
 	display: none;
 }
-.treeViewRow:focus-visible {
+.tree-view-row:focus-visible {
 	outline: none;
 }
 
-.treeViewArrow.hidden{
+.tree-view-arrow.hidden {
 	display: none;
 }
 
-.treeViewRow.drag-over-feedback, .tree-view-drag-feedback {
+.tree-view-row.drag-over-feedback, .tree-view-drag-feedback {
 	box-shadow: 0px 0px 0 2px var(--color-selected-blue), inset 0px 0px 0 2px var(--text-color-level0);
 }
 
@@ -130,7 +130,7 @@
 	display: none;
 }
 
-.guiTreeViewEntry{
+.gui-tree-view-entry {
 	display: flex;
 	width: 100%;
 	flex-wrap: wrap;
@@ -139,32 +139,32 @@
 	margin-top: 1px;
 }
 
-.guiTreeViewEntry > * {
+.gui-tree-view-entry > * {
 	width: 50%;
 	 min-width: 100px;
 	flex-grow: 1;
 }
 
-.guiTreeViewEntry:not(.multiLine),
-.guiTreeViewEntry.multiLine > .guiTreeViewEntryLabel {
+.gui-tree-view-entry:not(.multi-line),
+.gui-tree-view-entry.multi-line > .gui-tree-view-entry-label {
 	padding: 0px 5px;
 }
 
-.guiTreeViewEntry.multiLine > * {
+.gui-tree-view-entry.multi-line > * {
 	width: 100%;
 }
 
-.guiTreeViewEntryLabel {
+.gui-tree-view-entry-label {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	user-select: text;
 	-webkit-user-select: text;
 }
-.guiTreeViewEntryValue.smallLabel{
+.gui-tree-view-entry-value.small-label {
 	width: 85%;
 }
-.guiTreeViewEntryLabel.smallLabel{
+.gui-tree-view-entry-label.small-label {
 	width: 15%;
 	 min-width: 10px;
 }

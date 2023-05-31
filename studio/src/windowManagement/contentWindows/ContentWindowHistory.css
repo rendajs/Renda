@@ -9,8 +9,8 @@ li.inactive {
 }
 
 li.current {
-	background: var(--color-selected-blue-nofocus);
-	color: var(--selected-text-color-nofocus);
+	background: var(--color-selected-blue-no-focus);
+	color: var(--selected-text-color-no-focus);
 }
 
 .graph {
@@ -21,7 +21,7 @@ circle {
 	fill: var(--text-color-level0);
 }
 circle.current {
-	fill: var(--selected-text-color-nofocus);
+	fill: var(--selected-text-color-no-focus);
 }
 
 path {

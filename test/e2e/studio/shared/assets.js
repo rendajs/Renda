@@ -32,7 +32,7 @@ export async function createAsset(page, createMenuPath) {
  */
 async function getProjectRootTreeViewEl(page) {
 	const projectEl = await getContentWindowElement(page, "renda:project");
-	const projectRootTreeViewEl = await projectEl.$(":scope > .studio-content-window-content > .treeViewItem");
+	const projectRootTreeViewEl = await projectEl.$(":scope > .studio-content-window-content > .tree-view-item");
 	if (!projectRootTreeViewEl) {
 		throw new Error("Project root treeview element not found.");
 	}

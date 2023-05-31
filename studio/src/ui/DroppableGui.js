@@ -147,7 +147,7 @@ export class DroppableGui {
 		this.embeddedParentAssetPersistenceKey = embeddedParentAssetPersistenceKey;
 
 		this.el = document.createElement("div");
-		this.el.classList.add("droppableGui", "empty");
+		this.el.classList.add("droppable-gui", "empty");
 
 		this.supportedAssetTypes = /** @type {any[]} */ (supportedAssetTypes);
 		this.defaultValue = defaultValue;
@@ -678,7 +678,7 @@ export class DroppableGui {
 	 * @param {boolean} valid
 	 */
 	setDragHoverValidStyle(valid) {
-		this.el.classList.toggle("dragHovering", valid);
+		this.el.classList.toggle("drag-hovering", valid);
 	}
 
 	#onUnlinkShortcut = () => {
@@ -923,7 +923,7 @@ export class DroppableGui {
 			}
 			const deletedText = document.createElement("span");
 			deletedText.textContent = "Deleted";
-			deletedText.classList.add("droppableGuiDeletedText");
+			deletedText.classList.add("droppable-gui-deleted-text");
 			this.el.appendChild(deletedText);
 			if (this.visibleAssetName) {
 				this.el.appendChild(document.createTextNode(" (" + this.visibleAssetName + ")"));

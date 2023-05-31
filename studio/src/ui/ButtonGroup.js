@@ -11,7 +11,7 @@ export class ButtonGroup {
 		vertical = false,
 	} = {}) {
 		this.el = document.createElement("div");
-		this.el.classList.add("buttonGroup", "buttonGroupLike");
+		this.el.classList.add("button-group", "button-group-like");
 		this.el.classList.toggle("vertical", vertical);
 
 		/** @type {import("./Button.js").Button[]} */

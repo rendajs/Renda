@@ -21,7 +21,7 @@
 .studio-window-tabs:focus-within {
 	box-shadow: 0px 0px 0 1px var(--focused-window-border-color);
 }
-.studio-window-tabs-list{
+.studio-window-tabs-list {
 	height: 100%;
 }
 

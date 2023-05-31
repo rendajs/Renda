@@ -87,10 +87,10 @@ export class Button {
 
 	createButtonEl() {
 		const el = document.createElement("div");
-		el.classList.add("button", "buttonLike");
+		el.classList.add("button", "button-like");
 
 		const iconEl = document.createElement("div");
-		iconEl.classList.add("buttonIcon");
+		iconEl.classList.add("button-icon");
 		el.appendChild(iconEl);
 		this.#applyIconToEl(iconEl, this.iconUrl);
 
@@ -101,7 +101,7 @@ export class Button {
 
 		if (this.#hasDownArrow) {
 			const downArrowEl = document.createElement("div");
-			downArrowEl.classList.add("buttonIcon", "button-down-arrow");
+			downArrowEl.classList.add("button-icon", "button-down-arrow");
 			el.appendChild(downArrowEl);
 			this.#applyIconToEl(downArrowEl, "static/icons/generic/buttonDownArrow.svg");
 		}

@@ -70,12 +70,12 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 		if (!this.customEl) throw new Error("Assertion failed, PropertiesTreeViewEntry should always have a customEl.");
 
-		this.customEl.classList.add("guiTreeViewEntry");
+		this.customEl.classList.add("gui-tree-view-entry");
 
 		const smallLabel = guiOpts.smallLabel ?? false;
 		this.label = document.createElement("div");
-		this.label.classList.add("guiTreeViewEntryLabel");
-		this.label.classList.toggle("smallLabel", smallLabel);
+		this.label.classList.add("gui-tree-view-entry-label");
+		this.label.classList.toggle("small-label", smallLabel);
 		const labelText = prettifyVariableName(guiOpts.label);
 		this.label.textContent = labelText;
 		if (tooltip) {
@@ -86,8 +86,8 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");
-		this.valueEl.classList.add("guiTreeViewEntryValue");
-		this.valueEl.classList.toggle("smallLabel", smallLabel);
+		this.valueEl.classList.add("gui-tree-view-entry-value");
+		this.valueEl.classList.toggle("small-label", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
 		/**
@@ -141,18 +141,18 @@ export class PropertiesTreeViewEntry extends TreeView {
 				...castGuiOpts,
 			});
 			this.valueEl.appendChild(setGui.el);
-			this.customEl.classList.add("multiLine");
+			this.customEl.classList.add("multi-line");
 		} else if (type == "object") {
 			setGui = new ObjectGui({
 				structure: type,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(setGui.treeView.el);
-			this.customEl.classList.add("multiLine");
+			this.customEl.classList.add("multi-line");
 		} else if (type == "path") {
 			setGui = new PathGui(guiOpts);
 			this.valueEl.appendChild(setGui.el);
-			this.customEl.classList.add("multiLine");
+			this.customEl.classList.add("multi-line");
 		} else if (type == "button") {
 			setGui = new Button({
 				...guiOpts,

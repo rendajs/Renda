@@ -80,7 +80,7 @@ export class DropDownGui {
 		this.inverseEnumObject = null;
 
 		this.el = document.createElement("select");
-		this.el.classList.add("buttonLike", "resetInput", "textInput");
+		this.el.classList.add("button-like", "reset-input", "text-input");
 		this.el.addEventListener("change", this.#fireOnChange);
 		if (enumObject) this.setEnumObject(enumObject);
 		this.updateOptions();

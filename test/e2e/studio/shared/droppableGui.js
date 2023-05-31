@@ -20,7 +20,7 @@ export async function waitForDroppableGuiHasValue(page, droppableGuiEl, hasValue
 export async function findDroppableGuiFromPropertiesTreeViewEntry(propertiesTreeViewEntryEl) {
 	assertExists(propertiesTreeViewEntryEl);
 	const entryValueEl = await getPropertiesTreeViewEntryValueEl(propertiesTreeViewEntryEl);
-	const droppableGuiEl = await entryValueEl.$(".droppableGui");
+	const droppableGuiEl = await entryValueEl.$(".droppable-gui");
 	assertExists(droppableGuiEl);
 	return droppableGuiEl;
 }
