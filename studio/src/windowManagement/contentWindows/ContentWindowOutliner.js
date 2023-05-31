@@ -35,12 +35,12 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.contentEl.appendChild(this.treeView.el);
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
-		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
+		this.treeView.addEventListener("contextmenu", this.#onTreeViewContextMenu);
 		this.treeView.addEventListener("dragstart", this.#onTreeViewDragStart);
 		this.treeView.addEventListener("dragend", this.#onTreeViewDragEnd);
 		this.treeView.addEventListener("validatedrag", this.onTreeViewValidatedrag.bind(this));
-		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
-		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
+		this.treeView.addEventListener("rearrange", this.#onTreeViewRearrange);
+		this.treeView.addEventListener("drop", this.#onTreeViewDrop);
 
 		/** @type {ContentWindowEntityEditor?} */
 		this.linkedEntityEditor = null;
@@ -355,7 +355,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewContextMenuEvent} e
 	 */
-	async onTreeViewContextMenu(e) {
+	#onTreeViewContextMenu = async e => {
 		const menu = await e.showContextMenu();
 		menu.createStructure([
 			{
@@ -380,14 +380,14 @@ export class ContentWindowOutliner extends ContentWindow {
 						undo: () => {
 							parentEntity.addAtIndex(entity, index);
 							this.updateFullTreeView();
-							entityAssetManager.updateEntity(entity, EntityChangeType.Create);
+							entityAssetManager.updateEntity(parentEntity, EntityChangeType.Create);
 							this.notifyEntityEditors(entity, "create");
 						},
 					});
 				},
 			},
 		]);
-	}
+	};
 
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
@@ -440,7 +440,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e
 	 */
-	onTreeViewRearrange(e) {
+	#onTreeViewRearrange = e => {
 		/** @type {{entity: Entity, oldParent: Entity, newParent: Entity, insertIndex: number | undefined, removeIndex: number}[]} */
 		const actions = [];
 		for (const movedItem of e.movedItems) {
@@ -460,7 +460,9 @@ export class ContentWindowOutliner extends ContentWindow {
 			redo: () => {
 				for (const action of actions) {
 					action.oldParent.remove(action.entity);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.oldParent, EntityChangeType.Delete);
 					action.newParent.addAtIndex(action.entity, action.insertIndex);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.newParent, EntityChangeType.Create);
 				}
 				this.updateFullTreeView();
 			},
@@ -468,17 +470,19 @@ export class ContentWindowOutliner extends ContentWindow {
 				for (let i = actions.length - 1; i >= 0; i--) {
 					const action = actions[i];
 					action.newParent.remove(action.entity);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.newParent, EntityChangeType.Delete);
 					action.oldParent.addAtIndex(action.entity, action.removeIndex);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.oldParent, EntityChangeType.Create);
 				}
 				this.updateFullTreeView();
 			},
 		});
-	}
+	};
 
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	async onTreeViewDrop(e) {
+	#onTreeViewDrop = async e => {
 		const parent = this.#getEntityByTreeView(e.target);
 		if (!e.rawEvent.dataTransfer) return;
 		let didDropAsset = false;
@@ -498,6 +502,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				if (entityAsset) {
 					const clonedEntity = assetManager.entityAssetManager.createTrackedEntity(projectAsset.uuid);
 					parent.add(clonedEntity);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(parent, EntityChangeType.Create);
 					didDropAsset = true;
 				}
 			}
@@ -505,7 +510,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		if (didDropAsset) {
 			this.updateFullTreeView();
 		}
-	}
+	};
 
 	/**
 	 * @deprecated Use `EntityAssetManager.updateEntity` instead.

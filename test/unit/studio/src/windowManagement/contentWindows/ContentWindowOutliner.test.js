@@ -15,6 +15,8 @@ import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {DragEvent} from "fake-dom/FakeDragEvent.js";
 import {DragManager} from "../../../../../../studio/src/misc/DragManager.js";
 import {parseMimeType} from "../../../../../../studio/src/util/util.js";
+import {createMockPopoverManager, triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
+import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
 
 /**
  * @typedef ContentWindowOutlinerTestContext
@@ -67,6 +69,8 @@ async function basictest({
 		const historyManager = new HistoryManager(keyboardShortcutManager);
 		mockStudioInstance.historyManager = historyManager;
 
+		injectMockStudioInstance(mockStudioInstance);
+
 		await fn({
 			args,
 			mockStudioInstance,
@@ -78,6 +82,7 @@ async function basictest({
 		});
 	} finally {
 		uninstallFakeDocument();
+		injectMockStudioInstance(null);
 	}
 }
 
@@ -401,8 +406,8 @@ Deno.test({
 				treeView.rowEl.dispatchEvent(dragEvent);
 
 				const types = Array.from(dragEvent.dataTransfer.types);
-				assertEquals(types.length, 1);
-				const parsed = parseMimeType(types[0]);
+				assertEquals(types.length, 2);
+				const parsed = parseMimeType(types[1]);
 				assertExists(parsed);
 				assertEquals(parsed.type, "text");
 				assertEquals(parsed.subType, "renda");
@@ -415,6 +420,55 @@ Deno.test({
 
 				const draggingData2 = dragManager.getDraggingData(parsed.parameters.draggingdata);
 				assertEquals(draggingData2, undefined);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Deleting entity via context menu",
+	async fn() {
+		await basictest({
+			async fn({args, mockEntityEditor, historyManager, mockStudioInstance, mockAssetManager}) {
+				const {mockPopoverManager, getLastCreatedStructure} = createMockPopoverManager();
+				mockStudioInstance.popoverManager = mockPopoverManager;
+
+				const updateEntitySpy = spy(mockAssetManager.entityAssetManager, "updateEntity");
+				const childEntity = new Entity("delete me");
+				mockEntityEditor.editingEntity.add(childEntity);
+				const contentWindow = new ContentWindowOutliner(...args);
+
+				const childTreeView = contentWindow.treeView.children[0];
+				assertExists(childTreeView);
+
+				childTreeView.rowEl.dispatchEvent(new MouseEvent("contextmenu"));
+				await waitForMicrotasks();
+
+				const structure = getLastCreatedStructure();
+
+				triggerContextMenuItem(structure, ["Delete"]);
+
+				assertEquals(mockEntityEditor.editingEntity.childCount, 0);
+				assertEquals(contentWindow.treeView.children.length, 0);
+				assertSpyCalls(updateEntitySpy, 1);
+				assertStrictEquals(updateEntitySpy.calls[0].args[0], mockEntityEditor.editingEntity);
+				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Delete);
+
+				historyManager.undo();
+
+				assertEquals(mockEntityEditor.editingEntity.childCount, 1);
+				assertEquals(contentWindow.treeView.children.length, 1);
+				assertSpyCalls(updateEntitySpy, 2);
+				assertStrictEquals(updateEntitySpy.calls[1].args[0], mockEntityEditor.editingEntity);
+				assertEquals(updateEntitySpy.calls[1].args[1], EntityChangeType.Create);
+
+				historyManager.redo();
+
+				assertEquals(mockEntityEditor.editingEntity.childCount, 0);
+				assertEquals(contentWindow.treeView.children.length, 0);
+				assertSpyCalls(updateEntitySpy, 3);
+				assertStrictEquals(updateEntitySpy.calls[2].args[0], mockEntityEditor.editingEntity);
+				assertEquals(updateEntitySpy.calls[2].args[1], EntityChangeType.Delete);
 			},
 		});
 	},
