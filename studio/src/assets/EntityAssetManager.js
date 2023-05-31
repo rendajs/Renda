@@ -218,6 +218,9 @@ export class EntityAssetManager {
 	 * This **clones** the entire entity for every instance that exists, which can be a fairly heavy operation.
 	 * If the only thing you did was change the position, rotation or scale of an entity,
 	 * it's best to use {@linkcode updateEntityPosition} instead.
+	 *
+	 * Note that changes using `EntityChangeType.Create` and `EntityChangeType.Delete` should fire on
+	 * the parent on which the entity was added or removed.
 	 * @param {Entity} entityInstance
 	 * @param {EntityChangeType} changeEventType
 	 */
