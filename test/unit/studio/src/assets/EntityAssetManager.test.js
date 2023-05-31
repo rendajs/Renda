@@ -424,5 +424,12 @@ Deno.test({
 		assertEquals(calls.length, 2);
 
 		assertEquals(originalCallCount, 0);
+
+		// Create a new tracked entity to verify that the source entity was updated as well
+		const entity3 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
+		const child3A = entity3.children[1];
+		const child3B = child3A.children[0];
+		assertVecAlmostEquals(child3A.worldPos, child1A.worldPos);
+		assertVecAlmostEquals(child3B.pos, [4, 5, 6]);
 	},
 });

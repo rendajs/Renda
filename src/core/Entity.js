@@ -855,6 +855,7 @@ export class Entity {
 	_cloneInternal(options) {
 		const clone = new Entity({
 			name: this.name,
+			matrix: this.localMatrix,
 		});
 
 		for (const component of this.components) {

@@ -349,6 +349,10 @@ export class EntityAssetManager {
 			if (trackedEntity == root) continue;
 			this.#applyEntityPosition(root, trackedEntity, indicesPath);
 		}
+
+		if (trackedData.sourceEntity) {
+			this.#applyEntityPosition(root, trackedData.sourceEntity, indicesPath);
+		}
 	}
 
 	/**
