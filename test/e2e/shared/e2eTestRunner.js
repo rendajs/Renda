@@ -51,11 +51,11 @@ for (const arg of Deno.args) {
 const failedTests = [];
 
 globalThis.addEventListener("unhandledrejection", e => {
-	console.log("Unhandled rejection:", e);
+	console.log("Unhandled rejection:", e.reason);
 	e.preventDefault();
 });
 globalThis.addEventListener("error", e => {
-	console.log("Unhandled error:", e);
+	console.log("Unhandled error:", e.error);
 	e.preventDefault();
 });
 

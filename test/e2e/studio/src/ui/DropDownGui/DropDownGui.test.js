@@ -20,8 +20,6 @@ await runE2eTest({
 	},
 });
 
-
 (async () => {
 	throw new Error("oh no");
-
 })();
