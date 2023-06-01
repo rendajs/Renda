@@ -180,7 +180,7 @@ export class EntityAssetManager {
 			}
 		} else {
 			if (trackedData.sourceEntity) {
-				this.#applyEntityClone(trackedData.sourceEntity, entity, entity, EntityChangeType.Load | EntityChangeType.All);
+				this.#applyEntityClone(trackedData.sourceEntity, entity, EntityChangeType.Load | EntityChangeType.All);
 			}
 		}
 	}
@@ -239,13 +239,13 @@ export class EntityAssetManager {
 			}
 			const targetEntity = trackedData.sourceEntity.getEntityByIndicesPath(indicesPath);
 			if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
-			this.#applyEntityClone(sourceEntity, targetEntity, trackedData.sourceEntity, changeEventType);
+			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType);
 		}
 		for (const trackedEntity of trackedData.trackedInstances) {
 			if (trackedEntity == root) continue;
 			const targetEntity = trackedEntity.getEntityByIndicesPath(indicesPath);
 			if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
-			this.#applyEntityClone(sourceEntity, targetEntity, trackedEntity, changeEventType);
+			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType);
 		}
 	}
 
@@ -256,12 +256,9 @@ export class EntityAssetManager {
 	 *
 	 * @param {Entity} sourceEntity The entity to clone
 	 * @param {Entity} targetEntity The target entity to apply the source entity to
-	 * @param {Entity} eventEntity The entity on which the event will be fired. This is the entity that
-	 * users use to register events in {@linkcode onTrackedEntityChange}. The actual event will contain
-	 * a reference to `targetEntity`, that way users can still find out which entity was changed.
 	 * @param {EntityChangeType} changeEventType
 	 */
-	#applyEntityClone(sourceEntity, targetEntity, eventEntity, changeEventType) {
+	#applyEntityClone(sourceEntity, targetEntity, changeEventType) {
 		targetEntity.name = sourceEntity.name;
 		targetEntity.localMatrix = sourceEntity.localMatrix;
 
