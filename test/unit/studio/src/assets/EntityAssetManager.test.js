@@ -82,7 +82,7 @@ Deno.test({
 
 		// Check if the replacement is being tracked
 		replacement.name = "new name";
-		manager.updateEntity(replacement, EntityChangeType.Rename);
+		manager.updateEntity(replacement, EntityChangeType.Rename, null);
 		assertEquals(trackedEntity.name, "new name");
 	},
 });
@@ -124,11 +124,11 @@ Deno.test({
 		assertEquals(entity2.name, "my entity");
 
 		entity1.name = "new name";
-		manager.updateEntity(entity1, EntityChangeType.Rename);
+		manager.updateEntity(entity1, EntityChangeType.Rename, null);
 		assertEquals(entity2.name, "new name");
 
 		entity2.name = "new name 2";
-		manager.updateEntity(entity2, EntityChangeType.Rename);
+		manager.updateEntity(entity2, EntityChangeType.Rename, null);
 		assertEquals(entity1.name, "new name 2");
 	},
 });
@@ -149,11 +149,11 @@ Deno.test({
 		assertEquals(entity2.children[0].name, "child");
 
 		entity1.children[0].name = "new name";
-		manager.updateEntity(entity1.children[0], EntityChangeType.Rename);
+		manager.updateEntity(entity1.children[0], EntityChangeType.Rename, null);
 		assertEquals(entity2.children[0].name, "new name");
 
 		entity2.children[0].name = "new name 2";
-		manager.updateEntity(entity2.children[0], EntityChangeType.Rename);
+		manager.updateEntity(entity2.children[0], EntityChangeType.Rename, null);
 		assertEquals(entity1.children[0].name, "new name 2");
 	},
 });
@@ -171,7 +171,7 @@ Deno.test({
 		const initialChild = entity.children[0];
 
 		entity.name = "new name";
-		manager.updateEntity(entity, EntityChangeType.Rename);
+		manager.updateEntity(entity, EntityChangeType.Rename, null);
 
 		assertEquals(entity.childCount, 1);
 		assertStrictEquals(entity.children[0], initialChild);
@@ -206,7 +206,7 @@ Deno.test({
 		assertStrictEquals(calls[0].source, eventSource1);
 
 		entity1.name = "new name 2";
-		manager.updateEntity(entity1, EntityChangeType.Rename);
+		manager.updateEntity(entity1, EntityChangeType.Rename, null);
 		assertEquals(calls.length, 2);
 
 		entity2.name = "new name 2";
@@ -220,7 +220,7 @@ Deno.test({
 		manager.removeOnTrackedEntityChange(entity2, onChangeFn);
 
 		entity2.name = "new name 4";
-		manager.updateEntity(entity2, EntityChangeType.Rename);
+		manager.updateEntity(entity2, EntityChangeType.Rename, null);
 		assertEquals(calls.length, 3);
 	},
 });
@@ -244,7 +244,7 @@ Deno.test({
 		// Wait for nested entity to load
 		await waitForMicrotasks();
 
-		manager.updateEntity(entity1, EntityChangeType.Create);
+		manager.updateEntity(entity1, EntityChangeType.Create, null);
 
 		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 		// Wait for source entity to load
@@ -323,7 +323,7 @@ Deno.test({
 		await waitForMicrotasks();
 
 		entity1.name = "new name";
-		manager.updateEntity(entity1, EntityChangeType.Rename);
+		manager.updateEntity(entity1, EntityChangeType.Rename, null);
 
 		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 		assertEquals(entity2.name, "new name");
@@ -351,7 +351,7 @@ Deno.test({
 		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
 		assertInstanceOf(entity2.components[0], LightComponent);
 		entity2.components[0].intensity = 0.456;
-		manager.updateEntity(entity2, EntityChangeType.ComponentProperty);
+		manager.updateEntity(entity2, EntityChangeType.ComponentProperty, null);
 
 		assertEquals(entity1.components[0].intensity, 0.456);
 	},
@@ -364,8 +364,8 @@ Deno.test({
 
 		const entity = new Entity("root");
 		const child = entity.add(new Entity("child"));
-		manager.updateEntity(entity, EntityChangeType.Create);
-		manager.updateEntityPosition(entity);
+		manager.updateEntity(entity, EntityChangeType.Create, null);
+		manager.updateEntityPosition(entity, null);
 		assertStrictEquals(entity.children[0], child);
 	},
 });
@@ -378,8 +378,8 @@ Deno.test({
 		const entity = new Entity("root");
 		const child = entity.add(new Entity("child"));
 		manager.setLinkedAssetUuid(entity, "non existent uuid");
-		manager.updateEntity(entity, EntityChangeType.Create);
-		manager.updateEntityPosition(entity);
+		manager.updateEntity(entity, EntityChangeType.Create, null);
+		manager.updateEntityPosition(entity, null);
 		assertStrictEquals(entity.children[0], child);
 	},
 });
@@ -449,7 +449,7 @@ Deno.test({
 
 		manager.removeOnTrackedEntityChange(entity2, onChange2Fn);
 		child1A.pos.set(7, 8, 9);
-		manager.updateEntityPosition(child1A);
+		manager.updateEntityPosition(child1A, null);
 		assertVecAlmostEquals(child2A.worldPos, child1A.worldPos);
 		assertEquals(calls.length, 5);
 		assertEquals(calls[4].trackedEntity, entity1);

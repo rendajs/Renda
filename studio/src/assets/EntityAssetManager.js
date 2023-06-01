@@ -168,9 +168,9 @@ export class EntityAssetManager {
 				});
 				trackedData.sourceEntity = sourceEntity;
 				if (overwriteLoaded) {
-					this.updateEntity(entity, EntityChangeType.All);
+					this.updateEntity(entity, EntityChangeType.All, null);
 				} else {
-					this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All);
+					this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All, null);
 				}
 			})();
 		}
@@ -178,7 +178,7 @@ export class EntityAssetManager {
 		this.setLinkedAssetUuid(entity, uuid);
 		if (overwriteLoaded) {
 			if (trackedData.sourceEntity) {
-				this.updateEntity(entity, EntityChangeType.All);
+				this.updateEntity(entity, EntityChangeType.All, null);
 			}
 		} else {
 			if (trackedData.sourceEntity) {
@@ -227,7 +227,7 @@ export class EntityAssetManager {
 	 * the parent on which the entity was added or removed.
 	 * @param {Entity} entityInstance
 	 * @param {EntityChangeType} changeEventType
-	 * @param {unknown} [eventSource] This is typically an instance to the content window that fired the event.
+	 * @param {unknown} eventSource This is typically an instance to the content window that fired the event.
 	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
 	updateEntity(entityInstance, changeEventType, eventSource) {
@@ -342,7 +342,7 @@ export class EntityAssetManager {
 	 * instances to get updated with the new transformation of your provided instance.
 	 *
 	 * @param {Entity} entityInstance The entity for which the transformation was changed.
-	 * @param {unknown} [eventSource] This is typically an instance to the content window that fired the event.
+	 * @param {unknown} eventSource This is typically an instance to the content window that fired the event.
 	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
 	updateEntityPosition(entityInstance, eventSource) {

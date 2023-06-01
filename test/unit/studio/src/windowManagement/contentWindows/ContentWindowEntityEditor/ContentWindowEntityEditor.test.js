@@ -79,7 +79,7 @@ Deno.test({
 
 			// Updating the entity from another place should trigger the listener
 			entity2.name = "name 1";
-			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename);
+			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename, null);
 			assertSpyCalls(markDirtySpy, ++expectedCallCount);
 
 			// Setting a new entity should unregister the old listener
@@ -88,7 +88,7 @@ Deno.test({
 			assertSpyCalls(markDirtySpy, ++expectedCallCount);
 
 			entity2.name = "name 2";
-			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename);
+			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename, null);
 			assertSpyCalls(markDirtySpy, expectedCallCount);
 
 			// Setting it back to the tracked entity should start firing events again
@@ -96,14 +96,14 @@ Deno.test({
 			assertSpyCalls(markDirtySpy, ++expectedCallCount);
 
 			entity2.name = "name 3";
-			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename);
+			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename, null);
 			assertSpyCalls(markDirtySpy, ++expectedCallCount);
 
 			// Destructing the content window should unregister the listener
 			contentWindow.destructor();
 
 			entity2.name = "name 4";
-			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename);
+			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename, null);
 			assertSpyCalls(markDirtySpy, expectedCallCount);
 		} finally {
 			uninstall();

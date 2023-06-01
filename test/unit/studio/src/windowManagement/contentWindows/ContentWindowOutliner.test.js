@@ -244,7 +244,7 @@ Deno.test({
 
 				const trackedEntity2 = mockAssetManager.entityAssetManager.createTrackedEntity(TRACKED_ENTITY_UUID);
 				trackedEntity2.add(new Entity("new child"));
-				mockAssetManager.entityAssetManager.updateEntity(trackedEntity2, EntityChangeType.Create);
+				mockAssetManager.entityAssetManager.updateEntity(trackedEntity2, EntityChangeType.Create, null);
 
 				assertTreeViewStructureEquals(contentWindow.treeView, {
 					name: "Entity",
