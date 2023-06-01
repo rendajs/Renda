@@ -274,7 +274,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.updateLiveAssetChangeListeners();
 	}
 
-	#onTrackedEntityChange = () => {
+	/**
+	 * @param {import("../../../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
+	 */
+	#onTrackedEntityChange = e => {
+		if (e.source === this) return;
 		this.markRenderDirty();
 	};
 
