@@ -693,7 +693,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				const newEntityMatrix = entity.worldMatrix;
 				newEntityMatrix.multiplyMatrix(pivotDragMatrix);
 				entity.worldMatrix = newEntityMatrix;
-				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity);
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
 				this.notifyEntityChanged(entity, "transform");
 			}
 		}
