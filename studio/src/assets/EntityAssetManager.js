@@ -62,6 +62,8 @@ EntityChangeType.Component = EntityChangeType.CreateComponent | EntityChangeType
  * @typedef OnTrackedEntityChangeEvent
  * @property {Entity} entity The entity that was changed.
  * @property {number} type
+ * @property {unknown} source The source that caused the event to fire. This is typically a reference to a content window.
+ * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
  */
 /** @typedef {(event: OnTrackedEntityChangeEvent) => void} OnTrackedEntityChangeCallback */
 
@@ -180,12 +182,14 @@ export class EntityAssetManager {
 			}
 		} else {
 			if (trackedData.sourceEntity) {
-				this.#applyEntityClone(trackedData.sourceEntity, entity, EntityChangeType.Load | EntityChangeType.All);
+				this.#applyEntityClone(trackedData.sourceEntity, entity, EntityChangeType.Load | EntityChangeType.All, null);
 			}
 		}
 	}
 
 	/**
+	 * Gets the first parent that is a linked entity asset.
+	 * Also includes an indicesPath to walk from the linked entity asset to the provided child.
 	 * @param {Entity} entity
 	 */
 	#findRootEntityAsset(entity) {
@@ -223,8 +227,10 @@ export class EntityAssetManager {
 	 * the parent on which the entity was added or removed.
 	 * @param {Entity} entityInstance
 	 * @param {EntityChangeType} changeEventType
+	 * @param {unknown} [eventSource] This is typically an instance to the content window that fired the event.
+	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
-	updateEntity(entityInstance, changeEventType) {
+	updateEntity(entityInstance, changeEventType, eventSource) {
 		const rootData = this.#findRootEntityAsset(entityInstance);
 		if (!rootData) return;
 		const {uuid, root, indicesPath} = rootData;
@@ -239,14 +245,15 @@ export class EntityAssetManager {
 			}
 			const targetEntity = trackedData.sourceEntity.getEntityByIndicesPath(indicesPath);
 			if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
-			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType);
+			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 		}
 		for (const trackedEntity of trackedData.trackedInstances) {
 			if (trackedEntity == root) continue;
 			const targetEntity = trackedEntity.getEntityByIndicesPath(indicesPath);
 			if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
-			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType);
+			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 		}
+		this.#fireEvent(sourceEntity, changeEventType, eventSource);
 	}
 
 	/**
@@ -257,8 +264,9 @@ export class EntityAssetManager {
 	 * @param {Entity} sourceEntity The entity to clone
 	 * @param {Entity} targetEntity The target entity to apply the source entity to
 	 * @param {EntityChangeType} changeEventType
+	 * @param {unknown} source
 	 */
-	#applyEntityClone(sourceEntity, targetEntity, changeEventType) {
+	#applyEntityClone(sourceEntity, targetEntity, changeEventType, source) {
 		targetEntity.name = sourceEntity.name;
 		targetEntity.localMatrix = sourceEntity.localMatrix;
 
@@ -326,7 +334,7 @@ export class EntityAssetManager {
 			targetEntity.addComponent(component.clone());
 		}
 
-		this.#fireEvent(targetEntity, changeEventType);
+		this.#fireEvent(targetEntity, changeEventType, source);
 	}
 
 	/**
@@ -334,49 +342,56 @@ export class EntityAssetManager {
 	 * instances to get updated with the new transformation of your provided instance.
 	 *
 	 * @param {Entity} entityInstance The entity for which the transformation was changed.
+	 * @param {unknown} [eventSource] This is typically an instance to the content window that fired the event.
+	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
-	updateEntityPosition(entityInstance) {
+	updateEntityPosition(entityInstance, eventSource) {
 		const rootData = this.#findRootEntityAsset(entityInstance);
 		if (!rootData) return;
 		const {uuid, indicesPath, root} = rootData;
 		const trackedData = this.#trackedEntities.get(uuid);
 		if (!trackedData) return;
 
+		const sourceChild = root.getEntityByIndicesPath(indicesPath);
+		if (!sourceChild) throw new Error("Assertionf ailed, source entity not found");
 		for (const trackedEntity of trackedData.trackedInstances) {
 			if (trackedEntity == root) continue;
-			this.#applyEntityPosition(root, trackedEntity, indicesPath);
+			this.#applyEntityPosition(sourceChild, trackedEntity, indicesPath, eventSource);
 		}
 
 		if (trackedData.sourceEntity) {
-			this.#applyEntityPosition(root, trackedData.sourceEntity, indicesPath);
+			this.#applyEntityPosition(sourceChild, trackedData.sourceEntity, indicesPath, eventSource);
 		}
+		this.#fireEvent(sourceChild, EntityChangeType.Transform, eventSource);
 	}
 
 	/**
-	 * @param {Entity} sourceEntity
+	 * @param {Entity} sourceChild
 	 * @param {Entity} targetEntity
 	 * @param {number[]} indicesPath
+	 * @param {unknown} eventSource
 	 */
-	#applyEntityPosition(sourceEntity, targetEntity, indicesPath) {
-		const sourceChild = sourceEntity.getEntityByIndicesPath(indicesPath);
+	#applyEntityPosition(sourceChild, targetEntity, indicesPath, eventSource) {
 		const targetChild = targetEntity.getEntityByIndicesPath(indicesPath);
-		if (!sourceChild || !targetChild) throw new Error("Assertion failed, source or target entity not found");
+		if (!targetChild) throw new Error("Assertion failed, target entity not found");
 
 		targetChild.localMatrix = sourceChild.localMatrix;
 
-		this.#fireEvent(targetChild, EntityChangeType.Transform);
+		this.#fireEvent(targetChild, EntityChangeType.Transform, eventSource);
 	}
 
 	/**
 	 * Traverses up the parent tree and fires events on every parent.
 	 * @param {Entity} targetEntity
 	 * @param {EntityChangeType} type
+	 * @param {unknown} eventSource
 	 */
-	#fireEvent(targetEntity, type) {
+	#fireEvent(targetEntity, type, eventSource) {
 		for (const parent of targetEntity.traverseUp()) {
 			this.#onTrackedEntityChangeHandler.fireEvent(parent, {
 				entity: targetEntity,
 				type,
+				source: eventSource,
 			});
 		}
 	}

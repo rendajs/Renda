@@ -198,24 +198,30 @@ Deno.test({
 		manager.onTrackedEntityChange(entity2, onChangeFn);
 
 		entity1.name = "new name";
-		manager.updateEntity(entity1, EntityChangeType.Rename);
+		const eventSource1 = Symbol("eventSource1");
+		manager.updateEntity(entity1, EntityChangeType.Rename, eventSource1);
 		assertEquals(calls.length, 1);
 		assertStrictEquals(calls[0].entity, entity2);
 		assertEquals(calls[0].type, EntityChangeType.Rename);
+		assertStrictEquals(calls[0].source, eventSource1);
 
 		entity1.name = "new name 2";
 		manager.updateEntity(entity1, EntityChangeType.Rename);
 		assertEquals(calls.length, 2);
 
 		entity2.name = "new name 2";
-		manager.updateEntity(entity2, EntityChangeType.Rename);
-		assertEquals(calls.length, 2);
+		const eventSource2 = Symbol("eventSource2");
+		manager.updateEntity(entity2, EntityChangeType.Rename, eventSource2);
+		assertEquals(calls.length, 3);
+		assertStrictEquals(calls[2].entity, entity2);
+		assertEquals(calls[2].type, EntityChangeType.Rename);
+		assertStrictEquals(calls[2].source, eventSource2);
 
 		manager.removeOnTrackedEntityChange(entity2, onChangeFn);
 
 		entity2.name = "new name 4";
 		manager.updateEntity(entity2, EntityChangeType.Rename);
-		assertEquals(calls.length, 2);
+		assertEquals(calls.length, 3);
 	},
 });
 
@@ -267,11 +273,13 @@ Deno.test({
 		// First we change a child that is not an entity asset.
 		// This should only fire a single event on the root entity.
 		child2.name = "new child name";
-		manager.updateEntity(child2, EntityChangeType.Rename);
+		const eventSource1 = Symbol("eventSource1");
+		manager.updateEntity(child2, EntityChangeType.Rename, eventSource1);
 		callCount++;
 		assertEquals(calls.length, callCount);
 		assertStrictEquals(calls[0].trackedEntity, entity1);
 		assertStrictEquals(calls[0].event.entity, entity1.children[0]);
+		assertStrictEquals(calls[0].event.source, eventSource1);
 
 		assertEquals(entity2.name, "my entity");
 		assertEquals(entity2.children[0].name, "new child name");
@@ -280,14 +288,23 @@ Deno.test({
 
 		// Changing a nested child entity asset should update all the others
 		nestedEntityAsset1a.name = "new nested asset name";
-		manager.updateEntity(nestedEntityAsset1a, EntityChangeType.Rename);
+		const eventSource2 = Symbol("eventSource2");
+		manager.updateEntity(nestedEntityAsset1a, EntityChangeType.Rename, eventSource2);
 
-		callCount += 2;
+		callCount += 4;
 		assertEquals(calls.length, callCount);
 		assertStrictEquals(calls[1].trackedEntity, nestedEntityAsset1b);
 		assertStrictEquals(calls[1].event.entity, initialChild1.children[0]);
+		assertStrictEquals(calls[1].event.source, eventSource2);
 		assertStrictEquals(calls[2].trackedEntity, entity1);
 		assertStrictEquals(calls[2].event.entity, initialChild1.children[0]);
+		assertStrictEquals(calls[2].event.source, eventSource2);
+		assertStrictEquals(calls[3].trackedEntity, nestedEntityAsset1a);
+		assertStrictEquals(calls[3].event.entity, nestedEntityAsset1a);
+		assertStrictEquals(calls[3].event.source, eventSource2);
+		assertStrictEquals(calls[4].trackedEntity, entity1);
+		assertStrictEquals(calls[4].event.entity, initialChild1.children[1]);
+		assertStrictEquals(calls[4].event.source, eventSource2);
 
 		assertEquals(entity2.name, "my entity");
 		assertEquals(entity2.children[0].name, "new child name");
@@ -391,39 +408,51 @@ Deno.test({
 		const child2A = entity2.children[1];
 		const child2B = child2A.children[0];
 
-		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeEvent[]} */
+		/** @type {{trackedEntity: Entity, event: import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeEvent}[]} */
 		const calls = [];
 		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeCallback} */
-		const onChangeFn = e => {
-			calls.push(e);
+		const onChange2Fn = event => {
+			calls.push({trackedEntity: entity2, event});
 		};
-		manager.onTrackedEntityChange(entity2, onChangeFn);
-		let originalCallCount = 0;
-		manager.onTrackedEntityChange(entity1, () => {
-			originalCallCount++;
+		manager.onTrackedEntityChange(entity2, onChange2Fn);
+		manager.onTrackedEntityChange(entity1, event => {
+			calls.push({trackedEntity: entity1, event});
 		});
 
 		child1A.pos.set(1, 2, 3);
-		manager.updateEntityPosition(child1A);
+		const eventSource1 = Symbol("eventSource1");
+		manager.updateEntityPosition(child1A, eventSource1);
 		assertVecAlmostEquals(child2A.pos, [1, 2, 3]);
-		assertEquals(calls.length, 1);
-		assertEquals(calls[0].type, EntityChangeType.Transform);
-		assertStrictEquals(calls[0].entity, child2A);
+		assertEquals(calls.length, 2);
+		assertEquals(calls[0].trackedEntity, entity2);
+		assertEquals(calls[0].event.type, EntityChangeType.Transform);
+		assertStrictEquals(calls[0].event.entity, child2A);
+		assertStrictEquals(calls[0].event.source, eventSource1);
+		assertEquals(calls[1].trackedEntity, entity1);
+		assertEquals(calls[1].event.type, EntityChangeType.Transform);
+		assertStrictEquals(calls[1].event.entity, child1A);
+		assertStrictEquals(calls[1].event.source, eventSource1);
 
 		child1B.pos.set(4, 5, 6);
-		manager.updateEntityPosition(child1B);
+		const eventSource2 = Symbol("eventSource2");
+		manager.updateEntityPosition(child1B, eventSource2);
 		assertVecAlmostEquals(child2B.pos, [4, 5, 6]);
-		assertEquals(calls.length, 2);
-		assertEquals(calls[1].type, EntityChangeType.Transform);
-		assertStrictEquals(calls[1].entity, child2B);
+		assertEquals(calls.length, 4);
+		assertEquals(calls[2].trackedEntity, entity2);
+		assertEquals(calls[2].event.type, EntityChangeType.Transform);
+		assertStrictEquals(calls[2].event.entity, child2B);
+		assertStrictEquals(calls[2].event.source, eventSource2);
+		assertEquals(calls[3].trackedEntity, entity1);
+		assertEquals(calls[3].event.type, EntityChangeType.Transform);
+		assertStrictEquals(calls[3].event.entity, child1B);
+		assertStrictEquals(calls[3].event.source, eventSource2);
 
-		manager.removeOnTrackedEntityChange(entity2, onChangeFn);
+		manager.removeOnTrackedEntityChange(entity2, onChange2Fn);
 		child1A.pos.set(7, 8, 9);
 		manager.updateEntityPosition(child1A);
 		assertVecAlmostEquals(child2A.worldPos, child1A.worldPos);
-		assertEquals(calls.length, 2);
-
-		assertEquals(originalCallCount, 0);
+		assertEquals(calls.length, 5);
+		assertEquals(calls[4].trackedEntity, entity1);
 
 		// Create a new tracked entity to verify that the source entity was updated as well
 		const entity3 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
