@@ -19,7 +19,3 @@ await runE2eTest({
 		await disconnect();
 	},
 });
-
-(async () => {
-	throw new Error("oh no");
-})();
