@@ -353,7 +353,7 @@ export class EntityAssetManager {
 		if (!trackedData) return;
 
 		const sourceChild = root.getEntityByIndicesPath(indicesPath);
-		if (!sourceChild) throw new Error("Assertionf ailed, source entity not found");
+		if (!sourceChild) throw new Error("Assertion failed, source entity not found");
 		for (const trackedEntity of trackedData.trackedInstances) {
 			if (trackedEntity == root) continue;
 			this.#applyEntityPosition(sourceChild, trackedEntity, indicesPath, eventSource);
