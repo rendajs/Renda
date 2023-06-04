@@ -79,31 +79,36 @@ Deno.test({
 
 			// Updating the entity from another place should trigger the listener
 			entity2.name = "name 1";
-			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename);
+			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename, null);
 			assertSpyCalls(markDirtySpy, ++expectedCallCount);
+
+			// Changes from the entity editor itself are ignored
+			entity2.name = "name 2";
+			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename, contentWindow);
+			assertSpyCalls(markDirtySpy, expectedCallCount);
 
 			// Setting a new entity should unregister the old listener
 			const newEntity = new Entity("new entity");
 			contentWindow.editingEntity = newEntity;
 			assertSpyCalls(markDirtySpy, ++expectedCallCount);
 
-			entity2.name = "name 2";
-			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename);
+			entity2.name = "name 3";
+			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename, null);
 			assertSpyCalls(markDirtySpy, expectedCallCount);
 
 			// Setting it back to the tracked entity should start firing events again
 			contentWindow.editingEntity = entity1;
 			assertSpyCalls(markDirtySpy, ++expectedCallCount);
 
-			entity2.name = "name 3";
-			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename);
+			entity2.name = "name 4";
+			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename, null);
 			assertSpyCalls(markDirtySpy, ++expectedCallCount);
 
 			// Destructing the content window should unregister the listener
 			contentWindow.destructor();
 
-			entity2.name = "name 4";
-			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename);
+			entity2.name = "name 5";
+			entityAssetManager.updateEntity(entity2, EntityChangeType.Rename, null);
 			assertSpyCalls(markDirtySpy, expectedCallCount);
 		} finally {
 			uninstall();

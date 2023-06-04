@@ -274,7 +274,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.updateLiveAssetChangeListeners();
 	}
 
-	#onTrackedEntityChange = () => {
+	/**
+	 * @param {import("../../../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
+	 */
+	#onTrackedEntityChange = e => {
+		if (e.source === this) return;
 		this.markRenderDirty();
 	};
 
@@ -693,7 +697,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				const newEntityMatrix = entity.worldMatrix;
 				newEntityMatrix.multiplyMatrix(pivotDragMatrix);
 				entity.worldMatrix = newEntityMatrix;
-				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity);
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
 				this.notifyEntityChanged(entity, "transform");
 			}
 		}

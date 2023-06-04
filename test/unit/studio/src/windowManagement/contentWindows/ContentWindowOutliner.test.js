@@ -244,7 +244,7 @@ Deno.test({
 
 				const trackedEntity2 = mockAssetManager.entityAssetManager.createTrackedEntity(TRACKED_ENTITY_UUID);
 				trackedEntity2.add(new Entity("new child"));
-				mockAssetManager.entityAssetManager.updateEntity(trackedEntity2, EntityChangeType.Create);
+				mockAssetManager.entityAssetManager.updateEntity(trackedEntity2, EntityChangeType.Create, null);
 
 				assertTreeViewStructureEquals(contentWindow.treeView, {
 					name: "Entity",
@@ -299,6 +299,7 @@ Deno.test({
 				assertSpyCalls(updateEntitySpy, 1);
 				assertStrictEquals(updateEntitySpy.calls[0].args[0], mockEntityEditor.editingEntity);
 				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Create);
+				assertEquals(updateEntitySpy.calls[0].args[2], contentWindow);
 			},
 		});
 	},
@@ -371,6 +372,7 @@ Deno.test({
 				assertSpyCalls(updateEntitySpy, 1);
 				assertStrictEquals(updateEntitySpy.calls[0].args[0], childEntity);
 				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Rename);
+				assertEquals(updateEntitySpy.calls[0].args[2], contentWindow);
 
 				historyManager.undo();
 
@@ -379,8 +381,9 @@ Deno.test({
 				assertStrictEquals(notifyEntityChangedSpy.calls[1].args[0], childEntity);
 				assertEquals(notifyEntityChangedSpy.calls[1].args[1], "rename");
 				assertSpyCalls(updateEntitySpy, 2);
-				assertStrictEquals(updateEntitySpy.calls[0].args[0], childEntity);
-				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Rename);
+				assertStrictEquals(updateEntitySpy.calls[1].args[0], childEntity);
+				assertEquals(updateEntitySpy.calls[1].args[1], EntityChangeType.Rename);
+				assertEquals(updateEntitySpy.calls[1].args[2], contentWindow);
 
 				historyManager.redo();
 
@@ -389,8 +392,9 @@ Deno.test({
 				assertStrictEquals(notifyEntityChangedSpy.calls[2].args[0], childEntity);
 				assertEquals(notifyEntityChangedSpy.calls[2].args[1], "rename");
 				assertSpyCalls(updateEntitySpy, 3);
-				assertStrictEquals(updateEntitySpy.calls[0].args[0], childEntity);
-				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Rename);
+				assertStrictEquals(updateEntitySpy.calls[2].args[0], childEntity);
+				assertEquals(updateEntitySpy.calls[2].args[1], EntityChangeType.Rename);
+				assertEquals(updateEntitySpy.calls[2].args[2], contentWindow);
 			},
 		});
 	},
@@ -456,6 +460,7 @@ Deno.test({
 				assertSpyCalls(updateEntitySpy, 1);
 				assertStrictEquals(updateEntitySpy.calls[0].args[0], mockEntityEditor.editingEntity);
 				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Delete);
+				assertEquals(updateEntitySpy.calls[0].args[2], contentWindow);
 
 				historyManager.undo();
 
@@ -464,6 +469,7 @@ Deno.test({
 				assertSpyCalls(updateEntitySpy, 2);
 				assertStrictEquals(updateEntitySpy.calls[1].args[0], mockEntityEditor.editingEntity);
 				assertEquals(updateEntitySpy.calls[1].args[1], EntityChangeType.Create);
+				assertEquals(updateEntitySpy.calls[1].args[2], contentWindow);
 
 				historyManager.redo();
 
@@ -472,6 +478,7 @@ Deno.test({
 				assertSpyCalls(updateEntitySpy, 3);
 				assertStrictEquals(updateEntitySpy.calls[2].args[0], mockEntityEditor.editingEntity);
 				assertEquals(updateEntitySpy.calls[2].args[1], EntityChangeType.Delete);
+				assertEquals(updateEntitySpy.calls[2].args[2], contentWindow);
 			},
 		});
 	},
@@ -511,8 +518,10 @@ Deno.test({
 				assertSpyCalls(updateEntitySpy, 2);
 				assertStrictEquals(updateEntitySpy.calls[0].args[0], mockEntityEditor.editingEntity);
 				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Delete);
+				assertEquals(updateEntitySpy.calls[0].args[2], contentWindow);
 				assertStrictEquals(updateEntitySpy.calls[1].args[0], childEntity1);
 				assertEquals(updateEntitySpy.calls[1].args[1], EntityChangeType.Create);
+				assertEquals(updateEntitySpy.calls[1].args[2], contentWindow);
 
 				historyManager.undo();
 
@@ -529,8 +538,10 @@ Deno.test({
 				assertEquals(childEntity1.childCount, 1);
 				assertStrictEquals(updateEntitySpy.calls[4].args[0], mockEntityEditor.editingEntity);
 				assertEquals(updateEntitySpy.calls[4].args[1], EntityChangeType.Delete);
+				assertEquals(updateEntitySpy.calls[4].args[2], contentWindow);
 				assertStrictEquals(updateEntitySpy.calls[5].args[0], childEntity1);
 				assertEquals(updateEntitySpy.calls[5].args[1], EntityChangeType.Create);
+				assertEquals(updateEntitySpy.calls[5].args[2], contentWindow);
 			},
 		});
 	},
@@ -590,6 +601,7 @@ Deno.test({
 				assertSpyCalls(updateEntitySpy, 1);
 				assertStrictEquals(updateEntitySpy.calls[0].args[0], childEntity);
 				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Create);
+				assertEquals(updateEntitySpy.calls[0].args[2], contentWindow);
 
 				// TODO: #697 add this to the history stack
 			},

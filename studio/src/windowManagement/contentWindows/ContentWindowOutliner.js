@@ -161,6 +161,7 @@ export class ContentWindowOutliner extends ContentWindow {
 					assetManager.entityAssetManager.removeOnTrackedEntityChange(this.#currentOnEntityChangeEntity, this.#currentOnEntityChangeCallback);
 				}
 				this.#currentOnEntityChangeCallback = event => {
+					if (event.source === this) return;
 					if (event.type & EntityChangeType.Hierarchy) {
 						const childTreeView = this.#getTreeViewByEntity(event.entity);
 						if (!childTreeView) {
@@ -239,7 +240,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			this.notifyEntityEditors(entity, "create");
 		}
 		for (const parent of parents) {
-			entityAssetManager.updateEntity(parent, EntityChangeType.Create);
+			entityAssetManager.updateEntity(parent, EntityChangeType.Create, this);
 		}
 		this.updateFullTreeView();
 		return createdEntities;
@@ -339,13 +340,13 @@ export class ContentWindowOutliner extends ContentWindow {
 						// treeview has already been renamed by the user
 						needsUpdate = true;
 					}
-					entityAssetManager.updateEntity(entity, EntityChangeType.Rename);
+					entityAssetManager.updateEntity(entity, EntityChangeType.Rename, this);
 					this.notifyEntityEditors(entity, "rename");
 				},
 				undo: () => {
 					entity.name = oldName;
 					this.updateFullTreeView();
-					entityAssetManager.updateEntity(entity, EntityChangeType.Rename);
+					entityAssetManager.updateEntity(entity, EntityChangeType.Rename, this);
 					this.notifyEntityEditors(entity, "rename");
 				},
 			});
@@ -374,13 +375,13 @@ export class ContentWindowOutliner extends ContentWindow {
 						redo: () => {
 							parentEntity.remove(entity);
 							this.updateFullTreeView();
-							entityAssetManager.updateEntity(parentEntity, EntityChangeType.Delete);
+							entityAssetManager.updateEntity(parentEntity, EntityChangeType.Delete, this);
 							this.notifyEntityEditors(entity, "delete");
 						},
 						undo: () => {
 							parentEntity.addAtIndex(entity, index);
 							this.updateFullTreeView();
-							entityAssetManager.updateEntity(parentEntity, EntityChangeType.Create);
+							entityAssetManager.updateEntity(parentEntity, EntityChangeType.Create, this);
 							this.notifyEntityEditors(entity, "create");
 						},
 					});
@@ -460,9 +461,9 @@ export class ContentWindowOutliner extends ContentWindow {
 			redo: () => {
 				for (const action of actions) {
 					action.oldParent.remove(action.entity);
-					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.oldParent, EntityChangeType.Delete);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.oldParent, EntityChangeType.Delete, this);
 					action.newParent.addAtIndex(action.entity, action.insertIndex);
-					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.newParent, EntityChangeType.Create);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.newParent, EntityChangeType.Create, this);
 				}
 				this.updateFullTreeView();
 			},
@@ -470,9 +471,9 @@ export class ContentWindowOutliner extends ContentWindow {
 				for (let i = actions.length - 1; i >= 0; i--) {
 					const action = actions[i];
 					action.newParent.remove(action.entity);
-					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.newParent, EntityChangeType.Delete);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.newParent, EntityChangeType.Delete, this);
 					action.oldParent.addAtIndex(action.entity, action.removeIndex);
-					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.oldParent, EntityChangeType.Create);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.oldParent, EntityChangeType.Create, this);
 				}
 				this.updateFullTreeView();
 			},
@@ -502,7 +503,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				if (entityAsset) {
 					const clonedEntity = assetManager.entityAssetManager.createTrackedEntity(projectAsset.uuid);
 					parent.add(clonedEntity);
-					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(parent, EntityChangeType.Create);
+					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(parent, EntityChangeType.Create, this);
 					didDropAsset = true;
 				}
 			}
