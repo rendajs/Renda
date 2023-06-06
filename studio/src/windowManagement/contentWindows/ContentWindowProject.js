@@ -707,7 +707,7 @@ export class ContentWindowProject extends ContentWindow {
 		const menu = await e.showContextMenu();
 		menu.createStructure([
 			{
-				text: "Copy asset UUID", onClick: async () => {
+				text: "Copy Asset UUID", onClick: async () => {
 					const path = this.pathFromTreeView(e.target);
 					const assetManager = await this.studioInstance.projectManager.getAssetManager();
 					const projectAsset = await assetManager.getProjectAssetFromPath(path);

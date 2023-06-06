@@ -701,7 +701,7 @@ export class DroppableGui {
 				// TODO: hide or disable the embedded asset menu if embedded assets are not explicitly supported.
 				/** @type {import("./popoverMenus/ContextMenu.js").ContextMenuItemOpts} */
 				const createEmbeddedStructure = {
-					text: "Create embedded asset",
+					text: "Create Embedded Asset",
 				};
 
 				if (availableTypes.length == 1) {
@@ -775,7 +775,7 @@ export class DroppableGui {
 				}
 				if (visible) {
 					contextMenuStructure.push({
-						text: "Paste asset UUID",
+						text: "Paste Asset UUID",
 						tooltip,
 						disabled,
 						onClick: async () => {
@@ -788,7 +788,7 @@ export class DroppableGui {
 
 			if (this.defaultValue) {
 				contextMenuStructure.push({
-					text: "Reset to default value",
+					text: "Reset to Default Value",
 					onClick: () => {
 						this.setValue(this.defaultValue, {preloadLiveAsset: true});
 					},
@@ -804,7 +804,7 @@ export class DroppableGui {
 					},
 				});
 			}
-			const copyAssetUuidText = "Copy asset UUID";
+			const copyAssetUuidText = "Copy Asset UUID";
 			const defaultAssetLink = this.defaultAssetLinkUuid;
 			if (defaultAssetLink) {
 				contextMenuStructure.push({
@@ -816,7 +816,7 @@ export class DroppableGui {
 					},
 				});
 			}
-			const resolvedText = this.defaultAssetLinkUuid ? "Copy resolved asset link UUID" : copyAssetUuidText;
+			const resolvedText = this.defaultAssetLinkUuid ? "Copy Resolved Asset Link Uuid" : copyAssetUuidText;
 			contextMenuStructure.push({
 				text: resolvedText,
 				onClick: async () => {
@@ -826,7 +826,7 @@ export class DroppableGui {
 				},
 			});
 			contextMenuStructure.push({
-				text: "View location",
+				text: "View Location",
 				onClick: async () => {
 					if (this.defaultAssetLink) {
 						// todo: highlight assetLink
@@ -902,7 +902,7 @@ export class DroppableGui {
 
 		if (this.projectAssetValue) {
 			if (this.projectAssetValue.isEmbedded) {
-				return "Embedded asset";
+				return "Embedded Asset";
 			} else if (this.projectAssetValue.fileName) {
 				return this.projectAssetValue.fileName;
 			}

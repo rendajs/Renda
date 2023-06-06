@@ -11,8 +11,8 @@ Deno.test({
 			assertExists(createContextMenuCalls[0]);
 			assertContextMenuStructureEquals(createContextMenuCalls[0], [
 				{text: "Unlink"},
-				{text: "Copy asset UUID"},
-				{text: "View location"},
+				{text: "Copy Asset UUID"},
+				{text: "View Location"},
 			]);
 		} finally {
 			uninstall();
@@ -33,8 +33,8 @@ Deno.test({
 
 			assertExists(createContextMenuCalls[0]);
 			assertContextMenuStructureEquals(createContextMenuCalls[0], [
-				{text: "Copy asset UUID"},
-				{text: "View location"},
+				{text: "Copy Asset UUID"},
+				{text: "View Location"},
 			]);
 		} finally {
 			uninstall();
@@ -74,10 +74,10 @@ Deno.test({
 		try {
 			assertExists(createContextMenuCalls[0]);
 			await assertContextMenuStructureEquals(createContextMenuCalls[0], [
-				{text: "Reset to default value"},
+				{text: "Reset to Default Value"},
 				{text: "Unlink"},
-				{text: "Copy asset UUID"},
-				{text: "View location"},
+				{text: "Copy Asset UUID"},
+				{text: "View Location"},
 			]);
 		} finally {
 			uninstall();
@@ -99,7 +99,7 @@ Deno.test({
 
 		try {
 			assertExists(createContextMenuCalls[0]);
-			await assertContextMenuStructureEquals(createContextMenuCalls[0], [{text: "Reset to default value"}]);
+			await assertContextMenuStructureEquals(createContextMenuCalls[0], [{text: "Reset to Default Value"}]);
 		} finally {
 			uninstall();
 		}
@@ -140,9 +140,9 @@ Deno.test({
 			assertExists(createContextMenuCalls[0]);
 			assertContextMenuStructureEquals(createContextMenuCalls[0], [
 				{text: "Unlink"},
-				{text: "Copy asset UUID"},
-				{text: "Copy resolved asset link UUID"},
-				{text: "View location"},
+				{text: "Copy Asset UUID"},
+				{text: "Copy Resolved Asset Link Uuid"},
+				{text: "View Location"},
 			]);
 		} finally {
 			uninstall();
@@ -168,7 +168,7 @@ Deno.test({
 
 		try {
 			assertExists(createContextMenuCalls[0]);
-			assertContextMenuStructureEquals(createContextMenuCalls[0], [{text: "Create embedded asset"}]);
+			assertContextMenuStructureEquals(createContextMenuCalls[0], [{text: "Create Embedded Asset"}]);
 		} finally {
 			uninstall();
 		}
@@ -199,7 +199,7 @@ Deno.test({
 			assertExists(createContextMenuCalls[0]);
 			assertContextMenuStructureEquals(createContextMenuCalls[0], [
 				{
-					text: "Create embedded asset",
+					text: "Create Embedded Asset",
 					submenu: [
 						{text: "Mock Live Asset 1"},
 						{text: "Mock Live Asset 2"},

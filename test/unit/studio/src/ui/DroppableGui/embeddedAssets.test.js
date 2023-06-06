@@ -32,7 +32,7 @@ async function basicSetupForEmbeddedAssets() {
 			await returnValue.dispatchContextMenuEvent();
 			const lastCall = returnValue.createContextMenuCalls[returnValue.createContextMenuCalls.length - 1];
 			assertExists(lastCall);
-			await triggerContextMenuItem(lastCall, ["Create embedded asset"]);
+			await triggerContextMenuItem(lastCall, ["Create Embedded Asset"]);
 		},
 		MockProjectAssetType: ProjectAssetType,
 		mockParent,
@@ -61,7 +61,7 @@ Deno.test({
 			assertExists(gui.projectAssetValue);
 			assertEquals(gui.defaultAssetLink, null);
 			assertEquals(gui.defaultAssetLinkUuid, null);
-			assertEquals(gui.visibleAssetName, "Embedded asset");
+			assertEquals(gui.visibleAssetName, "Embedded Asset");
 		} finally {
 			uninstall();
 		}

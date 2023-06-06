@@ -13,10 +13,10 @@ export function createMockEntityAssetManager() {
 			onChangeHandler.removeEventListener(entityReference, cb);
 		},
 		updateEntity(entityInstance, changeEventType, eventSource) {},
-		updateEntityPosition(entityInstance, eventSource) {},
+		updateEntityTransform(entityInstance, eventSource) {},
 	});
 	const updateEntitySpy = spy(entityAssetManager, "updateEntity");
-	const updateEntityTransformationSpy = spy(entityAssetManager, "updateEntityPosition");
+	const updateEntityTransformationSpy = spy(entityAssetManager, "updateEntityTransform");
 	return {
 		entityAssetManager, updateEntitySpy, updateEntityTransformationSpy,
 		/**

@@ -129,7 +129,7 @@ Deno.test({
 
 		try {
 			assertExists(createContextMenuCalls[0]);
-			await triggerContextMenuItem(createContextMenuCalls[0], ["Reset to default value"]);
+			await triggerContextMenuItem(createContextMenuCalls[0], ["Reset to Default Value"]);
 
 			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
 		} finally {
@@ -158,7 +158,7 @@ Deno.test({
 				});
 			});
 			assertExists(createContextMenuCalls[0]);
-			await triggerContextMenuItem(createContextMenuCalls[0], ["Reset to default value"]);
+			await triggerContextMenuItem(createContextMenuCalls[0], ["Reset to Default Value"]);
 			await onChangePromise;
 			const value = gui.getValue({returnLiveAsset: true});
 			assertExists(value);
