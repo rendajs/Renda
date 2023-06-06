@@ -18,7 +18,7 @@ import type { objectToBinary } from "../../../../src/util/binarySerialization.js
 
 export type GuiOptionsBase = {
 	label?: string,
-	smallLabel?: boolean,
+	hideLabel?: boolean,
 	disabled?: boolean,
 	defaultValue?: any,
 }

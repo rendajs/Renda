@@ -52,6 +52,8 @@ export class PropertiesTreeViewEntry extends TreeView {
 		return /** @type {import("./types.ts").TreeViewEntryFactoryReturnType<T>} */ (x);
 	}
 
+	#label = "";
+
 	/**
 	 * @deprecated Use {@link of} instead.
 	 * @param {import("./types.ts").PropertiesTreeViewEntryOptionsGeneric<any>} opts
@@ -72,22 +74,23 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 		this.customEl.classList.add("gui-tree-view-entry");
 
-		const smallLabel = guiOpts.smallLabel ?? false;
-		this.label = document.createElement("div");
-		this.label.classList.add("gui-tree-view-entry-label");
-		this.label.classList.toggle("small-label", smallLabel);
-		const labelText = prettifyVariableName(guiOpts.label);
-		this.label.textContent = labelText;
-		if (tooltip) {
-			this.label.title = labelText + "\n\n" + tooltip;
-		} else {
-			this.label.title = labelText;
+		const hideLabel = guiOpts.hideLabel ?? false;
+		if (!hideLabel) {
+			const label = document.createElement("div");
+			label.classList.add("gui-tree-view-entry-label");
+			const labelText = prettifyVariableName(guiOpts.label);
+			label.textContent = labelText;
+			this.#label = labelText;
+			if (tooltip) {
+				label.title = labelText + "\n\n" + tooltip;
+			} else {
+				label.title = labelText;
+			}
+			this.customEl.appendChild(label);
 		}
-		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");
 		this.valueEl.classList.add("gui-tree-view-entry-value");
-		this.valueEl.classList.toggle("small-label", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
 		/**
@@ -200,6 +203,10 @@ export class PropertiesTreeViewEntry extends TreeView {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.destructor?.();
 		super.destructor();
+	}
+
+	get label() {
+		return this.#label;
 	}
 
 	/**

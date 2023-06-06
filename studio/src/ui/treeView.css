@@ -161,10 +161,3 @@
 	user-select: text;
 	-webkit-user-select: text;
 }
-.gui-tree-view-entry-value.small-label {
-	width: 85%;
-}
-.gui-tree-view-entry-label.small-label {
-	width: 15%;
-	 min-width: 10px;
-}
