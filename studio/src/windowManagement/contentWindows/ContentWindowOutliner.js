@@ -237,7 +237,6 @@ export class ContentWindowOutliner extends ContentWindow {
 		const parents = new Set();
 		for (const entity of createdEntities) {
 			if (entity.parent) parents.add(entity.parent);
-			this.notifyEntityEditors(entity, "create");
 		}
 		for (const parent of parents) {
 			entityAssetManager.updateEntity(parent, EntityChangeType.Create, this);
@@ -341,13 +340,11 @@ export class ContentWindowOutliner extends ContentWindow {
 						needsUpdate = true;
 					}
 					entityAssetManager.updateEntity(entity, EntityChangeType.Rename, this);
-					this.notifyEntityEditors(entity, "rename");
 				},
 				undo: () => {
 					entity.name = oldName;
 					this.updateFullTreeView();
 					entityAssetManager.updateEntity(entity, EntityChangeType.Rename, this);
-					this.notifyEntityEditors(entity, "rename");
 				},
 			});
 		}
@@ -376,13 +373,11 @@ export class ContentWindowOutliner extends ContentWindow {
 							parentEntity.remove(entity);
 							this.updateFullTreeView();
 							entityAssetManager.updateEntity(parentEntity, EntityChangeType.Delete, this);
-							this.notifyEntityEditors(entity, "delete");
 						},
 						undo: () => {
 							parentEntity.addAtIndex(entity, index);
 							this.updateFullTreeView();
 							entityAssetManager.updateEntity(parentEntity, EntityChangeType.Create, this);
-							this.notifyEntityEditors(entity, "create");
 						},
 					});
 				},
@@ -512,14 +507,4 @@ export class ContentWindowOutliner extends ContentWindow {
 			this.updateFullTreeView();
 		}
 	};
-
-	/**
-	 * @deprecated Use `EntityAssetManager.updateEntity` instead.
-	 * @param {Entity} obj
-	 * @param {import("./ContentWindowEntityEditor/ContentWindowEntityEditor.js").EntityChangedEventType} type
-	 */
-	notifyEntityEditors(obj, type) {
-		if (!this.linkedEntityEditor) return;
-		this.linkedEntityEditor.notifyEntityChanged(obj, type);
-	}
 }

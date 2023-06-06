@@ -10,8 +10,7 @@ import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {EntityChangeType} from "../../../../../../studio/src/assets/EntityAssetManager.js";
 
 function basicWindowWithEntity() {
-	const {args, mockStudioInstance, mockWindowManager} = getMockArgs();
-	mockWindowManager.getContentWindows = function *() {};
+	const {args, mockStudioInstance} = getMockArgs();
 
 	const assetManager = /** @type {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({});
 	const entityAssetManagerMocks = createMockEntityAssetManager();

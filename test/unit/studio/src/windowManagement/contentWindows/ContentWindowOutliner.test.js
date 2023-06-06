@@ -92,7 +92,6 @@ async function basictest({
 function createMockEntityEditor() {
 	const entityEditor = /** @type {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} */ ({
 		editingEntity: new Entity(),
-		notifyEntityChanged(entity, type) {},
 	});
 	return entityEditor;
 }
@@ -283,7 +282,6 @@ Deno.test({
 	async fn() {
 		await basictest({
 			fn({args, mockEntityEditor, mockAssetManager}) {
-				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
 				const updateEntitySpy = spy(mockAssetManager.entityAssetManager, "updateEntity");
 				const contentWindow = new ContentWindowOutliner(...args);
 				clickAddEntityButton(contentWindow);
@@ -291,10 +289,6 @@ Deno.test({
 					name: "Entity",
 					children: [{name: "Entity"}],
 				});
-
-				assertSpyCalls(notifyEntityChangedSpy, 1);
-				assertStrictEquals(notifyEntityChangedSpy.calls[0].args[0], mockEntityEditor.editingEntity.children[0]);
-				assertEquals(notifyEntityChangedSpy.calls[0].args[1], "create");
 
 				assertSpyCalls(updateEntitySpy, 1);
 				assertStrictEquals(updateEntitySpy.calls[0].args[0], mockEntityEditor.editingEntity);
@@ -309,8 +303,8 @@ Deno.test({
 	name: "'+' button creates a new entity on the selected entities",
 	async fn() {
 		await basictest({
-			fn({args, mockEntityEditor}) {
-				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
+			fn({args, mockEntityEditor, mockAssetManager}) {
+				const updateEntitySpy = spy(mockAssetManager.entityAssetManager, "updateEntity");
 				const child1 = new Entity("child1");
 				mockEntityEditor.editingEntity.add(child1);
 				const child2 = new Entity("child2");
@@ -333,13 +327,13 @@ Deno.test({
 						},
 					],
 				});
-				assertSpyCalls(notifyEntityChangedSpy, 2);
+				assertSpyCalls(updateEntitySpy, 2);
 
-				assertStrictEquals(notifyEntityChangedSpy.calls[0].args[0], child1.children[0]);
-				assertEquals(notifyEntityChangedSpy.calls[0].args[1], "create");
+				assertStrictEquals(updateEntitySpy.calls[0].args[0], child1);
+				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Create);
 
-				assertStrictEquals(notifyEntityChangedSpy.calls[1].args[0], child2.children[0]);
-				assertEquals(notifyEntityChangedSpy.calls[1].args[1], "create");
+				assertStrictEquals(updateEntitySpy.calls[1].args[0], child2);
+				assertEquals(updateEntitySpy.calls[1].args[1], EntityChangeType.Create);
 			},
 		});
 	},
@@ -350,7 +344,6 @@ Deno.test({
 	async fn() {
 		await basictest({
 			fn({args, mockEntityEditor, historyManager, mockAssetManager}) {
-				const notifyEntityChangedSpy = spy(mockEntityEditor, "notifyEntityChanged");
 				const updateEntitySpy = spy(mockAssetManager.entityAssetManager, "updateEntity");
 				const childEntity = new Entity("old name");
 				mockEntityEditor.editingEntity.add(childEntity);
@@ -366,9 +359,6 @@ Deno.test({
 				});
 
 				assertEquals(childEntity.name, "new name");
-				assertSpyCalls(notifyEntityChangedSpy, 1);
-				assertStrictEquals(notifyEntityChangedSpy.calls[0].args[0], childEntity);
-				assertEquals(notifyEntityChangedSpy.calls[0].args[1], "rename");
 				assertSpyCalls(updateEntitySpy, 1);
 				assertStrictEquals(updateEntitySpy.calls[0].args[0], childEntity);
 				assertEquals(updateEntitySpy.calls[0].args[1], EntityChangeType.Rename);
@@ -376,10 +366,7 @@ Deno.test({
 
 				historyManager.undo();
 
-				assertSpyCalls(notifyEntityChangedSpy, 2);
 				assertEquals(childEntity.name, "old name");
-				assertStrictEquals(notifyEntityChangedSpy.calls[1].args[0], childEntity);
-				assertEquals(notifyEntityChangedSpy.calls[1].args[1], "rename");
 				assertSpyCalls(updateEntitySpy, 2);
 				assertStrictEquals(updateEntitySpy.calls[1].args[0], childEntity);
 				assertEquals(updateEntitySpy.calls[1].args[1], EntityChangeType.Rename);
@@ -387,10 +374,7 @@ Deno.test({
 
 				historyManager.redo();
 
-				assertSpyCalls(notifyEntityChangedSpy, 3);
 				assertEquals(childEntity.name, "new name");
-				assertStrictEquals(notifyEntityChangedSpy.calls[2].args[0], childEntity);
-				assertEquals(notifyEntityChangedSpy.calls[2].args[1], "rename");
 				assertSpyCalls(updateEntitySpy, 3);
 				assertStrictEquals(updateEntitySpy.calls[2].args[0], childEntity);
 				assertEquals(updateEntitySpy.calls[2].args[1], EntityChangeType.Rename);

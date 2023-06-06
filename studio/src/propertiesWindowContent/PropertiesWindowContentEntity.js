@@ -53,7 +53,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 					throw new Error("Not implemented");
 				}
 				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
-				this.notifyEntityEditors(entity, "transform");
 			}
 		});
 
@@ -73,7 +72,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 					throw new Error("Not implemented");
 				}
 				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
-				this.notifyEntityEditors(entity, "transform");
 			}
 		});
 
@@ -93,7 +91,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 					throw new Error("Not implemented");
 				}
 				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
-				this.notifyEntityEditors(entity, "transform");
 			}
 		});
 
@@ -118,7 +115,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 								});
 								await componentInstance.waitForStudioDefaults();
 								this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(entity, EntityChangeType.CreateComponent, this);
-								this.notifyEntityEditors(entity, "component");
 							}
 							this.refreshComponents();
 							this.componentsSection.collapsed = false;
@@ -217,7 +213,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 							if (entity) {
 								entity.removeComponent(componentGroup);
 								this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(entity, EntityChangeType.DeleteComponent, this);
-								this.notifyEntityEditors(entity, "component");
 							}
 							this.refreshComponents();
 						},
@@ -250,7 +245,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.target);
 					if (componentGroup.entity) {
 						this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(componentGroup.entity, EntityChangeType.ComponentProperty, this);
-						this.notifyEntityEditors(componentGroup.entity, "componentProperty");
 					}
 				});
 			}
@@ -281,16 +275,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				object[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = {};
 			}
 			object[ProjectAssetTypeEntity.usedAssetUuidsSymbol][propertyName] = guiEntry.value;
-		}
-	}
-
-	/**
-	 * @param {import("../../../src/mod.js").Entity} entity
-	 * @param {import("../windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").EntityChangedEventType} type
-	 */
-	notifyEntityEditors(entity, type) {
-		for (const entityEditor of this.studioInstance.windowManager.getContentWindows("renda:entityEditor")) {
-			entityEditor.notifyEntityChanged(entity, type);
 		}
 	}
 }

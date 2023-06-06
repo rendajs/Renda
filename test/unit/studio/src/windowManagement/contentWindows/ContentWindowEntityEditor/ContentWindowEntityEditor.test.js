@@ -75,7 +75,9 @@ Deno.test({
 
 			// Wait for entity to load
 			await waitForMicrotasks();
-			assertSpyCalls(markDirtySpy, ++expectedCallCount);
+			// Once for the load event, another for the gizmos that get updated
+			expectedCallCount += 2;
+			assertSpyCalls(markDirtySpy, expectedCallCount);
 
 			// Updating the entity from another place should trigger the listener
 			entity2.name = "name 1";
@@ -113,5 +115,12 @@ Deno.test({
 		} finally {
 			uninstall();
 		}
+	},
+});
+
+Deno.test({
+	name: "Saves the entity when making a change from the current window",
+	fn() {
+		throw new Error("todo");
 	},
 });
