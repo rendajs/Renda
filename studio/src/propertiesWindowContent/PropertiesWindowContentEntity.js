@@ -52,7 +52,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
-				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		});
 
@@ -71,7 +71,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
-				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		});
 
@@ -90,7 +90,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
-				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		});
 

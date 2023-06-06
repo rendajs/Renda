@@ -490,7 +490,7 @@ export async function basicSetupForSettingByUuid({
 		async assertContextMenu(visible, disabled = false, tooltip = "") {
 			const {createContextMenuCalls} = returnValue;
 			const call = createContextMenuCalls[0];
-			const itemText = "Paste asset UUID";
+			const itemText = "Paste Asset UUID";
 			if (visible) {
 				assertExists(call);
 				await assertContextMenuStructureContains(call, {
@@ -500,14 +500,14 @@ export async function basicSetupForSettingByUuid({
 				});
 			} else {
 				if (call) {
-					await assertContextMenuStructureNotContainsText(call, "Paste asset UUID");
+					await assertContextMenuStructureNotContainsText(call, "Paste Asset UUID");
 				}
 			}
 		},
 		async clickPaste() {
 			const {createContextMenuCalls} = returnValue;
 			assertExists(createContextMenuCalls[0]);
-			await triggerContextMenuItem(createContextMenuCalls[0], ["Paste asset UUID"]);
+			await triggerContextMenuItem(createContextMenuCalls[0], ["Paste Asset UUID"]);
 		},
 		uninstall() {
 			returnValue.uninstall();

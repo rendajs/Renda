@@ -42,7 +42,7 @@ export async function createEmbeddedAssetAndOpen(page, propertiesTreeViewEntryEl
 	});
 
 	// Click the create embedded asset context menu
-	await clickContextMenuItem(page, ["Create embedded asset"]);
+	await clickContextMenuItem(page, ["Create Embedded Asset"]);
 	await waitForDroppableGuiHasValue(page, droppableGuiEl);
 
 	// Open the embedded asset

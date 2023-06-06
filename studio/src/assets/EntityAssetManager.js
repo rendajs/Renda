@@ -95,7 +95,7 @@ export class EntityAssetManager {
 	 * Creates a new entity that stays up to date with any changes to the
 	 * linked entity asset belonging to the provided uuid.
 	 * Modifications to the returned entity will be overwritten unless you call
-	 * {@linkcode updateEntity} or {@linkcode updateEntityPosition} after making your change.
+	 * {@linkcode updateEntity} or {@linkcode updateEntityTransform} after making your change.
 	 *
 	 * The entity structure will be completely rebuilt when a change occurs.
 	 * So if you hold references to children of the tracked entity, these references might become useless when something changes.
@@ -221,7 +221,7 @@ export class EntityAssetManager {
 	 * instances to get updated with the new state of your provided instance.
 	 * This **clones** the entire entity for every instance that exists, which can be a fairly heavy operation.
 	 * If the only thing you did was change the position, rotation or scale of an entity,
-	 * it's best to use {@linkcode updateEntityPosition} instead.
+	 * it's best to use {@linkcode updateEntityTransform} instead.
 	 *
 	 * Note that changes using `EntityChangeType.Create` and `EntityChangeType.Delete` should fire on
 	 * the parent on which the entity was added or removed.
@@ -345,7 +345,7 @@ export class EntityAssetManager {
 	 * @param {unknown} eventSource This is typically an instance to the content window that fired the event.
 	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
-	updateEntityPosition(entityInstance, eventSource) {
+	updateEntityTransform(entityInstance, eventSource) {
 		const rootData = this.#findRootEntityAsset(entityInstance);
 		if (!rootData) return;
 		const {uuid, indicesPath, root} = rootData;
@@ -356,11 +356,11 @@ export class EntityAssetManager {
 		if (!sourceChild) throw new Error("Assertion failed, source entity not found");
 		for (const trackedEntity of trackedData.trackedInstances) {
 			if (trackedEntity == root) continue;
-			this.#applyEntityPosition(sourceChild, trackedEntity, indicesPath, eventSource);
+			this.#applyEntityTransform(sourceChild, trackedEntity, indicesPath, eventSource);
 		}
 
 		if (trackedData.sourceEntity) {
-			this.#applyEntityPosition(sourceChild, trackedData.sourceEntity, indicesPath, eventSource);
+			this.#applyEntityTransform(sourceChild, trackedData.sourceEntity, indicesPath, eventSource);
 		}
 		this.#fireEvent(sourceChild, EntityChangeType.Transform, eventSource);
 	}
@@ -371,7 +371,7 @@ export class EntityAssetManager {
 	 * @param {number[]} indicesPath
 	 * @param {unknown} eventSource
 	 */
-	#applyEntityPosition(sourceChild, targetEntity, indicesPath, eventSource) {
+	#applyEntityTransform(sourceChild, targetEntity, indicesPath, eventSource) {
 		const targetChild = targetEntity.getEntityByIndicesPath(indicesPath);
 		if (!targetChild) throw new Error("Assertion failed, target entity not found");
 
