@@ -856,7 +856,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 						if (!propertyChangeName) return;
 						parentObject[propertyChangeName] = await projectAsset.getLiveAsset();
 						if (rootComponent.entity) {
-							this.notifyEntityChanged(rootComponent.entity, "componentProperty");
+							this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(rootComponent.entity, EntityChangeType.ComponentProperty, this);
 						}
 					};
 					projectAsset.onLiveAssetNeedsReplacement(listener);
