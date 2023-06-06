@@ -3,7 +3,7 @@
  * @param {HTMLElement} el
  * @return {[width: number, height: number]}
  */
-export function getElemSize(el) {
+export function getElementSize(el) {
 	let w = el.offsetWidth;
 	let h = el.offsetHeight;
 	const style = window.getComputedStyle(el);
