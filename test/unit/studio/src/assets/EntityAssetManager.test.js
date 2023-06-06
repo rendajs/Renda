@@ -365,7 +365,7 @@ Deno.test({
 		const entity = new Entity("root");
 		const child = entity.add(new Entity("child"));
 		manager.updateEntity(entity, EntityChangeType.Create, null);
-		manager.updateEntityPosition(entity, null);
+		manager.updateEntityTransform(entity, null);
 		assertStrictEquals(entity.children[0], child);
 	},
 });
@@ -379,7 +379,7 @@ Deno.test({
 		const child = entity.add(new Entity("child"));
 		manager.setLinkedAssetUuid(entity, "non existent uuid");
 		manager.updateEntity(entity, EntityChangeType.Create, null);
-		manager.updateEntityPosition(entity, null);
+		manager.updateEntityTransform(entity, null);
 		assertStrictEquals(entity.children[0], child);
 	},
 });
@@ -421,7 +421,7 @@ Deno.test({
 
 		child1A.pos.set(1, 2, 3);
 		const eventSource1 = Symbol("eventSource1");
-		manager.updateEntityPosition(child1A, eventSource1);
+		manager.updateEntityTransform(child1A, eventSource1);
 		assertVecAlmostEquals(child2A.pos, [1, 2, 3]);
 		assertEquals(calls.length, 2);
 		assertEquals(calls[0].trackedEntity, entity2);
@@ -435,7 +435,7 @@ Deno.test({
 
 		child1B.pos.set(4, 5, 6);
 		const eventSource2 = Symbol("eventSource2");
-		manager.updateEntityPosition(child1B, eventSource2);
+		manager.updateEntityTransform(child1B, eventSource2);
 		assertVecAlmostEquals(child2B.pos, [4, 5, 6]);
 		assertEquals(calls.length, 4);
 		assertEquals(calls[2].trackedEntity, entity2);
@@ -449,7 +449,7 @@ Deno.test({
 
 		manager.removeOnTrackedEntityChange(entity2, onChange2Fn);
 		child1A.pos.set(7, 8, 9);
-		manager.updateEntityPosition(child1A, null);
+		manager.updateEntityTransform(child1A, null);
 		assertVecAlmostEquals(child2A.worldPos, child1A.worldPos);
 		assertEquals(calls.length, 5);
 		assertEquals(calls[4].trackedEntity, entity1);
