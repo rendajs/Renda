@@ -6,7 +6,8 @@ import {Entity} from "../../../../../../src/mod.js";
 import {createMockEntityAssetManager} from "../../../shared/createMockEntityAssetManager.js";
 import {assertVecAlmostEquals} from "../../../../shared/asserts.js";
 import {assertSpyCalls} from "std/testing/mock.ts";
-import {assertStrictEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
+import {EntityChangeType} from "../../../../../../studio/src/assets/EntityAssetManager.js";
 
 function basicWindowWithEntity() {
 	const {args, mockStudioInstance, mockWindowManager} = getMockArgs();
@@ -89,6 +90,33 @@ Deno.test({
 			assertStrictEquals(updateSpy.calls[0].args[1], windowContent);
 
 			await waitForMicrotasks();
+		});
+	},
+});
+
+Deno.test({
+	name: "Ui is updated when the entity transform changes",
+	async fn() {
+		await runWithDomAsync(async () => {
+			const {windowContent, child, entityAssetManagerMocks} = basicWindowWithEntity();
+			child.pos.x = 1;
+			entityAssetManagerMocks.fireTrackedEntityChange(child, {
+				entity: child,
+				source: null,
+				type: EntityChangeType.Transform,
+			});
+			assertEquals(windowContent.positionProperty.gui.numericGuis[0].el.value, "1");
+
+			// Ui should not get updated when destructed
+
+			windowContent.destructor();
+			child.pos.x = 2;
+			entityAssetManagerMocks.fireTrackedEntityChange(child, {
+				entity: child,
+				source: null,
+				type: EntityChangeType.Transform,
+			});
+			assertEquals(windowContent.positionProperty.gui.numericGuis[0].el.value, "1");
 		});
 	},
 });
