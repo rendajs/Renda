@@ -50,7 +50,7 @@ function treeViewStructureEquals(treeView, expectedStructure, options) {
 		if (expectedStructure.isPropertiesEntry != isPropertiesEntry) return false;
 	}
 	if (expectedStructure.propertiesLabel !== undefined) {
-		if (!(treeView instanceof PropertiesTreeViewEntry) || expectedStructure.propertiesLabel != treeView.label.textContent) {
+		if (!(treeView instanceof PropertiesTreeViewEntry) || expectedStructure.propertiesLabel != treeView.label) {
 			return false;
 		}
 	}
@@ -109,14 +109,14 @@ function createExpectedTreeViewStructure(treeView, expectedStructure, options) {
 
 	if (!expectedStructure) {
 		if (treeView instanceof PropertiesTreeViewEntry) {
-			structure.propertiesLabel = treeView.label.textContent || "";
+			structure.propertiesLabel = treeView.label || "";
 			structure.propertiesType = treeView.type;
 			structure.propertiesValue = treeView.value;
 		}
 	} else {
 		if (expectedStructure.propertiesLabel !== undefined) {
 			if (treeView instanceof PropertiesTreeViewEntry) {
-				structure.propertiesLabel = treeView.label.textContent || "";
+				structure.propertiesLabel = treeView.label || "";
 			} else {
 				structure.propertiesLabel = "";
 			}

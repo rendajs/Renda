@@ -52,6 +52,8 @@ export class PropertiesTreeViewEntry extends TreeView {
 		return /** @type {import("./types.ts").TreeViewEntryFactoryReturnType<T>} */ (x);
 	}
 
+	#label = "";
+
 	/**
 	 * @deprecated Use {@link of} instead.
 	 * @param {import("./types.ts").PropertiesTreeViewEntryOptionsGeneric<any>} opts
@@ -78,6 +80,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 			label.classList.add("gui-tree-view-entry-label");
 			const labelText = prettifyVariableName(guiOpts.label);
 			label.textContent = labelText;
+			this.#label = labelText;
 			if (tooltip) {
 				label.title = labelText + "\n\n" + tooltip;
 			} else {
@@ -200,6 +203,10 @@ export class PropertiesTreeViewEntry extends TreeView {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.destructor?.();
 		super.destructor();
+	}
+
+	get label() {
+		return this.#label;
 	}
 
 	/**
