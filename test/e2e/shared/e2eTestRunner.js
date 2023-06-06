@@ -50,6 +50,15 @@ for (const arg of Deno.args) {
 /** @type {FailedTestsData[]} */
 const failedTests = [];
 
+globalThis.addEventListener("unhandledrejection", e => {
+	console.log("Unhandled rejection:", e.reason);
+	e.preventDefault();
+});
+globalThis.addEventListener("error", e => {
+	console.log("Unhandled error:", e.error);
+	e.preventDefault();
+});
+
 for (const testFilePath of testFiles) {
 	const relativePath = path.relative(".", testFilePath);
 	if (filterPaths.length > 0) {

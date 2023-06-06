@@ -46,8 +46,8 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
  * @property {T} value The current value of the preference.
  * @property {PreferenceChangeEventTrigger} trigger What type of action triggered the event.
  * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} location The location
- * that changed and caused the value to change. Note that this location is not necessarily the location that currently
- * has a value set. For instance, a location might reset a preference to the default.
+ * that changed and caused the value to change. Note that this is not necessarily the location that was changed.
+ * For instance, a location might reset a preference to the default.
  * In that case the current value is either the default value, or from a location with lower priority.
  * The location is `null` when the event fires for the first time, in which case `trigger` will be `"initial"`.
  */
@@ -56,6 +56,14 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
  * @template T
  * @typedef {(e: OnPreferenceChangeEvent<T>) => void} OnPreferenceChangeCallback
  */
+
+/**
+ * @typedef OnPreferenceChangeAnyEvent
+ * @property {PreferenceChangeEventTrigger} trigger What type of action triggered the event.
+ * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} location The location that got modified.
+ */
+
+/** @typedef {(e: OnPreferenceChangeAnyEvent) => void} OnPreferenceChangeAnyCallback */
 
 /**
  * @type {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]}
@@ -97,14 +105,10 @@ export class PreferencesManager {
 	/** @type {WeakSet<import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation>} */
 	#unflushedLocations = new WeakSet();
 
-	/**
-	 * @typedef OnChangeEventCallbackGroup
-	 * @property {Set<OnPreferenceChangeCallback<any>>} callbacks
-	 * @property {Map<import("../../../src/mod.js").UuidString, Set<OnPreferenceChangeCallback<any>>>} contentWindowCallbacks
-	 */
-
-	/** @type {Map<PreferenceTypes, OnChangeEventCallbackGroup>} */
-	#onChangeEventCallbacks = new Map();
+	/** @type {Map<PreferenceTypes, Map<import("../../../src/mod.js").UuidString, Set<OnPreferenceChangeCallback<any>>>>} */
+	#onChangeCallbacks = new Map();
+	/** @type {Set<OnPreferenceChangeAnyCallback>} */
+	#onChangeAnyCallbacks = new Set();
 
 	/** @type {Map<import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation, import("./preferencesLocation/PreferencesLocation.js").OnPreferenceLoadCallback>} */
 	#onPreferenceLoadedHandlers = new Map();
@@ -173,18 +177,11 @@ export class PreferencesManager {
 			 */
 			const onPreferenceLoaded = key => {
 				const castKey = /** @type {PreferenceTypes} */ (key);
-				let contentWindowUuid = null;
-				let value;
-				if (location instanceof ContentWindowPreferencesLocation) {
-					contentWindowUuid = location.contentWindowUuid;
-					value = this.get(castKey, {contentWindowUuid, assertRegistered: false});
-				} else {
-					value = this.get(castKey, {assertRegistered: false});
-				}
-				this.#fireChangeEvent(castKey, contentWindowUuid, {
-					location: location.locationType,
-					trigger: "load",
-					value,
+				this.#runAndFireEvents({
+					preference: castKey,
+					excludeLocations: [location],
+					eventLocationType: location.locationType,
+					eventTrigger: "load",
 				});
 			};
 			if (this.#onPreferenceLoadedHandlers.has(location)) {
@@ -247,9 +244,21 @@ export class PreferencesManager {
 			return true;
 		});
 		if (!location) {
-			throw new Error(`"${locationType}" preference location was not found.`);
+			if (locationOptions?.contentWindowUuid) {
+				this.#throwContentWindowUuidNotFound(locationOptions.contentWindowUuid);
+			} else {
+				throw new Error(`"${locationType}" preference location was not found.`);
+			}
 		}
 		return location;
+	}
+
+	/**
+	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
+	 * @returns {never}
+	 */
+	#throwContentWindowUuidNotFound(contentWindowUuid) {
+		throw new Error(`A content window uuid was provided ("${contentWindowUuid}") but no location for this uuid was found.`);
 	}
 
 	/**
@@ -259,7 +268,7 @@ export class PreferencesManager {
 	 * @param {SetPreferenceOptions} [setPreferenceOptions]
 	 */
 	reset(preference, setPreferenceOptions) {
-		return this.#changeAndFireEvents(preference, setPreferenceOptions, location => {
+		return this.#changeLocationAndFireEvents(preference, setPreferenceOptions, location => {
 			location.delete(preference);
 		});
 	}
@@ -274,53 +283,91 @@ export class PreferencesManager {
 	 * @param {SetPreferenceOptions} [setPreferenceOptions]
 	 */
 	set(preference, value, setPreferenceOptions) {
-		this.#changeAndFireEvents(preference, setPreferenceOptions, location => {
+		this.#changeLocationAndFireEvents(preference, setPreferenceOptions, location => {
 			location.set(preference, value);
 		});
 	}
 
+	*#getContentWindowLocationUuids() {
+		/** @type {Set<import("../../../src/mod.js").UuidString>} */
+		const uuids = new Set();
+		for (const location of this.#registeredLocations) {
+			if (location instanceof ContentWindowPreferencesLocation) {
+				if (!uuids.has(location.contentWindowUuid)) {
+					uuids.add(location.contentWindowUuid);
+					yield location.contentWindowUuid;
+				}
+			}
+		}
+	}
+
 	/**
-	 * Runs a callback, and verifies if the value of a preference was changed during that callback.
-	 * If so, the appropriate events are fired.
-	 * @template T
+	 * Runs a callback with a location and compares the changes from before and after the callback.
+	 * Fires events based on the changes.
 	 * @param {PreferenceTypes} preference
 	 * @param {SetPreferenceOptions | undefined} setPreferenceOptions
-	 * @param {(location: import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation) => T} cb
+	 * @param {(location: import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation) => void} cb
 	 */
-	#changeAndFireEvents(preference, setPreferenceOptions, cb) {
-		const previousValue = this.get(preference);
-		const previousContentWindowValue = this.get(preference, {contentWindowUuid: setPreferenceOptions?.contentWindowUuid});
-
+	#changeLocationAndFireEvents(preference, setPreferenceOptions, cb) {
 		const location = this.#getLocation(preference, setPreferenceOptions);
-		const cbResult = cb(location);
-		const flush = setPreferenceOptions?.flush ?? true;
-		if (flush) {
-			location.flush();
-			this.#unflushedLocations.delete(location);
-		} else {
-			this.#unflushedLocations.add(location);
+		const trigger = setPreferenceOptions?.performedByUser ? "user" : "application";
+		this.#runAndFireEvents({
+			preference,
+			eventLocationType: location.locationType,
+			eventTrigger: trigger,
+			cb: () => {
+				cb(location);
+				const flush = setPreferenceOptions?.flush ?? true;
+				if (flush) {
+					location.flush();
+					this.#unflushedLocations.delete(location);
+				} else {
+					this.#unflushedLocations.add(location);
+				}
+			},
+		});
+	}
+
+	/**
+	 * Runs a callback and compares the changes from before and after the callback.
+	 * Fires events based on the changes.
+	 * @param {object} options
+	 * @param {PreferenceTypes} options.preference
+	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} options.eventLocationType
+	 * @param {PreferenceChangeEventTrigger} options.eventTrigger
+	 * @param {() => void} [options.cb]
+	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation[]} [options.excludeLocations] Filters locations
+	 * from the first value query. The second value (after the callback) will be queried without any excluded locations
+	 * and will be comapred against the first value query.
+	 */
+	#runAndFireEvents({preference, eventLocationType, eventTrigger, cb, excludeLocations}) {
+		/** @type {Map<import("../../../src/mod.js").UuidString, unknown>} */
+		const oldLocationValues = new Map();
+
+		for (const uuid of this.#getContentWindowLocationUuids()) {
+			const {value} = this.#getInternal(preference, uuid, {excludeLocations, assertRegistered: false});
+			oldLocationValues.set(uuid, value);
 		}
 
-		const newValue = this.get(preference);
-		if (newValue != previousValue) {
-			this.#fireChangeEvent(preference, null, {
-				location: location.locationType,
-				trigger: setPreferenceOptions?.performedByUser ? "user" : "application",
-				value: newValue,
-			});
-		}
+		if (cb) cb();
 
-		if (setPreferenceOptions?.contentWindowUuid) {
-			const newContentWindowValue = this.get(preference, {contentWindowUuid: setPreferenceOptions?.contentWindowUuid});
-			if (newContentWindowValue != previousContentWindowValue) {
-				this.#fireChangeEvent(preference, setPreferenceOptions.contentWindowUuid, {
-					location: location.locationType,
-					trigger: setPreferenceOptions?.performedByUser ? "user" : "application",
-					value: newContentWindowValue,
+		for (const [uuid, oldValue] of oldLocationValues) {
+			const newValue = this.get(preference, uuid, {assertRegistered: false});
+			if (newValue != oldValue) {
+				this.#fireChangeEvent(preference, uuid, {
+					location: eventLocationType,
+					trigger: eventTrigger,
+					value: newValue,
 				});
 			}
 		}
-		return cbResult;
+
+		this.#onChangeAnyCallbacks.forEach(cb => {
+			cb({
+				location: eventLocationType,
+				trigger: eventTrigger,
+			});
+		});
 	}
 
 	async flush() {
@@ -358,15 +405,34 @@ export class PreferencesManager {
 	 * @template {PreferenceTypesOrString} T
 	 * @template {boolean} [TAssertRegistered = true]
 	 * @param {T} preference
+	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
 	 * @param {object} options
-	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
 	 * @param {TAssertRegistered} [options.assertRegistered] Assert that `preference` has been registered. Set to false
 	 * to disable this assertion. Disabling the assertion will also change the returned type to include `null`,
 	 * since there is no known default value for unregistered preferences.
 	 */
-	get(preference, {
-		contentWindowUuid,
+	get(preference, contentWindowUuid, {
 		assertRegistered = /** @type {TAssertRegistered} */ (true),
+	} = {}) {
+		const {value, foundContentWindowLocation} = this.#getInternal(preference, contentWindowUuid, {assertRegistered});
+		if (!foundContentWindowLocation) {
+			this.#throwContentWindowUuidNotFound(contentWindowUuid);
+		}
+		return /** @type {GetPreferenceTypeWithAssertionOption<T, TAssertRegistered>} */ (value);
+	}
+
+	/**
+	 * Same as get but with some extra options that are not meant to be a public api.
+	 * @param {string} preference
+	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
+	 * @param {object} [options]
+	 * @param {boolean} [options.assertRegistered]
+	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation[]} [options.excludeLocations] Returns a result
+	 * as if these locations don't exist or haven't been loaded yet.
+	 */
+	#getInternal(preference, contentWindowUuid, {
+		assertRegistered = true,
+		excludeLocations = [],
 	} = {}) {
 		const preferenceConfig = this.#registeredPreferences.get(preference);
 		if (assertRegistered && !preferenceConfig) {
@@ -378,8 +444,8 @@ export class PreferencesManager {
 		}
 		let foundContentWindowLocation = false;
 		for (const location of this.#registeredLocations) {
+			if (excludeLocations.includes(location)) continue;
 			if (location instanceof ContentWindowPreferencesLocation) {
-				if (!contentWindowUuid) continue;
 				if (location.contentWindowUuid != contentWindowUuid) continue;
 				foundContentWindowLocation = true;
 			}
@@ -404,10 +470,7 @@ export class PreferencesManager {
 				}
 			}
 		}
-		if (contentWindowUuid && !foundContentWindowLocation) {
-			throw new Error(`A content window uuid was provided ("${contentWindowUuid}") but no location for this uuid was found.`);
-		}
-		return /** @type {GetPreferenceTypeWithAssertionOption<T, TAssertRegistered>} */ (value);
+		return {value, foundContentWindowLocation};
 	}
 
 	/**
@@ -451,37 +514,35 @@ export class PreferencesManager {
 	}
 
 	/**
+	 * Registers a callback for observing preference changes.
+	 * When registered, the callback fires once with `event.trigger` set to `"initial"`.
+	 * If the value hasn't been loaded yet at the time of registration, a `"load"` event will also fire once the value has been loaded.
+	 *
+	 * Events are only fired when the value for the specified content window changes.
+	 * This means that if a value has been set for a specific content window and the global value is changed,
+	 * no event is fired for that content window.
+	 *
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
+	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
 	 * @param {OnPreferenceChangeCallback<GetPreferenceType<T>>} cb
-	 * @param {object} options
-	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
 	 */
-	onChange(preference, cb, {
-		contentWindowUuid,
-	} = {}) {
-		let group = this.#onChangeEventCallbacks.get(preference);
-		if (!group) {
-			group = {
-				callbacks: new Set(),
-				contentWindowCallbacks: new Map(),
-			};
-			this.#onChangeEventCallbacks.set(preference, group);
+	onChange(preference, contentWindowUuid, cb) {
+		let contentWindowCallbacks = this.#onChangeCallbacks.get(preference);
+		if (!contentWindowCallbacks) {
+			contentWindowCallbacks = new Map();
+			this.#onChangeCallbacks.set(preference, contentWindowCallbacks);
 		}
 
 		let callbacks;
-		if (contentWindowUuid) {
-			callbacks = group.contentWindowCallbacks.get(contentWindowUuid);
-			if (!callbacks) {
-				callbacks = new Set();
-				group.contentWindowCallbacks.set(contentWindowUuid, callbacks);
-			}
-		} else {
-			callbacks = group.callbacks;
+		callbacks = contentWindowCallbacks.get(contentWindowUuid);
+		if (!callbacks) {
+			callbacks = new Set();
+			contentWindowCallbacks.set(contentWindowUuid, callbacks);
 		}
 		callbacks.add(cb);
 
-		const value = this.get(preference, {contentWindowUuid});
+		const value = this.get(preference, contentWindowUuid);
 		cb({
 			location: null,
 			trigger: "initial",
@@ -492,55 +553,54 @@ export class PreferencesManager {
 	/**
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
+	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
 	 * @param {OnPreferenceChangeCallback<GetPreferenceType<T>>} cb
-	 * @param {object} options
-	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
 	 */
-	removeOnChange(preference, cb, {
-		contentWindowUuid,
-	} = {}) {
-		const group = this.#onChangeEventCallbacks.get(preference);
-		if (!group) return;
+	removeOnChange(preference, contentWindowUuid, cb) {
+		const contentWindowCallbacks = this.#onChangeCallbacks.get(preference);
+		if (!contentWindowCallbacks) return;
 
-		let performDeleteCheck = false;
-		if (contentWindowUuid) {
-			const callbacks = group.contentWindowCallbacks.get(contentWindowUuid);
-			if (!callbacks) return;
-			callbacks.delete(cb);
-			if (callbacks.size == 0) {
-				group.contentWindowCallbacks.delete(contentWindowUuid);
-				performDeleteCheck = true;
-			}
-		} else {
-			group.callbacks.delete(cb);
-			if (group.callbacks.size == 0) {
-				performDeleteCheck = true;
+		const callbacks = contentWindowCallbacks.get(contentWindowUuid);
+		if (!callbacks) return;
+		callbacks.delete(cb);
+		if (callbacks.size == 0) {
+			contentWindowCallbacks.delete(contentWindowUuid);
+			if (contentWindowCallbacks.size == 0) {
+				this.#onChangeCallbacks.delete(preference);
 			}
 		}
+	}
 
-		if (performDeleteCheck && group.callbacks.size == 0 && group.contentWindowCallbacks.size == 0) {
-			this.#onChangeEventCallbacks.delete(preference);
-		}
+	/**
+	 * Registers a callback that fires when any preference is changed, regardless of its location or content window.
+	 * This also fires when a value is set without changing it.
+	 *
+	 * @param {OnPreferenceChangeAnyCallback} cb
+	 */
+	onChangeAny(cb) {
+		this.#onChangeAnyCallbacks.add(cb);
+	}
+
+	/**
+	 * @param {OnPreferenceChangeAnyCallback} cb
+	 */
+	removeOnChangeAny(cb) {
+		this.#onChangeAnyCallbacks.delete(cb);
 	}
 
 	/**
 	 * Fires either the global event callbacks for a preference,
 	 * or the event callbacks for a specific content window.
 	 * @param {PreferenceTypes} preference
-	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid The uuid of the
+	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid The uuid of the
 	 * content window to fire the events for. Set to null to fire the global event callbacks.
 	 * @param {OnPreferenceChangeEvent<any>} event
 	 */
 	#fireChangeEvent(preference, contentWindowUuid, event) {
-		const group = this.#onChangeEventCallbacks.get(preference);
-		if (!group) return;
+		const contentWindowCallbacks = this.#onChangeCallbacks.get(preference);
+		if (!contentWindowCallbacks) return;
 
-		let callbacks;
-		if (contentWindowUuid) {
-			callbacks = group.contentWindowCallbacks.get(contentWindowUuid);
-		} else {
-			callbacks = group.callbacks;
-		}
+		const callbacks = contentWindowCallbacks.get(contentWindowUuid);
 		if (!callbacks) return;
 		callbacks.forEach(cb => cb(event));
 	}

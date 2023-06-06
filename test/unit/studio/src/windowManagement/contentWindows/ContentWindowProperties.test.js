@@ -243,22 +243,24 @@ Deno.test({
 	name: "selection changes before the content window is registered",
 	fn() {
 		const {contentWindow, selectedObject1, setSelectedObject, setGetContentTypeForObjectsEnabled, uninstall} = basicSetup();
-		setGetContentTypeForObjectsEnabled(false);
+		try {
+			setGetContentTypeForObjectsEnabled(false);
 
-		setSelectedObject(selectedObject1);
+			setSelectedObject(selectedObject1);
 
-		setGetContentTypeForObjectsEnabled(true);
-		contentWindow.onContentTypeRegistered();
+			setGetContentTypeForObjectsEnabled(true);
+			contentWindow.onContentTypeRegistered();
 
-		assertExists(contentWindow.activeContent);
-		assertInstanceOf(contentWindow.activeContent, PropertiesWindowContentExtended1);
-		assertEquals(contentWindow.activeContent.activeObjectsChangedCalls, [[selectedObject1]]);
-		assertStrictEquals(contentWindow.activeContent.activeObjectsChangedCalls[0][0], selectedObject1);
+			assertExists(contentWindow.activeContent);
+			assertInstanceOf(contentWindow.activeContent, PropertiesWindowContentExtended1);
+			assertEquals(contentWindow.activeContent.activeObjectsChangedCalls, [[selectedObject1]]);
+			assertStrictEquals(contentWindow.activeContent.activeObjectsChangedCalls[0][0], selectedObject1);
 
-		assertEquals(contentWindow.contentEl.children.length, 1);
-		assertStrictEquals(contentWindow.contentEl.children[0], contentWindow.activeContent.el);
-
-		uninstall();
+			assertEquals(contentWindow.contentEl.children.length, 1);
+			assertStrictEquals(contentWindow.contentEl.children[0], contentWindow.activeContent.el);
+		} finally {
+			uninstall();
+		}
 	},
 });
 

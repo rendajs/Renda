@@ -1,5 +1,5 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {getElemSize} from "../../../../../studio/src/util/util.js";
+import {getElementSize} from "../../../../../studio/src/util/util.js";
 
 /**
  * @param {number} offsetWidth
@@ -38,7 +38,7 @@ Deno.test({
 		const {el, uninstall} = await setup(10, 10, {});
 
 		try {
-			const result = getElemSize(el);
+			const result = getElementSize(el);
 			assertEquals(result, [10, 10]);
 		} finally {
 			uninstall();
@@ -67,7 +67,7 @@ Deno.test({
 		});
 
 		try {
-			const result = getElemSize(el);
+			const result = getElementSize(el);
 			assertEquals(result, [70, 70]);
 		} finally {
 			uninstall();
@@ -96,7 +96,7 @@ Deno.test({
 		});
 
 		try {
-			const result = getElemSize(el);
+			const result = getElementSize(el);
 			assertEquals(result, [340, 460]);
 		} finally {
 			uninstall();

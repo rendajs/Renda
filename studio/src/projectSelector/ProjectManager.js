@@ -63,7 +63,7 @@ export class ProjectManager {
 	#onFileChangeCbs = new Set();
 
 	constructor() {
-		/** @type {?import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem} */
+		/** @type {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} */
 		this.currentProjectFileSystem = null;
 		/** @type {StoredProjectEntryAny?} */
 		this.currentProjectOpenEvent = null;
@@ -193,8 +193,8 @@ export class ProjectManager {
 
 		const gitIgnoreManager = new GitIgnoreManager(fileSystem);
 		this.gitIgnoreManager = gitIgnoreManager;
-		this.projectSettings = new ProjectSettingsManager(fileSystem, ["ProjectSettings", "projectSettings.json"], fromUserGesture);
-		const localSettingsPath = ["ProjectSettings", "localProjectSettings.json"];
+		this.projectSettings = new ProjectSettingsManager(fileSystem, [".renda", "projectSettings.json"], fromUserGesture);
+		const localSettingsPath = [".renda", "localProjectSettings.json"];
 		this.localProjectSettings = new ProjectSettingsManager(fileSystem, localSettingsPath, fromUserGesture);
 		this.localProjectSettings.onFileCreated(() => {
 			gitIgnoreManager.addEntry(localSettingsPath);
@@ -208,13 +208,13 @@ export class ProjectManager {
 		if (this.#currentVersionControlPreferencesLocation) {
 			studio.preferencesManager.removeLocation(this.#currentVersionControlPreferencesLocation);
 		}
-		const localPreferencesPath = ["ProjectSettings", "preferencesLocal.json"];
+		const localPreferencesPath = [".renda", "preferencesLocal.json"];
 		this.#currentPreferencesLocation = new FilePreferencesLocation("project", fileSystem, localPreferencesPath, fromUserGesture);
 		this.#currentPreferencesLocation.onFileCreated(() => {
 			gitIgnoreManager.addEntry(localPreferencesPath);
 		});
 		studio.preferencesManager.addLocation(this.#currentPreferencesLocation);
-		this.#currentVersionControlPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, ["ProjectSettings", "preferences.json"], fromUserGesture);
+		this.#currentVersionControlPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, [".renda", "preferences.json"], fromUserGesture);
 		studio.preferencesManager.addLocation(this.#currentVersionControlPreferencesLocation);
 
 		this.loadStudioConnectionsAllowIncomingInstance.run();

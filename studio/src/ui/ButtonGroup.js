@@ -11,10 +11,10 @@ export class ButtonGroup {
 		vertical = false,
 	} = {}) {
 		this.el = document.createElement("div");
-		this.el.classList.add("buttonGroup", "buttonGroupLike");
+		this.el.classList.add("button-group", "button-group-like");
 		this.el.classList.toggle("vertical", vertical);
 
-		/** @type {Array<import("./Button.js").Button>} */
+		/** @type {import("./Button.js").Button[]} */
 		this.buttons = [];
 
 		this.boundFireContextMenuCbs = this.fireContextMenuCbs.bind(this);

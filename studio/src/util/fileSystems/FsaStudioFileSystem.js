@@ -165,7 +165,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	}
 
 	/**
-	 * @param {Array<string>} path
+	 * @param {string[]} path
 	 * @param {object} opts
 	 * @param {boolean} [opts.create] Whether to create the directory if it doesn't exist.
 	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
@@ -232,7 +232,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	}
 
 	/**
-	 * @param {Array<string>} path
+	 * @param {string[]} path
 	 * @param {object} opts
 	 * @param {boolean} [opts.create] Whether to create the file if it doesn't exist.
 	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
@@ -437,7 +437,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @override
-	 * @param {Array<string>} path
+	 * @param {string[]} path
 	 * @param {import("./StudioFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {

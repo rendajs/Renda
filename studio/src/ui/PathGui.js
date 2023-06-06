@@ -23,7 +23,7 @@ export class PathGui {
 		this.el.setAttribute("role", "textbox");
 		this.el.ariaMultiLine = "false";
 		this.el.contentEditable = "true";
-		this.el.classList.add("buttonLike", "resetInput", "textInput", "pathInput");
+		this.el.classList.add("button-like", "reset-input", "text-input", "pathInput");
 		this.el.style.resize = "none";
 		this.el.spellcheck = false;
 		this.el.addEventListener("input", e => {

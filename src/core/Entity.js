@@ -52,7 +52,25 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
  * @property {import("../../studio/src/assets/AssetManager.js").AssetManager} assetManager
  * @property {import("../../studio/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
  * @property {symbol} usedAssetUuidsSymbol
- * @property {(entity: Entity) => import("../mod.js").UuidString} getLinkedAssetUuid
+ * @property {(entity: Entity) => import("../mod.js").UuidString?} getLinkedAssetUuid
+ */
+
+/**
+ * @typedef CloneChildHookData
+ * @property {Entity} child The original child of the entity that needs to be cloned.
+ * You may return this directly to add the child without cloning, but note that this will cause it to get removed from the original entity.
+ * @property {EntityCloneOptions} options The options that were passed to the {@linkcode Entity.clone} call.
+ * You can use this to pass on the options to subsequent clone calls.
+ */
+
+/**
+ * @typedef EntityCloneOptions
+ * @property {(hookData: CloneChildHookData) => (Entity | null | void | false)} [cloneChildHook] Hook that
+ * gets called every time a child needs to be cloned. The entity that is used depends on what is returned by the hook:
+ *
+ * - Returning an entity will add that entity as child directly without any modifications.
+ * - `null` or `undefined` will clone the existing child and apply it.
+ * - `false` will remove the child from the entity. Note that this causes siblings to receive a different index in the `children` array.
  */
 
 export class Entity {
@@ -767,6 +785,7 @@ export class Entity {
 	}
 
 	/**
+	 * Walks down the tree of entities, picking the children at the provided indices and returning the final child.
 	 * @param {number[]} indexPath
 	 * @returns {Entity?}
 	 */
@@ -776,6 +795,28 @@ export class Entity {
 		if (index < 0 || index > this._children.length) return null;
 		const child = this.children[index];
 		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
+	}
+
+	/**
+	 * Returns an array of numbers that represent the indices that lead to this entity.
+	 * The result will be an array that can essentially be passed to {@linkcode getEntityByIndicesPath} on the root entity,
+	 * which should then return this entity.
+	 * @param {object} [options]
+	 * @param {Entity} [options.forcedRoot] The root at which the returned array starts,
+	 * when provided the indices array will start at this entity instead of the default root entity.
+	 */
+	getIndicesPath({forcedRoot} = {}) {
+		/** @type {number[]} */
+		const indices = [];
+		for (const child of this.traverseUp()) {
+			if (child == forcedRoot) break;
+			const parent = child.parent;
+			if (!parent) break;
+			const index = parent.children.indexOf(child);
+			if (index == -1) throw new Error("Assertion failed, entity was not a child of parent");
+			indices.unshift(index);
+		}
+		return indices;
 	}
 
 	/**
@@ -792,18 +833,44 @@ export class Entity {
 	/**
 	 * Clones the entity and all its children and components.
 	 * The properties of the components (e.g. linked assets) are not cloned.
+	 *
+	 * @param {EntityCloneOptions} [options]
 	 */
-	clone() {
+	clone(options = {}) {
+		if (options.cloneChildHook) {
+			const result = options.cloneChildHook({child: this, options});
+			if (result === false) {
+				throw new Error("cloneChildHook cannot return false for the root entity.");
+			}
+			if (result) return result;
+		}
+		return this._cloneInternal(options);
+	}
+
+	/**
+	 * Same as {@linkcode clone} but without firing the `cloneChildHook` on the root.
+	 * @private
+	 * @param {EntityCloneOptions} options
+	 */
+	_cloneInternal(options) {
 		const clone = new Entity({
 			name: this.name,
+			matrix: this.localMatrix,
 		});
 
 		for (const component of this.components) {
 			clone.addComponent(component.clone());
 		}
 
+		const cloneChildHook = options.cloneChildHook || (() => null);
 		for (const child of this.children) {
-			clone.add(child.clone());
+			let clonedChild = cloneChildHook({child, options});
+			if (clonedChild === false) continue;
+			if (clonedChild == null || clonedChild == undefined) {
+				// eslint-disable-next-line no-underscore-dangle
+				clonedChild = child._cloneInternal(options);
+			}
+			clone.add(clonedChild);
 		}
 
 		return clone;
@@ -814,8 +881,6 @@ export class Entity {
 	 * @returns {EntityJsonData}
 	 */
 	toJson(studioOpts = null) {
-		/** @typedef {Entity & {[x: symbol] : any}} EntityWithAssetRootUuid */
-
 		/** @type {EntityJsonDataInlineEntity} */
 		const json = {
 		};

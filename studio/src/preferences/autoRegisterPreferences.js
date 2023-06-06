@@ -32,6 +32,10 @@ const autoRegisterPreferences = /** @type {const} */ ({
 		default: 2.5,
 	}),
 	"entityEditor.loadedEntityPath": pref({type: "unknown"}),
+	"entityEditor.showGrid": pref({
+		type: "boolean",
+		default: true,
+	}),
 });
 
 /** @typedef {keyof autoRegisterPreferences} AutoRegisterPreferenceTypes */

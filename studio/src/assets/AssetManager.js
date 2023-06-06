@@ -164,7 +164,7 @@ export class AssetManager {
 		 */
 		this.internallyCreatedAssetsByPersistenceKey = new Map();
 
-		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
+		this.assetSettingsPath = [".renda", "assetSettings.json"];
 
 		this.assetSettingsLoaded = false;
 		/** @type {Set<() => void>} */

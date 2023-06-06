@@ -19,7 +19,7 @@ export class EntitySavingManager {
 				this.saveEntityAssetInstance.run();
 			},
 		});
-		this.studioInstance.preferencesManager.onChange("entityEditor.autosaveEntities", () => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.autosaveEntities", this.entityEditor.uuid, () => {
 			const autosave = this.#getAutosaveValue();
 			this.saveEntityButton.setVisibility(!autosave);
 		});
@@ -41,16 +41,15 @@ export class EntitySavingManager {
 	}
 
 	#getAutosaveValue() {
-		return this.studioInstance.preferencesManager.get("entityEditor.autosaveEntities", {
-			contentWindowUuid: this.entityEditor.uuid,
-		});
+		return this.studioInstance.preferencesManager.get("entityEditor.autosaveEntities", this.entityEditor.uuid);
 	}
 
 	/**
 	 * Mark the currently editing entity as containing unsaved changes.
 	 * This enables the 'save' button or autosaves when autosave is enabled.
+	 * @param {boolean} dirty
 	 */
-	setEntityDirty(dirty = true) {
+	setEntityDirty(dirty) {
 		this.#entityDirty = dirty;
 		if (dirty && this.#getAutosaveValue()) {
 			this.saveEntityAssetInstance.run();

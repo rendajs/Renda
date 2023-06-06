@@ -109,7 +109,7 @@ export class ProjectSelector {
 
 	/**
 	 * @param {string} name
-	 * @param {function() : void} onClick
+	 * @param {() => void} onClick
 	 */
 	createAction(name, onClick) {
 		return this.createListButton(this.actionsListEl, name, onClick);
@@ -118,7 +118,7 @@ export class ProjectSelector {
 	/**
 	 * @param {HTMLUListElement} listEl
 	 * @param {string} name
-	 * @param {function() : void} onClick
+	 * @param {() => void} onClick
 	 */
 	createListButton(listEl, name, onClick) {
 		const item = document.createElement("li");

@@ -9,7 +9,7 @@ import {getTreeViewItemElement} from "../treeView.js";
  */
 export async function getPropertiesWindowRootTreeView(page) {
 	const propertiesWindow = await getContentWindowElement(page, "renda:properties");
-	const treeView = await waitFor(propertiesWindow, ":scope > .studio-content-window-content > div > .treeViewItem");
+	const treeView = await waitFor(propertiesWindow, ":scope > .studio-content-window-content > div > .tree-view-item");
 	assertExists(treeView);
 	return treeView;
 }

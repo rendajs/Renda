@@ -91,7 +91,7 @@ export class ColorizerFilter {
 	}
 
 	/**
-	 * @param {function() : void} cb
+	 * @param {() => void} cb
 	 */
 	onAllReferencesDestructed(cb) {
 		this.allReferencesDestructedCbs.add(cb);

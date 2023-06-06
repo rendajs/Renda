@@ -26,7 +26,7 @@ Deno.test({
 			const dragEvent = new DragEvent("dragenter");
 			dragEvent.dataTransfer?.setData(VALID_DRAG_TYPE, "");
 			gui.el.dispatchEvent(dragEvent);
-			assertEquals(gui.el.classList.contains("dragHovering"), true);
+			assertEquals(gui.el.classList.contains("drag-hovering"), true);
 			assertEquals(dragEvent.defaultPrevented, true);
 			assertEquals(dragEvent.dataTransfer?.dropEffect, "link");
 
@@ -58,7 +58,7 @@ Deno.test({
 			const dragEvent = new DragEvent("dragenter");
 			dragEvent.dataTransfer?.setData(VALID_DRAG_TYPE, "");
 			gui.onDragEnter(dragEvent);
-			assertEquals(gui.el.classList.contains("dragHovering"), false);
+			assertEquals(gui.el.classList.contains("drag-hovering"), false);
 			assertEquals(dragEvent.defaultPrevented, false);
 			assertEquals(dragEvent.dataTransfer?.dropEffect, "none");
 		} finally {
@@ -76,7 +76,7 @@ Deno.test({
 			const dragEvent = new DragEvent("dragenter");
 			dragEvent.dataTransfer?.setData("text/renda; dragtype=rearrangingtreeview; rootuuid=someuuid", "");
 			gui.onDragEnter(dragEvent);
-			assertEquals(gui.el.classList.contains("dragHovering"), false);
+			assertEquals(gui.el.classList.contains("drag-hovering"), false);
 			assertEquals(dragEvent.defaultPrevented, false);
 			assertEquals(dragEvent.dataTransfer?.dropEffect, "none");
 		} finally {
@@ -164,7 +164,7 @@ function basicSetupForSupportedAssetTypes({
 	 * @param {boolean} isHovering
 	 */
 	function assertIsDragHovering(dragEvent, isHovering) {
-		assertEquals(gui.el.classList.contains("dragHovering"), isHovering);
+		assertEquals(gui.el.classList.contains("drag-hovering"), isHovering);
 		assertEquals(dragEvent.defaultPrevented, isHovering);
 		assertEquals(dragEvent.dataTransfer?.dropEffect, isHovering ? "link" : "none");
 	}

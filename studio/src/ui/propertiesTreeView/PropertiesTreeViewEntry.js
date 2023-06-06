@@ -70,12 +70,12 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 		if (!this.customEl) throw new Error("Assertion failed, PropertiesTreeViewEntry should always have a customEl.");
 
-		this.customEl.classList.add("guiTreeViewEntry");
+		this.customEl.classList.add("gui-tree-view-entry");
 
 		const hideLabel = guiOpts.hideLabel ?? false;
 		if (!hideLabel) {
 			const label = document.createElement("div");
-			label.classList.add("guiTreeViewEntryLabel");
+			label.classList.add("gui-tree-view-entry-label");
 			const labelText = prettifyVariableName(guiOpts.label);
 			label.textContent = labelText;
 			if (tooltip) {
@@ -87,7 +87,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		}
 
 		this.valueEl = document.createElement("div");
-		this.valueEl.classList.add("guiTreeViewEntryValue");
+		this.valueEl.classList.add("gui-tree-view-entry-value");
 		this.customEl.appendChild(this.valueEl);
 
 		/**
@@ -141,18 +141,18 @@ export class PropertiesTreeViewEntry extends TreeView {
 				...castGuiOpts,
 			});
 			this.valueEl.appendChild(setGui.el);
-			this.customEl.classList.add("multiLine");
+			this.customEl.classList.add("multi-line");
 		} else if (type == "object") {
 			setGui = new ObjectGui({
 				structure: type,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(setGui.treeView.el);
-			this.customEl.classList.add("multiLine");
+			this.customEl.classList.add("multi-line");
 		} else if (type == "path") {
 			setGui = new PathGui(guiOpts);
 			this.valueEl.appendChild(setGui.el);
-			this.customEl.classList.add("multiLine");
+			this.customEl.classList.add("multi-line");
 		} else if (type == "button") {
 			setGui = new Button({
 				...guiOpts,
@@ -303,7 +303,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	/**
 	 * @template {keyof PropertiesTreeViewEventCbMap} T
 	 * @param {T} eventType The identifier of the event type.
-	 * @param {function(PropertiesTreeViewEventCbMap[T]) : void} cb The callback to invoke when the event occurs.
+	 * @param {(event: PropertiesTreeViewEventCbMap[T]) => void} cb The callback to invoke when the event occurs.
 	 */
 	addEventListener(eventType, cb) {
 		// @ts-ignore
@@ -314,7 +314,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	/**
 	 * @template {keyof PropertiesTreeViewEventCbMap} T
 	 * @param {T} eventType The identifier of the event type.
-	 * @param {function(PropertiesTreeViewEventCbMap[T]) : void} cb The callback to remove.
+	 * @param {(event: PropertiesTreeViewEventCbMap[T]) => void} cb The callback to remove.
 	 */
 	removeEventListener(eventType, cb) {
 		// @ts-ignore

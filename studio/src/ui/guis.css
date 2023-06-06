@@ -1,25 +1,25 @@
-.numericGui{
+.numeric-gui {
 	cursor: crosshair;
 }
 
-.numericGui:focus{
+.numeric-gui:focus {
 	cursor: text;
 }
 
-.numericGui.nocaret:not(:disabled){
+.numeric-gui.no-caret:not(:disabled) {
 	color: transparent;
 	text-shadow: 0 0 0 var(--text-color-level0);
 }
 
-.numericGui.no-cursor {
+.numeric-gui.no-cursor {
 	cursor: none;
 }
 
-.vectorGui{
+.vector-gui {
 	display: flex;
 }
 
-.booleanGui{
+.boolean-gui {
 	width: 16px;
 	min-width: 16px;
 	height: 16px;
@@ -28,7 +28,7 @@
 	padding: 0;
 }
 
-.booleanGui:checked:after{
+.boolean-gui:checked:after {
 	content: ' ';
 	width: 16px;
 	height: 16px;
@@ -51,7 +51,7 @@
 	background-color: var(--default-button-color-disabled);
 }
 
-.droppableGui{
+.droppable-gui {
 	height: 18px;
 	margin: 1px;
 	border-radius: var(--selection-border-radius);
@@ -60,30 +60,30 @@
 	text-overflow: ellipsis;
 }
 
-.droppableGui:focus:not([aria-disabled='true']){
+.droppable-gui:focus:not([aria-disabled='true']) {
 	box-shadow: inset 0px 0px 0 1px var(--color-selected-blue);
 	outline: none;
 }
 
-.droppableGui.empty{
+.droppable-gui.empty {
 	background: var(--default-input-box-color);
 	box-shadow: inset 0px 0px 0px 1px var(--droppable-border-color);
 }
 
-.droppableGui.filled{
+.droppable-gui.filled {
 	background: var(--droppable-filled-color);
 	color: var(--droppable-filled-text-color);
 }
 
-.droppableGuiDeletedText{
+.droppable-gui-deleted-text {
 	font-style: italic;
 }
 
-.droppableGui.dragHovering:not([aria-disabled='true']){
+.droppable-gui.drag-hovering:not([aria-disabled='true']) {
 	box-shadow: inset 0px 0px 0px 1px var(--color-selected-blue);
 }
 
-.droppableGui[aria-disabled='true']{
+.droppable-gui[aria-disabled='true'] {
 	background: var(--default-input-box-color-disabled);
 	color: var(--default-button-text-color-disabled);
 }

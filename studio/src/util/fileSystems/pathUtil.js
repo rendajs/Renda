@@ -2,7 +2,7 @@
  * Splits a filename into name and extension.
  * Extension is null if not present.
  * @param {string} fileName
- * @returns {{name: string, extension: ?string}}
+ * @returns {{name: string, extension: string?}}
  */
 export function getNameAndExtension(fileName) {
 	const dotIndex = fileName.lastIndexOf(".");

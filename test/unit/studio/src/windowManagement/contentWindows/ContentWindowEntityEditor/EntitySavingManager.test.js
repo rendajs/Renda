@@ -5,6 +5,8 @@ import {createPreferencesManager} from "../../../../shared/createPreferencesMana
 import {createMockProjectAsset} from "../../../../shared/createMockProjectAsset.js";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
+import {ContentWindowPreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
+import {DEFAULT_CONTENT_WINDOW_UUID} from "../shared.js";
 
 const BASIC_EDITING_ENTITY_UUID = "editing entity uuid";
 
@@ -12,6 +14,9 @@ function getMockArgs() {
 	const {preferencesManager, preferencesManagerAny} = createPreferencesManager({
 		"entityEditor.autosaveEntities": {type: "boolean", default: true},
 	});
+
+	const mockWindowManager = /** @type {import("../../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
+	preferencesManager.addLocation(new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID));
 
 	const {projectAsset: editingEntityAsset} = createMockProjectAsset();
 	const saveLiveAssetDataSpy = spy(editingEntityAsset, "saveLiveAssetData");
@@ -32,7 +37,9 @@ function getMockArgs() {
 			},
 		},
 	});
-	const mockWindow = /** @type {import("../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} */ ({});
+	const mockWindow = /** @type {import("../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").ContentWindowEntityEditor} */ ({
+		uuid: DEFAULT_CONTENT_WINDOW_UUID,
+	});
 
 	/** @type {ConstructorParameters<typeof EntitySavingManager>} */
 	const args = [

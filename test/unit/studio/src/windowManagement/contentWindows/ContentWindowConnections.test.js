@@ -7,7 +7,7 @@ import {LabelGui} from "../../../../../../studio/src/ui/LabelGui.js";
 import {PropertiesTreeViewEntry} from "../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 import {Button} from "../../../../../../studio/src/ui/Button.js";
 import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
-import {getMockWindowManager} from "./shared.js";
+import {getMockWindowManager} from "../shared.js";
 
 /**
  * @typedef ContentWindowConnectionsTestContext

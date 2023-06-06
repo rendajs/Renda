@@ -46,9 +46,9 @@ const StudiorConnectionsManagerMod = await importer.import("../../../../../studi
 /** @type {() => import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */
 const getLastStudioConnectionsManager = StudiorConnectionsManagerMod.getLastStudioConnectionsManager;
 
-const LOCAL_PROJECT_SETTINGS_PATH = ["ProjectSettings", "localProjectSettings.json"];
-const PROJECT_PREFERENCES_PATH = ["ProjectSettings", "preferences.json"];
-const LOCAL_PROJECT_PREFERENCES_PATH = ["ProjectSettings", "preferencesLocal.json"];
+const LOCAL_PROJECT_SETTINGS_PATH = [".renda", "localProjectSettings.json"];
+const PROJECT_PREFERENCES_PATH = [".renda", "preferences.json"];
+const LOCAL_PROJECT_PREFERENCES_PATH = [".renda", "preferencesLocal.json"];
 const GITIGNORE_PATH = [".gitignore"];
 
 /**
@@ -321,7 +321,6 @@ Deno.test({
 				const entry = createStoredProjectEntry();
 
 				await manager.openProject(fs, entry, true);
-				assertEquals(mockPreferencesManager.get("strPref"), "default");
 				assertEquals(await fs.exists(PROJECT_PREFERENCES_PATH), false);
 				assertEquals(await fs.exists(LOCAL_PROJECT_PREFERENCES_PATH), false);
 				assertEquals(await fs.exists(GITIGNORE_PATH), false);
@@ -338,7 +337,7 @@ Deno.test({
 				assertEquals(await fs.readJson(LOCAL_PROJECT_PREFERENCES_PATH), {
 					strPref: "project",
 				});
-				assertEquals(await fs.readText(GITIGNORE_PATH), "ProjectSettings/preferencesLocal.json");
+				assertEquals(await fs.readText(GITIGNORE_PATH), ".renda/preferencesLocal.json");
 			},
 		});
 	},

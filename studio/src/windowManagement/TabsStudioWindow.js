@@ -1,5 +1,5 @@
 import {StudioWindow} from "./StudioWindow.js";
-import {getElemSize, parseMimeType} from "../util/util.js";
+import {getElementSize, parseMimeType} from "../util/util.js";
 import {generateUuid, iLerp} from "../../../src/util/mod.js";
 import {getStudioInstance} from "../studioInstance.js";
 import {Button} from "../ui/Button.js";
@@ -7,7 +7,7 @@ import {ButtonGroup} from "../ui/ButtonGroup.js";
 import {SplitStudioWindow} from "./SplitStudioWindow.js";
 
 export class TabsStudioWindow extends StudioWindow {
-	/** @type {Array<string>} */
+	/** @type {string[]} */
 	#intendedTabTypes = [];
 	/** @type {import("../../../src/util/mod.js").UuidString[]} */
 	#intendedTabUuids = [];
@@ -279,7 +279,7 @@ export class TabsStudioWindow extends StudioWindow {
 	}
 
 	updateTabSelectorSpacer() {
-		const [w, h] = getElemSize(this.tabsSelectorGroup.el);
+		const [w, h] = getElementSize(this.tabsSelectorGroup.el);
 		for (const tab of this.tabs) {
 			tab.updateTabSelectorSpacer(w, h);
 		}
@@ -560,7 +560,7 @@ export class TabsStudioWindow extends StudioWindow {
 	}
 
 	/**
-	 * @param {Array<string>} uuids
+	 * @param {string[]} uuids
 	 * @param {boolean} [fromOtherTabsOnly]
 	 */
 	*uuidsToContentWindows(uuids, fromOtherTabsOnly = false) {

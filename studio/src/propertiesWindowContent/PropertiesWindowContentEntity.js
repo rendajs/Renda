@@ -4,8 +4,14 @@ import {Button} from "../ui/Button.js";
 import {DroppableGui} from "../ui/DroppableGui.js";
 import {ProjectAssetTypeEntity} from "../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {EntitySelection} from "../misc/EntitySelection.js";
+import {EntityChangeType} from "../assets/EntityAssetManager.js";
 
 export class PropertiesWindowContentEntity extends PropertiesWindowContent {
+	/** @type {import("../../../src/mod.js").Entity[]} */
+	#currentTrackedEntityChangeEntities = [];
+
+	#destructed = false;
+
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesWindowContent>} args
 	 */
@@ -46,7 +52,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
-				this.notifyEntityEditors(entity, "transform");
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		});
 
@@ -65,7 +71,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
-				this.notifyEntityEditors(entity, "transform");
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		});
 
@@ -84,7 +90,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
-				this.notifyEntityEditors(entity, "transform");
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		});
 
@@ -108,7 +114,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 									},
 								});
 								await componentInstance.waitForStudioDefaults();
-								this.notifyEntityEditors(entity, "component");
+								this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(entity, EntityChangeType.CreateComponent, this);
 							}
 							this.refreshComponents();
 							this.componentsSection.collapsed = false;
@@ -124,6 +130,8 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 
 	destructor() {
 		this.treeView.destructor();
+		this.#destructed = true;
+		this.#updateTrackedEntityChangeCallbacks();
 		super.destructor();
 	}
 
@@ -139,7 +147,32 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		this.currentSelection = selectedObjects;
 		this.updateTransformationValues();
 		this.refreshComponents();
+		this.#updateTrackedEntityChangeCallbacks();
 	}
+
+	#updateTrackedEntityChangeCallbacks() {
+		const entityAssetManager = this.studioInstance.projectManager.assetManager?.entityAssetManager;
+		if (!entityAssetManager) return;
+		for (const oldEntity of this.#currentTrackedEntityChangeEntities) {
+			entityAssetManager.removeOnTrackedEntityChange(oldEntity, this.#onTrackedEntityChange);
+		}
+		if (this.currentSelection && !this.#destructed) {
+			for (const obj of this.currentSelection) {
+				entityAssetManager.onTrackedEntityChange(obj.entity, this.#onTrackedEntityChange);
+				this.#currentTrackedEntityChangeEntities.push(obj.entity);
+			}
+		}
+	}
+
+	/**
+	 * @param {import("../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
+	 */
+	#onTrackedEntityChange = e => {
+		if (e.source == this) return;
+		if (e.type & EntityChangeType.Transform) {
+			this.updateTransformationValues();
+		}
+	};
 
 	updateTransformationValues() {
 		if (!this.currentSelection) return;
@@ -153,17 +186,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		} else if (this.editingModeGui.value == "instance") {
 			throw new Error("Not implemented");
 		}
-	}
-
-	/**
-	 * @param {import("../misc/EntitySelection.js").EntitySelectionMetaData} metaData
-	 */
-	getParentDataFromEntitySelectionMetaData(metaData) {
-		const parentTreeView = metaData.outlinerTreeView.parent;
-		if (!parentTreeView) throw new Error("Failed to get parent data: TreeView has no parent.");
-		const parent = metaData.outliner.getEntityByTreeViewItem(parentTreeView);
-		const index = metaData.outlinerTreeView.index;
-		return {parent, index};
 	}
 
 	refreshComponents() {
@@ -190,7 +212,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 							const entity = componentGroup.entity;
 							if (entity) {
 								entity.removeComponent(componentGroup);
-								this.notifyEntityEditors(entity, "component");
+								this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(entity, EntityChangeType.DeleteComponent, this);
 							}
 							this.refreshComponents();
 						},
@@ -222,7 +244,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 					const scriptValueFromGui = e.target.getValue({purpose: "script"});
 					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.target);
 					if (componentGroup.entity) {
-						this.notifyEntityEditors(componentGroup.entity, "componentProperty");
+						this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(componentGroup.entity, EntityChangeType.ComponentProperty, this);
 					}
 				});
 			}
@@ -253,16 +275,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				object[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = {};
 			}
 			object[ProjectAssetTypeEntity.usedAssetUuidsSymbol][propertyName] = guiEntry.value;
-		}
-	}
-
-	/**
-	 * @param {import("../../../src/mod.js").Entity} entity
-	 * @param {import("../windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js").EntityChangedEventType} type
-	 */
-	notifyEntityEditors(entity, type) {
-		for (const entityEditor of this.studioInstance.windowManager.getContentWindows("renda:entityEditor")) {
-			entityEditor.notifyEntityChanged(entity, type);
 		}
 	}
 }

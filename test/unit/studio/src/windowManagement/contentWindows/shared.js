@@ -1,18 +1,16 @@
 import "../../../shared/initializeStudio.js";
-import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
+import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
+import {getMockWindowManager} from "../shared.js";
 
-const DEFAULT_CONTENT_WINDOW_UUID = "content window uuid";
-
-export function getMockWindowManager() {
-	const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
-	return mockWindowManager;
-}
+export const DEFAULT_CONTENT_WINDOW_UUID = "content window uuid";
 
 export function getMockArgs() {
 	const mockWindowManager = getMockWindowManager();
 
+	const {preferencesManagerAny} = createPreferencesManager({});
+
 	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
-		preferencesManager: new PreferencesManager(),
+		preferencesManager: preferencesManagerAny,
 		windowManager: mockWindowManager,
 		keyboardShortcutManager: {
 			onCommand(command, cb) {},

@@ -112,7 +112,7 @@ export class MaterialMapListUi {
 	}
 
 	/**
-	 * @param {function(import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewChangeEvent<any>) : void} cb
+	 * @param {(event: import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewChangeEvent<any>) => void} cb
 	 */
 	onValueChange(cb) {
 		this.treeView.onChildValueChange(cb);

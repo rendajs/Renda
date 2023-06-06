@@ -20,7 +20,7 @@ export async function waitForDroppableGuiHasValue(page, droppableGuiEl, hasValue
 export async function findDroppableGuiFromPropertiesTreeViewEntry(propertiesTreeViewEntryEl) {
 	assertExists(propertiesTreeViewEntryEl);
 	const entryValueEl = await getPropertiesTreeViewEntryValueEl(propertiesTreeViewEntryEl);
-	const droppableGuiEl = await entryValueEl.$(".droppableGui");
+	const droppableGuiEl = await entryValueEl.$(".droppable-gui");
 	assertExists(droppableGuiEl);
 	return droppableGuiEl;
 }
@@ -42,7 +42,7 @@ export async function createEmbeddedAssetAndOpen(page, propertiesTreeViewEntryEl
 	});
 
 	// Click the create embedded asset context menu
-	await clickContextMenuItem(page, ["Create embedded asset"]);
+	await clickContextMenuItem(page, ["Create Embedded Asset"]);
 	await waitForDroppableGuiHasValue(page, droppableGuiEl);
 
 	// Open the embedded asset

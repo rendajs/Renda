@@ -4,7 +4,9 @@ import {ContentWindowPreferencesLocation} from "../../../../../studio/src/prefer
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
-import {assertIsType} from "../../../shared/typeAssertions.js";
+import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
+
+const DEFAULT_CONTENT_WINDOW_UUID = "default content window uuid";
 
 /**
  * Creates a manager and registers a bunch of test types.
@@ -60,11 +62,14 @@ function createManager() {
 		}),
 	});
 
+	const mockWindowManager = createMockWindowManager();
+
 	const locations = {
 		global: new PreferencesLocation("global"),
 		workspace: new PreferencesLocation("workspace"),
 		versionControl: new PreferencesLocation("version-control"),
 		project: new PreferencesLocation("project"),
+		contentWindowProject: new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID),
 	};
 	for (const location of Object.values(locations)) {
 		manager.addLocation(location);
@@ -80,7 +85,7 @@ function createMockWindowManager() {
 	return mockWindowManager;
 }
 
-Deno.test({
+testTypes({
 	name: "Constructor registers preferences and infers the type",
 	fn() {
 		const manager = new PreferencesManager({
@@ -92,12 +97,12 @@ Deno.test({
 			},
 		});
 
-		const boolResult = manager.get("boolPref");
+		const boolResult = manager.get("boolPref", "uuid");
 		assertIsType(true, boolResult);
 		// @ts-expect-error Verify that the type isn't 'any'
 		assertIsType("", boolResult);
 
-		const numResult = manager.get("numPref");
+		const numResult = manager.get("numPref", "uuid");
 		assertIsType(0, numResult);
 		// @ts-expect-error Verify that the type isn't 'any'
 		assertIsType("", numResult);
@@ -166,14 +171,14 @@ Deno.test({
 	fn() {
 		const {manager} = createManager();
 
-		assertEquals(manager.get("boolPref1"), false);
-		assertEquals(manager.get("boolPref2"), true);
-		assertEquals(manager.get("numPref1"), 0);
-		assertEquals(manager.get("numPref2"), 42);
-		assertEquals(manager.get("projectPref"), "");
-		assertEquals(manager.get("workspacePref"), "default");
-		assertEquals(manager.get("unknownPref1"), {some: "data"});
-		assertEquals(manager.get("unknownPref2"), [1, 2, 3]);
+		assertEquals(manager.get("boolPref1", DEFAULT_CONTENT_WINDOW_UUID), false);
+		assertEquals(manager.get("boolPref2", DEFAULT_CONTENT_WINDOW_UUID), true);
+		assertEquals(manager.get("numPref1", DEFAULT_CONTENT_WINDOW_UUID), 0);
+		assertEquals(manager.get("numPref2", DEFAULT_CONTENT_WINDOW_UUID), 42);
+		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "");
+		assertEquals(manager.get("workspacePref", DEFAULT_CONTENT_WINDOW_UUID), "default");
+		assertEquals(manager.get("unknownPref1", DEFAULT_CONTENT_WINDOW_UUID), {some: "data"});
+		assertEquals(manager.get("unknownPref2", DEFAULT_CONTENT_WINDOW_UUID), [1, 2, 3]);
 
 		manager.set("boolPref1", true);
 		manager.set("boolPref2", false);
@@ -184,15 +189,15 @@ Deno.test({
 		manager.set("unknownPref1", {someOther: "data"});
 		manager.set("unknownPref2", {not: "an array"});
 
-		const boolPref1 = manager.get("boolPref1");
+		const boolPref1 = manager.get("boolPref1", DEFAULT_CONTENT_WINDOW_UUID);
 		assertEquals(boolPref1, true);
-		assertEquals(manager.get("boolPref2"), false);
-		assertEquals(manager.get("numPref1"), 123);
-		assertEquals(manager.get("numPref2"), 456);
-		assertEquals(manager.get("projectPref"), "str");
-		assertEquals(manager.get("workspacePref"), "str2");
-		assertEquals(manager.get("unknownPref1"), {someOther: "data"});
-		assertEquals(manager.get("unknownPref2"), {not: "an array"});
+		assertEquals(manager.get("boolPref2", DEFAULT_CONTENT_WINDOW_UUID), false);
+		assertEquals(manager.get("numPref1", DEFAULT_CONTENT_WINDOW_UUID), 123);
+		assertEquals(manager.get("numPref2", DEFAULT_CONTENT_WINDOW_UUID), 456);
+		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "str");
+		assertEquals(manager.get("workspacePref", DEFAULT_CONTENT_WINDOW_UUID), "str2");
+		assertEquals(manager.get("unknownPref1", DEFAULT_CONTENT_WINDOW_UUID), {someOther: "data"});
+		assertEquals(manager.get("unknownPref2", DEFAULT_CONTENT_WINDOW_UUID), {not: "an array"});
 
 		// Verify that the type is a boolean and nothing else
 		assertIsType(true, boolPref1);
@@ -206,30 +211,30 @@ Deno.test({
 	fn() {
 		const {manager} = createManager();
 
-		assertEquals(manager.get("str"), "");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "");
 		manager.set("str", "global", {location: "global"});
-		assertEquals(manager.get("str"), "global");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "global");
 
 		manager.set("str", "project", {location: "project"});
-		assertEquals(manager.get("str"), "project");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "project");
 
 		manager.set("str", "workspace", {location: "workspace"});
-		assertEquals(manager.get("str"), "project");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "project");
 
 		manager.set("str", "version-control", {location: "version-control"});
-		assertEquals(manager.get("str"), "project");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "project");
 
 		manager.reset("str", {location: "project"});
-		assertEquals(manager.get("str"), "version-control");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "version-control");
 
 		manager.reset("str", {location: "workspace"});
-		assertEquals(manager.get("str"), "version-control");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "version-control");
 
 		manager.reset("str", {location: "version-control"});
-		assertEquals(manager.get("str"), "global");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "global");
 
 		manager.reset("str", {location: "global"});
-		assertEquals(manager.get("str"), "");
+		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "");
 	},
 });
 
@@ -306,13 +311,13 @@ Deno.test({
 });
 
 Deno.test({
-	name: "All locations are considered when ",
+	name: "All locations are considered when getting a value",
 	fn() {
 		const {manager} = createManager();
 
 		manager.set("projectPref", "global", {location: "global"});
 		manager.set("projectPref", "project");
-		assertEquals(manager.get("projectPref"), "project");
+		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "project");
 	},
 });
 
@@ -321,7 +326,7 @@ Deno.test({
 	fn() {
 		const {manager, locations} = createManager();
 
-		/** @type {Parameters<typeof manager.onChange<"numPref2">>[1]} */
+		/** @type {Parameters<typeof manager.onChangeAny>[0]} */
 		const changeFn = () => {};
 		const spyFn = spy(changeFn);
 		let callCount = 0;
@@ -331,17 +336,7 @@ Deno.test({
 		});
 		assertSpyCalls(spyFn, callCount);
 
-		manager.onChange("numPref2", spyFn);
-		assertSpyCalls(spyFn, ++callCount);
-		assertSpyCall(spyFn, callCount - 1, {
-			args: [
-				{
-					value: 123,
-					trigger: "initial",
-					location: null,
-				},
-			],
-		});
+		manager.onChangeAny(spyFn);
 
 		locations.workspace.loadPreferences({
 			numPref2: 456,
@@ -350,7 +345,6 @@ Deno.test({
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
 				{
-					value: 456,
 					trigger: "load",
 					location: "workspace",
 				},
@@ -362,37 +356,62 @@ Deno.test({
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
 				{
-					value: 789,
 					trigger: "application",
 					location: "workspace",
 				},
 			],
 		});
 
-		// Setting to an existing value should not fire any events
+		// Setting to an existing value should fire it again
 		manager.set("numPref2", 789, {location: "workspace"});
-		assertSpyCalls(spyFn, callCount);
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					trigger: "application",
+					location: "workspace",
+				},
+			],
+		});
 
-		// Setting a location with higher priority to an existing value should not fire any events
+		// Setting a location with higher priority to an existing value should fire events
 		manager.set("numPref2", 789, {location: "project"});
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					trigger: "application",
+					location: "project",
+				},
+			],
+		});
 		manager.reset("numPref2", {location: "project"});
-		assertSpyCalls(spyFn, callCount);
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					trigger: "application",
+					location: "project",
+				},
+			],
+		});
 
-		// Setting a location with lower priority should not fire events
+		// Setting a location with lower priority should fire events
 		manager.set("numPref2", 42, {location: "global"});
 		manager.reset("numPref2", {location: "global"});
 		manager.set("numPref2", 123, {location: "global"});
+		callCount += 3;
 		assertSpyCalls(spyFn, callCount);
 
 		// Resetting a location that was never set should not fire events
 		manager.reset("numPref2", {location: "version-control"});
+		assertSpyCalls(spyFn, ++callCount);
 
 		manager.reset("numPref2", {location: "workspace"});
 		assertSpyCalls(spyFn, ++callCount);
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
 				{
-					value: 123,
 					trigger: "application",
 					location: "workspace",
 				},
@@ -404,7 +423,6 @@ Deno.test({
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
 				{
-					value: 789,
 					trigger: "user",
 					location: "workspace",
 				},
@@ -416,7 +434,6 @@ Deno.test({
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
 				{
-					value: 123,
 					trigger: "user",
 					location: "workspace",
 				},
@@ -429,7 +446,6 @@ Deno.test({
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
 				{
-					value: 42,
 					trigger: "load",
 					location: "global",
 				},
@@ -437,7 +453,7 @@ Deno.test({
 		});
 
 		// Unregistering should stop firing the callback
-		manager.removeOnChange("numPref2", spyFn);
+		manager.removeOnChangeAny(spyFn);
 		manager.set("numPref2", 789, {location: "workspace"});
 		assertSpyCalls(spyFn, callCount);
 	},
@@ -522,14 +538,11 @@ Deno.test({
 		});
 
 		// Same for preferences in content window locations
-		const mockWindowManager = createMockWindowManager();
-		const contentWindowLocation = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "contentWindowLocation");
-		manager.addLocation(contentWindowLocation);
-		contentWindowLocation.loadPreferences({
+		locations.contentWindowProject.loadPreferences({
 			nonExistent: "foo",
 		});
 
-		const value = manager.get("nonExistent", {assertRegistered: false});
+		const value = manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID, {assertRegistered: false});
 		assertEquals(value, "foo");
 
 		// Verify that the type is `string | number | boolean | null` and nothing else
@@ -542,10 +555,10 @@ Deno.test({
 		assertIsType({}, value);
 
 		assertThrows(() => {
-			manager.get("nonExistent", {assertRegistered: true});
+			manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID, {assertRegistered: true});
 		});
 		assertThrows(() => {
-			manager.get("nonExistent");
+			manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID);
 		});
 	},
 });
@@ -572,11 +585,10 @@ Deno.test({
 			contentWindowUuid: "location2",
 		});
 
-		assertEquals(manager.get("str"), "global value");
-		assertEquals(manager.get("str", {contentWindowUuid: "location1"}), "location1 value");
-		assertEquals(manager.get("str", {contentWindowUuid: "location2"}), "location2 value");
+		assertEquals(manager.get("str", "location1"), "location1 value");
+		assertEquals(manager.get("str", "location2"), "location2 value");
 		assertThrows(() => {
-			manager.get("str", {contentWindowUuid: "non existent"});
+			manager.get("str", "non existent");
 		}, Error, 'A content window uuid was provided ("non existent") but no location for this uuid was found.');
 
 		assertThrows(() => {
@@ -592,7 +604,7 @@ Deno.test({
 			});
 		}, Error, 'A content window uuid was provided ("non existent uuid") but no location for this uuid was found.');
 
-		const str = manager.get("str", {contentWindowUuid: "location1"});
+		const str = manager.get("str", "location1");
 
 		// Verify that the type is a string and nothing else
 		assertIsType("", str);
@@ -606,56 +618,128 @@ Deno.test({
 	fn() {
 		const {manager} = createManager();
 
-		const mockWindowManager = createMockWindowManager();
-		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location1");
-		manager.addLocation(location1);
-		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location2");
-		manager.addLocation(location2);
-		location1.loadPreferences({
-			str: "location1",
-		});
-		location2.loadPreferences({
-			str: "location2",
-		});
+		const CONTENT_WINDOW_UUID_1 = "content window uuid 1";
+		const CONTENT_WINDOW_UUID_2 = "content window uuid 2";
 
-		/** @type {Parameters<typeof manager.onChange<"str">>[1]} */
-		const onChangeCallbackSignature = () => {};
-		const globalSpyFn = spy(onChangeCallbackSignature);
+		const mockWindowManager = createMockWindowManager();
+		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, CONTENT_WINDOW_UUID_1);
+		manager.addLocation(location1);
+		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, CONTENT_WINDOW_UUID_2);
+		manager.addLocation(location2);
+
+		/** @type {Parameters<typeof manager.onChangeAny>[0]} */
+		const onChangeAnyCallbackSignature = () => {};
+		const globalSpyFn = spy(onChangeAnyCallbackSignature);
 		let globalSpyFnCallCount = 0;
-		const contentWindowSpyFn = spy(onChangeCallbackSignature);
-		let contentWindowSpyFnCallCount = 0;
+
+		/** @type {Parameters<typeof manager.onChange<"str">>[2]} */
+		const onChangeCallbackSignature = () => {};
+		const contentWindowSpyFn1 = spy(onChangeCallbackSignature);
+		let contentWindowSpyFn1CallCount = 0;
+		const contentWindowSpyFn2 = spy(onChangeCallbackSignature);
+		let contentWindowSpyFn2CallCount = 0;
 
 		// Register the global listener
-		manager.onChange("str", globalSpyFn);
+		manager.onChangeAny(globalSpyFn);
+		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+
+		// Set globally to initialize the value
+		manager.set("str", "globalValue", {location: "global"});
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
 			args: [
 				{
-					location: null,
-					trigger: "initial",
-					value: "",
+					location: "global",
+					trigger: "application",
 				},
 			],
 		});
 
-		// Register the content window listener
-		manager.onChange("str", contentWindowSpyFn, {contentWindowUuid: "location1"});
-		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
-		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+		// Register the content window listeners, events fire with 'initial' and 'location: null'
+		manager.onChange("str", CONTENT_WINDOW_UUID_1, contentWindowSpyFn1);
+		assertSpyCalls(contentWindowSpyFn1, ++contentWindowSpyFn1CallCount);
+		assertSpyCall(contentWindowSpyFn1, contentWindowSpyFn1CallCount - 1, {
 			args: [
 				{
 					location: null,
 					trigger: "initial",
-					value: "location1",
+					value: "globalValue",
+				},
+			],
+		});
+		manager.onChange("str", CONTENT_WINDOW_UUID_2, contentWindowSpyFn2);
+		assertSpyCalls(contentWindowSpyFn2, ++contentWindowSpyFn2CallCount);
+		assertSpyCall(contentWindowSpyFn2, contentWindowSpyFn2CallCount - 1, {
+			args: [
+				{
+					location: null,
+					trigger: "initial",
+					value: "globalValue",
 				},
 			],
 		});
 
-		// Setting value from the content window, should only fire the content window listener
-		manager.set("str", "location1set", {location: "contentwindow-project", contentWindowUuid: "location1"});
-		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
-		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
-		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+		// Load preferences, this should fire both global and content window events
+		location1.loadPreferences({
+			str: "location1",
+		});
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "load",
+				},
+			],
+		});
+
+		location2.loadPreferences({
+			str: "location2",
+		});
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "load",
+				},
+			],
+		});
+
+		assertSpyCalls(contentWindowSpyFn1, ++contentWindowSpyFn1CallCount);
+		assertSpyCall(contentWindowSpyFn1, contentWindowSpyFn1CallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "load",
+					value: "location1",
+				},
+			],
+		});
+		assertSpyCalls(contentWindowSpyFn2, ++contentWindowSpyFn2CallCount);
+		assertSpyCall(contentWindowSpyFn2, contentWindowSpyFn2CallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "load",
+					value: "location2",
+				},
+			],
+		});
+
+		// Setting value from the content window, should fire the content window listener and global listener
+		manager.set("str", "location1set", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "application",
+				},
+			],
+		});
+		assertSpyCalls(contentWindowSpyFn1, ++contentWindowSpyFn1CallCount);
+		assertSpyCall(contentWindowSpyFn1, contentWindowSpyFn1CallCount - 1, {
 			args: [
 				{
 					location: "contentwindow-project",
@@ -664,36 +748,72 @@ Deno.test({
 				},
 			],
 		});
+		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
 
-		// Setting it to the same value again, should not fire any listeners
-		manager.set("str", "location1set", {location: "contentwindow-project", contentWindowUuid: "location1"});
-		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
-		assertSpyCalls(contentWindowSpyFn, contentWindowSpyFnCallCount);
+		// Setting it to the same value again, should only fire the global listener
+		manager.set("str", "location1set", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "application",
+				},
+			],
+		});
+		assertSpyCalls(contentWindowSpyFn1, contentWindowSpyFn1CallCount);
+		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
 
-		// Setting value from an unrelated content window should fire no events
-		manager.set("str", "location2set", {location: "contentwindow-project", contentWindowUuid: "location2"});
-		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
-		assertSpyCalls(contentWindowSpyFn, contentWindowSpyFnCallCount);
+		// Setting value from another content window should only fire events on that content window
+		manager.set("str", "location2set", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_2});
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "application",
+				},
+			],
+		});
+		assertSpyCalls(contentWindowSpyFn1, contentWindowSpyFn1CallCount);
+		assertSpyCalls(contentWindowSpyFn2, ++contentWindowSpyFn2CallCount);
+		assertSpyCall(contentWindowSpyFn2, contentWindowSpyFn2CallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "application",
+					value: "location2set",
+				},
+			],
+		});
 
 		// Setting value globally shouldn't fire the content window events
 		manager.set("str", "globalValueSet", {location: "global"});
-		assertSpyCalls(contentWindowSpyFn, contentWindowSpyFnCallCount);
+		assertSpyCalls(contentWindowSpyFn1, contentWindowSpyFn1CallCount);
+		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
 			args: [
 				{
 					location: "global",
 					trigger: "application",
-					value: "globalValueSet",
 				},
 			],
 		});
 
 		// Resetting content window should fire with the global value
-		manager.reset("str", {location: "contentwindow-project", contentWindowUuid: "location1"});
-		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
-		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
-		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+		manager.reset("str", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "application",
+				},
+			],
+		});
+		assertSpyCalls(contentWindowSpyFn1, ++contentWindowSpyFn1CallCount);
+		assertSpyCall(contentWindowSpyFn1, contentWindowSpyFn1CallCount - 1, {
 			args: [
 				{
 					location: "contentwindow-project",
@@ -702,12 +822,45 @@ Deno.test({
 				},
 			],
 		});
+		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
+
+		// Setting value globally should only fire on content windows that don't already have their own location set
+		// At this point location1 has been reset, while location2 still has a value
+		manager.set("str", "globalValueSet again", {location: "global"});
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "global",
+					trigger: "application",
+				},
+			],
+		});
+		assertSpyCalls(contentWindowSpyFn1, ++contentWindowSpyFn1CallCount);
+		assertSpyCall(contentWindowSpyFn1, contentWindowSpyFn1CallCount - 1, {
+			args: [
+				{
+					location: "global",
+					trigger: "application",
+					value: "globalValueSet again",
+				},
+			],
+		});
+		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
 
 		// Setting by user on content window should fire
-		manager.set("str", "location1SetUser", {location: "contentwindow-project", contentWindowUuid: "location1", performedByUser: true});
-		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
-		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
-		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+		manager.set("str", "location1SetUser", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1, performedByUser: true});
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "user",
+				},
+			],
+		});
+		assertSpyCalls(contentWindowSpyFn1, ++contentWindowSpyFn1CallCount);
+		assertSpyCall(contentWindowSpyFn1, contentWindowSpyFn1CallCount - 1, {
 			args: [
 				{
 					location: "contentwindow-project",
@@ -716,24 +869,14 @@ Deno.test({
 				},
 			],
 		});
+		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
 
-		// Removing the listeners still fires them when the incorrect or no uuid is provided
-		manager.removeOnChange("str", contentWindowSpyFn);
-		manager.set("str", "location1set1", {location: "contentwindow-project", contentWindowUuid: "location1"});
-		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
-		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
-			args: [
-				{
-					location: "contentwindow-project",
-					trigger: "application",
-					value: "location1set1",
-				},
-			],
-		});
-		manager.removeOnChange("str", contentWindowSpyFn, {contentWindowUuid: "wrong location"});
-		manager.set("str", "location1set2", {location: "contentwindow-project", contentWindowUuid: "location1"});
-		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
-		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+		// Removing the listeners still fires them when the incorrect uuid is provided
+		manager.removeOnChange("str", "wrong location", contentWindowSpyFn1);
+		manager.set("str", "location1set2", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCalls(contentWindowSpyFn1, ++contentWindowSpyFn1CallCount);
+		assertSpyCall(contentWindowSpyFn1, contentWindowSpyFn1CallCount - 1, {
 			args: [
 				{
 					location: "contentwindow-project",
@@ -742,25 +885,52 @@ Deno.test({
 				},
 			],
 		});
-		manager.removeOnChange("str", globalSpyFn, {contentWindowUuid: "location1"});
-		manager.set("str", "globalValueSet2");
+
+		// Removing the listeners on the correct location should no longer fire them
+		manager.removeOnChange("str", CONTENT_WINDOW_UUID_1, contentWindowSpyFn1);
+		manager.set("str", "location1set3", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		assertSpyCalls(contentWindowSpyFn1, contentWindowSpyFn1CallCount);
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
-		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+		manager.removeOnChangeAny(globalSpyFn);
+		manager.set("str", "globalValueSet3");
+		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+	},
+});
+
+Deno.test({
+	name: "load event doesn't fire on content windows when the value hasn't changed",
+	fn() {
+		const {manager} = createManager();
+
+		const CONTENT_WINDOW_UUID = "content window uuid";
+
+		const mockWindowManager = createMockWindowManager();
+		const location = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, CONTENT_WINDOW_UUID);
+		manager.addLocation(location);
+
+		/** @type {Parameters<typeof manager.onChange<"str">>[2]} */
+		const onChangeCallbackSignature = () => {};
+		const contentWindowSpyFn = spy(onChangeCallbackSignature);
+
+		manager.set("str", "existing value", {location: "global"});
+
+		// Register the content window listeners, events fire with 'initial' and 'location: null'
+		manager.onChange("str", CONTENT_WINDOW_UUID, contentWindowSpyFn);
+		assertSpyCalls(contentWindowSpyFn, 1);
+		assertSpyCall(contentWindowSpyFn, 0, {
 			args: [
 				{
-					location: "global",
-					trigger: "application",
-					value: "globalValueSet2",
+					location: null,
+					trigger: "initial",
+					value: "existing value",
 				},
 			],
 		});
 
-		// Removing the listeners on the correct location should no longer fire them
-		manager.removeOnChange("str", contentWindowSpyFn, {contentWindowUuid: "location1"});
-		manager.set("str", "location1set3", {location: "contentwindow-project", contentWindowUuid: "location1"});
-		assertSpyCalls(contentWindowSpyFn, contentWindowSpyFnCallCount);
-		manager.removeOnChange("str", globalSpyFn);
-		manager.set("str", "globalValueSet3");
-		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+		// Load preferences, this shouldn't fire events because the value is the same
+		location.loadPreferences({
+			str: "existing value",
+		});
+		assertSpyCalls(contentWindowSpyFn, 1);
 	},
 });

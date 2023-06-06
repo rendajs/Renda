@@ -60,8 +60,10 @@ EntityChangeType.Component = EntityChangeType.CreateComponent | EntityChangeType
 
 /**
  * @typedef OnTrackedEntityChangeEvent
- * @property {Entity} entity
+ * @property {Entity} entity The entity that was changed.
  * @property {number} type
+ * @property {unknown} source The source that caused the event to fire. This is typically a reference to a content window.
+ * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
  */
 /** @typedef {(event: OnTrackedEntityChangeEvent) => void} OnTrackedEntityChangeCallback */
 
@@ -80,7 +82,7 @@ export class EntityAssetManager {
 	/** @type {EventHandler<Entity, OnTrackedEntityChangeEvent>} */
 	#onTrackedEntityChangeHandler = new EventHandler();
 
-	/** @typedef {Entity & {[x: symbol]: import("../../../src/mod.js").UuidString}} EntityWithUuidSymbol */
+	/** @typedef {Entity & Partial<{[x: symbol]: import("../../../src/mod.js").UuidString}>} EntityWithUuidSymbol */
 
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
@@ -93,13 +95,33 @@ export class EntityAssetManager {
 	 * Creates a new entity that stays up to date with any changes to the
 	 * linked entity asset belonging to the provided uuid.
 	 * Modifications to the returned entity will be overwritten unless you call
-	 * {@linkcode updateEntity} or {@linkcode updateEntityPosition} after making your change.
+	 * {@linkcode updateEntity} or {@linkcode updateEntityTransform} after making your change.
+	 *
+	 * The entity structure will be completely rebuilt when a change occurs.
+	 * So if you hold references to children of the tracked entity, these references might become useless when something changes.
+	 * Because children of the tracked entity could get replaced at any time,
+	 * the reference you hold might be pointing to an entity that is no longer being used.
+	 * You can listen for changes with {@linkcode onTrackedEntityChange} and update your references when this happens.
+	 * The only exception to this is changes to the position, rotation, or scale of entities.
+	 * In that case the changes will be applied to the existing entities directly.
+	 *
 	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 */
-	createdTrackedEntity(uuid) {
+	createTrackedEntity(uuid) {
 		const entity = new Entity();
-		this.#trackEntity(uuid, entity);
+		this.#trackEntityAndLoad(uuid, entity, false);
 		return entity;
+	}
+
+	/**
+	 * Turns an existing entity into a tracked one.
+	 * Overwrites other instances of this uuid with the provided entity.
+	 *
+	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 * @param {Entity} entity
+	 */
+	replaceTrackedEntity(uuid, entity) {
+		this.#trackEntityAndLoad(uuid, entity, true);
 	}
 
 	/**
@@ -108,7 +130,7 @@ export class EntityAssetManager {
 	 */
 	getLinkedAssetUuid(entity) {
 		const castEntity = /** @type {EntityWithUuidSymbol} */ (entity);
-		return castEntity[this.#entityAssetRootUuidSymbol];
+		return castEntity[this.#entityAssetRootUuidSymbol] || null;
 	}
 
 	/**
@@ -126,8 +148,11 @@ export class EntityAssetManager {
 	/**
 	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 * @param {Entity} entity
+	 * @param {boolean} overwriteLoaded Controls which entity is applied to which instance.
+	 * - Set to true to apply the instance of the `entity` parameter onto all the existing instances.
+	 * - Set to false to discard the state of the `entity` parameter and apply what is currently loaded instead.
 	 */
-	#trackEntity(uuid, entity) {
+	#trackEntityAndLoad(uuid, entity, overwriteLoaded) {
 		let trackedData = this.#trackedEntities.get(uuid);
 		if (!trackedData) {
 			trackedData = {
@@ -135,45 +160,60 @@ export class EntityAssetManager {
 				trackedInstances: new IterableWeakSet(),
 			};
 			this.#trackedEntities.set(uuid, trackedData);
-			this.#loadSourceEntity(uuid, trackedData);
-		}
-		if (trackedData.sourceEntity) {
-			this.#applyEntityClone(trackedData.sourceEntity, entity, EntityChangeType.Load | EntityChangeType.All);
+			(async () => {
+				if (trackedData.sourceEntity) throw new Error("Source entity is already loaded");
+				const sourceEntity = await this.#assetManager.getLiveAsset(uuid, {
+					assertAssetType: ProjectAssetTypeEntity,
+					assertExists: true,
+				});
+				trackedData.sourceEntity = sourceEntity;
+				if (overwriteLoaded) {
+					this.updateEntity(entity, EntityChangeType.All, null);
+				} else {
+					this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All, null);
+				}
+			})();
 		}
 		trackedData.trackedInstances.add(entity);
 		this.setLinkedAssetUuid(entity, uuid);
-	}
-
-	/**
-	 * @param {import("../../../src/mod.js").UuidString} uuid
-	 * @param {TrackedEntityData} trackedData
-	 */
-	async #loadSourceEntity(uuid, trackedData) {
-		if (trackedData.sourceEntity) {
-			throw new Error("Source entity is already loaded");
+		if (overwriteLoaded) {
+			if (trackedData.sourceEntity) {
+				this.updateEntity(entity, EntityChangeType.All, null);
+			}
+		} else {
+			if (trackedData.sourceEntity) {
+				this.#applyEntityClone(trackedData.sourceEntity, entity, EntityChangeType.Load | EntityChangeType.All, null);
+			}
 		}
-		const sourceEntity = await this.#assetManager.getLiveAsset(uuid, {
-			assertAssetType: ProjectAssetTypeEntity,
-			assertExists: true,
-		});
-		trackedData.sourceEntity = sourceEntity;
-		this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All);
 	}
 
 	/**
+	 * Gets the first parent that is a linked entity asset.
+	 * Also includes an indicesPath to walk from the linked entity asset to the provided child.
 	 * @param {Entity} entity
 	 */
 	#findRootEntityAsset(entity) {
+		/** @type {number[]} */
+		const indicesPath = [];
 		for (const parent of entity.traverseUp()) {
 			const uuid = this.getLinkedAssetUuid(parent);
-			if (uuid) {
+			if (!uuid) {
+				const parentParent = parent.parent;
+				if (!parentParent) {
+					// No entity asset was found in the parent chain
+					// we'll break out of the loop and throw below
+					break;
+				}
+				indicesPath.unshift(parentParent.children.indexOf(parent));
+			} else {
 				return {
 					root: parent,
+					indicesPath,
 					uuid,
 				};
 			}
 		}
-		throw new Error("Provided entity is not a child of an entity asset");
+		return null;
 	}
 
 	/**
@@ -181,43 +221,108 @@ export class EntityAssetManager {
 	 * instances to get updated with the new state of your provided instance.
 	 * This **clones** the entire entity for every instance that exists, which can be a fairly heavy operation.
 	 * If the only thing you did was change the position, rotation or scale of an entity,
-	 * it's best to use {@linkcode updateEntityPosition} instead.
+	 * it's best to use {@linkcode updateEntityTransform} instead.
+	 *
+	 * Note that changes using `EntityChangeType.Create` and `EntityChangeType.Delete` should fire on
+	 * the parent on which the entity was added or removed.
 	 * @param {Entity} entityInstance
 	 * @param {EntityChangeType} changeEventType
+	 * @param {unknown} eventSource This is typically an instance to the content window that fired the event.
+	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
-	updateEntity(entityInstance, changeEventType) {
-		const {uuid, root} = this.#findRootEntityAsset(entityInstance);
+	updateEntity(entityInstance, changeEventType, eventSource) {
+		const rootData = this.#findRootEntityAsset(entityInstance);
+		if (!rootData) return;
+		const {uuid, root, indicesPath} = rootData;
 		const trackedData = this.#trackedEntities.get(uuid);
-		if (!trackedData) {
-			throw new Error("The provided entity asset is not tracked by this EntityAssetManager.");
-		}
+		if (!trackedData) return;
 
+		const sourceEntity = root.getEntityByIndicesPath(indicesPath);
+		if (!sourceEntity) throw new Error("Assertion failed: Source child entity was not found");
 		if (root != trackedData.sourceEntity) {
 			if (!trackedData.sourceEntity) {
 				throw new Error("The source entity has not been loaded yet");
 			}
-			this.#applyEntityClone(root, trackedData.sourceEntity, changeEventType);
+			const targetEntity = trackedData.sourceEntity.getEntityByIndicesPath(indicesPath);
+			if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
+			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 		}
 		for (const trackedEntity of trackedData.trackedInstances) {
 			if (trackedEntity == root) continue;
-			this.#applyEntityClone(root, trackedEntity, changeEventType);
+			const targetEntity = trackedEntity.getEntityByIndicesPath(indicesPath);
+			if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
+			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 		}
+		this.#fireEvent(sourceEntity, changeEventType, eventSource);
 	}
 
 	/**
-	 * @param {Entity} sourceEntity
-	 * @param {Entity} targetEntity
+	 * Makes sure `targetEntity` becomes exactly the same as `sourceEntity`.
+	 * The name and components of the root (i.e `targetEntity`) will only be modified,
+	 * but all of its children will be cloned entirely.
+	 *
+	 * @param {Entity} sourceEntity The entity to clone
+	 * @param {Entity} targetEntity The target entity to apply the source entity to
 	 * @param {EntityChangeType} changeEventType
+	 * @param {unknown} source
 	 */
-	#applyEntityClone(sourceEntity, targetEntity, changeEventType) {
+	#applyEntityClone(sourceEntity, targetEntity, changeEventType, source) {
 		targetEntity.name = sourceEntity.name;
 		targetEntity.localMatrix = sourceEntity.localMatrix;
+
+		// We don't want to clone any nested entity assets, since they will be kept in sync by their own change events.
+		// But we also don't want to create new tracked entities for every nested entity either.
+		// Instead we'll collect all existing nested (tracked) entities so that we can add them in the `cloneChildHook` later.
+		/** @type {Map<import("../../../src/mod.js").UuidString, Entity[]>} */
+		const existingTrackedEntities = new Map();
+		for (const child of targetEntity.traverseDown()) {
+			if (child == targetEntity) continue;
+			const uuid = this.getLinkedAssetUuid(child);
+			if (!uuid) continue;
+			let entities = existingTrackedEntities.get(uuid);
+			if (!entities) {
+				entities = [];
+				existingTrackedEntities.set(uuid, entities);
+			}
+			entities.push(child);
+		}
+		for (const entities of existingTrackedEntities.values()) {
+			for (const entity of entities) {
+				if (entity.parent) {
+					entity.parent.remove(entity);
+				}
+			}
+		}
 
 		while (targetEntity.childCount > 0) {
 			targetEntity.remove(targetEntity.children[0]);
 		}
+
+		/**
+		 * Gets an existing tracked entity if one is available, and creates one otherwise.
+		 * @param {import("../../../src/mod.js").UuidString} uuid
+		 */
+		const getTrackedEntity = uuid => {
+			const entities = existingTrackedEntities.get(uuid);
+			if (entities) {
+				const entity = entities.pop();
+				if (entity) return entity;
+			}
+			return this.createTrackedEntity(uuid);
+		};
+
 		for (const child of sourceEntity.children) {
-			const clone = child.clone();
+			const clone = child.clone({
+				cloneChildHook: ({child}) => {
+					const uuid = this.getLinkedAssetUuid(child);
+					if (uuid) {
+						return getTrackedEntity(uuid);
+					} else {
+						// Perform regular clone behaviour
+						return null;
+					}
+				},
+			});
 			targetEntity.add(clone);
 			clone.localMatrix = child.localMatrix;
 		}
@@ -229,26 +334,73 @@ export class EntityAssetManager {
 			targetEntity.addComponent(component.clone());
 		}
 
-		this.#onTrackedEntityChangeHandler.fireEvent(targetEntity, {
-			entity: targetEntity,
-			type: changeEventType,
-		});
+		this.#fireEvent(targetEntity, changeEventType, source);
 	}
 
 	/**
 	 * Calling this after making a change to an entity will cause all other
 	 * instances to get updated with the new transformation of your provided instance.
+	 *
 	 * @param {Entity} entityInstance The entity for which the transformation was changed.
+	 * @param {unknown} eventSource This is typically an instance to the content window that fired the event.
+	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
-	updateEntityPosition(entityInstance) {
-		throw new Error("not yet implemented");
+	updateEntityTransform(entityInstance, eventSource) {
+		const rootData = this.#findRootEntityAsset(entityInstance);
+		if (!rootData) return;
+		const {uuid, indicesPath, root} = rootData;
+		const trackedData = this.#trackedEntities.get(uuid);
+		if (!trackedData) return;
+
+		const sourceChild = root.getEntityByIndicesPath(indicesPath);
+		if (!sourceChild) throw new Error("Assertion failed, source entity not found");
+		for (const trackedEntity of trackedData.trackedInstances) {
+			if (trackedEntity == root) continue;
+			this.#applyEntityTransform(sourceChild, trackedEntity, indicesPath, eventSource);
+		}
+
+		if (trackedData.sourceEntity) {
+			this.#applyEntityTransform(sourceChild, trackedData.sourceEntity, indicesPath, eventSource);
+		}
+		this.#fireEvent(sourceChild, EntityChangeType.Transform, eventSource);
+	}
+
+	/**
+	 * @param {Entity} sourceChild
+	 * @param {Entity} targetEntity
+	 * @param {number[]} indicesPath
+	 * @param {unknown} eventSource
+	 */
+	#applyEntityTransform(sourceChild, targetEntity, indicesPath, eventSource) {
+		const targetChild = targetEntity.getEntityByIndicesPath(indicesPath);
+		if (!targetChild) throw new Error("Assertion failed, target entity not found");
+
+		targetChild.localMatrix = sourceChild.localMatrix;
+
+		this.#fireEvent(targetChild, EntityChangeType.Transform, eventSource);
+	}
+
+	/**
+	 * Traverses up the parent tree and fires events on every parent.
+	 * @param {Entity} targetEntity
+	 * @param {EntityChangeType} type
+	 * @param {unknown} eventSource
+	 */
+	#fireEvent(targetEntity, type, eventSource) {
+		for (const parent of targetEntity.traverseUp()) {
+			this.#onTrackedEntityChangeHandler.fireEvent(parent, {
+				entity: targetEntity,
+				type,
+				source: eventSource,
+			});
+		}
 	}
 
 	/**
 	 * Registers a callback that fires when an entity or any of its children changes.
-	 * Events are only fired on the immediate root asset. Meaning that if an entity asset A
-	 * contains another entity asset B, and a child of B changes,
-	 * events only fire when registered with the reference of entity asset B.
+	 * Events are also fired on child entity assets. Meaning that if an entity 'asset A'
+	 * contains another entity 'asset B', and a child of B changes,
+	 * events fire on both asset A as well as B, including all of their children.
 	 *
 	 * Listeners are weakly held and garbage collected when the entity reference is garbage collected.
 	 *
@@ -260,10 +412,10 @@ export class EntityAssetManager {
 	}
 
 	/**
-	 * @param {Entity} assetReference
+	 * @param {Entity} entityReference
 	 * @param {OnTrackedEntityChangeCallback} cb
 	 */
-	removeOnTrackedEntityChange(assetReference, cb) {
-		this.#onTrackedEntityChangeHandler.removeEventListener(assetReference, cb);
+	removeOnTrackedEntityChange(entityReference, cb) {
+		this.#onTrackedEntityChangeHandler.removeEventListener(entityReference, cb);
 	}
 }

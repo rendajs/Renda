@@ -9,12 +9,12 @@ import {Popover} from "./Popover.js";
  * @property {ContextMenuStructure?} [structure = null]
  */
 
-/** @typedef {Array<ContextMenuItemOpts>} ContextMenuStructure */
+/** @typedef {ContextMenuItemOpts[]} ContextMenuStructure */
 
 /**
  * @typedef {object} ContextMenuItemClickEvent
  * @property {ContextMenuItem} item
- * @property {function() : void} preventMenuClose
+ * @property {() => void} preventMenuClose
  */
 
 /**
@@ -30,7 +30,7 @@ import {Popover} from "./Popover.js";
  * @property {boolean} [showBullet=false] Whether to show a bullet in front of to the item.
  * @property {string?} [icon=null] The icon to show in front of the item.
  * @property {boolean} [horizontalLine=false] When true, renders a line instead of the text.
- * @property {ContextMenuStructure | (function(): Promise<ContextMenuStructure>) | function(): ContextMenuStructure} [submenu=null] The submenu structure to show on hover.
+ * @property {ContextMenuStructure | (() => (Promise<ContextMenuStructure>) | ContextMenuStructure)} [submenu=null] The submenu structure to show on hover.
  */
 
 export class ContextMenu extends Popover {
@@ -45,7 +45,7 @@ export class ContextMenu extends Popover {
 		super(manager, {showArrow: false});
 		this.parentMenu = parentMenu;
 
-		/** @type {Array<ContextMenuItem>} */
+		/** @type {ContextMenuItem[]} */
 		this.addedItems = [];
 		this.activeSubmenuItem = null;
 		/** @type {ContextMenu?} */

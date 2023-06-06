@@ -50,7 +50,10 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @property {boolean} isSameTreeView Whether the dragged TreeView is from the same TreeView tree as the drop target.
  * @property {"string" | "file"} kind
  * @property {() => void} accept Mark the drag as accepted, renders drag feedback, and fires the drop event when dropped.
+ * When an item is dragged within the same TreeView, drag events are accepted by default, so you don't need to call this.
  * @property {() => void} reject Mark the drag as rejected. If any of the event handlers call `accept()`, this has no effect.
+ * When an item is dragged that is not a TreeView (such as external files, text elements etc.)
+ * or when an element from a different TreeView is dragged, events are rejected by default, so you don't need to call this.
  */
 /**
  * @typedef {TreeViewDragEvent & TreeViewValidateDragEventType} TreeViewValidateDragEvent
@@ -107,8 +110,8 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 /**
  * @typedef {object} TreeViewSelectionChangeEventType
  * @property {boolean} reset
- * @property {Array<TreeView>} added
- * @property {Array<TreeView>} removed
+ * @property {TreeView[]} added
+ * @property {TreeView[]} removed
  */
 /**
  * @typedef {TreeViewEvent & TreeViewSelectionChangeEventType} TreeViewSelectionChangeEvent
@@ -180,10 +183,10 @@ export class TreeView {
 	 */
 	constructor(data = {}) {
 		this.el = document.createElement("div");
-		this.el.classList.add("treeViewItem");
+		this.el.classList.add("tree-view-item");
 
 		this.rowEl = document.createElement("div");
-		this.rowEl.classList.add("treeViewRow");
+		this.rowEl.classList.add("tree-view-row");
 		this.el.appendChild(this.rowEl);
 
 		this.boundOnRowClick = this.onRowClick.bind(this);
@@ -207,11 +210,11 @@ export class TreeView {
 		this.rowEl.addEventListener("contextmenu", this.boundOnContextMenuEvent);
 
 		this.arrowContainerEl = document.createElement("div");
-		this.arrowContainerEl.classList.add("treeViewArrowContainer");
+		this.arrowContainerEl.classList.add("tree-view-arrow-container");
 		this.rowEl.appendChild(this.arrowContainerEl);
 
 		this.arrowEl = document.createElement("div");
-		this.arrowEl.classList.add("treeViewArrow");
+		this.arrowEl.classList.add("tree-view-arrow");
 		this.arrowContainerEl.appendChild(this.arrowEl);
 
 		/** @type {(() => any)[]} */
@@ -235,7 +238,7 @@ export class TreeView {
 		this.boundOnCancelRenameKeyPressed = this.onCancelRenameKeyPressed.bind(this);
 
 		this.myNameEl = document.createElement("div");
-		this.myNameEl.classList.add("treeViewName");
+		this.myNameEl.classList.add("tree-view-name");
 		this.rowEl.appendChild(this.myNameEl);
 
 		/** @type {import("./Button.js").Button[]} */
@@ -261,7 +264,7 @@ export class TreeView {
 		this._name = "";
 		/** @type {TreeView[]} */
 		this.children = [];
-		/** @type {?TreeView} */
+		/** @type {TreeView?} */
 		this.parent = data.parent ?? null; // todo: make this read only
 		/**
 		 * How deep this TreeView is nested inside a container.
@@ -549,7 +552,7 @@ export class TreeView {
 	}
 
 	/**
-	 * @param {?TreeView} treeView The TreeView to insert, creates a new one when null.
+	 * @param {TreeView?} treeView The TreeView to insert, creates a new one when null.
 	 * @returns {TreeView} The created TreeView.
 	 */
 	addChild(treeView = null) {
@@ -770,6 +773,7 @@ export class TreeView {
 		for (const child of root.getSelectedItems()) {
 			selectedItems.add(child);
 		}
+		/** @type {TreeView[]} */
 		let draggingItems = [];
 		if (selectedItems.has(this)) {
 			draggingItems = Array.from(selectedItems);
@@ -1293,7 +1297,7 @@ export class TreeView {
 				this.myNameEl.textContent = "";
 				const textEl = document.createElement("input");
 				this.renameTextField = textEl;
-				textEl.classList.add("resetInput", "textInput", "buttonLike", "treeViewRenameField");
+				textEl.classList.add("reset-input", "text-input", "button-like", "tree-view-rename-field");
 				textEl.value = oldName;
 				this.myNameEl.appendChild(textEl);
 				textEl.addEventListener("input", () => {
@@ -1376,7 +1380,7 @@ export class TreeView {
 		if (this.selected) {
 			const root = this.findRoot();
 			const focus = root.hasFocusWithin;
-			this.rowEl.classList.toggle("noFocus", !focus);
+			this.rowEl.classList.toggle("no-focus", !focus);
 			if (focus) focusSelected = true;
 		}
 		if (this.#focusSelectedShortcutCondition) this.#focusSelectedShortcutCondition.setValue(focusSelected);
@@ -1634,7 +1638,7 @@ export class TreeView {
 	/**
 	 * Gets a list of indices that can be traversed from the
 	 * root in order to get to this TreeView.
-	 * @returns {Array<number>} List of indices.
+	 * @returns {number[]} List of indices.
 	 */
 	getIndicesPath() {
 		const path = [];
@@ -1652,6 +1656,7 @@ export class TreeView {
 
 	/**
 	 * Gets array of TreeView names from the root traversed down until this element.
+	 * Includes both the name of the root as well as the name of this TreeView.
 	 * @returns {string[]} List of TreeView names.
 	 */
 	getNamesPath() {
@@ -1672,8 +1677,8 @@ export class TreeView {
 
 	/**
 	 * Traverses a list of names to find the specified child.
-	 * @param {Array<string>} path List of TreeView names.
-	 * @returns {?TreeView}
+	 * @param {string[]} path List of TreeView names.
+	 * @returns {TreeView?}
 	 */
 	findChildFromNamesPath(path = []) {
 		if (path.length <= 0) {
@@ -1689,6 +1694,18 @@ export class TreeView {
 	}
 
 	/**
+	 * Traverses a list of indices to find the specified child.
+	 * @param {number[]} path
+	 * @returns {TreeView?}
+	 */
+	findChildFromIndicesPath(path) {
+		if (path.length <= 0) return this;
+		const child = this.children[path[0]];
+		if (!child) return null;
+		return child.findChildFromIndicesPath(path.slice(1));
+	}
+
+	/**
 	 * Traverses up the tree and returns the first item without a parent.
 	 * @returns {TreeView}
 	 */
@@ -1700,7 +1717,7 @@ export class TreeView {
 	/**
 	 * @param {string} name The name of the child.
 	 * @param {boolean} recursive Whether or not the full tree should be searched, defaults to false.
-	 * @returns {?TreeView}
+	 * @returns {TreeView?}
 	 */
 	getChildByName(name, recursive = false) {
 		if (recursive) {
