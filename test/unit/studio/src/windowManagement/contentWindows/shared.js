@@ -1,12 +1,8 @@
 import "../../../shared/initializeStudio.js";
 import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
+import {getMockWindowManager} from "../shared.js";
 
 export const DEFAULT_CONTENT_WINDOW_UUID = "content window uuid";
-
-export function getMockWindowManager() {
-	const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
-	return mockWindowManager;
-}
 
 export function getMockArgs() {
 	const mockWindowManager = getMockWindowManager();

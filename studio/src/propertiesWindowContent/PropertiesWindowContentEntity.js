@@ -4,8 +4,14 @@ import {Button} from "../ui/Button.js";
 import {DroppableGui} from "../ui/DroppableGui.js";
 import {ProjectAssetTypeEntity} from "../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {EntitySelection} from "../misc/EntitySelection.js";
+import {EntityChangeType} from "../assets/EntityAssetManager.js";
 
 export class PropertiesWindowContentEntity extends PropertiesWindowContent {
+	/** @type {import("../../../src/mod.js").Entity[]} */
+	#currentTrackedEntityChangeEntities = [];
+
+	#destructed = false;
+
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesWindowContent>} args
 	 */
@@ -46,6 +52,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
 				this.notifyEntityEditors(entity, "transform");
 			}
 		});
@@ -65,6 +72,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
 				this.notifyEntityEditors(entity, "transform");
 			}
 		});
@@ -84,6 +92,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				} else if (this.editingModeGui.value == "instance") {
 					throw new Error("Not implemented");
 				}
+				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityPosition(entity, this);
 				this.notifyEntityEditors(entity, "transform");
 			}
 		});
@@ -108,6 +117,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 									},
 								});
 								await componentInstance.waitForStudioDefaults();
+								this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(entity, EntityChangeType.CreateComponent, this);
 								this.notifyEntityEditors(entity, "component");
 							}
 							this.refreshComponents();
@@ -124,6 +134,8 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 
 	destructor() {
 		this.treeView.destructor();
+		this.#destructed = true;
+		this.#updateTrackedEntityChangeCallbacks();
 		super.destructor();
 	}
 
@@ -139,7 +151,32 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		this.currentSelection = selectedObjects;
 		this.updateTransformationValues();
 		this.refreshComponents();
+		this.#updateTrackedEntityChangeCallbacks();
 	}
+
+	#updateTrackedEntityChangeCallbacks() {
+		const entityAssetManager = this.studioInstance.projectManager.assetManager?.entityAssetManager;
+		if (!entityAssetManager) return;
+		for (const oldEntity of this.#currentTrackedEntityChangeEntities) {
+			entityAssetManager.removeOnTrackedEntityChange(oldEntity, this.#onTrackedEntityChange);
+		}
+		if (this.currentSelection && !this.#destructed) {
+			for (const obj of this.currentSelection) {
+				entityAssetManager.onTrackedEntityChange(obj.entity, this.#onTrackedEntityChange);
+				this.#currentTrackedEntityChangeEntities.push(obj.entity);
+			}
+		}
+	}
+
+	/**
+	 * @param {import("../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
+	 */
+	#onTrackedEntityChange = e => {
+		if (e.source == this) return;
+		if (e.type & EntityChangeType.Transform) {
+			this.updateTransformationValues();
+		}
+	};
 
 	updateTransformationValues() {
 		if (!this.currentSelection) return;
@@ -179,6 +216,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 							const entity = componentGroup.entity;
 							if (entity) {
 								entity.removeComponent(componentGroup);
+								this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(entity, EntityChangeType.DeleteComponent, this);
 								this.notifyEntityEditors(entity, "component");
 							}
 							this.refreshComponents();
@@ -211,6 +249,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 					const scriptValueFromGui = e.target.getValue({purpose: "script"});
 					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.target);
 					if (componentGroup.entity) {
+						this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(componentGroup.entity, EntityChangeType.ComponentProperty, this);
 						this.notifyEntityEditors(componentGroup.entity, "componentProperty");
 					}
 				});

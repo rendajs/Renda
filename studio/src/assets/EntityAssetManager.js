@@ -412,10 +412,10 @@ export class EntityAssetManager {
 	}
 
 	/**
-	 * @param {Entity} assetReference
+	 * @param {Entity} entityReference
 	 * @param {OnTrackedEntityChangeCallback} cb
 	 */
-	removeOnTrackedEntityChange(assetReference, cb) {
-		this.#onTrackedEntityChangeHandler.removeEventListener(assetReference, cb);
+	removeOnTrackedEntityChange(entityReference, cb) {
+		this.#onTrackedEntityChangeHandler.removeEventListener(entityReference, cb);
 	}
 }
