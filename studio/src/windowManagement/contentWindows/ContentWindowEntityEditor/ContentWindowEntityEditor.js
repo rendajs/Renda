@@ -279,9 +279,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {import("../../../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
 	 */
 	#onTrackedEntityChange = e => {
+		if (!(e.type & EntityChangeType.Load)) {
+			this.entitySavingManager.setEntityDirty(true);
+		}
 		if (e.source === this) return;
 		this.markRenderDirty();
-		this.entitySavingManager.setEntityDirty(true);
 
 		if (e.type & EntityChangeType.Transform) {
 			for (const child of e.entity.traverseDown()) {

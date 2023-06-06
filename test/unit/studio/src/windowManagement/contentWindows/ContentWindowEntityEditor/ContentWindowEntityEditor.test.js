@@ -2,7 +2,7 @@ import {BASIC_ENTITY_UUID, basicTest} from "./shared.js";
 import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {EntityChangeType} from "../../../../../../../studio/src/assets/EntityAssetManager.js";
 import {Entity} from "../../../../../../../src/mod.js";
 
@@ -120,7 +120,29 @@ Deno.test({
 
 Deno.test({
 	name: "Saves the entity when making a change from the current window",
-	fn() {
-		throw new Error("todo");
+	async fn() {
+		const {args, assetManager, uninstall} = basicTest();
+		try {
+			const entityAssetManager = assetManager.entityAssetManager;
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			const setDirtySpy = spy(contentWindow.entitySavingManager, "setEntityDirty");
+			let expectedCallCount = 0;
+			const entity = entityAssetManager.createTrackedEntity(BASIC_ENTITY_UUID);
+
+			contentWindow.editingEntity = entity;
+
+			// Wait for entity to load
+			await waitForMicrotasks();
+			assertSpyCalls(setDirtySpy, expectedCallCount);
+
+			entityAssetManager.updateEntityPosition(entity, contentWindow);
+
+			assertSpyCalls(setDirtySpy, ++expectedCallCount);
+			assertSpyCall(setDirtySpy, 0, {
+				args: [true],
+			});
+		} finally {
+			uninstall();
+		}
 	},
 });

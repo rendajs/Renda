@@ -47,8 +47,9 @@ export class EntitySavingManager {
 	/**
 	 * Mark the currently editing entity as containing unsaved changes.
 	 * This enables the 'save' button or autosaves when autosave is enabled.
+	 * @param {boolean} dirty
 	 */
-	setEntityDirty(dirty = true) {
+	setEntityDirty(dirty) {
 		this.#entityDirty = dirty;
 		if (dirty && this.#getAutosaveValue()) {
 			this.saveEntityAssetInstance.run();
