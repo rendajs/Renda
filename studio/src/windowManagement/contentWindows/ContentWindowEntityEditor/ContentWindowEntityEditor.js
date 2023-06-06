@@ -8,6 +8,7 @@ import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {EntitySavingManager} from "./EntitySavingManager.js";
 import {ScaleGizmo} from "../../../../../src/gizmos/gizmos/ScaleGizmo.js";
+import {EntityChangeType} from "../../../assets/EntityAssetManager.js";
 
 export const ENTITY_EDITOR_CONTENT_WINDOW_ID = /** @type {const} */ ("renda:entityEditor");
 
@@ -278,8 +279,22 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {import("../../../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
 	 */
 	#onTrackedEntityChange = e => {
+		if (!(e.type & EntityChangeType.Load)) {
+			this.entitySavingManager.setEntityDirty(true);
+		}
 		if (e.source === this) return;
 		this.markRenderDirty();
+
+		if (e.type & EntityChangeType.Transform) {
+			for (const child of e.entity.traverseDown()) {
+				this.updateGizmoPositionsForEntity(child);
+			}
+			this.updateTransformationGizmos();
+		} else if (e.type & EntityChangeType.Component) {
+			this.updateGizmosForEntity(e.entity);
+		} else if (e.type & EntityChangeType.Delete) {
+			this.updateGizmosForEntity(e.entity, true);
+		}
 	};
 
 	/**
@@ -698,7 +713,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				newEntityMatrix.multiplyMatrix(pivotDragMatrix);
 				entity.worldMatrix = newEntityMatrix;
 				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
-				this.notifyEntityChanged(entity, "transform");
 			}
 		}
 	}
@@ -842,36 +856,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 						if (!propertyChangeName) return;
 						parentObject[propertyChangeName] = await projectAsset.getLiveAsset();
 						if (rootComponent.entity) {
-							this.notifyEntityChanged(rootComponent.entity, "componentProperty");
+							this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(rootComponent.entity, EntityChangeType.ComponentProperty, this);
 						}
 					};
 					projectAsset.onLiveAssetNeedsReplacement(listener);
 					this.createdLiveAssetChangeListeners.add({projectAsset, listener});
 				}
 			}
-		}
-	}
-
-	/**
-	 * @deprecated Use `EntityAssetManager.updateEntity` instead.
-	 * @param {Entity} entity
-	 * @param {EntityChangedEventType} type
-	 */
-	notifyEntityChanged(entity, type) {
-		if (!this.editingEntity.containsChild(entity) && type != "delete") return;
-
-		this.markRenderDirty();
-		this.entitySavingManager.setEntityDirty(true);
-
-		if (type == "transform") {
-			for (const e of entity.traverseDown()) {
-				this.updateGizmoPositionsForEntity(e);
-			}
-			this.updateTransformationGizmos();
-		} else if (type == "component" || type == "componentProperty") {
-			this.updateGizmosForEntity(entity);
-		} else if (type == "delete") {
-			this.updateGizmosForEntity(entity, true);
 		}
 	}
 
