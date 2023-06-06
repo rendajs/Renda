@@ -135,7 +135,7 @@ Deno.test({
 			await waitForMicrotasks();
 			assertSpyCalls(setDirtySpy, expectedCallCount);
 
-			entityAssetManager.updateEntityPosition(entity, contentWindow);
+			entityAssetManager.updateEntityTransform(entity, contentWindow);
 
 			assertSpyCalls(setDirtySpy, ++expectedCallCount);
 			assertSpyCall(setDirtySpy, 0, {
