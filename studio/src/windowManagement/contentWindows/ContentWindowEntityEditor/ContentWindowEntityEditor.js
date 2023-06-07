@@ -279,21 +279,21 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {import("../../../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
 	 */
 	#onTrackedEntityChange = e => {
-		if (!(e.type & EntityChangeType.Load)) {
-			this.entitySavingManager.setEntityDirty(true);
+		if (!(e.type & EntityChangeType.Load) && e.sourceEntity == e.targetEntity) {
+			this.entitySavingManager.addDirtyEntity(e.targetEntity);
 		}
 		if (e.source === this) return;
 		this.markRenderDirty();
 
 		if (e.type & EntityChangeType.Transform) {
-			for (const child of e.entity.traverseDown()) {
+			for (const child of e.targetEntity.traverseDown()) {
 				this.updateGizmoPositionsForEntity(child);
 			}
 			this.updateTransformationGizmos();
 		} else if (e.type & EntityChangeType.Component) {
-			this.updateGizmosForEntity(e.entity);
+			this.updateGizmosForEntity(e.targetEntity);
 		} else if (e.type & EntityChangeType.Delete) {
-			this.updateGizmosForEntity(e.entity, true);
+			this.updateGizmosForEntity(e.targetEntity, true);
 		}
 	};
 
@@ -339,7 +339,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const entity = assetManager.entityAssetManager.createTrackedEntity(entityUuid);
 		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
-		this.entitySavingManager.setEntityDirty(false);
+		this.entitySavingManager.clearDirtyEntities();
 		if (!fromContentWindowLoad) {
 			this.studioInstance.preferencesManager.set("entityEditor.loadedEntityPath", projectAsset.path, {
 				contentWindowUuid: this.uuid,

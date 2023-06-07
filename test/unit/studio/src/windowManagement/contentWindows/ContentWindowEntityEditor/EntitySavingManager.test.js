@@ -3,10 +3,11 @@ import {EntitySavingManager} from "../../../../../../../studio/src/windowManagem
 import {runWithDom, runWithDomAsync} from "../../../../shared/runWithDom.js";
 import {createPreferencesManager} from "../../../../shared/createPreferencesManager.js";
 import {createMockProjectAsset} from "../../../../shared/createMockProjectAsset.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCalls, stub} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 import {ContentWindowPreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {DEFAULT_CONTENT_WINDOW_UUID} from "../shared.js";
+import {Entity} from "../../../../../../../src/mod.js";
 
 const BASIC_EDITING_ENTITY_UUID = "editing entity uuid";
 
@@ -18,8 +19,41 @@ function getMockArgs() {
 	const mockWindowManager = /** @type {import("../../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 	preferencesManager.addLocation(new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID));
 
-	const {projectAsset: editingEntityAsset} = createMockProjectAsset();
-	const saveLiveAssetDataSpy = spy(editingEntityAsset, "saveLiveAssetData");
+	/** @type {{uuid: import("../../../../../../../src/mod.js").UuidString, entity: Entity, asset: import("../../../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny}[]} */
+	const editingEntities = [];
+
+	/**
+	 * @param {import("../../../../../../../src/mod.js").UuidString} uuid
+	 * @param {Entity} entity
+	 */
+	function addEntityAsset(uuid, entity, {
+		autoResolveSaveLiveAssetData = true,
+	} = {}) {
+		const {projectAsset: editingEntityAsset} = createMockProjectAsset();
+		let resolveFn = () => {};
+		const saveLiveAssetDataSpy = stub(editingEntityAsset, "saveLiveAssetData", () => {
+			if (autoResolveSaveLiveAssetData) return Promise.resolve();
+			/** @type {Promise<void>} */
+			const promise = new Promise(resolve => {
+				resolveFn = resolve;
+			});
+			return promise;
+		});
+		editingEntities.push({
+			uuid,
+			entity,
+			asset: editingEntityAsset,
+		});
+		return {
+			saveLiveAssetDataSpy,
+			resolveSaveLiveAssetData() {
+				resolveFn();
+			},
+		};
+	}
+	const editingEntity = new Entity();
+
+	const {saveLiveAssetDataSpy} = addEntityAsset(BASIC_EDITING_ENTITY_UUID, editingEntity);
 
 	const mockStudio = /** @type {import("../../../../../../../studio/src/Studio.js").Studio} */ ({
 		preferencesManager: preferencesManagerAny,
@@ -27,10 +61,20 @@ function getMockArgs() {
 			async getAssetManager() {
 				const assetManager = /** @type {import("../../../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({
 					async getProjectAssetFromUuid(uuid) {
-						if (uuid == BASIC_EDITING_ENTITY_UUID) {
-							return editingEntityAsset;
+						const data = editingEntities.find(data => data.uuid == uuid);
+						if (data) {
+							return data.asset;
 						}
 						throw new AssertionError("Unexpected asset uuid passed");
+					},
+					entityAssetManager: {
+						findRootEntityAsset(entity) {
+							const data = editingEntities.find(data => data.entity == entity);
+							if (data) {
+								return {uuid: data.uuid};
+							}
+							return null;
+						},
 					},
 				});
 				return assetManager;
@@ -49,9 +93,10 @@ function getMockArgs() {
 
 	return {
 		args,
-		mockWindow,
 		preferencesManager,
 		saveLiveAssetDataSpy,
+		editingEntity,
+		addEntityAsset,
 	};
 }
 
@@ -74,11 +119,12 @@ Deno.test({
 	name: "Entity is saved when clicking the button",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, preferencesManager, mockWindow, saveLiveAssetDataSpy} = getMockArgs();
+			const {args, editingEntity, preferencesManager, saveLiveAssetDataSpy} = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", false);
-			mockWindow.editingEntityUuid = BASIC_EDITING_ENTITY_UUID;
+
+			manager.addDirtyEntity(editingEntity);
 
 			manager.saveEntityButton.click();
 			await waitForMicrotasks();
@@ -89,35 +135,16 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Button is only enabled when entity is savable",
-	fn() {
-		runWithDom(() => {
-			const {args, mockWindow, preferencesManager} = getMockArgs();
-
-			const manager = new EntitySavingManager(...args);
-			preferencesManager.set("entityEditor.autosaveEntities", false);
-
-			manager.setEntityDirty(true);
-			assertEquals(manager.saveEntityButton.disabled, true);
-
-			mockWindow.editingEntityUuid = BASIC_EDITING_ENTITY_UUID;
-			manager.setEntityDirty(true);
-			assertEquals(manager.saveEntityButton.disabled, false);
-		});
-	},
-});
-
-Deno.test({
 	name: "Button becomes disabled when there is nothing to save",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, mockWindow, preferencesManager} = getMockArgs();
+			const {args, preferencesManager} = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", false);
-			mockWindow.editingEntityUuid = BASIC_EDITING_ENTITY_UUID;
 
-			manager.setEntityDirty(true);
+			const entity = new Entity();
+			manager.addDirtyEntity(entity);
 			assertEquals(manager.saveEntityButton.disabled, false);
 
 			manager.saveEntityButton.click();
@@ -126,7 +153,7 @@ Deno.test({
 			assertEquals(manager.saveEntityButton.disabled, true);
 
 			// Making changes to the entity should enable it again
-			manager.setEntityDirty(true);
+			manager.addDirtyEntity(entity);
 			assertEquals(manager.saveEntityButton.disabled, false);
 		});
 	},
@@ -136,15 +163,14 @@ Deno.test({
 	name: "Entities are autosaved when making changes",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, saveLiveAssetDataSpy, mockWindow, preferencesManager} = getMockArgs();
+			const {args, editingEntity, saveLiveAssetDataSpy, preferencesManager} = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", true);
-			mockWindow.editingEntityUuid = BASIC_EDITING_ENTITY_UUID;
 
 			assertSpyCalls(saveLiveAssetDataSpy, 0);
 
-			manager.setEntityDirty(true);
+			manager.addDirtyEntity(editingEntity);
 			await waitForMicrotasks();
 
 			assertSpyCalls(saveLiveAssetDataSpy, 1);
@@ -156,17 +182,50 @@ Deno.test({
 	name: "Loading a new entity should disable the button",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, mockWindow, preferencesManager} = getMockArgs();
+			const {args, editingEntity, preferencesManager} = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", false);
-			mockWindow.editingEntityUuid = BASIC_EDITING_ENTITY_UUID;
 
-			manager.setEntityDirty(true);
+			manager.addDirtyEntity(editingEntity);
 			assertEquals(manager.saveEntityButton.disabled, false);
 
-			manager.setEntityDirty(false);
+			manager.clearDirtyEntities();
 			assertEquals(manager.saveEntityButton.disabled, true);
+		});
+	},
+});
+
+Deno.test({
+	name: "Marking an entity as dirty while another is being saved still saves it in a second pass",
+	async fn() {
+		await runWithDomAsync(async () => {
+			const {args, addEntityAsset, preferencesManager} = getMockArgs();
+
+			const entity1 = new Entity();
+			const uuid1 = "editing entity 1";
+			const {saveLiveAssetDataSpy: saveLiveAssetDataSpy1, resolveSaveLiveAssetData: resolve1} = addEntityAsset(uuid1, entity1, {autoResolveSaveLiveAssetData: false});
+
+			const entity2 = new Entity();
+			const uuid2 = "editing entity 2";
+			const {saveLiveAssetDataSpy: saveLiveAssetDataSpy2} = addEntityAsset(uuid2, entity2);
+
+			const manager = new EntitySavingManager(...args);
+			preferencesManager.set("entityEditor.autosaveEntities", true);
+
+			assertSpyCalls(saveLiveAssetDataSpy1, 0);
+
+			manager.addDirtyEntity(entity1);
+			await waitForMicrotasks();
+			assertSpyCalls(saveLiveAssetDataSpy1, 1);
+
+			manager.addDirtyEntity(entity2);
+			await waitForMicrotasks();
+
+			assertSpyCalls(saveLiveAssetDataSpy2, 0);
+			resolve1();
+			await waitForMicrotasks();
+			assertSpyCalls(saveLiveAssetDataSpy2, 1);
 		});
 	},
 });

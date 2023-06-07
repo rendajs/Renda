@@ -1,8 +1,8 @@
 import {BASIC_ENTITY_UUID, basicTest} from "./shared.js";
 import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {EntityChangeType} from "../../../../../../../studio/src/assets/EntityAssetManager.js";
 import {Entity} from "../../../../../../../src/mod.js";
 
@@ -125,7 +125,7 @@ Deno.test({
 		try {
 			const entityAssetManager = assetManager.entityAssetManager;
 			const contentWindow = new ContentWindowEntityEditor(...args);
-			const setDirtySpy = spy(contentWindow.entitySavingManager, "setEntityDirty");
+			const addDirtyEntitySpy = spy(contentWindow.entitySavingManager, "addDirtyEntity");
 			let expectedCallCount = 0;
 			const entity = entityAssetManager.createTrackedEntity(BASIC_ENTITY_UUID);
 
@@ -133,14 +133,12 @@ Deno.test({
 
 			// Wait for entity to load
 			await waitForMicrotasks();
-			assertSpyCalls(setDirtySpy, expectedCallCount);
+			assertSpyCalls(addDirtyEntitySpy, expectedCallCount);
 
 			entityAssetManager.updateEntityTransform(entity, contentWindow);
 
-			assertSpyCalls(setDirtySpy, ++expectedCallCount);
-			assertSpyCall(setDirtySpy, 0, {
-				args: [true],
-			});
+			assertSpyCalls(addDirtyEntitySpy, ++expectedCallCount);
+			assertStrictEquals(addDirtyEntitySpy.calls[0].args[0], entity);
 		} finally {
 			uninstall();
 		}

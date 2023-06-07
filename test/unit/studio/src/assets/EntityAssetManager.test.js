@@ -201,7 +201,8 @@ Deno.test({
 		const eventSource1 = Symbol("eventSource1");
 		manager.updateEntity(entity1, EntityChangeType.Rename, eventSource1);
 		assertEquals(calls.length, 1);
-		assertStrictEquals(calls[0].entity, entity2);
+		assertStrictEquals(calls[0].sourceEntity, entity1);
+		assertStrictEquals(calls[0].targetEntity, entity2);
 		assertEquals(calls[0].type, EntityChangeType.Rename);
 		assertStrictEquals(calls[0].source, eventSource1);
 
@@ -213,7 +214,8 @@ Deno.test({
 		const eventSource2 = Symbol("eventSource2");
 		manager.updateEntity(entity2, EntityChangeType.Rename, eventSource2);
 		assertEquals(calls.length, 3);
-		assertStrictEquals(calls[2].entity, entity2);
+		assertStrictEquals(calls[2].sourceEntity, entity2);
+		assertStrictEquals(calls[2].targetEntity, entity2);
 		assertEquals(calls[2].type, EntityChangeType.Rename);
 		assertStrictEquals(calls[2].source, eventSource2);
 
@@ -278,7 +280,8 @@ Deno.test({
 		callCount++;
 		assertEquals(calls.length, callCount);
 		assertStrictEquals(calls[0].trackedEntity, entity1);
-		assertStrictEquals(calls[0].event.entity, entity1.children[0]);
+		assertStrictEquals(calls[0].event.sourceEntity, entity2.children[0]);
+		assertStrictEquals(calls[0].event.targetEntity, entity1.children[0]);
 		assertStrictEquals(calls[0].event.source, eventSource1);
 
 		assertEquals(entity2.name, "my entity");
@@ -294,16 +297,20 @@ Deno.test({
 		callCount += 4;
 		assertEquals(calls.length, callCount);
 		assertStrictEquals(calls[1].trackedEntity, nestedEntityAsset1b);
-		assertStrictEquals(calls[1].event.entity, initialChild1.children[0]);
+		assertStrictEquals(calls[1].event.sourceEntity, nestedEntityAsset1a);
+		assertStrictEquals(calls[1].event.targetEntity, initialChild1.children[0]);
 		assertStrictEquals(calls[1].event.source, eventSource2);
 		assertStrictEquals(calls[2].trackedEntity, entity1);
-		assertStrictEquals(calls[2].event.entity, initialChild1.children[0]);
+		assertStrictEquals(calls[2].event.sourceEntity, nestedEntityAsset1a);
+		assertStrictEquals(calls[2].event.targetEntity, initialChild1.children[0]);
 		assertStrictEquals(calls[2].event.source, eventSource2);
 		assertStrictEquals(calls[3].trackedEntity, nestedEntityAsset1a);
-		assertStrictEquals(calls[3].event.entity, nestedEntityAsset1a);
+		assertStrictEquals(calls[3].event.sourceEntity, nestedEntityAsset1a);
+		assertStrictEquals(calls[3].event.targetEntity, nestedEntityAsset1a);
 		assertStrictEquals(calls[3].event.source, eventSource2);
 		assertStrictEquals(calls[4].trackedEntity, entity1);
-		assertStrictEquals(calls[4].event.entity, initialChild1.children[1]);
+		assertStrictEquals(calls[4].event.sourceEntity, nestedEntityAsset1a);
+		assertStrictEquals(calls[4].event.targetEntity, initialChild1.children[1]);
 		assertStrictEquals(calls[4].event.source, eventSource2);
 
 		assertEquals(entity2.name, "my entity");
@@ -426,11 +433,13 @@ Deno.test({
 		assertEquals(calls.length, 2);
 		assertEquals(calls[0].trackedEntity, entity2);
 		assertEquals(calls[0].event.type, EntityChangeType.Transform);
-		assertStrictEquals(calls[0].event.entity, child2A);
+		assertStrictEquals(calls[0].event.sourceEntity, child1A);
+		assertStrictEquals(calls[0].event.targetEntity, child2A);
 		assertStrictEquals(calls[0].event.source, eventSource1);
 		assertEquals(calls[1].trackedEntity, entity1);
 		assertEquals(calls[1].event.type, EntityChangeType.Transform);
-		assertStrictEquals(calls[1].event.entity, child1A);
+		assertStrictEquals(calls[1].event.sourceEntity, child1A);
+		assertStrictEquals(calls[1].event.targetEntity, child1A);
 		assertStrictEquals(calls[1].event.source, eventSource1);
 
 		child1B.pos.set(4, 5, 6);
@@ -440,11 +449,13 @@ Deno.test({
 		assertEquals(calls.length, 4);
 		assertEquals(calls[2].trackedEntity, entity2);
 		assertEquals(calls[2].event.type, EntityChangeType.Transform);
-		assertStrictEquals(calls[2].event.entity, child2B);
+		assertStrictEquals(calls[2].event.sourceEntity, child1B);
+		assertStrictEquals(calls[2].event.targetEntity, child2B);
 		assertStrictEquals(calls[2].event.source, eventSource2);
 		assertEquals(calls[3].trackedEntity, entity1);
 		assertEquals(calls[3].event.type, EntityChangeType.Transform);
-		assertStrictEquals(calls[3].event.entity, child1B);
+		assertStrictEquals(calls[3].event.sourceEntity, child1B);
+		assertStrictEquals(calls[3].event.targetEntity, child1B);
 		assertStrictEquals(calls[3].event.source, eventSource2);
 
 		manager.removeOnTrackedEntityChange(entity2, onChange2Fn);
