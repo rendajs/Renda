@@ -286,14 +286,14 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.markRenderDirty();
 
 		if (e.type & EntityChangeType.Transform) {
-			for (const child of e.entity.traverseDown()) {
+			for (const child of e.targetEntity.traverseDown()) {
 				this.updateGizmoPositionsForEntity(child);
 			}
 			this.updateTransformationGizmos();
 		} else if (e.type & EntityChangeType.Component) {
-			this.updateGizmosForEntity(e.entity);
+			this.updateGizmosForEntity(e.targetEntity);
 		} else if (e.type & EntityChangeType.Delete) {
-			this.updateGizmosForEntity(e.entity, true);
+			this.updateGizmosForEntity(e.targetEntity, true);
 		}
 	};
 

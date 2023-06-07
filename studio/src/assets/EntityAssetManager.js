@@ -60,10 +60,33 @@ EntityChangeType.Component = EntityChangeType.CreateComponent | EntityChangeType
 
 /**
  * @typedef OnTrackedEntityChangeEvent
- * @property {Entity} entity The entity that was changed.
+ * @property {Entity} sourceEntity A reference to the source entity that was changed and caused other tracked entities to get updated.
+ * This is not a direct child of the entityReference that you called `onTrackedEntityChange` with.
+ * Instead, this is the source entity that was copied and applied onto `targetEntity`.
+ * So you'll likely want to use `targetEntity` instead.
+ * @property {Entity} targetEntity The entity that was changed. This is either a direct child of the entityReference that you called `onTrackedEntityChange` with,
+ * or the entityReference itself.
  * @property {number} type
  * @property {unknown} source The source that caused the event to fire. This is typically a reference to a content window.
  * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
+ * For instance, inside your event handler you can do `if (e.source == this) return` to ignore all events triggered from the current class.
+ * In order for this to work, you'll need to use `updateEntity(entity, EntityChangeType, this);` with `this` as `source` parameter for all `updateEntity` calls in the current class.
+ *
+ * Another option is to check if `e.sourceEntity == e.targetEntity`. There's a difference between the two approaches.
+ * `e.source` generally tells you which content window caused the change, whereas `e.sourceEntity` tells you *which* tracked entity was changed.
+ * When in doubt, you'll likely want to use the `if (e.source == this) return` approach.
+ *
+ * To give a few examples:
+ * The outliner might want to ignore all changes made by itself to prevent interfering with user input.
+ * But it will still want to update ui when changes are made from its linked entity editor.
+ * (The entity editor and outliner both reference the same tracked entity instance.)
+ * In this case the outliner will want to use `if (e.source == this) return` to ignore all events from its own window.
+ *
+ * But on the other hand, an entity editor might not want to save any changes made from other entity editors.
+ * But it will still want to save changes made from the outliner.
+ * (Two entity editors both reference two different tracked entity instances.)
+ * In this case, the entity editor will want to use `e.sourceEntity == e.targetEntity` to only trigger a save when
+ * its own entity was modified.
  */
 /** @typedef {(event: OnTrackedEntityChangeEvent) => void} OnTrackedEntityChangeCallback */
 
@@ -253,7 +276,7 @@ export class EntityAssetManager {
 			if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
 			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 		}
-		this.#fireEvent(sourceEntity, changeEventType, eventSource);
+		this.#fireEvent(sourceEntity, sourceEntity, changeEventType, eventSource);
 	}
 
 	/**
@@ -334,7 +357,7 @@ export class EntityAssetManager {
 			targetEntity.addComponent(component.clone());
 		}
 
-		this.#fireEvent(targetEntity, changeEventType, source);
+		this.#fireEvent(sourceEntity, targetEntity, changeEventType, source);
 	}
 
 	/**
@@ -362,7 +385,7 @@ export class EntityAssetManager {
 		if (trackedData.sourceEntity) {
 			this.#applyEntityTransform(sourceChild, trackedData.sourceEntity, indicesPath, eventSource);
 		}
-		this.#fireEvent(sourceChild, EntityChangeType.Transform, eventSource);
+		this.#fireEvent(sourceChild, sourceChild, EntityChangeType.Transform, eventSource);
 	}
 
 	/**
@@ -377,19 +400,21 @@ export class EntityAssetManager {
 
 		targetChild.localMatrix = sourceChild.localMatrix;
 
-		this.#fireEvent(targetChild, EntityChangeType.Transform, eventSource);
+		this.#fireEvent(sourceChild, targetChild, EntityChangeType.Transform, eventSource);
 	}
 
 	/**
 	 * Traverses up the parent tree and fires events on every parent.
+	 * @param {Entity} sourceEntity
 	 * @param {Entity} targetEntity
 	 * @param {EntityChangeType} type
 	 * @param {unknown} eventSource
 	 */
-	#fireEvent(targetEntity, type, eventSource) {
+	#fireEvent(sourceEntity, targetEntity, type, eventSource) {
 		for (const parent of targetEntity.traverseUp()) {
 			this.#onTrackedEntityChangeHandler.fireEvent(parent, {
-				entity: targetEntity,
+				targetEntity,
+				sourceEntity,
 				type,
 				source: eventSource,
 			});

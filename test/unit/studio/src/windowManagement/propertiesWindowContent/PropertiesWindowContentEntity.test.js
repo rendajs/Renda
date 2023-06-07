@@ -100,7 +100,7 @@ Deno.test({
 			const {windowContent, child, entityAssetManagerMocks} = basicWindowWithEntity();
 			child.pos.x = 1;
 			entityAssetManagerMocks.fireTrackedEntityChange(child, {
-				entity: child,
+				targetEntity: child,
 				source: null,
 				type: EntityChangeType.Transform,
 			});
@@ -111,7 +111,7 @@ Deno.test({
 			windowContent.destructor();
 			child.pos.x = 2;
 			entityAssetManagerMocks.fireTrackedEntityChange(child, {
-				entity: child,
+				targetEntity: child,
 				source: null,
 				type: EntityChangeType.Transform,
 			});

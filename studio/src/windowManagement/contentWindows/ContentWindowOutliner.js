@@ -163,11 +163,11 @@ export class ContentWindowOutliner extends ContentWindow {
 				this.#currentOnEntityChangeCallback = event => {
 					if (event.source === this) return;
 					if (event.type & EntityChangeType.Hierarchy) {
-						const childTreeView = this.#getTreeViewByEntity(event.entity);
+						const childTreeView = this.#getTreeViewByEntity(event.targetEntity);
 						if (!childTreeView) {
 							throw new Error("Assertion failed, child treeview wasn't found");
 						}
-						this.updateTreeViewRecursive(childTreeView, event.entity, {assetManager});
+						this.updateTreeViewRecursive(childTreeView, event.targetEntity, {assetManager});
 					}
 				};
 				this.#currentOnEntityChangeEntity = this.linkedEntityEditor.editingEntity;
