@@ -215,7 +215,7 @@ export class EntityAssetManager {
 	 * Also includes an indicesPath to walk from the linked entity asset to the provided child.
 	 * @param {Entity} entity
 	 */
-	#findRootEntityAsset(entity) {
+	findRootEntityAsset(entity) {
 		/** @type {number[]} */
 		const indicesPath = [];
 		for (const parent of entity.traverseUp()) {
@@ -224,7 +224,7 @@ export class EntityAssetManager {
 				const parentParent = parent.parent;
 				if (!parentParent) {
 					// No entity asset was found in the parent chain
-					// we'll break out of the loop and throw below
+					// we'll break out of the loop and return below
 					break;
 				}
 				indicesPath.unshift(parentParent.children.indexOf(parent));
@@ -254,7 +254,7 @@ export class EntityAssetManager {
 	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
 	updateEntity(entityInstance, changeEventType, eventSource) {
-		const rootData = this.#findRootEntityAsset(entityInstance);
+		const rootData = this.findRootEntityAsset(entityInstance);
 		if (!rootData) return;
 		const {uuid, root, indicesPath} = rootData;
 		const trackedData = this.#trackedEntities.get(uuid);
@@ -369,7 +369,7 @@ export class EntityAssetManager {
 	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
 	updateEntityTransform(entityInstance, eventSource) {
-		const rootData = this.#findRootEntityAsset(entityInstance);
+		const rootData = this.findRootEntityAsset(entityInstance);
 		if (!rootData) return;
 		const {uuid, indicesPath, root} = rootData;
 		const trackedData = this.#trackedEntities.get(uuid);

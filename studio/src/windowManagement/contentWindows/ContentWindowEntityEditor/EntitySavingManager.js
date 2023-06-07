@@ -2,7 +2,10 @@ import {SingleInstancePromise} from "../../../../../src/mod.js";
 import {Button} from "../../../ui/Button.js";
 
 export class EntitySavingManager {
-	#entityDirty = false;
+	/** @typedef {import("../../../../../src/mod.js").Entity} Entity */
+
+	/** @type {Set<Entity>} */
+	#dirtyEntities = new Set();
 	#isSavingAsset = false;
 
 	/**
@@ -25,17 +28,32 @@ export class EntitySavingManager {
 		});
 
 		this.saveEntityAssetInstance = new SingleInstancePromise(async () => {
-			if (!this.entityEditor.editingEntityUuid) return;
-
 			this.#isSavingAsset = true;
 			this.#updateSaveButtonDisabled();
 
+			const dirtyEntitiesCopy = [...this.#dirtyEntities];
+			this.#dirtyEntities.clear();
+
 			const assetManager = await this.studioInstance.projectManager.getAssetManager();
-			const asset = await assetManager.getProjectAssetFromUuid(this.entityEditor.editingEntityUuid);
-			if (asset) await asset.saveLiveAssetData();
+			/** @type {Set<import("../../../../../src/mod.js").UuidString>} */
+			const dirtyUuids = new Set();
+			for (const entity of dirtyEntitiesCopy) {
+				const result = assetManager.entityAssetManager.findRootEntityAsset(entity);
+				if (result) {
+					dirtyUuids.add(result.uuid);
+				}
+			}
+
+			const promises = [];
+			for (const uuid of dirtyUuids) {
+				promises.push((async () => {
+					const asset = await assetManager.getProjectAssetFromUuid(uuid);
+					if (asset) await asset.saveLiveAssetData();
+				})());
+			}
+			await Promise.all(promises);
 
 			this.#isSavingAsset = false;
-			this.#entityDirty = false;
 			this.#updateSaveButtonDisabled();
 		});
 	}
@@ -47,18 +65,23 @@ export class EntitySavingManager {
 	/**
 	 * Mark the currently editing entity as containing unsaved changes.
 	 * This enables the 'save' button or autosaves when autosave is enabled.
-	 * @param {boolean} dirty
+	 * @param {Entity} entity
 	 */
-	setEntityDirty(dirty) {
-		this.#entityDirty = dirty;
-		if (dirty && this.#getAutosaveValue()) {
+	addDirtyEntity(entity) {
+		this.#dirtyEntities.add(entity);
+		if (this.#getAutosaveValue()) {
 			this.saveEntityAssetInstance.run();
 		}
 		this.#updateSaveButtonDisabled();
 	}
 
+	clearDirtyEntities() {
+		this.#dirtyEntities.clear();
+		this.#updateSaveButtonDisabled();
+	}
+
 	#updateSaveButtonDisabled() {
-		const disabled = !this.entityEditor.editingEntityUuid || this.#isSavingAsset || !this.#entityDirty;
+		const disabled = this.#isSavingAsset || this.#dirtyEntities.size == 0;
 		this.saveEntityButton.setDisabled(disabled);
 	}
 }
