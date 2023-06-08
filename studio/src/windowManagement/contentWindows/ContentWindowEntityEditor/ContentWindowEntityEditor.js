@@ -277,8 +277,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.updateLiveAssetChangeListeners();
 	}
 
-	/** @param {import("../../../assets/AssetManager.js").AssetManager} assetManager */
-	#onAssetManagerChange = assetManager => {
+	#onAssetManagerChange = () => {
 		this.#updateTrackedEntityCallback();
 	};
 

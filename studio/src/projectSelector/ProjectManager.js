@@ -50,6 +50,8 @@ import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePr
 
 /** @typedef {StoredProjectEntry<FsType>} StoredProjectEntryAny */
 
+/** @typedef {(assetManager: AssetManager) => void} OnAssetManagerChangeCallback */
+
 export class ProjectManager {
 	#boundOnFileSystemRootNameChange;
 	#boundSaveContentWindowPersistentData;
@@ -65,7 +67,6 @@ export class ProjectManager {
 	/** @type {Set<() => void>} */
 	#onAssetManagerLoadPromiseCbs = new Set();
 
-	/** @typedef {(assetManager: AssetManager) => void} OnAssetManagerChangeCallback */
 	/** @type {Set<OnAssetManagerChangeCallback>} */
 	#onAssetManagerChangeCbs = new Set();
 
