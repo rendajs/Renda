@@ -119,7 +119,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Saves the entity when making a change from the current window",
+	name: "Marks the entity as dirty when making a change from the current window",
 	async fn() {
 		const {args, assetManager, uninstall} = basicTest();
 		try {

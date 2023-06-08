@@ -263,6 +263,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.editorScene.remove(this._editingEntity);
 		}
 		this._editingEntity = val;
+		const uuid = this.studioInstance.projectManager.assetManager?.entityAssetManager.getLinkedAssetUuid(val);
+		this.editingEntityUuid = uuid || null;
 		this.#updateTrackedEntityCallback();
 		if (val) {
 			this.editorScene.add(val);
@@ -359,7 +361,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			return;
 		}
 		const entity = assetManager.entityAssetManager.createTrackedEntity(entityUuid);
-		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
 		this.entitySavingManager.clearDirtyEntities();
 		if (!fromContentWindowLoad) {
