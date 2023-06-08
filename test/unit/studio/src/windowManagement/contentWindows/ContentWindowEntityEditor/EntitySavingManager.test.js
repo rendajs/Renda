@@ -116,6 +116,19 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Save button is disabled by default",
+	async fn() {
+		await runWithDomAsync(async () => {
+			const {args, preferencesManager} = getMockArgs();
+
+			const manager = new EntitySavingManager(...args);
+			preferencesManager.set("entityEditor.autosaveEntities", false);
+			assertEquals(manager.saveEntityButton.disabled, true);
+		});
+	},
+});
+
+Deno.test({
 	name: "Entity is saved when clicking the button",
 	async fn() {
 		await runWithDomAsync(async () => {
