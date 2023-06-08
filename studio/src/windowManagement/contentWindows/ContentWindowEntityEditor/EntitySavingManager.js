@@ -56,6 +56,8 @@ export class EntitySavingManager {
 			this.#isSavingAsset = false;
 			this.#updateSaveButtonDisabled();
 		});
+
+		this.#updateSaveButtonDisabled();
 	}
 
 	#getAutosaveValue() {

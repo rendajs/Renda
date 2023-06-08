@@ -255,28 +255,29 @@ export class EntityAssetManager {
 	 */
 	updateEntity(entityInstance, changeEventType, eventSource) {
 		const rootData = this.findRootEntityAsset(entityInstance);
-		if (!rootData) return;
-		const {uuid, root, indicesPath} = rootData;
-		const trackedData = this.#trackedEntities.get(uuid);
-		if (!trackedData) return;
-
-		const sourceEntity = root.getEntityByIndicesPath(indicesPath);
-		if (!sourceEntity) throw new Error("Assertion failed: Source child entity was not found");
-		if (root != trackedData.sourceEntity) {
-			if (!trackedData.sourceEntity) {
-				throw new Error("The source entity has not been loaded yet");
+		if (rootData) {
+			const {uuid, root, indicesPath} = rootData;
+			const trackedData = this.#trackedEntities.get(uuid);
+			if (trackedData) {
+				const sourceEntity = root.getEntityByIndicesPath(indicesPath);
+				if (!sourceEntity) throw new Error("Assertion failed: Source child entity was not found");
+				if (root != trackedData.sourceEntity) {
+					if (!trackedData.sourceEntity) {
+						throw new Error("The source entity has not been loaded yet");
+					}
+					const targetEntity = trackedData.sourceEntity.getEntityByIndicesPath(indicesPath);
+					if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
+					this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
+				}
+				for (const trackedEntity of trackedData.trackedInstances) {
+					if (trackedEntity == root) continue;
+					const targetEntity = trackedEntity.getEntityByIndicesPath(indicesPath);
+					if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
+					this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
+				}
 			}
-			const targetEntity = trackedData.sourceEntity.getEntityByIndicesPath(indicesPath);
-			if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
-			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 		}
-		for (const trackedEntity of trackedData.trackedInstances) {
-			if (trackedEntity == root) continue;
-			const targetEntity = trackedEntity.getEntityByIndicesPath(indicesPath);
-			if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
-			this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
-		}
-		this.#fireEvent(sourceEntity, sourceEntity, changeEventType, eventSource);
+		this.#fireEvent(entityInstance, entityInstance, changeEventType, eventSource);
 	}
 
 	/**
@@ -370,22 +371,23 @@ export class EntityAssetManager {
 	 */
 	updateEntityTransform(entityInstance, eventSource) {
 		const rootData = this.findRootEntityAsset(entityInstance);
-		if (!rootData) return;
-		const {uuid, indicesPath, root} = rootData;
-		const trackedData = this.#trackedEntities.get(uuid);
-		if (!trackedData) return;
+		if (rootData) {
+			const {uuid, indicesPath, root} = rootData;
+			const trackedData = this.#trackedEntities.get(uuid);
+			if (trackedData) {
+				const sourceChild = root.getEntityByIndicesPath(indicesPath);
+				if (!sourceChild) throw new Error("Assertion failed, source entity not found");
+				for (const trackedEntity of trackedData.trackedInstances) {
+					if (trackedEntity == root) continue;
+					this.#applyEntityTransform(sourceChild, trackedEntity, indicesPath, eventSource);
+				}
 
-		const sourceChild = root.getEntityByIndicesPath(indicesPath);
-		if (!sourceChild) throw new Error("Assertion failed, source entity not found");
-		for (const trackedEntity of trackedData.trackedInstances) {
-			if (trackedEntity == root) continue;
-			this.#applyEntityTransform(sourceChild, trackedEntity, indicesPath, eventSource);
+				if (trackedData.sourceEntity) {
+					this.#applyEntityTransform(sourceChild, trackedData.sourceEntity, indicesPath, eventSource);
+				}
+			}
 		}
-
-		if (trackedData.sourceEntity) {
-			this.#applyEntityTransform(sourceChild, trackedData.sourceEntity, indicesPath, eventSource);
-		}
-		this.#fireEvent(sourceChild, sourceChild, EntityChangeType.Transform, eventSource);
+		this.#fireEvent(entityInstance, entityInstance, EntityChangeType.Transform, eventSource);
 	}
 
 	/**

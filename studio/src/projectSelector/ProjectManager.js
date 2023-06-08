@@ -62,6 +62,13 @@ export class ProjectManager {
 	/** @type {Set<import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeCallback>} */
 	#onFileChangeCbs = new Set();
 
+	/** @type {Set<() => void>} */
+	#onAssetManagerLoadPromiseCbs = new Set();
+
+	/** @typedef {(assetManager: AssetManager) => void} OnAssetManagerChangeCallback */
+	/** @type {Set<OnAssetManagerChangeCallback>} */
+	#onAssetManagerChangeCbs = new Set();
+
 	constructor() {
 		/** @type {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} */
 		this.currentProjectFileSystem = null;
@@ -157,9 +164,6 @@ export class ProjectManager {
 				this.suggestCheckExternalChanges();
 			}
 		});
-
-		/** @type {Set<() => void>} */
-		this.onAssetManagerLoadCbs = new Set();
 
 		this.loadStudioConnectionsAllowIncomingInstance = new SingleInstancePromise(async () => {
 			await this.loadStudioConnectionsAllowIncoming();
@@ -294,12 +298,12 @@ export class ProjectManager {
 		const builtInAssetManager = studio.builtInAssetManager;
 		const builtInDefaultAssetLinksManager = studio.builtInDefaultAssetLinksManager;
 		const projectAssetTypeManager = studio.projectAssetTypeManager;
-		this.assetManager = new AssetManager(this, builtInAssetManager, builtInDefaultAssetLinksManager, projectAssetTypeManager, this.currentProjectFileSystem);
+		const assetManager = new AssetManager(this, builtInAssetManager, builtInDefaultAssetLinksManager, projectAssetTypeManager, this.currentProjectFileSystem);
+		this.assetManager = assetManager;
 		await this.assetManager.waitForAssetSettingsLoad();
-		for (const cb of this.onAssetManagerLoadCbs) {
-			cb();
-		}
-		this.onAssetManagerLoadCbs.clear();
+		this.#onAssetManagerLoadPromiseCbs.forEach(cb => cb());
+		this.#onAssetManagerLoadPromiseCbs.clear();
+		this.#onAssetManagerChangeCbs.forEach(cb => cb(assetManager));
 	}
 
 	/**
@@ -317,9 +321,23 @@ export class ProjectManager {
 	async getAssetManager() {
 		if (this.assetManager && this.assetManager.assetSettingsLoaded) return this.assetManager;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.onAssetManagerLoadCbs.add(r));
+		const promise = new Promise(r => this.#onAssetManagerLoadPromiseCbs.add(r));
 		await promise;
 		return this.assertAssetManagerExists();
+	}
+
+	/**
+	 * @param {OnAssetManagerChangeCallback} cb
+	 */
+	onAssetManagerChange(cb) {
+		this.#onAssetManagerChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {OnAssetManagerChangeCallback} cb
+	 */
+	removeOnAssetManagerChange(cb) {
+		this.#onAssetManagerChangeCbs.delete(cb);
 	}
 
 	assertAssetManagerExists() {
