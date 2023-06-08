@@ -159,6 +159,29 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Doesn't mark entities as dirty when the entity is not a project asset",
+	async fn() {
+		const {args, assetManager, uninstall} = basicTest();
+		try {
+			const entityAssetManager = assetManager.entityAssetManager;
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			const addDirtyEntitySpy = spy(contentWindow.entitySavingManager, "addDirtyEntity");
+			const entity = contentWindow.editingEntity;
+
+			// Wait for entity to load
+			await waitForMicrotasks();
+			assertSpyCalls(addDirtyEntitySpy, 0);
+
+			entityAssetManager.updateEntityTransform(entity, contentWindow);
+
+			assertSpyCalls(addDirtyEntitySpy, 0);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "Starts tracking entity changes once the asset manager loads",
 	async fn() {
 		const {args, mockStudioInstance, assetManager, uninstall} = basicTest();
