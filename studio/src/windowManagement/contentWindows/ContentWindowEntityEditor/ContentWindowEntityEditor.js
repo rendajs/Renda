@@ -174,6 +174,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editingEntityUuid = null;
 		/** @private @type {Entity} */
 		this._editingEntity = new Entity();
+		this.#updateTrackedEntityCallback();
 		this.editorScene.add(this._editingEntity);
 		/** @type {import("../../../misc/SelectionGroup.js").SelectionGroup<import("../../../misc/EntitySelection.js").EntitySelection>} */
 		this.selectionGroup = this.studioInstance.selectionManager.createSelectionGroup();
@@ -234,6 +235,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				}
 			}
 		});
+
+		this.studioInstance.projectManager.onAssetManagerChange(this.#onAssetManagerChange);
 	}
 
 	destructor() {
@@ -248,6 +251,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.studioInstance.keyboardShortcutManager.removeOnCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
 
 		this.studioInstance.projectManager.assetManager?.entityAssetManager.removeOnTrackedEntityChange(this._editingEntity, this.#onTrackedEntityChange);
+		this.studioInstance.projectManager.removeOnAssetManagerChange(this.#onAssetManagerChange);
 	}
 
 	get editingEntity() {
@@ -258,12 +262,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (this._editingEntity) {
 			this.editorScene.remove(this._editingEntity);
 		}
-		const entityAssetManager = this.studioInstance.projectManager.assetManager?.entityAssetManager;
-		if (entityAssetManager) {
-			entityAssetManager.removeOnTrackedEntityChange(this._editingEntity, this.#onTrackedEntityChange);
-			entityAssetManager.onTrackedEntityChange(val, this.#onTrackedEntityChange);
-		}
 		this._editingEntity = val;
+		const uuid = this.studioInstance.projectManager.assetManager?.entityAssetManager.getLinkedAssetUuid(val);
+		this.editingEntityUuid = uuid || null;
+		this.#updateTrackedEntityCallback();
 		if (val) {
 			this.editorScene.add(val);
 		}
@@ -275,11 +277,32 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.updateLiveAssetChangeListeners();
 	}
 
+	#onAssetManagerChange = () => {
+		this.#updateTrackedEntityCallback();
+	};
+
+	/** @type {import("../../../assets/EntityAssetManager.js").EntityAssetManager?} */
+	#currentTrackedChangeManager = null;
+	/** @type {Entity?} */
+	#currentTrackedChangeEntity = null;
+
+	#updateTrackedEntityCallback() {
+		if (this.#currentTrackedChangeManager && this.#currentTrackedChangeEntity) {
+			this.#currentTrackedChangeManager.removeOnTrackedEntityChange(this.#currentTrackedChangeEntity, this.#onTrackedEntityChange);
+		}
+		const entityAssetManager = this.studioInstance.projectManager.assetManager?.entityAssetManager;
+		if (entityAssetManager) {
+			entityAssetManager.onTrackedEntityChange(this._editingEntity, this.#onTrackedEntityChange);
+			this.#currentTrackedChangeManager = entityAssetManager;
+			this.#currentTrackedChangeEntity = this._editingEntity;
+		}
+	}
+
 	/**
 	 * @param {import("../../../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
 	 */
 	#onTrackedEntityChange = e => {
-		if (!(e.type & EntityChangeType.Load) && e.sourceEntity == e.targetEntity) {
+		if (!(e.type & EntityChangeType.Load) && e.sourceEntity == e.targetEntity && this.editingEntityUuid) {
 			this.entitySavingManager.addDirtyEntity(e.targetEntity);
 		}
 		if (e.source === this) return;
@@ -337,7 +360,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			return;
 		}
 		const entity = assetManager.entityAssetManager.createTrackedEntity(entityUuid);
-		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
 		this.entitySavingManager.clearDirtyEntities();
 		if (!fromContentWindowLoad) {

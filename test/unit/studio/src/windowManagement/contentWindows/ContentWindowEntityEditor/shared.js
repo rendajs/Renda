@@ -54,6 +54,8 @@ export function basicTest() {
 			return assetManager;
 		},
 		assetManager,
+		onAssetManagerChange(cb) {},
+		removeOnAssetManagerChange(cb) {},
 	});
 	stub(mockWindowManager, "getContentWindows", function *getContentWindows() {});
 	const preferencesFlushSpy = stub(mockWindowManager, "requestContentWindowPreferencesFlush");

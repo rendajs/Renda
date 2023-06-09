@@ -119,7 +119,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Saves the entity when making a change from the current window",
+	name: "Marks the entity as dirty when making a change",
 	async fn() {
 		const {args, assetManager, uninstall} = basicTest();
 		try {
@@ -138,7 +138,134 @@ Deno.test({
 			entityAssetManager.updateEntityTransform(entity, contentWindow);
 
 			assertSpyCalls(addDirtyEntitySpy, ++expectedCallCount);
-			assertStrictEquals(addDirtyEntitySpy.calls[0].args[0], entity);
+			assertStrictEquals(addDirtyEntitySpy.calls[expectedCallCount - 1].args[0], entity);
+
+			// Also marks it as dirty when changed from other windows
+			// As long as it was the same entity instance that was edited.
+			entityAssetManager.updateEntityTransform(entity, null);
+
+			assertSpyCalls(addDirtyEntitySpy, ++expectedCallCount);
+			assertStrictEquals(addDirtyEntitySpy.calls[expectedCallCount - 1].args[0], entity);
+
+			// Doesn't mark it as dirty when changed via another instance
+			const otherEntity = entityAssetManager.createTrackedEntity(BASIC_ENTITY_UUID);
+			entityAssetManager.updateEntityTransform(otherEntity, null);
+
+			assertSpyCalls(addDirtyEntitySpy, expectedCallCount);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Doesn't mark entities as dirty when the entity is not a project asset",
+	async fn() {
+		const {args, assetManager, uninstall} = basicTest();
+		try {
+			const entityAssetManager = assetManager.entityAssetManager;
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			const addDirtyEntitySpy = spy(contentWindow.entitySavingManager, "addDirtyEntity");
+			const entity = contentWindow.editingEntity;
+
+			// Wait for entity to load
+			await waitForMicrotasks();
+			assertSpyCalls(addDirtyEntitySpy, 0);
+
+			entityAssetManager.updateEntityTransform(entity, contentWindow);
+
+			assertSpyCalls(addDirtyEntitySpy, 0);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Starts tracking entity changes once the asset manager loads",
+	async fn() {
+		const {args, mockStudioInstance, assetManager, uninstall} = basicTest();
+		try {
+			/** @type {Set<import("../../../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback>} */
+			const onLoadCbs = new Set();
+			mockStudioInstance.projectManager = /** @type {import("../../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
+				assetManager: null,
+				onAssetManagerChange(cb) {
+					onLoadCbs.add(cb);
+				},
+				removeOnAssetManagerChange(cb) {
+					onLoadCbs.delete(cb);
+				},
+			});
+
+			const entityAssetManager = assetManager.entityAssetManager;
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			const markDirtySpy = spy(contentWindow, "markRenderDirty");
+			let expectedCallCount = 0;
+
+			const entity = contentWindow.editingEntity;
+
+			// Wait for entity to load
+			await waitForMicrotasks();
+			assertSpyCalls(markDirtySpy, expectedCallCount);
+
+			entityAssetManager.updateEntityTransform(entity, null);
+
+			assertSpyCalls(markDirtySpy, expectedCallCount);
+
+			mockStudioInstance.projectManager.assetManager = assetManager;
+			onLoadCbs.forEach(cb => cb(assetManager));
+
+			entityAssetManager.updateEntityTransform(entity, null);
+
+			// Once for the load event, another for the gizmos that get updated
+			expectedCallCount += 2;
+			assertSpyCalls(markDirtySpy, expectedCallCount);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Unregisters onAssetManagerChange when destructed",
+	async fn() {
+		const {args, mockStudioInstance, assetManager, uninstall} = basicTest();
+		try {
+			/** @type {Set<import("../../../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback>} */
+			const onLoadCbs = new Set();
+			mockStudioInstance.projectManager = /** @type {import("../../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
+				assetManager: null,
+				onAssetManagerChange(cb) {
+					onLoadCbs.add(cb);
+				},
+				removeOnAssetManagerChange(cb) {
+					onLoadCbs.delete(cb);
+				},
+			});
+
+			const entityAssetManager = assetManager.entityAssetManager;
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			const markDirtySpy = spy(contentWindow, "markRenderDirty");
+
+			const entity = contentWindow.editingEntity;
+
+			// Wait for entity to load
+			await waitForMicrotasks();
+			assertSpyCalls(markDirtySpy, 0);
+
+			entityAssetManager.updateEntityTransform(entity, null);
+
+			assertSpyCalls(markDirtySpy, 0);
+
+			contentWindow.destructor();
+
+			mockStudioInstance.projectManager.assetManager = assetManager;
+			onLoadCbs.forEach(cb => cb(assetManager));
+
+			entityAssetManager.updateEntityTransform(entity, null);
+
+			assertSpyCalls(markDirtySpy, 0);
 		} finally {
 			uninstall();
 		}

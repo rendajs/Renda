@@ -3,6 +3,7 @@ import {Entity, LightComponent} from "../../../../../src/mod.js";
 import {EntityAssetManager, EntityChangeType} from "../../../../../studio/src/assets/EntityAssetManager.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 
 const BASIC_ENTITY_UUID = "basic entity uuid";
 const NESTED_ENTITY_UUID = "nested entity uuid";
@@ -471,5 +472,25 @@ Deno.test({
 		const child3B = child3A.children[0];
 		assertVecAlmostEquals(child3A.worldPos, child1A.worldPos);
 		assertVecAlmostEquals(child3B.pos, [4, 5, 6]);
+	},
+});
+
+Deno.test({
+	name: "entities without an asset uuid can still be used for events",
+	fn() {
+		const {manager} = basicSetup();
+		const entity = new Entity();
+		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeCallback} */
+		const onChangeFn = event => {};
+		const onChangeSpy = spy(onChangeFn);
+		manager.onTrackedEntityChange(entity, onChangeSpy);
+
+		const eventSource1 = Symbol("eventSource1");
+		manager.updateEntity(entity, EntityChangeType.Rename, eventSource1);
+
+		assertSpyCalls(onChangeSpy, 1);
+		assertStrictEquals(onChangeSpy.calls[0].args[0].source, eventSource1);
+		assertStrictEquals(onChangeSpy.calls[0].args[0].sourceEntity, entity);
+		assertStrictEquals(onChangeSpy.calls[0].args[0].targetEntity, entity);
 	},
 });

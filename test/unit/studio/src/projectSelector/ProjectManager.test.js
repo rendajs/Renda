@@ -3,8 +3,9 @@ import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems
 import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
+import {assertPromiseResolved} from "../../../shared/asserts.js";
 
 console.log(import.meta.url);
 const importer = new Importer(import.meta.url);
@@ -360,6 +361,68 @@ Deno.test({
 				await manager.openProject(fs, entry2, true);
 
 				assertSpyCalls(removeLocationSpy, 2);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "onAssetManagerChange fires when the asset manager changes",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				/** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback} */
+				const onChangeFn = assetManager => {};
+				const onChangeSpy = spy(onChangeFn);
+
+				manager.onAssetManagerChange(onChangeSpy);
+
+				const fs1 = new MemoryStudioFileSystem();
+				const entry1 = createStoredProjectEntry();
+				await manager.openProject(fs1, entry1, true);
+
+				assertSpyCalls(onChangeSpy, 1);
+				assertStrictEquals(onChangeSpy.calls[0].args[0], manager.assetManager);
+
+				const fs2 = new MemoryStudioFileSystem();
+				const entry2 = createStoredProjectEntry();
+				await manager.openProject(fs2, entry2, true);
+
+				assertSpyCalls(onChangeSpy, 2);
+				assertStrictEquals(onChangeSpy.calls[1].args[0], manager.assetManager);
+
+				manager.removeOnAssetManagerChange(onChangeSpy);
+
+				const fs3 = new MemoryStudioFileSystem();
+				const entry3 = createStoredProjectEntry();
+				await manager.openProject(fs3, entry3, true);
+
+				assertSpyCalls(onChangeSpy, 2);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "getAssetManager resolves once the asset manager loads",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				const promise1 = manager.getAssetManager();
+				await assertPromiseResolved(promise1, false);
+
+				const fs1 = new MemoryStudioFileSystem();
+				const entry1 = createStoredProjectEntry();
+				await manager.openProject(fs1, entry1, true);
+
+				await assertPromiseResolved(promise1, true);
+				const result1 = await promise1;
+				assertStrictEquals(result1, manager.assetManager);
+
+				const promise2 = manager.getAssetManager();
+				await assertPromiseResolved(promise2, true);
+				const result2 = await promise2;
+				assertStrictEquals(result2, manager.assetManager);
 			},
 		});
 	},
