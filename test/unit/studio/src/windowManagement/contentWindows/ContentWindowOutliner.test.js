@@ -241,19 +241,28 @@ Deno.test({
 	},
 });
 
+/**
+ * @param {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager} assetManager
+ */
+function setupTrackedEntityTest(assetManager) {
+	const TRACKED_ENTITY_UUID = "TRACKED_ENTITY_UUID";
+	stub(assetManager, "getLiveAsset", async uuid => {
+		if (uuid == TRACKED_ENTITY_UUID) {
+			const entity = new Entity("tracked entity");
+			assetManager.entityAssetManager.setLinkedAssetUuid(entity, TRACKED_ENTITY_UUID);
+			return entity;
+		}
+	});
+
+	return {TRACKED_ENTITY_UUID};
+}
+
 Deno.test({
 	name: "Treeview is updated when a linked entity asset is changed",
 	async fn() {
 		await basictest({
 			async fn({args, mockEntityEditor, mockAssetManager}) {
-				const TRACKED_ENTITY_UUID = "TRACKED_ENTITY_UUID";
-				stub(mockAssetManager, "getLiveAsset", async uuid => {
-					if (uuid == TRACKED_ENTITY_UUID) {
-						const entity = new Entity("tracked entity");
-						mockAssetManager.entityAssetManager.setLinkedAssetUuid(entity, TRACKED_ENTITY_UUID);
-						return entity;
-					}
-				});
+				const {TRACKED_ENTITY_UUID} = setupTrackedEntityTest(mockAssetManager);
 
 				const mainEntity = new Entity("main");
 				const child1 = new Entity("child1");
@@ -430,6 +439,50 @@ Deno.test({
 				assertStrictEquals(updateEntitySpy.calls[2].args[0], childEntity);
 				assertEquals(updateEntitySpy.calls[2].args[1], EntityChangeType.Rename);
 				assertEquals(updateEntitySpy.calls[2].args[2], contentWindow);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Renaming a treeview of a linked entity asset updates the other instances as well",
+	async fn() {
+		await basictest({
+			async fn({args, mockEntityEditor, mockAssetManager}) {
+				const {TRACKED_ENTITY_UUID} = setupTrackedEntityTest(mockAssetManager);
+
+				const trackedEntity1 = mockAssetManager.entityAssetManager.createTrackedEntity(TRACKED_ENTITY_UUID);
+				mockEntityEditor.editingEntity.add(trackedEntity1);
+				const trackedEntity2 = mockAssetManager.entityAssetManager.createTrackedEntity(TRACKED_ENTITY_UUID);
+				mockEntityEditor.editingEntity.add(trackedEntity2);
+
+				const contentWindow = new ContentWindowOutliner(...args);
+				await waitForMicrotasks();
+
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "Entity",
+					children: [
+						{name: "tracked entity"},
+						{name: "tracked entity"},
+					],
+				});
+
+				const childTreeView = contentWindow.treeView.children[0];
+				assertExists(childTreeView);
+				childTreeView.name = "new name";
+				childTreeView.fireEvent("namechange", {
+					newName: "new name",
+					oldName: "old name",
+					target: childTreeView,
+				});
+
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "Entity",
+					children: [
+						{name: "new name"},
+						{name: "new name"},
+					],
+				});
 			},
 		});
 	},

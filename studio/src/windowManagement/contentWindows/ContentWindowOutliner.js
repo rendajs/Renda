@@ -168,7 +168,7 @@ export class ContentWindowOutliner extends ContentWindow {
 					assetManager.entityAssetManager.removeOnTrackedEntityChange(this.#currentOnEntityChangeEntity, this.#currentOnEntityChangeCallback);
 				}
 				this.#currentOnEntityChangeCallback = event => {
-					if (event.source === this) return;
+					if (event.source === this && event.sourceEntity == event.targetEntity) return;
 					if (event.type & EntityChangeType.Hierarchy) {
 						const childTreeView = this.#getTreeViewByEntity(event.targetEntity);
 						if (!childTreeView) {
