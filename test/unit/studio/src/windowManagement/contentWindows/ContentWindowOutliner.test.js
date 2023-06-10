@@ -19,6 +19,7 @@ import {createMockPopoverManager, triggerContextMenuItem} from "../../../shared/
 import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
 import {ProjectAssetTypeEntity} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
+import {EventHandler} from "../../../../../../src/util/EventHandler.js";
 
 /**
  * @typedef ContentWindowOutlinerTestContext
@@ -48,6 +49,8 @@ async function basictest({
 		for (let i = 0; i < availableEntityEditors; i++) {
 			mockEntityEditors.push(createMockEntityEditor());
 		}
+		mockWindowManager.contentWindowAddedHandler = new EventHandler();
+		mockWindowManager.contentWindowRemovedHandler = new EventHandler();
 		stub(mockWindowManager, "getContentWindows", function *getContentWindows(contentWindowConstructorOrId) {
 			if (contentWindowConstructorOrId == ENTITY_EDITOR_CONTENT_WINDOW_ID) {
 				for (const entityEditor of mockEntityEditors) {
@@ -63,6 +66,8 @@ async function basictest({
 		mockStudioInstance.projectManager.assetManager = assetManager;
 		mockStudioInstance.projectManager.getAssetManager = async () => assetManager;
 		mockStudioInstance.projectManager.assertAssetManagerExists = () => assetManager;
+		mockStudioInstance.projectManager.onAssetManagerChange = cb => {};
+		mockStudioInstance.projectManager.removeOnAssetManagerChange = cb => {};
 		assetManager.entityAssetManager = new EntityAssetManager(assetManager);
 
 		const dragManager = new DragManager();
@@ -173,14 +178,60 @@ Deno.test({
 });
 
 Deno.test({
-	name: "TreeView is not visible when there is no asset manager",
+	name: "TreeView is not visible until there is an asset manager",
 	async fn() {
 		await basictest({
 			async fn({args, mockStudioInstance, mockEntityEditor}) {
+				const assetManager = mockStudioInstance.projectManager.assetManager;
+				assertExists(assetManager);
 				mockStudioInstance.projectManager.assetManager = null;
+				/** @type {Set<import("../../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback>} */
+				const cbs = new Set();
+				mockStudioInstance.projectManager.onAssetManagerChange = cb => cbs.add(cb);
 				mockEntityEditor.editingEntity.add(new Entity("child"));
 
 				const contentWindow = new ContentWindowOutliner(...args);
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "",
+					children: [],
+				});
+
+				mockStudioInstance.projectManager.assetManager = assetManager;
+				cbs.forEach(cb => cb(assetManager));
+
+				assertTreeViewStructureEquals(contentWindow.treeView, {
+					name: "Entity",
+					children: [
+						{
+							name: "child",
+						},
+					],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Destructor removes onAssetManagerChange callback",
+	async fn() {
+		await basictest({
+			async fn({args, mockStudioInstance, mockEntityEditor}) {
+				const assetManager = mockStudioInstance.projectManager.assetManager;
+				assertExists(assetManager);
+				mockStudioInstance.projectManager.assetManager = null;
+				/** @type {Set<import("../../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback>} */
+				const cbs = new Set();
+				mockStudioInstance.projectManager.onAssetManagerChange = cb => cbs.add(cb);
+				mockEntityEditor.editingEntity.add(new Entity("child"));
+
+				const contentWindow = new ContentWindowOutliner(...args);
+
+				contentWindow.destructor();
+
+				mockStudioInstance.projectManager.assetManager = assetManager;
+				cbs.forEach(cb => cb(assetManager));
+
 				assertTreeViewStructureEquals(contentWindow.treeView, {
 					name: "",
 					children: [],

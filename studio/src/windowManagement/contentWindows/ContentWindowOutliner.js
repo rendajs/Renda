@@ -72,6 +72,8 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.boundEntityEditorUpdated = this.entityEditorUpdated.bind(this);
 		this.updateAvailableEntityEditorsList();
 		this.setAvailableLinkedEntityEditor();
+
+		this.studioInstance.projectManager.onAssetManagerChange(this.#onAssetManagerChange);
 	}
 
 	init() {
@@ -85,6 +87,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.windowManager.contentWindowRemovedHandler.removeEventListener(ContentWindowEntityEditor, this.boundEntityEditorUpdated);
 		this.treeView.destructor();
 		this.linkedEntityEditor = null;
+		this.studioInstance.projectManager.removeOnAssetManagerChange(this.#onAssetManagerChange);
 	}
 
 	get selectionGroup() {
@@ -141,6 +144,10 @@ export class ContentWindowOutliner extends ContentWindow {
 			this.selectEntityEditorDropDown.value = this.availableEntityEditorUuids.indexOf(entityEditor.uuid);
 		}
 	}
+
+	#onAssetManagerChange = () => {
+		this.updateFullTreeView();
+	};
 
 	/**
 	 * @param {ContentWindowEntityEditor} linkedEntityEditor
