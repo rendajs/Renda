@@ -110,6 +110,34 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Nested entity assets are cloned when using replaceTrackedEntity",
+	only: true,
+	async fn() {
+		const {manager} = basicSetup();
+
+		const entity1 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
+
+		// Wait for source entity to load
+		await waitForMicrotasks();
+		const child1 = entity1.children[0];
+
+		manager.replaceTrackedEntity(NESTED_ENTITY_UUID, child1);
+
+		// Wait for nested entity to load
+		await waitForMicrotasks();
+
+		const uuid1 = manager.getLinkedAssetUuid(child1);
+		assertEquals(uuid1, NESTED_ENTITY_UUID);
+
+		const entity2 = manager.createTrackedEntity(BASIC_ENTITY_UUID);
+
+		const child2 = entity2.children[0];
+		const uuid2 = manager.getLinkedAssetUuid(child2);
+		assertEquals(uuid2, NESTED_ENTITY_UUID);
+	},
+});
+
+Deno.test({
 	name: "Changing an entity updates the others",
 	async fn() {
 		const {manager} = basicSetup();
