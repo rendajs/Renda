@@ -2,14 +2,14 @@ import {BASIC_ENTITY_UUID, basicTest} from "./shared.js";
 import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import {assertSpyCalls} from "std/testing/mock.ts";
 import {FakeTime} from "std/testing/time.ts";
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 import {Quat} from "../../../../../../../src/mod.js";
 import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../../../shared/asserts.js";
 
 Deno.test({
 	name: "last loaded entity and orbit controls are saved and loaded",
 	async fn() {
-		const {args, preferencesFlushSpy, uninstall} = basicTest();
+		const {args, preferencesFlushSpy, entityEditorUpdatedSpy, uninstall} = basicTest();
 		const time = new FakeTime();
 		try {
 			const contentWindow1 = new ContentWindowEntityEditor(...args);
@@ -21,6 +21,9 @@ Deno.test({
 			// Wait for the entity to load
 			await time.runMicrotasks();
 			assertEquals(contentWindow1.editingEntity.name, "editing entity");
+
+			assertSpyCalls(entityEditorUpdatedSpy, 1);
+			assertStrictEquals(entityEditorUpdatedSpy.calls[0].args[0].target, contentWindow1);
 
 			// Orbit controls should not be saved when nothing has changed
 			contentWindow1.loop();
@@ -48,6 +51,11 @@ Deno.test({
 			await time.runMicrotasks();
 			assertEquals(contentWindow1.editingEntityUuid, BASIC_ENTITY_UUID);
 			assertEquals(contentWindow1.editingEntity.name, "editing entity");
+
+			// TODO: #710 this should have only fired just once.
+			assertSpyCalls(entityEditorUpdatedSpy, 3);
+			assertStrictEquals(entityEditorUpdatedSpy.calls[1].args[0].target, contentWindow1);
+			assertStrictEquals(entityEditorUpdatedSpy.calls[2].args[0].target, contentWindow2);
 
 			assertVecAlmostEquals(contentWindow2.orbitControls.lookPos, [1, 2, 3]);
 			assertQuatAlmostEquals(contentWindow2.orbitControls.lookRot, newLookRot);

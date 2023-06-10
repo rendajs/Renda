@@ -145,6 +145,9 @@ export class EntityAssetManager {
 	 */
 	replaceTrackedEntity(uuid, entity) {
 		this.#trackEntityAndLoad(uuid, entity, true);
+		if (entity.parent) {
+			this.updateEntity(entity.parent, EntityChangeType.Delete | EntityChangeType.Create, null);
+		}
 	}
 
 	/**

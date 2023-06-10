@@ -228,6 +228,32 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Changes editingEntityUuid when it becomes a saved entity asset",
+	async fn() {
+		const {args, assetManager, entityEditorUpdatedSpy, uninstall} = basicTest();
+		try {
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			const entityAssetManager = assetManager.entityAssetManager;
+			const entity = contentWindow.editingEntity;
+
+			assertEquals(contentWindow.editingEntityUuid, null);
+
+			assertSpyCalls(entityEditorUpdatedSpy, 0);
+
+			entityAssetManager.replaceTrackedEntity(BASIC_ENTITY_UUID, entity);
+
+			await waitForMicrotasks();
+
+			assertEquals(contentWindow.editingEntityUuid, BASIC_ENTITY_UUID);
+			assertSpyCalls(entityEditorUpdatedSpy, 1);
+			assertStrictEquals(entityEditorUpdatedSpy.calls[0].args[0].target, contentWindow);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "Unregisters onAssetManagerChange when destructed",
 	async fn() {
 		const {args, mockStudioInstance, assetManager, uninstall} = basicTest();
