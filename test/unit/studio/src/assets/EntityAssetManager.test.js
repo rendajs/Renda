@@ -111,7 +111,6 @@ Deno.test({
 
 Deno.test({
 	name: "Nested entity assets are cloned when using replaceTrackedEntity",
-	only: true,
 	async fn() {
 		const {manager} = basicSetup();
 
