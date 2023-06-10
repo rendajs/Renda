@@ -446,7 +446,6 @@ Deno.test({
 
 Deno.test({
 	name: "Renaming a treeview of a linked entity asset updates the other instances as well",
-	only: true,
 	async fn() {
 		await basictest({
 			async fn({args, mockEntityEditor, mockAssetManager}) {
