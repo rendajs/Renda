@@ -57,7 +57,15 @@ export function basicTest() {
 		onAssetManagerChange(cb) {},
 		removeOnAssetManagerChange(cb) {},
 	});
-	stub(mockWindowManager, "getContentWindows", function *getContentWindows() {});
+
+	const mockOutliner = /** @type {import("../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowOutliner.js").ContentWindowOutliner} */({});
+	const entityEditorUpdatedSpy = stub(mockOutliner, "entityEditorUpdated");
+
+	stub(mockWindowManager, "getContentWindows", function *getContentWindows(type) {
+		if (type == "renda:outliner") {
+			yield mockOutliner;
+		}
+	});
 	const preferencesFlushSpy = stub(mockWindowManager, "requestContentWindowPreferencesFlush");
 
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.autosaveEntities", {type: "boolean"});
@@ -94,6 +102,7 @@ export function basicTest() {
 		getProjectAssetFromUuidResults,
 		preferencesFlushSpy,
 		assetManager,
+		entityEditorUpdatedSpy,
 		uninstall() {
 			uninstallFakeDocument();
 			requestAnimationFrameStub.restore();

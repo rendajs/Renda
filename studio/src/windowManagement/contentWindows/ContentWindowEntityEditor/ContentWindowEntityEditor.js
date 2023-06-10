@@ -171,6 +171,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.orbitControls.invertScrollY = e.value;
 		});
 
+		/** @type {import("../../../../../src/mod.js").UuidString?} */
 		this.editingEntityUuid = null;
 		/** @private @type {Entity} */
 		this._editingEntity = new Entity();
@@ -271,10 +272,20 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.updateGizmos();
 		this.markRenderDirty();
+		this.#notifyOutliners();
+		this.updateLiveAssetChangeListeners();
+	}
+
+	/**
+	 * Notify outliners that data about the currently edited entity has been changed.
+	 * This should only fire when the root entity changes to a different reference, or the name of its asset for instance.
+	 * This is used to update the list of available entity editors.
+	 * Things like changes to children and components etc. should be handled by the EntityAssetManager.
+	 */
+	#notifyOutliners() {
 		for (const outliner of this.studioInstance.windowManager.getContentWindows("renda:outliner")) {
 			outliner.entityEditorUpdated({target: this});
 		}
-		this.updateLiveAssetChangeListeners();
 	}
 
 	#onAssetManagerChange = () => {
@@ -302,6 +313,14 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {import("../../../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
 	 */
 	#onTrackedEntityChange = e => {
+		const entityAssetManager = this.studioInstance.projectManager.assetManager?.entityAssetManager;
+		if (entityAssetManager) {
+			const newAssetUuid = entityAssetManager.getLinkedAssetUuid(this.editingEntity);
+			if (this.editingEntityUuid != newAssetUuid) {
+				this.editingEntityUuid = newAssetUuid;
+				this.#notifyOutliners();
+			}
+		}
 		if (!(e.type & EntityChangeType.Load) && e.sourceEntity == e.targetEntity && this.editingEntityUuid) {
 			this.entitySavingManager.addDirtyEntity(e.targetEntity);
 		}
