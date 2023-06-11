@@ -265,11 +265,25 @@ Deno.test({
 	name: "changing local matrix in place",
 	fn() {
 		const entity = new Entity();
-		const translationArray = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1];
-		entity.localMatrix.set(translationArray);
-		assertEquals(entity.localMatrix.toArray(), translationArray);
-		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
-		assertVecAlmostEquals(entity.worldPos, [1, 2, 3]);
+		const localMatrix = entity.localMatrix;
+		localMatrix.set(Mat4.createTranslation(2, 2, 2));
+
+		assertEquals(entity.localMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2, 2, 2, 1]);
+		assertVecAlmostEquals(entity.pos, [2, 2, 2]);
+		assertVecAlmostEquals(entity.worldPos, [2, 2, 2]);
+
+		entity.pos.set(3, 3, 3);
+		assertVecAlmostEquals(entity.pos, [3, 3, 3]);
+
+		entity.localMatrix.set(Mat4.createTranslation(4, 4, 4));
+		assertEquals(entity.localMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 4, 4, 1]);
+		assertVecAlmostEquals(entity.pos, [4, 4, 4]);
+		assertVecAlmostEquals(entity.worldPos, [4, 4, 4]);
+
+		localMatrix.set(Mat4.createTranslation(5, 5, 5));
+		assertEquals(entity.localMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 5, 5, 1]);
+		assertVecAlmostEquals(entity.pos, [5, 5, 5]);
+		assertVecAlmostEquals(entity.worldPos, [5, 5, 5]);
 	},
 });
 
@@ -396,11 +410,25 @@ Deno.test({
 	name: "changing world matrix in place",
 	fn() {
 		const entity = new Entity();
-		const translationArray = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1];
-		entity.worldMatrix.set(translationArray);
-		assertEquals(entity.worldMatrix.toArray(), translationArray);
-		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
-		assertVecAlmostEquals(entity.worldPos, [1, 2, 3]);
+		const worldMatrix = entity.worldMatrix;
+		worldMatrix.set(Mat4.createTranslation(2, 2, 2));
+
+		assertEquals(entity.worldMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2, 2, 2, 1]);
+		assertVecAlmostEquals(entity.pos, [2, 2, 2]);
+		assertVecAlmostEquals(entity.worldPos, [2, 2, 2]);
+
+		entity.pos.set(3, 3, 3);
+		assertVecAlmostEquals(entity.pos, [3, 3, 3]);
+
+		entity.worldMatrix.set(Mat4.createTranslation(4, 4, 4));
+		assertEquals(entity.worldMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 4, 4, 1]);
+		assertVecAlmostEquals(entity.pos, [4, 4, 4]);
+		assertVecAlmostEquals(entity.worldPos, [4, 4, 4]);
+
+		worldMatrix.set(Mat4.createTranslation(5, 5, 5));
+		assertEquals(entity.worldMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 5, 5, 1]);
+		assertVecAlmostEquals(entity.pos, [5, 5, 5]);
+		assertVecAlmostEquals(entity.worldPos, [5, 5, 5]);
 	},
 });
 

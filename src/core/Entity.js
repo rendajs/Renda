@@ -105,11 +105,24 @@ export class Entity {
 		/** @private */
 		this._localMatrix = new Mat4();
 		this._localMatrix.onChange(this._onLocalMatrixChange.bind(this));
+		/**
+		 * We listen for local matrix changes to update the position, rotation, scale and worldMatrix accordingly.
+		 * But sometimes we need to set the local matrix internally, which would otherwise cause a feedback loop.
+		 * @private
+		 */
+		this._ignoreLocalMatrixChanges = false;
+
 		/** @private */
 		this.worldMatrixDirty = false;
 		/** @private */
 		this._worldMatrix = new Mat4();
 		this._worldMatrix.onChange(this._onWorldMatrixChange.bind(this));
+		/**
+		 * We listen for world matrix changes to update the position, rotation, scale and localMatrix accordingly.
+		 * But sometimes we need to set the local matrix internally, which would otherwise cause a feedback loop.
+		 * @private
+		 */
+		this._ignoreWorldMatrixChanges = false;
 
 		/**
 		 * True when the position, rotation, or scale have been set and the local matrix
@@ -420,7 +433,10 @@ export class Entity {
 			const pos = this.pos;
 			const rot = this.rot;
 			const scale = this.scale;
-			this._localMatrix = Mat4.createPosRotScale(pos, rot, scale);
+			const newMatrix = Mat4.createPosRotScale(pos, rot, scale);
+			this._ignoreLocalMatrixChanges = true;
+			this._localMatrix.set(newMatrix);
+			this._ignoreLocalMatrixChanges = false;
 			this._localMatrixDirty = false;
 		}
 		return this._localMatrix;
@@ -434,6 +450,7 @@ export class Entity {
 	 * @private
 	 */
 	_onLocalMatrixChange() {
+		if (this._ignoreLocalMatrixChanges) return;
 		const {pos, rot, scale} = this._localMatrix.decompose();
 		this.pos = pos;
 		this.rot = rot;
@@ -451,6 +468,7 @@ export class Entity {
 	}
 
 	_onWorldMatrixChange() {
+		if (this._ignoreWorldMatrixChanges) return;
 		const {pos, rot, scale} = this._worldMatrix.decompose();
 		this._worldPos.set(pos);
 		this._worldRot.set(rot);
@@ -484,11 +502,15 @@ export class Entity {
 	 */
 	updateWorldMatrixIfDirty() {
 		if (this._localMatrixDirty || this.worldMatrixDirty) {
+			let newMatrix;
 			if (this.parent) {
-				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
+				newMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
 			} else {
-				this._worldMatrix = this.localMatrix.clone();
+				newMatrix = this.localMatrix.clone();
 			}
+			this._ignoreWorldMatrixChanges = true;
+			this._worldMatrix.set(newMatrix);
+			this._ignoreWorldMatrixChanges = false;
 			this.worldMatrixDirty = false;
 			this._worldPosRotScaleDirty = true;
 		}
