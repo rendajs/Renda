@@ -1,6 +1,7 @@
 import {assert, assertEquals, assertThrows} from "std/testing/asserts.ts";
 import {Mat4, Quat, Vec3} from "../../../../src/mod.js";
 import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 
 const oneTo16Array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 
@@ -126,5 +127,28 @@ Deno.test({
 
 		const point = new Vec3().multiplyMatrix(result);
 		assertVecAlmostEquals(point, [1, 0, 0]);
+	},
+});
+
+Deno.test({
+	name: "set() updates the matrix and fires events",
+	fn() {
+		const mat = new Mat4();
+
+		const changeSpy = spy();
+		mat.onChange(changeSpy);
+
+		mat.set(oneTo16Array);
+
+		assertSpyCalls(changeSpy, 1);
+		assertEquals(mat.getFlatArray(), oneTo16Array);
+
+		mat.set(oneTo16Array);
+		assertSpyCalls(changeSpy, 2);
+
+		mat.removeOnChange(changeSpy);
+
+		mat.set(oneTo16Array);
+		assertSpyCalls(changeSpy, 2);
 	},
 });

@@ -5,8 +5,8 @@ import {Quat} from "./Quat.js";
  * @typedef {() => Mat4} mat4SetEmptySignature
  * @typedef {(buffer: Float32Array) => Mat4} mat4SetFloat32ArraySignature
  * @typedef {(mat: Mat4) => Mat4} mat4SetMat4Signature
- * @typedef {(vec: number[]) => Mat4} mat4SetNumArraySignature
- * @typedef {(vec: number[][]) => Mat4} mat4SetNumArrayArraySignature
+ * @typedef {(mat: number[]) => Mat4} mat4SetNumArraySignature
+ * @typedef {(mat: number[][]) => Mat4} mat4SetNumArrayArraySignature
  * @typedef {import("./types.ts").MergeParameters<mat4SetEmptySignature | mat4SetFloat32ArraySignature | mat4SetMat4Signature | mat4SetNumArraySignature | mat4SetNumArrayArraySignature>} Mat4Parameters
  */
 
@@ -28,10 +28,36 @@ export class Mat4 {
 			[0, 0, 1, 0],
 			[0, 0, 0, 1],
 		];
+
+		/** @private @type {Set<() => void>} */
+		this._onChangeCbs = new Set();
+
 		this.set(...args);
 
 		/** @type {Map<string, Uint8Array>} */
 		this.flatArrayBufferCache = new Map();
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	onChange(cb) {
+		this._onChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	removeOnChange(cb) {
+		this._onChangeCbs.delete(cb);
+	}
+
+	/**
+	 * @private
+	 */
+	_handleChange() {
+		this.flatArrayBufferCache = new Map();
+		this._onChangeCbs.forEach(cb => cb());
 	}
 
 	/**
@@ -87,7 +113,7 @@ export class Mat4 {
 			];
 		}
 
-		this.markFlatArrayBuffersDirty();
+		this._handleChange();
 	}
 
 	getFlatArray() {
@@ -133,10 +159,6 @@ export class Mat4 {
 		}
 
 		return buffer;
-	}
-
-	markFlatArrayBuffersDirty() {
-		this.flatArrayBufferCache = new Map();
 	}
 
 	clone() {
@@ -190,7 +212,7 @@ export class Mat4 {
 		this.values[3][1] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
 		this.values[3][2] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
 		this.values[3][3] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
-		this.markFlatArrayBuffersDirty();
+		this._handleChange();
 		return this;
 	}
 
@@ -233,7 +255,7 @@ export class Mat4 {
 		this.values[3][0] += vec.x;
 		this.values[3][1] += vec.y;
 		this.values[3][2] += vec.z;
-		this.markFlatArrayBuffersDirty();
+		this._handleChange();
 	}
 
 	getTranslation() {
@@ -248,7 +270,7 @@ export class Mat4 {
 		this.values[3][0] = vec.x;
 		this.values[3][1] = vec.y;
 		this.values[3][2] = vec.z;
-		this.markFlatArrayBuffersDirty();
+		this._handleChange();
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
@@ -323,7 +345,7 @@ export class Mat4 {
 		this.values[0][0] = vec.x;
 		this.values[1][1] = vec.y;
 		this.values[2][2] = vec.z;
-		this.markFlatArrayBuffersDirty();
+		this._handleChange();
 	}
 
 	decompose() {
@@ -571,7 +593,7 @@ export class Mat4 {
 	multiplyMatrix(otherMatrix) {
 		const newMat = Mat4.multiplyMatrices(this, otherMatrix);
 		this.values = newMat.values;
-		this.markFlatArrayBuffersDirty();
+		this._handleChange();
 		return this;
 	}
 
@@ -584,7 +606,7 @@ export class Mat4 {
 	premultiplyMatrix(otherMatrix) {
 		const newMat = Mat4.multiplyMatrices(otherMatrix, this);
 		this.values = newMat.values;
-		this.markFlatArrayBuffersDirty();
+		this._handleChange();
 		return this;
 	}
 
