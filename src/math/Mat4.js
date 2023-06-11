@@ -28,10 +28,11 @@ export class Mat4 {
 			[0, 0, 1, 0],
 			[0, 0, 0, 1],
 		];
-		this.set(...args);
 
 		/** @private @type {Set<() => void>} */
 		this._onChangeCbs = new Set();
+
+		this.set(...args);
 
 		/** @type {Map<string, Uint8Array>} */
 		this.flatArrayBufferCache = new Map();
