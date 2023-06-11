@@ -5,8 +5,8 @@ import {Quat} from "./Quat.js";
  * @typedef {() => Mat4} mat4SetEmptySignature
  * @typedef {(buffer: Float32Array) => Mat4} mat4SetFloat32ArraySignature
  * @typedef {(mat: Mat4) => Mat4} mat4SetMat4Signature
- * @typedef {(vec: number[]) => Mat4} mat4SetNumArraySignature
- * @typedef {(vec: number[][]) => Mat4} mat4SetNumArrayArraySignature
+ * @typedef {(mat: number[]) => Mat4} mat4SetNumArraySignature
+ * @typedef {(mat: number[][]) => Mat4} mat4SetNumArrayArraySignature
  * @typedef {import("./types.ts").MergeParameters<mat4SetEmptySignature | mat4SetFloat32ArraySignature | mat4SetMat4Signature | mat4SetNumArraySignature | mat4SetNumArrayArraySignature>} Mat4Parameters
  */
 
