@@ -70,7 +70,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		}
 		const entity = new Entity({
 			name: jsonData.name || "",
-			matrix: jsonData.matrix,
+			localMatrix: jsonData.matrix,
 		});
 		if (jsonData.components) {
 			for (const component of jsonData.components) {

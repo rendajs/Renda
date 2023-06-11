@@ -144,7 +144,7 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 		}
 		const entity = new Entity({
 			name: data.name,
-			matrix,
+			localMatrix: matrix,
 		});
 		if (!this.componentTypeManager) {
 			throw new Error("No component type manager set, make sure to set one with `setComponentTypeManager()` before loading entities.");

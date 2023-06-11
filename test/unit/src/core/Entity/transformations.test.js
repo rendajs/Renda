@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertThrows} from "std/testing/asserts.ts";
 import {assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {Entity, Mat4, Quat, Vec3} from "../../../../../src/mod.js";
 import {assertMatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
@@ -240,7 +240,7 @@ Deno.test({
 	name: "setting local matrix via constructor options",
 	fn() {
 		const matrix = Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2), new Vec3(4, 5, 6));
-		const entity = new Entity({matrix});
+		const entity = new Entity({localMatrix: matrix});
 		assertEquals(entity.localMatrix.toArray(), matrix.toArray());
 		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
 		assertVecAlmostEquals(entity.rot.toAxisAngle(), [Math.PI / 2, 0, 0]);
@@ -258,6 +258,32 @@ Deno.test({
 		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
 		assertVecAlmostEquals(entity.rot.toAxisAngle(), [Math.PI / 2, 0, 0]);
 		assertVecAlmostEquals(entity.scale, [4, 5, 6]);
+	},
+});
+
+Deno.test({
+	name: "changing local matrix in place",
+	fn() {
+		const entity = new Entity();
+		const localMatrix = entity.localMatrix;
+		localMatrix.set(Mat4.createTranslation(2, 2, 2));
+
+		assertEquals(entity.localMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2, 2, 2, 1]);
+		assertVecAlmostEquals(entity.pos, [2, 2, 2]);
+		assertVecAlmostEquals(entity.worldPos, [2, 2, 2]);
+
+		entity.pos.set(3, 3, 3);
+		assertVecAlmostEquals(entity.pos, [3, 3, 3]);
+
+		entity.localMatrix.set(Mat4.createTranslation(4, 4, 4));
+		assertEquals(entity.localMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 4, 4, 1]);
+		assertVecAlmostEquals(entity.pos, [4, 4, 4]);
+		assertVecAlmostEquals(entity.worldPos, [4, 4, 4]);
+
+		localMatrix.set(Mat4.createTranslation(5, 5, 5));
+		assertEquals(entity.localMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 5, 5, 1]);
+		assertVecAlmostEquals(entity.pos, [5, 5, 5]);
+		assertVecAlmostEquals(entity.worldPos, [5, 5, 5]);
 	},
 });
 
@@ -323,6 +349,86 @@ Deno.test({
 	fn() {
 		const entity = new Entity();
 		assertMatAlmostEquals(entity.worldMatrix, new Mat4());
+	},
+});
+
+Deno.test({
+	name: "setting world matrix via constructor options",
+	fn() {
+		const matrix = Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2), new Vec3(4, 5, 6));
+		const entity = new Entity({worldMatrix: matrix});
+		assertEquals(entity.worldMatrix.toArray(), matrix.toArray());
+		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
+		assertVecAlmostEquals(entity.rot.toAxisAngle(), [Math.PI / 2, 0, 0]);
+		assertVecAlmostEquals(entity.scale, [4, 5, 6]);
+	},
+});
+
+Deno.test({
+	name: "setting world matrix via constructor options with a translated parent",
+	fn() {
+		const parent = new Entity();
+		parent.pos.set(1, 2, 3);
+
+		const matrix = Mat4.createTranslation(4, 5, 6);
+		const entity = new Entity({worldMatrix: matrix, parent});
+
+		assertVecAlmostEquals(entity.pos, [3, 3, 3]);
+		assertVecAlmostEquals(entity.worldPos, [4, 5, 6]);
+	},
+});
+
+Deno.test({
+	name: "setting world matrix after creation",
+	fn() {
+		const matrix = Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2), new Vec3(4, 5, 6));
+		const entity = new Entity();
+		entity.worldMatrix = matrix;
+		assertEquals(entity.worldMatrix.toArray(), matrix.toArray());
+		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
+		assertVecAlmostEquals(entity.rot.toAxisAngle(), [Math.PI / 2, 0, 0]);
+		assertVecAlmostEquals(entity.scale, [4, 5, 6]);
+	},
+});
+
+Deno.test({
+	name: "setting world matrix after creation with a translated parent",
+	fn() {
+		const parent = new Entity();
+		parent.pos.set(1, 2, 3);
+
+		const entity = new Entity({parent});
+
+		entity.worldMatrix = Mat4.createTranslation(4, 5, 6);
+
+		assertVecAlmostEquals(entity.pos, [3, 3, 3]);
+		assertVecAlmostEquals(entity.worldPos, [4, 5, 6]);
+	},
+});
+
+Deno.test({
+	name: "changing world matrix in place",
+	fn() {
+		const entity = new Entity();
+		const worldMatrix = entity.worldMatrix;
+		worldMatrix.set(Mat4.createTranslation(2, 2, 2));
+
+		assertEquals(entity.worldMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2, 2, 2, 1]);
+		assertVecAlmostEquals(entity.pos, [2, 2, 2]);
+		assertVecAlmostEquals(entity.worldPos, [2, 2, 2]);
+
+		entity.pos.set(3, 3, 3);
+		assertVecAlmostEquals(entity.pos, [3, 3, 3]);
+
+		entity.worldMatrix.set(Mat4.createTranslation(4, 4, 4));
+		assertEquals(entity.worldMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 4, 4, 1]);
+		assertVecAlmostEquals(entity.pos, [4, 4, 4]);
+		assertVecAlmostEquals(entity.worldPos, [4, 4, 4]);
+
+		worldMatrix.set(Mat4.createTranslation(5, 5, 5));
+		assertEquals(entity.worldMatrix.toArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5, 5, 5, 1]);
+		assertVecAlmostEquals(entity.pos, [5, 5, 5]);
+		assertVecAlmostEquals(entity.worldPos, [5, 5, 5]);
 	},
 });
 
@@ -479,6 +585,21 @@ Deno.test({
 		entity.parent = parent;
 		entity.parent = null;
 		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "Passing both local and world matrix to constructor options throws",
+	fn() {
+		const localMatrix = Mat4.createTranslation(1, 2, 3);
+		const worldMatrix = Mat4.createTranslation(4, 5, 6);
+
+		assertThrows(() => {
+			new Entity({
+				localMatrix,
+				worldMatrix,
+			});
+		}, Error, "Both a localMatrix and worldMatrix option was provided which is not supported.");
 	},
 });
 

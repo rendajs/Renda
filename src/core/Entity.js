@@ -8,7 +8,8 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 /**
  * @typedef {object} CreateEntityOptions
  * @property {string} [name = "Entity"]
- * @property {import("../math/Mat4.js").Mat4?} [matrix = null]
+ * @property {import("../math/Mat4.js").Mat4?} [localMatrix = null]
+ * @property {import("../math/Mat4.js").Mat4?} [worldMatrix = null]
  * @property {Entity?} [parent = null]
  */
 
@@ -87,7 +88,8 @@ export class Entity {
 		const opts = {
 			...{
 				name: "Entity",
-				matrix: null,
+				localMatrix: null,
+				worldMatrix: null,
 				parent: null,
 			}, ...options,
 		};
@@ -101,28 +103,52 @@ export class Entity {
 		this.components = [];
 
 		/** @private */
-		this.localMatrixDirty = false;
-		/** @private */
 		this._localMatrix = new Mat4();
+		this._localMatrix.onChange(this._onLocalMatrixChange.bind(this));
+		/**
+		 * We listen for local matrix changes to update the position, rotation, scale and worldMatrix accordingly.
+		 * But sometimes we need to set the local matrix internally, which would otherwise cause a feedback loop.
+		 * @private
+		 */
+		this._ignoreLocalMatrixChanges = false;
+
 		/** @private */
 		this.worldMatrixDirty = false;
 		/** @private */
 		this._worldMatrix = new Mat4();
+		this._worldMatrix.onChange(this._onWorldMatrixChange.bind(this));
+		/**
+		 * We listen for world matrix changes to update the position, rotation, scale and localMatrix accordingly.
+		 * But sometimes we need to set the local matrix internally, which would otherwise cause a feedback loop.
+		 * @private
+		 */
+		this._ignoreWorldMatrixChanges = false;
 
-		/** @private */
-		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirty.bind(this);
+		/**
+		 * True when the position, rotation, or scale have been set and the local matrix
+		 * needs to be updated the first time it is queried.
+		 * @private
+		 */
+		this._localMatrixDirty = false;
+
+		/**
+		 * True when a local or world matrix have been changed and the world position, rotation or scale
+		 * need to be updated the first time they are queried.
+		 * @private
+		 */
+		this._worldPosRotScaleDirty = false;
+
+		const boundOnPosRotScaleChanged = this._onPosRotScaleChanged.bind(this);
 		/** @private */
 		this._pos = new Vec3();
-		this._pos.onChange(this.boundMarkLocalMatrixDirty);
+		this._pos.onChange(boundOnPosRotScaleChanged);
 		/** @private */
 		this._rot = new Quat();
-		this._rot.onChange(this.boundMarkLocalMatrixDirty);
+		this._rot.onChange(boundOnPosRotScaleChanged);
 		/** @private */
 		this._scale = Vec3.one;
-		this._scale.onChange(this.boundMarkLocalMatrixDirty);
+		this._scale.onChange(boundOnPosRotScaleChanged);
 
-		/** @private */
-		this.worldPosRotScaleDirty = false;
 		/**
 		 * We listen for changes on the world vectors and quaternions, because
 		 * in case the user makes a change, we want to update the matrix and
@@ -134,27 +160,26 @@ export class Entity {
 		this._ignoreWorldChanges = false;
 
 		/** @private */
-		this.boundOnWorldPosChange = this.onWorldPosChange.bind(this);
-		/** @private */
 		this._worldPos = new Vec3();
-		this._worldPos.onChange(this.boundOnWorldPosChange);
+		this._worldPos.onChange(this.onWorldPosChange.bind(this));
 
-		/** @private */
-		this.boundOnWorldRotChange = this.onWorldRotChange.bind(this);
 		/** @private */
 		this._worldRot = new Quat();
-		this._worldRot.onChange(this.boundOnWorldRotChange);
+		this._worldRot.onChange(this.onWorldRotChange.bind(this));
 
-		/** @private */
-		this.boundOnWorldScaleChange = this.onWorldScaleChange.bind(this);
 		/** @private */
 		this._worldScale = new Vec3();
-		this._worldScale.onChange(this.boundOnWorldScaleChange);
+		this._worldScale.onChange(this.onWorldScaleChange.bind(this));
 
-		if (opts.matrix) this.localMatrix = opts.matrix;
+		if (opts.localMatrix && opts.worldMatrix) {
+			throw new Error("Both a localMatrix and worldMatrix option was provided which is not supported.");
+		}
+
+		if (opts.localMatrix) this.localMatrix = opts.localMatrix;
 		if (opts.parent) {
 			opts.parent.add(this);
 		}
+		if (opts.worldMatrix) this.worldMatrix = opts.worldMatrix;
 
 		/**
 		 * @typedef {<C extends Component, A extends ConstructorParameters<typeof Component>>(componentConstructor: new (...args: A) => C, ...args: A) => C} addComponentConstructorSignature
@@ -303,7 +328,7 @@ export class Entity {
 			this._parent.remove(this);
 		}
 		this._parent = newParent;
-		this.markWorldMatrixDirty();
+		this._markWorldMatrixDirty();
 		if (newParent && addChild) {
 			newParent.add(this);
 		}
@@ -404,32 +429,47 @@ export class Entity {
 	}
 
 	get localMatrix() {
-		if (this.localMatrixDirty) {
+		if (this._localMatrixDirty) {
 			const pos = this.pos;
 			const rot = this.rot;
 			const scale = this.scale;
-			this._localMatrix = Mat4.createPosRotScale(pos, rot, scale);
-			this.localMatrixDirty = false;
+			const newMatrix = Mat4.createPosRotScale(pos, rot, scale);
+			this._ignoreLocalMatrixChanges = true;
+			this._localMatrix.set(newMatrix);
+			this._ignoreLocalMatrixChanges = false;
+			this._localMatrixDirty = false;
 		}
-		return this._localMatrix.clone();
+		return this._localMatrix;
 	}
 
 	set localMatrix(value) {
 		this._localMatrix.set(value);
+	}
+
+	/**
+	 * @private
+	 */
+	_onLocalMatrixChange() {
+		if (this._ignoreLocalMatrixChanges) return;
 		const {pos, rot, scale} = this._localMatrix.decompose();
 		this.pos = pos;
 		this.rot = rot;
 		this.scale = scale;
-		this.localMatrixDirty = false;
+		this._localMatrixDirty = false;
 	}
 
 	get worldMatrix() {
 		this.updateWorldMatrixIfDirty();
-		return this._worldMatrix.clone();
+		return this._worldMatrix;
 	}
 
 	set worldMatrix(value) {
-		const {pos, rot, scale} = value.decompose();
+		this._worldMatrix.set(value);
+	}
+
+	_onWorldMatrixChange() {
+		if (this._ignoreWorldMatrixChanges) return;
+		const {pos, rot, scale} = this._worldMatrix.decompose();
 		this._worldPos.set(pos);
 		this._worldRot.set(rot);
 		this._worldScale.set(scale);
@@ -439,18 +479,16 @@ export class Entity {
 	 * Marks the local matrix as dirty on this entity and the world matrix of all it's children.
 	 * @private
 	 */
-	markLocalMatrixDirty() {
-		this.localMatrixDirty = true;
-		for (const child of this.traverseDown()) {
-			child.worldMatrixDirty = true;
-		}
+	_onPosRotScaleChanged() {
+		this._localMatrixDirty = true;
+		this._markWorldMatrixDirty();
 	}
 
 	/**
 	 * Marks the world matrix of this entity and all its children as dirty.
 	 * @private
 	 */
-	markWorldMatrixDirty() {
+	_markWorldMatrixDirty() {
 		this.worldMatrixDirty = true;
 		for (const child of this.traverseDown()) {
 			child.worldMatrixDirty = true;
@@ -463,14 +501,18 @@ export class Entity {
 	 * @private
 	 */
 	updateWorldMatrixIfDirty() {
-		if (this.localMatrixDirty || this.worldMatrixDirty) {
+		if (this._localMatrixDirty || this.worldMatrixDirty) {
+			let newMatrix;
 			if (this.parent) {
-				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
+				newMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
 			} else {
-				this._worldMatrix = this.localMatrix.clone();
+				newMatrix = this.localMatrix.clone();
 			}
+			this._ignoreWorldMatrixChanges = true;
+			this._worldMatrix.set(newMatrix);
+			this._ignoreWorldMatrixChanges = false;
 			this.worldMatrixDirty = false;
-			this.worldPosRotScaleDirty = true;
+			this._worldPosRotScaleDirty = true;
 		}
 	}
 
@@ -479,14 +521,14 @@ export class Entity {
 	 */
 	updateWorldPosRotScaleIfDirty() {
 		this.updateWorldMatrixIfDirty();
-		if (!this.worldPosRotScaleDirty) return;
+		if (!this._worldPosRotScaleDirty) return;
 		const {pos, rot, scale} = this._worldMatrix.decompose();
 		this._ignoreWorldChanges = true;
 		this._worldPos.set(pos);
 		this._worldRot.set(rot);
 		this._worldScale.set(scale);
 		this._ignoreWorldChanges = false;
-		this.worldPosRotScaleDirty = false;
+		this._worldPosRotScaleDirty = false;
 	}
 
 	/**
@@ -855,7 +897,7 @@ export class Entity {
 	_cloneInternal(options) {
 		const clone = new Entity({
 			name: this.name,
-			matrix: this.localMatrix,
+			localMatrix: this.localMatrix,
 		});
 
 		for (const component of this.components) {
