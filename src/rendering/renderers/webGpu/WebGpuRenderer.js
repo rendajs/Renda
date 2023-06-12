@@ -21,6 +21,7 @@ import {Sampler} from "../../Sampler.js";
 import {parseVertexInput} from "../../../util/wgslParsing.js";
 import {PlaceHolderTextureManager} from "./PlaceHolderTextureManager.js";
 import {ShaderSource} from "../../ShaderSource.js";
+import {WebGpuRendererError} from "./WebGpuRendererError.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
@@ -93,9 +94,12 @@ export class WebGpuRenderer extends Renderer {
 	}
 
 	async init() {
+		if (!("gpu" in navigator)) {
+			throw new WebGpuRendererError("not-supported", "The WebGPU api is not supported in this browser.");
+		}
 		this.adapter = await navigator.gpu.requestAdapter();
 		if (!this.adapter) {
-			throw new Error("Unable to get GPU adapter.");
+			throw new WebGpuRendererError("no-adapter-available", "No GPU adapter was available at this time.");
 		}
 		const device = await this.adapter.requestDevice();
 		this.device = device;
