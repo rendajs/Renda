@@ -11,3 +11,6 @@ export {contentWindowHistorySheet};
 
 import contentWindowEntityEditorSheet from "../windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.css" assert {type: "css"};
 export {contentWindowEntityEditorSheet};
+
+// HEADS UP: When adding a new import to this file,
+// make sure to also add it to dummyStylesModule.js to prevent tests from failing
