@@ -1,11 +1,12 @@
-/** @typedef {"not-supported" | "no-adapter-available"} WebGpuRendererErrorTypes */
+/** @typedef {"not-supported" | "no-adapter-available"} WebGpuRendererErrorReason */
 export class WebGpuRendererError extends Error {
 	/**
-	 * @param {WebGpuRendererErrorTypes} name
+	 * @param {WebGpuRendererErrorReason} reason
 	 * @param {string} message
 	 */
-	constructor(name, message) {
+	constructor(reason, message) {
 		super(message);
-		this.name = name;
+		this.reason = reason;
+		this.name = this.constructor.name;
 	}
 }
