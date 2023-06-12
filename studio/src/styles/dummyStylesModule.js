@@ -5,3 +5,4 @@
  */
 
 export const contentWindowHistorySheet = {};
+export const contentWindowEntityEditorSheet = {};

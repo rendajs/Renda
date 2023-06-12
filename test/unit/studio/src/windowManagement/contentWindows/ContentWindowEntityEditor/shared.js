@@ -1,5 +1,6 @@
 import {getMockArgs} from "../shared.js";
 import {FakeHtmlElement} from "fake-dom/FakeHtmlElement.js";
+import {installShadowDom} from "fake-dom/FakeShadowRoot.js";
 import {stub} from "std/testing/mock.ts";
 import {SelectionManager} from "../../../../../../../studio/src/misc/SelectionManager.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
@@ -12,6 +13,7 @@ export const BASIC_ENTITY_PATH = ["path", "to", "entity"];
 
 export function basicTest() {
 	installFakeDocument();
+	installShadowDom();
 	const requestAnimationFrameStub = stub(window, "requestAnimationFrame");
 	const {args, mockWindowManager, mockStudioInstance} = getMockArgs();
 	mockStudioInstance.renderer = /** @type {import("../../../../../../../src/mod.js").WebGpuRenderer} */ ({

@@ -9,6 +9,7 @@ import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {EntitySavingManager} from "./EntitySavingManager.js";
 import {ScaleGizmo} from "../../../../../src/gizmos/gizmos/ScaleGizmo.js";
 import {EntityChangeType} from "../../../assets/EntityAssetManager.js";
+import {contentWindowEntityEditorSheet} from "../../../styles/shadowStyles.js";
 
 export const ENTITY_EDITOR_CONTENT_WINDOW_ID = /** @type {const} */ ("renda:entityEditor");
 
@@ -102,10 +103,23 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		pivotControlsGroup.addButton(this.transformationPivotButton);
 		this.addTopBarEl(pivotControlsGroup.el);
 
+		this.shadow = this.contentEl.attachShadow({mode: "open"});
+		this.shadow.adoptedStyleSheets = [contentWindowEntityEditorSheet];
+
+		(async () => {
+			const message = await this.studioInstance.rendererErrorMessage;
+			if (message) {
+				const el = document.createElement("div");
+				el.classList.add("error-message");
+				el.textContent = message;
+				this.shadow.appendChild(el);
+			}
+		})();
+
 		this.domTarget = this.studioInstance.renderer.createDomTarget();
 		const renderTargetElement = this.domTarget.getElement();
 		renderTargetElement.style.display = "block";
-		this.contentEl.appendChild(renderTargetElement);
+		this.shadow.appendChild(renderTargetElement);
 
 		this.renderDirty = false;
 

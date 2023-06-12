@@ -26,6 +26,7 @@ import {PreferencesManager} from "./preferences/PreferencesManager.js";
 import {autoRegisterPreferences} from "./preferences/autoRegisterPreferences.js";
 import {GlobalPreferencesLocation} from "./preferences/preferencesLocation/GlobalPreferencesLocation.js";
 import {GestureInProgressManager} from "./misc/GestureInProgressManager.js";
+import {WebGpuRendererError} from "../../src/rendering/renderers/webGpu/WebGpuRendererError.js";
 
 export class Studio {
 	constructor() {
@@ -111,7 +112,26 @@ export class Studio {
 			});
 		}
 
-		this.renderer.init();
+		/**
+		 * A promise that resolves with a string that can be used as user visible error message when the renderer failed to initialize.
+		 * Resolves with an empty string when the renderer initializes successfully.
+		 */
+		this.rendererErrorMessage = (async () => {
+			try {
+				await this.renderer.init();
+			} catch (e) {
+				if (e instanceof WebGpuRendererError) {
+					if (e.reason == "no-adapter-available") {
+						return "No GPU adapter available, your browser might not support WebGPU.";
+					} else if (e.reason == "not-supported") {
+						return "WebGPU is not supported in this browser.";
+					}
+				}
+				throw e;
+			}
+			return "";
+		})();
+
 		this.windowManager.init();
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
