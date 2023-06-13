@@ -1,7 +1,7 @@
 import {PreferencesLocation} from "./PreferencesLocation.js";
 
 /**
- * @fileoverview A preferences location that stores preferences in a in the project.
+ * @fileoverview A preferences location that stores preferences in the project.
  * This is used for both the "version-control" and "project" locations,
  * with the only difference between the two being the destination of the file.
  */

@@ -1,5 +1,6 @@
 /** @typedef {"global" | "workspace" | "version-control" | "project" | "workspace" | "contentwindow-workspace" | "contentwindow-project"} PreferenceLocationTypes */
 /** @typedef {(key: string) => void} OnPreferenceLoadCallback */
+/** @typedef {Object<string, unknown>} PreferencesData */
 
 export class PreferencesLocation {
 	/** @type {Map<string, unknown>} */
@@ -18,7 +19,7 @@ export class PreferencesLocation {
 	/**
 	 * Clears existing values and loads the provided preferences.
 	 * Notifies the PreferencesManager that preferences have been changed.
-	 * @param {Object<string, unknown> | {}} preferences
+	 * @param {PreferencesData | {}} preferences
 	 */
 	loadPreferences(preferences) {
 		const removedPreferences = new Set(this.#storedPreferences.keys());
@@ -41,7 +42,7 @@ export class PreferencesLocation {
 	 * Useful when flushing data to disk
 	 */
 	getAllPreferences() {
-		/** @type {Object<string, unknown>} */
+		/** @type {PreferencesData} */
 		const preferences = {};
 		for (const [preference, value] of this.#storedPreferences) {
 			preferences[preference] = value;
