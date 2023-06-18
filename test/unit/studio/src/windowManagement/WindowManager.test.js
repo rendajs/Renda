@@ -508,6 +508,7 @@ Deno.test({
 		try {
 			const pref1 = preferencesManager.getUiValueAtLocation("pref1", "workspace");
 			assertEquals(pref1, "foo");
+			const saveWorkspaceSpy = spy(windowManager.workspaceManager, "setActiveWorkspaceData");
 
 			preferencesManager.set("pref1", "new value", {
 				location: "workspace",
@@ -516,17 +517,15 @@ Deno.test({
 				location: "workspace",
 			});
 
-			const saveWorkspaceSpy = spy(windowManager.workspaceManager, "setActiveWorkspaceData");
-
-			// TODO: trigger this from changing the preference instead of by clicking a tab
-			const changingTabsWindow = windowManager.rootWindow;
-			assertInstanceOf(changingTabsWindow, TabsStudioWindow);
-			assertEquals(changingTabsWindow.activeTabIndex, 0);
-			changingTabsWindow.tabsSelectorGroup.buttons[1].click();
-
-			assertEquals(changingTabsWindow.activeTabIndex, 1);
-			assertSpyCalls(saveWorkspaceSpy, 1);
+			assertSpyCalls(saveWorkspaceSpy, 2);
 			assertEquals(saveWorkspaceSpy.calls[0].args[1], {
+				workspace: {
+					pref1: "new value",
+					pref2: "bar",
+				},
+				windows: [],
+			});
+			assertEquals(saveWorkspaceSpy.calls[1].args[1], {
 				workspace: {
 					pref1: "new value",
 					pref2: "new value",

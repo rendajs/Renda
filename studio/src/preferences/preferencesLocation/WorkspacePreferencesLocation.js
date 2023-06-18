@@ -20,6 +20,16 @@ export class WorkspacePreferencesLocation extends PreferencesLocation {
 	 * @override
 	 */
 	async flush() {
-		// TODO
+		this.#onFlushRequestCbs.forEach(cb => cb());
+	}
+
+	/** @type {Set<() => void>} */
+	#onFlushRequestCbs = new Set();
+
+	/**
+	 * @param {() => void} cb
+	 */
+	onFlushRequest(cb) {
+		this.#onFlushRequestCbs.add(cb);
 	}
 }

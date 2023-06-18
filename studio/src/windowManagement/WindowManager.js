@@ -55,7 +55,6 @@ export class WindowManager {
 			this.reloadWorkspaceInstance.run();
 		});
 		this.reloadWorkspaceInstance = new SingleInstancePromise(async () => {
-			// TODO make this private
 			await this.#reloadCurrentWorkspace();
 		});
 
@@ -151,6 +150,9 @@ export class WindowManager {
 			this.#preferencesManager.removeLocation(this.#currentWorkspacePreferencesLocation);
 		}
 		const location = new WorkspacePreferencesLocation("workspace", workspace?.preferences?.workspace || {});
+		location.onFlushRequest(() => {
+			this.saveActiveWorkspace();
+		});
 		this.#currentWorkspacePreferencesLocation = location;
 		this.#preferencesManager.addLocation(location);
 
