@@ -140,9 +140,7 @@ export class WindowManager {
 		this.lastFocusedContentWindows = [];
 		this.lastFocusedContentWindow = null;
 		this.lastClickedContentWindow = null;
-		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
-		this.markRootWindowAsRoot();
-		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
+
 		if (!this.#preferencesManager) {
 			throw new Error("Assertion failed, no preferences manager provided");
 		}
@@ -155,6 +153,10 @@ export class WindowManager {
 		});
 		this.#currentWorkspacePreferencesLocation = location;
 		this.#preferencesManager.addLocation(location);
+
+		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
+		this.markRootWindowAsRoot();
+		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
 
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
