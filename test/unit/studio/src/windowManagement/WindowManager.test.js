@@ -462,7 +462,7 @@ Deno.test({
 
 		const fn = (async () => {
 			try {
-				assertSpyCalls(addLocationSpy, 5);
+				assertSpyCalls(addLocationSpy, 9);
 				assertSpyCalls(removeLocationSpy, 0);
 
 				const workspaceLocation = addLocationSpy.calls[0].args[0];
@@ -470,13 +470,28 @@ Deno.test({
 				assertEquals(workspaceLocation.locationType, "workspace");
 
 				assertEquals(addLocationSpy.calls[1].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_1);
-				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
-				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
-				assertEquals(addLocationSpy.calls[4].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_4);
+				assertEquals(addLocationSpy.calls[1].args[0].locationType, "contentwindow-project");
+				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_1);
+				assertEquals(addLocationSpy.calls[2].args[0].locationType, "contentwindow-workspace");
+
+				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
+				assertEquals(addLocationSpy.calls[3].args[0].locationType, "contentwindow-project");
+				assertEquals(addLocationSpy.calls[4].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
+				assertEquals(addLocationSpy.calls[4].args[0].locationType, "contentwindow-workspace");
+
+				assertEquals(addLocationSpy.calls[5].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
+				assertEquals(addLocationSpy.calls[5].args[0].locationType, "contentwindow-project");
+				assertEquals(addLocationSpy.calls[6].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
+				assertEquals(addLocationSpy.calls[6].args[0].locationType, "contentwindow-workspace");
+
+				assertEquals(addLocationSpy.calls[7].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_4);
+				assertEquals(addLocationSpy.calls[7].args[0].locationType, "contentwindow-project");
+				assertEquals(addLocationSpy.calls[8].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_4);
+				assertEquals(addLocationSpy.calls[8].args[0].locationType, "contentwindow-workspace");
 
 				await windowManager.reloadWorkspaceInstance.run();
-				assertSpyCalls(removeLocationSpy, 5);
-				assertSpyCalls(addLocationSpy, 10);
+				assertSpyCalls(removeLocationSpy, 9);
+				assertSpyCalls(addLocationSpy, 18);
 			} finally {
 				cleanup();
 			}
