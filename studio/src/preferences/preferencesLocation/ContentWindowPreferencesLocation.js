@@ -1,5 +1,8 @@
 import {PreferencesLocation} from "./PreferencesLocation.js";
 
+/**
+ * A preference location used for both "contentwindow-project" and "contentwindow-workspace".
+ */
 export class ContentWindowPreferencesLocation extends PreferencesLocation {
 	#windowManager;
 
@@ -18,6 +21,10 @@ export class ContentWindowPreferencesLocation extends PreferencesLocation {
 	 * @override
 	 */
 	async flush() {
-		await this.#windowManager.requestContentWindowPreferencesFlush();
+		if (this.locationType == "contentwindow-project") {
+			await this.#windowManager.requestContentWindowProjectPreferencesFlush();
+		} else if (this.locationType == "contentwindow-workspace") {
+			await this.#windowManager.saveActiveWorkspace();
+		}
 	}
 }

@@ -121,10 +121,24 @@ export class WindowManager {
 	async saveActiveWorkspace() {
 		const rootWindow = this.assertHasRootWindow();
 		const serializedRootWindow = this.serializeWorkspaceWindow(rootWindow);
+
+		/** @type {import("./WorkspaceManager.js").WorkspaceWindowPreferencesData[]} */
+		const windowPreferences = [];
+
+		for (const contentWindow of this.allContentWindows()) {
+			const data = contentWindow.getWorkspacePreferencesLocationData();
+			if (data) {
+				windowPreferences.push({
+					uuid: contentWindow.uuid,
+					preferences: data,
+				});
+			}
+		}
+
 		/** @type {import("./WorkspaceManager.js").WorkspacePreferencesData} */
 		const preferences = {
 			workspace: this.#currentWorkspacePreferencesLocation?.getAllPreferences() || {},
-			windows: [],
+			windows: windowPreferences,
 		};
 		await this.workspaceManager.setActiveWorkspaceData(serializedRootWindow, preferences);
 	}
@@ -146,7 +160,7 @@ export class WindowManager {
 		if (this.#currentWorkspacePreferencesLocation) {
 			this.#preferencesManager.removeLocation(this.#currentWorkspacePreferencesLocation);
 		}
-		const location = new WorkspacePreferencesLocation("workspace", workspace?.preferences?.workspace || {});
+		const location = new WorkspacePreferencesLocation("workspace", workspace.preferences?.workspace || {});
 		location.onFlushRequest(() => {
 			this.saveActiveWorkspace();
 		});
@@ -156,6 +170,20 @@ export class WindowManager {
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.markRootWindowAsRoot();
 		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
+
+		/** @type {Map<import("../../../src/mod.js").UuidString, import("../preferences/preferencesLocation/PreferencesLocation.js").PreferencesData>} */
+		const windowPreferences = new Map();
+		const windows = workspace.preferences?.windows || [];
+		for (const {uuid, preferences} of windows) {
+			windowPreferences.set(uuid, preferences);
+		}
+
+		for (const contentWindow of this.allContentWindows()) {
+			const preferences = windowPreferences.get(contentWindow.uuid);
+			if (preferences) {
+				contentWindow.setWorkspacePreferencesLocationData(preferences);
+			}
+		}
 
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
@@ -192,7 +220,7 @@ export class WindowManager {
 		this.#onPreferencesFlushRequest.delete(cb);
 	}
 
-	async requestContentWindowPreferencesFlush() {
+	async requestContentWindowProjectPreferencesFlush() {
 		/** @type {ContentWindowPersistentDiskData[]} */
 		const datas = [];
 		for (const contentWindow of this.allContentWindows()) {
