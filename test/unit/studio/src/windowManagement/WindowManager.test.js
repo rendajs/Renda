@@ -569,14 +569,14 @@ Deno.test({
 							uuid: CONTENT_WINDOW_UUID_1,
 							preferences: {
 								pref1: "uuid1 foo",
-							}
+							},
 						},
 						{
 							uuid: CONTENT_WINDOW_UUID_2,
 							preferences: {
 								pref2: "uuid2 bar",
-							}
-						}
+							},
+						},
 					],
 				},
 				rootWindow: {
@@ -615,15 +615,15 @@ Deno.test({
 					{
 						uuid: CONTENT_WINDOW_UUID_1,
 						preferences: {
-							pref1: "new value window 1"
-						}
+							pref1: "new value window 1",
+						},
 					},
 					{
 						uuid: CONTENT_WINDOW_UUID_2,
 						preferences: {
-							pref2: "uuid2 bar"
-						}
-					}
+							pref2: "uuid2 bar",
+						},
+					},
 				],
 			});
 			assertEquals(saveWorkspaceSpy.calls[1].args[1], {
@@ -635,23 +635,23 @@ Deno.test({
 					{
 						uuid: CONTENT_WINDOW_UUID_1,
 						preferences: {
-							pref1: "new value window 1"
-						}
+							pref1: "new value window 1",
+						},
 					},
 					{
 						uuid: CONTENT_WINDOW_UUID_2,
 						preferences: {
 							pref1: "new value window 2",
-							pref2: "uuid2 bar"
-						}
-					}
+							pref2: "uuid2 bar",
+						},
+					},
 				],
 			});
 		} finally {
 			cleanup();
 		}
-	}
-})
+	},
+});
 
 Deno.test({
 	name: "setContentWindowPreferences() loads the preferences on the correct content window",
