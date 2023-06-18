@@ -34,13 +34,14 @@ Deno.test({
 			await waitForMicrotasks();
 
 			// Clicking the popover should not close it
-			const mouseEvent1 = new FakeMouseEvent("click");
+			const mouseEvent1 = new FakeMouseEvent("pointerdown");
 			popover.el.dispatchEvent(mouseEvent1);
+
 			assertExists(manager.curtainEl.parentElement);
 			assertStrictEquals(manager.getLastPopover(), popover);
 
-			// But clicking any other element should
-			const mouseEvent2 = new FakeMouseEvent("click");
+			// But clicking any other element should close the popover and remove the curtain
+			const mouseEvent2 = new FakeMouseEvent("pointerdown");
 			document.body.dispatchEvent(mouseEvent2);
 			assertEquals(manager.curtainEl.parentElement, null);
 
