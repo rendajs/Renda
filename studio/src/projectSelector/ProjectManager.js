@@ -232,7 +232,7 @@ export class ProjectManager {
 		this.removeAssetManager();
 		studio.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		studio.windowManager.removeOnContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
-		await studio.windowManager.reloadCurrentWorkspace();
+		await studio.windowManager.reloadWorkspaceInstance.run();
 		studio.windowManager.onContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
 		studio.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 

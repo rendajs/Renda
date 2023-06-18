@@ -473,7 +473,7 @@ Deno.test({
 				assertInstanceOf(workspaceLocation, WorkspacePreferencesLocation);
 				assertEquals(workspaceLocation.locationType, "workspace");
 
-				await windowManager.reloadCurrentWorkspace();
+				await windowManager.reloadWorkspaceInstance.run();
 				assertSpyCalls(removeLocationSpy, 5);
 				assertSpyCalls(addLocationSpy, 10);
 			} finally {

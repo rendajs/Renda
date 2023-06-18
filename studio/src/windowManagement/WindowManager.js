@@ -56,7 +56,7 @@ export class WindowManager {
 		});
 		this.reloadWorkspaceInstance = new SingleInstancePromise(async () => {
 			// TODO make this private
-			await this.reloadCurrentWorkspace();
+			await this.#reloadCurrentWorkspace();
 		});
 
 		/** @type {Map<string, typeof ContentWindow>} */
@@ -111,7 +111,7 @@ export class WindowManager {
 		return this.rootWindow;
 	}
 
-	async reloadCurrentWorkspace() {
+	async #reloadCurrentWorkspace() {
 		const workspaceData = await this.workspaceManager.getActiveWorkspaceData();
 		this.#loadWorkspace(workspaceData);
 	}

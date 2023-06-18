@@ -6,6 +6,7 @@ import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
+import {SingleInstancePromise} from "../../../../../src/mod.js";
 
 console.log(import.meta.url);
 const importer = new Importer(import.meta.url);
@@ -84,7 +85,6 @@ async function basicTest({fn}) {
 			windowManager: {
 				onContentWindowPersistentDataFlushRequest(cb) {},
 				removeOnContentWindowPersistentDataFlushRequest(cb) {},
-				reloadCurrentWorkspace() {},
 				setContentWindowPersistentData() {},
 				onContentWindowPreferencesFlushRequest(cb) {
 					flushRequestCallbacks.add(cb);
@@ -93,6 +93,7 @@ async function basicTest({fn}) {
 					flushRequestCallbacks.delete(cb);
 				},
 				setContentWindowPreferences() {},
+				reloadWorkspaceInstance: new SingleInstancePromise(() => {}),
 			},
 			preferencesManager: /** @type {PreferencesManager<any>} */ (mockPreferencesManager),
 		});
@@ -266,7 +267,7 @@ Deno.test({
 	async fn() {
 		await basicTest({
 			async fn({manager, studio, fireFlushRequestCallbacks}) {
-				stub(studio.windowManager, "reloadCurrentWorkspace", async () => {
+				studio.windowManager.reloadWorkspaceInstance = new SingleInstancePromise(async () => {
 					await fireFlushRequestCallbacks({
 						label: "this data should not be written",
 					});

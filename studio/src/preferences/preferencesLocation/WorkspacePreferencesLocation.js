@@ -7,8 +7,6 @@ import {PreferencesLocation} from "./PreferencesLocation.js";
  */
 
 export class WorkspacePreferencesLocation extends PreferencesLocation {
-	#preferencesLoaded = false;
-
 	/**
 	 * @param {import("./PreferencesLocation.js").PreferenceLocationTypes} locationType
 	 * @param {Object<string, unknown>} preferences
@@ -22,5 +20,6 @@ export class WorkspacePreferencesLocation extends PreferencesLocation {
 	 * @override
 	 */
 	async flush() {
+		// TODO
 	}
 }
