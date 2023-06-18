@@ -2,8 +2,7 @@ import {PreferencesLocation} from "./PreferencesLocation.js";
 
 /**
  * @fileoverview A preferences location that stores preferences in a workspace.
- * This is used for both the "contentwindow-workspace" and "workspace" locations,
- * with the only difference between the two being the destination of the saved data.
+ * This is used for the "workspace" location.
  */
 
 export class WorkspacePreferencesLocation extends PreferencesLocation {
