@@ -6,6 +6,7 @@ import {SingleInstancePromise, generateUuid} from "../../../src/util/mod.js";
 import {EventHandler} from "../../../src/util/EventHandler.js";
 import {STUDIO_ENV} from "../studioDefines.js";
 import {getStudioInstance} from "../studioInstance.js";
+import {WorkspacePreferencesLocation} from "../preferences/preferencesLocation/WorkspacePreferencesLocation.js";
 
 /**
  * @typedef {object} ContentWindowEvent
@@ -36,6 +37,11 @@ export class WindowManager {
 	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<string>?} */
 	#lastFocusedValueSetter = null;
 
+	/** @type {import("../preferences/PreferencesManager.js").PreferencesManager<any>?} */
+	#preferencesManager = null;
+	/** @type {WorkspacePreferencesLocation?} */
+	#currentWorkspacePreferencesLocation = null;
+
 	constructor() {
 		this.rootWindow = null;
 		/** @type {WeakRef<ContentWindow>[]} */
@@ -49,7 +55,7 @@ export class WindowManager {
 			this.reloadWorkspaceInstance.run();
 		});
 		this.reloadWorkspaceInstance = new SingleInstancePromise(async () => {
-			await this.reloadCurrentWorkspace();
+			await this.#reloadCurrentWorkspace();
 		});
 
 		/** @type {Map<string, typeof ContentWindow>} */
@@ -67,7 +73,11 @@ export class WindowManager {
 		});
 	}
 
-	async init() {
+	/**
+	 * @param {import("../preferences/PreferencesManager.js").PreferencesManager<any>} preferencesManager
+	 */
+	async init(preferencesManager) {
+		this.#preferencesManager = preferencesManager;
 		const shortcuts = getStudioInstance().keyboardShortcutManager;
 		const lastClickedCondition = shortcuts.getCondition("windowManager.lastClickedContentWindowTypeId");
 		this.#lastClickedValueSetter = lastClickedCondition.requestValueSetter();
@@ -100,9 +110,9 @@ export class WindowManager {
 		return this.rootWindow;
 	}
 
-	async reloadCurrentWorkspace() {
+	async #reloadCurrentWorkspace() {
 		const workspaceData = await this.workspaceManager.getActiveWorkspaceData();
-		this.loadWorkspace(workspaceData);
+		this.#loadWorkspace(workspaceData);
 	}
 
 	/**
@@ -111,19 +121,38 @@ export class WindowManager {
 	async saveActiveWorkspace() {
 		const rootWindow = this.assertHasRootWindow();
 		const serializedRootWindow = this.serializeWorkspaceWindow(rootWindow);
-		await this.workspaceManager.setActiveWorkspaceData(serializedRootWindow);
+		/** @type {import("./WorkspaceManager.js").WorkspacePreferencesData} */
+		const preferences = {
+			workspace: this.#currentWorkspacePreferencesLocation?.getAllPreferences() || {},
+			windows: [],
+		};
+		await this.workspaceManager.setActiveWorkspaceData(serializedRootWindow, preferences);
 	}
 
 	/**
 	 * @param {import("./WorkspaceManager.js").WorkspaceData} workspace
 	 */
-	loadWorkspace(workspace) {
+	#loadWorkspace(workspace) {
 		if (this.rootWindow) {
 			this.rootWindow.destructor();
 		}
 		this.lastFocusedContentWindows = [];
 		this.lastFocusedContentWindow = null;
 		this.lastClickedContentWindow = null;
+
+		if (!this.#preferencesManager) {
+			throw new Error("Assertion failed, no preferences manager provided");
+		}
+		if (this.#currentWorkspacePreferencesLocation) {
+			this.#preferencesManager.removeLocation(this.#currentWorkspacePreferencesLocation);
+		}
+		const location = new WorkspacePreferencesLocation("workspace", workspace?.preferences?.workspace || {});
+		location.onFlushRequest(() => {
+			this.saveActiveWorkspace();
+		});
+		this.#currentWorkspacePreferencesLocation = location;
+		this.#preferencesManager.addLocation(location);
+
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.markRootWindowAsRoot();
 		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);

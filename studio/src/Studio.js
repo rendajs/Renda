@@ -132,7 +132,7 @@ export class Studio {
 			return "";
 		})();
 
-		this.windowManager.init();
+		this.windowManager.init(this.preferencesManager);
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
 		this.taskManager.init();

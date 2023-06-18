@@ -10,6 +10,7 @@ import {assertPromiseResolved} from "../../../shared/asserts.js";
 import {assertIsType} from "../../../shared/typeAssertions.js";
 import {createMockPopoverManager, triggerContextMenuItem} from "../../shared/contextMenuHelpers.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
+import {WorkspacePreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/WorkspacePreferencesLocation.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
@@ -18,6 +19,7 @@ importer.makeReal("../../../../../src/mod.js");
 importer.makeReal("../../../../../src/util/mod.js");
 importer.makeReal("../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js");
 importer.makeReal("../../../../../studio/src/windowManagement/PreferencesPopover.js");
+importer.makeReal("../../../../../studio/src/preferences/preferencesLocation/WorkspacePreferencesLocation.js");
 
 /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js")} */
 const WindowManagerMod = await importer.import("../../../../../studio/src/windowManagement/WindowManager.js");
@@ -190,7 +192,7 @@ async function basicSetup({
 		static contentWindowTypeId = CONTENT_WINDOW_TYPE_4;
 	}
 	windowManager.registerContentWindow(ContentWindowTab4);
-	await windowManager.init();
+	await windowManager.init(mockPreferencesManager);
 
 	return {
 		windowManager, shortcutConditionSetValueCalls,
@@ -396,6 +398,10 @@ Deno.test({
 							tabUuids: [CONTENT_WINDOW_UUID_3, CONTENT_WINDOW_UUID_4],
 						},
 					},
+					{
+						windows: [],
+						workspace: {},
+					},
 				],
 			});
 		} finally {
@@ -441,28 +447,95 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Each content window registers a preferences location",
+	name: "Creates the appropriate content window locations",
 	async fn() {
 		/** @type {import("std/testing/mock.ts").Spy} */
 		let addLocationSpy;
-		const {cleanup} = await basicSetup({
+		/** @type {import("std/testing/mock.ts").Spy} */
+		let removeLocationSpy;
+		const {cleanup, windowManager} = await basicSetup({
 			beforeCreate(studio) {
 				addLocationSpy = spy(studio.preferencesManager, "addLocation");
+				removeLocationSpy = spy(studio.preferencesManager, "removeLocation");
 			},
 		});
 
-		const fn = (() => {
+		const fn = (async () => {
 			try {
-				assertSpyCalls(addLocationSpy, 4);
-				assertEquals(addLocationSpy.calls[0].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_1);
-				assertEquals(addLocationSpy.calls[1].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
-				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
-				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_4);
+				assertSpyCalls(addLocationSpy, 5);
+				assertSpyCalls(removeLocationSpy, 0);
+
+				const workspaceLocation = addLocationSpy.calls[0].args[0];
+				assertInstanceOf(workspaceLocation, WorkspacePreferencesLocation);
+				assertEquals(workspaceLocation.locationType, "workspace");
+
+				assertEquals(addLocationSpy.calls[1].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_1);
+				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
+				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
+				assertEquals(addLocationSpy.calls[4].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_4);
+
+				await windowManager.reloadWorkspaceInstance.run();
+				assertSpyCalls(removeLocationSpy, 5);
+				assertSpyCalls(addLocationSpy, 10);
 			} finally {
 				cleanup();
 			}
 		});
-		fn();
+		await fn();
+	},
+});
+
+Deno.test({
+	name: "Saves and loads workspace location preferences",
+	async fn() {
+		const {cleanup, windowManager, preferencesManager} = await basicSetup({
+			getActiveWorkspaceDataReturn: {
+				preferences: {
+					workspace: {
+						pref1: "foo",
+						pref2: "bar",
+					},
+					windows: [],
+				},
+				rootWindow: {
+					type: "tabs",
+					activeTabIndex: 0,
+					tabTypes: [CONTENT_WINDOW_TYPE_1, CONTENT_WINDOW_TYPE_2],
+					tabUuids: [CONTENT_WINDOW_UUID_1, CONTENT_WINDOW_UUID_2],
+				},
+			},
+		});
+
+		try {
+			const pref1 = preferencesManager.getUiValueAtLocation("pref1", "workspace");
+			assertEquals(pref1, "foo");
+			const saveWorkspaceSpy = spy(windowManager.workspaceManager, "setActiveWorkspaceData");
+
+			preferencesManager.set("pref1", "new value", {
+				location: "workspace",
+			});
+			preferencesManager.set("pref2", "new value", {
+				location: "workspace",
+			});
+
+			assertSpyCalls(saveWorkspaceSpy, 2);
+			assertEquals(saveWorkspaceSpy.calls[0].args[1], {
+				workspace: {
+					pref1: "new value",
+					pref2: "bar",
+				},
+				windows: [],
+			});
+			assertEquals(saveWorkspaceSpy.calls[1].args[1], {
+				workspace: {
+					pref1: "new value",
+					pref2: "new value",
+				},
+				windows: [],
+			});
+		} finally {
+			cleanup();
+		}
 	},
 });
 

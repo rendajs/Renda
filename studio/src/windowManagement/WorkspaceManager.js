@@ -4,6 +4,18 @@ import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
  * @typedef {object} WorkspaceData
  * @property {WorkspaceDataWindow} rootWindow
  * @property {boolean} [autosaveWorkspace=true]
+ * @property {WorkspacePreferencesData} [preferences]
+ */
+
+/**
+ * @typedef WorkspacePreferencesData
+ * @property {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferencesData} workspace
+ * @property {WorkspaceWindowPreferencesData[]} windows
+ */
+/**
+ * @typedef WorkspaceWindowPreferencesData
+ * @property {import("../../../src/mod.js").UuidString} uuid
+ * @property {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferencesData} preferences
  */
 
 /**
@@ -137,10 +149,15 @@ export class WorkspaceManager {
 	/**
 	 * Stores serialized workspacedata to the IndexedDb.
 	 * @param {WorkspaceDataWindow} rootWindow
+	 * @param {WorkspacePreferencesData} preferences
 	 */
-	async setActiveWorkspaceData(rootWindow) {
+	async setActiveWorkspaceData(rootWindow, preferences) {
 		const workspaceData = await this.getActiveWorkspaceData();
 		workspaceData.rootWindow = rootWindow;
+		workspaceData.preferences = preferences;
+		if (preferences.windows.length == 0 && Object.values(preferences.workspace).length == 0) {
+			delete workspaceData.preferences;
+		}
 		await this.#saveActiveWorkspace();
 	}
 
@@ -154,6 +171,11 @@ export class WorkspaceManager {
 			if (await this.getCurrentWorkspaceAutoSaveValue()) {
 				const currentWorkspaceData = await this.#getCurrentWorkspaceData();
 				currentWorkspaceData.rootWindow = this.#activeWorkspaceData.rootWindow;
+				if (this.#activeWorkspaceData.preferences) {
+					currentWorkspaceData.preferences = this.#activeWorkspaceData.preferences;
+				} else {
+					delete currentWorkspaceData.preferences;
+				}
 				await this.#saveCurrentWorkspace(currentWorkspaceData);
 			}
 		}

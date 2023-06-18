@@ -44,6 +44,9 @@ Deno.test({
 				type: "tabs",
 				tabTypes: ["type1"],
 				tabUuids: ["uuid1"],
+			}, {
+				workspace: {},
+				windows: [],
 			});
 
 			await manager1.setCurrentWorkspaceId("Default");
@@ -89,6 +92,9 @@ Deno.test({
 				type: "tabs",
 				tabTypes: ["type"],
 				tabUuids: ["uuid"],
+			}, {
+				workspace: {},
+				windows: [],
 			});
 			assertEquals(await manager1.getActiveWorkspaceData(), {
 				rootWindow: {
@@ -133,7 +139,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "saveActiveWorkspaceWindows autosaves when autosave is enabled",
+	name: "setActiveWorkspaceData autosaves when autosave is enabled",
 	async fn() {
 		try {
 			const manager1 = new WorkspaceManager();
@@ -142,12 +148,92 @@ Deno.test({
 				type: "tabs",
 				tabTypes: ["type"],
 				tabUuids: ["uuid"],
+			}, {
+				workspace: {},
+				windows: [],
 			});
 			await manager1.addNewWorkspace("new");
 
 			const manager2 = new WorkspaceManager();
 			await manager2.setCurrentWorkspaceId("Default");
 			assertEquals(await manager2.getActiveWorkspaceData(), {
+				rootWindow: {
+					type: "tabs",
+					tabTypes: ["type"],
+					tabUuids: ["uuid"],
+				},
+			});
+		} finally {
+			deleteAllDbs();
+		}
+	},
+});
+
+Deno.test({
+	name: "setActiveWorkspaceData saves preferences data unless it is empty",
+	async fn() {
+		try {
+			// Create a manager with preferences data
+			const manager1 = new WorkspaceManager();
+			assertEquals(await manager1.getActiveWorkspaceData(), manager1.getDefaultWorkspace());
+			await manager1.setActiveWorkspaceData({
+				type: "tabs",
+				tabTypes: ["type"],
+				tabUuids: ["uuid"],
+			}, {
+				workspace: {
+					pref1: "foo",
+				},
+				windows: [
+					{
+						uuid: "uuid",
+						preferences: {
+							pref2: "bar",
+						},
+					},
+				],
+			});
+			await manager1.addNewWorkspace("new1");
+
+			// Create another one and check if the data is saved
+			const manager2 = new WorkspaceManager();
+			await manager2.setCurrentWorkspaceId("Default");
+			assertEquals(await manager2.getActiveWorkspaceData(), {
+				rootWindow: {
+					type: "tabs",
+					tabTypes: ["type"],
+					tabUuids: ["uuid"],
+				},
+				preferences: {
+					workspace: {
+						pref1: "foo",
+					},
+					windows: [
+						{
+							uuid: "uuid",
+							preferences: {
+								pref2: "bar",
+							},
+						},
+					],
+				},
+			});
+
+			// Clear preferences data
+			await manager2.setActiveWorkspaceData({
+				type: "tabs",
+				tabTypes: ["type"],
+				tabUuids: ["uuid"],
+			}, {
+				workspace: {},
+				windows: [],
+			});
+			await manager2.addNewWorkspace("new2");
+
+			// Create a third one and check if data is empty
+			const manager3 = new WorkspaceManager();
+			await manager3.setCurrentWorkspaceId("Default");
+			assertEquals(await manager3.getActiveWorkspaceData(), {
 				rootWindow: {
 					type: "tabs",
 					tabTypes: ["type"],
@@ -170,6 +256,9 @@ Deno.test({
 				type: "tabs",
 				tabTypes: ["type"],
 				tabUuids: ["uuid"],
+			}, {
+				workspace: {},
+				windows: [],
 			});
 			assertEquals(await manager1.getActiveWorkspaceData(), {
 				rootWindow: {
@@ -238,6 +327,9 @@ Deno.test({
 				type: "tabs",
 				tabTypes: ["type1"],
 				tabUuids: ["uuid1"],
+			}, {
+				workspace: {},
+				windows: [],
 			});
 			await manager2.setCurrentWorkspaceId("Default");
 
@@ -285,6 +377,9 @@ Deno.test({
 				type: "tabs",
 				tabTypes: ["type1"],
 				tabUuids: ["uuid1"],
+			}, {
+				workspace: {},
+				windows: [],
 			});
 			const onChangepyFn1 = spy();
 			manager1.onActiveWorkspaceDataChange(onChangepyFn1);
@@ -302,6 +397,9 @@ Deno.test({
 				type: "tabs",
 				tabTypes: ["type2"],
 				tabUuids: ["uuid2"],
+			}, {
+				workspace: {},
+				windows: [],
 			});
 			const onChangepyFn2 = spy();
 			manager2.onActiveWorkspaceDataChange(onChangepyFn2);
