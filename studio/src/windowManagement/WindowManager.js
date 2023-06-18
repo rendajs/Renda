@@ -119,7 +119,6 @@ export class WindowManager {
 	 * Serializes the current state and saves it so that it is persisted across sessions.
 	 */
 	async saveActiveWorkspace() {
-		// TODO trigger this when a preference is changed
 		const rootWindow = this.assertHasRootWindow();
 		const serializedRootWindow = this.serializeWorkspaceWindow(rootWindow);
 		/** @type {import("./WorkspaceManager.js").WorkspacePreferencesData} */
