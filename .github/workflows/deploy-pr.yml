@@ -144,7 +144,7 @@ jobs:
               if (deploymentId == DEPLOYMENT_ID) continue;
 
               console.log(`Deleting ${deploymentId}`);
-              await kit.request("DELETE /repos/{owner}/{repo}/deployments/{deploymentId}", {
+              await github.request("DELETE /repos/{owner}/{repo}/deployments/{deploymentId}", {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               	deploymentId,
