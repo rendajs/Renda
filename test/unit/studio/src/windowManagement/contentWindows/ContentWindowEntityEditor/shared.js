@@ -68,7 +68,7 @@ export function basicTest() {
 			yield mockOutliner;
 		}
 	});
-	const preferencesFlushSpy = stub(mockWindowManager, "requestContentWindowPreferencesFlush");
+	const preferencesFlushSpy = stub(mockWindowManager, "requestContentWindowProjectPreferencesFlush");
 
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.autosaveEntities", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.showGrid", {type: "boolean"});

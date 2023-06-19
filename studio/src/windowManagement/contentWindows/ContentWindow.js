@@ -32,6 +32,7 @@ export class ContentWindow {
 	static scrollable = true;
 
 	#projectPreferencesLocation;
+	#workspacePreferencesLocation;
 	/** @type {import("../../ui/Button.js").Button?} */
 	#preferencesButton = null;
 
@@ -56,6 +57,8 @@ export class ContentWindow {
 
 		this.#projectPreferencesLocation = new ContentWindowPreferencesLocation("contentwindow-project", windowManager, uuid);
 		studioInstance.preferencesManager.addLocation(this.#projectPreferencesLocation);
+		this.#workspacePreferencesLocation = new ContentWindowPreferencesLocation("contentwindow-workspace", windowManager, uuid);
+		studioInstance.preferencesManager.addLocation(this.#workspacePreferencesLocation);
 
 		this.destructed = false;
 
@@ -95,6 +98,7 @@ export class ContentWindow {
 	destructor() {
 		this.destructed = true;
 		this.studioInstance.preferencesManager.removeLocation(this.#projectPreferencesLocation);
+		this.studioInstance.preferencesManager.removeLocation(this.#workspacePreferencesLocation);
 	}
 
 	/**
@@ -124,6 +128,19 @@ export class ContentWindow {
 	 */
 	setProjectPreferencesLocationData(preferences) {
 		this.#projectPreferencesLocation.loadPreferences(preferences);
+	}
+
+	getWorkspacePreferencesLocationData() {
+		const preferences = this.#workspacePreferencesLocation.getAllPreferences();
+		if (Object.keys(preferences).length == 0) return null;
+		return preferences;
+	}
+
+	/**
+	 * @param {Object<string, unknown>} preferences
+	 */
+	setWorkspacePreferencesLocationData(preferences) {
+		this.#workspacePreferencesLocation.loadPreferences(preferences);
 	}
 
 	/**

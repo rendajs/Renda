@@ -34,7 +34,7 @@ function getMocks() {
 		},
 	});
 	const mockWindowManager = /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({
-		requestContentWindowPreferencesFlush() {},
+		requestContentWindowProjectPreferencesFlush() {},
 	});
 	const globalLocation = new PreferencesLocation("global");
 	preferencesManager.addLocation(globalLocation);

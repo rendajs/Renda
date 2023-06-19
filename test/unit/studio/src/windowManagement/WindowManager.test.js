@@ -462,7 +462,7 @@ Deno.test({
 
 		const fn = (async () => {
 			try {
-				assertSpyCalls(addLocationSpy, 5);
+				assertSpyCalls(addLocationSpy, 9);
 				assertSpyCalls(removeLocationSpy, 0);
 
 				const workspaceLocation = addLocationSpy.calls[0].args[0];
@@ -470,13 +470,28 @@ Deno.test({
 				assertEquals(workspaceLocation.locationType, "workspace");
 
 				assertEquals(addLocationSpy.calls[1].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_1);
-				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
-				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
-				assertEquals(addLocationSpy.calls[4].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_4);
+				assertEquals(addLocationSpy.calls[1].args[0].locationType, "contentwindow-project");
+				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_1);
+				assertEquals(addLocationSpy.calls[2].args[0].locationType, "contentwindow-workspace");
+
+				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
+				assertEquals(addLocationSpy.calls[3].args[0].locationType, "contentwindow-project");
+				assertEquals(addLocationSpy.calls[4].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
+				assertEquals(addLocationSpy.calls[4].args[0].locationType, "contentwindow-workspace");
+
+				assertEquals(addLocationSpy.calls[5].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
+				assertEquals(addLocationSpy.calls[5].args[0].locationType, "contentwindow-project");
+				assertEquals(addLocationSpy.calls[6].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
+				assertEquals(addLocationSpy.calls[6].args[0].locationType, "contentwindow-workspace");
+
+				assertEquals(addLocationSpy.calls[7].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_4);
+				assertEquals(addLocationSpy.calls[7].args[0].locationType, "contentwindow-project");
+				assertEquals(addLocationSpy.calls[8].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_4);
+				assertEquals(addLocationSpy.calls[8].args[0].locationType, "contentwindow-workspace");
 
 				await windowManager.reloadWorkspaceInstance.run();
-				assertSpyCalls(removeLocationSpy, 5);
-				assertSpyCalls(addLocationSpy, 10);
+				assertSpyCalls(removeLocationSpy, 9);
+				assertSpyCalls(addLocationSpy, 18);
 			} finally {
 				cleanup();
 			}
@@ -532,6 +547,105 @@ Deno.test({
 					pref2: "new value",
 				},
 				windows: [],
+			});
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "Saves and loads workspace content window location preferences",
+	async fn() {
+		const {cleanup, windowManager, preferencesManager} = await basicSetup({
+			getActiveWorkspaceDataReturn: {
+				preferences: {
+					workspace: {
+						pref1: "foo",
+						pref2: "bar",
+					},
+					windows: [
+						{
+							uuid: CONTENT_WINDOW_UUID_1,
+							preferences: {
+								pref1: "uuid1 foo",
+							},
+						},
+						{
+							uuid: CONTENT_WINDOW_UUID_2,
+							preferences: {
+								pref2: "uuid2 bar",
+							},
+						},
+					],
+				},
+				rootWindow: {
+					type: "tabs",
+					activeTabIndex: 0,
+					tabTypes: [CONTENT_WINDOW_TYPE_1, CONTENT_WINDOW_TYPE_2],
+					tabUuids: [CONTENT_WINDOW_UUID_1, CONTENT_WINDOW_UUID_2],
+				},
+			},
+		});
+
+		try {
+			assertEquals(preferencesManager.get("pref1", CONTENT_WINDOW_UUID_1), "uuid1 foo");
+			assertEquals(preferencesManager.get("pref2", CONTENT_WINDOW_UUID_1), "bar");
+			assertEquals(preferencesManager.get("pref1", CONTENT_WINDOW_UUID_2), "foo");
+			assertEquals(preferencesManager.get("pref2", CONTENT_WINDOW_UUID_2), "uuid2 bar");
+
+			const saveWorkspaceSpy = spy(windowManager.workspaceManager, "setActiveWorkspaceData");
+
+			preferencesManager.set("pref1", "new value window 1", {
+				location: "contentwindow-workspace",
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+			});
+			preferencesManager.set("pref1", "new value window 2", {
+				location: "contentwindow-workspace",
+				contentWindowUuid: CONTENT_WINDOW_UUID_2,
+			});
+
+			assertSpyCalls(saveWorkspaceSpy, 2);
+			assertEquals(saveWorkspaceSpy.calls[0].args[1], {
+				workspace: {
+					pref1: "foo",
+					pref2: "bar",
+				},
+				windows: [
+					{
+						uuid: CONTENT_WINDOW_UUID_1,
+						preferences: {
+							pref1: "new value window 1",
+						},
+					},
+					{
+						uuid: CONTENT_WINDOW_UUID_2,
+						preferences: {
+							pref2: "uuid2 bar",
+						},
+					},
+				],
+			});
+			assertEquals(saveWorkspaceSpy.calls[1].args[1], {
+				workspace: {
+					pref1: "foo",
+					pref2: "bar",
+				},
+				windows: [
+					{
+						uuid: CONTENT_WINDOW_UUID_1,
+						preferences: {
+							pref1: "new value window 1",
+						},
+					},
+					{
+						uuid: CONTENT_WINDOW_UUID_2,
+						preferences: {
+							pref1: "new value window 2",
+							pref2: "uuid2 bar",
+						},
+					},
+				],
 			});
 		} finally {
 			cleanup();
