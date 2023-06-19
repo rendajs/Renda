@@ -80,7 +80,6 @@ jobs:
               ref: BUILD_COMMIT_SHA,
               environment: "PR preview",
               auto_merge: false,
-              auto_inactive: false,
               transient_environment: true,
               task: "deploy_pr:" + PR_ID,
               required_contexts: ["build / build"],
@@ -127,6 +126,29 @@ jobs:
               state: "success",
               environment_url: `https://pr-${ PR_ID }.renda.studio`
             });
+
+            // Delete previous deployments except for the one we just created.
+            const iterator = github.paginate.iterator("GET /repos/{owner}/{repo}/deployments", {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              task: "deploy_pr:" + PR_ID,
+            });
+            const allDeployments = [];
+            for await (const {data: deployments} of iterator) {
+              for (const deployment of deployments) {
+                allDeployments.push(deployment);
+              }
+            }
+            for (const deployment of allDeployments) {
+              const deploymentId = deployment.id;
+              if (deploymentId == DEPLOYMENT_ID) continue;
+
+              await kit.request("DELETE /repos/{owner}/{repo}/deployments/{deploymentId}", {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              	deploymentId,
+              });
+            }
 
       - name: Update deployment status failure
         if: ${{ failure() }}
