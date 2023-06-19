@@ -144,6 +144,12 @@ jobs:
               if (deploymentId == DEPLOYMENT_ID) continue;
 
               console.log(`Deleting ${deploymentId}`);
+              await github.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              	deploymentId,
+                state: "inactive",
+              });
               await github.request("DELETE /repos/{owner}/{repo}/deployments/{deploymentId}", {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
