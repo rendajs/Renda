@@ -93,11 +93,6 @@ export class PreferencesManager {
 	 * 		never :
 	 * 	never} GetPreferenceType
 	 */
-	/**
-	 * @template {PreferenceTypesOrString} T
-	 * @template {boolean} TAssertRegistered
-	 * @typedef {TAssertRegistered extends true ? GetPreferenceType<T> : (string | boolean | number | null)} GetPreferenceTypeWithAssertionOption
-	 */
 	/** @type {Map<string | PreferenceTypes, PreferenceConfig>} */
 	#registeredPreferences = new Map();
 	/** @type {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation[]} */
@@ -227,14 +222,11 @@ export class PreferencesManager {
 	 * @param {SetPreferenceOptions} [locationOptions]
 	 */
 	#getLocation(preference, locationOptions) {
+		const preferenceConfig = this.#registeredPreferences.get(preference);
+		if (!preferenceConfig) throw new Error(`Assertion failed, preference "${preference}" hasn't been registered`);
 		let locationType = locationOptions?.location;
-		if (!locationType) {
-			const preferenceConfig = this.#registeredPreferences.get(preference);
-			locationType = preferenceConfig?.defaultLocation;
-		}
-		if (!locationType) {
-			locationType = "global";
-		}
+		if (!locationType) locationType = preferenceConfig.defaultLocation;
+		if (!locationType) locationType = "global";
 		const location = this.#registeredLocations.find(location => {
 			if (location.locationType != locationType) return false;
 			if (location instanceof ContentWindowPreferencesLocation) {
@@ -352,7 +344,7 @@ export class PreferencesManager {
 		if (cb) cb();
 
 		for (const [uuid, oldValue] of oldLocationValues) {
-			const newValue = this.get(preference, uuid, {assertRegistered: false});
+			const {value: newValue} = this.#getInternal(preference, uuid, {assertRegistered: false});
 			if (newValue != oldValue) {
 				this.#fireChangeEvent(preference, uuid, {
 					location: eventLocationType,
@@ -403,22 +395,15 @@ export class PreferencesManager {
 
 	/**
 	 * @template {PreferenceTypesOrString} T
-	 * @template {boolean} [TAssertRegistered = true]
 	 * @param {T} preference
 	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
-	 * @param {object} options
-	 * @param {TAssertRegistered} [options.assertRegistered] Assert that `preference` has been registered. Set to false
-	 * to disable this assertion. Disabling the assertion will also change the returned type to include `null`,
-	 * since there is no known default value for unregistered preferences.
 	 */
-	get(preference, contentWindowUuid, {
-		assertRegistered = /** @type {TAssertRegistered} */ (true),
-	} = {}) {
-		const {value, foundContentWindowLocation} = this.#getInternal(preference, contentWindowUuid, {assertRegistered});
+	get(preference, contentWindowUuid) {
+		const {value, foundContentWindowLocation} = this.#getInternal(preference, contentWindowUuid);
 		if (!foundContentWindowLocation) {
 			this.#throwContentWindowUuidNotFound(contentWindowUuid);
 		}
-		return /** @type {GetPreferenceTypeWithAssertionOption<T, TAssertRegistered>} */ (value);
+		return /** @type {GetPreferenceType<T>} */ (value);
 	}
 
 	/**
@@ -486,7 +471,7 @@ export class PreferencesManager {
 	 * to get the value at, use `null` to get the default location of that preference.
 	 * @param {object} options
 	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
-	 * @returns {GetPreferenceTypeWithAssertionOption<T, true>?} The value at the specified location, or null when
+	 * @returns {GetPreferenceType<T>?} The value at the specified location, or null when
 	 * no value was set for that location. Except when no location is provided, in which case the default value
 	 * for the preference is returned.
 	 */
@@ -510,7 +495,7 @@ export class PreferencesManager {
 				value = null;
 			}
 		}
-		return /** @type {GetPreferenceTypeWithAssertionOption<T, true>?} */ (value);
+		return /** @type {GetPreferenceType<T>?} */ (value);
 	}
 
 	/**

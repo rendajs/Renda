@@ -542,21 +542,11 @@ Deno.test({
 			nonExistent: "foo",
 		});
 
-		const value = manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID, {assertRegistered: false});
-		assertEquals(value, "foo");
-
-		// Verify that the type is `string | number | boolean | null` and nothing else
-		const primitiveOrNull = /** @type {string | number | boolean | null} */ (null);
-		assertIsType(primitiveOrNull, value);
-		assertIsType(value, "");
-		assertIsType(value, null);
-
-		// @ts-expect-error Verify that the type isn't 'any'
-		assertIsType({}, value);
-
-		assertThrows(() => {
-			manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID, {assertRegistered: true});
-		});
+		// But trying to get the value should still throw, we want to make sure we are aware of a desired
+		// default value and allowed locations.
+		// For example, if a preference is only allowed to be stored in some locations as a security measure,
+		// but the preference hasn't (yet) been registered for whatever reason, not throwing would actually
+		// lower the security.
 		assertThrows(() => {
 			manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID);
 		});
