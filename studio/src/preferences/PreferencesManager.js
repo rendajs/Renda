@@ -29,6 +29,9 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
  * location where the preference will be stored. This defaults to "global" when not set.
  * When modifying preferences, the user can choose where the modified value should be stored.
  * If the user does not choose a location, each preference will have its own default location.
+ * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]} [allowedLocations] When set,
+ * only the provided locations can be modified for this preference. Any other locations will be greyed out for the user,
+ * and trying to set these programmatically will result in an error.
  */
 /** @typedef {PreferenceConfigHelper<PreferenceValueTypes>} PreferenceConfig */
 
@@ -221,7 +224,7 @@ export class PreferencesManager {
 	 * @param {PreferenceTypes} preference
 	 * @param {SetPreferenceOptions} [locationOptions]
 	 */
-	#getLocation(preference, locationOptions) {
+	#getLocationAndConfig(preference, locationOptions) {
 		const preferenceConfig = this.#registeredPreferences.get(preference);
 		if (!preferenceConfig) throw new Error(`Assertion failed, preference "${preference}" hasn't been registered`);
 		let locationType = locationOptions?.location;
@@ -242,7 +245,7 @@ export class PreferencesManager {
 				throw new Error(`"${locationType}" preference location was not found.`);
 			}
 		}
-		return location;
+		return {location, preferenceConfig};
 	}
 
 	/**
@@ -275,7 +278,10 @@ export class PreferencesManager {
 	 * @param {SetPreferenceOptions} [setPreferenceOptions]
 	 */
 	set(preference, value, setPreferenceOptions) {
-		this.#changeLocationAndFireEvents(preference, setPreferenceOptions, location => {
+		this.#changeLocationAndFireEvents(preference, setPreferenceOptions, (location, preferenceConfig) => {
+			if (preferenceConfig.allowedLocations && !preferenceConfig.allowedLocations.includes(location.locationType)) {
+				throw new Error(`"${location.locationType}" is not an allowed location for this preference.`);
+			}
 			location.set(preference, value);
 		});
 	}
@@ -298,17 +304,17 @@ export class PreferencesManager {
 	 * Fires events based on the changes.
 	 * @param {PreferenceTypes} preference
 	 * @param {SetPreferenceOptions | undefined} setPreferenceOptions
-	 * @param {(location: import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation) => void} cb
+	 * @param {(location: import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation, config: PreferenceConfig) => void} cb
 	 */
 	#changeLocationAndFireEvents(preference, setPreferenceOptions, cb) {
-		const location = this.#getLocation(preference, setPreferenceOptions);
+		const {location, preferenceConfig} = this.#getLocationAndConfig(preference, setPreferenceOptions);
 		const trigger = setPreferenceOptions?.performedByUser ? "user" : "application";
 		this.#runAndFireEvents({
 			preference,
 			eventLocationType: location.locationType,
 			eventTrigger: trigger,
 			cb: () => {
-				cb(location);
+				cb(location, preferenceConfig);
 				const flush = setPreferenceOptions?.flush ?? true;
 				if (flush) {
 					location.flush();
@@ -434,6 +440,9 @@ export class PreferencesManager {
 				if (location.contentWindowUuid != contentWindowUuid) continue;
 				foundContentWindowLocation = true;
 			}
+			if (preferenceConfig?.allowedLocations && !preferenceConfig.allowedLocations.includes(location.locationType)) {
+				continue;
+			}
 			if (location.has(preference)) {
 				const locationValue = location.get(preference);
 				if (!preferenceConfig) {
@@ -467,7 +476,7 @@ export class PreferencesManager {
 	 * For that {@linkcode get} should be used.
 	 * @template {PreferenceTypesOrString} T
 	 * @param {T} preference The preference id to get the value for.
-	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} location The location
+	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} locationName The location
 	 * to get the value at, use `null` to get the default location of that preference.
 	 * @param {object} options
 	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
@@ -475,7 +484,7 @@ export class PreferencesManager {
 	 * no value was set for that location. Except when no location is provided, in which case the default value
 	 * for the preference is returned.
 	 */
-	getUiValueAtLocation(preference, location, {
+	getUiValueAtLocation(preference, locationName, {
 		contentWindowUuid,
 	} = {}) {
 		const preferenceConfig = this.#registeredPreferences.get(preference);
@@ -483,13 +492,16 @@ export class PreferencesManager {
 			throw new Error(`The preference "${preference}" has not been registered.`);
 		}
 
-		const preferenceLocation = this.#getLocation(preference, {
-			location: location || undefined,
+		const {location} = this.#getLocationAndConfig(preference, {
+			location: locationName || undefined,
 			contentWindowUuid,
 		});
-		let value = preferenceLocation.get(preference);
+		if (preferenceConfig.allowedLocations && !preferenceConfig.allowedLocations.includes(location.locationType)) {
+			return null;
+		}
+		let value = location.get(preference);
 		if (value === undefined) {
-			if (location == null) {
+			if (locationName == null) {
 				value = this.#getDefaultType(preferenceConfig);
 			} else {
 				value = null;

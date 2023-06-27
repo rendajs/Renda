@@ -9,20 +9,20 @@ import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
 const DEFAULT_CONTENT_WINDOW_UUID = "default content window uuid";
 
 /**
+ * Takes a preference type and returns it as const.
+ * This only exists to make autocompletions work.
+ * @template {import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig} T
+ * @param {T} preference
+ */
+function pref(preference) {
+	return preference;
+}
+
+/**
  * Creates a manager and registers a bunch of test types.
  * This ensures the manager has the correct generic type.
  */
 function createManager() {
-	/**
-	 * Takes a preference type and returns it as const.
-	 * This only exists to make autocompletions work.
-	 * @template {import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig} T
-	 * @param {T} preference
-	 */
-	function pref(preference) {
-		return preference;
-	}
-
 	const manager = new PreferencesManager({
 		boolPref1: pref({
 			type: "boolean",
@@ -307,6 +307,82 @@ Deno.test({
 		assertThrows(() => {
 			manager.set("str", "value", {location: "global"});
 		}, Error, '"global" preference location was not found.');
+	},
+});
+
+Deno.test({
+	name: "Setting at a location that is not in the allowlist throws",
+	fn() {
+		const manager = new PreferencesManager({
+			pref1: pref({
+				type: "string",
+				allowedLocations: ["global"],
+			}),
+		});
+
+		manager.addLocation(new PreferencesLocation("global"));
+		manager.addLocation(new PreferencesLocation("workspace"));
+
+		/** @type {Parameters<typeof manager.onChangeAny>[0]} */
+		const changeFn = () => {};
+		const spyFn = spy(changeFn);
+		let callCount = 0;
+		manager.onChangeAny(spyFn);
+
+		manager.set("pref1", "globalValue1", {location: "global"});
+		assertSpyCalls(spyFn, ++callCount);
+
+		assertThrows(() => {
+			manager.set("pref1", "workspaceValue1", {location: "workspace"});
+		}, Error, '"workspace" is not an allowed location for this preference.');
+
+		manager.set("pref1", "globalValue2", {location: "global"});
+		assertSpyCalls(spyFn, ++callCount);
+	},
+});
+
+Deno.test({
+	name: "Getting ignores locations that are not in the allowlist",
+	fn() {
+		// We need to make sure values from disallowed locations are not accidentally loaded.
+		// Some preferences rely on `allowedLocation` as a security measure.
+		// Without this check, an attacker could share a project or workspace with insecure values for instance.
+		const manager = new PreferencesManager({
+			pref1: pref({
+				type: "string",
+				allowedLocations: ["global"],
+				default: "default",
+			}),
+		});
+
+		manager.addLocation(new PreferencesLocation("global"));
+		const workspaceLocation = new PreferencesLocation("workspace");
+		manager.addLocation(workspaceLocation);
+		workspaceLocation.loadPreferences({
+			pref1: "insecure value",
+		});
+
+		const mockWindowManager = createMockWindowManager();
+		const windowLocation = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID);
+		manager.addLocation(windowLocation);
+		windowLocation.loadPreferences({
+			pref1: "another insecure value",
+		});
+
+		const value1 = manager.get("pref1", DEFAULT_CONTENT_WINDOW_UUID);
+		assertEquals(value1, "default");
+
+		const value1Global = manager.getUiValueAtLocation("pref1", "global");
+		assertEquals(value1Global, null);
+		const value1Workspace = manager.getUiValueAtLocation("pref1", "workspace");
+		assertEquals(value1Workspace, null);
+		const value1Window = manager.getUiValueAtLocation("pref1", "contentwindow-project", {contentWindowUuid: DEFAULT_CONTENT_WINDOW_UUID});
+		assertEquals(value1Window, null);
+
+		// Resetting locations that are not in the allowlist is fine, they were already not getting used anyway
+		manager.reset("pref1", {contentWindowUuid: DEFAULT_CONTENT_WINDOW_UUID, location: "contentwindow-project"});
+		manager.reset("pref1", {location: "workspace"});
+		manager.reset("pref1", {location: "global"});
 	},
 });
 
