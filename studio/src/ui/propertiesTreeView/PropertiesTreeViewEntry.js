@@ -25,6 +25,7 @@ import {VALUE_CHANGE_EVENT_NAME} from "./PropertiesTreeView.js";
  * @property {() => any} [destructor]
  * @property {(value: any, options: any) => any} [setValue]
  * @property {(disabled: boolean) => any} [setDisabled]
+ * @property {boolean} [disabled]
  */
 
 /**
@@ -53,6 +54,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	#label = "";
+	#disabled = false;
 
 	/**
 	 * @deprecated Use {@link of} instead.
@@ -215,6 +217,11 @@ export class PropertiesTreeViewEntry extends TreeView {
 	setDisabled(disabled) {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.setDisabled?.(disabled);
+		this.#disabled = disabled;
+	}
+
+	get disabled() {
+		return this.#disabled;
 	}
 
 	/**

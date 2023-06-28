@@ -32,6 +32,11 @@ function getMocks() {
 		unknownPref: {
 			type: "unknown",
 		},
+		allowedLocationsPref: {
+			type: "string",
+			defaultLocation: "contentwindow-project",
+			allowedLocations: ["contentwindow-project"],
+		},
 	});
 	const mockWindowManager = /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({
 		requestContentWindowProjectPreferencesFlush() {},
@@ -50,7 +55,7 @@ Deno.test({
 		const {popoverManager, preferencesManager} = getMocks();
 
 		runWithDom(() => {
-			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref"], CONTENT_WINDOW_UUID);
+			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
 
 			assertTreeViewStructureEquals(popover.preferencesTreeView, {
 				children: [
@@ -59,18 +64,28 @@ Deno.test({
 						isPropertiesEntry: true,
 						propertiesType: "boolean",
 						propertiesValue: true,
+						disabled: false,
 					},
 					{
 						propertiesLabel: "Num Pref",
 						isPropertiesEntry: true,
 						propertiesType: "number",
 						propertiesValue: 42,
+						disabled: false,
 					},
 					{
 						propertiesLabel: "Str Pref",
 						isPropertiesEntry: true,
 						propertiesType: "string",
 						propertiesValue: "default",
+						disabled: false,
+					},
+					{
+						propertiesLabel: "Allowed Locations Pref",
+						isPropertiesEntry: true,
+						propertiesType: "string",
+						propertiesValue: "",
+						disabled: false,
 					},
 				],
 			});
@@ -84,8 +99,8 @@ Deno.test({
 		const {popoverManager, preferencesManager} = getMocks();
 
 		runWithDom(() => {
-			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref"], CONTENT_WINDOW_UUID);
-			popover.locationDropDown.setValue(1);
+			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
+			popover.locationDropDown.setValue(1); // Global
 			popover.locationDropDown.el.dispatchEvent(new Event("change"));
 
 			assertTreeViewStructureEquals(popover.preferencesTreeView, {
@@ -99,10 +114,13 @@ Deno.test({
 					{
 						propertiesValue: "",
 					},
+					{
+						disabled: true,
+					},
 				],
 			});
 
-			popover.locationDropDown.setValue(0);
+			popover.locationDropDown.setValue(0); // Default
 			popover.locationDropDown.el.dispatchEvent(new Event("change"));
 			assertTreeViewStructureEquals(popover.preferencesTreeView, {
 				children: [
@@ -114,6 +132,9 @@ Deno.test({
 					},
 					{
 						propertiesValue: "default",
+					},
+					{
+						disabled: false,
 					},
 				],
 			});
