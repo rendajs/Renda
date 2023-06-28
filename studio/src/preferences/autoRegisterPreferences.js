@@ -31,7 +31,11 @@ const autoRegisterPreferences = /** @type {const} */ ({
 		type: "number",
 		default: 2.5,
 	}),
-	"entityEditor.loadedEntityPath": pref({type: "unknown"}),
+	"entityEditor.loadedEntityPath": pref({
+		type: "unknown",
+		defaultLocation: "contentwindow-project",
+		allowedLocations: ["contentwindow-project"],
+	}),
 	"entityEditor.showGrid": pref({
 		type: "boolean",
 		default: true,
