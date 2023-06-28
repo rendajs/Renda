@@ -336,7 +336,27 @@ Deno.test({
 		assertEquals(manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "location2"}), "location2 value");
 		assertThrows(() => {
 			manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "nonexistent"});
+		}, Error, 'A content window uuid was provided ("nonexistent") but no location for this uuid was found.');
+	},
+});
+
+Deno.test({
+	name: "Getting the default location with a global location registered gives a helpful error message",
+	fn() {
+		const preferencesManager = new PreferencesManager({
+			pref: {
+				type: "string",
+			},
 		});
+		const mockWindowManager = createMockWindowManager();
+		const windowLocation = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID);
+		preferencesManager.addLocation(windowLocation);
+
+		assertThrows(() => {
+			preferencesManager.getUiValueAtLocation("pref", null, {
+				contentWindowUuid: DEFAULT_CONTENT_WINDOW_UUID,
+			});
+		}, Error, '"global" preference location was not found.');
 	},
 });
 
