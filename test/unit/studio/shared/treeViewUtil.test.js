@@ -169,11 +169,67 @@ Deno.test({
 				],
 			});
 
+			assertTreeViewStructureEquals(tv1, {
+				children: [
+					{
+						disabled: false,
+					},
+				],
+			});
+
 			assertThrows(() => {
 				assertTreeViewStructureEquals(tv1, {
 					children: [
 						{
 							propertiesValue: "different",
+						},
+					],
+				});
+			});
+
+			assertThrows(() => {
+				assertTreeViewStructureEquals(tv1, {
+					children: [
+						{
+							disabled: true,
+						},
+					],
+				});
+			});
+
+			str.setDisabled(true);
+
+			assertTreeViewStructureEquals(tv1, {
+				children: [
+					{
+						propertiesValue: "value",
+					},
+				],
+			});
+
+			assertTreeViewStructureEquals(tv1, {
+				children: [
+					{
+						disabled: true,
+					},
+				],
+			});
+
+			assertThrows(() => {
+				assertTreeViewStructureEquals(tv1, {
+					children: [
+						{
+							propertiesValue: "different",
+						},
+					],
+				});
+			});
+
+			assertThrows(() => {
+				assertTreeViewStructureEquals(tv1, {
+					children: [
+						{
+							disabled: false,
 						},
 					],
 				});

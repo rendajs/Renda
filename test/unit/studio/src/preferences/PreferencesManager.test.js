@@ -9,20 +9,20 @@ import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
 const DEFAULT_CONTENT_WINDOW_UUID = "default content window uuid";
 
 /**
+ * Takes a preference type and returns it as const.
+ * This only exists to make autocompletions work.
+ * @template {import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig} T
+ * @param {T} preference
+ */
+function pref(preference) {
+	return preference;
+}
+
+/**
  * Creates a manager and registers a bunch of test types.
  * This ensures the manager has the correct generic type.
  */
 function createManager() {
-	/**
-	 * Takes a preference type and returns it as const.
-	 * This only exists to make autocompletions work.
-	 * @template {import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig} T
-	 * @param {T} preference
-	 */
-	function pref(preference) {
-		return preference;
-	}
-
 	const manager = new PreferencesManager({
 		boolPref1: pref({
 			type: "boolean",
@@ -126,10 +126,12 @@ Deno.test({
 		configTest("pref", {type: "boolean"}, {
 			type: "boolean",
 			uiName: "Pref",
+			allowedLocations: null,
 		});
 		configTest("namespace.myPreference", {type: "number"}, {
 			type: "number",
 			uiName: "My Preference",
+			allowedLocations: null,
 		});
 		configTest("namespace.explicitName", {
 			type: "string",
@@ -137,6 +139,7 @@ Deno.test({
 		}, {
 			type: "string",
 			uiName: "Hello",
+			allowedLocations: null,
 		});
 		configTest("endswithdot.", {
 			type: "string",
@@ -144,6 +147,15 @@ Deno.test({
 		}, {
 			type: "string",
 			uiName: "Hello",
+			allowedLocations: null,
+		});
+		configTest("allowedLocations", {
+			type: "string",
+			allowedLocations: ["global"],
+		}, {
+			type: "string",
+			uiName: "Allowed Locations",
+			allowedLocations: ["global"],
 		});
 
 		const manager = new PreferencesManager();
@@ -153,6 +165,40 @@ Deno.test({
 		assertThrows(() => {
 			manager.getPreferenceConfig("endswithdot.");
 		}, Error, "Preference UI name could not be determined.");
+	},
+});
+
+Deno.test({
+	name: "Registering preference with empty allowedLocations array throws",
+	fn() {
+		const manager = new PreferencesManager();
+		assertThrows(() => {
+			manager.registerPreference("thisThrows", {
+				type: "string",
+				allowedLocations: [],
+			});
+		}, Error, 'Preference "thisThrows" was registered with an empty allowedLocations array.');
+	},
+});
+
+Deno.test({
+	name: "Registering preference with defaultLocation that is not in the allowedLocations array throws",
+	fn() {
+		const manager = new PreferencesManager();
+		assertThrows(() => {
+			manager.registerPreference("thisThrows", {
+				type: "string",
+				allowedLocations: ["global"],
+				defaultLocation: "project",
+			});
+		}, Error, 'Preference "thisThrows" was registered with "project" as default location but this location type was missing from the allowedLocation array.');
+
+		assertThrows(() => {
+			manager.registerPreference("thisThrowsToo", {
+				type: "string",
+				allowedLocations: ["project"],
+			});
+		}, Error, 'Preference "thisThrowsToo" was registered with "global" as default location but this location type was missing from the allowedLocation array.');
 	},
 });
 
@@ -307,6 +353,82 @@ Deno.test({
 		assertThrows(() => {
 			manager.set("str", "value", {location: "global"});
 		}, Error, '"global" preference location was not found.');
+	},
+});
+
+Deno.test({
+	name: "Setting at a location that is not in the allowlist throws",
+	fn() {
+		const manager = new PreferencesManager({
+			pref1: pref({
+				type: "string",
+				allowedLocations: ["global"],
+			}),
+		});
+
+		manager.addLocation(new PreferencesLocation("global"));
+		manager.addLocation(new PreferencesLocation("workspace"));
+
+		/** @type {Parameters<typeof manager.onChangeAny>[0]} */
+		const changeFn = () => {};
+		const spyFn = spy(changeFn);
+		let callCount = 0;
+		manager.onChangeAny(spyFn);
+
+		manager.set("pref1", "globalValue1", {location: "global"});
+		assertSpyCalls(spyFn, ++callCount);
+
+		assertThrows(() => {
+			manager.set("pref1", "workspaceValue1", {location: "workspace"});
+		}, Error, '"workspace" is not an allowed location for this preference.');
+
+		manager.set("pref1", "globalValue2", {location: "global"});
+		assertSpyCalls(spyFn, ++callCount);
+	},
+});
+
+Deno.test({
+	name: "Getting ignores locations that are not in the allowlist",
+	fn() {
+		// We need to make sure values from disallowed locations are not accidentally loaded.
+		// Some preferences rely on `allowedLocation` as a security measure.
+		// Without this check, an attacker could share a project or workspace with insecure values for instance.
+		const manager = new PreferencesManager({
+			pref1: pref({
+				type: "string",
+				allowedLocations: ["global"],
+				default: "default",
+			}),
+		});
+
+		manager.addLocation(new PreferencesLocation("global"));
+		const workspaceLocation = new PreferencesLocation("workspace");
+		manager.addLocation(workspaceLocation);
+		workspaceLocation.loadPreferences({
+			pref1: "insecure value",
+		});
+
+		const mockWindowManager = createMockWindowManager();
+		const windowLocation = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID);
+		manager.addLocation(windowLocation);
+		windowLocation.loadPreferences({
+			pref1: "another insecure value",
+		});
+
+		const value1 = manager.get("pref1", DEFAULT_CONTENT_WINDOW_UUID);
+		assertEquals(value1, "default");
+
+		const value1Global = manager.getUiValueAtLocation("pref1", "global");
+		assertEquals(value1Global, null);
+		const value1Workspace = manager.getUiValueAtLocation("pref1", "workspace");
+		assertEquals(value1Workspace, null);
+		const value1Window = manager.getUiValueAtLocation("pref1", "contentwindow-project", {contentWindowUuid: DEFAULT_CONTENT_WINDOW_UUID});
+		assertEquals(value1Window, null);
+
+		// Resetting locations that are not in the allowlist is fine, they were already not getting used anyway
+		manager.reset("pref1", {contentWindowUuid: DEFAULT_CONTENT_WINDOW_UUID, location: "contentwindow-project"});
+		manager.reset("pref1", {location: "workspace"});
+		manager.reset("pref1", {location: "global"});
 	},
 });
 
@@ -542,21 +664,11 @@ Deno.test({
 			nonExistent: "foo",
 		});
 
-		const value = manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID, {assertRegistered: false});
-		assertEquals(value, "foo");
-
-		// Verify that the type is `string | number | boolean | null` and nothing else
-		const primitiveOrNull = /** @type {string | number | boolean | null} */ (null);
-		assertIsType(primitiveOrNull, value);
-		assertIsType(value, "");
-		assertIsType(value, null);
-
-		// @ts-expect-error Verify that the type isn't 'any'
-		assertIsType({}, value);
-
-		assertThrows(() => {
-			manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID, {assertRegistered: true});
-		});
+		// But trying to get the value should still throw, we want to make sure we are aware of a desired
+		// default value and allowed locations.
+		// For example, if a preference is only allowed to be stored in some locations as a security measure,
+		// but the preference hasn't (yet) been registered for whatever reason, not throwing would actually
+		// lower the security.
 		assertThrows(() => {
 			manager.get("nonExistent", DEFAULT_CONTENT_WINDOW_UUID);
 		});
