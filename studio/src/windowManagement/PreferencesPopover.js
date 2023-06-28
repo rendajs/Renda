@@ -12,6 +12,7 @@ export class PreferencesPopover extends Popover {
 	 * @typedef CreatedEntryData
 	 * @property {import("../preferences/PreferencesManager.js").PreferenceValueTypes} type
 	 * @property {import("../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryAny} entry
+	 * @property {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]?} allowedLocations
 	 */
 
 	/** @type {Map<string, CreatedEntryData>} */
@@ -48,7 +49,7 @@ export class PreferencesPopover extends Popover {
 			defaultValue: 0,
 		});
 		this.locationDropDown.onValueChange(() => {
-			this.#updateEntryValues();
+			this.#updateEntries();
 		});
 		topBarEl.appendChild(this.locationDropDown.el);
 
@@ -56,7 +57,7 @@ export class PreferencesPopover extends Popover {
 		this.el.appendChild(this.preferencesTreeView.el);
 
 		for (const id of preferenceIds) {
-			const {uiName, type} = preferencesManager.getPreferenceConfig(id);
+			const {uiName, type, allowedLocations} = preferencesManager.getPreferenceConfig(id);
 			if (type == "unknown") {
 				throw new Error("Preferences with unknown type can not be added to PreferencesPopovers.");
 			}
@@ -76,10 +77,11 @@ export class PreferencesPopover extends Popover {
 			this.#createdEntries.set(id, {
 				type,
 				entry,
+				allowedLocations,
 			});
 		}
 
-		this.#updateEntryValues();
+		this.#updateEntries();
 	}
 
 	#getCurrentLocation() {
@@ -99,13 +101,13 @@ export class PreferencesPopover extends Popover {
 		return locationTypes[index];
 	}
 
-	#updateEntryValues() {
+	#updateEntries() {
 		if (!this.#preferencesManager || !this.#contentWindowUuid) {
 			throw new Error("Assertion failed, popover has not been initialized");
 		}
 
 		const location = this.#getCurrentLocation();
-		for (const [id, {entry, type}] of this.#createdEntries) {
+		for (const [id, {entry, type, allowedLocations}] of this.#createdEntries) {
 			let value = this.#preferencesManager.getUiValueAtLocation(id, location, {
 				contentWindowUuid: this.#contentWindowUuid,
 			});
@@ -119,6 +121,9 @@ export class PreferencesPopover extends Popover {
 				}
 			}
 			entry.setValue(value);
+
+			const allowed = !location || !allowedLocations || allowedLocations.includes(location);
+			entry.setDisabled(!allowed);
 		}
 	}
 }
