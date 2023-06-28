@@ -244,7 +244,7 @@ export class PreferencesManager {
 			return true;
 		});
 		if (!location) {
-			if (locationOptions?.contentWindowUuid) {
+			if (locationOptions?.contentWindowUuid && (locationType == "contentwindow-project" || locationType == "contentwindow-workspace")) {
 				this.#throwContentWindowUuidNotFound(locationOptions.contentWindowUuid);
 			} else {
 				throw new Error(`"${locationType}" preference location was not found.`);
