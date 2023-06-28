@@ -157,9 +157,14 @@ export class PreferencesManager {
 			}
 			uiName = prettifyVariableName(lastPart);
 		}
+		let allowedLocations = null;
+		if (config.allowedLocations) {
+			allowedLocations = Array.from(config.allowedLocations);
+		}
 		return {
 			type: config.type,
 			uiName,
+			allowedLocations,
 		};
 	}
 
