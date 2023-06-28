@@ -169,6 +169,40 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Registering preference with empty allowedLocations array throws",
+	fn() {
+		const manager = new PreferencesManager();
+		assertThrows(() => {
+			manager.registerPreference("thisThrows", {
+				type: "string",
+				allowedLocations: [],
+			});
+		}, Error, 'Preference "thisThrows" was registered with an empty allowedLocations array.');
+	},
+});
+
+Deno.test({
+	name: "Registering preference with defaultLocation that is not in the allowedLocations array throws",
+	fn() {
+		const manager = new PreferencesManager();
+		assertThrows(() => {
+			manager.registerPreference("thisThrows", {
+				type: "string",
+				allowedLocations: ["global"],
+				defaultLocation: "project",
+			});
+		}, Error, 'Preference "thisThrows" was registered with "project" as default location but this location type was missing from the allowedLocation array.');
+
+		assertThrows(() => {
+			manager.registerPreference("thisThrowsToo", {
+				type: "string",
+				allowedLocations: ["project"],
+			});
+		}, Error, 'Preference "thisThrowsToo" was registered with "global" as default location but this location type was missing from the allowedLocation array.');
+	},
+});
+
+Deno.test({
 	name: "getPreferenceConfig() throws when not registered",
 	fn() {
 		const manager = new PreferencesManager();

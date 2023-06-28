@@ -125,6 +125,15 @@ export class PreferencesManager {
 	 * @param {PreferenceConfig} preferenceConfig
 	 */
 	registerPreference(preference, preferenceConfig) {
+		if (preferenceConfig.allowedLocations) {
+			if (preferenceConfig.allowedLocations.length == 0) {
+				throw new Error(`Preference "${preference}" was registered with an empty allowedLocations array.`);
+			}
+			const defaultLocation = preferenceConfig.defaultLocation || "global";
+			if (!preferenceConfig.allowedLocations.includes(defaultLocation)) {
+				throw new Error(`Preference "${preference}" was registered with "${defaultLocation}" as default location but this location type was missing from the allowedLocation array.`);
+			}
+		}
 		this.#registeredPreferences.set(preference, preferenceConfig);
 	}
 
