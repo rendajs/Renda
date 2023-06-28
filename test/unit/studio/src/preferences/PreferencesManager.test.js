@@ -126,10 +126,12 @@ Deno.test({
 		configTest("pref", {type: "boolean"}, {
 			type: "boolean",
 			uiName: "Pref",
+			allowedLocations: null,
 		});
 		configTest("namespace.myPreference", {type: "number"}, {
 			type: "number",
 			uiName: "My Preference",
+			allowedLocations: null,
 		});
 		configTest("namespace.explicitName", {
 			type: "string",
@@ -137,6 +139,7 @@ Deno.test({
 		}, {
 			type: "string",
 			uiName: "Hello",
+			allowedLocations: null,
 		});
 		configTest("endswithdot.", {
 			type: "string",
@@ -144,6 +147,15 @@ Deno.test({
 		}, {
 			type: "string",
 			uiName: "Hello",
+			allowedLocations: null,
+		});
+		configTest("allowedLocations", {
+			type: "string",
+			allowedLocations: ["global"],
+		}, {
+			type: "string",
+			uiName: "Allowed Locations",
+			allowedLocations: ["global"],
 		});
 
 		const manager = new PreferencesManager();
