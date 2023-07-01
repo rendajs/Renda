@@ -66,7 +66,7 @@ export class Studio {
 		this.historyManager = new HistoryManager(this.keyboardShortcutManager);
 		this.componentGizmosManager = new ComponentGizmosManager();
 		this.materialMapTypeSerializerManager = new MaterialMapTypeSerializerManager();
-		this.projectManager = new ProjectManager();
+		this.projectManager = new ProjectManager(this.preferencesManager);
 		this.builtInDefaultAssetLinksManager = new BuiltInDefaultAssetLinksManager();
 		this.builtInAssetManager = new BuiltInAssetManager(this.projectAssetTypeManager);
 		this.dragManager = new DragManager();

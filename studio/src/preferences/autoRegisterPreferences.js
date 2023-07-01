@@ -40,6 +40,16 @@ const autoRegisterPreferences = /** @type {const} */ ({
 		type: "boolean",
 		default: true,
 	}),
+	"studioConnections.allowRemoteIncoming": pref({
+		type: "boolean",
+		defaultLocation: "project",
+		allowedLocations: ["project"],
+	}),
+	"studioConnections.allowInternalIncoming": pref({
+		type: "boolean",
+		defaultLocation: "project",
+		allowedLocations: ["project"],
+	}),
 });
 
 /** @typedef {keyof autoRegisterPreferences} AutoRegisterPreferenceTypes */

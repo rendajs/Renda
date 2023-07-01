@@ -7,7 +7,6 @@ import {StudioConnectionsManager} from "../network/studioConnections/StudioConne
 import {generateUuid} from "../../../src/util/util.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
-import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
 import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePreferencesLocation.js";
 
@@ -70,7 +69,12 @@ export class ProjectManager {
 	/** @type {Set<OnAssetManagerChangeCallback>} */
 	#onAssetManagerChangeCbs = new Set();
 
-	constructor() {
+	#preferencesManager;
+
+	/**
+	 * @param {import("../Studio.js").Studio["preferencesManager"]} preferencesManager
+	 */
+	constructor(preferencesManager) {
 		/** @type {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} */
 		this.currentProjectFileSystem = null;
 		/** @type {StoredProjectEntryAny?} */
@@ -98,8 +102,12 @@ export class ProjectManager {
 		/** @type {AssetManager?} */
 		this.assetManager = null;
 
-		this.studioConnectionsAllowRemoteIncoming = false;
-		this.studioConnectionsAllowInternalIncoming = false;
+		this.#preferencesManager = preferencesManager;
+		// TODO: Only listen for specific events
+		preferencesManager.onChangeAny(() => {
+			this.updateStudioConnectionsManager();
+		});
+
 		this.studioConnectionsDiscoveryEndpoint = null;
 		this.studioConnectionsManager = new StudioConnectionsManager();
 		this.studioConnectionsManager.onActiveConnectionsChanged(activeConnections => {
@@ -165,10 +173,6 @@ export class ProjectManager {
 				this.suggestCheckExternalChanges();
 			}
 		});
-
-		this.loadStudioConnectionsAllowIncomingInstance = new SingleInstancePromise(async () => {
-			await this.loadStudioConnectionsAllowIncoming();
-		});
 	}
 
 	/**
@@ -221,8 +225,6 @@ export class ProjectManager {
 		studio.preferencesManager.addLocation(this.#currentPreferencesLocation);
 		this.#currentVersionControlPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, [".renda", "preferences.json"], fromUserGesture);
 		studio.preferencesManager.addLocation(this.#currentVersionControlPreferencesLocation);
-
-		this.loadStudioConnectionsAllowIncomingInstance.run();
 
 		fileSystem.onChange(this.#onFileSystemChange);
 		fileSystem.onRootNameChange(this.#boundOnFileSystemRootNameChange);
@@ -504,56 +506,6 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {boolean} allow
-	 */
-	setStudioConnectionsAllowRemoteIncoming(allow) {
-		const settings = this.assertLocalSettingsExists();
-		this.studioConnectionsAllowRemoteIncoming = allow;
-		if (allow) {
-			settings.set("studioConnections.allowRemoteIncoming", allow);
-		} else {
-			settings.delete("studioConnections.allowRemoteIncoming");
-		}
-		this.updateStudioConnectionsManager();
-	}
-
-	async getStudioConnectionsAllowRemoteIncoming() {
-		await this.loadStudioConnectionsAllowIncomingInstance.waitForFinishOnce();
-		return this.studioConnectionsAllowRemoteIncoming;
-	}
-
-	/**
-	 * @param {boolean} allow
-	 */
-	setStudioConnectionsAllowInternalIncoming(allow) {
-		const settings = this.assertLocalSettingsExists();
-		this.studioConnectionsAllowInternalIncoming = allow;
-		if (allow) {
-			settings.set("studioConnections.allowInternalIncoming", allow);
-		} else {
-			settings.delete("studioConnections.allowInternalIncoming");
-		}
-		this.updateStudioConnectionsManager();
-	}
-
-	async getStudioConnectionsAllowInternalIncoming() {
-		await this.loadStudioConnectionsAllowIncomingInstance.waitForFinishOnce();
-		return this.studioConnectionsAllowInternalIncoming;
-	}
-
-	async loadStudioConnectionsAllowIncoming() {
-		if (this.currentProjectIsRemote) {
-			this.studioConnectionsAllowRemoteIncoming = false;
-			this.studioConnectionsAllowInternalIncoming = false;
-		} else {
-			const settings = this.assertLocalSettingsExists();
-			this.studioConnectionsAllowRemoteIncoming = await settings.getBoolean("studioConnections.allowRemoteIncoming", false);
-			this.studioConnectionsAllowInternalIncoming = await settings.getBoolean("studioConnections.allowInternalIncoming", false);
-		}
-		this.updateStudioConnectionsManager();
-	}
-
-	/**
 	 * @param {string?} endpoint
 	 */
 	setStudioConnectionsDiscoveryEndpoint(endpoint) {
@@ -564,7 +516,8 @@ export class ProjectManager {
 	updateStudioConnectionsManager() {
 		const hasValidProject = !!this.currentProjectOpenEvent;
 
-		if (hasValidProject && (this.currentProjectIsRemote || this.studioConnectionsAllowRemoteIncoming)) {
+		const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.allowRemoteIncoming", "") || false;
+		if (hasValidProject && (this.currentProjectIsRemote || allowRemoteIncoming)) {
 			let endpoint = this.studioConnectionsDiscoveryEndpoint;
 			if (!endpoint) endpoint = this.studioConnectionsManager.getDefaultEndPoint();
 			if (!endpoint.startsWith("ws://") && !endpoint.startsWith("wss://")) {
@@ -575,7 +528,9 @@ export class ProjectManager {
 			this.studioConnectionsManager.setDiscoveryEndpoint(null);
 		}
 
-		this.studioConnectionsManager.setAllowInternalIncoming(this.studioConnectionsAllowInternalIncoming);
+		const allowInternalIncoming = this.#preferencesManager.get("studioConnections.allowInternalIncoming", "") || false;
+		console.log({allowRemoteIncoming, allowInternalIncoming});
+		this.studioConnectionsManager.setAllowInternalIncoming(allowInternalIncoming);
 
 		this.studioConnectionsManager.sendSetIsStudioHost(!this.currentProjectIsRemote);
 		if (hasValidProject && this.currentProjectOpenEvent) {
