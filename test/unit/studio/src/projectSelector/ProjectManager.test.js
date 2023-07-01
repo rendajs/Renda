@@ -58,9 +58,23 @@ const GITIGNORE_PATH = [".gitignore"];
  * @property {import("../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} manager
  * @property {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
  * @property {import("../../../../../studio/src/Studio.js").Studio} studio
- * @property {PreferencesManager<{strPref: {type: "string", default: "default"}}>} mockPreferencesManager
+ * @property {PreferencesManager<typeof mockPreferencesConfig>} mockPreferencesManager
  * @property {(data: unknown) => Promise<void>} fireFlushRequestCallbacks
  */
+
+const mockPreferencesConfig = /** @type {const} @satisfies {Object<string, import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig>} */ ({
+
+	strPref: {
+		type: "string",
+		default: "default",
+	},
+	"studioConnections.allowInternalIncoming": {
+		type: "boolean",
+	},
+	"studioConnections.allowRemoteIncoming": {
+		type: "boolean",
+	},
+});
 
 /**
  * @param {object} options
@@ -74,18 +88,7 @@ async function basicTest({fn}) {
 		/** @type {Set<(data: unknown) => Promise<void>>} */
 		const flushRequestCallbacks = new Set();
 
-		const mockPreferencesManager = /** @type {PreferencesManager<any>} */ (new PreferencesManager({
-			strPref: {
-				type: "string",
-				default: "default",
-			},
-			"studioConnections.allowInternalIncoming": {
-				type: "boolean",
-			},
-			"studioConnections.allowRemoteIncoming": {
-				type: "boolean",
-			},
-		}));
+		const mockPreferencesManager = /** @type {PreferencesManager<any>} */ (new PreferencesManager(mockPreferencesConfig));
 
 		const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 			windowManager: {
@@ -139,11 +142,10 @@ function createStoredProjectEntry() {
 }
 
 Deno.test({
-	name: "Opening a project updates the studio connections manager",
-	ignore: true,
+	name: "Studio connections manager is updated when needed",
 	async fn() {
 		await basicTest({
-			async fn({manager, studioConnectionsManager}) {
+			async fn({manager, mockPreferencesManager, studioConnectionsManager}) {
 				const fs = new MemoryStudioFileSystem();
 				let resolveWaitForPermission = () => {};
 				stub(fs, "waitForPermission", () => {
@@ -151,7 +153,7 @@ Deno.test({
 						resolveWaitForPermission = resolve;
 					});
 				});
-				fs.writeJson(LOCAL_PROJECT_SETTINGS_PATH, {
+				fs.writeJson(LOCAL_PROJECT_PREFERENCES_PATH, {
 					"studioConnections.allowInternalIncoming": true,
 					"studioConnections.allowRemoteIncoming": true,
 				});
@@ -162,47 +164,63 @@ Deno.test({
 				const sendSetIsStudioHostSpy = spy(studioConnectionsManager, "sendSetIsStudioHost");
 				const setProjectMetaDataSpy = spy(studioConnectionsManager, "setProjectMetaData");
 
+				/**
+				 * @param {string?} endpoint
+				 * @param {boolean} allowInternalIncoming
+				 * @param {boolean} isStudioHost
+				 * @param {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData} projectMetaData
+				 */
+				function testUpdateCall(endpoint, allowInternalIncoming, isStudioHost, projectMetaData) {
+					assertSpyCall(setDiscoveryEndpointSpy, setDiscoveryEndpointSpy.calls.length - 1, {
+						args: [endpoint],
+					});
+					assertSpyCall(setAllowInternalIncomingSpy, setAllowInternalIncomingSpy.calls.length - 1, {
+						args: [allowInternalIncoming],
+					});
+					assertSpyCall(sendSetIsStudioHostSpy, sendSetIsStudioHostSpy.calls.length - 1, {
+						args: [isStudioHost],
+					});
+					assertSpyCall(setProjectMetaDataSpy, setProjectMetaDataSpy.calls.length - 1, {
+						args: [projectMetaData],
+					});
+				}
+
 				await manager.openProject(fs, entry, true);
 
-				assertSpyCall(setDiscoveryEndpointSpy, setDiscoveryEndpointSpy.calls.length - 1, {
-					args: [null],
-				});
-				assertSpyCall(setAllowInternalIncomingSpy, setAllowInternalIncomingSpy.call.length - 1, {
-					args: [false],
-				});
-				assertSpyCall(sendSetIsStudioHostSpy, sendSetIsStudioHostSpy.calls.length - 1, {
-					args: [true],
-				});
-				assertSpyCall(setProjectMetaDataSpy, setProjectMetaDataSpy.calls.length - 1, {
-					args: [
-						{
-							name: "name",
-							uuid: "uuid",
-							fileSystemHasWritePermissions: false,
-						},
-					],
+				testUpdateCall(null, false, true, {
+					name: "name",
+					uuid: "uuid",
+					fileSystemHasWritePermissions: false,
 				});
 
 				resolveWaitForPermission();
 				await waitForMicrotasks();
+				testUpdateCall("ws://localhost/defaultEndpoint", true, true, {
+					name: "name",
+					uuid: "uuid",
+					fileSystemHasWritePermissions: true,
+				});
 
-				assertSpyCall(setDiscoveryEndpointSpy, setDiscoveryEndpointSpy.calls.length - 1, {
-					args: ["ws://localhost/defaultEndpoint"],
+				mockPreferencesManager.set("studioConnections.allowInternalIncoming", false, {location: "project"});
+				testUpdateCall("ws://localhost/defaultEndpoint", false, true, {
+					name: "name",
+					uuid: "uuid",
+					fileSystemHasWritePermissions: true,
 				});
-				assertSpyCall(setAllowInternalIncomingSpy, setAllowInternalIncomingSpy.calls.length - 1, {
-					args: [true],
+
+				mockPreferencesManager.set("studioConnections.allowRemoteIncoming", false, {location: "project"});
+				testUpdateCall(null, false, true, {
+					name: "name",
+					uuid: "uuid",
+					fileSystemHasWritePermissions: true,
 				});
-				assertSpyCall(sendSetIsStudioHostSpy, sendSetIsStudioHostSpy.calls.length - 1, {
-					args: [true],
-				});
-				assertSpyCall(setProjectMetaDataSpy, setProjectMetaDataSpy.calls.length - 1, {
-					args: [
-						{
-							name: "name",
-							uuid: "uuid",
-							fileSystemHasWritePermissions: true,
-						},
-					],
+
+				manager.setStudioConnectionsDiscoveryEndpoint("endpoint");
+				mockPreferencesManager.set("studioConnections.allowRemoteIncoming", true, {location: "project"});
+				testUpdateCall("wss://endpoint", false, true, {
+					name: "name",
+					uuid: "uuid",
+					fileSystemHasWritePermissions: true,
 				});
 			},
 		});
