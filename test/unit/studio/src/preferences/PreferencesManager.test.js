@@ -465,7 +465,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Events are fired for changed preferences",
+	name: "onChangeAny events are fired for changed preferences",
 	fn() {
 		const {manager, locations} = createManager();
 
@@ -747,7 +747,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Events fire for specific content windows",
+	name: "Events fire for specific content windows and non specific content windows",
 	fn() {
 		const {manager} = createManager();
 
@@ -771,6 +771,8 @@ Deno.test({
 		let contentWindowSpyFn1CallCount = 0;
 		const contentWindowSpyFn2 = spy(onChangeCallbackSignature);
 		let contentWindowSpyFn2CallCount = 0;
+		const contentWindowlessSpyFn = spy(onChangeCallbackSignature);
+		let contentWindowlessSpyFnCallCount = 0;
 
 		// Register the global listener
 		manager.onChangeAny(globalSpyFn);
@@ -803,6 +805,17 @@ Deno.test({
 		manager.onChange("str", CONTENT_WINDOW_UUID_2, contentWindowSpyFn2);
 		assertSpyCalls(contentWindowSpyFn2, ++contentWindowSpyFn2CallCount);
 		assertSpyCall(contentWindowSpyFn2, contentWindowSpyFn2CallCount - 1, {
+			args: [
+				{
+					location: null,
+					trigger: "initial",
+					value: "globalValue",
+				},
+			],
+		});
+		manager.onChange("str", null, contentWindowlessSpyFn);
+		assertSpyCalls(contentWindowlessSpyFn, ++contentWindowlessSpyFnCallCount);
+		assertSpyCall(contentWindowlessSpyFn, contentWindowlessSpyFnCallCount - 1, {
 			args: [
 				{
 					location: null,
@@ -933,6 +946,16 @@ Deno.test({
 				},
 			],
 		});
+		assertSpyCalls(contentWindowlessSpyFn, ++contentWindowlessSpyFnCallCount);
+		assertSpyCall(contentWindowlessSpyFn, contentWindowlessSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "global",
+					trigger: "application",
+					value: "globalValueSet",
+				},
+			],
+		});
 
 		// Resetting content window should fire with the global value
 		manager.reset("str", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
@@ -980,6 +1003,16 @@ Deno.test({
 			],
 		});
 		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
+		assertSpyCalls(contentWindowlessSpyFn, ++contentWindowlessSpyFnCallCount);
+		assertSpyCall(contentWindowlessSpyFn, contentWindowlessSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "global",
+					trigger: "application",
+					value: "globalValueSet again",
+				},
+			],
+		});
 
 		// Setting by user on content window should fire
 		manager.set("str", "location1SetUser", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1, performedByUser: true});
@@ -1025,8 +1058,11 @@ Deno.test({
 		assertSpyCalls(contentWindowSpyFn1, contentWindowSpyFn1CallCount);
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		manager.removeOnChangeAny(globalSpyFn);
+		manager.removeOnChange("str", null, contentWindowlessSpyFn);
 		manager.set("str", "globalValueSet3");
+		manager.set("str", "globalValueSet4", {location: "global"});
 		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+		assertSpyCalls(contentWindowlessSpyFn, contentWindowlessSpyFnCallCount);
 	},
 });
 
