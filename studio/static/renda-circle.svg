@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgHighlightGradient" cx="0%" cy="0%" r="100%">
+      <stop offset="0.1" style="stop-color: #bf5000;"/>
+      <stop offset="0.5" style="stop-color: #5b1700;"/>
+      <stop offset="1" style="stop-color: #370500;"/>
+    </radialGradient>
+    <radialGradient id="bgGradient" cx="0%" cy="0%" r="100%">
+      <stop offset="0.1" style="stop-color: #972600;"/>
+      <stop offset="0.5" style="stop-color: #5b1700;"/>
+      <stop offset="1" style="stop-color: #370500;"/>
+    </radialGradient>
+    <radialGradient id="bgGradientTmp">
+      <stop offset="0.1" style="stop-color: #ffcd00;"/>
+      <stop offset="0.5" style="stop-color: #ff5500;"/>
+      <stop offset="0.9" style="stop-color: #ff3100;"/>
+      <stop offset="1" style="stop-color: #cf1300;"/>
+    </radialGradient>
+    <radialGradient id="innerEarGradient">
+      <stop offset="0" style="stop-color: #f5c59e;"/>
+      <stop offset="1" style="stop-color: #fcdec7;"/>
+    </radialGradient>
+    <radialGradient id="outerEarGradient">
+      <stop offset="0" style="stop-color: #fff1e6;"/>
+      <stop offset="1" style="stop-color: #ffe4cf;"/>
+    </radialGradient>
+    <symbol id="ear" viewBox="0 0 30 30" width="30" height="30">
+      <path fill="url(#outerEarGradient)" d="M 6.391 24.004 C 6.391 24.004 1.832 17.042 5.211 6.822 C 22.242 4.384 27.999 10.753 27.999 10.753 C 27.999 10.753 21.756 23.197 21.756 23.22 C 21.756 23.244 6.752 24.002 6.391 24.004 Z"/>
+      <path fill="url(#innerEarGradient)" d="M 9.067 22.607 C 5.979 15.817 6.858 10.603 8.14 9.54 C 9.403 8.493 21.714 9.328 19.319 11.922 C 17.578 13.807 14.96 13.228 12.414 14.123 C 17.726 15.407 9.383 23.302 9.067 22.607 Z"/>
+    </symbol>
+    <symbol id="eyebrow" viewBox="0 0 10 10" width="10" height="10">
+      <path d="M 1.932 4.906 C 4.785 5.332 7.079 8.827 7.985 7.612 C 9.006 6.245 6.43 3.459 4.891 2.725 C 1.912 1.304 0.942 4.758 1.932 4.906 Z"/>
+    </symbol>
+    <radialGradient id="orangeBaseGradient" cx="0%" cy="0%" r="100%">
+      <stop offset="0.1" style="stop-color: #ffcd00;"/>
+      <stop offset="0.5" style="stop-color: #ff5500;"/>
+      <stop offset="0.9" style="stop-color: #ff3100;"/>
+      <stop offset="1" style="stop-color: #cf1300;"/>
+    </radialGradient>
+    <radialGradient id="lowerFaceGradient" cx="0%" cy="0%" r="100%">
+      <stop offset="0" style="stop-color: #fff1e6;"/>
+      <stop offset="0.8" style="stop-color: #ffe4cf;"/>
+      <stop offset="1" style="stop-color: #ffbaa0;"/>
+    </radialGradient>
+    <radialGradient id="eyebrowGradientLeft" cx="100%" cy="0%" r="100%">
+      <stop offset="0" style="stop-color: #fff4eb;"/>
+      <stop offset="1" style="stop-color: #ffddc2;"/>
+    </radialGradient>
+    <radialGradient id="eyebrowGradientRight" cx="0%" cy="0%" r="100%">
+      <stop offset="0" style="stop-color: #fee9d8;"/>
+      <stop offset="1" style="stop-color: #f2bc94;"/>
+    </radialGradient>
+    <radialGradient id="brownGradient" cx="0%" cy="0%" r="100%">
+      <stop offset="0" style="stop-color: #732800;"/>
+      <stop offset="1" style="stop-color: #271300;"/>
+    </radialGradient>
+    <mask id="baseShape">
+      <path fill="white" d="
+        M -39,-5
+        C -19,-8
+          -22,-21
+          0,-21
+        C 22,-21
+          19,-8
+          39,-5
+        C 39,-5
+          30,24
+          0,24
+        C -30,24
+          -39,-5
+          -39,-5
+        Z" />
+    </mask>
+  </defs>
+  <ellipse cx="50" cy="50" rx="49.5" ry="49.5" fill="url(#bgHighlightGradient)" />
+  <ellipse cx="50" cy="50" rx="49" ry="49" fill="url(#bgGradient)" />
+  <g transform="translate(50 53.2)">
+    <use href="#ear" width="30" height="30" transform="translate(-38, -29)" />
+    <use href="#ear" width="30" height="30" transform="translate(38, -29) scale(-1, 1)" />
+    <g mask="url(#baseShape)">
+      <rect fill="url(#orangeBaseGradient)" x="-40" y="-25" width="80" height="55" />
+      <path id="facelower" fill="url(#lowerFaceGradient)" d="
+        M -39,-5
+        C -34,0
+          -29,3
+          -18,5
+        C -13,6
+          -30,18
+          -4,26
+        C -3,26
+          -5,22
+          -6,21
+        C -13,14
+          -6,8
+          -4.5,8
+        C -3,8
+          -2.5,9.5
+          0,9.5
+        C 2.5,9.5
+          3,8
+          4.5,8
+        C 6,8
+          13,14
+          6,21
+        C 5,22
+          3,26
+          4,26
+        C 30,18
+          13,6
+          18,5
+        C 29,3
+          34,0
+
+          39,-5
+        C 39,-5
+          30,30
+          0,30
+        C -30,30
+          -39,-5
+          -39,-5
+        Z" />
+    </g>
+    <ellipse cx="-11" cy="6" rx="3.5" ry="3.5" fill="url(#brownGradient)" />
+    <ellipse cx="11" cy="6" rx="3.5" ry="3.5" fill="url(#brownGradient)" />
+    <use href="#eyebrow" fill="url(#eyebrowGradientLeft)" width="10" height="10" transform="translate(-8, -6) scale(-1, 1)" />
+    <use href="#eyebrow" fill="url(#eyebrowGradientRight)" width="10" height="10" transform="translate(8, -6)" />
+    <path id="nose" fill="url(#brownGradient)" d="
+      M -5 15
+      C -4 12
+        4 12
+        5 15
+      C 6 17
+        2 19
+        0 19
+      C -2 19
+        -6 17
+        -5 15
+      Z" />
+  </g>
+</svg>
