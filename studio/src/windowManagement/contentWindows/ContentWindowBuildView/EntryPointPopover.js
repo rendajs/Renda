@@ -5,18 +5,16 @@ import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {DroppableGui} from "../../../ui/DroppableGui.js";
 import {Popover} from "../../../ui/popoverMenus/Popover.js";
 
-const ENTRY_POINTS_SETTING_KEY = "buildView.entryPoints";
-const SELECTED_ENTRY_POINT_KEY = "selectedEntryPoint";
-
 /**
- * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
+ * @param {import("../../../Studio.js").Studio["preferencesManager"]} preferencesManager
+ * @param {import("../../../../../src/mod.js").UuidString} contentWindowUuid
  */
-async function getEntryPointsSetting(projectSettingsManager) {
+function getEntryPointsPreference(preferencesManager, contentWindowUuid) {
 	/** @type {import("../../../../../src/mod.js").UuidString[]} */
 	const items = [];
-	const settingValue = await projectSettingsManager.get(ENTRY_POINTS_SETTING_KEY);
-	if (settingValue && Array.isArray(settingValue)) {
-		for (const item of settingValue) {
+	const preference = preferencesManager.get("buildView.availableEntryPoints", contentWindowUuid);
+	if (preference && Array.isArray(preference)) {
+		for (const item of preference) {
 			if (typeof item == "string") {
 				items.push(item);
 			}
@@ -26,28 +24,25 @@ async function getEntryPointsSetting(projectSettingsManager) {
 }
 
 /**
- * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
- * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} contentWindowPersistentData
- * @returns {Promise<import("../../../../../src/mod.js").UuidString?>}
+ * @param {import("../../../Studio.js").Studio["preferencesManager"]} preferencesManager
+ * @param {import("../../../../../src/mod.js").UuidString} contentWindowUuid
+ * @returns {import("../../../../../src/mod.js").UuidString?}
  */
-export async function getSelectedEntryPoint(projectSettingsManager, contentWindowPersistentData) {
-	const selectedUuid = await contentWindowPersistentData.get(SELECTED_ENTRY_POINT_KEY);
+export function getSelectedEntryPoint(preferencesManager, contentWindowUuid) {
+	const selectedUuid = preferencesManager.get("buildView.selectedEntryPoint", contentWindowUuid);
 	if (typeof selectedUuid == "string") {
 		return selectedUuid;
 	}
-	const entryPoints = await getEntryPointsSetting(projectSettingsManager);
+	const entryPoints = getEntryPointsPreference(preferencesManager, contentWindowUuid);
 	return entryPoints[0] || null;
 }
 
 export class EntryPointPopover extends Popover {
-	/** @type {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} */
-	#projectSettings;
-
 	/** @type {import("../../../assets/AssetManager.js").AssetManager} */
 	#assetManager;
 
-	/** @type {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} */
-	#persistentData;
+	#preferencesManager;
+	#contentWindowUuid;
 
 	/** @type {HTMLElement?} */
 	#currentSelectorEl = null;
@@ -57,16 +52,16 @@ export class EntryPointPopover extends Popover {
 
 	/**
 	 * @param {ConstructorParameters<typeof Popover>[0]} popoverManager
-	 * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
 	 * @param {import("../../../assets/AssetManager.js").AssetManager} assetManager
-	 * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} persistentData
+	 * @param {import("../../../Studio.js").Studio["preferencesManager"]} preferencesManager
+	 * @param {import("../../../../../src/mod.js").UuidString} contentWindowUuid
 	 */
-	constructor(popoverManager, projectSettingsManager, assetManager, persistentData) {
+	constructor(popoverManager, assetManager, preferencesManager, contentWindowUuid) {
 		super(popoverManager);
 
-		this.#projectSettings = projectSettingsManager;
 		this.#assetManager = assetManager;
-		this.#persistentData = persistentData;
+		this.#preferencesManager = preferencesManager;
+		this.#contentWindowUuid = contentWindowUuid;
 
 		this.#selectorContainer = document.createElement("div");
 		this.el.appendChild(this.#selectorContainer);
@@ -92,20 +87,12 @@ export class EntryPointPopover extends Popover {
 
 		addContainer.appendChild(addButton.el);
 
-		this.#loadPreferences();
-	}
-
-	async #loadPreferences() {
-		if (!this.#projectSettings || !this.#assetManager || !this.#persistentData) {
-			throw new Error("Error loading preferences for EntryPointPopover: not initialized.");
-		}
-
-		const items = await getEntryPointsSetting(this.#projectSettings);
+		const items = getEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
 		let entryPoint = null;
 
-		const entryPointSetting = await this.#persistentData.get(SELECTED_ENTRY_POINT_KEY);
-		if (typeof entryPointSetting == "string") {
-			entryPoint = entryPointSetting;
+		const entryPointPreference = this.#preferencesManager.get("buildView.selectedEntryPoint", this.#contentWindowUuid);
+		if (typeof entryPointPreference == "string") {
+			entryPoint = entryPointPreference;
 		}
 		this.#updateSelector(items, entryPoint);
 	}
@@ -157,7 +144,7 @@ export class EntryPointPopover extends Popover {
 				items: itemTexts,
 				vertical: true,
 			});
-			if (selectedEntryPoint != null) {
+			if (selectedEntryPoint) {
 				const index = itemDatas.findIndex(item => item.uuid == selectedEntryPoint);
 				selector.setValue(index);
 			}
@@ -167,28 +154,24 @@ export class EntryPointPopover extends Popover {
 				if (!itemData) {
 					throw new Error("Assertion failed, item data doesn't exist");
 				}
-				if (!this.#persistentData) {
+				if (!this.#preferencesManager) {
 					throw new Error("Error updating selector for EntryPointPopover: persistentData is not initialized.");
 				}
-				this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, itemData.uuid);
+				this.#preferencesManager.set("buildView.selectedEntryPoint", itemData.uuid, {contentWindowUuid: this.#contentWindowUuid});
 			});
 			this.#currentSelectorEl = selector.el;
 			this.#selectorContainer.appendChild(selector.el);
 		}
 	}
 
-	async #onAddButtonClick() {
-		if (!this.#projectSettings || !this.#persistentData) {
-			throw new Error("Error adding entry point: not initialized.");
-		}
-
+	#onAddButtonClick() {
 		const addValue = this.#droppableGui.value;
 		if (!addValue) return;
-		const settingsValue = await getEntryPointsSetting(this.#projectSettings);
-		settingsValue.push(addValue);
-		await this.#projectSettings.set(ENTRY_POINTS_SETTING_KEY, settingsValue);
-		await this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, addValue);
-		this.#updateSelector(settingsValue, addValue);
+		const availableEntryPoints = getEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
+		availableEntryPoints.push(addValue);
+		this.#preferencesManager.set("buildView.availableEntryPoints", availableEntryPoints);
+		this.#preferencesManager.set("buildView.selectedEntryPoint", addValue, {contentWindowUuid: this.#contentWindowUuid});
+		this.#updateSelector(availableEntryPoints, addValue);
 
 		this.#droppableGui.value = null;
 	}
