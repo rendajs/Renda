@@ -19,6 +19,11 @@ export class ContentWindowConnections extends ContentWindow {
 	constructor(...args) {
 		super(...args);
 
+		this.addPreferencesButton(
+			"studioConnections.allowInternalIncoming",
+			"studioConnections.allowRemoteIncoming"
+		);
+
 		this.headerTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.headerTreeView.el);
 
@@ -28,11 +33,6 @@ export class ContentWindowConnections extends ContentWindow {
 		const {discoveryServerStatusLabel} = this.createHeaderUi();
 		this.discoveryServerStatusLabel = discoveryServerStatusLabel;
 
-		const {studioHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox} = this.createHostConnectionsUi();
-		this.studioHostConnectionTreeView = studioHostConnectionTreeView;
-		this.allowRemoteIncomingCheckbox = allowRemoteIncomingCheckbox;
-		this.allowInternalIncomingCheckbox = allowInternalIncomingCheckbox;
-
 		const {studioClientConnectionTreeView, studioConnectionsList} = this.createClientConnectionUi();
 		this.studioClientConnectionTreeView = studioClientConnectionTreeView;
 		this.studioConnectionsList = studioConnectionsList;
@@ -40,7 +40,6 @@ export class ContentWindowConnections extends ContentWindow {
 		const {inspectorConnectionsList} = this.createInspectorConnectionsUi();
 		this.inspectorConnectionsList = inspectorConnectionsList;
 
-		this.studioHostConnectionTreeView.visible = !this.studioInstance.projectManager.currentProjectIsRemote;
 		this.studioClientConnectionTreeView.visible = this.studioInstance.projectManager.currentProjectIsRemote;
 
 		const connectionsManager = this.studioInstance.projectManager.studioConnectionsManager;
@@ -61,7 +60,6 @@ export class ContentWindowConnections extends ContentWindow {
 
 		this.updateDiscoveryServerStatus("disconnected");
 
-		this.loadSettings();
 		this.updateConnectionLists();
 	}
 
@@ -93,35 +91,6 @@ export class ContentWindowConnections extends ContentWindow {
 		return {discoveryServerStatusLabel};
 	}
 
-	createHostConnectionsUi() {
-		const studioHostConnectionTreeView = new PropertiesTreeView();
-		this.contentEl.appendChild(studioHostConnectionTreeView.el);
-
-		const allowRemoteIncomingCheckbox = studioHostConnectionTreeView.addItem({
-			type: "boolean",
-			/** @type {import("../../ui/BooleanGui.js").BooleanGuiOptions} */
-			guiOpts: {
-				label: "Allow Remote Incoming Connections",
-			},
-		});
-		allowRemoteIncomingCheckbox.onValueChange(changeEvent => {
-			this.studioInstance.projectManager.setStudioConnectionsAllowRemoteIncoming(changeEvent.value);
-		});
-
-		const allowInternalIncomingCheckbox = studioHostConnectionTreeView.addItem({
-			type: "boolean",
-			/** @type {import("../../ui/BooleanGui.js").BooleanGuiOptions} */
-			guiOpts: {
-				label: "Allow Internal Incoming Connections",
-			},
-		});
-		allowInternalIncomingCheckbox.onValueChange(changeEvent => {
-			this.studioInstance.projectManager.setStudioConnectionsAllowInternalIncoming(changeEvent.value);
-		});
-
-		return {studioHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox};
-	}
-
 	createClientConnectionUi() {
 		const studioClientConnectionTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(studioClientConnectionTreeView.el);
@@ -147,11 +116,6 @@ export class ContentWindowConnections extends ContentWindow {
 
 		const inspectorConnectionsList = inspectorConnectionsTreeView.addCollapsable("Inspectors");
 		return {inspectorConnectionsList};
-	}
-
-	async loadSettings() {
-		this.allowRemoteIncomingCheckbox.setValue(await this.studioInstance.projectManager.getStudioConnectionsAllowRemoteIncoming());
-		this.allowInternalIncomingCheckbox.setValue(await this.studioInstance.projectManager.getStudioConnectionsAllowInternalIncoming());
 	}
 
 	/**

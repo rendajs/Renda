@@ -103,7 +103,7 @@ export class PreferencesManager {
 	/** @type {WeakSet<import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation>} */
 	#unflushedLocations = new WeakSet();
 
-	/** @type {Map<PreferenceTypes, Map<import("../../../src/mod.js").UuidString, Set<OnPreferenceChangeCallback<any>>>>} */
+	/** @type {Map<PreferenceTypes, Map<import("../../../src/mod.js").UuidString?, Set<OnPreferenceChangeCallback<any>>>>} */
 	#onChangeCallbacks = new Map();
 	/** @type {Set<OnPreferenceChangeAnyCallback>} */
 	#onChangeAnyCallbacks = new Set();
@@ -360,6 +360,7 @@ export class PreferencesManager {
 			const {value} = this.#getInternal(preference, uuid, {excludeLocations, assertRegistered: false});
 			oldLocationValues.set(uuid, value);
 		}
+		const {value: oldWindowLessValue} = this.#getInternal(preference, null, {excludeLocations, assertRegistered: false});
 
 		if (cb) cb();
 
@@ -372,6 +373,15 @@ export class PreferencesManager {
 					value: newValue,
 				});
 			}
+		}
+
+		const {value: newWindowLessValue} = this.#getInternal(preference, null, {assertRegistered: false});
+		if (newWindowLessValue != oldWindowLessValue) {
+			this.#fireChangeEvent(preference, null, {
+				location: eventLocationType,
+				trigger: eventTrigger,
+				value: newWindowLessValue,
+			});
 		}
 
 		this.#onChangeAnyCallbacks.forEach(cb => {
@@ -416,11 +426,11 @@ export class PreferencesManager {
 	/**
 	 * @template {PreferenceTypesOrString} T
 	 * @param {T} preference
-	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
+	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid
 	 */
 	get(preference, contentWindowUuid) {
 		const {value, foundContentWindowLocation} = this.#getInternal(preference, contentWindowUuid);
-		if (!foundContentWindowLocation) {
+		if (contentWindowUuid && !foundContentWindowLocation) {
 			this.#throwContentWindowUuidNotFound(contentWindowUuid);
 		}
 		return /** @type {GetPreferenceType<T>} */ (value);
@@ -429,7 +439,7 @@ export class PreferencesManager {
 	/**
 	 * Same as get but with some extra options that are not meant to be a public api.
 	 * @param {string} preference
-	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
+	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid
 	 * @param {object} [options]
 	 * @param {boolean} [options.assertRegistered]
 	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation[]} [options.excludeLocations] Returns a result
@@ -451,6 +461,7 @@ export class PreferencesManager {
 		for (const location of this.#registeredLocations) {
 			if (excludeLocations.includes(location)) continue;
 			if (location instanceof ContentWindowPreferencesLocation) {
+				if (!contentWindowUuid) continue;
 				if (location.contentWindowUuid != contentWindowUuid) continue;
 				foundContentWindowLocation = true;
 			}
@@ -535,7 +546,7 @@ export class PreferencesManager {
 	 *
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
-	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
+	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid
 	 * @param {OnPreferenceChangeCallback<GetPreferenceType<T>>} cb
 	 */
 	onChange(preference, contentWindowUuid, cb) {
@@ -564,7 +575,7 @@ export class PreferencesManager {
 	/**
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
-	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
+	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid
 	 * @param {OnPreferenceChangeCallback<GetPreferenceType<T>>} cb
 	 */
 	removeOnChange(preference, contentWindowUuid, cb) {
@@ -603,7 +614,7 @@ export class PreferencesManager {
 	 * Fires either the global event callbacks for a preference,
 	 * or the event callbacks for a specific content window.
 	 * @param {PreferenceTypes} preference
-	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid The uuid of the
+	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid The uuid of the
 	 * content window to fire the events for. Set to null to fire the global event callbacks.
 	 * @param {OnPreferenceChangeEvent<any>} event
 	 */

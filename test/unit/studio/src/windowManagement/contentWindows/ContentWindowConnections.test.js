@@ -51,12 +51,6 @@ async function basicTest({
 					availableConnections,
 					activeConnections,
 				},
-				async getStudioConnectionsAllowRemoteIncoming() {
-					return false;
-				},
-				async getStudioConnectionsAllowInternalIncoming() {
-					return false;
-				},
 				currentProjectIsRemote,
 			},
 			preferencesManager: new PreferencesManager(),

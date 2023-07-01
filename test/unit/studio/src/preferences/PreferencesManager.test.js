@@ -217,14 +217,14 @@ Deno.test({
 	fn() {
 		const {manager} = createManager();
 
-		assertEquals(manager.get("boolPref1", DEFAULT_CONTENT_WINDOW_UUID), false);
-		assertEquals(manager.get("boolPref2", DEFAULT_CONTENT_WINDOW_UUID), true);
-		assertEquals(manager.get("numPref1", DEFAULT_CONTENT_WINDOW_UUID), 0);
-		assertEquals(manager.get("numPref2", DEFAULT_CONTENT_WINDOW_UUID), 42);
-		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "");
-		assertEquals(manager.get("workspacePref", DEFAULT_CONTENT_WINDOW_UUID), "default");
-		assertEquals(manager.get("unknownPref1", DEFAULT_CONTENT_WINDOW_UUID), {some: "data"});
-		assertEquals(manager.get("unknownPref2", DEFAULT_CONTENT_WINDOW_UUID), [1, 2, 3]);
+		assertEquals(manager.get("boolPref1", null), false);
+		assertEquals(manager.get("boolPref2", null), true);
+		assertEquals(manager.get("numPref1", null), 0);
+		assertEquals(manager.get("numPref2", null), 42);
+		assertEquals(manager.get("projectPref", null), "");
+		assertEquals(manager.get("workspacePref", null), "default");
+		assertEquals(manager.get("unknownPref1", null), {some: "data"});
+		assertEquals(manager.get("unknownPref2", null), [1, 2, 3]);
 
 		manager.set("boolPref1", true);
 		manager.set("boolPref2", false);
@@ -235,15 +235,15 @@ Deno.test({
 		manager.set("unknownPref1", {someOther: "data"});
 		manager.set("unknownPref2", {not: "an array"});
 
-		const boolPref1 = manager.get("boolPref1", DEFAULT_CONTENT_WINDOW_UUID);
+		const boolPref1 = manager.get("boolPref1", null);
 		assertEquals(boolPref1, true);
-		assertEquals(manager.get("boolPref2", DEFAULT_CONTENT_WINDOW_UUID), false);
-		assertEquals(manager.get("numPref1", DEFAULT_CONTENT_WINDOW_UUID), 123);
-		assertEquals(manager.get("numPref2", DEFAULT_CONTENT_WINDOW_UUID), 456);
-		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "str");
-		assertEquals(manager.get("workspacePref", DEFAULT_CONTENT_WINDOW_UUID), "str2");
-		assertEquals(manager.get("unknownPref1", DEFAULT_CONTENT_WINDOW_UUID), {someOther: "data"});
-		assertEquals(manager.get("unknownPref2", DEFAULT_CONTENT_WINDOW_UUID), {not: "an array"});
+		assertEquals(manager.get("boolPref2", null), false);
+		assertEquals(manager.get("numPref1", null), 123);
+		assertEquals(manager.get("numPref2", null), 456);
+		assertEquals(manager.get("projectPref", null), "str");
+		assertEquals(manager.get("workspacePref", null), "str2");
+		assertEquals(manager.get("unknownPref1", null), {someOther: "data"});
+		assertEquals(manager.get("unknownPref2", null), {not: "an array"});
 
 		// Verify that the type is a boolean and nothing else
 		assertIsType(true, boolPref1);
@@ -257,30 +257,30 @@ Deno.test({
 	fn() {
 		const {manager} = createManager();
 
-		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "");
+		assertEquals(manager.get("str", null), "");
 		manager.set("str", "global", {location: "global"});
-		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "global");
+		assertEquals(manager.get("str", null), "global");
 
 		manager.set("str", "project", {location: "project"});
-		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "project");
+		assertEquals(manager.get("str", null), "project");
 
 		manager.set("str", "workspace", {location: "workspace"});
-		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "project");
+		assertEquals(manager.get("str", null), "project");
 
 		manager.set("str", "version-control", {location: "version-control"});
-		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "project");
+		assertEquals(manager.get("str", null), "project");
 
 		manager.reset("str", {location: "project"});
-		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "version-control");
+		assertEquals(manager.get("str", null), "version-control");
 
 		manager.reset("str", {location: "workspace"});
-		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "version-control");
+		assertEquals(manager.get("str", null), "version-control");
 
 		manager.reset("str", {location: "version-control"});
-		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "global");
+		assertEquals(manager.get("str", null), "global");
 
 		manager.reset("str", {location: "global"});
-		assertEquals(manager.get("str", DEFAULT_CONTENT_WINDOW_UUID), "");
+		assertEquals(manager.get("str", null), "");
 	},
 });
 
@@ -459,12 +459,13 @@ Deno.test({
 
 		manager.set("projectPref", "global", {location: "global"});
 		manager.set("projectPref", "project");
+		assertEquals(manager.get("projectPref", null), "project");
 		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "project");
 	},
 });
 
 Deno.test({
-	name: "Events are fired for changed preferences",
+	name: "onChangeAny events are fired for changed preferences",
 	fn() {
 		const {manager, locations} = createManager();
 
@@ -746,7 +747,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Events fire for specific content windows",
+	name: "Events fire for specific content windows and non specific content windows",
 	fn() {
 		const {manager} = createManager();
 
@@ -770,6 +771,8 @@ Deno.test({
 		let contentWindowSpyFn1CallCount = 0;
 		const contentWindowSpyFn2 = spy(onChangeCallbackSignature);
 		let contentWindowSpyFn2CallCount = 0;
+		const contentWindowlessSpyFn = spy(onChangeCallbackSignature);
+		let contentWindowlessSpyFnCallCount = 0;
 
 		// Register the global listener
 		manager.onChangeAny(globalSpyFn);
@@ -802,6 +805,17 @@ Deno.test({
 		manager.onChange("str", CONTENT_WINDOW_UUID_2, contentWindowSpyFn2);
 		assertSpyCalls(contentWindowSpyFn2, ++contentWindowSpyFn2CallCount);
 		assertSpyCall(contentWindowSpyFn2, contentWindowSpyFn2CallCount - 1, {
+			args: [
+				{
+					location: null,
+					trigger: "initial",
+					value: "globalValue",
+				},
+			],
+		});
+		manager.onChange("str", null, contentWindowlessSpyFn);
+		assertSpyCalls(contentWindowlessSpyFn, ++contentWindowlessSpyFnCallCount);
+		assertSpyCall(contentWindowlessSpyFn, contentWindowlessSpyFnCallCount - 1, {
 			args: [
 				{
 					location: null,
@@ -932,6 +946,16 @@ Deno.test({
 				},
 			],
 		});
+		assertSpyCalls(contentWindowlessSpyFn, ++contentWindowlessSpyFnCallCount);
+		assertSpyCall(contentWindowlessSpyFn, contentWindowlessSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "global",
+					trigger: "application",
+					value: "globalValueSet",
+				},
+			],
+		});
 
 		// Resetting content window should fire with the global value
 		manager.reset("str", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
@@ -979,6 +1003,16 @@ Deno.test({
 			],
 		});
 		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
+		assertSpyCalls(contentWindowlessSpyFn, ++contentWindowlessSpyFnCallCount);
+		assertSpyCall(contentWindowlessSpyFn, contentWindowlessSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "global",
+					trigger: "application",
+					value: "globalValueSet again",
+				},
+			],
+		});
 
 		// Setting by user on content window should fire
 		manager.set("str", "location1SetUser", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1, performedByUser: true});
@@ -1024,8 +1058,11 @@ Deno.test({
 		assertSpyCalls(contentWindowSpyFn1, contentWindowSpyFn1CallCount);
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		manager.removeOnChangeAny(globalSpyFn);
+		manager.removeOnChange("str", null, contentWindowlessSpyFn);
 		manager.set("str", "globalValueSet3");
+		manager.set("str", "globalValueSet4", {location: "global"});
 		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+		assertSpyCalls(contentWindowlessSpyFn, contentWindowlessSpyFnCallCount);
 	},
 });
 
