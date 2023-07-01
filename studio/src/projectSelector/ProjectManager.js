@@ -103,10 +103,6 @@ export class ProjectManager {
 		this.assetManager = null;
 
 		this.#preferencesManager = preferencesManager;
-		// TODO: Only listen for specific events
-		preferencesManager.onChangeAny(() => {
-			this.updateStudioConnectionsManager();
-		});
 
 		this.studioConnectionsDiscoveryEndpoint = null;
 		this.studioConnectionsManager = new StudioConnectionsManager();
@@ -166,6 +162,13 @@ export class ProjectManager {
 		/** @type {Set<Function>} */
 		this.onProjectOpenCbs = new Set();
 		this.hasOpeneProject = false;
+
+		preferencesManager.onChange("studioConnections.allowInternalIncoming", null, () => {
+			this.updateStudioConnectionsManager();
+		});
+		preferencesManager.onChange("studioConnections.allowRemoteIncoming", null, () => {
+			this.updateStudioConnectionsManager();
+		});
 
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
 		document.addEventListener("visibilitychange", () => {
@@ -516,7 +519,7 @@ export class ProjectManager {
 	updateStudioConnectionsManager() {
 		const hasValidProject = !!this.currentProjectOpenEvent;
 
-		const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.allowRemoteIncoming", "") || false;
+		const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.allowRemoteIncoming", null);
 		if (hasValidProject && (this.currentProjectIsRemote || allowRemoteIncoming)) {
 			let endpoint = this.studioConnectionsDiscoveryEndpoint;
 			if (!endpoint) endpoint = this.studioConnectionsManager.getDefaultEndPoint();
@@ -528,8 +531,7 @@ export class ProjectManager {
 			this.studioConnectionsManager.setDiscoveryEndpoint(null);
 		}
 
-		const allowInternalIncoming = this.#preferencesManager.get("studioConnections.allowInternalIncoming", "") || false;
-		console.log({allowRemoteIncoming, allowInternalIncoming});
+		const allowInternalIncoming = this.#preferencesManager.get("studioConnections.allowInternalIncoming", null);
 		this.studioConnectionsManager.setAllowInternalIncoming(allowInternalIncoming);
 
 		this.studioConnectionsManager.sendSetIsStudioHost(!this.currentProjectIsRemote);
