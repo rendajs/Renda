@@ -416,11 +416,11 @@ export class PreferencesManager {
 	/**
 	 * @template {PreferenceTypesOrString} T
 	 * @param {T} preference
-	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
+	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid
 	 */
 	get(preference, contentWindowUuid) {
 		const {value, foundContentWindowLocation} = this.#getInternal(preference, contentWindowUuid);
-		if (!foundContentWindowLocation) {
+		if (contentWindowUuid && !foundContentWindowLocation) {
 			this.#throwContentWindowUuidNotFound(contentWindowUuid);
 		}
 		return /** @type {GetPreferenceType<T>} */ (value);
@@ -429,7 +429,7 @@ export class PreferencesManager {
 	/**
 	 * Same as get but with some extra options that are not meant to be a public api.
 	 * @param {string} preference
-	 * @param {import("../../../src/mod.js").UuidString} contentWindowUuid
+	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid
 	 * @param {object} [options]
 	 * @param {boolean} [options.assertRegistered]
 	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation[]} [options.excludeLocations] Returns a result
@@ -451,6 +451,7 @@ export class PreferencesManager {
 		for (const location of this.#registeredLocations) {
 			if (excludeLocations.includes(location)) continue;
 			if (location instanceof ContentWindowPreferencesLocation) {
+				if (!contentWindowUuid) continue;
 				if (location.contentWindowUuid != contentWindowUuid) continue;
 				foundContentWindowLocation = true;
 			}
