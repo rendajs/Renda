@@ -92,9 +92,6 @@ async function basicTest({fn}) {
 
 		const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 			windowManager: {
-				onContentWindowPersistentDataFlushRequest(cb) {},
-				removeOnContentWindowPersistentDataFlushRequest(cb) {},
-				setContentWindowPersistentData() {},
 				onContentWindowPreferencesFlushRequest(cb) {
 					flushRequestCallbacks.add(cb);
 				},

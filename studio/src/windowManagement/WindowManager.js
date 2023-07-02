@@ -21,9 +21,6 @@ import {WorkspacePreferencesLocation} from "../preferences/preferencesLocation/W
  */
 
 export class WindowManager {
-	/** @deprecated @type {Set<(data: any) => Promise<void>>} */
-	onContentWindowPersistentDataFlushRequestCbs = new Set();
-
 	/** @type {Set<(data: unknown) => Promise<void>>} */
 	#onPreferencesFlushRequest = new Set();
 
@@ -288,97 +285,6 @@ export class WindowManager {
 		for (const contentWindow of contentWindows) {
 			contentWindow.setProjectPreferencesLocationData({});
 		}
-	}
-
-	/**
-	 * @deprecated
-	 */
-	getContentWindowPersistentData() {
-		const datas = [];
-		for (const contentWindow of this.allContentWindows()) {
-			if (!contentWindow.persistentData.isEmpty()) {
-				datas.push({
-					id: contentWindow.uuid,
-					type: /** @type {typeof ContentWindow} */ (contentWindow.constructor).contentWindowTypeId,
-					data: contentWindow.persistentData.getAll(),
-				});
-			}
-		}
-		return datas;
-	}
-
-	/**
-	 * @deprecated
-	 * @param {ContentWindowPersistentDiskData[]} datas
-	 */
-	setContentWindowPersistentData(datas = []) {
-		const datasSet = new Set(datas);
-		const contentWindows = new Set(this.allContentWindows());
-
-		// Set data based on ContentWindow uuid
-		for (const data of datasSet) {
-			let contentWindow = null;
-			for (const c of contentWindows) {
-				if (c.uuid == data.id) {
-					contentWindow = c;
-					break;
-				}
-			}
-			if (contentWindow) {
-				contentWindow.persistentData.setAll(data.data);
-				contentWindows.delete(contentWindow);
-				datasSet.delete(data);
-			}
-		}
-
-		// Set data based on ContentWindow type
-		for (const data of datasSet) {
-			let contentWindow = null;
-			for (const c of contentWindows) {
-				if (/** @type {typeof ContentWindow} */ (c.constructor).contentWindowTypeId == data.type) {
-					contentWindow = c;
-					break;
-				}
-			}
-			if (contentWindow) {
-				contentWindow.persistentData.setAll(data.data);
-				contentWindows.delete(contentWindow);
-				datasSet.delete(data);
-			}
-		}
-
-		// Set empty data for the remaining ContentWindows
-		for (const contentWindow of contentWindows) {
-			contentWindow.persistentData.setAll({});
-		}
-	}
-
-	/**
-	 * @deprecated
-	 */
-	async requestContentWindowPersistentDataFlush() {
-		const data = this.getContentWindowPersistentData();
-		const promises = [];
-		for (const cb of this.onContentWindowPersistentDataFlushRequestCbs) {
-			promises.push(cb(data));
-		}
-		await Promise.all(promises);
-	}
-
-	/**
-	 * @deprecated
-	 * @param {(data: any) => Promise<void>} cb
-	 */
-	onContentWindowPersistentDataFlushRequest(cb) {
-		this.onContentWindowPersistentDataFlushRequestCbs.add(cb);
-	}
-
-	/**
-	 * @deprecated
-	 * @param {(data: any) => Promise<void>} cb
-	 */
-	removeOnContentWindowPersistentDataFlushRequest(cb) {
-		this.onContentWindowPersistentDataFlushRequestCbs.delete(cb);
 	}
 
 	/**

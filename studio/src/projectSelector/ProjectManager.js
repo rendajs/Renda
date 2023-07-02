@@ -53,7 +53,6 @@ import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePr
 
 export class ProjectManager {
 	#boundOnFileSystemRootNameChange;
-	#boundSaveContentWindowPersistentData;
 
 	/** @type {FilePreferencesLocation?} */
 	#currentPreferencesLocation = null;
@@ -145,17 +144,6 @@ export class ProjectManager {
 			this.updateStudioConnectionsManager();
 		};
 
-		/** @type {(data: unknown[]) => Promise<void>} */
-		this.#boundSaveContentWindowPersistentData = async data => {
-			if (!this.localProjectSettings) return;
-			const key = "contentWindowPersistentData";
-			if (data.length <= 0) {
-				await this.localProjectSettings.delete(key);
-			} else {
-				await this.localProjectSettings.set(key, data);
-			}
-		};
-
 		/** @type {Set<(entry: StoredProjectEntryAny) => any>} */
 		this.onProjectOpenEntryChangeCbs = new Set();
 
@@ -235,19 +223,13 @@ export class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
 		this.removeAssetManager();
-		studio.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		studio.windowManager.removeOnContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
 		await studio.windowManager.reloadWorkspaceInstance.run();
 		studio.windowManager.onContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
-		studio.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 
 		await this.reloadAssetManager();
 		await this.waitForAssetListsLoad();
 		this.updateStudioConnectionsManager();
-
-		const contentWindowPersistentData = await this.localProjectSettings.get("contentWindowPersistentData");
-		const castData = /** @type {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[]} */ (contentWindowPersistentData);
-		studio.windowManager.setContentWindowPersistentData(castData);
 
 		const contentWindowPreferences = await this.localProjectSettings.get("contentWindowPreferences");
 		const castPreferences = /** @type {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[]} */ (contentWindowPreferences);

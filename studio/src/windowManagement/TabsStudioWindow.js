@@ -151,7 +151,6 @@ export class TabsStudioWindow extends StudioWindow {
 	 */
 	loadContentWindow(index, constructor, uuid, trigger) {
 		const contentWindow = new constructor(getStudioInstance(), this.windowManager, uuid);
-		contentWindow.persistentData.setWindowManager(this.windowManager);
 		this.#setExistingContentWindow(index, contentWindow, trigger);
 		if (this.isInit) {
 			this.initContentWindow(contentWindow);
