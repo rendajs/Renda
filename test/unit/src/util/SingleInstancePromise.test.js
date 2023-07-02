@@ -183,10 +183,13 @@ Deno.test({
 	name: "waitForFinishOnce resolves when the first run is done",
 	async fn() {
 		await runOnceMatrix(async ({instance, resolvePromise}) => {
-			await assertPromiseResolved(instance.waitForFinishOnce(), false);
+			const promise1 = instance.waitForFinishOnce();
+			await assertPromiseResolved(promise1, false);
 			instance.run("");
+			await assertPromiseResolved(promise1, false);
 			await assertPromiseResolved(instance.waitForFinishOnce(), false);
 			await resolvePromise("");
+			await assertPromiseResolved(promise1, true);
 			await assertPromiseResolved(instance.waitForFinishOnce(), true);
 
 			// Running a second time to make sure that waitForFinish() stays resolved
@@ -202,16 +205,24 @@ Deno.test({
 	name: "waitForFinishIfRunning resolves when the function is not running",
 	async fn() {
 		await runOnceMatrix(async ({instance, resolvePromise, once}) => {
+			const promise1 = instance.waitForFinishIfRunning();
+			await assertPromiseResolved(promise1, true);
 			await assertPromiseResolved(instance.waitForFinishIfRunning(), true);
 			instance.run("");
+			const promise2 = instance.waitForFinishIfRunning();
+			await assertPromiseResolved(promise2, false);
 			await assertPromiseResolved(instance.waitForFinishIfRunning(), false);
 			await resolvePromise("");
+			await assertPromiseResolved(promise2, true);
 			await assertPromiseResolved(instance.waitForFinishIfRunning(), true);
 
 			// Running a second time to make sure that waitForFinishIfRunning() becomes pending again
 			instance.run("");
+			const promise3 = instance.waitForFinishIfRunning();
+			await assertPromiseResolved(promise3, once);
 			await assertPromiseResolved(instance.waitForFinishIfRunning(), once);
 			await resolvePromise("");
+			await assertPromiseResolved(promise3, true);
 			await assertPromiseResolved(instance.waitForFinishIfRunning(), true);
 		});
 	},
