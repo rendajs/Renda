@@ -79,12 +79,10 @@ export class ButtonSelectorGui {
 				onClick: () => {
 					if (this.currentValueIndex == i) {
 						if (this.allowSelectNone) {
-							this.setValue(null);
-							this.fireOnChangeCbs("user");
+							this.setValue(null, {trigger: "user"});
 						}
 					} else {
-						this.setValue(i);
-						this.fireOnChangeCbs("user");
+						this.setValue(i, {trigger: "user"});
 					}
 				},
 			};
@@ -104,7 +102,7 @@ export class ButtonSelectorGui {
 		/** @type {Set<OnButtonselectorGuiValueChange>} */
 		this.onValueChangeCbs = new Set();
 
-		this.setValue(this.defaultValue);
+		this.setValue(this.defaultValue, {trigger: "application"});
 	}
 
 	updateSelectedButton() {
@@ -135,13 +133,16 @@ export class ButtonSelectorGui {
 	/**
 	 * @param {ButtonSelectorGuiValueTypes} value
 	 */
-	setValue(value) {
+	setValue(value, {
+		trigger = /** @type {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} */ ("application"),
+	} = {}) {
 		const newValue = this.#valueToIndex(value);
 		if (newValue == -1 && !this.allowSelectNone) {
 			throw new Error(`"${value}" is not a valid value for this selector gui.`);
 		}
 		this.currentValueIndex = newValue;
 		this.updateSelectedButton();
+		this.fireOnChangeCbs(trigger);
 	}
 
 	get value() {

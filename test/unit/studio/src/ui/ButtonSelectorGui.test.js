@@ -273,26 +273,102 @@ Deno.test({
 			gui1.setValue(2);
 			assertEquals(gui1.value, "c");
 
+			assertSpyCalls(spyFn1, 1);
+			assertSpyCall(spyFn1, 0, {
+				args: [
+					{
+						trigger: "application",
+						value: "c",
+					},
+				],
+			});
+
 			gui1.setValue(-5);
 			assertEquals(gui1.value, null);
+
+			assertSpyCalls(spyFn1, 2);
+			assertSpyCall(spyFn1, 1, {
+				args: [
+					{
+						trigger: "application",
+						value: null,
+					},
+				],
+			});
 
 			gui1.setValue(0);
 			assertEquals(gui1.value, "a");
 
+			assertSpyCalls(spyFn1, 3);
+			assertSpyCall(spyFn1, 2, {
+				args: [
+					{
+						trigger: "application",
+						value: "a",
+					},
+				],
+			});
+
 			gui1.setValue(100);
 			assertEquals(gui1.value, null);
+
+			assertSpyCalls(spyFn1, 4);
+			assertSpyCall(spyFn1, 3, {
+				args: [
+					{
+						trigger: "application",
+						value: null,
+					},
+				],
+			});
 
 			gui1.setValue("b");
 			assertEquals(gui1.value, "b");
 
+			assertSpyCalls(spyFn1, 5);
+			assertSpyCall(spyFn1, 4, {
+				args: [
+					{
+						trigger: "application",
+						value: "b",
+					},
+				],
+			});
+
 			gui1.setValue("does not exist");
 			assertEquals(gui1.value, null);
+
+			assertSpyCalls(spyFn1, 6);
+			assertSpyCall(spyFn1, 5, {
+				args: [
+					{
+						trigger: "application",
+						value: null,
+					},
+				],
+			});
 
 			gui1.setValue("a");
 			gui1.setValue(null);
 			assertEquals(gui1.value, null);
 
-			assertSpyCalls(spyFn1, 0);
+			assertSpyCalls(spyFn1, 8);
+			assertSpyCall(spyFn1, 6, {
+				args: [
+					{
+						trigger: "application",
+						value: "a",
+					},
+				],
+			});
+			assertSpyCall(spyFn1, 7, {
+				args: [
+					{
+						trigger: "application",
+						value: null,
+					},
+				],
+			});
 
 			const gui2 = new ButtonSelectorGui({
 				items: ["a", "b", "c"],
