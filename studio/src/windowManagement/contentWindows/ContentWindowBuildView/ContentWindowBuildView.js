@@ -82,14 +82,13 @@ export class ContentWindowBuildView extends ContentWindow {
 			hasDownArrow: true,
 			colorizerFilterManager,
 		}, () => {
-			const projectSettings = this.studioInstance.projectManager.projectSettings;
 			const assetManager = this.studioInstance.projectManager.assetManager;
 
-			if (!projectSettings || !assetManager) {
+			if (!assetManager) {
 				throw new Error("Assertion failed, no project settings or asset manager.");
 			}
 
-			const popover = this.studioInstance.popoverManager.addPopover(EntryPointPopover, projectSettings, assetManager, this.persistentData);
+			const popover = this.studioInstance.popoverManager.addPopover(EntryPointPopover, assetManager, this.studioInstance.preferencesManager, this.uuid);
 			popover.setNeedsCurtain(false);
 			popover.setPos(this.entryPointButton);
 
@@ -131,14 +130,10 @@ export class ContentWindowBuildView extends ContentWindow {
 		if (this.isRunning) {
 			const projectManager = this.studioInstance.projectManager;
 			const assetManager = projectManager.assetManager;
-			const projectSettings = projectManager.projectSettings;
 			if (!assetManager) {
 				throw new Error("Assertion failed, no asset manager");
 			}
-			if (!projectSettings) {
-				throw new Error("Assertion failed, no project settings");
-			}
-			const entryPointUuid = await getSelectedEntryPoint(projectSettings, this.persistentData);
+			const entryPointUuid = getSelectedEntryPoint(this.studioInstance.preferencesManager, this.uuid);
 			if (!entryPointUuid) {
 				throw new Error("Assertion failed, no entry point has been selected");
 			}

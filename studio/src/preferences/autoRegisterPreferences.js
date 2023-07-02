@@ -50,6 +50,16 @@ const autoRegisterPreferences = /** @type {const} */ ({
 		defaultLocation: "project",
 		allowedLocations: ["project"],
 	}),
+	"buildView.availableEntryPoints": pref({
+		type: "unknown",
+		allowedLocations: ["project", "version-control", "contentwindow-project"],
+		defaultLocation: "version-control",
+	}),
+	"buildView.selectedEntryPoint": pref({
+		type: "string",
+		allowedLocations: ["project", "version-control", "contentwindow-project"],
+		defaultLocation: "contentwindow-project",
+	}),
 });
 
 /** @typedef {keyof autoRegisterPreferences} AutoRegisterPreferenceTypes */
