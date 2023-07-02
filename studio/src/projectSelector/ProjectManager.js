@@ -88,11 +88,6 @@ export class ProjectManager {
 		this.rootHasWritePermissions = false;
 		this.gitIgnoreManager = null;
 		/**
-		 * Used for settings that are generally expected to be stored in the project's repository.
-		 * @type {ProjectSettingsManager?}
-		 */
-		this.projectSettings = null;
-		/**
 		 * Used for settings that are generally supposed to stay on the user's machine,
 		 * rather than get saved in the project repository.
 		 * @type {ProjectSettingsManager?}
@@ -193,7 +188,6 @@ export class ProjectManager {
 
 		const gitIgnoreManager = new GitIgnoreManager(fileSystem);
 		this.gitIgnoreManager = gitIgnoreManager;
-		this.projectSettings = new ProjectSettingsManager(fileSystem, [".renda", "projectSettings.json"], fromUserGesture);
 		const localSettingsPath = [".renda", "localProjectSettings.json"];
 		this.localProjectSettings = new ProjectSettingsManager(fileSystem, localSettingsPath, fromUserGesture);
 		this.localProjectSettings.onFileCreated(() => {
