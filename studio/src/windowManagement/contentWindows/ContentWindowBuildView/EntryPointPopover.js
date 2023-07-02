@@ -30,7 +30,7 @@ function getEntryPointsPreference(preferencesManager, contentWindowUuid) {
  */
 export function getSelectedEntryPoint(preferencesManager, contentWindowUuid) {
 	const selectedUuid = preferencesManager.get("buildView.selectedEntryPoint", contentWindowUuid);
-	if (typeof selectedUuid == "string") {
+	if (selectedUuid && typeof selectedUuid == "string") {
 		return selectedUuid;
 	}
 	const entryPoints = getEntryPointsPreference(preferencesManager, contentWindowUuid);
@@ -38,9 +38,7 @@ export function getSelectedEntryPoint(preferencesManager, contentWindowUuid) {
 }
 
 export class EntryPointPopover extends Popover {
-	/** @type {import("../../../assets/AssetManager.js").AssetManager} */
 	#assetManager;
-
 	#preferencesManager;
 	#contentWindowUuid;
 
@@ -94,6 +92,8 @@ export class EntryPointPopover extends Popover {
 		if (typeof entryPointPreference == "string") {
 			entryPoint = entryPointPreference;
 		}
+
+		this.currentSelector = null;
 		this.#updateSelector(items, entryPoint);
 	}
 
@@ -102,10 +102,6 @@ export class EntryPointPopover extends Popover {
 	 * @param {import("../../../../../src/mod.js").UuidString?} selectedEntryPoint
 	 */
 	async #updateSelector(items, selectedEntryPoint) {
-		if (!this.#assetManager) {
-			throw new Error("Error updating selector for EntryPointPopover: not initialized.");
-		}
-
 		/**
 		 * @typedef ItemData
 		 * @property {string} fileName
@@ -154,13 +150,11 @@ export class EntryPointPopover extends Popover {
 				if (!itemData) {
 					throw new Error("Assertion failed, item data doesn't exist");
 				}
-				if (!this.#preferencesManager) {
-					throw new Error("Error updating selector for EntryPointPopover: persistentData is not initialized.");
-				}
 				this.#preferencesManager.set("buildView.selectedEntryPoint", itemData.uuid, {contentWindowUuid: this.#contentWindowUuid});
 			});
 			this.#currentSelectorEl = selector.el;
 			this.#selectorContainer.appendChild(selector.el);
+			this.currentSelector = selector;
 		}
 	}
 
