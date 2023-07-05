@@ -77,18 +77,22 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.customEl.classList.add("gui-tree-view-entry");
 
 		const hideLabel = guiOpts.hideLabel ?? false;
+		const useLabelTag = type == "boolean";
+		let labelEl = null;
+		let labelText = "";
 		if (!hideLabel) {
-			const label = document.createElement("div");
-			label.classList.add("gui-tree-view-entry-label");
-			const labelText = prettifyVariableName(guiOpts.label);
-			label.textContent = labelText;
+			const tagName = useLabelTag ? "label" : "div";
+			labelEl = document.createElement(tagName);
+			labelEl.classList.add("gui-tree-view-entry-label");
+			labelText = prettifyVariableName(guiOpts.label);
+			if (!useLabelTag) labelEl.textContent = labelText;
 			this.#label = labelText;
 			if (tooltip) {
-				label.title = labelText + "\n\n" + tooltip;
+				labelEl.title = labelText + "\n\n" + tooltip;
 			} else {
-				label.title = labelText;
+				labelEl.title = labelText;
 			}
-			this.customEl.appendChild(label);
+			this.customEl.appendChild(labelEl);
 		}
 
 		this.valueEl = document.createElement("div");
@@ -135,6 +139,10 @@ export class PropertiesTreeViewEntry extends TreeView {
 				...guiOpts,
 			});
 			this.valueEl.appendChild(setGui.el);
+			if (labelEl) {
+				labelEl.appendChild(this.valueEl);
+				labelEl.appendChild(document.createTextNode(labelText));
+			}
 		} else if (type == "dropdown") {
 			setGui = new DropDownGui({
 				...guiOpts,

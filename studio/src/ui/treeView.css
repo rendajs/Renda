@@ -161,3 +161,8 @@
 	user-select: text;
 	-webkit-user-select: text;
 }
+
+label.gui-tree-view-entry-label {
+	display: flex;
+	gap: 5px;
+}
