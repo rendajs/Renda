@@ -41,7 +41,7 @@ export async function waitForTreeViewDisappear(page, treeViewElementHandle, item
  * @param {import("puppeteer").ElementHandle} element
  */
 export async function getPropertiesTreeViewEntryValueEl(element) {
-	const guiEl = await element.$(":scope > .treeViewCustomEl.gui-tree-view-entry > .gui-tree-view-entry-value");
+	const guiEl = await element.$(":scope > .tree-view-custom-el.gui-tree-view-entry .gui-tree-view-entry-value");
 	assertExists(guiEl);
 	return guiEl;
 }

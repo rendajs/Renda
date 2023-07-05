@@ -4,7 +4,7 @@
 		"std/": "https://deno.land/std@0.171.0/",
 		"chdir-anywhere": "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js",
 		"fake-imports": "https://deno.land/x/fake_imports@v0.8.1/mod.js",
-		"fake-dom/": "https://deno.land/x/fake_dom@v0.9.0/src/",
+		"fake-dom/": "https://deno.land/x/fake_dom@v0.11.0/src/",
 		"puppeteer": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/7c5ed2e6e9f43d7fc27d4fa49f17db36be220956/mod.ts",
 		"puppeteer/": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/7c5ed2e6e9f43d7fc27d4fa49f17db36be220956/",
 		"rollup": "npm:rollup@2.79.1",
