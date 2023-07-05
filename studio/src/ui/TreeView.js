@@ -250,13 +250,13 @@ export class TreeView {
 		this.rowEl.appendChild(this.afterEl);
 
 		this.childrenEl = document.createElement("div");
-		this.childrenEl.classList.add("treeViewChildList");
+		this.childrenEl.classList.add("tree-view-child-list");
 		this.el.appendChild(this.childrenEl);
 
 		this.customEl = null;
 		if (data.addCustomEl) {
 			this.customEl = document.createElement("div");
-			this.customEl.classList.add("treeViewCustomEl");
+			this.customEl.classList.add("tree-view-custom-el");
 			this.el.appendChild(this.customEl);
 		}
 

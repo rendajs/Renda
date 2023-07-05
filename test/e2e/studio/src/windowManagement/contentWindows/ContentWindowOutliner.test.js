@@ -26,7 +26,7 @@ await runE2eTest({
 		log("Click the second child");
 		{
 			const rootTreeView = await getOutlinerRootEntityTreeView(page);
-			const secondChildEl = await waitFor(rootTreeView, ".treeViewChildList > :nth-child(2)");
+			const secondChildEl = await waitFor(rootTreeView, ".tree-view-child-list > :nth-child(2)");
 			await click(page, secondChildEl);
 		}
 
@@ -36,7 +36,7 @@ await runE2eTest({
 		{
 			const rootTreeView = await getOutlinerRootEntityTreeView(page);
 			const rootTreeViewRow = await waitFor(rootTreeView, ".tree-view-row");
-			const secondChildEl = await waitFor(rootTreeView, ".treeViewChildList > :nth-child(2) > .treeViewChildList > :nth-child(1) > .tree-view-row");
+			const secondChildEl = await waitFor(rootTreeView, ".tree-view-child-list > :nth-child(2) > .tree-view-child-list > :nth-child(1) > .tree-view-row");
 			await drag(page, secondChildEl, rootTreeViewRow);
 		}
 
