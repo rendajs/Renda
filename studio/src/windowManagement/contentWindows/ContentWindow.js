@@ -1,7 +1,6 @@
 import {ContentWindowPreferencesLocation} from "../../preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {STUDIO_ENV} from "../../studioDefines.js";
 import {PopoverToggleButton} from "../../ui/popoverMenus/PopoverToggleButton.js";
-import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
 import {PreferencesPopover} from "../PreferencesPopover.js";
 
 export class ContentWindow {
@@ -52,8 +51,6 @@ export class ContentWindow {
 		 * This is used for dragging tabs and linking preferences that are stored in a contentwindow location.
 		 */
 		this.uuid = uuid;
-
-		this.persistentData = new ContentWindowPersistentData();
 
 		this.#projectPreferencesLocation = new ContentWindowPreferencesLocation("contentwindow-project", windowManager, uuid);
 		studioInstance.preferencesManager.addLocation(this.#projectPreferencesLocation);

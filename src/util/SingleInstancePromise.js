@@ -34,7 +34,7 @@ export class SingleInstancePromise {
 	}
 
 	/**
-	 * Runs the function. If the function is already running,the call will be
+	 * Runs the function. If the function is already running, the call will be
 	 * queued once. Ensuring that the last call is always run. If this function
 	 * is called many times while it is already running, only the last call
 	 * will be executed.
@@ -91,8 +91,23 @@ export class SingleInstancePromise {
 
 	/**
 	 * Returns a promise that will resolve once the function is done running.
-	 * Will stay pending if the function is not running, either because it is done or if it has already run.
+	 * Will stay pending if the function is not running, either because it is done or if it hasn't run yet.
 	 * In this case the promise will resolve once the next run finishes.
+	 *
+	 * ## Example
+	 * ```js
+	 * const instance = new SingleInstancePromise(...);
+	 * const promise1 = instance.waitForFinish(); // promise1 is initially pending
+	 *
+	 * await instance.run();
+	 * // Once the first run is done, promise1 becomes resolved.
+	 *
+	 * // But new calls will start as a pending promise again:
+	 * const promise2 = instance.waitForFinish(); // promise2 is pending
+	 *
+	 * // Until you run again
+	 * await instance.run();
+	 * ```
 	 * @returns {Promise<void>}
 	 */
 	async waitForFinish() {
@@ -108,6 +123,24 @@ export class SingleInstancePromise {
 	 * Returns a promise that will resolve once the function has run for the first time.
 	 * Resolves immediately when the function is done running, even when it is currently running for a second time.
 	 * If the function hasn't run yet, this promise will resolve once it's done running for the first time.
+	 *
+	 * ## Example
+	 * ```js
+	 * const instance = new SingleInstancePromise(...);
+	 * const promise1 = instance.waitForFinishOnce(); // promise1 is initially pending
+	 *
+	 * await instance.run();
+	 * // Once the first run is done, promise1 becomes resolved.
+	 *
+	 * // And new calls will immediately resolve as well
+	 * const promise2 = instance.waitForFinishOnce(); // promise2 is resolved
+	 *
+	 * // Even if you run it a second time:
+	 * const runA = instance.run();
+	 * const promise3 = instance.waitForFinishOnce(); // promise3 is still instantly resolved
+	 *
+	 * // Only runA is now pending until the second run finishes.
+	 * ```
 	 * @returns {Promise<void>}
 	 */
 	async waitForFinishOnce() {
@@ -118,10 +151,30 @@ export class SingleInstancePromise {
 	}
 
 	/**
-	 * Returns a promise that will resolve once all calls to the function is done running.
-	 * Resolves immediately if the function is not running, either because it is done or if it has already run.
+	 * Returns a promise that will resolve once all calls to the function are done running.
+	 * Resolves immediately if the function is not running, either because it is done, or if it hasn't run yet.
 	 * If a new call is made to `run` while the function was still running,
 	 * this promise will not resolve until that run is done as well.
+	 *
+	 * ## Example
+	 * ```js
+	 * const instance = new SingleInstancePromise(...);
+	 * const promise1 = instance.waitForFinishIfRunning(); // promise1 is immediately resolved
+	 *
+	 * const runA = instance.run();
+	 * const promise2 = instance.waitForFinishIfRunning(); // runA and promise2 are both pending
+	 *
+	 * const runB = instance.run();
+	 * // runA, promise2, and runB are all pending.
+	 *
+	 * await runA;
+	 * // Eventually runA resolves, but promise2 and runB are still pending.
+	 *
+	 * await runB;
+	 * // Only once runB is done, do promise2 and runB resolve.
+	 *
+	 * const promise3 = instance.waitForFinishIfRunning(); // new calls immediately resolve again
+	 * ```
 	 */
 	async waitForFinishIfRunning() {
 		while (this._isEmptyingQueue) {

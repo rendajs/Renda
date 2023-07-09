@@ -6,7 +6,6 @@ import {AssetManager} from "../assets/AssetManager.js";
 import {StudioConnectionsManager} from "../network/studioConnections/StudioConnectionsManager.js";
 import {generateUuid} from "../../../src/util/util.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";
-import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
 import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePreferencesLocation.js";
 
@@ -53,7 +52,6 @@ import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePr
 
 export class ProjectManager {
 	#boundOnFileSystemRootNameChange;
-	#boundSaveContentWindowPersistentData;
 
 	/** @type {FilePreferencesLocation?} */
 	#currentPreferencesLocation = null;
@@ -88,17 +86,7 @@ export class ProjectManager {
 		 */
 		this.rootHasWritePermissions = false;
 		this.gitIgnoreManager = null;
-		/**
-		 * Used for settings that are generally expected to be stored in the project's repository.
-		 * @type {ProjectSettingsManager?}
-		 */
-		this.projectSettings = null;
-		/**
-		 * Used for settings that are generally supposed to stay on the user's machine,
-		 * rather than get saved in the project repository.
-		 * @type {ProjectSettingsManager?}
-		 */
-		this.localProjectSettings = null;
+
 		/** @type {AssetManager?} */
 		this.assetManager = null;
 
@@ -145,17 +133,6 @@ export class ProjectManager {
 			this.updateStudioConnectionsManager();
 		};
 
-		/** @type {(data: unknown[]) => Promise<void>} */
-		this.#boundSaveContentWindowPersistentData = async data => {
-			if (!this.localProjectSettings) return;
-			const key = "contentWindowPersistentData";
-			if (data.length <= 0) {
-				await this.localProjectSettings.delete(key);
-			} else {
-				await this.localProjectSettings.set(key, data);
-			}
-		};
-
 		/** @type {Set<(entry: StoredProjectEntryAny) => any>} */
 		this.onProjectOpenEntryChangeCbs = new Set();
 
@@ -181,7 +158,9 @@ export class ProjectManager {
 	/**
 	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem
 	 * @param {StoredProjectEntryAny} openProjectChangeEvent
-	 * @param {boolean} fromUserGesture
+	 * @param {boolean} fromUserGesture Whether the call is made as a result from the user clicking something.
+	 * If this is false, things like preferences will quietly wait for user permission without any prompts.
+	 * But if this is true, an attempt will be made to read files immediately, likely triggering a permission prompt.
 	 */
 	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture) {
 		// todo: handle multiple calls to openProject by cancelling any current running calls.
@@ -205,12 +184,6 @@ export class ProjectManager {
 
 		const gitIgnoreManager = new GitIgnoreManager(fileSystem);
 		this.gitIgnoreManager = gitIgnoreManager;
-		this.projectSettings = new ProjectSettingsManager(fileSystem, [".renda", "projectSettings.json"], fromUserGesture);
-		const localSettingsPath = [".renda", "localProjectSettings.json"];
-		this.localProjectSettings = new ProjectSettingsManager(fileSystem, localSettingsPath, fromUserGesture);
-		this.localProjectSettings.onFileCreated(() => {
-			gitIgnoreManager.addEntry(localSettingsPath);
-		});
 
 		const studio = getStudioInstance();
 
@@ -220,13 +193,13 @@ export class ProjectManager {
 		if (this.#currentVersionControlPreferencesLocation) {
 			studio.preferencesManager.removeLocation(this.#currentVersionControlPreferencesLocation);
 		}
-		const localPreferencesPath = [".renda", "preferencesLocal.json"];
+		const localPreferencesPath = [".renda", "localPreferences.json"];
 		this.#currentPreferencesLocation = new FilePreferencesLocation("project", fileSystem, localPreferencesPath, fromUserGesture);
 		this.#currentPreferencesLocation.onFileCreated(() => {
 			gitIgnoreManager.addEntry(localPreferencesPath);
 		});
 		studio.preferencesManager.addLocation(this.#currentPreferencesLocation);
-		this.#currentVersionControlPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, [".renda", "preferences.json"], fromUserGesture);
+		this.#currentVersionControlPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, [".renda", "sharedPreferences.json"], fromUserGesture);
 		studio.preferencesManager.addLocation(this.#currentVersionControlPreferencesLocation);
 
 		fileSystem.onChange(this.#onFileSystemChange);
@@ -235,23 +208,16 @@ export class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
 		this.removeAssetManager();
-		studio.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		studio.windowManager.removeOnContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
 		await studio.windowManager.reloadWorkspaceInstance.run();
 		studio.windowManager.onContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
-		studio.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 
 		await this.reloadAssetManager();
 		await this.waitForAssetListsLoad();
 		this.updateStudioConnectionsManager();
 
-		const contentWindowPersistentData = await this.localProjectSettings.get("contentWindowPersistentData");
-		const castData = /** @type {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[]} */ (contentWindowPersistentData);
-		studio.windowManager.setContentWindowPersistentData(castData);
-
-		const contentWindowPreferences = await this.localProjectSettings.get("contentWindowPreferences");
-		const castPreferences = /** @type {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[]} */ (contentWindowPreferences);
-		studio.windowManager.setContentWindowPreferences(castPreferences);
+		const contentWindowPreferences = await this.#currentPreferencesLocation.getContentWindowPreferences();
+		studio.windowManager.setContentWindowPreferences(contentWindowPreferences);
 
 		this.hasOpeneProject = true;
 		this.onProjectOpenCbs.forEach(cb => cb());
@@ -259,15 +225,11 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {unknown} data
+	 * @param {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[] | null} data
 	 */
 	#contentWindowPreferencesFlushRequest = async data => {
-		if (!this.localProjectSettings) return;
-		if (!data) {
-			await this.localProjectSettings.delete("contentWindowPreferences");
-		} else {
-			await this.localProjectSettings.set("contentWindowPreferences", data);
-		}
+		if (!this.#currentPreferencesLocation) return;
+		await this.#currentPreferencesLocation.setContentWindowPreferences(data);
 	};
 
 	/**
@@ -499,13 +461,6 @@ export class ProjectManager {
 		if (this.currentProjectFileSystem) {
 			this.currentProjectFileSystem.suggestCheckExternalChanges();
 		}
-	}
-
-	assertLocalSettingsExists() {
-		if (!this.localProjectSettings) {
-			throw new Error("Unable to get local project settings. Is there no project open?");
-		}
-		return this.localProjectSettings;
 	}
 
 	/**
