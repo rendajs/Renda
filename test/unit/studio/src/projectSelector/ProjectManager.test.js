@@ -49,8 +49,8 @@ const StudiorConnectionsManagerMod = await importer.import("../../../../../studi
 /** @type {() => import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */
 const getLastStudioConnectionsManager = StudiorConnectionsManagerMod.getLastStudioConnectionsManager;
 
-const PROJECT_PREFERENCES_PATH = [".renda", "preferences.json"];
-const LOCAL_PROJECT_PREFERENCES_PATH = [".renda", "preferencesLocal.json"];
+const PROJECT_PREFERENCES_PATH = [".renda", "sharedPreferences.json"];
+const LOCAL_PROJECT_PREFERENCES_PATH = [".renda", "localPreferences.json"];
 const GITIGNORE_PATH = [".gitignore"];
 
 /**
@@ -378,7 +378,7 @@ Deno.test({
 						strPref: "project",
 					},
 				});
-				assertEquals(await fs.readText(GITIGNORE_PATH), ".renda/preferencesLocal.json");
+				assertEquals(await fs.readText(GITIGNORE_PATH), ".renda/localPreferences.json");
 			},
 		});
 	},

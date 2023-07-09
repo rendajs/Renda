@@ -193,13 +193,13 @@ export class ProjectManager {
 		if (this.#currentVersionControlPreferencesLocation) {
 			studio.preferencesManager.removeLocation(this.#currentVersionControlPreferencesLocation);
 		}
-		const localPreferencesPath = [".renda", "preferencesLocal.json"];
+		const localPreferencesPath = [".renda", "localPreferences.json"];
 		this.#currentPreferencesLocation = new FilePreferencesLocation("project", fileSystem, localPreferencesPath, fromUserGesture);
 		this.#currentPreferencesLocation.onFileCreated(() => {
 			gitIgnoreManager.addEntry(localPreferencesPath);
 		});
 		studio.preferencesManager.addLocation(this.#currentPreferencesLocation);
-		this.#currentVersionControlPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, [".renda", "preferences.json"], fromUserGesture);
+		this.#currentVersionControlPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, [".renda", "sharedPreferences.json"], fromUserGesture);
 		studio.preferencesManager.addLocation(this.#currentVersionControlPreferencesLocation);
 
 		fileSystem.onChange(this.#onFileSystemChange);
