@@ -20,8 +20,10 @@ import {WorkspacePreferencesLocation} from "../preferences/preferencesLocation/W
  * @property {Object<string, unknown>} data
  */
 
+/** @typedef {(data: ContentWindowPersistentDiskData[] | null) => Promise<void>} OnPreferencesFlushRequestCallback */
+
 export class WindowManager {
-	/** @type {Set<(data: unknown) => Promise<void>>} */
+	/** @type {Set<OnPreferencesFlushRequestCallback>} */
 	#onPreferencesFlushRequest = new Set();
 
 	/** @type {EventHandler<typeof ContentWindow, ContentWindowEvent>} */
@@ -204,14 +206,14 @@ export class WindowManager {
 	};
 
 	/**
-	 * @param {(data: unknown) => Promise<void>} cb
+	 * @param {OnPreferencesFlushRequestCallback} cb
 	 */
 	onContentWindowPreferencesFlushRequest(cb) {
 		this.#onPreferencesFlushRequest.add(cb);
 	}
 
 	/**
-	 * @param {(data: unknown) => Promise<void>} cb
+	 * @param {OnPreferencesFlushRequestCallback} cb
 	 */
 	removeOnContentWindowPreferencesFlushRequest(cb) {
 		this.#onPreferencesFlushRequest.delete(cb);

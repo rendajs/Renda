@@ -37,6 +37,16 @@ Deno.test({
 
 		await location1.flush();
 
+		await location1.setContentWindowPreferences([
+			{
+				id: "id",
+				type: "type",
+				data: {
+					foo: "bar",
+				},
+			},
+		]);
+
 		const location2 = new FilePreferencesLocation("project", fs, ["preferences.json"], true);
 
 		// Wait for load
@@ -44,6 +54,17 @@ Deno.test({
 
 		assertEquals(location2.get("preference1"), "new value");
 		assertEquals(location2.get("preference2"), true);
+
+		const contentWindowPreferences = await location2.getContentWindowPreferences();
+		assertEquals(contentWindowPreferences, [
+			{
+				id: "id",
+				type: "type",
+				data: {
+					foo: "bar",
+				},
+			},
+		]);
 	},
 });
 
@@ -127,5 +148,43 @@ Deno.test({
 		resolveWait();
 		await waitForMicrotasks();
 		await location.flush();
+	},
+});
+
+Deno.test({
+	name: "ContentWindowPreferences is omitted when it is empty",
+	async fn() {
+		const fs = new MemoryStudioFileSystem();
+		const preferencesPath = ["prefs.json"];
+		const location = new FilePreferencesLocation("project", fs, preferencesPath, true);
+
+		// Wait for load
+		await waitForMicrotasks();
+
+		await location.setContentWindowPreferences([
+			{
+				id: "id",
+				type: "type",
+				data: {
+					foo: "bar",
+				},
+			},
+		]);
+
+		assertEquals(await fs.readJson(preferencesPath), {
+			contentWindowPreferences: [
+				{
+					id: "id",
+					type: "type",
+					data: {
+						foo: "bar",
+					},
+				},
+			],
+		});
+
+		await location.setContentWindowPreferences(null);
+
+		assertEquals(await fs.readJson(preferencesPath), {});
 	},
 });

@@ -6,7 +6,6 @@ import {AssetManager} from "../assets/AssetManager.js";
 import {StudioConnectionsManager} from "../network/studioConnections/StudioConnectionsManager.js";
 import {generateUuid} from "../../../src/util/util.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";
-import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
 import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePreferencesLocation.js";
 
@@ -87,12 +86,7 @@ export class ProjectManager {
 		 */
 		this.rootHasWritePermissions = false;
 		this.gitIgnoreManager = null;
-		/**
-		 * Used for settings that are generally supposed to stay on the user's machine,
-		 * rather than get saved in the project repository.
-		 * @type {ProjectSettingsManager?}
-		 */
-		this.localProjectSettings = null;
+
 		/** @type {AssetManager?} */
 		this.assetManager = null;
 
@@ -164,7 +158,9 @@ export class ProjectManager {
 	/**
 	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem
 	 * @param {StoredProjectEntryAny} openProjectChangeEvent
-	 * @param {boolean} fromUserGesture
+	 * @param {boolean} fromUserGesture Whether the call is made as a result from the user clicking something.
+	 * If this is false, things like preferences will quietly wait for user permission without any prompts.
+	 * But if this is true, an attempt will be made to read files immediately, likely triggering a permission prompt.
 	 */
 	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture) {
 		// todo: handle multiple calls to openProject by cancelling any current running calls.
@@ -188,11 +184,6 @@ export class ProjectManager {
 
 		const gitIgnoreManager = new GitIgnoreManager(fileSystem);
 		this.gitIgnoreManager = gitIgnoreManager;
-		const localSettingsPath = [".renda", "localProjectSettings.json"];
-		this.localProjectSettings = new ProjectSettingsManager(fileSystem, localSettingsPath, fromUserGesture);
-		this.localProjectSettings.onFileCreated(() => {
-			gitIgnoreManager.addEntry(localSettingsPath);
-		});
 
 		const studio = getStudioInstance();
 
@@ -225,9 +216,8 @@ export class ProjectManager {
 		await this.waitForAssetListsLoad();
 		this.updateStudioConnectionsManager();
 
-		const contentWindowPreferences = await this.localProjectSettings.get("contentWindowPreferences");
-		const castPreferences = /** @type {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[]} */ (contentWindowPreferences);
-		studio.windowManager.setContentWindowPreferences(castPreferences);
+		const contentWindowPreferences = await this.#currentPreferencesLocation.getContentWindowPreferences();
+		studio.windowManager.setContentWindowPreferences(contentWindowPreferences);
 
 		this.hasOpeneProject = true;
 		this.onProjectOpenCbs.forEach(cb => cb());
@@ -235,15 +225,11 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {unknown} data
+	 * @param {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[] | null} data
 	 */
 	#contentWindowPreferencesFlushRequest = async data => {
-		if (!this.localProjectSettings) return;
-		if (!data) {
-			await this.localProjectSettings.delete("contentWindowPreferences");
-		} else {
-			await this.localProjectSettings.set("contentWindowPreferences", data);
-		}
+		if (!this.#currentPreferencesLocation) return;
+		await this.#currentPreferencesLocation.setContentWindowPreferences(data);
 	};
 
 	/**
@@ -475,13 +461,6 @@ export class ProjectManager {
 		if (this.currentProjectFileSystem) {
 			this.currentProjectFileSystem.suggestCheckExternalChanges();
 		}
-	}
-
-	assertLocalSettingsExists() {
-		if (!this.localProjectSettings) {
-			throw new Error("Unable to get local project settings. Is there no project open?");
-		}
-		return this.localProjectSettings;
 	}
 
 	/**

@@ -11,6 +11,7 @@ import {SingleInstancePromise} from "../../../../../src/mod.js";
 console.log(import.meta.url);
 const importer = new Importer(import.meta.url);
 importer.makeReal("../../../../../studio/src/studioInstance.js");
+importer.makeReal("../../../../../studio/src/preferences/preferencesLocation/FilePreferencesLocation.js");
 importer.fakeModule("../../../../../studio/src/windowManagement/contentWindows/ContentWindowConnections.js", "export const ContentWindowConnections = {}");
 importer.fakeModule("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js", `
 let lastStudioConnectionsManager;
@@ -48,7 +49,6 @@ const StudiorConnectionsManagerMod = await importer.import("../../../../../studi
 /** @type {() => import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */
 const getLastStudioConnectionsManager = StudiorConnectionsManagerMod.getLastStudioConnectionsManager;
 
-const LOCAL_PROJECT_SETTINGS_PATH = [".renda", "localProjectSettings.json"];
 const PROJECT_PREFERENCES_PATH = [".renda", "preferences.json"];
 const LOCAL_PROJECT_PREFERENCES_PATH = [".renda", "preferencesLocal.json"];
 const GITIGNORE_PATH = [".gitignore"];
@@ -59,7 +59,7 @@ const GITIGNORE_PATH = [".gitignore"];
  * @property {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
  * @property {import("../../../../../studio/src/Studio.js").Studio} studio
  * @property {PreferencesManager<typeof mockPreferencesConfig>} mockPreferencesManager
- * @property {(data: unknown) => Promise<void>} fireFlushRequestCallbacks
+ * @property {(data: import("../../../../../studio/src/windowManagement/WindowManager.js").ContentWindowPersistentDiskData[] | null) => Promise<void>} fireFlushRequestCallbacks
  */
 
 const mockPreferencesConfig = /** @type {const} @satisfies {Object<string, import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig>} */ ({
@@ -85,7 +85,7 @@ async function basicTest({fn}) {
 	try {
 		globalThis.document = /** @type {Document} */ (new EventTarget());
 
-		/** @type {Set<(data: unknown) => Promise<void>>} */
+		/** @type {Set<import("../../../../../studio/src/windowManagement/WindowManager.js").OnPreferencesFlushRequestCallback>} */
 		const flushRequestCallbacks = new Set();
 
 		const mockPreferencesManager = /** @type {PreferencesManager<any>} */ (new PreferencesManager(mockPreferencesConfig));
@@ -145,14 +145,18 @@ Deno.test({
 			async fn({manager, mockPreferencesManager, studioConnectionsManager}) {
 				const fs = new MemoryStudioFileSystem();
 				let resolveWaitForPermission = () => {};
+				/** @type {Promise<void>} */
+				const waitForPermissionPromise = new Promise(resolve => {
+					resolveWaitForPermission = resolve;
+				});
 				stub(fs, "waitForPermission", () => {
-					return new Promise(resolve => {
-						resolveWaitForPermission = resolve;
-					});
+					return waitForPermissionPromise;
 				});
 				fs.writeJson(LOCAL_PROJECT_PREFERENCES_PATH, {
-					"studioConnections.allowInternalIncoming": true,
-					"studioConnections.allowRemoteIncoming": true,
+					preferences: {
+						"studioConnections.allowInternalIncoming": true,
+						"studioConnections.allowRemoteIncoming": true,
+					},
 				});
 				const entry = createStoredProjectEntry();
 
@@ -182,7 +186,7 @@ Deno.test({
 					});
 				}
 
-				await manager.openProject(fs, entry, true);
+				const openProjectPromise = manager.openProject(fs, entry, false);
 
 				testUpdateCall(null, false, true, {
 					name: "name",
@@ -192,6 +196,8 @@ Deno.test({
 
 				resolveWaitForPermission();
 				await waitForMicrotasks();
+				await openProjectPromise;
+
 				testUpdateCall("ws://localhost/defaultEndpoint", true, true, {
 					name: "name",
 					uuid: "uuid",
@@ -230,7 +236,7 @@ Deno.test({
 		await basicTest({
 			async fn({manager, studio, fireFlushRequestCallbacks}) {
 				const fs = new MemoryStudioFileSystem();
-				fs.writeJson(LOCAL_PROJECT_SETTINGS_PATH, {
+				fs.writeJson(LOCAL_PROJECT_PREFERENCES_PATH, {
 					contentWindowPreferences: [
 						{
 							id: "uuid",
@@ -267,7 +273,7 @@ Deno.test({
 						data: {foo2: "bar2"},
 					},
 				]);
-				assertEquals(await fs.readJson(LOCAL_PROJECT_SETTINGS_PATH), {
+				assertEquals(await fs.readJson(LOCAL_PROJECT_PREFERENCES_PATH), {
 					contentWindowPreferences: [
 						{
 							id: "uuid",
@@ -278,7 +284,8 @@ Deno.test({
 				});
 
 				await fireFlushRequestCallbacks(null);
-				assertEquals(await fs.exists(LOCAL_PROJECT_SETTINGS_PATH), false);
+				assertEquals(await fs.readJson(LOCAL_PROJECT_PREFERENCES_PATH), {
+				});
 			},
 		});
 	},
@@ -290,13 +297,19 @@ Deno.test({
 		await basicTest({
 			async fn({manager, studio, fireFlushRequestCallbacks}) {
 				studio.windowManager.reloadWorkspaceInstance = new SingleInstancePromise(async () => {
-					await fireFlushRequestCallbacks({
-						label: "this data should not be written",
-					});
+					await fireFlushRequestCallbacks([
+						{
+							id: "id",
+							type: "type",
+							data: {
+								label: "this data should not be written",
+							},
+						},
+					]);
 				});
 
 				const fs = new MemoryStudioFileSystem();
-				fs.writeJson(LOCAL_PROJECT_SETTINGS_PATH, {
+				fs.writeJson(LOCAL_PROJECT_PREFERENCES_PATH, {
 					contentWindowPreferences: [
 						{
 							id: "uuid",
@@ -309,7 +322,7 @@ Deno.test({
 
 				await manager.openProject(fs, entry, true);
 
-				assertEquals(await fs.readJson(LOCAL_PROJECT_SETTINGS_PATH), {
+				assertEquals(await fs.readJson(LOCAL_PROJECT_PREFERENCES_PATH), {
 					contentWindowPreferences: [
 						{
 							id: "uuid",
@@ -322,7 +335,7 @@ Deno.test({
 				// Run it a second time to ensure the previous callback gets unregistered
 				await manager.openProject(fs, entry, true);
 
-				assertEquals(await fs.readJson(LOCAL_PROJECT_SETTINGS_PATH), {
+				assertEquals(await fs.readJson(LOCAL_PROJECT_PREFERENCES_PATH), {
 					contentWindowPreferences: [
 						{
 							id: "uuid",
@@ -356,10 +369,14 @@ Deno.test({
 				await waitForMicrotasks();
 
 				assertEquals(await fs.readJson(PROJECT_PREFERENCES_PATH), {
-					strPref: "versionControl",
+					preferences: {
+						strPref: "versionControl",
+					},
 				});
 				assertEquals(await fs.readJson(LOCAL_PROJECT_PREFERENCES_PATH), {
-					strPref: "project",
+					preferences: {
+						strPref: "project",
+					},
 				});
 				assertEquals(await fs.readText(GITIGNORE_PATH), ".renda/preferencesLocal.json");
 			},
