@@ -8,6 +8,7 @@ import {PropertiesTreeViewEntry} from "../../../../studio/src/ui/propertiesTreeV
  * @property {ExpectedTreeViewStructure[]} [children]
  * @property {boolean} [isPropertiesEntry]
  * @property {string} [propertiesLabel]
+ * @property {string} [propertiesTooltip]
  * @property {import("../../../../studio/src/ui/propertiesTreeView/types").GuiTypes} [propertiesType]
  * @property {any} [propertiesValue]
  * @property {boolean} [disabled]
@@ -52,6 +53,11 @@ function treeViewStructureEquals(treeView, expectedStructure, options) {
 	}
 	if (expectedStructure.propertiesLabel !== undefined) {
 		if (!(treeView instanceof PropertiesTreeViewEntry) || expectedStructure.propertiesLabel != treeView.label) {
+			return false;
+		}
+	}
+	if (expectedStructure.propertiesTooltip !== undefined) {
+		if (!(treeView instanceof PropertiesTreeViewEntry) || expectedStructure.propertiesTooltip != treeView.tooltip) {
 			return false;
 		}
 	}
@@ -116,6 +122,7 @@ function createExpectedTreeViewStructure(treeView, expectedStructure, options) {
 	if (!expectedStructure) {
 		if (treeView instanceof PropertiesTreeViewEntry) {
 			structure.propertiesLabel = treeView.label || "";
+			structure.propertiesTooltip = treeView.tooltip || "";
 			structure.propertiesType = treeView.type;
 			structure.propertiesValue = treeView.value;
 			structure.disabled = treeView.disabled;
@@ -126,6 +133,13 @@ function createExpectedTreeViewStructure(treeView, expectedStructure, options) {
 				structure.propertiesLabel = treeView.label || "";
 			} else {
 				structure.propertiesLabel = "";
+			}
+		}
+		if (expectedStructure.propertiesTooltip !== undefined) {
+			if (treeView instanceof PropertiesTreeViewEntry) {
+				structure.propertiesTooltip = treeView.tooltip;
+			} else {
+				structure.propertiesTooltip = "";
 			}
 		}
 		if (expectedStructure.propertiesType !== undefined) {

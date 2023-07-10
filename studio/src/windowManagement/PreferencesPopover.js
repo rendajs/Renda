@@ -1,3 +1,4 @@
+import {locationTypePriorities} from "../preferences/PreferencesManager.js";
 import {DropDownGui} from "../ui/DropDownGui.js";
 import {Popover} from "../ui/popoverMenus/Popover.js";
 import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
@@ -20,6 +21,16 @@ export class PreferencesPopover extends Popover {
 
 	locationDropDown;
 
+	/** @type {Map<import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes, string>} */
+	#locationUiStrings = new Map([
+		["global", "Global"],
+		["workspace", "Workspace"],
+		["version-control", "Version Control"],
+		["project", "Project"],
+		["contentwindow-workspace", "Window - Workspace"],
+		["contentwindow-project", "Window - Project"],
+	]);
+
 	/**
 	 * @param {ConstructorParameters<typeof Popover>[0]} popoverManager
 	 * @param {import("../preferences/PreferencesManager.js").PreferencesManager<any>} preferencesManager
@@ -39,12 +50,7 @@ export class PreferencesPopover extends Popover {
 		this.locationDropDown = new DropDownGui({
 			items: [
 				"Default",
-				"Global",
-				"Workspace",
-				"Version Control",
-				"Project",
-				"Window - Workspace",
-				"Window - Project",
+				...this.#locationUiStrings.values(),
 			],
 			defaultValue: 0,
 		});
@@ -57,7 +63,7 @@ export class PreferencesPopover extends Popover {
 		this.el.appendChild(this.preferencesTreeView.el);
 
 		for (const id of preferenceIds) {
-			const {uiName, type, allowedLocations} = preferencesManager.getPreferenceConfig(id);
+			const {uiName, type, allowedLocations} = preferencesManager.getPreferenceUiData(id);
 			if (type == "unknown") {
 				throw new Error("Preferences with unknown type can not be added to PreferencesPopovers.");
 			}
@@ -73,6 +79,7 @@ export class PreferencesPopover extends Popover {
 					location: this.#getCurrentLocation(),
 					contentWindowUuid,
 				});
+				this.#updateEntries({updateValues: false});
 			});
 			this.#createdEntries.set(id, {
 				type,
@@ -84,46 +91,98 @@ export class PreferencesPopover extends Popover {
 		this.#updateEntries();
 	}
 
+	/**
+	 * @returns {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} The currently selected location type. Or null when the 'default' location has been selected.
+	 */
 	#getCurrentLocation() {
 		const index = this.locationDropDown.getValue({getAsString: false}) - 1;
 		/**
 		 * @type {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]}
 		 */
-		const locationTypes = [
-			"global",
-			"workspace",
-			"version-control",
-			"project",
-			"contentwindow-workspace",
-			"contentwindow-project",
-		];
-		if (index < 0 || index > locationTypes.length - 1) return null;
-		return locationTypes[index];
+		if (index < 0 || index > locationTypePriorities.length - 1) return null;
+		return locationTypePriorities[index];
 	}
 
-	#updateEntries() {
+	/**
+	 * @param {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} location
+	 */
+	#getLocationUiString(location) {
+		const str = this.#locationUiStrings.get(location);
+		if (!str) {
+			throw new Error("Assertion failed, no ui string found for " + location);
+		}
+		return str;
+	}
+
+	#updateEntries({
+		updateValues = true,
+		updateTooltips = true,
+		updateDisabled = true,
+	} = {}) {
 		if (!this.#preferencesManager || !this.#contentWindowUuid) {
 			throw new Error("Assertion failed, popover has not been initialized");
 		}
 
-		const location = this.#getCurrentLocation();
+		const currentLocation = this.#getCurrentLocation();
 		for (const [id, {entry, type, allowedLocations}] of this.#createdEntries) {
-			let value = this.#preferencesManager.getUiValueAtLocation(id, location, {
-				contentWindowUuid: this.#contentWindowUuid,
-			});
-			if (value == null) {
-				if (type == "boolean") {
-					value = false;
-				} else if (type == "number") {
-					value = 0;
-				} else if (type == "string") {
-					value = "";
+			if (updateValues) {
+				let value = this.#preferencesManager.getUiValueAtLocation(id, currentLocation, {
+					contentWindowUuid: this.#contentWindowUuid,
+				});
+				if (value == null) {
+					if (type == "boolean") {
+						value = false;
+					} else if (type == "number") {
+						value = 0;
+					} else if (type == "string") {
+						value = "";
+					}
 				}
+				entry.setValue(value);
 			}
-			entry.setValue(value);
 
-			const allowed = !location || !allowedLocations || allowedLocations.includes(location);
-			entry.setDisabled(!allowed);
+			/** @type {Set<string>} */
+			const modifiedInLocations = new Set();
+			for (const locationType of locationTypePriorities) {
+				const value = this.#preferencesManager.getUiValueAtLocation(id, locationType, {
+					contentWindowUuid: this.#contentWindowUuid,
+				});
+				if (value !== null) modifiedInLocations.add(this.#getLocationUiString(locationType));
+			}
+
+			if (updateTooltips) {
+				const tooltipEntries = [];
+
+				let defaultValueEntry = null;
+				let finalValueEntry = null;
+				if (type == "boolean" || type == "number" || type == "string") {
+					let defaultValue = this.#preferencesManager.getDefaultValue(id);
+					let finalValue = this.#preferencesManager.get(id, this.#contentWindowUuid);
+					if (type == "string") {
+						defaultValue = '"' + defaultValue + '"';
+						finalValue = '"' + finalValue + '"';
+					}
+					defaultValueEntry = `Default value: ${defaultValue}`;
+					finalValueEntry = `Final value: ${finalValue}`;
+				}
+
+				if (defaultValueEntry) tooltipEntries.push(defaultValueEntry);
+				if (!currentLocation) {
+					const defaultLocation = this.#getLocationUiString(this.#preferencesManager.getDefaultLocation(id));
+					tooltipEntries.push("Default location: " + defaultLocation);
+				}
+				if (modifiedInLocations.size > 0) {
+					tooltipEntries.push("Modified in: " + Array.from(modifiedInLocations).join(", "));
+				}
+				if (finalValueEntry) tooltipEntries.push(finalValueEntry);
+
+				entry.setTooltip(tooltipEntries.join("\n"));
+			}
+
+			if (updateDisabled) {
+				const allowed = !currentLocation || !allowedLocations || allowedLocations.includes(currentLocation);
+				entry.setDisabled(!allowed);
+			}
 		}
 	}
 }

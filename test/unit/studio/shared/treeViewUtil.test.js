@@ -66,7 +66,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "isPropertiesTreeViewEntry",
+	name: "PropertiesTreeViewEntry",
 	fn() {
 		runWithDom(() => {
 			const tv1 = new PropertiesTreeView();
@@ -75,6 +75,7 @@ Deno.test({
 				guiOpts: {
 					label: "label",
 				},
+				tooltip: "tooltip",
 			});
 
 			assertTreeViewStructureEquals(tv1, {
@@ -83,6 +84,7 @@ Deno.test({
 						isPropertiesEntry: true,
 						propertiesLabel: "Label",
 						propertiesType: "string",
+						propertiesTooltip: "tooltip",
 					},
 				],
 			});
@@ -99,6 +101,14 @@ Deno.test({
 				children: [
 					{
 						propertiesType: "string",
+					},
+				],
+			});
+
+			assertTreeViewStructureEquals(tv1, {
+				children: [
+					{
+						propertiesTooltip: "tooltip",
 					},
 				],
 			});
@@ -140,6 +150,16 @@ Deno.test({
 						{
 							propertiesLabel: "Label",
 							propertiesType: "boolean",
+						},
+					],
+				});
+			});
+
+			assertThrows(() => {
+				assertTreeViewStructureEquals(tv1, {
+					children: [
+						{
+							propertiesTooltip: "different",
 						},
 					],
 				});

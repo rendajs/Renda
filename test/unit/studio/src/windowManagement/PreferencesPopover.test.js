@@ -43,8 +43,16 @@ function getMocks() {
 	});
 	const globalLocation = new PreferencesLocation("global");
 	preferencesManager.addLocation(globalLocation);
+	const workspaceLocation = new PreferencesLocation("workspace");
+	preferencesManager.addLocation(workspaceLocation);
+	const versionControlLocation = new PreferencesLocation("version-control");
+	preferencesManager.addLocation(versionControlLocation);
+	const projectLocation = new PreferencesLocation("project");
+	preferencesManager.addLocation(projectLocation);
 	const contentWindowProjectLocation = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, CONTENT_WINDOW_UUID);
 	preferencesManager.addLocation(contentWindowProjectLocation);
+	const contentWindowWorkspaceLocation = new ContentWindowPreferencesLocation("contentwindow-workspace", mockWindowManager, CONTENT_WINDOW_UUID);
+	preferencesManager.addLocation(contentWindowWorkspaceLocation);
 
 	return {popoverManager, preferencesManager};
 }
@@ -65,6 +73,7 @@ Deno.test({
 						propertiesType: "boolean",
 						propertiesValue: true,
 						disabled: false,
+						propertiesTooltip: "Default value: true\nDefault location: Global\nFinal value: true",
 					},
 					{
 						propertiesLabel: "Num Pref",
@@ -72,6 +81,7 @@ Deno.test({
 						propertiesType: "number",
 						propertiesValue: 42,
 						disabled: false,
+						propertiesTooltip: "Default value: 42\nDefault location: Global\nFinal value: 42",
 					},
 					{
 						propertiesLabel: "Str Pref",
@@ -79,6 +89,7 @@ Deno.test({
 						propertiesType: "string",
 						propertiesValue: "default",
 						disabled: false,
+						propertiesTooltip: 'Default value: "default"\nDefault location: Global\nFinal value: "default"',
 					},
 					{
 						propertiesLabel: "Allowed Locations Pref",
@@ -86,6 +97,7 @@ Deno.test({
 						propertiesType: "string",
 						propertiesValue: "",
 						disabled: false,
+						propertiesTooltip: 'Default value: ""\nDefault location: Window - Project\nFinal value: ""',
 					},
 				],
 			});
@@ -205,6 +217,129 @@ Deno.test({
 			assertThrows(() => {
 				new PreferencesPopover(popoverManager, preferencesManager, ["unknownPref"], CONTENT_WINDOW_UUID);
 			}, Error, "Preferences with unknown type can not be added to PreferencesPopovers.");
+		});
+	},
+});
+
+Deno.test({
+	name: "Default location tooltip is only shown when default location is selected",
+	fn() {
+		const {popoverManager, preferencesManager} = getMocks();
+
+		runWithDom(() => {
+			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
+			popover.locationDropDown.setValue(1); // Global
+			popover.locationDropDown.el.dispatchEvent(new Event("change"));
+
+			assertTreeViewStructureEquals(popover.preferencesTreeView, {
+				children: [
+					{
+						propertiesTooltip: "Default value: true\nFinal value: true",
+					},
+					{
+						propertiesTooltip: 'Default value: ""\nFinal value: ""',
+					},
+				],
+			});
+
+			popover.locationDropDown.setValue(0); // Default
+			popover.locationDropDown.el.dispatchEvent(new Event("change"));
+			assertTreeViewStructureEquals(popover.preferencesTreeView, {
+				children: [
+					{
+						propertiesTooltip: "Default value: true\nDefault location: Global\nFinal value: true",
+					},
+					{
+						propertiesTooltip: 'Default value: ""\nDefault location: Window - Project\nFinal value: ""',
+					},
+				],
+			});
+		});
+	},
+});
+
+Deno.test({
+	name: "Shows modified locations in tooltip",
+	fn() {
+		const {popoverManager, preferencesManager} = getMocks();
+
+		runWithDom(() => {
+			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["numPref"], CONTENT_WINDOW_UUID);
+			const numEntry = popover.preferencesTreeView.children[0];
+			assertInstanceOf(numEntry, PropertiesTreeViewEntry);
+
+			assertTreeViewStructureEquals(popover.preferencesTreeView, {
+				children: [
+					{
+						propertiesTooltip: `Default value: 42
+Default location: Global
+Final value: 42`,
+					},
+				],
+			});
+
+			numEntry.setValue(123, {trigger: "user"});
+
+			assertTreeViewStructureEquals(popover.preferencesTreeView, {
+				children: [
+					{
+						propertiesTooltip: `Default value: 42
+Default location: Global
+Modified in: Global
+Final value: 123`,
+					},
+				],
+			});
+
+			popover.locationDropDown.setValue(1); // Global
+			popover.locationDropDown.el.dispatchEvent(new Event("change"));
+
+			assertTreeViewStructureEquals(popover.preferencesTreeView, {
+				children: [
+					{
+						propertiesTooltip: `Default value: 42
+Modified in: Global
+Final value: 123`,
+					},
+				],
+			});
+
+			numEntry.setValue(456, {trigger: "user"});
+
+			assertTreeViewStructureEquals(popover.preferencesTreeView, {
+				children: [
+					{
+						propertiesTooltip: `Default value: 42
+Modified in: Global
+Final value: 456`,
+					},
+				],
+			});
+
+			popover.locationDropDown.setValue(2); // Workspace
+			popover.locationDropDown.el.dispatchEvent(new Event("change"));
+
+			assertTreeViewStructureEquals(popover.preferencesTreeView, {
+				children: [
+					{
+						propertiesTooltip: `Default value: 42
+Modified in: Global
+Final value: 456`,
+					},
+				],
+			});
+
+			numEntry.setValue(789, {trigger: "user"});
+
+			assertTreeViewStructureEquals(popover.preferencesTreeView, {
+				children: [
+					{
+						propertiesTooltip: `Default value: 42
+Modified in: Global, Workspace
+Final value: 789`,
+					},
+				],
+			});
 		});
 	},
 });
