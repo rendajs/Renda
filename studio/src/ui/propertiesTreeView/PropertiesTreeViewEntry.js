@@ -53,7 +53,10 @@ export class PropertiesTreeViewEntry extends TreeView {
 		return /** @type {import("./types.ts").TreeViewEntryFactoryReturnType<T>} */ (x);
 	}
 
-	#label = "";
+	#labelText = "";
+	/** @type {HTMLDivElement | HTMLLabelElement | null} */
+	#labelEl = null;
+	#tooltipText = "";
 	#disabled = false;
 
 	/**
@@ -78,22 +81,19 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 		const hideLabel = guiOpts.hideLabel ?? false;
 		const useLabelTag = type == "boolean";
-		let labelEl = null;
+		this.#labelEl = null;
 		let labelText = "";
 		if (!hideLabel) {
 			const tagName = useLabelTag ? "label" : "div";
-			labelEl = document.createElement(tagName);
-			labelEl.classList.add("gui-tree-view-entry-label");
+			this.#labelEl = document.createElement(tagName);
+			this.#labelEl.classList.add("gui-tree-view-entry-label");
 			labelText = prettifyVariableName(guiOpts.label);
-			if (!useLabelTag) labelEl.textContent = labelText;
-			this.#label = labelText;
-			if (tooltip) {
-				labelEl.title = labelText + "\n\n" + tooltip;
-			} else {
-				labelEl.title = labelText;
-			}
-			this.customEl.appendChild(labelEl);
+			if (!useLabelTag) this.#labelEl.textContent = labelText;
+			this.#labelText = labelText;
+			this.customEl.appendChild(this.#labelEl);
 		}
+
+		this.setTooltip(tooltip);
 
 		this.valueEl = document.createElement("div");
 		this.valueEl.classList.add("gui-tree-view-entry-value");
@@ -139,9 +139,9 @@ export class PropertiesTreeViewEntry extends TreeView {
 				...guiOpts,
 			});
 			this.valueEl.appendChild(setGui.el);
-			if (labelEl) {
-				labelEl.appendChild(this.valueEl);
-				labelEl.appendChild(document.createTextNode(labelText));
+			if (this.#labelEl) {
+				this.#labelEl.appendChild(this.valueEl);
+				this.#labelEl.appendChild(document.createTextNode(labelText));
 			}
 		} else if (type == "dropdown") {
 			setGui = new DropDownGui({
@@ -216,7 +216,11 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	get label() {
-		return this.#label;
+		return this.#labelText;
+	}
+
+	get tooltip() {
+		return this.#tooltipText;
 	}
 
 	/**
@@ -230,6 +234,19 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 	get disabled() {
 		return this.#disabled;
+	}
+
+	/**
+	 * @param {string} tooltip
+	 */
+	setTooltip(tooltip) {
+		if (!this.#labelEl) return;
+		if (tooltip) {
+			this.#labelEl.title = this.#labelText + "\n\n" + tooltip;
+		} else {
+			this.#labelEl.title = this.#labelText;
+		}
+		this.#tooltipText = tooltip;
 	}
 
 	/**
