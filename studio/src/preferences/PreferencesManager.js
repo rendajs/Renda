@@ -71,7 +71,7 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
 /**
  * @type {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]}
  */
-const locationTypePriorities = [
+export const locationTypePriorities = [
 	"global",
 	"workspace",
 	"version-control",
@@ -129,7 +129,7 @@ export class PreferencesManager {
 			if (preferenceConfig.allowedLocations.length == 0) {
 				throw new Error(`Preference "${preference}" was registered with an empty allowedLocations array.`);
 			}
-			const defaultLocation = preferenceConfig.defaultLocation || "global";
+			const defaultLocation = this.getDefaultLocationFromConfig(preferenceConfig);
 			if (!preferenceConfig.allowedLocations.includes(defaultLocation)) {
 				throw new Error(`Preference "${preference}" was registered with "${defaultLocation}" as default location but this location type was missing from the allowedLocation array.`);
 			}
@@ -175,6 +175,36 @@ export class PreferencesManager {
 			uiName,
 			allowedLocations,
 		};
+	}
+
+	/**
+	 * @private
+	 * @param {PreferenceConfig} preferencesConfig
+	 */
+	getDefaultLocationFromConfig(preferencesConfig) {
+		return preferencesConfig?.defaultLocation || "global";
+	}
+
+	/**
+	 * @param {PreferenceTypesOrString} preference
+	 */
+	getDefaultLocation(preference) {
+		const config = this.#registeredPreferences.get(preference);
+		if (!config) {
+			throw new Error(`Preference "${preference}" has not been registered.`);
+		}
+		return this.getDefaultLocationFromConfig(config);
+	}
+
+	/**
+	 * @param {PreferenceTypesOrString} preference
+	 */
+	getDefaultValue(preference) {
+		const config = this.#registeredPreferences.get(preference);
+		if (!config) {
+			throw new Error(`Preference "${preference}" has not been registered.`);
+		}
+		return this.#getDefaultType(config);
 	}
 
 	/**
@@ -241,9 +271,7 @@ export class PreferencesManager {
 	#getLocationAndConfig(preference, locationOptions) {
 		const preferenceConfig = this.#registeredPreferences.get(preference);
 		if (!preferenceConfig) throw new Error(`Assertion failed, preference "${preference}" hasn't been registered`);
-		let locationType = locationOptions?.location;
-		if (!locationType) locationType = preferenceConfig.defaultLocation;
-		if (!locationType) locationType = "global";
+		const locationType = locationOptions?.location || this.getDefaultLocationFromConfig(preferenceConfig);
 		const location = this.#registeredLocations.find(location => {
 			if (location.locationType != locationType) return false;
 			if (location instanceof ContentWindowPreferencesLocation) {
