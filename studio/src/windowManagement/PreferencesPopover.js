@@ -63,7 +63,7 @@ export class PreferencesPopover extends Popover {
 		this.el.appendChild(this.preferencesTreeView.el);
 
 		for (const id of preferenceIds) {
-			const {uiName, type, allowedLocations} = preferencesManager.getPreferenceConfig(id);
+			const {uiName, type, allowedLocations} = preferencesManager.getPreferenceUiData(id);
 			if (type == "unknown") {
 				throw new Error("Preferences with unknown type can not be added to PreferencesPopovers.");
 			}

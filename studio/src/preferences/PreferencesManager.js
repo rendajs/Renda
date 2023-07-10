@@ -129,7 +129,7 @@ export class PreferencesManager {
 			if (preferenceConfig.allowedLocations.length == 0) {
 				throw new Error(`Preference "${preference}" was registered with an empty allowedLocations array.`);
 			}
-			const defaultLocation = this.getDefaultLocationFromConfig(preferenceConfig);
+			const defaultLocation = this.#getDefaultLocationFromConfig(preferenceConfig);
 			if (!preferenceConfig.allowedLocations.includes(defaultLocation)) {
 				throw new Error(`Preference "${preference}" was registered with "${defaultLocation}" as default location but this location type was missing from the allowedLocation array.`);
 			}
@@ -148,14 +148,23 @@ export class PreferencesManager {
 	}
 
 	/**
-	 * Returns configuration data for a preference that is needed to show UI.
+	 * Gets a preference config and assert that it has been registered.
 	 * @param {PreferenceTypesOrString} preference
 	 */
-	getPreferenceConfig(preference) {
+	#getPreferenceConfig(preference) {
 		const config = this.#registeredPreferences.get(preference);
 		if (!config) {
-			throw new Error(`Preference "${preference}" has not been registered.`);
+			throw new Error(`The preference "${preference}" has not been registered.`);
 		}
+		return config;
+	}
+
+	/**
+	 * Returns configuration data for a preference that is needed to show UI for this preference.
+	 * @param {PreferenceTypesOrString} preference
+	 */
+	getPreferenceUiData(preference) {
+		const config = this.#getPreferenceConfig(preference);
 		let uiName = "";
 		if (config.uiName) {
 			uiName = config.uiName;
@@ -178,10 +187,9 @@ export class PreferencesManager {
 	}
 
 	/**
-	 * @private
 	 * @param {PreferenceConfig} preferencesConfig
 	 */
-	getDefaultLocationFromConfig(preferencesConfig) {
+	#getDefaultLocationFromConfig(preferencesConfig) {
 		return preferencesConfig?.defaultLocation || "global";
 	}
 
@@ -189,22 +197,36 @@ export class PreferencesManager {
 	 * @param {PreferenceTypesOrString} preference
 	 */
 	getDefaultLocation(preference) {
-		const config = this.#registeredPreferences.get(preference);
-		if (!config) {
-			throw new Error(`Preference "${preference}" has not been registered.`);
+		const config = this.#getPreferenceConfig(preference);
+		return this.#getDefaultLocationFromConfig(config);
+	}
+
+	/**
+	 * Returns the default value from a preference config and fills it in if it doesn't exist.
+	 * @param {PreferenceConfig} preferenceConfig
+	 */
+	#getDefaultValueFromConfig(preferenceConfig) {
+		const value = preferenceConfig.default;
+		if (preferenceConfig.type == "boolean") {
+			return value || false;
+		} else if (preferenceConfig.type == "number") {
+			return value || 0;
+		} else if (preferenceConfig.type == "string") {
+			return value || "";
+		} else if (preferenceConfig.type == "unknown") {
+			return value;
+		} else {
+			const type = /** @type {any} */ (preferenceConfig).type;
+			throw new Error(`Unexpected preference type: "${type}"`);
 		}
-		return this.getDefaultLocationFromConfig(config);
 	}
 
 	/**
 	 * @param {PreferenceTypesOrString} preference
 	 */
 	getDefaultValue(preference) {
-		const config = this.#registeredPreferences.get(preference);
-		if (!config) {
-			throw new Error(`Preference "${preference}" has not been registered.`);
-		}
-		return this.#getDefaultType(config);
+		const config = this.#getPreferenceConfig(preference);
+		return this.#getDefaultValueFromConfig(config);
 	}
 
 	/**
@@ -271,7 +293,7 @@ export class PreferencesManager {
 	#getLocationAndConfig(preference, locationOptions) {
 		const preferenceConfig = this.#registeredPreferences.get(preference);
 		if (!preferenceConfig) throw new Error(`Assertion failed, preference "${preference}" hasn't been registered`);
-		const locationType = locationOptions?.location || this.getDefaultLocationFromConfig(preferenceConfig);
+		const locationType = locationOptions?.location || this.#getDefaultLocationFromConfig(preferenceConfig);
 		const location = this.#registeredLocations.find(location => {
 			if (location.locationType != locationType) return false;
 			if (location instanceof ContentWindowPreferencesLocation) {
@@ -432,26 +454,6 @@ export class PreferencesManager {
 	}
 
 	/**
-	 * Returns the default value from a preference config and fills it in if it doesn't exist.
-	 * @param {PreferenceConfig} preferenceConfig
-	 */
-	#getDefaultType(preferenceConfig) {
-		const value = preferenceConfig.default;
-		if (preferenceConfig.type == "boolean") {
-			return value || false;
-		} else if (preferenceConfig.type == "number") {
-			return value || 0;
-		} else if (preferenceConfig.type == "string") {
-			return value || "";
-		} else if (preferenceConfig.type == "unknown") {
-			return value;
-		} else {
-			const type = /** @type {any} */ (preferenceConfig).type;
-			throw new Error(`Unexpected preference type: "${type}"`);
-		}
-	}
-
-	/**
 	 * @template {PreferenceTypesOrString} T
 	 * @param {T} preference
 	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid
@@ -479,11 +481,11 @@ export class PreferencesManager {
 	} = {}) {
 		const preferenceConfig = this.#registeredPreferences.get(preference);
 		if (assertRegistered && !preferenceConfig) {
-			throw new Error(`Preference "${preference}" has not been registered.`);
+			throw new Error(`The preference "${preference}" has not been registered.`);
 		}
 		let value = null;
 		if (preferenceConfig) {
-			value = this.#getDefaultType(preferenceConfig);
+			value = this.#getDefaultValueFromConfig(preferenceConfig);
 		}
 		let foundContentWindowLocation = false;
 		for (const location of this.#registeredLocations) {
@@ -540,11 +542,7 @@ export class PreferencesManager {
 	getUiValueAtLocation(preference, locationName, {
 		contentWindowUuid,
 	} = {}) {
-		const preferenceConfig = this.#registeredPreferences.get(preference);
-		if (!preferenceConfig) {
-			throw new Error(`The preference "${preference}" has not been registered.`);
-		}
-
+		const preferenceConfig = this.#getPreferenceConfig(preference);
 		const {location} = this.#getLocationAndConfig(preference, {
 			location: locationName || undefined,
 			contentWindowUuid,
@@ -555,7 +553,7 @@ export class PreferencesManager {
 		let value = location.get(preference);
 		if (value === undefined) {
 			if (locationName == null) {
-				value = this.#getDefaultType(preferenceConfig);
+				value = this.#getDefaultValueFromConfig(preferenceConfig);
 			} else {
 				value = null;
 			}
