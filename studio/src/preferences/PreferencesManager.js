@@ -291,8 +291,7 @@ export class PreferencesManager {
 	 * @param {SetPreferenceOptions} [locationOptions]
 	 */
 	#getLocationAndConfig(preference, locationOptions) {
-		const preferenceConfig = this.#registeredPreferences.get(preference);
-		if (!preferenceConfig) throw new Error(`Assertion failed, preference "${preference}" hasn't been registered`);
+		const preferenceConfig = this.#getPreferenceConfig(preference);
 		const locationType = locationOptions?.location || this.#getDefaultLocationFromConfig(preferenceConfig);
 		const location = this.#registeredLocations.find(location => {
 			if (location.locationType != locationType) return false;
