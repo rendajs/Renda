@@ -29,6 +29,22 @@ function getMocks() {
 			type: "string",
 			default: "default",
 		},
+		guiPref: {
+			type: "gui",
+			guiOpts: {
+				type: "number",
+			},
+		},
+		guiPrefWithCustomLabel: {
+			type: "gui",
+			guiOpts: {
+				type: "string",
+				label: "This should get replaced",
+			},
+		},
+		guiPrefWithoutOpts: {
+			type: "gui",
+		},
 		unknownPref: {
 			type: "unknown",
 		},
@@ -63,7 +79,7 @@ Deno.test({
 		const {popoverManager, preferencesManager} = getMocks();
 
 		runWithDom(() => {
-			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
+			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref", "guiPref", "guiPrefWithCustomLabel", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
 
 			assertTreeViewStructureEquals(popover.preferencesTreeView, {
 				children: [
@@ -92,6 +108,22 @@ Deno.test({
 						propertiesTooltip: 'Default value: "default"\nDefault location: Global\nFinal value: "default"',
 					},
 					{
+						propertiesLabel: "Gui Pref",
+						isPropertiesEntry: true,
+						propertiesType: "number",
+						propertiesValue: undefined,
+						disabled: false,
+						propertiesTooltip: "Default location: Global",
+					},
+					{
+						propertiesLabel: "Gui Pref With Custom Label",
+						isPropertiesEntry: true,
+						propertiesType: "string",
+						propertiesValue: undefined,
+						disabled: false,
+						propertiesTooltip: "Default location: Global",
+					},
+					{
 						propertiesLabel: "Allowed Locations Pref",
 						isPropertiesEntry: true,
 						propertiesType: "string",
@@ -101,6 +133,19 @@ Deno.test({
 					},
 				],
 			});
+		});
+	},
+});
+
+Deno.test({
+	name: "Adding a gui pref with missing guiOpts throws",
+	fn() {
+		const {popoverManager, preferencesManager} = getMocks();
+
+		runWithDom(() => {
+			assertThrows(() => {
+				new PreferencesPopover(popoverManager, preferencesManager, ["guiPrefWithoutOpts"], CONTENT_WINDOW_UUID);
+			}, Error, 'Preference type of "guiPrefWithoutOpts" is "gui" but no guiOpts was set in the preference config.');
 		});
 	},
 });

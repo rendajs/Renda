@@ -6,6 +6,7 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
  * @property {boolean} boolean
  * @property {number} number
  * @property {string} string
+ * @property {unknown} gui
  * @property {unknown} unknown
  */
 
@@ -17,8 +18,10 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
 
 /**
  * @template {PreferenceValueTypes} [T = PreferenceValueTypes]
+ * @template {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions | null} [TGuiOpts = null]
  * @typedef PreferenceConfigGeneric
  * @property {T} type
+ * @property {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} [guiOpts]
  * @property {string} [uiName] The name of the setting that is shown in UI.
  * When not set, the UI name will be inferred from the setting name:
  * - If the name contains dots, only the characters after the last dot is used.
@@ -87,11 +90,22 @@ export class PreferencesManager {
 	/** @typedef {keyof TRegisteredPreferences extends string ? keyof TRegisteredPreferences : string} PreferenceTypes */
 	/** @typedef {PreferenceTypes | (string & {})} PreferenceTypesOrString */
 	/**
+	 * Takes the identifier of a preference and resolves to the type that getters and setters of this preference will use.
 	 * @template {PreferenceTypesOrString} T
-	 * @typedef {T extends PreferenceTypes ?
+	 * @typedef {T extends keyof TRegisteredPreferences ?
 	 * 	TRegisteredPreferences[T]["type"] extends infer Type ?
 	 * 		Type extends import("./PreferencesManager.js").PreferenceValueTypes ?
-	 * 			import("./PreferencesManager.js").PreferenceTypesMap[Type] :
+	 * 			Type extends "gui" ?
+	 * 				TRegisteredPreferences[T]["guiOpts"] extends infer TGuiOpts ?
+	 * 					TGuiOpts extends import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions ?
+	 * 						import("../ui/propertiesTreeView/types.js").TreeViewEntryFactoryReturnType<TGuiOpts> extends infer TGuiInstance ?
+	 * 							TGuiInstance extends {} ?
+	 * 								import("../ui/propertiesTreeView/types.js").GetValueType<TGuiInstance, any> :
+	 * 								never :
+	 * 							never :
+	 * 						never :
+	 * 					never :
+	 * 				import("./PreferencesManager.js").PreferenceTypesMap[Type] :
 	 * 			never :
 	 * 		never :
 	 * 	never} GetPreferenceType
@@ -179,8 +193,13 @@ export class PreferencesManager {
 		if (config.allowedLocations) {
 			allowedLocations = Array.from(config.allowedLocations);
 		}
+		let guiOpts = null;
+		if (config.type == "gui" && config.guiOpts) {
+			guiOpts = config.guiOpts;
+		}
 		return {
 			type: config.type,
+			guiOpts,
 			uiName,
 			allowedLocations,
 		};
@@ -213,7 +232,7 @@ export class PreferencesManager {
 			return value || 0;
 		} else if (preferenceConfig.type == "string") {
 			return value || "";
-		} else if (preferenceConfig.type == "unknown") {
+		} else if (preferenceConfig.type == "unknown" || preferenceConfig.type == "gui") {
 			return value;
 		} else {
 			const type = /** @type {any} */ (preferenceConfig).type;
