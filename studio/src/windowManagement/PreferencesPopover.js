@@ -63,16 +63,29 @@ export class PreferencesPopover extends Popover {
 		this.el.appendChild(this.preferencesTreeView.el);
 
 		for (const id of preferenceIds) {
-			const {uiName, type, allowedLocations} = preferencesManager.getPreferenceUiData(id);
+			const {uiName, type, allowedLocations, guiOpts} = preferencesManager.getPreferenceUiData(id);
 			if (type == "unknown") {
 				throw new Error("Preferences with unknown type can not be added to PreferencesPopovers.");
 			}
-			const entry = this.preferencesTreeView.addItem({
-				type,
-				guiOpts: {
-					label: uiName,
-				},
-			});
+			/** @type {import("../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} */
+			let entry;
+			if (type == "gui") {
+				if (!guiOpts) {
+					throw new Error(`Preference type of "${id}" is "gui" but no guiOpts was set in the preference config.`);
+				}
+				if (!guiOpts.guiOpts) {
+					guiOpts.guiOpts = {};
+				}
+				guiOpts.guiOpts.label = uiName;
+				entry = this.preferencesTreeView.addItem(guiOpts);
+			} else {
+				entry = this.preferencesTreeView.addItem({
+					type,
+					guiOpts: {
+						label: uiName,
+					},
+				});
+			}
 			entry.onValueChange(changeEvent => {
 				if (changeEvent.trigger != "user") return;
 				preferencesManager.set(id, entry.getValue(), {

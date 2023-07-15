@@ -95,6 +95,15 @@ testTypes({
 			numPref: {
 				type: "number",
 			},
+			guiPref: {
+				type: "gui",
+				guiOpts: {
+					type: "array",
+					guiOpts: {
+						arrayType: "number",
+					},
+				},
+			},
 		});
 
 		const boolResult = manager.get("boolPref", "uuid");
@@ -106,6 +115,11 @@ testTypes({
 		assertIsType(0, numResult);
 		// @ts-expect-error Verify that the type isn't 'any'
 		assertIsType("", numResult);
+
+		const guiResult = manager.get("guiPref", "uuid");
+		assertIsType([1, ""], guiResult);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType("", guiResult);
 	},
 });
 
@@ -127,11 +141,13 @@ Deno.test({
 			type: "boolean",
 			uiName: "Pref",
 			allowedLocations: null,
+			guiOpts: null,
 		});
 		configTest("namespace.myPreference", {type: "number"}, {
 			type: "number",
 			uiName: "My Preference",
 			allowedLocations: null,
+			guiOpts: null,
 		});
 		configTest("namespace.explicitName", {
 			type: "string",
@@ -140,6 +156,7 @@ Deno.test({
 			type: "string",
 			uiName: "Hello",
 			allowedLocations: null,
+			guiOpts: null,
 		});
 		configTest("endswithdot.", {
 			type: "string",
@@ -148,6 +165,7 @@ Deno.test({
 			type: "string",
 			uiName: "Hello",
 			allowedLocations: null,
+			guiOpts: null,
 		});
 		configTest("allowedLocations", {
 			type: "string",
@@ -156,6 +174,26 @@ Deno.test({
 			type: "string",
 			uiName: "Allowed Locations",
 			allowedLocations: ["global"],
+			guiOpts: null,
+		});
+		configTest("guiOpts.gui", {
+			type: "gui",
+			guiOpts: {
+				type: "number",
+				guiOpts: {
+					label: "This will not be removed",
+				},
+			},
+		}, {
+			type: "gui",
+			uiName: "Gui",
+			allowedLocations: null,
+			guiOpts: {
+				type: "number",
+				guiOpts: {
+					label: "This will not be removed",
+				},
+			},
 		});
 
 		const manager = new PreferencesManager();
@@ -165,6 +203,57 @@ Deno.test({
 		assertThrows(() => {
 			manager.getPreferenceUiData("endswithdot.");
 		}, Error, "Preference UI name could not be determined.");
+	},
+});
+
+Deno.test({
+	name: "preference without a default value set return the correct type",
+	fn() {
+		/**
+		 * @param {string} preferenceName
+		 * @param {import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig} config
+		 * @param {unknown} expectedResult
+		 */
+		function configTest(preferenceName, config, expectedResult) {
+			const manager = new PreferencesManager();
+			manager.registerPreference(preferenceName, config);
+			assertEquals(manager.getDefaultValue(preferenceName), expectedResult);
+		}
+
+		configTest("default", {
+			type: "boolean",
+			default: true,
+		}, true);
+		configTest("boolean", {
+			type: "boolean",
+		}, false);
+		configTest("number", {
+			type: "number",
+		}, 0);
+		configTest("string", {
+			type: "string",
+		}, "");
+		configTest("unknown", {
+			type: "unknown",
+		}, undefined);
+		configTest("unknownWithDefault", {
+			type: "unknown",
+			default: "default",
+		}, "default");
+		configTest("gui", {
+			type: "gui",
+		}, undefined);
+		configTest("guiWithDefault", {
+			type: "gui",
+			default: "default",
+		}, "default");
+
+		const manager = new PreferencesManager();
+		const castInvalidType = /** @type {"unknown"} */ ("invalid type");
+		manager.registerPreference("invalid", {type: castInvalidType});
+		assertThrows(() => {
+			manager.getDefaultValue("invalid");
+		}, Error, 'Unexpected preference type: "invalid type"');
 	},
 });
 
