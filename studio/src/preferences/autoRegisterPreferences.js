@@ -9,15 +9,6 @@ function pref(preference) {
 }
 
 const autoRegisterPreferences = /** @type {const} */ ({
-	test: pref({
-		type: "gui",
-		guiOpts: {
-			type: "array",
-			guiOpts: {
-				arrayType: "number",
-			},
-		},
-	}),
 	"entityEditor.autosaveEntities": pref({
 		type: "boolean",
 		default: true,
