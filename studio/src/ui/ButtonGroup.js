@@ -41,13 +41,22 @@ export class ButtonGroup {
 	}
 
 	/**
-	 * @param {number} buttonIndex
+	 * @param {import("./Button.js").Button | number} buttonOrIndex
 	 */
-	removeButton(buttonIndex) {
-		const button = this.buttons[buttonIndex];
-		if (!button) return;
+	removeButton(buttonOrIndex) {
+		let button;
+		let index;
+		if (typeof buttonOrIndex == "number") {
+			button = this.buttons[buttonOrIndex];
+			index = buttonOrIndex;
+			if (!button) return;
+		} else {
+			button = buttonOrIndex;
+			index = this.buttons.indexOf(button);
+			if (index == -1) return;
+		}
 
-		this.buttons.splice(buttonIndex, 1);
+		this.buttons.splice(index, 1);
 		this.el.removeChild(button.el);
 		button.removeOnContextMenu(this.boundFireContextMenuCbs);
 		button.removeOnVisibilityChange(this.#updateFirstLastButtonClasses);
