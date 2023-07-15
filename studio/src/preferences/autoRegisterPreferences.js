@@ -1,3 +1,7 @@
+import {ProjectAssetTypeEntity} from "../assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeHtml} from "../assets/projectAssetType/ProjectAssetTypeHtml.js";
+import {ProjectAssetTypeJavascript} from "../assets/projectAssetType/ProjectAssetTypeJavascript.js";
+
 /**
  * Takes a preference type and returns it as const.
  * This only exists to make autocompletions work.
@@ -50,14 +54,42 @@ const autoRegisterPreferences = /** @type {const} */ ({
 		defaultLocation: "project",
 		allowedLocations: ["project"],
 	}),
-	"buildView.availableEntryPoints": pref({
-		type: "unknown",
+	"buildView.availableScriptEntryPoints": pref({
+		type: "gui",
 		allowedLocations: ["project", "version-control", "contentwindow-project"],
 		defaultLocation: "version-control",
+		guiOpts: {
+			type: "array",
+			guiOpts: {
+				arrayType: "droppable",
+				arrayGuiOpts: {
+					supportedAssetTypes: [ProjectAssetTypeHtml, ProjectAssetTypeJavascript],
+				},
+			},
+		},
+	}),
+	"buildView.availableEntityEntryPoints": pref({
+		type: "gui",
+		allowedLocations: ["project", "version-control", "contentwindow-project"],
+		defaultLocation: "version-control",
+		guiOpts: {
+			type: "array",
+			guiOpts: {
+				arrayType: "droppable",
+				arrayGuiOpts: {
+					supportedAssetTypes: [ProjectAssetTypeEntity],
+				},
+			},
+		},
 	}),
 	"buildView.selectedEntryPoint": pref({
 		type: "string",
-		allowedLocations: ["project", "version-control", "contentwindow-project"],
+		allowedLocations: ["contentwindow-project"],
+		defaultLocation: "contentwindow-project",
+	}),
+	"buildView.selectedEntityEntryPoint": pref({
+		type: "string",
+		allowedLocations: ["contentwindow-project"],
 		defaultLocation: "contentwindow-project",
 	}),
 });

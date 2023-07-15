@@ -23,6 +23,13 @@ export class ContentWindowBuildView extends ContentWindow {
 	constructor(...args) {
 		super(...args);
 
+		this.addPreferencesButton([
+			"buildView.availableEntityEntryPoints",
+			"buildView.availableScriptEntryPoints",
+		], {
+			needsCurtain: false,
+		});
+
 		this.setContentBehindTopBar(true);
 
 		this.isRunning = false;

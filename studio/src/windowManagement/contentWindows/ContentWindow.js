@@ -213,8 +213,12 @@ export class ContentWindow {
 	 * The preferences button opens a popover with the provided list of preferences.
 	 * This can only be called once for each content window.
 	 * @param {import("../../preferences/autoRegisterPreferences.js").AutoRegisterPreferenceTypes[]} preferenceIds
+	 * @param {object} [options]
+	 * @param {boolean} [options.needsCurtain]
 	 */
-	addPreferencesButton(...preferenceIds) {
+	addPreferencesButton(preferenceIds, {
+		needsCurtain = true,
+	} = {}) {
 		if (this.#preferencesButton) {
 			throw new Error("A preferences button has already been added.");
 		}
@@ -223,7 +227,9 @@ export class ContentWindow {
 			icon: "static/icons/preferences.svg",
 			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 		}, () => {
-			return this.studioInstance.popoverManager.addPopover(PreferencesPopover, this.studioInstance.preferencesManager, preferenceIds, this.uuid);
+			const popover = this.studioInstance.popoverManager.addPopover(PreferencesPopover, this.studioInstance.preferencesManager, preferenceIds, this.uuid);
+			popover.setNeedsCurtain(needsCurtain);
+			return popover;
 		});
 
 		this.#preferencesButton = button;

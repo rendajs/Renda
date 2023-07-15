@@ -39,12 +39,12 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		this.setContentBehindTopBar(true);
 
-		this.addPreferencesButton(
+		this.addPreferencesButton([
 			"entityEditor.autosaveEntities",
 			"entityEditor.invertScrollOrbitX",
 			"entityEditor.invertScrollOrbitY",
-			"entityEditor.showGrid"
-		);
+			"entityEditor.showGrid",
+		]);
 
 		this.entitySavingManager = new EntitySavingManager(this.studioInstance, this);
 		this.addTopBarEl(this.entitySavingManager.saveEntityButton.el);

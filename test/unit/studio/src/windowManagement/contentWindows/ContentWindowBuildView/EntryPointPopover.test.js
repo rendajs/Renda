@@ -19,7 +19,7 @@ function basicTest() {
 	const windowManager = /** @type {import("../../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 
 	const preferencesManager = new PreferencesManager({
-		"buildView.availableEntryPoints": {
+		"buildView.availableScriptEntryPoints": {
 			type: "unknown",
 		},
 		"buildView.selectedEntryPoint": {
