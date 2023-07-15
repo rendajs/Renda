@@ -530,7 +530,7 @@ export class PreferencesManager {
 					} else if (preferenceConfig.type == "string" && typeof locationValue == "string") {
 						value = locationValue;
 						break;
-					} else if (preferenceConfig.type == "unknown") {
+					} else if (preferenceConfig.type == "unknown" || preferenceConfig.type == "gui") {
 						value = locationValue;
 						break;
 					}
