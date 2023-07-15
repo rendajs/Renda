@@ -60,6 +60,16 @@ function createManager() {
 			type: "unknown",
 			default: [1, 2, 3],
 		}),
+		guiPref: pref({
+			type: "gui",
+			guiOpts: {
+				type: "array",
+				guiOpts: {
+					arrayType: "number",
+				},
+			},
+			default: [1, 2, 3],
+		}),
 	});
 
 	const mockWindowManager = createMockWindowManager();
@@ -314,6 +324,7 @@ Deno.test({
 		assertEquals(manager.get("workspacePref", null), "default");
 		assertEquals(manager.get("unknownPref1", null), {some: "data"});
 		assertEquals(manager.get("unknownPref2", null), [1, 2, 3]);
+		assertEquals(manager.get("guiPref", null), [1, 2, 3]);
 
 		manager.set("boolPref1", true);
 		manager.set("boolPref2", false);
@@ -323,6 +334,7 @@ Deno.test({
 		manager.set("workspacePref", "str2");
 		manager.set("unknownPref1", {someOther: "data"});
 		manager.set("unknownPref2", {not: "an array"});
+		manager.set("guiPref", [4, 5, 6]);
 
 		const boolPref1 = manager.get("boolPref1", null);
 		assertEquals(boolPref1, true);
@@ -333,6 +345,7 @@ Deno.test({
 		assertEquals(manager.get("workspacePref", null), "str2");
 		assertEquals(manager.get("unknownPref1", null), {someOther: "data"});
 		assertEquals(manager.get("unknownPref2", null), {not: "an array"});
+		assertEquals(manager.get("guiPref", null), [4, 5, 6]);
 
 		// Verify that the type is a boolean and nothing else
 		assertIsType(true, boolPref1);
