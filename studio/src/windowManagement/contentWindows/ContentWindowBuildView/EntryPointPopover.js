@@ -44,7 +44,7 @@ function getEntityEntryPointsPreference(preferencesManager, contentWindowUuid) {
  * @returns {import("../../../../../src/mod.js").UuidString?}
  */
 export function getSelectedEntryPoint(preferencesManager, contentWindowUuid) {
-	const selectedUuid = preferencesManager.get("buildView.selectedEntryPoint", contentWindowUuid);
+	const selectedUuid = preferencesManager.get("buildView.selectedScriptEntryPoint", contentWindowUuid);
 	if (selectedUuid && typeof selectedUuid == "string") {
 		return selectedUuid;
 	}
@@ -85,7 +85,7 @@ export class EntryPointPopover extends Popover {
 			entryPointUuids: entityEntryPointUuids,
 		});
 		this.#createSelector({
-			selectedPreferenceId: "buildView.selectedEntryPoint",
+			selectedPreferenceId: "buildView.selectedScriptEntryPoint",
 			label: "Script",
 			tooltip: "The script that will be loaded when pressing play. By default, a script with basic functionality is used. You can add additional entry points in the preferences menu.",
 			defaultText: "Default",

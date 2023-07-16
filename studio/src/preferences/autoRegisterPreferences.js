@@ -82,7 +82,7 @@ const autoRegisterPreferences = /** @type {const} */ ({
 			},
 		},
 	}),
-	"buildView.selectedEntryPoint": pref({
+	"buildView.selectedScriptEntryPoint": pref({
 		type: "string",
 		allowedLocations: ["contentwindow-project"],
 		defaultLocation: "contentwindow-project",
