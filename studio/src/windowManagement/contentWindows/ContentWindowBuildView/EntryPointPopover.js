@@ -1,6 +1,8 @@
 import {Popover} from "../../../ui/popoverMenus/Popover.js";
 import {PropertiesTreeView} from "../../../ui/propertiesTreeView/PropertiesTreeView.js";
 
+export const BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID = "5a328430-e3bc-4eda-afab-789f00439f81";
+
 /**
  * @param {import("../../../Studio.js").Studio["preferencesManager"]} preferencesManager
  * @param {import("../../../../../src/mod.js").UuidString} contentWindowUuid
@@ -43,12 +45,12 @@ function getEntityEntryPointsPreference(preferencesManager, contentWindowUuid) {
  * @returns {import("../../../../../src/mod.js").UuidString?}
  */
 export function getSelectedScriptEntryPoint(preferencesManager, contentWindowUuid) {
+	const entryPoints = getEntryPointsPreference(preferencesManager, contentWindowUuid);
 	const selectedUuid = preferencesManager.get("buildView.selectedScriptEntryPoint", contentWindowUuid);
-	if (selectedUuid && typeof selectedUuid == "string") {
+	if (selectedUuid && typeof selectedUuid == "string" && entryPoints.includes(selectedUuid)) {
 		return selectedUuid;
 	}
-	const entryPoints = getEntryPointsPreference(preferencesManager, contentWindowUuid);
-	return entryPoints[0] || null;
+	return BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID;
 }
 
 /**

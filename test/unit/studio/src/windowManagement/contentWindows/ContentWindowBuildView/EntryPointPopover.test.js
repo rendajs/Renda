@@ -2,7 +2,7 @@ import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {PreferencesManager} from "../../../../../../../studio/src/preferences/PreferencesManager.js";
 import {ContentWindowPreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {injectMockStudioInstance} from "../../../../../../../studio/src/studioInstance.js";
-import {EntryPointPopover, getSelectedEntityEntryPoint, getSelectedScriptEntryPoint} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/EntryPointPopover.js";
+import {BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID, EntryPointPopover, getSelectedEntityEntryPoint, getSelectedScriptEntryPoint} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/EntryPointPopover.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {PreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
@@ -269,3 +269,34 @@ Deno.test({
 		}
 	},
 });
+
+Deno.test({
+	name: "getSelectedScriptEntryPoint() returns the right value",
+	fn() {
+		const {preferencesManager, uninstall} = basicTest();
+		try {
+			preferencesManager.set("buildView.availableScriptEntryPoints", [
+				ENTRY_POINT_UUID_1,
+				ENTRY_POINT_UUID_2,
+			]);
+
+			// When no entry point has been selected, it should return the built in asset uuid.
+			preferencesManager.reset("buildView.selectedScriptEntryPoint");
+			assertEquals(getSelectedScriptEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID);
+
+			// Same for an empty string
+			preferencesManager.set("buildView.selectedScriptEntryPoint", "");
+			assertEquals(getSelectedScriptEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID);
+
+			// But when it has been selected, it should return that uuid
+			preferencesManager.set("buildView.selectedScriptEntryPoint", ENTRY_POINT_UUID_2);
+			assertEquals(getSelectedScriptEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), ENTRY_POINT_UUID_2);
+
+			// Unless that uuid does not exist in the buildView.availableScriptEntryPoints list.
+			preferencesManager.set("buildView.selectedScriptEntryPoint", ENTRY_POINT_UUID_3);
+			assertEquals(getSelectedScriptEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID);
+		} finally {
+			uninstall();
+		}
+	}
+})
