@@ -1,4 +1,3 @@
-import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {Popover} from "../../../ui/popoverMenus/Popover.js";
 import {PropertiesTreeView} from "../../../ui/propertiesTreeView/PropertiesTreeView.js";
 
@@ -43,8 +42,22 @@ function getEntityEntryPointsPreference(preferencesManager, contentWindowUuid) {
  * @param {import("../../../../../src/mod.js").UuidString} contentWindowUuid
  * @returns {import("../../../../../src/mod.js").UuidString?}
  */
-export function getSelectedEntryPoint(preferencesManager, contentWindowUuid) {
+export function getSelectedScriptEntryPoint(preferencesManager, contentWindowUuid) {
 	const selectedUuid = preferencesManager.get("buildView.selectedScriptEntryPoint", contentWindowUuid);
+	if (selectedUuid && typeof selectedUuid == "string") {
+		return selectedUuid;
+	}
+	const entryPoints = getEntryPointsPreference(preferencesManager, contentWindowUuid);
+	return entryPoints[0] || null;
+}
+
+/**
+ * @param {import("../../../Studio.js").Studio["preferencesManager"]} preferencesManager
+ * @param {import("../../../../../src/mod.js").UuidString} contentWindowUuid
+ * @returns {import("../../../../../src/mod.js").UuidString?}
+ */
+export function getSelectedEntityEntryPoint(preferencesManager, contentWindowUuid) {
+	const selectedUuid = preferencesManager.get("buildView.selectedEntityEntryPoint", contentWindowUuid);
 	if (selectedUuid && typeof selectedUuid == "string") {
 		return selectedUuid;
 	}
@@ -56,7 +69,6 @@ export class EntryPointPopover extends Popover {
 	#assetManager;
 	#preferencesManager;
 	#contentWindowUuid;
-	#treeView;
 
 	/**
 	 * @param {ConstructorParameters<typeof Popover>[0]} popoverManager
@@ -71,8 +83,8 @@ export class EntryPointPopover extends Popover {
 		this.#preferencesManager = preferencesManager;
 		this.#contentWindowUuid = contentWindowUuid;
 
-		this.#treeView = new PropertiesTreeView();
-		this.el.appendChild(this.#treeView.el);
+		this.treeView = new PropertiesTreeView();
+		this.el.appendChild(this.treeView.el);
 
 		const entityEntryPointUuids = getEntityEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
 		const entryPointUuids = getEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
@@ -102,7 +114,7 @@ export class EntryPointPopover extends Popover {
 	 * @param {import("../../../../../src/mod.js").UuidString[]} options.entryPointUuids
 	 */
 	#createSelector({selectedPreferenceId, label, tooltip, defaultText, entryPointUuids}) {
-		const entry = this.#treeView.addItem({
+		const entry = this.treeView.addItem({
 			type: "buttonSelector",
 			guiOpts: {
 				label,

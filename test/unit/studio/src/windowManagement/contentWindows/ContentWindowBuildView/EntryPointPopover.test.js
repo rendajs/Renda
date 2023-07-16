@@ -1,11 +1,14 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {PreferencesManager} from "../../../../../../../studio/src/preferences/PreferencesManager.js";
 import {ContentWindowPreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {injectMockStudioInstance} from "../../../../../../../studio/src/studioInstance.js";
-import {EntryPointPopover, getSelectedEntryPoint} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/EntryPointPopover.js";
+import {EntryPointPopover, getSelectedEntityEntryPoint, getSelectedScriptEntryPoint} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/EntryPointPopover.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {PreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
+import {assertTreeViewStructureEquals} from "../../../../shared/treeViewUtil.js";
+import {PropertiesTreeViewEntry} from "../../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
+import {ButtonSelectorGui} from "../../../../../../../studio/src/ui/ButtonSelectorGui.js";
 
 const DEFAULT_CONTENT_WINDOW_UUID = "content window uuid";
 const ENTRY_POINT_UUID_1 = "entry point uuid 1";
@@ -20,9 +23,27 @@ function basicTest() {
 
 	const preferencesManager = new PreferencesManager({
 		"buildView.availableScriptEntryPoints": {
-			type: "unknown",
+			type: "gui",
+			guiOpts: {
+				type: "array",
+				guiOpts: {
+					arrayType: "droppable",
+				},
+			},
 		},
-		"buildView.selectedEntryPoint": {
+		"buildView.availableEntityEntryPoints": {
+			type: "gui",
+			guiOpts: {
+				type: "array",
+				guiOpts: {
+					arrayType: "droppable",
+				},
+			},
+		},
+		"buildView.selectedScriptEntryPoint": {
+			type: "string",
+		},
+		"buildView.selectedEntityEntryPoint": {
 			type: "string",
 		},
 	});
@@ -67,13 +88,70 @@ function basicTest() {
 	};
 }
 
+/**
+ * @param {import("../../../../../../../studio/src/ui/TreeView.js").TreeView} treeView
+ */
+function getTreeViewGuis(treeView) {
+	const entityEntry = treeView.children[0];
+	assertInstanceOf(entityEntry, PropertiesTreeViewEntry);
+	const entityGui = entityEntry.gui;
+	assertInstanceOf(entityGui, ButtonSelectorGui);
+
+	const scriptEntry = treeView.children[1];
+	assertInstanceOf(scriptEntry, PropertiesTreeViewEntry);
+	const scriptGui = scriptEntry.gui;
+	assertInstanceOf(scriptGui, ButtonSelectorGui);
+
+	return {entityGui, scriptGui};
+}
+
+/**
+ * @param {import("../../../../../../../studio/src/ui/TreeView.js").TreeView} treeView
+ * @param {object} options
+ * @param {string} options.entityValue
+ * @param {string} options.scriptValue
+ * @param {import("../../../../../../../studio/src/ui/ButtonSelectorGui.js").ButtonSelectorGuiOptionsItem[]} options.entityItems
+ * @param {import("../../../../../../../studio/src/ui/ButtonSelectorGui.js").ButtonSelectorGuiOptionsItem[]} options.scriptItems
+ */
+function assertTreeViewState(treeView, {
+	entityValue,
+	scriptValue,
+	entityItems,
+	scriptItems,
+}) {
+	assertTreeViewStructureEquals(treeView, {
+		children: [
+			{
+				isPropertiesEntry: true,
+				propertiesLabel: "Entity",
+				propertiesType: "buttonSelector",
+				propertiesValue: entityValue,
+			},
+			{
+				isPropertiesEntry: true,
+				propertiesLabel: "Script",
+				propertiesType: "buttonSelector",
+				propertiesValue: scriptValue,
+			},
+		],
+	});
+	const {entityGui, scriptGui} = getTreeViewGuis(treeView);
+	assertEquals(entityGui.items, entityItems);
+	assertEquals(scriptGui.items, scriptItems);
+}
+
 Deno.test({
 	name: "Starts with an empty list",
 	fn() {
 		const {args, uninstall} = basicTest();
 		try {
 			const popover = new EntryPointPopover(...args);
-			assertEquals(popover.currentSelector, null);
+			assertTreeViewState(popover.treeView, {
+				entityValue: "Current Entity",
+				scriptValue: "Default",
+				entityItems: ["Current Entity"],
+				scriptItems: ["Default"],
+			});
 		} finally {
 			uninstall();
 		}
@@ -81,24 +159,33 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Has the first entry selected when no preference exists",
+	name: "Has the default entries selected when no preference exists",
 	async fn() {
 		const {args, preferencesManager, uninstall} = basicTest();
 		try {
-			preferencesManager.set("buildView.availableEntryPoints", [
+			preferencesManager.set("buildView.availableEntityEntryPoints", [
 				ENTRY_POINT_UUID_1,
 				ENTRY_POINT_UUID_2,
 			]);
-			preferencesManager.set("buildView.selectedEntryPoint", "");
+			preferencesManager.reset("buildView.selectedEntityEntryPoint");
+			preferencesManager.set("buildView.availableScriptEntryPoints", [ENTRY_POINT_UUID_3]);
+			preferencesManager.reset("buildView.selectedScriptEntryPoint");
+
 			const popover = new EntryPointPopover(...args);
 			await waitForMicrotasks();
-			assertExists(popover.currentSelector);
-			assertEquals(popover.currentSelector.items, [
-				"asset1.json",
-				"asset2.json",
-			]);
-			assertEquals(popover.currentSelector.value, "asset1.json");
-			assertEquals(getSelectedEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), ENTRY_POINT_UUID_1);
+			assertTreeViewState(popover.treeView, {
+				entityValue: "Current Entity",
+				scriptValue: "Default",
+				entityItems: [
+					"Current Entity",
+					"asset1.json",
+					"asset2.json",
+				],
+				scriptItems: [
+					"Default",
+					"filename.json",
+				],
+			});
 		} finally {
 			uninstall();
 		}
@@ -110,25 +197,39 @@ Deno.test({
 	async fn() {
 		const {args, preferencesManager, uninstall} = basicTest();
 		try {
-			preferencesManager.set("buildView.availableEntryPoints", [
+			preferencesManager.set("buildView.availableEntityEntryPoints", [
 				ENTRY_POINT_UUID_1,
 				ENTRY_POINT_UUID_2,
 				ENTRY_POINT_UUID_3,
 				ENTRY_POINT_UUID_4,
 				ENTRY_POINT_UUID_5,
 			]);
-			preferencesManager.set("buildView.selectedEntryPoint", ENTRY_POINT_UUID_2);
+			preferencesManager.set("buildView.selectedEntityEntryPoint", ENTRY_POINT_UUID_2);
+
+			preferencesManager.set("buildView.availableScriptEntryPoints", [
+				ENTRY_POINT_UUID_1,
+				ENTRY_POINT_UUID_2,
+			]);
+			preferencesManager.set("buildView.selectedScriptEntryPoint", ENTRY_POINT_UUID_1);
+
 			const popover = new EntryPointPopover(...args);
 			await waitForMicrotasks();
-			assertExists(popover.currentSelector);
-			assertEquals(popover.currentSelector.items, [
-				"asset1.json",
-				"asset2.json",
-				"path/with/same/filename.json",
-				"other/path/with/same/filename.json",
-			]);
-			assertEquals(popover.currentSelector.value, "asset2.json");
-			assertEquals(getSelectedEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), ENTRY_POINT_UUID_2);
+			assertTreeViewState(popover.treeView, {
+				entityValue: "asset2.json",
+				scriptValue: "asset1.json",
+				entityItems: [
+					"Current Entity",
+					"asset1.json",
+					"asset2.json",
+					"path/with/same/filename.json",
+					"other/path/with/same/filename.json",
+				],
+				scriptItems: [
+					"Default",
+					"asset1.json",
+					"asset2.json",
+				],
+			});
 		} finally {
 			uninstall();
 		}
@@ -140,16 +241,25 @@ Deno.test({
 	async fn() {
 		const {args, preferencesManager, uninstall} = basicTest();
 		try {
-			preferencesManager.set("buildView.availableEntryPoints", [
+			preferencesManager.set("buildView.availableEntityEntryPoints", [
 				ENTRY_POINT_UUID_1,
 				ENTRY_POINT_UUID_2,
 			]);
-			preferencesManager.set("buildView.selectedEntryPoint", "");
+			preferencesManager.set("buildView.selectedEntityEntryPoint", "");
+
+			preferencesManager.set("buildView.availableScriptEntryPoints", [
+				ENTRY_POINT_UUID_1,
+				ENTRY_POINT_UUID_2,
+			]);
+			preferencesManager.set("buildView.selectedScriptEntryPoint", "");
+
 			const popover = new EntryPointPopover(...args);
 			await waitForMicrotasks();
-			assertExists(popover.currentSelector);
-			popover.currentSelector.setValue("asset2.json");
-			assertEquals(getSelectedEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), ENTRY_POINT_UUID_2);
+			const {entityGui, scriptGui} = getTreeViewGuis(popover.treeView);
+			entityGui.setValue("asset2.json");
+			scriptGui.setValue("asset2.json");
+			assertEquals(getSelectedEntityEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), ENTRY_POINT_UUID_2);
+			assertEquals(getSelectedScriptEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), ENTRY_POINT_UUID_2);
 		} finally {
 			uninstall();
 		}

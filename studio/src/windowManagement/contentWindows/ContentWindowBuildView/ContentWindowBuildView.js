@@ -1,7 +1,7 @@
 import {ContentWindow} from "../ContentWindow.js";
 import {Button} from "../../../ui/Button.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
-import {EntryPointPopover, getSelectedEntryPoint} from "./EntryPointPopover.js";
+import {EntryPointPopover, getSelectedScriptEntryPoint} from "./EntryPointPopover.js";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
@@ -140,7 +140,7 @@ export class ContentWindowBuildView extends ContentWindow {
 			if (!assetManager) {
 				throw new Error("Assertion failed, no asset manager");
 			}
-			const entryPointUuid = getSelectedEntryPoint(this.studioInstance.preferencesManager, this.uuid);
+			const entryPointUuid = getSelectedScriptEntryPoint(this.studioInstance.preferencesManager, this.uuid);
 			if (!entryPointUuid) {
 				throw new Error("Assertion failed, no entry point has been selected");
 			}

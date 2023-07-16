@@ -50,7 +50,7 @@ export class ButtonSelectorGui {
 	/** @type {Button[]} */
 	#buttons = [];
 	/** @type {ButtonSelectorGuiOptionsItem[]} */
-	#items = [];
+	items = [];
 	#buttonGroup;
 
 	/**
@@ -95,7 +95,7 @@ export class ButtonSelectorGui {
 			this.#buttonGroup.removeButton(button);
 		}
 		this.#buttons = [];
-		this.#items = items;
+		this.items = items;
 
 		for (const [i, item] of items.entries()) {
 			/** @type {import("./Button.js").ButtonGuiOptions} */
@@ -139,9 +139,9 @@ export class ButtonSelectorGui {
 		if (value == null) {
 			index = -1;
 		} else if (typeof value == "string") {
-			index = this.#items.indexOf(value);
+			index = this.items.indexOf(value);
 		} else {
-			if (value >= 0 && value < this.#items.length) {
+			if (value >= 0 && value < this.items.length) {
 				index = value;
 			} else {
 				index = -1;
@@ -193,7 +193,7 @@ export class ButtonSelectorGui {
 		if (getIndex) {
 			returnValue = getNullOrIndex();
 		} else {
-			const item = this.#items[this.currentValueIndex];
+			const item = this.items[this.currentValueIndex];
 			if (!item) {
 				returnValue = null;
 			} else if (typeof item == "string") {
