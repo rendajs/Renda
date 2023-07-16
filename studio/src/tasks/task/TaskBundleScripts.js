@@ -85,9 +85,12 @@ export class TaskBundleScripts extends Task {
 		const assetManager = this.studioInstance.projectManager.assertAssetManagerExists();
 		const inputPaths = [];
 		for (const entryPoint of entryPoints) {
-			const path = await assetManager.getAssetPathFromUuid(entryPoint);
-			if (path) {
-				inputPaths.push(path.join("/"));
+			const asset = await assetManager.getProjectAssetFromUuid(entryPoint);
+			if (asset) {
+				if (asset.isBuiltIn) {
+					throw new Error("Bundling built-in script assets are not yet supported.");
+				}
+				inputPaths.push(asset.path.join("/"));
 			}
 		}
 		const result = await this.#messenger.send.bundle({

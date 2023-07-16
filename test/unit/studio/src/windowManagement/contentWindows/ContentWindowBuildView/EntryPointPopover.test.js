@@ -52,20 +52,24 @@ function basicTest() {
 	preferencesManager.addLocation(preferencesLocation);
 
 	const assetManager = /** @type {import("../../../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({
-		async getAssetPathFromUuid(uuid) {
+		async getProjectAssetFromUuid(uuid) {
+			let path;
 			if (uuid == ENTRY_POINT_UUID_1) {
-				return ["path", "to", "asset1.json"];
+				path = ["path", "to", "asset1.json"];
 			} else if (uuid == ENTRY_POINT_UUID_2) {
-				return ["path", "to", "asset2.json"];
+				path = ["path", "to", "asset2.json"];
 			} else if (uuid == ENTRY_POINT_UUID_3) {
-				return ["path", "with", "same", "filename.json"];
+				path = ["path", "with", "same", "filename.json"];
 			} else if (uuid == ENTRY_POINT_UUID_4) {
-				return ["other", "path", "with", "same", "filename.json"];
+				path = ["other", "path", "with", "same", "filename.json"];
 			} else if (uuid == ENTRY_POINT_UUID_5) {
 				// Non existent assets shouldn't show up in the list
 				return null;
 			}
-			return null;
+			if (!path) return null;
+			return /** @type {import("../../../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({
+				path,
+			});
 		},
 	});
 

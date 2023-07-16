@@ -647,21 +647,6 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../../../src/mod.js").UuidString} uuid
-	 */
-	async getAssetPathFromUuid(uuid) {
-		await this.loadAssetSettings(true);
-		const asset = this.projectAssets.get(uuid);
-		if (!asset) {
-			if (this.builtInAssets.has(uuid)) {
-				throw new Error("Getting asset path from built-in assets is not supported.");
-			}
-			return null;
-		}
-		return asset.path.slice();
-	}
-
-	/**
 	 * @param {string[]} path1
 	 * @param {string[]} path2
 	 */

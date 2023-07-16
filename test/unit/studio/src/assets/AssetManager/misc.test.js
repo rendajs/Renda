@@ -175,14 +175,3 @@ testTypes({
 		assertIsType(true, uuid2);
 	},
 });
-
-Deno.test({
-	name: "getAssetPathFromUuid()",
-	async fn() {
-		const {assetManager} = await basicSetup();
-
-		const path = await assetManager.getAssetPathFromUuid(BASIC_ASSET_UUID);
-
-		assertEquals(path, BASIC_ASSET_PATH);
-	},
-});

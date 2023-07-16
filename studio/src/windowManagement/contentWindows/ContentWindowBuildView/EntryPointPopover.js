@@ -146,10 +146,10 @@ export class EntryPointPopover extends Popover {
 			/** @type {Set<string>} */
 			const duplicateFileNames = new Set();
 			for (const uuid of entryPointUuids) {
-				const path = await this.#assetManager.getAssetPathFromUuid(uuid);
-				if (!path) continue;
-				const fullPath = path.join("/");
-				const fileName = path.at(-1) || "";
+				const asset = await this.#assetManager.getProjectAssetFromUuid(uuid);
+				if (!asset) continue;
+				const fullPath = asset.path.join("/");
+				const fileName = asset.path.at(-1) || "";
 				itemDatas.push({uuid, fullPath, fileName});
 				if (fileNames.has(fileName)) {
 					duplicateFileNames.add(fileName);
