@@ -18,6 +18,19 @@ function createOnChangeSpy(gui) {
 	return spyFn;
 }
 
+/**
+ * @param {ButtonSelectorGui} gui
+ * @param {boolean[]} highlights
+ */
+function testSelectedHighlights(gui, highlights) {
+	assertEquals(gui.el.childElementCount, highlights.length);
+	for (let i = 0; i < highlights.length; i++) {
+		const button = gui.el.children[i];
+		const highlight = highlights[i];
+		assertEquals(button.classList.contains("selected"), highlight);
+	}
+}
+
 Deno.test({
 	name: "allowSelectNone true",
 	fn() {
@@ -199,7 +212,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "list of items",
+	name: "Clicking buttons",
 	fn() {
 		runWithDom(() => {
 			const gui = new ButtonSelectorGui({
@@ -388,6 +401,137 @@ Deno.test({
 			assertThrows(() => {
 				gui2.setValue(100);
 			}, Error, `100" is not a valid value for this selector gui`);
+		});
+	},
+});
+
+Deno.test({
+	name: "setItems()",
+	fn() {
+		runWithDom(() => {
+			const gui = new ButtonSelectorGui({
+				items: [
+					"First",
+					"Second",
+				],
+			});
+			const spyFn = createOnChangeSpy(gui);
+
+			assertEquals(gui.value, "First");
+			testSelectedHighlights(gui, [true, false]);
+
+			gui.setValue("Second");
+			assertSpyCalls(spyFn, 1);
+			assertSpyCall(spyFn, 0, {
+				args: [
+					{
+						value: "Second",
+						trigger: "application",
+					},
+				],
+			});
+			testSelectedHighlights(gui, [false, true]);
+
+			gui.setItems([
+				"First",
+				"Second",
+				"Third",
+			]);
+
+			assertSpyCalls(spyFn, 2);
+			assertSpyCall(spyFn, 1, {
+				args: [
+					{
+						value: "First",
+						trigger: "application",
+					},
+				],
+			});
+			assertEquals(gui.value, "First");
+			testSelectedHighlights(gui, [true, false, false]);
+
+			gui.setItems([
+				"Different",
+				"Also different",
+			]);
+
+			assertSpyCalls(spyFn, 3);
+			assertSpyCall(spyFn, 2, {
+				args: [
+					{
+						value: "Different",
+						trigger: "application",
+					},
+				],
+			});
+			assertEquals(gui.value, "Different");
+			testSelectedHighlights(gui, [true, false]);
+		});
+	},
+});
+
+Deno.test({
+	name: "setItems() with allowSelectNone: true",
+	fn() {
+		runWithDom(() => {
+			const gui = new ButtonSelectorGui({
+				items: [
+					"First",
+					"Second",
+				],
+				allowSelectNone: true,
+			});
+			const spyFn = createOnChangeSpy(gui);
+
+			assertEquals(gui.value, null);
+			testSelectedHighlights(gui, [false, false]);
+
+			gui.setValue("Second");
+			assertSpyCalls(spyFn, 1);
+			assertSpyCall(spyFn, 0, {
+				args: [
+					{
+						value: "Second",
+						trigger: "application",
+					},
+				],
+			});
+			testSelectedHighlights(gui, [false, true]);
+
+			gui.setItems([
+				"First",
+				"Second",
+				"Third",
+			]);
+
+			assertSpyCalls(spyFn, 2);
+			assertSpyCall(spyFn, 1, {
+				args: [
+					{
+						value: null,
+						trigger: "application",
+					},
+				],
+			});
+			assertEquals(gui.value, null);
+			testSelectedHighlights(gui, [false, false, false]);
+
+			gui.setItems([
+				"Different",
+				"Also different",
+			]);
+
+			assertSpyCalls(spyFn, 3);
+			assertSpyCall(spyFn, 2, {
+				args: [
+					{
+						value: null,
+						trigger: "application",
+					},
+				],
+			});
+			assertEquals(gui.value, null);
+			testSelectedHighlights(gui, [false, false]);
 		});
 	},
 });
