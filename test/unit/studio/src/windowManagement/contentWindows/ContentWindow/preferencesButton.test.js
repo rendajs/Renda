@@ -3,24 +3,10 @@ import {runWithDom} from "../../../../shared/runWithDom.js";
 import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {PreferencesManager} from "../../../../../../../studio/src/preferences/PreferencesManager.js";
-import {Importer} from "fake-imports";
 import {assertExists, assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-
-const importer = new Importer(import.meta.url);
-importer.makeReal("../../../../../../../studio/src/studioInstance.js");
-importer.makeReal("../../../../../../../studio/src/ui/popoverMenus/popoverToggleButton.js");
-importer.fakeModule("../../../../../../../studio/src/windowManagement/PreferencesPopover.js", `
-export class PreferencesPopover {}
-`);
-
-/** @type {import("../../../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js")} */
-const ContentWindowMod = await importer.import("../../../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js");
-const {ContentWindow} = ContentWindowMod;
-
-/** @type {import("../../../../../../../studio/src/windowManagement/PreferencesPopover.js")} */
-const PreferencesPopoverMod = await importer.import("../../../../../../../studio/src/windowManagement/PreferencesPopover.js");
-const {PreferencesPopover} = PreferencesPopoverMod;
+import {ContentWindow} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js";
+import {PreferencesPopover} from "../../../../../../../studio/src/windowManagement/PreferencesPopover.js";
 
 Deno.test({
 	name: "Preferences Button opens a preferences popover",
@@ -34,6 +20,7 @@ Deno.test({
 					addPopover() {
 						return {
 							setPos() {},
+							setNeedsCurtain(needsCurtain) {},
 						};
 					},
 				},
