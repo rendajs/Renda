@@ -66,6 +66,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	constructor({
 		type,
 		guiOpts = {},
+		forceMultiLine = false,
 		callbacksContext = {},
 		tooltip = "",
 	}) {
@@ -78,6 +79,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		if (!this.customEl) throw new Error("Assertion failed, PropertiesTreeViewEntry should always have a customEl.");
 
 		this.customEl.classList.add("gui-tree-view-entry");
+		this.customEl.classList.toggle("multi-line", forceMultiLine);
 
 		const hideLabel = guiOpts.hideLabel ?? false;
 		const useLabelTag = type == "boolean";

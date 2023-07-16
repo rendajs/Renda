@@ -1,5 +1,6 @@
 import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {Popover} from "../../../ui/popoverMenus/Popover.js";
+import {PropertiesTreeView} from "../../../ui/propertiesTreeView/PropertiesTreeView.js";
 
 /**
  * @param {import("../../../Studio.js").Studio["preferencesManager"]} preferencesManager
@@ -55,6 +56,7 @@ export class EntryPointPopover extends Popover {
 	#assetManager;
 	#preferencesManager;
 	#contentWindowUuid;
+	#treeView;
 
 	/**
 	 * @param {ConstructorParameters<typeof Popover>[0]} popoverManager
@@ -69,21 +71,47 @@ export class EntryPointPopover extends Popover {
 		this.#preferencesManager = preferencesManager;
 		this.#contentWindowUuid = contentWindowUuid;
 
+		this.#treeView = new PropertiesTreeView();
+		this.el.appendChild(this.#treeView.el);
+
 		const entityEntryPointUuids = getEntityEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
 		const entryPointUuids = getEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
 
-		this.#createSelector("buildView.selectedEntityEntryPoint", "Current Entity", entityEntryPointUuids);
-		this.#createSelector("buildView.selectedEntryPoint", "Default", entryPointUuids);
+		this.#createSelector({
+			selectedPreferenceId: "buildView.selectedEntityEntryPoint",
+			label: "Entity",
+			tooltip: "The entity that will be loaded when pressing play. When 'Current Entity' is selected, the entity of the most recently focused entity editor will be used. Additional entities can be added in the preferences menu.",
+			defaultText: "Current Entity",
+			entryPointUuids: entityEntryPointUuids,
+		});
+		this.#createSelector({
+			selectedPreferenceId: "buildView.selectedEntryPoint",
+			label: "Script",
+			tooltip: "The script that will be loaded when pressing play. By default, a script with basic functionality is used. You can add additional entry points in the preferences menu.",
+			defaultText: "Default",
+			entryPointUuids,
+		});
 	}
 
 	/**
-	 * @param {Parameters<import("../../../Studio.js").Studio["preferencesManager"]["set"]>[0]} selectedPreferenceId
-	 * @param {string} defaultText
-	 * @param {import("../../../../../src/mod.js").UuidString[]} entryPointUuids
+	 * @param {object} options
+	 * @param {Parameters<import("../../../Studio.js").Studio["preferencesManager"]["set"]>[0]} options.selectedPreferenceId
+	 * @param {string} options.label
+	 * @param {string} options.tooltip
+	 * @param {string} options.defaultText
+	 * @param {import("../../../../../src/mod.js").UuidString[]} options.entryPointUuids
 	 */
-	#createSelector(selectedPreferenceId, defaultText, entryPointUuids) {
-		const containerEl = document.createElement("div");
-		this.el.appendChild(containerEl);
+	#createSelector({selectedPreferenceId, label, tooltip, defaultText, entryPointUuids}) {
+		const entry = this.#treeView.addItem({
+			type: "buttonSelector",
+			guiOpts: {
+				label,
+				items: [defaultText],
+				vertical: true,
+			},
+			tooltip,
+			forceMultiLine: true,
+		});
 
 		(async () => {
 			/** @type {string?} */
@@ -124,18 +152,16 @@ export class EntryPointPopover extends Popover {
 				}
 			});
 			itemTexts.unshift(defaultText);
-			const selector = new ButtonSelectorGui({
-				items: itemTexts,
-				vertical: true,
-			});
+			entry.gui.setItems(itemTexts);
+
 			if (selectedEntryPoint) {
 				const index = itemDatas.findIndex(item => item.uuid == selectedEntryPoint);
-				selector.setValue(index + 1);
+				entry.gui.setValue(index + 1);
 			} else {
-				selector.setValue(0);
+				entry.gui.setValue(0);
 			}
-			selector.onValueChange(() => {
-				const index = selector.getValue({getIndex: true});
+			entry.gui.onValueChange(() => {
+				const index = entry.gui.getValue({getIndex: true});
 				if (index == 0) {
 					this.#preferencesManager.reset(selectedPreferenceId, {contentWindowUuid: this.#contentWindowUuid});
 				} else {
@@ -146,7 +172,6 @@ export class EntryPointPopover extends Popover {
 					this.#preferencesManager.set(selectedPreferenceId, itemData.uuid, {contentWindowUuid: this.#contentWindowUuid});
 				}
 			});
-			containerEl.appendChild(selector.el);
 		})();
 	}
 }
