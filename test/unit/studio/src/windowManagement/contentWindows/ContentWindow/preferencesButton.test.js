@@ -45,7 +45,7 @@ Deno.test({
 			const contentWindow = new ContentWindow(mockStudioInstance, mockWindowManager, "uuid");
 
 			const ids = /** @type {any[]} */ (["id1", "id2"]);
-			contentWindow.addPreferencesButton(...ids);
+			contentWindow.addPreferencesButton(ids);
 
 			const preferencesButton = contentWindow.topButtonBar.children[1];
 			assertExists(preferencesButton);
@@ -64,7 +64,7 @@ Deno.test({
 			});
 
 			assertThrows(() => {
-				contentWindow.addPreferencesButton();
+				contentWindow.addPreferencesButton([]);
 			}, Error, "A preferences button has already been added.");
 		});
 	},
