@@ -298,5 +298,5 @@ Deno.test({
 		} finally {
 			uninstall();
 		}
-	}
-})
+	},
+});
