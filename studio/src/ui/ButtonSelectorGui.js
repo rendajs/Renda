@@ -47,6 +47,12 @@ import {ButtonGroup} from "./ButtonGroup.js";
  * @template {boolean} [TAllowSelectNone = false]
  */
 export class ButtonSelectorGui {
+	/** @type {Button[]} */
+	#buttons = [];
+	/** @type {ButtonSelectorGuiOptionsItem[]} */
+	items = [];
+	#buttonGroup;
+
 	/**
 	 * @param {ButtonSelectorGuiOptions} opts
 	 */
@@ -57,10 +63,6 @@ export class ButtonSelectorGui {
 		vertical = false,
 		disabled = false,
 	} = {}) {
-		if (items.length == 0) {
-			throw new Error("An empty array was provided. ButtonSelectorGuis must at least have one item.");
-		}
-		this.items = items;
 		this.allowSelectNone = allowSelectNone;
 		this.currentValueIndex = 0;
 		this.defaultValue = this.#valueToIndex(defaultValue);
@@ -69,9 +71,31 @@ export class ButtonSelectorGui {
 		}
 		this.disabled = disabled;
 
-		this.buttonGroup = new ButtonGroup({vertical});
-		this.el = this.buttonGroup.el;
-		this.buttons = [];
+		this.#buttonGroup = new ButtonGroup({vertical});
+		this.el = this.#buttonGroup.el;
+
+		/** @type {Set<OnButtonselectorGuiValueChange>} */
+		this.onValueChangeCbs = new Set();
+
+		this.setItems(items);
+		this.setValue(this.defaultValue, {trigger: "application"});
+	}
+
+	/**
+	 * Updates the list of available buttons.
+	 * @param {ButtonSelectorGuiOptionsItem[]} items
+	 */
+	setItems(items) {
+		if (items.length == 0) {
+			throw new Error("An empty array was provided. ButtonSelectorGuis must at least have one item.");
+		}
+
+		for (const button of this.#buttons) {
+			button.destructor();
+			this.#buttonGroup.removeButton(button);
+		}
+		this.#buttons = [];
+		this.items = items;
 
 		for (const [i, item] of items.entries()) {
 			/** @type {import("./Button.js").ButtonGuiOptions} */
@@ -95,18 +119,14 @@ export class ButtonSelectorGui {
 				};
 			}
 			const button = new Button(opts);
-			this.buttons.push(button);
-			this.buttonGroup.addButton(button);
+			this.#buttons.push(button);
+			this.#buttonGroup.addButton(button);
 		}
-
-		/** @type {Set<OnButtonselectorGuiValueChange>} */
-		this.onValueChangeCbs = new Set();
-
-		this.setValue(this.defaultValue, {trigger: "application"});
+		this.setValue(this.allowSelectNone ? null : 0, {trigger: "application"});
 	}
 
-	updateSelectedButton() {
-		for (const [i, button] of this.buttons.entries()) {
+	#updateSelectedButton() {
+		for (const [i, button] of this.#buttons.entries()) {
 			button.setSelectedHighlight(i == this.currentValueIndex);
 		}
 	}
@@ -141,7 +161,7 @@ export class ButtonSelectorGui {
 			throw new Error(`"${value}" is not a valid value for this selector gui.`);
 		}
 		this.currentValueIndex = newValue;
-		this.updateSelectedButton();
+		this.#updateSelectedButton();
 		this.fireOnChangeCbs(trigger);
 	}
 
@@ -166,12 +186,12 @@ export class ButtonSelectorGui {
 		if (purpose == "binarySerialization") {
 			getIndex = /** @type {I} */ (true);
 		}
-		const getNullIndex = () => {
+		const getNullOrIndex = () => {
 			if (this.currentValueIndex == -1) return null;
 			return this.currentValueIndex;
 		};
 		if (getIndex) {
-			returnValue = getNullIndex();
+			returnValue = getNullOrIndex();
 		} else {
 			const item = this.items[this.currentValueIndex];
 			if (!item) {
@@ -179,7 +199,7 @@ export class ButtonSelectorGui {
 			} else if (typeof item == "string") {
 				returnValue = item;
 			} else {
-				returnValue = getNullIndex();
+				returnValue = getNullOrIndex();
 			}
 		}
 		return /** @type {ButtonSelectorGuiGetValueReturn<TAllowSelectNone, I, P>} */ (returnValue);

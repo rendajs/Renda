@@ -19,10 +19,10 @@ export class ContentWindowConnections extends ContentWindow {
 	constructor(...args) {
 		super(...args);
 
-		this.addPreferencesButton(
+		this.addPreferencesButton([
 			"studioConnections.allowInternalIncoming",
-			"studioConnections.allowRemoteIncoming"
-		);
+			"studioConnections.allowRemoteIncoming",
+		]);
 
 		this.headerTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.headerTreeView.el);

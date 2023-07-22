@@ -16,7 +16,14 @@ Deno.test({
 			const button3 = new Button();
 			group.addButton(button3);
 
-			assertEquals(group.el.childElementCount, 3);
+			/**
+			 * @param {number} childCount
+			 */
+			function testChildCount(childCount) {
+				assertEquals(group.el.childElementCount, childCount);
+			}
+
+			testChildCount(3);
 
 			/**
 			 * @param {string} className
@@ -61,10 +68,28 @@ Deno.test({
 			group.removeButton(0);
 			testClasses("first-visible-child", [true, true, false]);
 			testClasses("last-visible-child", [false, false, true]);
+			testChildCount(2);
 
 			group.removeButton(10); // doesn't exist: no-op
 			testClasses("first-visible-child", [true, true, false]);
 			testClasses("last-visible-child", [false, false, true]);
+			testChildCount(2);
+
+			group.removeButton(button2);
+			testClasses("first-visible-child", [true, true, true]);
+			testClasses("last-visible-child", [false, false, true]);
+			testChildCount(1);
+
+			group.removeButton(button1); // Already removed: no-op
+			testClasses("first-visible-child", [true, true, true]);
+			testClasses("last-visible-child", [false, false, true]);
+			testChildCount(1);
+
+			const nonExistentButton = new Button();
+			group.removeButton(nonExistentButton); // doesn't exist: no-op
+			testClasses("first-visible-child", [true, true, true]);
+			testClasses("last-visible-child", [false, false, true]);
+			testChildCount(1);
 		});
 	},
 });

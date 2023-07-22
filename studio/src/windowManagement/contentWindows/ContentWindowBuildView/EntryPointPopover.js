@@ -1,9 +1,7 @@
-import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
-import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
-import {Button} from "../../../ui/Button.js";
-import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
-import {DroppableGui} from "../../../ui/DroppableGui.js";
 import {Popover} from "../../../ui/popoverMenus/Popover.js";
+import {PropertiesTreeView} from "../../../ui/propertiesTreeView/PropertiesTreeView.js";
+
+export const BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID = "5a328430-e3bc-4eda-afab-789f00439f81";
 
 /**
  * @param {import("../../../Studio.js").Studio["preferencesManager"]} preferencesManager
@@ -12,7 +10,25 @@ import {Popover} from "../../../ui/popoverMenus/Popover.js";
 function getEntryPointsPreference(preferencesManager, contentWindowUuid) {
 	/** @type {import("../../../../../src/mod.js").UuidString[]} */
 	const items = [];
-	const preference = preferencesManager.get("buildView.availableEntryPoints", contentWindowUuid);
+	const preference = preferencesManager.get("buildView.availableScriptEntryPoints", contentWindowUuid);
+	if (preference && Array.isArray(preference)) {
+		for (const item of preference) {
+			if (typeof item == "string") {
+				items.push(item);
+			}
+		}
+	}
+	return items;
+}
+
+/**
+ * @param {import("../../../Studio.js").Studio["preferencesManager"]} preferencesManager
+ * @param {import("../../../../../src/mod.js").UuidString} contentWindowUuid
+ */
+function getEntityEntryPointsPreference(preferencesManager, contentWindowUuid) {
+	/** @type {import("../../../../../src/mod.js").UuidString[]} */
+	const items = [];
+	const preference = preferencesManager.get("buildView.availableEntityEntryPoints", contentWindowUuid);
 	if (preference && Array.isArray(preference)) {
 		for (const item of preference) {
 			if (typeof item == "string") {
@@ -28,8 +44,22 @@ function getEntryPointsPreference(preferencesManager, contentWindowUuid) {
  * @param {import("../../../../../src/mod.js").UuidString} contentWindowUuid
  * @returns {import("../../../../../src/mod.js").UuidString?}
  */
-export function getSelectedEntryPoint(preferencesManager, contentWindowUuid) {
-	const selectedUuid = preferencesManager.get("buildView.selectedEntryPoint", contentWindowUuid);
+export function getSelectedScriptEntryPoint(preferencesManager, contentWindowUuid) {
+	const entryPoints = getEntryPointsPreference(preferencesManager, contentWindowUuid);
+	const selectedUuid = preferencesManager.get("buildView.selectedScriptEntryPoint", contentWindowUuid);
+	if (selectedUuid && typeof selectedUuid == "string" && entryPoints.includes(selectedUuid)) {
+		return selectedUuid;
+	}
+	return BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID;
+}
+
+/**
+ * @param {import("../../../Studio.js").Studio["preferencesManager"]} preferencesManager
+ * @param {import("../../../../../src/mod.js").UuidString} contentWindowUuid
+ * @returns {import("../../../../../src/mod.js").UuidString?}
+ */
+export function getSelectedEntityEntryPoint(preferencesManager, contentWindowUuid) {
+	const selectedUuid = preferencesManager.get("buildView.selectedEntityEntryPoint", contentWindowUuid);
 	if (selectedUuid && typeof selectedUuid == "string") {
 		return selectedUuid;
 	}
@@ -41,12 +71,6 @@ export class EntryPointPopover extends Popover {
 	#assetManager;
 	#preferencesManager;
 	#contentWindowUuid;
-
-	/** @type {HTMLElement?} */
-	#currentSelectorEl = null;
-
-	#selectorContainer;
-	#droppableGui;
 
 	/**
 	 * @param {ConstructorParameters<typeof Popover>[0]} popoverManager
@@ -61,112 +85,107 @@ export class EntryPointPopover extends Popover {
 		this.#preferencesManager = preferencesManager;
 		this.#contentWindowUuid = contentWindowUuid;
 
-		this.#selectorContainer = document.createElement("div");
-		this.el.appendChild(this.#selectorContainer);
+		this.treeView = new PropertiesTreeView();
+		this.el.appendChild(this.treeView.el);
 
-		const addContainer = document.createElement("div");
-		addContainer.style.display = "flex";
-		addContainer.style.width = "150px";
-		this.el.appendChild(addContainer);
+		const entityEntryPointUuids = getEntityEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
+		const entryPointUuids = getEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
 
-		this.#droppableGui = DroppableGui.of({
-			supportedAssetTypes: [ProjectAssetTypeHtml, ProjectAssetTypeJavascript],
+		this.#createSelector({
+			selectedPreferenceId: "buildView.selectedEntityEntryPoint",
+			label: "Entity",
+			tooltip: "The entity that will be loaded when pressing play. When 'Current Entity' is selected, the entity of the most recently focused entity editor will be used. Additional entities can be added in the preferences menu.",
+			defaultText: "Current Entity",
+			entryPointUuids: entityEntryPointUuids,
 		});
-		this.#droppableGui.el.style.flexGrow = "1";
-		addContainer.appendChild(this.#droppableGui.el);
-
-		const addButton = new Button({
-			text: "+",
-			tooltip: "Adds the dropped asset to the list of entry points.",
-			onClick: () => {
-				this.#onAddButtonClick();
-			},
+		this.#createSelector({
+			selectedPreferenceId: "buildView.selectedScriptEntryPoint",
+			label: "Script",
+			tooltip: "The script that will be loaded when pressing play. By default, a script with basic functionality is used. You can add additional entry points in the preferences menu.",
+			defaultText: "Default",
+			entryPointUuids,
 		});
-
-		addContainer.appendChild(addButton.el);
-
-		const items = getEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
-		let entryPoint = null;
-
-		const entryPointPreference = this.#preferencesManager.get("buildView.selectedEntryPoint", this.#contentWindowUuid);
-		if (typeof entryPointPreference == "string") {
-			entryPoint = entryPointPreference;
-		}
-
-		this.currentSelector = null;
-		this.#updateSelector(items, entryPoint);
 	}
 
 	/**
-	 * @param {import("../../../../../src/mod.js").UuidString[]} items
-	 * @param {import("../../../../../src/mod.js").UuidString?} selectedEntryPoint
+	 * @param {object} options
+	 * @param {Parameters<import("../../../Studio.js").Studio["preferencesManager"]["set"]>[0]} options.selectedPreferenceId
+	 * @param {string} options.label
+	 * @param {string} options.tooltip
+	 * @param {string} options.defaultText
+	 * @param {import("../../../../../src/mod.js").UuidString[]} options.entryPointUuids
 	 */
-	async #updateSelector(items, selectedEntryPoint) {
-		/**
-		 * @typedef ItemData
-		 * @property {string} fileName
-		 * @property {string} fullPath
-		 * @property {import("../../../../../src/mod.js").UuidString} uuid
-		 */
-		/** @type {ItemData[]} */
-		const itemDatas = [];
-		/** @type {Set<string>} */
-		const fileNames = new Set();
-		/** @type {Set<string>} */
-		const duplicateFileNames = new Set();
-		for (const uuid of items) {
-			const path = await this.#assetManager.getAssetPathFromUuid(uuid);
-			if (!path) continue;
-			const fullPath = path.join("/");
-			const fileName = path.at(-1) || "";
-			itemDatas.push({uuid, fullPath, fileName});
-			if (fileNames.has(fileName)) {
-				duplicateFileNames.add(fileName);
-			}
-			fileNames.add(fileName);
-		}
-		const itemTexts = itemDatas.map(item => {
-			if (duplicateFileNames.has(item.fileName)) {
-				return item.fullPath;
-			} else {
-				return item.fileName;
-			}
-		});
-		if (this.#currentSelectorEl) {
-			this.#currentSelectorEl.remove();
-		}
-		if (itemTexts.length > 0) {
-			const selector = new ButtonSelectorGui({
-				items: itemTexts,
+	#createSelector({selectedPreferenceId, label, tooltip, defaultText, entryPointUuids}) {
+		const entry = this.treeView.addItem({
+			type: "buttonSelector",
+			guiOpts: {
+				label,
+				items: [defaultText],
 				vertical: true,
+			},
+			tooltip,
+			forceMultiLine: true,
+		});
+
+		(async () => {
+			/** @type {string?} */
+			let selectedEntryPoint = null;
+			const entryPointPreference = this.#preferencesManager.get(selectedPreferenceId, this.#contentWindowUuid);
+			if (typeof entryPointPreference == "string") {
+				selectedEntryPoint = entryPointPreference;
+			}
+
+			/**
+			 * @typedef ItemData
+			 * @property {string} fileName
+			 * @property {string} fullPath
+			 * @property {import("../../../../../src/mod.js").UuidString} uuid
+			 */
+			/** @type {ItemData[]} */
+			const itemDatas = [];
+			/** @type {Set<string>} */
+			const fileNames = new Set();
+			/** @type {Set<string>} */
+			const duplicateFileNames = new Set();
+			for (const uuid of entryPointUuids) {
+				const asset = await this.#assetManager.getProjectAssetFromUuid(uuid);
+				if (!asset) continue;
+				const fullPath = asset.path.join("/");
+				const fileName = asset.path.at(-1) || "";
+				itemDatas.push({uuid, fullPath, fileName});
+				if (fileNames.has(fileName)) {
+					duplicateFileNames.add(fileName);
+				}
+				fileNames.add(fileName);
+			}
+			const itemTexts = itemDatas.map(item => {
+				if (duplicateFileNames.has(item.fileName)) {
+					return item.fullPath;
+				} else {
+					return item.fileName;
+				}
 			});
+			itemTexts.unshift(defaultText);
+			entry.gui.setItems(itemTexts);
+
 			if (selectedEntryPoint) {
 				const index = itemDatas.findIndex(item => item.uuid == selectedEntryPoint);
-				selector.setValue(index);
+				entry.gui.setValue(index + 1);
+			} else {
+				entry.gui.setValue(0);
 			}
-			selector.onValueChange(() => {
-				const index = selector.getValue({getIndex: true});
-				const itemData = itemDatas[index];
-				if (!itemData) {
-					throw new Error("Assertion failed, item data doesn't exist");
+			entry.gui.onValueChange(() => {
+				const index = entry.gui.getValue({getIndex: true});
+				if (index == 0) {
+					this.#preferencesManager.reset(selectedPreferenceId, {contentWindowUuid: this.#contentWindowUuid});
+				} else {
+					const itemData = itemDatas[index - 1];
+					if (!itemData) {
+						throw new Error("Assertion failed, item data doesn't exist");
+					}
+					this.#preferencesManager.set(selectedPreferenceId, itemData.uuid, {contentWindowUuid: this.#contentWindowUuid});
 				}
-				this.#preferencesManager.set("buildView.selectedEntryPoint", itemData.uuid, {contentWindowUuid: this.#contentWindowUuid});
 			});
-			this.#currentSelectorEl = selector.el;
-			this.#selectorContainer.appendChild(selector.el);
-			this.currentSelector = selector;
-		}
-	}
-
-	#onAddButtonClick() {
-		const addValue = this.#droppableGui.value;
-		if (!addValue) return;
-		const availableEntryPoints = getEntryPointsPreference(this.#preferencesManager, this.#contentWindowUuid);
-		availableEntryPoints.push(addValue);
-		this.#preferencesManager.set("buildView.availableEntryPoints", availableEntryPoints);
-		this.#preferencesManager.set("buildView.selectedEntryPoint", addValue, {contentWindowUuid: this.#contentWindowUuid});
-		this.#updateSelector(availableEntryPoints, addValue);
-
-		this.#droppableGui.value = null;
+		})();
 	}
 }

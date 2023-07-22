@@ -1,7 +1,7 @@
 import {ContentWindow} from "../ContentWindow.js";
 import {Button} from "../../../ui/Button.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
-import {EntryPointPopover, getSelectedEntryPoint} from "./EntryPointPopover.js";
+import {EntryPointPopover, getSelectedScriptEntryPoint} from "./EntryPointPopover.js";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
@@ -22,6 +22,13 @@ export class ContentWindowBuildView extends ContentWindow {
 	 */
 	constructor(...args) {
 		super(...args);
+
+		this.addPreferencesButton([
+			"buildView.availableEntityEntryPoints",
+			"buildView.availableScriptEntryPoints",
+		], {
+			needsCurtain: false,
+		});
 
 		this.setContentBehindTopBar(true);
 
@@ -133,7 +140,7 @@ export class ContentWindowBuildView extends ContentWindow {
 			if (!assetManager) {
 				throw new Error("Assertion failed, no asset manager");
 			}
-			const entryPointUuid = getSelectedEntryPoint(this.studioInstance.preferencesManager, this.uuid);
+			const entryPointUuid = getSelectedScriptEntryPoint(this.studioInstance.preferencesManager, this.uuid);
 			if (!entryPointUuid) {
 				throw new Error("Assertion failed, no entry point has been selected");
 			}
@@ -141,18 +148,25 @@ export class ContentWindowBuildView extends ContentWindow {
 				assertAssetType: [ProjectAssetTypeJavascript, ProjectAssetTypeHtml],
 				assertExists: true,
 			});
-			const path = projectAsset.path;
-			if (!path) {
+			const assetPath = projectAsset.path;
+			if (!assetPath) {
 				throw new Error("Assertion failed, selected entry point doesn't exist or has been removed.");
 			}
 			const clientId = await this.studioInstance.serviceWorkerManager.getClientId();
+			let path;
+			if (projectAsset.isBuiltIn) {
+				path = `builtinAssets/${assetPath.join("/")}`;
+			} else {
+				path = `sw/clients/${clientId}/projectFiles/${assetPath.join("/")}`;
+			}
+
 			const projectAssetType = await projectAsset.getProjectAssetType();
 			const projectAssetTypeAny = /** @type {any} */ (projectAssetType);
 			let newSrc;
 			if (projectAssetTypeAny instanceof ProjectAssetTypeHtml) {
-				newSrc = `sw/clients/${clientId}/projectFiles/${path.join("/")}`;
+				newSrc = path;
 			} else if (projectAssetTypeAny instanceof ProjectAssetTypeJavascript) {
-				newSrc = `sw/clients/${clientId}/getGeneratedHtml?scriptSrc=projectFiles/${path.join("/")}`;
+				newSrc = `sw/clients/${clientId}/getGeneratedHtml?scriptSrc=/studio/${path}`;
 			} else {
 				throw new Error(`Unexpected asset type for project asset with uuid "${entryPointUuid}"`);
 			}

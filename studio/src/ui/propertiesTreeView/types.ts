@@ -191,6 +191,12 @@ export type PropertiesTreeViewEntryOptionsGeneric<T extends GuiTypes, TOpts = an
 	 * The tooltip that is shown when hovering over the treeview item.
 	 */
 	tooltip?: string;
+	/**
+	 * When true, the entry label and the gui element will always be rendered below each other instead of side by side.
+	 * Normally, this only happens when the screen is too small to fit the two elements side by side.
+	 * Some gui types such as array guis are always rendered on two lines.
+	 */
+	forceMultiLine?: boolean;
 } : never;
 export type PropertiesTreeViewEntryOptions = PropertiesTreeViewEntryOptionsGeneric<GuiTypes>;
 

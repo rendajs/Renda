@@ -18,6 +18,9 @@
 		"36996838-4f7e-4be3-9c18-49c4a9db00be": {
 			"path": ["DefaultAssets", "Default Vertex State.json"]
 		},
+		"5a328430-e3bc-4eda-afab-789f00439f81": {
+			"path": ["buildSupport", "basicEntryPoint.js"]
+		},
 		"264a38b9-4e43-4261-b57d-28a778a12dd9": {
 			"path": ["buildSupport", "basicIndex.html"]
 		},
