@@ -1,4 +1,3 @@
-import {AssetBundle} from "./AssetBundle.js";
 import {AssetLoaderType} from "./assetLoaderTypes/AssetLoaderType.js";
 import {isUuid} from "../util/util.js";
 import {RecursionTracker} from "./RecursionTracker.js";
@@ -43,7 +42,7 @@ import {RecursionTracker} from "./RecursionTracker.js";
  */
 export class AssetLoader {
 	constructor() {
-		/** @type {Set<AssetBundle>} */
+		/** @type {Set<import("./assetBundles/AssetBundle.js").AssetBundle>} */
 		this.bundles = new Set();
 
 		/** @type {Map<string, AssetLoaderType<unknown, unknown>>} */
@@ -54,12 +53,14 @@ export class AssetLoader {
 	}
 
 	/**
-	 * @param {string} url
+	 * @template {new (...args: any[]) => import("./assetBundles/AssetBundle.js").AssetBundle} T
+	 * @param {T} BundleConstructor
+	 * @param {ConstructorParameters<T>} args
 	 */
-	addBundle(url) {
-		const bundle = new AssetBundle(url);
+	addBundle(BundleConstructor, ...args) {
+		const bundle = new BundleConstructor(...args);
 		this.bundles.add(bundle);
-		return bundle;
+		return /** @type {InstanceType<T>} */ (bundle);
 	}
 
 	/**
@@ -112,7 +113,7 @@ export class AssetLoader {
 			recursionTracker = new RecursionTracker(this, uuid);
 		}
 
-		/** @type {AssetBundle?} */
+		/** @type {import("./assetBundles/AssetBundle.js").AssetBundle?} */
 		const bundleWithAsset = await new Promise((resolve, reject) => {
 			if (this.bundles.size == 0) {
 				resolve(null);

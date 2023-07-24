@@ -1,19 +1,21 @@
-import {AssetBundleRange} from "./AssetBundleRange.js";
-import {SingleInstancePromise} from "../util/SingleInstancePromise.js";
-import {PromiseWaitHelper} from "../util/PromiseWaitHelper.js";
-import {streamAsyncIterator} from "../util/util.js";
-import {binaryToUuid} from "../util/binarySerialization.js";
+import {AssetBundleRange} from "./DownloadableAssetBundleRange.js";
+import {SingleInstancePromise} from "../../util/SingleInstancePromise.js";
+import {PromiseWaitHelper} from "../../util/PromiseWaitHelper.js";
+import {streamAsyncIterator} from "../../util/util.js";
+import {binaryToUuid} from "../../util/binarySerialization.js";
+import {AssetBundle} from "./AssetBundle.js";
 
 /** @typedef {(progress: number) => void} OnProgressCallback */
 
-export class AssetBundle {
+export class DownloadableAssetBundle extends AssetBundle {
 	/**
 	 * @param {string} url
 	 */
 	constructor(url) {
+		super();
 		this.url = url;
 
-		/** @private @type {Map<import("../mod.js").UuidString, AssetBundleRange>} */
+		/** @private @type {Map<import("../../mod.js").UuidString, AssetBundleRange>} */
 		this.assetRanges = new Map();
 		this.progress = 0;
 		/** @private @type {Set<OnProgressCallback>} */
@@ -119,7 +121,8 @@ export class AssetBundle {
 	}
 
 	/**
-	 * @param {import("../util/util.js").UuidString} uuid
+	 * @override
+	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async hasAsset(uuid) {
 		await this.waitForHeader();
@@ -128,7 +131,8 @@ export class AssetBundle {
 	}
 
 	/**
-	 * @param {import("../util/util.js").UuidString} uuid
+	 * @override
+	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async waitForAssetAvailable(uuid) {
 		await this.waitForHeader();
@@ -140,7 +144,7 @@ export class AssetBundle {
 	}
 
 	/**
-	 * @param {import("../util/util.js").UuidString} uuid
+	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async getAsset(uuid) {
 		if (!this.downloadBuffer) return null;
