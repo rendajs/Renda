@@ -35,6 +35,12 @@ import {RecursionTracker} from "./RecursionTracker.js";
  * unknown} AssetLoaderAssertionOptionsToReturnType
  */
 
+/**
+ * The AssetLoader is the main way to get assets from a Renda project inside a running application.
+ * Typically you instantiate a single AssetLoader, which you can then add asset bundles to.
+ * When requesting an asset, it will check all bundles to see if it contains the requested asset.
+ * Once it finds it, it will load the asset using one of the provided loader types.
+ */
 export class AssetLoader {
 	constructor() {
 		/** @type {Set<AssetBundle>} */

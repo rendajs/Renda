@@ -13,10 +13,10 @@ export class AssetBundle {
 	constructor(url) {
 		this.url = url;
 
-		/** @type {Map<import("../mod.js").UuidString, AssetBundleRange>} */
+		/** @private @type {Map<import("../mod.js").UuidString, AssetBundleRange>} */
 		this.assetRanges = new Map();
 		this.progress = 0;
-		/** @type {Set<OnProgressCallback>} */
+		/** @private @type {Set<OnProgressCallback>} */
 		this.onProgressCbs = new Set();
 
 		this.downloadInstance = new SingleInstancePromise(async () => await this.downloadLogic(), {once: true});
@@ -33,6 +33,9 @@ export class AssetBundle {
 		await this.downloadInstance.waitForFinishOnce();
 	}
 
+	/**
+	 * @private
+	 */
 	async downloadLogic() {
 		const response = await fetch(this.url);
 		const contentLength = Number(response.headers.get("Content-Length"));
@@ -108,6 +111,9 @@ export class AssetBundle {
 		this.onProgressCbs.add(cb);
 	}
 
+	/**
+	 * @private
+	 */
 	async waitForHeader() {
 		await this.headerWait.wait();
 	}
