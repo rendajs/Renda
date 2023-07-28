@@ -40,6 +40,7 @@ export class DownloadableAssetBundle extends AssetBundle {
 	 */
 	async downloadLogic() {
 		const response = await fetch(this.url);
+		// TODO: #746 don't use content-length header
 		const contentLength = Number(response.headers.get("Content-Length"));
 		let receivedLength = 0;
 		const allChunks = new Uint8Array(contentLength);
@@ -147,12 +148,12 @@ export class DownloadableAssetBundle extends AssetBundle {
 	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async getAsset(uuid) {
-		if (!this.downloadBuffer) return null;
-		const exists = await this.hasAsset(uuid);
+		const exists = await this.waitForAssetAvailable(uuid);
 		if (!exists) return null;
 
 		const range = this.assetRanges.get(uuid);
 		if (!range) throw new Error("Assertion failed, asset range does not exist");
+		if (!this.downloadBuffer) throw new Error("Assertion failed, downloadbuffer is null");
 		const buffer = this.downloadBuffer.slice(range.byteStart, range.byteEnd);
 		const type = range.typeUuid;
 		return {buffer, type};
