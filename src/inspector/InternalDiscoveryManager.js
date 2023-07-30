@@ -255,6 +255,7 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
+	 * Registers a callback that is fired whenever an available client is added, removed or changed.
 	 * @param {OnAvailableClientUpdateCallback} cb
 	 */
 	onAvailableClientUpdated(cb) {
