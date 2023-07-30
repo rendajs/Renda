@@ -1,5 +1,6 @@
 import {InternalDiscoveryManager} from "../../../../src/mod.js";
 import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
+import {FakeTime} from "std/testing/time.ts";
 import {initializeIframe} from "../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
 import {initializeWorker} from "../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
 import {AssertionError, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
@@ -12,13 +13,14 @@ import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
  * @param {() => Promise<void>} options.fn The test function to run
  * @param {string?} [options.assertIframeSrc] If set, makes an assertion that the iframe
  * src gets set to this value.
- * @param {boolean} [options.emulateStudioParent] Emulates a parent window with a studio instance that
- * responds to "requestInternalDiscoveryUrl" messages.
+ * @param {boolean} [options.emulateStudioParent] Emulates a parent window.
+ * @param {boolean} [options.emulateParentResponse] When `emulateStudioParent` is true, also emulates "requestInternalDiscoveryUrl" messages.
  */
 async function basicSetup({
 	fn,
 	assertIframeSrc = null,
 	emulateStudioParent = true,
+	emulateParentResponse = true,
 }) {
 	const previousDocument = globalThis.document;
 	const previousParent = window.parent;
@@ -148,7 +150,9 @@ async function basicSetup({
 
 			window.parent = /** @type {Window} */ ({
 				postMessage(message) {
-					parentTypedMessenger.handleReceivedMessage(message);
+					if (emulateParentResponse) {
+						parentTypedMessenger.handleReceivedMessage(message);
+					}
 				},
 			});
 		} else {
@@ -448,7 +452,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Fallbacck discovery url",
+	name: "Not inside an iframe, use the fallback discovery url",
 	async fn() {
 		await basicSetup({
 			emulateStudioParent: false,
@@ -464,7 +468,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "No fallback url and not inside an iframe",
+	name: "Not inside in an iframe, no fallback url, throws",
 	async fn() {
 		await basicSetup({
 			emulateStudioParent: false,
@@ -473,6 +477,28 @@ Deno.test({
 				await assertRejects(async () => {
 					await manager.registerClient("studio");
 				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Inside an iframe, but parent doesn't respond in time",
+	async fn() {
+		await basicSetup({
+			emulateParentResponse: false,
+			async fn() {
+				const time = new FakeTime();
+				try {
+					const manager = new InternalDiscoveryManager();
+					const assertPromise = assertRejects(async () => {
+						await manager.registerClient("studio");
+					}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
+					await time.tickAsync(10_000);
+					await assertPromise;
+				} finally {
+					time.restore();
+				}
 			},
 		});
 	},
