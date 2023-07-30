@@ -211,6 +211,10 @@ export class InternalDiscoveryManager {
 		};
 	}
 
+	/**
+	 * Destroys the InternalDiscoverManager and lets the shared worker know
+	 * that this client is no longer available.
+	 */
 	async destructor() {
 		this.destructed = true;
 		await this.iframeMessenger.send.destructor();
@@ -227,6 +231,9 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
+	 * Registers the current client, letting the discovery server know about its existance.
+	 * This broadcasts the existence of this client and its type to other clients,
+	 * allowing them to initialize connections to this client.
 	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
@@ -234,6 +241,8 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
+	 * Initiates a connection with another client.
+	 * If the connection is successful, the `onConnectionCreated` callback gets fired.
 	 * @param {import("../mod.js").UuidString} otherClientId
 	 */
 	async requestConnection(otherClientId) {
@@ -241,6 +250,8 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
+	 * Provides the discovery worker with project metadata.
+	 * This way other clients can display things such as the project name in their UI.
 	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
 	 */
 	async sendProjectMetaData(metaData) {
@@ -248,6 +259,8 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
+	 * Registers a callback that is fired when a new connection is initiated with this client,
+	 * either because `requestConnection` was called from this client or from another client.
 	 * @param {OnConnectionCreatedCallback} cb
 	 */
 	onConnectionCreated(cb) {
