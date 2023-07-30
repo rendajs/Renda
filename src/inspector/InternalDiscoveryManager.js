@@ -149,7 +149,7 @@ export class InternalDiscoveryManager {
 		if (timeoutResolve) timeoutResolve("");
 		if (!url) {
 			if (!fallbackDiscoveryUrl) {
-				throw new Error("Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by studio.");
+				throw new Error("Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
 			}
 			url = fallbackDiscoveryUrl;
 		}
