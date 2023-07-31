@@ -9,7 +9,7 @@ import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
 import {assertPromiseResolved} from "../../shared/asserts.js";
 
 /**
- * Creates an InternalDiscoveryManager, along with a mocked iframe and SharedWorker.
+ * Creates a mocked iframe and SharedWorker with the required functionality for the InternalDiscoveryManager.
  * @param {object} options
  * @param {() => Promise<void>} options.fn The test function to run
  * @param {string?} [options.assertIframeSrc] If set, makes an assertion that the iframe
