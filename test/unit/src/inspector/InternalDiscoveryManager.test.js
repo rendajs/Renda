@@ -6,6 +6,7 @@ import {initializeWorker} from "../../../../studio/src/network/studioConnections
 import {AssertionError, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
 import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {assertPromiseResolved} from "../../shared/asserts.js";
 
 /**
  * Creates an InternalDiscoveryManager, along with a mocked iframe and SharedWorker.
@@ -137,6 +138,12 @@ async function basicSetup({
 				requestInternalDiscoveryUrl() {
 					return "discovery_url";
 				},
+				async requestStudioClientData() {
+					return {
+						clientId: "studio_client_id",
+						internalConnectionToken: "studio_connection_token",
+					};
+				},
 			});
 			parentTypedMessenger.setSendHandler(data => {
 				parentMessageEventListeners.forEach(listener => {
@@ -223,6 +230,42 @@ async function basicSetup({
 		createdMessagePorts.forEach(p => p.close());
 	}
 }
+
+Deno.test({
+	name: "getClientId resolves with the client id after registering",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager1 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
+
+				const promise1 = manager1.getClientId();
+				await assertPromiseResolved(promise1, false);
+
+				await manager1.registerClient("studio");
+
+				await assertPromiseResolved(promise1, true);
+
+				const promise2 = manager1.getClientId();
+				await assertPromiseResolved(promise2, true);
+
+				const manager2 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
+				/** @type {(clientId: string) => void} */
+				let resolveStudioClientId = () => {};
+				/** @type {Promise<string>} */
+				const studioClientId = new Promise(resolve => {
+					resolveStudioClientId = resolve;
+				});
+				manager2.onAvailableClientUpdated(e => {
+					resolveStudioClientId(e.clientId);
+				});
+				await manager2.registerClient("inspector");
+
+				assertEquals(await promise1, await studioClientId);
+				assertEquals(await promise2, await studioClientId);
+			},
+		});
+	},
+});
 
 Deno.test({
 	name: "available client updates are sent correctly",
@@ -499,6 +542,30 @@ Deno.test({
 				} finally {
 					time.restore();
 				}
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "requestParentStudioConnection",
+	only: true,
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager = new InternalDiscoveryManager();
+				await manager.registerClient("inspector");
+				const requestConnectionSpy = stub(manager, "requestConnection");
+				await manager.requestParentStudioConnection();
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: [
+						"studio_client_id",
+						{
+							token: "studio_connection_token",
+						},
+					],
+				});
 			},
 		});
 	},
