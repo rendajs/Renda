@@ -232,11 +232,27 @@ async function basicSetup({
 }
 
 Deno.test({
+	name: "Calling registerClient twice throws",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager = new InternalDiscoveryManager();
+				await manager.registerClient("studio");
+
+				await assertRejects(async () => {
+					await manager.registerClient("inspector");
+				}, Error, "A client has already been registered.");
+			},
+		});
+	},
+});
+
+Deno.test({
 	name: "getClientId resolves with the client id after registering",
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
+				const manager1 = new InternalDiscoveryManager();
 
 				const promise1 = manager1.getClientId();
 				await assertPromiseResolved(promise1, false);
@@ -248,7 +264,7 @@ Deno.test({
 				const promise2 = manager1.getClientId();
 				await assertPromiseResolved(promise2, true);
 
-				const manager2 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
+				const manager2 = new InternalDiscoveryManager();
 				/** @type {(clientId: string) => void} */
 				let resolveStudioClientId = () => {};
 				/** @type {Promise<string>} */
