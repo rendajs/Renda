@@ -431,27 +431,27 @@ Deno.test({
 	},
 });
 
+/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnConnectionCreatedCallback} */
+const onCreatedSpySignature = () => {};
+/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
+const onAvailableSpySignature = () => {};
+
 Deno.test({
 	name: "connecting two clients",
 	async fn() {
 		await basicSetup({
 			async fn() {
-				/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnConnectionCreatedCallback} */
-				const onCreatedSpyFn = () => {};
-				/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
-				const onAvailableSpyFn = () => {};
-
 				const manager1 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
-				const manager1ConnectionSpy = spy(onCreatedSpyFn);
+				const manager1ConnectionSpy = spy(onCreatedSpySignature);
 				manager1.onConnectionCreated(manager1ConnectionSpy);
-				const manager1AvailableSpy = spy(onAvailableSpyFn);
+				const manager1AvailableSpy = spy(onAvailableSpySignature);
 				manager1.onAvailableClientUpdated(manager1AvailableSpy);
 				await manager1.registerClient("studio");
 
 				const manager2 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
-				const manager2ConnectionSpy = spy(onCreatedSpyFn);
+				const manager2ConnectionSpy = spy(onCreatedSpySignature);
 				manager2.onConnectionCreated(manager2ConnectionSpy);
-				const manager2AvailableSpy = spy(onAvailableSpyFn);
+				const manager2AvailableSpy = spy(onAvailableSpySignature);
 				manager2.onAvailableClientUpdated(manager2AvailableSpy);
 				await manager2.registerClient("inspector");
 
@@ -490,6 +490,39 @@ Deno.test({
 				assertEquals(messageSpy1.calls[0].args[0].data, "pong");
 				assertEquals(messageSpy2.calls[0].args[0].data, "ping");
 
+				manager1Port.close();
+				manager2Port.close();
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "connection data is passed from one client to another",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager1 = new InternalDiscoveryManager();
+				await manager1.registerClient("studio");
+				const connectionCreatedSpy1 = spy(onCreatedSpySignature);
+				manager1.onConnectionCreated(connectionCreatedSpy1);
+
+				const studioClientId = await manager1.getClientId();
+				const manager2 = new InternalDiscoveryManager();
+				const connectionCreatedSpy2 = spy(onCreatedSpySignature);
+				manager2.onConnectionCreated(connectionCreatedSpy2);
+				await manager2.registerClient("inspector");
+				await manager2.requestConnection(studioClientId, {
+					token: "the_token",
+				});
+
+				assertSpyCalls(connectionCreatedSpy1, 1);
+				assertSpyCalls(connectionCreatedSpy2, 1);
+				assertEquals(connectionCreatedSpy1.calls[0].args[2].token, "the_token");
+				assertEquals(connectionCreatedSpy2.calls[0].args[2].token, undefined);
+
+				const manager1Port = connectionCreatedSpy1.calls[0].args[1];
+				const manager2Port = connectionCreatedSpy2.calls[0].args[1];
 				manager1Port.close();
 				manager2Port.close();
 			},
