@@ -549,7 +549,6 @@ Deno.test({
 
 Deno.test({
 	name: "requestParentStudioConnection",
-	only: true,
 	async fn() {
 		await basicSetup({
 			async fn() {
