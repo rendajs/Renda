@@ -264,7 +264,7 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
-	 * Registers the current client, letting the discovery server know about its existance.
+	 * Registers the current client, letting the discovery server know about its existence.
 	 * This broadcasts the existence of this client and its type to other clients,
 	 * allowing them to initialize connections to this client.
 	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
@@ -302,7 +302,7 @@ export class InternalDiscoveryManager {
 			return await this.parentMessenger.send.requestStudioClientData();
 		});
 		if (!result) {
-			throw new Error("Failed to get parent client data. Either the current page is not in an iframe, or the parent didn't respond with client data in timely manner. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the client you wish to connect to.");
+			throw new Error("Failed to get parent client data. Either the current page is not in an iframe, or the parent didn't respond with client data in timely manner. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
 		}
 		await this.requestConnection(result.clientId, {
 			token: result.internalConnectionToken,
