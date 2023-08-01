@@ -10,7 +10,7 @@ This document contains an overview of how this system works in two sections:
 
 ## High level overview
 
-Internal discovery usage fairly straight forward. The main class that you're looking for is `InternalDiscoveryManager`,
+Internal discovery usage is fairly straight forward. The main class that you're looking for is `InternalDiscoveryManager`,
 it can be found at [src/iInspector/InternalDiscoveryManager.js](../../../../../src/inspector/InternalDiscoveryManager.js).
 
 It's important to note that normally you should not have to deal with creating your own InternalDiscoveryManager
@@ -34,12 +34,14 @@ they need to both connect to the same url in order to find each other.
 
 When hosting your app from studio, figuring out this url is automatically taken care of.
 The InternalDiscoveryManager tries to communicate with its creator window and ask what this url is.
-But this won't work when your app was not opened from studio, when you host your app on your own (local) server
-and manually type in its address in the browser for example. In that case you will have to let the InternalDiscoveryManager know
-what url you would like to use. The url is likely something like `https://renda.studio/internalDiscovery`,
-but might be different if you are using a specific version or hosting your own studio. To provide a url, you can use two options.
+But this won't work when your app was not opened from studio,
+when you host your app on your own (local) server and manually type in its address in the browser for example.
+In that case you will have to let the InternalDiscoveryManager know what url you would like to use.
+The url is likely something like `https://renda.studio/internalDiscovery`,
+but might be different if you are using a specific Renda Studio version or hosting Studio yourself on your ownd omain.
+To provide a url, you can use two options:
 
-When using `fallbackDiscoveryUrl`, the InternalDiscoveryManager will first attempt to request a url from the parent window,
+1. When using `fallbackDiscoveryUrl`, the InternalDiscoveryManager will first attempt to request a url from the parent window,
 in case the page is being hosted by studio. If that fails, the fallback url will be used.
 
 ```js
@@ -48,8 +50,11 @@ const internalDiscovery = new InternalDiscoveryManager({
 });
 ```
 
-You can also use `forceDiscoveryUrl`, which will use the provided url immediately,
+2. You can also use `forceDiscoveryUrl`, which will use the provided url immediately,
 without even attempting to request a url from the parent window.
+When attempting to get the url from the parent window, it waits for a response with a timeout of one second.
+So if you don't want to wait one second if you already know your parent window is not going to respond,
+using `forceDiscoveryUrl` might speed things up a bit.
 
 ```js
 const internalDiscovery = new InternalDiscoveryManager({
@@ -58,7 +63,7 @@ const internalDiscovery = new InternalDiscoveryManager({
 ```
 
 Once your InternalDiscoveryManager is created, you can register your client using `internalDiscovery.registerClient()`,
-listen for available clients and connect to them.
+to listen for available clients and connect to them.
 
 ## Low level overview
 
@@ -73,7 +78,7 @@ The iframe exists to allow the SharedWorker to be created from all origins.
 It is pretty shallow, and mostly just passes messages between the `InternalDiscoveryManager` and the `SharedWorker`.
 The SharedWorker keeps track of connected clients and provides functionality for connecting them to each other.
 
-The iframe and shared worker are hosted as part of studio. And so all their files can be found in this directory.
+The iframe and shared worker are hosted as part of the renda.studio domain. And so all their files can be found in this directory.
 `internalDiscoveryIframeEntryPoint.js` and `internalDiscoveryWorkerEntryPoint.js` are the main entry points
 for the iframe and the shared worker respectively.
 

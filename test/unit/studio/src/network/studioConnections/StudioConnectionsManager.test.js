@@ -1,22 +1,11 @@
 import {Importer} from "fake-imports";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {assertEquals} from "std/testing/asserts.ts";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("../../../../../../src/mod.js");
 importer.makeReal("../../../../../../studio/src/studioInstance.js");
-importer.fakeModule("../../../../../../src/inspector/InternalDiscoveryManager.js", `
-export class InternalDiscoveryManager {
-	constructor(...args) {
-		this.constructorArgs = args;
-	}
-	onConnectionCreated(cb) {}
-	onAvailableClientUpdated(cb) {}
-	registerClient() {}
-	sendProjectMetaData() {}
-	destructor() {}
-}
-`);
+importer.redirectModule("../../../../../../src/inspector/InternalDiscoveryManager.js", "./MockInternalDiscoveryManager.js");
 
 /** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js")} */
 const StudioConnectionsManagerMod = await importer.import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js");
@@ -25,13 +14,25 @@ const {StudioConnectionsManager} = StudioConnectionsManagerMod;
 /**
  * @typedef StudioConnectionsManagerTestContext
  * @property {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} manager
+ * @property {import("./MockInternalDiscoveryManager.js").MockInternalDiscoveryManager} internalDiscovery
  */
+
+const OTHER_CLIENT_ID = "other_client_id";
 
 /**
  * @param {object} options
  * @param {(ctx: StudioConnectionsManagerTestContext) => void} options.fn
+ * @param {boolean} [options.addInspectorClient] When true, fires the availableClientUpdate event once with an inspector event.
  */
-function basicTest({fn}) {
+function basicTest({
+	fn,
+	addInspectorClient = false,
+}) {
+	let randomUuid = 0;
+	const mockUuid = stub(crypto, "randomUUID", () => {
+		randomUuid++;
+		return "random_uuid_" + randomUuid;
+	});
 	const oldLocation = window.location;
 	try {
 		window.location = /** @type {Location} */ ({
@@ -39,10 +40,19 @@ function basicTest({fn}) {
 		});
 
 		const manager = new StudioConnectionsManager();
+		const internalDiscovery = /** @type {import("./MockInternalDiscoveryManager.js").MockInternalDiscoveryManager} */ (/** @type {unknown} */ (manager.internalDiscovery));
 
-		fn({manager});
+		if (addInspectorClient) {
+			internalDiscovery.fireOnAvailableClientUpdated({
+				clientId: OTHER_CLIENT_ID,
+				clientType: "inspector",
+			});
+		}
+
+		fn({manager, internalDiscovery});
 	} finally {
 		window.location = oldLocation;
+		mockUuid.restore();
 	}
 }
 
@@ -50,9 +60,8 @@ Deno.test({
 	name: "Creates InternalDiscoveryManager with the correct url",
 	fn() {
 		basicTest({
-			fn({manager}) {
-				const castManager = /** @type {{constructorArgs: ConstructorParameters<typeof import("../../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryManager>}} */ (/** @type {unknown} */ (manager.internalDiscovery));
-				assertEquals(castManager.constructorArgs, [
+			fn({internalDiscovery}) {
+				assertEquals(internalDiscovery.constructorArgs, [
 					{
 						fallbackDiscoveryUrl: "https://renda.studio/internalDiscovery",
 					},
@@ -116,6 +125,99 @@ Deno.test({
 					fileSystemHasWritePermissions: false,
 				});
 				assertSpyCalls(sendSpy, spyCallCount);
+			},
+		});
+	},
+});
+
+/**
+ * Creates a fake MessagePort on which it can be asserted that `close()` has been called.
+ */
+function createSpyMessagePort() {
+	let closeCalled = false;
+	let startCalled = false;
+	const messagePort = /** @type {MessagePort} */ ({
+		close() {
+			closeCalled = true;
+		},
+		start() {
+			startCalled = true;
+		},
+		/** @param {Parameters<MessagePort["addEventListener"]>} args */
+		addEventListener(...args) {},
+	});
+
+	return {
+		messagePort,
+		/**
+		 * @param {boolean} expectClosed
+		 */
+		assertCloseCalled(expectClosed) {
+			if (expectClosed) {
+				assertEquals(closeCalled, true, "Expected MessagePort.close() to be called");
+			} else {
+				assertEquals(closeCalled, false, "Expected MessagePort.close() not to be called.");
+				assertEquals(startCalled, true, "Expected MessagePort.start() to be called");
+			}
+		},
+	};
+}
+
+Deno.test({
+	name: "Internal connections are ignored when allowInternalIncoming is false",
+	fn() {
+		basicTest({
+			addInspectorClient: true,
+			fn({internalDiscovery}) {
+				const {messagePort, assertCloseCalled} = createSpyMessagePort();
+				internalDiscovery.fireConnectionCreated(OTHER_CLIENT_ID, messagePort, {});
+				assertCloseCalled(true);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Internal connections are allowed when allowInternalIncoming is true",
+	fn() {
+		basicTest({
+			addInspectorClient: true,
+			fn({manager, internalDiscovery}) {
+				manager.setAllowInternalIncoming(true);
+				const {messagePort, assertCloseCalled} = createSpyMessagePort();
+				internalDiscovery.fireConnectionCreated(OTHER_CLIENT_ID, messagePort, {});
+				assertCloseCalled(false);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Internal connections are allowed when a valid token is passed",
+	fn() {
+		basicTest({
+			addInspectorClient: true,
+			fn({manager, internalDiscovery}) {
+				const {messagePort, assertCloseCalled} = createSpyMessagePort();
+				const token = manager.createInternalConnectionToken();
+				internalDiscovery.fireConnectionCreated(OTHER_CLIENT_ID, messagePort, {token});
+				assertCloseCalled(false);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Internal connections are no longer allowed when a token is deleted",
+	fn() {
+		basicTest({
+			addInspectorClient: true,
+			fn({manager, internalDiscovery}) {
+				const {messagePort, assertCloseCalled} = createSpyMessagePort();
+				const token = manager.createInternalConnectionToken();
+				manager.deleteConnectionToken(token);
+				internalDiscovery.fireConnectionCreated(OTHER_CLIENT_ID, messagePort, {token});
+				assertCloseCalled(true);
 			},
 		});
 	},

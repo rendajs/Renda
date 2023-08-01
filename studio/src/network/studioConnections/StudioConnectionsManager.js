@@ -82,14 +82,19 @@ export class StudioConnectionsManager {
 		this.internalDiscovery = new InternalDiscoveryManager({
 			fallbackDiscoveryUrl: new URL("internalDiscovery", window.location.href).href,
 		});
-		this.internalDiscovery.onConnectionCreated((otherClientId, messagePort) => {
-			let connection = this.activeConnections.get(otherClientId);
-			if (!connection) {
-				const messageHandler = new MessageHandlerInternal(otherClientId, this);
-				connection = this.addActiveConnection(otherClientId, messageHandler);
+		this.internalDiscovery.onConnectionCreated((otherClientId, messagePort, connectionData) => {
+			const allowed = this.#verifyInternalConnectionAllowed(otherClientId, connectionData);
+			if (!allowed) {
+				messagePort.close();
+			} else {
+				let connection = this.activeConnections.get(otherClientId);
+				if (!connection) {
+					const messageHandler = new MessageHandlerInternal(otherClientId, this);
+					connection = this.addActiveConnection(otherClientId, messageHandler);
+				}
+				const handler = /** @type {MessageHandlerInternal} */ (connection.messageHandler);
+				handler.assignMessagePort(messagePort);
 			}
-			const handler = /** @type {MessageHandlerInternal} */ (connection.messageHandler);
-			handler.assignMessagePort(messagePort);
 		});
 		this.internalDiscovery.onAvailableClientUpdated(e => {
 			if (e.deleted) {
@@ -146,6 +151,63 @@ export class StudioConnectionsManager {
 	destructor() {
 		this.setDiscoveryEndpoint(null);
 		this.internalDiscovery.destructor();
+	}
+
+	/**
+	 * Returns the client id of this studio instance.
+	 * Other applications can use this id if they wish to connect to this studio instance.
+	 */
+	getInternalDiscoveryClientId() {
+		return this.internalDiscovery.getClientId();
+	}
+
+	/**
+	 * We don't allow all incoming connections, otherwise any browser tab would be able to connect to open projects
+	 * simply by creating the discovery iframe and connecting to the first studio client it can find.
+	 * But pages created by the build view should always be allowed.
+	 * Therefore, we create tokens for every page created by the build view.
+	 * Inspectors can provide these tokens when connecting, and we'll always allow the connection when the token is valid.
+	 * @type {Set<string>}
+	 */
+	#internalConnectionTokens = new Set();
+
+	/**
+	 * Any new connections can use this token and their connection will automatically be allowed,
+	 * regardless of its origin, the connection type, or whether internal connections are enabled.
+	 */
+	createInternalConnectionToken() {
+		const token = crypto.randomUUID();
+		this.#internalConnectionTokens.add(token);
+		return token;
+	}
+
+	/**
+	 * Prevents any new connections from being made using this token.
+	 * This doesn't close existing connections that were made using the token.
+	 * @param {string} token
+	 */
+	deleteConnectionToken(token) {
+		this.#internalConnectionTokens.delete(token);
+	}
+
+	/**
+	 * @param {string} otherClientId
+	 * @param {import("../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryRequestConnectionData} connectionData
+	 */
+	#verifyInternalConnectionAllowed(otherClientId, connectionData) {
+		const clientData = this.availableConnections.get(otherClientId);
+		if (!clientData) {
+			throw new Error("Assertion failed, a connection was attempted to be made with a connection not in the available clients list.");
+		}
+
+		if (this.#allowInternalIncoming) {
+			// TODO: Add an allowlist #751
+			return true;
+		}
+
+		if (connectionData.token && this.#internalConnectionTokens.has(connectionData.token)) return true;
+
+		return false;
 	}
 
 	/**

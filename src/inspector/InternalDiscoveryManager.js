@@ -15,7 +15,17 @@ import {TypedMessenger} from "../util/TypedMessenger.js";
  * @property {boolean} [deleted] Whether the client has become unavailable.
  */
 /** @typedef {(event: AvailableClientUpdateEvent) => void} OnAvailableClientUpdateCallback */
-/** @typedef {(otherClientId: import("../mod.js").UuidString, port: MessagePort) => void} OnConnectionCreatedCallback */
+/** @typedef {(otherClientId: import("../mod.js").UuidString, port: MessagePort, connectionData: InternalDiscoveryRequestConnectionData) => void} OnConnectionCreatedCallback */
+
+/**
+ * Custom data that can be send when initiating a new connection with another client.
+ * The other client can use this data to choose to accept or deny a new connection.
+ * @typedef InternalDiscoveryRequestConnectionData
+ * @property {string} [token] This token is used to verify if this client is allowed to connect to a studio instance.
+ * New connections are usually ignored depending on their origin and whether a studio instance is allowing certain kinds of connections.
+ * But a token is generated for each application opened by a build view.
+ * When a correct token is provided, the connection is accepted regardless of any origin allow lists or preferences.
+ */
 
 export class InternalDiscoveryManager {
 	/**
@@ -42,6 +52,13 @@ export class InternalDiscoveryManager {
 			} else if (e.source == window.parent) {
 				this.parentMessenger.handleReceivedMessage(e.data);
 			}
+		});
+
+		/** @private @type {((id: string) => void) | null} */
+		this._clientIdResolve = null;
+		/** @private @type {Promise<string>} */
+		this._clientIdPromise = new Promise(resolve => {
+			this._clientIdResolve = resolve;
 		});
 
 		/** @private */
@@ -115,6 +132,37 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
+	 * Checks if the current page is embedded in an iframe, and then sends a request to the parent.
+	 * If there is no parent or it doesn't respond in time, this returns null.
+	 * @private
+	 * @template T
+	 * @param {() => Promise<T>} fn
+	 */
+	async _requestParentWithTimeout(fn) {
+		/** @type {Promise<T | null>} */
+		const parentPromise = (async () => {
+			if (this.isInIframe()) {
+				return await fn();
+			} else {
+				return null;
+			}
+		})();
+		let timeoutId = -1;
+		let timeoutResolve = /** @type {((url: T | null) => void)?} */ (null);
+		/** @type {Promise<T | null>} */
+		const timeoutPromise = new Promise(resolve => {
+			timeoutResolve = resolve;
+			timeoutId = setTimeout(() => {
+				resolve(null);
+			}, 1000);
+		});
+		const result = await Promise.race([parentPromise, timeoutPromise]);
+		clearTimeout(timeoutId);
+		if (timeoutResolve) timeoutResolve(null);
+		return result;
+	}
+
+	/**
 	 * Requests the iframe url from the parent window. If either the parent window doesn't exist
 	 * or it doesn't respond, a fallback url will be used.
 	 * @private
@@ -128,28 +176,12 @@ export class InternalDiscoveryManager {
 			this.iframe.src = forceDiscoveryUrl;
 			return;
 		}
-		const parentPromise = (async () => {
-			if (this.isInIframe()) {
-				const url = await this.parentMessenger.send.requestInternalDiscoveryUrl();
-				return url;
-			} else {
-				return "";
-			}
-		})();
-		let timeoutId = -1;
-		let timeoutResolve = /** @type {((url: string) => void)?} */ (null);
-		const timeoutPromise = new Promise(resolve => {
-			timeoutResolve = resolve;
-			timeoutId = setTimeout(() => {
-				resolve("");
-			}, 1000);
+		let url = await this._requestParentWithTimeout(async () => {
+			return await this.parentMessenger.send.requestInternalDiscoveryUrl();
 		});
-		let url = await Promise.race([parentPromise, timeoutPromise]);
-		clearTimeout(timeoutId);
-		if (timeoutResolve) timeoutResolve("");
 		if (!url) {
 			if (!fallbackDiscoveryUrl) {
-				throw new Error("Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by studio.");
+				throw new Error("Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
 			}
 			url = fallbackDiscoveryUrl;
 		}
@@ -183,9 +215,10 @@ export class InternalDiscoveryManager {
 			/**
 			 * @param {import("../mod.js").UuidString} otherClientId
 			 * @param {MessagePort} port
+			 * @param {InternalDiscoveryRequestConnectionData} connectionData
 			 */
-			connectionCreated: (otherClientId, port) => {
-				this.onConnectionCreatedCbs.forEach(cb => cb(otherClientId, port));
+			connectionCreated: (otherClientId, port, connectionData) => {
+				this.onConnectionCreatedCbs.forEach(cb => cb(otherClientId, port, connectionData));
 			},
 			/**
 			 * @param {import("../mod.js").UuidString} clientId
@@ -211,6 +244,10 @@ export class InternalDiscoveryManager {
 		};
 	}
 
+	/**
+	 * Destroys the InternalDiscoverManager and lets the shared worker know
+	 * that this client is no longer available.
+	 */
 	async destructor() {
 		this.destructed = true;
 		await this.iframeMessenger.send.destructor();
@@ -227,20 +264,54 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
+	 * Registers the current client, letting the discovery server know about its existence.
+	 * This broadcasts the existence of this client and its type to other clients,
+	 * allowing them to initialize connections to this client.
 	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
-		await this.workerMessenger.send.registerClient(clientType);
+		const result = await this.workerMessenger.send.registerClient(clientType);
+		if (this._clientIdResolve) this._clientIdResolve(result.clientId);
 	}
 
 	/**
-	 * @param {import("../mod.js").UuidString} otherClientId
+	 * Returns the client id of the registered client.
+	 * Other tabs can use this id to connect to the registered client.
 	 */
-	async requestConnection(otherClientId) {
-		await this.workerMessenger.send.requestConnection(otherClientId);
+	getClientId() {
+		return this._clientIdPromise;
 	}
 
 	/**
+	 * Initiates a connection with another client.
+	 * If the connection is successful, the `onConnectionCreated` callback gets fired.
+	 * @param {import("../mod.js").UuidString} otherClientId
+	 * @param {InternalDiscoveryRequestConnectionData} [connectionData]
+	 */
+	async requestConnection(otherClientId, connectionData) {
+		await this.workerMessenger.send.requestConnection(otherClientId, connectionData);
+	}
+
+	/**
+	 * Checks if the page is embedded in an iframe and if the parent is a studio instance.
+	 * If so, it attempts to request a connection token from the parent, and then use it
+	 * to initiate a new studio connection.
+	 */
+	async requestParentStudioConnection() {
+		const result = await this._requestParentWithTimeout(async () => {
+			return await this.parentMessenger.send.requestStudioClientData();
+		});
+		if (!result) {
+			throw new Error("Failed to get parent client data. Either the current page is not in an iframe, or the parent didn't respond with client data in timely manner. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
+		}
+		await this.requestConnection(result.clientId, {
+			token: result.internalConnectionToken,
+		});
+	}
+
+	/**
+	 * Provides the discovery worker with project metadata.
+	 * This way other clients can display things such as the project name in their UI.
 	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
 	 */
 	async sendProjectMetaData(metaData) {
@@ -248,6 +319,11 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
+	 * Registers a callback that is fired when a new connection is initiated with this client,
+	 * either because `requestConnection` was called from this client or from another client.
+	 * You may choose to ignore the connection if you determine that the origin is not allowlisted,
+	 * or if the type of client is not allowed.
+	 * When doing so, it's best to immediately call `close()` on the provided messageport.
 	 * @param {OnConnectionCreatedCallback} cb
 	 */
 	onConnectionCreated(cb) {

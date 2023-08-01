@@ -1,10 +1,10 @@
 # Studio Connections
 
-Multiple Studio windows and built/running applications can communicate which each other via various ways.
+Multiple Studio tabs and built/running applications can communicate which each other via various ways.
 This allows us to do mainly do two things:
 
 - One Studio tab can connect to another, allowing it to modify project files.
-- A running game can connect to a studio instance, allowing the studio to inspect and modify the assets of a running game.
+- A running application can connect to a studio instance, allowing the studio to inspect and modify the assets of a running game.
 
 The [StudioConnectionsManager](./StudioConnectionsManager.js) lists available connections and provides a way to initialize them.
 There are two types of connections:
@@ -20,15 +20,37 @@ The logic for these two connection types can be found in [MessageHandlerInternal
 There are two preferences, one for allowing remote connections, and another for internal connections.
 By default both are disabled, since the user might not be aware of this functionality.
 Inspector connections, however, are always allowed. Since they are always initiated from studio.
-So the user will have to explicitly start the connection.
 
 When these preferences are disabled, no one can initialize a connection from another studio.
 But when they are enabled, connections are automatically accepted.
-In addition to this, project meta data is broadcast to other clients even before the connection is made.
+In addition to this, project metadata is broadcast to other clients even before the connection is made.
 This way a user will be able to more easily find the client they wish to connect to.
 
 If internal connections are disabled, a client will still broadcast its existance to other internal clients,
 but project metadata is unavailable.
+
+## Inspector connections
+
+Inspector connections can be initiated from both the connections window in studio, or by an application itself.
+When the 'internal connections' preference is disabled, we will still list existing inspectors,
+and allow the user to connect to an application from studio.
+But applications cannot connect to a studio instance unless its 'internal connections' preference is enabled.
+
+One exception to this is pages that were created from studio it self (via the build view).
+The user expects inspectors to automatically connect when clicking the play button,
+so making the user explicitly click connect somewhere would cause too much friction.
+
+To make this work, an InternalDiscoveryManager requests a token from the parent window.
+This token can then be used to make the connection like usual via the discovery worker.
+Only if a valid token is provided, or the 'internal connections' preference is enabled and the origin allowlisted,
+will the connection be made.
+
+These tokens and allowlist are managed from within the studio client, i.e. the `StudioConnectionsManager` class.
+This is to ensure security, should a different/compromised iframe or shared worker be used,
+the studio tab will always guarantee that specific connections are allowed.
+
+TODO: #750
+TODO: #751
 
 ## Protocol
 

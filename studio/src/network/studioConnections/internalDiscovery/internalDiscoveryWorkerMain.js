@@ -75,11 +75,17 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 			 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
 			 */
 			registerClient(clientType) {
-				if (createdConnection) return;
+				if (createdConnection) {
+					throw new Error("A client has already been registered.");
+				}
 
 				createdConnection = new InternalDiscoveryWorkerConnection(port, clientType, iframeMessenger, parentWindowMessenger);
 				activeConnections.set(createdConnection.id, createdConnection);
 				sendAllClientAddedMessages(activeConnections, createdConnection);
+				return {
+					/** The id of the client that was just registered. */
+					clientId: createdConnection.id,
+				};
 			},
 			/**
 			 * @param {import("../StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
@@ -91,16 +97,17 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 			},
 			/**
 			 * @param {import("../../../../../src/mod.js").UuidString} otherClientId
+			 * @param {import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryRequestConnectionData} [connectionData]
 			 */
-			requestConnection(otherClientId) {
+			requestConnection(otherClientId, connectionData) {
 				if (!createdConnection) return;
 
 				const otherConnection = activeConnections.get(otherClientId);
 				if (!otherConnection) return;
 
 				const messageChannel = new MessageChannel();
-				createdConnection.parentMessenger.sendWithTransfer.connectionCreated([messageChannel.port1], otherClientId, messageChannel.port1);
-				otherConnection.parentMessenger.sendWithTransfer.connectionCreated([messageChannel.port2], createdConnection.id, messageChannel.port2);
+				createdConnection.parentMessenger.sendWithTransfer.connectionCreated([messageChannel.port1], otherClientId, messageChannel.port1, {});
+				otherConnection.parentMessenger.sendWithTransfer.connectionCreated([messageChannel.port2], createdConnection.id, messageChannel.port2, connectionData || {});
 			},
 		},
 	};
