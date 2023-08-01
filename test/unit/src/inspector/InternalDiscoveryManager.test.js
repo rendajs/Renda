@@ -1,24 +1,27 @@
 import {InternalDiscoveryManager} from "../../../../src/mod.js";
 import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
+import {FakeTime} from "std/testing/time.ts";
 import {initializeIframe} from "../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
 import {initializeWorker} from "../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
 import {AssertionError, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
 import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {assertPromiseResolved} from "../../shared/asserts.js";
 
 /**
- * Creates an InternalDiscoveryManager, along with a mocked iframe and SharedWorker.
+ * Creates a mocked iframe and SharedWorker with the required functionality for the InternalDiscoveryManager.
  * @param {object} options
  * @param {() => Promise<void>} options.fn The test function to run
  * @param {string?} [options.assertIframeSrc] If set, makes an assertion that the iframe
  * src gets set to this value.
- * @param {boolean} [options.emulateStudioParent] Emulates a parent window with a studio instance that
- * responds to "requestInternalDiscoveryUrl" messages.
+ * @param {boolean} [options.emulateStudioParent] Emulates a parent window.
+ * @param {boolean} [options.emulateParentResponse] When `emulateStudioParent` is true, also emulates "requestInternalDiscoveryUrl" messages.
  */
 async function basicSetup({
 	fn,
 	assertIframeSrc = null,
 	emulateStudioParent = true,
+	emulateParentResponse = true,
 }) {
 	const previousDocument = globalThis.document;
 	const previousParent = window.parent;
@@ -135,6 +138,12 @@ async function basicSetup({
 				requestInternalDiscoveryUrl() {
 					return "discovery_url";
 				},
+				async requestStudioClientData() {
+					return {
+						clientId: "studio_client_id",
+						internalConnectionToken: "studio_connection_token",
+					};
+				},
 			});
 			parentTypedMessenger.setSendHandler(data => {
 				parentMessageEventListeners.forEach(listener => {
@@ -148,7 +157,9 @@ async function basicSetup({
 
 			window.parent = /** @type {Window} */ ({
 				postMessage(message) {
-					parentTypedMessenger.handleReceivedMessage(message);
+					if (emulateParentResponse) {
+						parentTypedMessenger.handleReceivedMessage(message);
+					}
 				},
 			});
 		} else {
@@ -219,6 +230,58 @@ async function basicSetup({
 		createdMessagePorts.forEach(p => p.close());
 	}
 }
+
+Deno.test({
+	name: "Calling registerClient twice throws",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager = new InternalDiscoveryManager();
+				await manager.registerClient("studio");
+
+				await assertRejects(async () => {
+					await manager.registerClient("inspector");
+				}, Error, "A client has already been registered.");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "getClientId resolves with the client id after registering",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager1 = new InternalDiscoveryManager();
+
+				const promise1 = manager1.getClientId();
+				await assertPromiseResolved(promise1, false);
+
+				await manager1.registerClient("studio");
+
+				await assertPromiseResolved(promise1, true);
+
+				const promise2 = manager1.getClientId();
+				await assertPromiseResolved(promise2, true);
+
+				const manager2 = new InternalDiscoveryManager();
+				/** @type {(clientId: string) => void} */
+				let resolveStudioClientId = () => {};
+				/** @type {Promise<string>} */
+				const studioClientId = new Promise(resolve => {
+					resolveStudioClientId = resolve;
+				});
+				manager2.onAvailableClientUpdated(e => {
+					resolveStudioClientId(e.clientId);
+				});
+				await manager2.registerClient("inspector");
+
+				assertEquals(await promise1, await studioClientId);
+				assertEquals(await promise2, await studioClientId);
+			},
+		});
+	},
+});
 
 Deno.test({
 	name: "available client updates are sent correctly",
@@ -368,27 +431,27 @@ Deno.test({
 	},
 });
 
+/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnConnectionCreatedCallback} */
+const onCreatedSpySignature = () => {};
+/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
+const onAvailableSpySignature = () => {};
+
 Deno.test({
 	name: "connecting two clients",
 	async fn() {
 		await basicSetup({
 			async fn() {
-				/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnConnectionCreatedCallback} */
-				const onCreatedSpyFn = () => {};
-				/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
-				const onAvailableSpyFn = () => {};
-
 				const manager1 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
-				const manager1ConnectionSpy = spy(onCreatedSpyFn);
+				const manager1ConnectionSpy = spy(onCreatedSpySignature);
 				manager1.onConnectionCreated(manager1ConnectionSpy);
-				const manager1AvailableSpy = spy(onAvailableSpyFn);
+				const manager1AvailableSpy = spy(onAvailableSpySignature);
 				manager1.onAvailableClientUpdated(manager1AvailableSpy);
 				await manager1.registerClient("studio");
 
 				const manager2 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
-				const manager2ConnectionSpy = spy(onCreatedSpyFn);
+				const manager2ConnectionSpy = spy(onCreatedSpySignature);
 				manager2.onConnectionCreated(manager2ConnectionSpy);
-				const manager2AvailableSpy = spy(onAvailableSpyFn);
+				const manager2AvailableSpy = spy(onAvailableSpySignature);
 				manager2.onAvailableClientUpdated(manager2AvailableSpy);
 				await manager2.registerClient("inspector");
 
@@ -435,6 +498,39 @@ Deno.test({
 });
 
 Deno.test({
+	name: "connection data is passed from one client to another",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager1 = new InternalDiscoveryManager();
+				await manager1.registerClient("studio");
+				const connectionCreatedSpy1 = spy(onCreatedSpySignature);
+				manager1.onConnectionCreated(connectionCreatedSpy1);
+
+				const studioClientId = await manager1.getClientId();
+				const manager2 = new InternalDiscoveryManager();
+				const connectionCreatedSpy2 = spy(onCreatedSpySignature);
+				manager2.onConnectionCreated(connectionCreatedSpy2);
+				await manager2.registerClient("inspector");
+				await manager2.requestConnection(studioClientId, {
+					token: "the_token",
+				});
+
+				assertSpyCalls(connectionCreatedSpy1, 1);
+				assertSpyCalls(connectionCreatedSpy2, 1);
+				assertEquals(connectionCreatedSpy1.calls[0].args[2].token, "the_token");
+				assertEquals(connectionCreatedSpy2.calls[0].args[2].token, undefined);
+
+				const manager1Port = connectionCreatedSpy1.calls[0].args[1];
+				const manager2Port = connectionCreatedSpy2.calls[0].args[1];
+				manager1Port.close();
+				manager2Port.close();
+			},
+		});
+	},
+});
+
+Deno.test({
 	name: "Get discovery manager url from parent",
 	async fn() {
 		await basicSetup({
@@ -448,7 +544,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Fallbacck discovery url",
+	name: "Not inside an iframe, use the fallback discovery url",
 	async fn() {
 		await basicSetup({
 			emulateStudioParent: false,
@@ -464,7 +560,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "No fallback url and not inside an iframe",
+	name: "Not inside in an iframe, no fallback url, throws",
 	async fn() {
 		await basicSetup({
 			emulateStudioParent: false,
@@ -472,7 +568,52 @@ Deno.test({
 				const manager = new InternalDiscoveryManager();
 				await assertRejects(async () => {
 					await manager.registerClient("studio");
-				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by studio.");
+				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Inside an iframe, but parent doesn't respond in time",
+	async fn() {
+		await basicSetup({
+			emulateParentResponse: false,
+			async fn() {
+				const time = new FakeTime();
+				try {
+					const manager = new InternalDiscoveryManager();
+					const assertPromise = assertRejects(async () => {
+						await manager.registerClient("studio");
+					}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
+					await time.tickAsync(10_000);
+					await assertPromise;
+				} finally {
+					time.restore();
+				}
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "requestParentStudioConnection",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager = new InternalDiscoveryManager();
+				await manager.registerClient("inspector");
+				const requestConnectionSpy = stub(manager, "requestConnection");
+				await manager.requestParentStudioConnection();
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: [
+						"studio_client_id",
+						{
+							token: "studio_connection_token",
+						},
+					],
+				});
 			},
 		});
 	},

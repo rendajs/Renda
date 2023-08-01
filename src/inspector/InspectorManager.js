@@ -20,10 +20,11 @@ export class InspectorManager {
 		this.inspectorConnections = new Map();
 
 		this.internalDiscoveryManager = new InternalDiscoveryManager({fallbackDiscoveryUrl, forceDiscoveryUrl});
-		this.internalDiscoveryManager.registerClient("inspector");
 		this.internalDiscoveryManager.onConnectionCreated((otherClientId, port) => {
 			const inspectorConnection = new InspectorConnection(otherClientId, port);
 			this.inspectorConnections.set(otherClientId, inspectorConnection);
 		});
+		this.internalDiscoveryManager.registerClient("inspector");
+		this.internalDiscoveryManager.requestParentStudioConnection();
 	}
 }
