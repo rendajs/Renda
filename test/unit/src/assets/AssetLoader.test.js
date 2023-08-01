@@ -144,7 +144,7 @@ testTypes({
 });
 
 Deno.test({
-	name: "addBundle instantiates the constructor with the provided arguments",
+	name: "addBundle returns the provided bundle and infers its type",
 	fn() {
 		class BasicExtendedBundle extends AssetBundle {
 			/**
@@ -159,20 +159,14 @@ Deno.test({
 		}
 
 		const loader = new AssetLoader();
-		const bundle = loader.addBundle(BasicExtendedBundle, 3, "str");
-
-		// @ts-expect-error missing args
-		loader.addBundle(BasicExtendedBundle);
-
-		// @ts-expect-error too many args
-		loader.addBundle(BasicExtendedBundle, 3, "str", "one too many");
-
-		// @ts-expect-error invalid arg types
-		loader.addBundle(BasicExtendedBundle, "str", 3);
+		const bundle = loader.addBundle(new BasicExtendedBundle(3, "str"));
 
 		// Verify that the type is a BasicExtendedBundle instance and nothing else
-		const instance = new BasicExtendedBundle(1, "str");
-		assertIsType(instance, bundle);
+		const basicInstance = new BasicExtendedBundle(1, "str");
+		assertIsType(bundle,basicInstance);
+		const instance = new AssetBundle();
+		// @ts-expect-error Verify that the type isn't 'AssetBundle'
+		assertIsType(bundle, instance);
 		// @ts-expect-error Verify that the type isn't 'any'
 		assertIsType(true, bundle);
 
@@ -188,7 +182,7 @@ Deno.test({
 		const {assetLoader, expectedAsset, uninstall} = basicSetup();
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
@@ -240,7 +234,7 @@ Deno.test({
 		const {assetLoader, ExtendedAssetLoaderType, expectedAsset, uninstall} = basicSetup();
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID, {
@@ -267,7 +261,7 @@ Deno.test({
 		class WrongAssetLoaderType extends AssetLoaderType {}
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID, {
@@ -318,7 +312,7 @@ Deno.test({
 		});
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID, {
@@ -346,7 +340,7 @@ Deno.test({
 		});
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID, {
@@ -395,7 +389,7 @@ Deno.test({
 		}
 		const assetLoader = new AssetLoader();
 		assetLoader.registerLoaderType(LoaderType);
-		const bundle = assetLoader.addBundle(TestAssetBundle);
+		const bundle = assetLoader.addBundle(new TestAssetBundle());
 		bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 		bundle.setAssetAvailable(BASIC_ASSET_UUID, true);
 
@@ -411,7 +405,7 @@ Deno.test({
 		const {assetLoader, expectedAsset, setParseBufferFn, uninstall} = basicSetup();
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise1 = assetLoader.getAsset(BASIC_ASSET_UUID);
@@ -438,7 +432,7 @@ Deno.test({
 	async fn() {
 		const {assetLoader, expectedAsset: expectedAsset1, setParseBufferFn, uninstall} = basicSetup();
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise1 = assetLoader.getAsset(BASIC_ASSET_UUID, {
@@ -468,7 +462,7 @@ Deno.test({
 	async fn() {
 		const {assetLoader, expectedAsset: expectedAsset1, setParseBufferFn, uninstall} = basicSetup();
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise1 = assetLoader.getAsset(BASIC_ASSET_UUID);
@@ -511,7 +505,7 @@ Deno.test({
 	async fn() {
 		const {assetLoader, uninstall} = basicSetup();
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 
 			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
 			bundle.setAssetAvailable(BASIC_ASSET_UUID, false);
@@ -530,8 +524,8 @@ Deno.test({
 	async fn() {
 		const {assetLoader, expectedAsset, uninstall} = basicSetup();
 		try {
-			const bundle1 = assetLoader.addBundle(TestAssetBundle);
-			const bundle2 = assetLoader.addBundle(TestAssetBundle);
+			const bundle1 = assetLoader.addBundle(new TestAssetBundle());
+			const bundle2 = assetLoader.addBundle(new TestAssetBundle());
 			bundle2.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
@@ -554,8 +548,8 @@ Deno.test({
 	async fn() {
 		const {assetLoader, expectedAsset, uninstall} = basicSetup();
 		try {
-			const bundle1 = assetLoader.addBundle(TestAssetBundle);
-			const bundle2 = assetLoader.addBundle(TestAssetBundle);
+			const bundle1 = assetLoader.addBundle(new TestAssetBundle());
+			const bundle2 = assetLoader.addBundle(new TestAssetBundle());
 			bundle2.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
@@ -579,7 +573,7 @@ Deno.test({
 		const {assetLoader, uninstall} = basicSetup({registerLoaderType: false});
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
 
 			const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
@@ -599,7 +593,7 @@ Deno.test({
 		const {assetLoader, setParseBufferFn, uninstall} = basicSetup();
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			const FIRST_ASSET_UUID = "first asset uuid";
 			const SECOND_ASSET_UUID = "second asset uuid";
 			const firstAssetBuffer = new ArrayBuffer(0);
@@ -645,7 +639,7 @@ Deno.test({
 		const {assetLoader, setParseBufferFn, uninstall} = basicSetup();
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			const FIRST_ASSET_UUID = "first asset uuid";
 			const SECOND_ASSET_UUID = "second asset uuid";
 			const firstAssetBuffer = new ArrayBuffer(0);
@@ -704,7 +698,7 @@ Deno.test({
 		const {assetLoader, setParseBufferFn, uninstall} = basicSetup();
 
 		try {
-			const bundle = assetLoader.addBundle(TestAssetBundle);
+			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			const FIRST_ASSET_UUID = "first asset uuid";
 			const SECOND_ASSET_UUID = "second asset uuid";
 			const THIRD_ASSET_UUID = "third asset uuid";

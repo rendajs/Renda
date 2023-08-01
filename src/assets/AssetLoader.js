@@ -53,14 +53,13 @@ export class AssetLoader {
 	}
 
 	/**
-	 * @template {new (...args: any[]) => import("./assetBundles/AssetBundle.js").AssetBundle} T
-	 * @param {T} BundleConstructor
-	 * @param {ConstructorParameters<T>} args
+	 * Adds a new AssetBundle to the AssetLoader, allowing you to query its assets via {@linkcode getAsset}.
+	 * @template {import("./assetBundles/AssetBundle.js").AssetBundle} T
+	 * @param {T} bundle
 	 */
-	addBundle(BundleConstructor, ...args) {
-		const bundle = new BundleConstructor(...args);
+	addBundle(bundle) {
 		this.bundles.add(bundle);
-		return /** @type {InstanceType<T>} */ (bundle);
+		return bundle;
 	}
 
 	/**
