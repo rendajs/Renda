@@ -18,10 +18,10 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
 
 /**
  * @template {PreferenceValueTypes} [T = PreferenceValueTypes]
- * @template {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions | null} [TGuiOpts = null]
+ * @template {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions | null} [TGuiOpts = null]
  * @typedef PreferenceConfigGeneric
  * @property {T} type
- * @property {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} [guiOpts]
+ * @property {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} [guiOpts]
  * @property {string} [uiName] The name of the setting that is shown in UI.
  * When not set, the UI name will be inferred from the setting name:
  * - If the name contains dots, only the characters after the last dot is used.
@@ -97,10 +97,10 @@ export class PreferencesManager {
 	 * 		Type extends import("./PreferencesManager.js").PreferenceValueTypes ?
 	 * 			Type extends "gui" ?
 	 * 				TRegisteredPreferences[T]["guiOpts"] extends infer TGuiOpts ?
-	 * 					TGuiOpts extends import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions ?
-	 * 						import("../ui/propertiesTreeView/types.js").TreeViewEntryFactoryReturnType<TGuiOpts> extends infer TGuiInstance ?
+	 * 					TGuiOpts extends import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions ?
+	 * 						import("../ui/propertiesTreeView/types.ts").TreeViewEntryFactoryReturnType<TGuiOpts> extends infer TGuiInstance ?
 	 * 							TGuiInstance extends {} ?
-	 * 								import("../ui/propertiesTreeView/types.js").GetValueType<TGuiInstance, any> :
+	 * 								import("../ui/propertiesTreeView/types.ts").GetValueType<TGuiInstance, any> :
 	 * 								never :
 	 * 							never :
 	 * 						never :
