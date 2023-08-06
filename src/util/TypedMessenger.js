@@ -113,6 +113,11 @@
  */
 
 /**
+ * Utility class that helps with creating a protocol between two processes.
+ * This can be used for messaging between workers, serviceworkers, iframes and even websockets.
+ * Type safety is built in, so changing message signatures on one end will
+ * automatically result in emitted TypeScript errors on the other end.
+ *
  * @template {TypedMessengerSignatures} TReq
  * @template {TypedMessengerSignatures} TRes
  * @template {boolean} [TRequireHandlerReturnObjects = false]
@@ -122,7 +127,7 @@ export class TypedMessenger {
 	 * Allows for easy request/response messaging between two applications, such as
 	 * a worker and a main thread, two workers or a messageport for example. You may
 	 * also be able to use this for messages that will be sent over the network.
-	 * Using WebSockets wor WebRTC for instance.
+	 * Using WebSockets or WebRTC for instance.
 	 * When using this, ids are automatically assigned to requests, so that the
 	 * receiving end can respond to a specific message.
 	 * This way you can send messages and wait for a response using promises.
