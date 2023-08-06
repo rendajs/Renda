@@ -115,7 +115,6 @@
 /**
  * Utility class that helps you creating a protocol between two processes.
  * This can be used for workers, serviceworkers, iframes and even websockets.
- *
  * Type safety is built in, so changing message signatures on one end will
  * automatically result in emitted TypeScript errors on the other end.
  *
