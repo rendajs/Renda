@@ -133,7 +133,6 @@
  * //** @ type {TypedMessenger<typeof myRequestHandlers, import("./yourWorkerOrServerFile").workerRequestHandlers>} * /
  * const messenger = new TypedMessenger();
  * ```
- *
  * @template {TypedMessengerSignatures} TRes The handlers of this messenger.
  * @template {TypedMessengerSignatures} TReq The handlers of the other messenger.
  * @template {boolean} [TRequireHandlerReturnObjects = false]
