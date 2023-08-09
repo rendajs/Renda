@@ -24,7 +24,7 @@ export class TaskBundleScripts extends Task {
 	// @rollup-plugin-resolve-url-objects
 	static workerUrl = new URL("../workers/bundleScripts/mod.js", import.meta.url);
 
-	/** @type {TypedMessenger<import("../workers/bundleScripts/mod.js").BundleScriptsMessengerResponseHandlers, BundleScriptsMessengerResponseHandlers>} */
+	/** @type {TypedMessenger<BundleScriptsMessengerResponseHandlers, import("../workers/bundleScripts/mod.js").BundleScriptsMessengerResponseHandlers>} */
 	#messenger;
 
 	#lastReadScriptCallbackId = 0;

@@ -142,7 +142,7 @@ export class TaskBundleAssets extends Task {
 		},
 	});
 
-	/** @type {TypedMessenger<import("../workers/bundleAssets/mod.js").BundleAssetsMessengerResponseHandlers, BundleAssetsMessengerResponseHandlers, true>} */
+	/** @type {TypedMessenger<BundleAssetsMessengerResponseHandlers, import("../workers/bundleAssets/mod.js").BundleAssetsMessengerResponseHandlers, true>} */
 	#messenger;
 
 	#lastFileStreamId = 0;
