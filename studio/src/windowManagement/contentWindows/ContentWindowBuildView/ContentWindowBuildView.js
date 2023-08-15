@@ -37,7 +37,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.iframeEl.classList.add("build-view-iframe");
 		this.contentEl.appendChild(this.iframeEl);
 
-		/** @type {TypedMessenger<{}, BuildViewIframeResponseHandlers>} */
+		/** @type {TypedMessenger<BuildViewIframeResponseHandlers, {}>} */
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this.getIframeResponseHandlers());
 		this.iframeMessenger.setSendHandler(data => {

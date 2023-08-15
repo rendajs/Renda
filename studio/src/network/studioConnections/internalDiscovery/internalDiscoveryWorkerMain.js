@@ -113,9 +113,9 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 	};
 }
 /** @typedef {ReturnType<getResponseHandlers>["iframeResponseHandlers"]} InternalDiscoveryWorkerToIframeHandlers */
-/** @typedef {TypedMessenger<import("./internalDiscoveryIframeMain.js").InternalDiscoveryIframeWorkerHandlers, InternalDiscoveryWorkerToIframeHandlers>} WorkerToIframeTypedMessengerType */
+/** @typedef {TypedMessenger<InternalDiscoveryWorkerToIframeHandlers, import("./internalDiscoveryIframeMain.js").InternalDiscoveryIframeWorkerHandlers>} WorkerToIframeTypedMessengerType */
 /** @typedef {ReturnType<getResponseHandlers>["parentWindowResponseHandlers"]} InternalDiscoveryWorkerToParentHandlers */
-/** @typedef {TypedMessenger<import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryParentWorkerHandlers, InternalDiscoveryWorkerToParentHandlers>} WorkerToParentTypedMessengerType */
+/** @typedef {TypedMessenger<InternalDiscoveryWorkerToParentHandlers, import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryParentWorkerHandlers>} WorkerToParentTypedMessengerType */
 
 /**
  * @param {typeof globalThis} workerGlobal

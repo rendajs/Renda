@@ -20,7 +20,7 @@ function getMessageHandlers(client) {
 }
 /** @typedef {ReturnType<getMessageHandlers>} ServiceWorkerMessageHandlers */
 
-/** @typedef {TypedMessenger<import("./src/misc/ServiceWorkerManager.js").ServiceWorkerManagerMessageHandlers, ServiceWorkerMessageHandlers>} TypedMessengerWithTypes */
+/** @typedef {TypedMessenger<ServiceWorkerMessageHandlers, import("./src/misc/ServiceWorkerManager.js").ServiceWorkerManagerMessageHandlers>} TypedMessengerWithTypes */
 
 /** @type {Map<string, TypedMessengerWithTypes>} */
 const typedMessengers = new Map();

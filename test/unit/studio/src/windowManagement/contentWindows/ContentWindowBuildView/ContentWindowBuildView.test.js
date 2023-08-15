@@ -12,7 +12,7 @@ function installIframeContentWindow(buildview) {
 	const iframeEl = buildview.iframeEl;
 
 	/**
-	 * @type {TypedMessenger<import("../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers, {}>}
+	 * @type {TypedMessenger<{}, import("../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
 	 */
 	const iframeWindowMessenger = new TypedMessenger();
 

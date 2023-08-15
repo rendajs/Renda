@@ -79,7 +79,7 @@ export class InternalDiscoveryManager {
 
 		/**
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the iframe it created.
-		 * @private @type {TypedMessenger<import("../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers, InternalDiscoveryParentHandlers>}
+		 * @private @type {TypedMessenger<InternalDiscoveryParentHandlers, import("../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers>}
 		 */
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this._getIframeRequestHandlers());
@@ -96,7 +96,7 @@ export class InternalDiscoveryManager {
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the shared
 		 * worker that was created by the iframe. Messages first go through the iframe messenger which then
 		 * passes messages on to the sharedworker.
-		 * @private @type {TypedMessenger<import("../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers, InternalDiscoveryParentWorkerHandlers>}
+		 * @private @type {TypedMessenger<InternalDiscoveryParentWorkerHandlers, import("../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers>}
 		 */
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
@@ -109,7 +109,7 @@ export class InternalDiscoveryManager {
 		 * parent window of that page. This exists to make it possible to communicate with studio and request
 		 * the url of the to be created iframe. If the page that created the InternalDiscoveryManager is not
 		 * in an iframe, this messenger is useless.
-		 * @private @type {TypedMessenger<import("../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers, {}>}
+		 * @private @type {TypedMessenger<{}, import("../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
 		 */
 		this.parentMessenger = new TypedMessenger();
 		this.parentMessenger.setSendHandler(data => {

@@ -118,8 +118,23 @@
  * Type safety is built in, so changing message signatures on one end will
  * automatically result in emitted TypeScript errors on the other end.
  *
- * @template {TypedMessengerSignatures} TReq
- * @template {TypedMessengerSignatures} TRes
+ * To ensure type safety, pass the handlers to the generic parameters:
+ * @example
+ * ```ts
+ * import type {workerRequestHandlers} from "./yourWorkerOrServerFile";
+ * const myRequestHandlers = {
+ * 	// ...
+ * };
+ * const messenger = new TypedMessenger<typeof myRequestHandlers, typeof workerRequestHandlers>();
+ * ```
+ * Or when using JSDoc:
+ * @example
+ * ```js
+ * //** @ type {TypedMessenger<typeof myRequestHandlers, import("./yourWorkerOrServerFile").workerRequestHandlers>} * /
+ * const messenger = new TypedMessenger();
+ * ```
+ * @template {TypedMessengerSignatures} TRes The handlers of this messenger.
+ * @template {TypedMessengerSignatures} TReq The handlers of the other messenger.
  * @template {boolean} [TRequireHandlerReturnObjects = false]
  */
 export class TypedMessenger {
@@ -163,7 +178,7 @@ export class TypedMessenger {
 	 *
 	 * ```ts
 	 * import type {workerRequestHandlers} from "./yourWorkerOrServerFile";
-	 * const messenger = new TypedMessenger<typeof workerRequestHandlers, typeof myRequestHandlers>();
+	 * const messenger = new TypedMessenger<typeof myRequestHandlers, typeof workerRequestHandlers>();
 	 * ```
 	 *
 	 * Now your types are setup correctly, so when using `messenger.send` you will
@@ -452,7 +467,7 @@ export class TypedMessenger {
 	 * 	},
 	 * };
 	 *
-	 * const messenger = new TypedMessenger<typeof otherHandlers, myHandlers>();
+	 * const messenger = new TypedMessenger<myHandlers, typeof otherHandlers>();
 	 * messenger.setResponseHandlers(myHandlers);
 	 * ```
 	 *
