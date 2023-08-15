@@ -695,6 +695,9 @@ export class Vec3 {
 		return this;
 	}
 
+	/**
+	 * @returns {[x: number, y: number, z: number]}
+	 */
 	toArray() {
 		return [this.x, this.y, this.z];
 	}

@@ -303,6 +303,9 @@ export class Quat {
 		return this;
 	}
 
+	/**
+	 * @returns {[x: number, y: number, z: number, w: number]}
+	 */
 	toArray() {
 		return [this.x, this.y, this.z, this.w];
 	}
