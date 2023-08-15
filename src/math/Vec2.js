@@ -503,6 +503,9 @@ export class Vec2 {
 		return this.set(other);
 	}
 
+	/**
+	 * @returns {[x: number, y: number]}
+	 */
 	toArray() {
 		return [this.x, this.y];
 	}
