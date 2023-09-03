@@ -92,8 +92,8 @@ export function domSpaceToScreenSpace(el, ...domPosition) {
 	const {x, y} = new Vec2(...domPosition);
 	const rect = el.getBoundingClientRect();
 
-	const xRel = mapValue(rect.left, rect.right, 0, 1, x);
-	const yRel = mapValue(rect.top, rect.bottom, 0, 1, y);
+	const xRel = mapValue(x, rect.left, rect.right, 0, 1, false);
+	const yRel = mapValue(y, rect.top, rect.bottom, 0, 1, false);
 
 	return new Vec2(xRel, yRel);
 }
@@ -109,8 +109,8 @@ export function screenSpaceToDomSpace(el, ...screenSpace) {
 	const {x, y} = new Vec2(...screenSpace);
 	const rect = el.getBoundingClientRect();
 
-	const xRel = mapValue(0, 1, rect.left, rect.right, x);
-	const yRel = mapValue(0, 1, rect.top, rect.bottom, y);
+	const xRel = mapValue(x, 0, 1, rect.left, rect.right, false);
+	const yRel = mapValue(y, 0, 1, rect.top, rect.bottom, false);
 
 	return new Vec2(xRel, yRel);
 }
