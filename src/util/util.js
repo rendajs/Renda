@@ -68,7 +68,7 @@ export function iLerp(a, b, t) {
  * @param {boolean} performClamp Whether to clamp the result between `toMin` and `toMax`.
  * @returns {number}
  */
-export function mapValue(value, fromMin, fromMax, toMin, toMax, performClamp = false) {
+export function mapValue(value, fromMin, fromMax, toMin, toMax, performClamp = true) {
 	let lerpedVal = iLerp(fromMin, fromMax, value);
 	if (performClamp) lerpedVal = clamp01(lerpedVal);
 	return lerp(toMin, toMax, lerpedVal);
