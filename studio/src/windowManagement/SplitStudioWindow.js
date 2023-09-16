@@ -124,7 +124,7 @@ export class SplitStudioWindow extends StudioWindow {
 	 * @param {import("./StudioWindow.js").WorkspaceChangeTrigger} trigger
 	 */
 	calculateNewPercentage(boundStart, boundEnd, newValue, trigger) {
-		const newPercentage = mapValue(boundStart, boundEnd, 0, 1, newValue);
+		const newPercentage = mapValue(newValue, boundStart, boundEnd, 0, 1);
 		this.setNewSplitPercentage(newPercentage, trigger);
 	}
 
