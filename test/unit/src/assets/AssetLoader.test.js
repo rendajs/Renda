@@ -163,7 +163,7 @@ Deno.test({
 
 		// Verify that the type is a BasicExtendedBundle instance and nothing else
 		const basicInstance = new BasicExtendedBundle(1, "str");
-		assertIsType(bundle,basicInstance);
+		assertIsType(bundle, basicInstance);
 		const instance = new AssetBundle();
 		// @ts-expect-error Verify that the type isn't 'AssetBundle'
 		assertIsType(bundle, instance);
