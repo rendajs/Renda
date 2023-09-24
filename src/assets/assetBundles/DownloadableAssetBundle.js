@@ -7,8 +7,21 @@ import {AssetBundle} from "./AssetBundle.js";
 
 /** @typedef {(progress: number) => void} OnProgressCallback */
 
+/**
+ * A DownloadableAssetBundle fetches a single bundle from a url, providing an AssetLoader with the assets from the url.
+ * An asset bundle file is typically generated using a 'bundle assets' task in Renda Studio.
+ */
 export class DownloadableAssetBundle extends AssetBundle {
 	/**
+	 * Creates a new DownloadableAssetBundle.
+	 *
+	 * @example
+	 * ```js
+	 * const loader = new AssetLoader();
+	 * const bundle = loader.addBundle(new DownloadableAssetBundle());
+	 * await bundle.startDownload();
+	 * const asset = loader.getAsset(assetUuid);
+	 * ```
 	 * @param {string} url
 	 */
 	constructor(url) {

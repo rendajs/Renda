@@ -16,15 +16,25 @@ export class InspectorManager {
 	} = {}) {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
 
-		/** @type {Map<import("../../studio/src/../../src/util/util.js").UuidString, InspectorConnection>} */
-		this.inspectorConnections = new Map();
+		/** @private @type {Map<import("../../studio/src/../../src/util/util.js").UuidString, InspectorConnection>} */
+		this._inspectorConnections = new Map();
 
 		this.internalDiscoveryManager = new InternalDiscoveryManager({fallbackDiscoveryUrl, forceDiscoveryUrl});
 		this.internalDiscoveryManager.onConnectionCreated((otherClientId, port) => {
 			const inspectorConnection = new InspectorConnection(otherClientId, port);
-			this.inspectorConnections.set(otherClientId, inspectorConnection);
+			this._inspectorConnections.set(otherClientId, inspectorConnection);
 		});
 		this.internalDiscoveryManager.registerClient("inspector");
 		this.internalDiscoveryManager.requestParentStudioConnection();
+	}
+
+	/**
+	 * @param {import("../util/util.js").UuidString} uuid
+	 */
+	async requestHasAsset(uuid) {
+		for (const _ of this._inspectorConnections.values()) {
+			// TODO: pass request to connection
+		}
+		return false;
 	}
 }

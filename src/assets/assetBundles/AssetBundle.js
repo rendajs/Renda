@@ -4,6 +4,12 @@
  * @property {import("../../util/util.js").UuidString} type
  */
 
+/**
+ * An AssetBundle represents a collection of assets in their raw form.
+ * You typically add an AssetBundle to an AssetLoader via the `AssetLoader.addBundle()` method.
+ * An AssetBundle doesn't do much by itself, but it can be extended to add functionality for fetching assets.
+ * See DownloadableAssetBundle for an example.
+ */
 export class AssetBundle {
 	/**
 	 * Returns a boolean indicating whether this bundle can provide the asset with the specified uuid.

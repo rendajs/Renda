@@ -1,5 +1,9 @@
 import {fileSystemProtocolHandlers} from "./FileSystem.js";
+import {inspectorProtocolHandlers} from "./inspector.js";
 
-const autoRegisterRequestHandlers = [...fileSystemProtocolHandlers];
+const autoRegisterRequestHandlers = [
+	...fileSystemProtocolHandlers,
+	...inspectorProtocolHandlers,
+];
 
 export {autoRegisterRequestHandlers};
