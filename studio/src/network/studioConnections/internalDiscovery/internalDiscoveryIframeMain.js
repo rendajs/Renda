@@ -51,10 +51,10 @@ export function initializeIframe(window) {
 		worker.port.close();
 	}
 
-	/** @type {TypedMessenger<import("./internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToIframeHandlers, InternalDiscoveryIframeWorkerHandlers>} */
+	/** @type {TypedMessenger<InternalDiscoveryIframeWorkerHandlers, import("./internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToIframeHandlers>} */
 	const workerTypedMessenger = new TypedMessenger();
 
-	/** @type {TypedMessenger<import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryParentHandlers, InternalDiscoveryIframeHandlers>} */
+	/** @type {TypedMessenger<InternalDiscoveryIframeHandlers, import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryParentHandlers>} */
 	const parentWindowTypedMessenger = new TypedMessenger();
 
 	const {parentToIframeHandlers, workerToIframeHandlers} = getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destructorFunction: destructor});

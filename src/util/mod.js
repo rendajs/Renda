@@ -10,3 +10,4 @@ export {toFormattedJsonString} from "./toFormattedJsonString.js";
 export * from "./util.js";
 export * from "./bufferUtil.js";
 export * from "./meshShapeGeneration/mod.js";
+export * from "./TypedMessenger.js";

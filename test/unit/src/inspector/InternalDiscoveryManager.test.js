@@ -132,7 +132,7 @@ async function basicSetup({
 		});
 
 		if (emulateStudioParent) {
-			/** @type {TypedMessenger<{}, import("../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>} */
+			/** @type {TypedMessenger<import("../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers, {}>} */
 			const parentTypedMessenger = new TypedMessenger();
 			parentTypedMessenger.setResponseHandlers({
 				requestInternalDiscoveryUrl() {

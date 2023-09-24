@@ -74,7 +74,7 @@ export class ServiceWorkerManager {
 		this.registration = null;
 
 		if (this.supported) {
-			/** @type {TypedMessenger<import("../../sw.js").ServiceWorkerMessageHandlers, ServiceWorkerManagerMessageHandlers>} */
+			/** @type {TypedMessenger<ServiceWorkerManagerMessageHandlers, import("../../sw.js").ServiceWorkerMessageHandlers>} */
 			this.messenger = new TypedMessenger();
 			this.messenger.setSendHandler(async data => {
 				await navigator.serviceWorker.ready;

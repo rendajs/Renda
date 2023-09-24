@@ -2,7 +2,7 @@ import {TypedMessenger} from "../../../../../../src/util/TypedMessenger.js";
 
 /** @typedef {typeof responseHandlers} BasicWorkerResponseHandlers */
 
-/** @type {TypedMessenger<{}, BasicWorkerResponseHandlers>} */
+/** @type {TypedMessenger<BasicWorkerResponseHandlers, {}>} */
 const messenger = new TypedMessenger();
 messenger.setSendHandler(data => {
 	globalThis.postMessage(data.sendData);

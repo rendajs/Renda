@@ -21,9 +21,9 @@ Deno.test({
 			returnsBool: () => true,
 		};
 
-		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
-		const messengerA = new TypedMessenger();
 		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
 
 		// Normally we would send the data to the worker
@@ -135,9 +135,9 @@ Deno.test({
 			needsTransfer: (x, y) => {},
 		};
 
-		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
-		const messengerA = new TypedMessenger();
 		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
 
 		/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerRequestMessage<typeof requestHandlers>[]} */
@@ -237,9 +237,9 @@ Deno.test({
 		};
 
 		const channel = new MessageChannel();
-		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
-		const messengerA = new TypedMessenger();
 		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
 		messengerA.setSendHandler(data => {
 			channel.port2.postMessage(data.sendData);
@@ -298,9 +298,9 @@ Deno.test({
 			sameNum: x => x,
 		};
 
-		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
-		const messengerA = new TypedMessenger();
 		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
 		messengerA.setSendHandler(data => {
 			messengerB.handleReceivedMessage(data.sendData);
@@ -352,9 +352,9 @@ Deno.test({
 			},
 		};
 
-		/** @type {TypedMessenger<typeof requestHandlers, {}, true>} */
-		const messengerA = new TypedMessenger({returnTransferSupport: true});
 		/** @type {TypedMessenger<{}, typeof requestHandlers, true>} */
+		const messengerA = new TypedMessenger({returnTransferSupport: true});
+		/** @type {TypedMessenger<typeof requestHandlers, {}, true>} */
 		const messengerB = new TypedMessenger({returnTransferSupport: true});
 		messengerA.setSendHandler(data => {
 			messengerB.handleReceivedMessage(data.sendData);
@@ -464,7 +464,7 @@ Deno.test({
 		const worker = new Worker(url.href, {type: "module"});
 
 		try {
-			/** @type {TypedMessenger<import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers, WorkerWithInitializeHandlers, true>} */
+			/** @type {TypedMessenger<WorkerWithInitializeHandlers, import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers, true>} */
 			const messenger = new TypedMessenger({returnTransferSupport: true});
 			messenger.initialize(worker, workerWithInitializeHandlers);
 
@@ -560,7 +560,7 @@ Deno.test({
 			},
 		};
 
-		/** @type {TypedMessenger<{}, typeof handlers>} */
+		/** @type {TypedMessenger<typeof handlers, {}>} */
 		const messengerA = new TypedMessenger({
 			serializeErrorHook(error) {
 				if (error instanceof MyError) {
@@ -583,7 +583,7 @@ Deno.test({
 		 * @property {string} message
 		 */
 
-		/** @type {TypedMessenger<typeof handlers, {}>} */
+		/** @type {TypedMessenger<{}, typeof handlers>} */
 		const messengerB = new TypedMessenger({
 			deserializeErrorHook: error => {
 				if (error) {

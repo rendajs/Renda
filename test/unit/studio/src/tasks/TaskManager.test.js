@@ -164,7 +164,7 @@ Deno.test({
 				static type = "namespace:type";
 				static workerUrl = new URL("./shared/basicWorker.js", import.meta.url);
 
-				/** @type {TypedMessenger<import("./shared/basicWorker.js").BasicWorkerResponseHandlers, {}>} */
+				/** @type {TypedMessenger<{}, import("./shared/basicWorker.js").BasicWorkerResponseHandlers>} */
 				#messenger;
 
 				/** @param {ConstructorParameters<typeof Task>} args */

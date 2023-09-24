@@ -33,7 +33,7 @@ export class TaskBuildApplication extends Task {
 		},
 	});
 
-	/** @type {TypedMessenger<import("../workers/buildApplication/mod.js").BuildApplicationMessengerResponseHandlers, BuildApplicationMessengerResponseHandlers, true>} */
+	/** @type {TypedMessenger<BuildApplicationMessengerResponseHandlers, import("../workers/buildApplication/mod.js").BuildApplicationMessengerResponseHandlers, true>} */
 	#messenger;
 
 	#lastContextId = 0;

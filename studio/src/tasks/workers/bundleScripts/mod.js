@@ -13,7 +13,7 @@ const responseHandlers = {
 	},
 };
 
-/** @type {TypedMessenger<import("../../task/TaskBundleScripts.js").BundleScriptsMessengerResponseHandlers, BundleScriptsMessengerResponseHandlers>} */
+/** @type {TypedMessenger<BundleScriptsMessengerResponseHandlers, import("../../task/TaskBundleScripts.js").BundleScriptsMessengerResponseHandlers>} */
 const messenger = new TypedMessenger();
 messenger.initialize(globalThis, responseHandlers);
 

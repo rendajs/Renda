@@ -113,8 +113,22 @@
  */
 
 /**
- * @template {TypedMessengerSignatures} TReq
- * @template {TypedMessengerSignatures} TRes
+ * Utility class that helps with creating a protocol between two processes.
+ * This can be used for messaging between workers, serviceworkers, iframes and even websockets.
+ * Type safety is built in, so changing message signatures on one end will
+ * automatically result in emitted TypeScript errors on the other end.
+ *
+ * To ensure type safety, pass the handlers to the generic parameters:
+ * @example
+ * ```ts
+ * import type {workerRequestHandlers} from "./yourWorkerOrServerFile";
+ * const myRequestHandlers = {
+ * 	// ...
+ * };
+ * const messenger = new TypedMessenger<typeof myRequestHandlers, typeof workerRequestHandlers>();
+ * ```
+ * @template {TypedMessengerSignatures} TRes The handlers of this messenger.
+ * @template {TypedMessengerSignatures} TReq The handlers of the other messenger.
  * @template {boolean} [TRequireHandlerReturnObjects = false]
  */
 export class TypedMessenger {
@@ -122,7 +136,7 @@ export class TypedMessenger {
 	 * Allows for easy request/response messaging between two applications, such as
 	 * a worker and a main thread, two workers or a messageport for example. You may
 	 * also be able to use this for messages that will be sent over the network.
-	 * Using WebSockets wor WebRTC for instance.
+	 * Using WebSockets or WebRTC for instance.
 	 * When using this, ids are automatically assigned to requests, so that the
 	 * receiving end can respond to a specific message.
 	 * This way you can send messages and wait for a response using promises.
@@ -158,7 +172,7 @@ export class TypedMessenger {
 	 *
 	 * ```ts
 	 * import type {workerRequestHandlers} from "./yourWorkerOrServerFile";
-	 * const messenger = new TypedMessenger<typeof workerRequestHandlers, typeof myRequestHandlers>();
+	 * const messenger = new TypedMessenger<typeof myRequestHandlers, typeof workerRequestHandlers>();
 	 * ```
 	 *
 	 * Now your types are setup correctly, so when using `messenger.send` you will
@@ -447,7 +461,7 @@ export class TypedMessenger {
 	 * 	},
 	 * };
 	 *
-	 * const messenger = new TypedMessenger<typeof otherHandlers, myHandlers>();
+	 * const messenger = new TypedMessenger<myHandlers, typeof otherHandlers>();
 	 * messenger.setResponseHandlers(myHandlers);
 	 * ```
 	 *
