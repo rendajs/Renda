@@ -160,7 +160,7 @@ export class TaskBundleAssets extends Task {
 		if (!assetManager) {
 			throw new Error("Failed to create Bundle Scripts task: no asset manager.");
 		}
-		this.#messenger.initialize(this.worker, getResponseHandlers(assetManager, this.#fileStreams));
+		this.#messenger.initializeWorker(this.worker, getResponseHandlers(assetManager, this.#fileStreams));
 	}
 
 	/**

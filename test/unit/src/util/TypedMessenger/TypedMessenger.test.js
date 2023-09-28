@@ -466,7 +466,7 @@ Deno.test({
 		try {
 			/** @type {TypedMessenger<WorkerWithInitializeHandlers, import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers, true>} */
 			const messenger = new TypedMessenger({returnTransferSupport: true});
-			messenger.initialize(worker, workerWithInitializeHandlers);
+			messenger.initializeWorker(worker, workerWithInitializeHandlers);
 
 			const view = new Uint8Array([1, 2, 3]);
 			const arr = view.buffer;
@@ -510,9 +510,12 @@ Deno.test({
 			addEventListener: /** @type {Worker["addEventListener"]} */ (() => {}),
 			postMessage(message, options) {},
 		});
-		// @ts-expect-error
-		messenger.initialize(mockWorker, handlers);
-		messenger.initialize(mockWorker, {
+		messenger.initializeWorker(
+			mockWorker,
+			// @ts-expect-error
+			handlers
+		);
+		messenger.initializeWorker(mockWorker, {
 			// @ts-expect-error fooSync should have type never and cause a type error
 			fooSync() {
 				return "incorrect type";

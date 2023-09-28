@@ -15,5 +15,5 @@ const responseHandlers = {
 
 /** @type {TypedMessenger<BundleScriptsMessengerResponseHandlers, import("../../task/TaskBundleScripts.js").BundleScriptsMessengerResponseHandlers>} */
 const messenger = new TypedMessenger();
-messenger.initialize(globalThis, responseHandlers);
+messenger.initializeWorkerContext(responseHandlers);
 

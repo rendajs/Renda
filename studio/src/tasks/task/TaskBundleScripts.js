@@ -56,7 +56,7 @@ export class TaskBundleScripts extends Task {
 		super(...args);
 
 		this.#messenger = new TypedMessenger();
-		this.#messenger.initialize(this.worker, this.getResponseHandlers());
+		this.#messenger.initializeWorker(this.worker, this.getResponseHandlers());
 	}
 
 	/**
