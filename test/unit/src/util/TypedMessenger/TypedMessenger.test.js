@@ -458,7 +458,7 @@ const workerWithInitializeHandlers = {
 };
 
 Deno.test({
-	name: "initialize() with transferSupport: true",
+	name: "initializeWorker() with transferSupport: true",
 	async fn() {
 		const url = new URL("./shared/workerWithInitialize.js", import.meta.url);
 		const worker = new Worker(url.href, {type: "module"});
@@ -631,5 +631,52 @@ Deno.test({
 			await messengerB.send.throwUnhandledError();
 		});
 		assertEquals(rejectValue2, undefined);
+	},
+});
+
+Deno.test({
+	name: "initializeWebSocket()",
+	async fn() {
+		class FakeWebSocket extends EventTarget {
+			/** @type {FakeWebSocket?} */
+			#otherSocket = null;
+
+			/**
+			 * @param {string} data
+			 */
+			send(data) {
+				this.#otherSocket?.dispatchEvent(new MessageEvent("message", {
+					data,
+				}));
+			}
+
+			/**
+			 * @param {FakeWebSocket} otherSocket
+			 */
+			attachOther(otherSocket) {
+				this.#otherSocket = otherSocket;
+			}
+
+			castWebSocket() {
+				return /** @type {WebSocket} */ (/** @type {unknown} */ (this));
+			}
+		}
+
+		const socketA = new FakeWebSocket();
+		const socketB = new FakeWebSocket();
+		socketA.attachOther(socketB);
+		socketB.attachOther(socketA);
+
+		const messengerA = new TypedMessenger();
+		const messengerB = new TypedMessenger();
+		messengerA.initializeWebSocket(socketA.castWebSocket(), {
+			foo() {
+				return "foo";
+			},
+		});
+		messengerB.initializeWebSocket(socketB.castWebSocket(), {});
+
+		const result = await messengerB.send.foo();
+		assertEquals(result, "foo");
 	},
 });
