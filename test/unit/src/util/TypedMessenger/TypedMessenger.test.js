@@ -1,6 +1,7 @@
 import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {assertIsType} from "../../../shared/typeAssertions.js";
+import {assertSpyCalls, stub} from "std/testing/mock.ts";
 
 Deno.test({
 	name: "send proxy and sendWithTransferProxy",
@@ -678,5 +679,27 @@ Deno.test({
 
 		const result = await messengerB.send.foo();
 		assertEquals(result, "foo");
+	},
+});
+
+Deno.test({
+	name: "Errors while handling websocket messages are caught",
+	fn() {
+		const consoleSpy = stub(console, "error", () => {});
+
+		try {
+			const socket = new EventTarget();
+			const castSocket = /** @type {WebSocket} */ (/** @type {unknown} */ (socket));
+			const messenger = new TypedMessenger();
+			messenger.initializeWebSocket(castSocket, {});
+			socket.dispatchEvent(new MessageEvent("message", {
+				data: "{this is not a json string",
+			}));
+
+			assertSpyCalls(consoleSpy, 1);
+			assertEquals(consoleSpy.calls[0].args[0], "An error occurred while handling a websocket message.");
+		} finally {
+			consoleSpy.restore();
+		}
 	},
 });
