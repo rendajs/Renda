@@ -82,4 +82,4 @@ const responseHandlers = {
 	},
 };
 
-messenger.initialize(globalThis, responseHandlers);
+messenger.initializeWorkerContext(responseHandlers);

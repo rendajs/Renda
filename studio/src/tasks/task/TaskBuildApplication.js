@@ -47,7 +47,7 @@ export class TaskBuildApplication extends Task {
 		super(...args);
 
 		this.#messenger = new TypedMessenger({returnTransferSupport: true});
-		this.#messenger.initialize(this.worker, this.getResponseHandlers());
+		this.#messenger.initializeWorker(this.worker, this.getResponseHandlers());
 	}
 
 	/**

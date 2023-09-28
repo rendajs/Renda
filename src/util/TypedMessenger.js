@@ -308,40 +308,90 @@ export class TypedMessenger {
 	}
 
 	/**
-	 * Utility function meant for replacing boilerplate code. This registers
-	 * the appropriate events on the window or worker needed for communication,
-	 * as well as registering response handlers.
+	 * Utility function for communicating with a worker thread.
+	 * This registers the message event on the worker and registers the response handlers of the main thread.
 	 *
-	 * For example, on the main thread you can call
+	 * For example, on the main thread you can call:
 	 * ```js
+	 * const messenger = new TypedMessenger();
 	 * const worker = new Worker(...);
-	 * messenger.initialize(worker, responseHandlers);
+	 * messenger.initializeWorker(worker, responseHandlers);
 	 * ```
-	 * and then inside the worker thread you can call
+	 * and then inside the worker thread you can call:
 	 * ```js
-	 * messenger.initialize(globalThis, responseHandlers);
+	 * const messenger = new TypedMessenger();
+	 * messenger.initializeWorkerContext(responseHandlers);
 	 * ```
-	 * @param {Worker | globalThis} workerOrWorkerContext
+	 * @param {Worker} worker
 	 * @param {ResponseHandlers} responseHandlers
 	 */
-	initialize(workerOrWorkerContext, responseHandlers) {
-		if (workerOrWorkerContext instanceof Worker) {
-			this.setSendHandler(data => {
-				workerOrWorkerContext.postMessage(data.sendData, data.transfer);
+	initializeWorker(worker, responseHandlers) {
+		this.setSendHandler(data => {
+			worker.postMessage(data.sendData, data.transfer);
+		});
+		worker.addEventListener("message", event => {
+			this.handleReceivedMessage(event.data);
+		});
+		this.setResponseHandlers(responseHandlers);
+	}
+
+	/**
+	 * Utility function for communicating with the main thread from within a worker.
+	 * This registers the message event on `globalThis` and registers response handlers of the worker.
+	 *
+	 * For example, on the main thread you can call:
+	 * ```js
+	 * const messenger = new TypedMessenger();
+	 * const worker = new Worker(...);
+	 * messenger.initializeWorker(worker, responseHandlers);
+	 * ```
+	 * and then inside the worker thread you can call:
+	 * ```js
+	 * const messenger = new TypedMessenger();
+	 * messenger.initializeWorkerContext(responseHandlers);
+	 * ```
+	 * @param {ResponseHandlers} responseHandlers
+	 */
+	initializeWorkerContext(responseHandlers) {
+		this.setSendHandler(data => {
+			globalThis.postMessage(data.sendData, {
+				transfer: data.transfer,
 			});
-			workerOrWorkerContext.addEventListener("message", event => {
-				this.handleReceivedMessage(event.data);
-			});
-		} else {
-			this.setSendHandler(data => {
-				workerOrWorkerContext.postMessage(data.sendData, {
-					transfer: data.transfer,
-				});
-			});
-			workerOrWorkerContext.addEventListener("message", event => {
-				this.handleReceivedMessage(event.data);
-			});
-		}
+		});
+		globalThis.addEventListener("message", event => {
+			this.handleReceivedMessage(event.data);
+		});
+		this.setResponseHandlers(responseHandlers);
+	}
+
+	/**
+	 * Utility function for connecting two WebSockets.
+	 * This registers the message event on `globalThis` and registers response handlers of the worker.
+	 *
+	 * For example, on the main thread you can call:
+	 * ```js
+	 * const messenger = new TypedMessenger();
+	 * const socket = new WebSocket(...);
+	 * messenger.initializeWebSocket(socket, responseHandlers);
+	 * ```
+	 *
+	 * @param {WebSocket} webSocket
+	 * @param {ResponseHandlers} responseHandlers
+	 */
+	initializeWebSocket(webSocket, responseHandlers) {
+		this.setSendHandler(data => {
+			webSocket.send(JSON.stringify(data.sendData));
+		});
+		webSocket.addEventListener("message", async message => {
+			try {
+				if (typeof message.data == "string") {
+					const parsed = JSON.parse(message.data);
+					this.handleReceivedMessage(parsed);
+				}
+			} catch (e) {
+				console.error("An error occurred while handling a websocket message.", message.data, e);
+			}
+		});
 		this.setResponseHandlers(responseHandlers);
 	}
 
