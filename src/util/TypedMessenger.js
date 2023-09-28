@@ -379,10 +379,10 @@ export class TypedMessenger {
 	 * @param {ResponseHandlers} responseHandlers
 	 */
 	initializeWebSocket(webSocket, responseHandlers) {
-		this.setSendHandler((data) => {
+		this.setSendHandler(data => {
 			webSocket.send(JSON.stringify(data.sendData));
 		});
-		webSocket.addEventListener("message", async (message) => {
+		webSocket.addEventListener("message", async message => {
 			try {
 				if (typeof message.data == "string") {
 					const parsed = JSON.parse(message.data);
