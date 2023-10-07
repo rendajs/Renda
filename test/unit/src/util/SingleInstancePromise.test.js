@@ -277,9 +277,9 @@ Deno.test({
 				order.push(3);
 			})();
 
-			resolvePromise("1");
-			resolvePromise("2");
-			resolvePromise("3");
+			await resolvePromise("1");
+			await resolvePromise("2");
+			await resolvePromise("3");
 			await promise1;
 			await promise2;
 			await promise3;
