@@ -105,6 +105,8 @@
  * @property {Transferable[]} [transfer] An array of objects that should be transferred.
  * For this to work, the `TypedMessenger.setSendHandler()` callback should pass the `transfer` data to the correct `postMessage()` argument.
  * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
+ * @property {number} [timeout] Timeout in milliseconds at which point the promise will reject.
+ * The default is `0`, which disables the timeout completely. Meaning that the promise would stay unresolved indefinitely if the other end never responds.
  */
 
 /**
@@ -275,7 +277,7 @@ export class TypedMessenger {
 				 * @param {Parameters<TReq[string]>} args
 				 */
 				return async (...args) => {
-					return await this._sendInternal(prop, [], ...args);
+					return await this._sendInternal({}, prop, ...args);
 				};
 			},
 		});
@@ -302,7 +304,7 @@ export class TypedMessenger {
 				 */
 				return async (...args) => {
 					const [options, ...restArgs] = args;
-					return await this._sendInternal(prop, options.transfer || [], ...restArgs);
+					return await this._sendInternal(options, prop, ...restArgs);
 				};
 			},
 		});
@@ -533,44 +535,65 @@ export class TypedMessenger {
 	 * Sends a message to the other TypedMessenger.
 	 * @private
 	 * @template {keyof TReq} T
+	 * @param {TypedMessengerSendOptions} options
 	 * @param {T} type
-	 * @param {Transferable[]} transfer
 	 * @param {Parameters<TReq[T]>} args
 	 */
-	async _sendInternal(type, transfer, ...args) {
-		if (!this.sendHandler) {
-			throw new Error("Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
-		}
-		const requestId = this.lastRequestId++;
+	async _sendInternal(options, type, ...args) {
+		const responsePromise = (async () => {
+			if (!this.sendHandler) {
+				throw new Error("Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
+			}
+			const requestId = this.lastRequestId++;
 
-		/**
-		 * @type {Promise<GetReturnType<TReq, T, TRequireHandlerReturnObjects>>}
-		 */
-		const promise = new Promise((resolve, reject) => {
-			this.onResponseMessage(requestId, message => {
-				if (message.didThrow) {
-					/** @type {unknown} */
-					let rejectValue = message.returnValue;
-					if (this.deserializeErrorHook) {
-						rejectValue = this.deserializeErrorHook(rejectValue);
+			/**
+			 * @type {Promise<GetReturnType<TReq, T, TRequireHandlerReturnObjects>>}
+			 */
+			const promise = new Promise((resolve, reject) => {
+				this.onResponseMessage(requestId, message => {
+					if (message.didThrow) {
+						/** @type {unknown} */
+						let rejectValue = message.returnValue;
+						if (this.deserializeErrorHook) {
+							rejectValue = this.deserializeErrorHook(rejectValue);
+						}
+						reject(rejectValue);
+					} else {
+						resolve(message.returnValue);
 					}
-					reject(rejectValue);
-				} else {
-					resolve(message.returnValue);
-				}
+				});
 			});
-		});
 
-		await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
-			sendData: {
-				direction: "request",
-				id: requestId,
-				type,
-				args,
-			},
-			transfer,
-		}));
-		return await promise;
+			await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
+				sendData: {
+					direction: "request",
+					id: requestId,
+					type,
+					args,
+				},
+				transfer: options.transfer || [],
+			}));
+			return await promise;
+		})();
+
+		if (options.timeout && options.timeout > 0) {
+			const promise = new Promise((resolve, reject) => {
+				const timeout = globalThis.setTimeout(() => {
+					reject(new Error("TypedMessenger response timed out."));
+				}, options.timeout);
+
+				responsePromise.then(result => {
+					resolve(result);
+					globalThis.clearTimeout(timeout);
+				}).catch(err => {
+					reject(err);
+					globalThis.clearTimeout(timeout);
+				});
+			});
+			return await promise;
+		} else {
+			return await responsePromise;
+		}
 	}
 
 	/**

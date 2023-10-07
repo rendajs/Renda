@@ -2,6 +2,8 @@ import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asser
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {assertIsType} from "../../../shared/typeAssertions.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
+import {FakeTime} from "std/testing/time.ts";
+import {assertPromiseResolved} from "../../../shared/asserts.js";
 
 /**
  * Directly links two TypedMessengers to each other without the use of a WebSocket or anything like that.
@@ -299,6 +301,10 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await messengerA.send.throws();
+		}, TypeError, "Error message");
+
+		await assertRejects(async () => {
+			await messengerA.sendWithOptions.throws({timeout: 1000});
 		}, TypeError, "Error message");
 	},
 });
@@ -706,5 +712,85 @@ Deno.test({
 		} finally {
 			consoleSpy.restore();
 		}
+	},
+});
+
+Deno.test({
+	name: "Send promise stays pending forever when no timeout is set",
+	async fn() {
+		const messenger = new TypedMessenger();
+		messenger.setSendHandler(() => {});
+
+		const promise = messenger.send.foo();
+		await assertPromiseResolved(promise, false);
+	},
+});
+
+Deno.test({
+	name: "Send promise rejects when timeout is reached",
+	async fn() {
+		const time = new FakeTime();
+
+		try {
+			const messenger = new TypedMessenger();
+			messenger.setSendHandler(() => {});
+
+			const assertRejectsPromise = assertRejects(async () => {
+				await messenger.sendWithOptions.foo({timeout: 10_000});
+			}, Error, "TypedMessenger response timed out.");
+
+			const assertResolved1 = assertPromiseResolved(assertRejectsPromise, false);
+			await time.tickAsync(9_000);
+			await assertResolved1;
+
+			await time.tickAsync(2_000);
+			const assertResolved2 = assertPromiseResolved(assertRejectsPromise, true);
+			await time.nextAsync();
+			await assertResolved2;
+			await assertRejectsPromise;
+		} finally {
+			time.restore();
+		}
+	},
+});
+
+Deno.test({
+	name: "Send promise does not reject when it responds in time",
+	async fn() {
+		const time = new FakeTime();
+
+		try {
+			const messengerA = new TypedMessenger();
+			const messengerB = new TypedMessenger();
+			linkMessengers(messengerA, messengerB);
+			messengerB.setResponseHandlers({
+				foo() {},
+			});
+
+			const sendPromise = messengerA.sendWithOptions.foo({timeout: 10_000});
+			await time.tickAsync(5_000);
+			const assertResolvedPromise = assertPromiseResolved(sendPromise, true);
+			await time.nextAsync();
+			await assertResolvedPromise;
+			await sendPromise;
+		} finally {
+			time.restore();
+		}
+	},
+});
+
+Deno.test({
+	name: "Timeouts are cleared when a response is received",
+	async fn() {
+		const messengerA = new TypedMessenger();
+		const messengerB = new TypedMessenger();
+		linkMessengers(messengerA, messengerB);
+		messengerB.setResponseHandlers({
+			foo() {},
+		});
+
+		await messengerA.sendWithOptions.foo({timeout: 10_000});
+
+		// The Deno test runner will verify if the timeout was cleared using its test sanitizers.
 	},
 });
