@@ -242,11 +242,32 @@ export class TypedMessenger {
 	 * });
 	 * ```
 	 * @param {((error: unknown) => unknown)?} [options.deserializeErrorHook] See {@linkcode serializeErrorHook}.
+	 * @param {number} [options.globalTimeout] Timeout in milliseconds at which point the calls on `send` and `sendWithOptions` will reject.
+	 * The default is `0`, which disables the timeout completely. Meaning that promises would stay unresolved indefinitely if the other end never responds.
+	 * You can also set timeouts for individual messages using the `timeout` option of `sendWithOptions`.
+	 *
+	 * Note that setting a global timeout may cause errors for all messages, even if you don't expect or need a response from one of the messages.
+	 * For example:
+	 * ```js
+	 * // In this case we are clearly requesting data from the other end,
+	 * // so timeout errors are likely desired.
+	 * async function getDataFromServer() {
+	 * 	return await messenger.send.getMyData();
+	 * }
+	 *
+	 * // But here we don't expect a response, so it's easy to forget that a global timeout could still cause an error here.
+	 * // In this case the function is not async and neither does it return the promise from `notify()`,
+	 * // resulting in an uncaught promise rejection that is very difficult to catch for the caller of `notifyServerAboutSomething()`.
+	 * function notifyServerAboutSomething() {
+	 * 	messenger.send.notify();
+	 * }
+	 * ```
 	 */
 	constructor({
 		returnTransferSupport = /** @type {TRequireHandlerReturnObjects} */ (false),
 		serializeErrorHook = null,
 		deserializeErrorHook = null,
+		globalTimeout = 0,
 	} = {}) {
 		/** @private */
 		this.returnTransferSupport = returnTransferSupport;
@@ -267,6 +288,31 @@ export class TypedMessenger {
 		this.serializeErrorHook = serializeErrorHook;
 		/** @private */
 		this.deserializeErrorHook = deserializeErrorHook;
+
+		/**
+		 * Timeout in milliseconds at which point the calls on `send` and `sendWithOptions` will reject.
+		 * Setting this to `0` disables the timeout completely. Meaning that promises would stay unresolved indefinitely if the other end never responds.
+		 * Changing this value does not retroactively change timeouts of existing messages.
+		 * You can also set timeouts for individual messages using the `timeout` option of `sendWithOptions`.
+		 *
+		 * Note that setting a global timeout may cause errors for all messages, even if you don't expect or need a response from one of the messages.
+		 * For example:
+		 * ```js
+		 * // In this case we are clearly requesting data from the other end,
+		 * // so timeout errors are likely desired.
+		 * async function getDataFromServer() {
+		 * 	return await messenger.send.getMyData();
+		 * }
+		 *
+		 * // But here we don't expect a response, so it's easy to forget that a global timeout could still cause an error here.
+		 * // In this case the function is not async and neither does it return the promise from `notify()`,
+		 * // resulting in an uncaught promise rejection that is very difficult to catch for the caller of `notifyServerAboutSomething()`.
+		 * function notifyServerAboutSomething() {
+		 * 	messenger.send.notify();
+		 * }
+		 * ```
+		 */
+		this.globalTimeout = globalTimeout;
 
 		const proxy = new Proxy({}, {
 			get: (target, prop, receiver) => {
@@ -576,18 +622,20 @@ export class TypedMessenger {
 			return await promise;
 		})();
 
-		if (options.timeout && options.timeout > 0) {
+		const timeout = options.timeout || this.globalTimeout;
+
+		if (timeout > 0) {
 			const promise = new Promise((resolve, reject) => {
-				const timeout = globalThis.setTimeout(() => {
+				const createdTimeout = globalThis.setTimeout(() => {
 					reject(new Error("TypedMessenger response timed out."));
-				}, options.timeout);
+				}, timeout);
 
 				responsePromise.then(result => {
 					resolve(result);
-					globalThis.clearTimeout(timeout);
+					globalThis.clearTimeout(createdTimeout);
 				}).catch(err => {
 					reject(err);
-					globalThis.clearTimeout(timeout);
+					globalThis.clearTimeout(createdTimeout);
 				});
 			});
 			return await promise;

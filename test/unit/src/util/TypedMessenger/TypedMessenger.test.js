@@ -739,8 +739,9 @@ Deno.test({
 				await messenger.sendWithOptions.foo({timeout: 10_000});
 			}, Error, "TypedMessenger response timed out.");
 
-			const assertResolved1 = assertPromiseResolved(assertRejectsPromise, false);
 			await time.tickAsync(9_000);
+			const assertResolved1 = assertPromiseResolved(assertRejectsPromise, false);
+			await time.nextAsync();
 			await assertResolved1;
 
 			await time.tickAsync(2_000);
@@ -748,6 +749,54 @@ Deno.test({
 			await time.nextAsync();
 			await assertResolved2;
 			await assertRejectsPromise;
+		} finally {
+			time.restore();
+		}
+	},
+});
+
+Deno.test({
+	name: "Send promise rejects when global timeout is reached",
+	async fn() {
+		const time = new FakeTime();
+
+		try {
+			const messenger = new TypedMessenger({globalTimeout: 10_000});
+			messenger.setSendHandler(() => {});
+
+			const assertRejectsPromise1 = assertRejects(async () => {
+				await messenger.send.foo();
+			}, Error, "TypedMessenger response timed out.");
+
+			// Changing the timeout doesn't affect existing requests.
+			messenger.globalTimeout = 5_000;
+
+			await time.tickAsync(9_000);
+			const assertResolved1 = assertPromiseResolved(assertRejectsPromise1, false);
+			await time.nextAsync();
+			await assertResolved1;
+
+			await time.tickAsync(2_000);
+			const assertResolved2 = assertPromiseResolved(assertRejectsPromise1, true);
+			await time.nextAsync();
+			await assertResolved2;
+			await assertRejectsPromise1;
+
+			// But new requests do use the new global timeout value
+			const assertRejectsPromise2 = assertRejects(async () => {
+				await messenger.send.foo();
+			}, Error, "TypedMessenger response timed out.");
+
+			await time.tickAsync(4_000);
+			const assertResolved3 = assertPromiseResolved(assertRejectsPromise2, false);
+			await time.nextAsync();
+			await assertResolved3;
+
+			await time.tickAsync(2_000);
+			const assertResolved4 = assertPromiseResolved(assertRejectsPromise2, true);
+			await time.nextAsync();
+			await assertResolved4;
+			await assertRejectsPromise2;
 		} finally {
 			time.restore();
 		}
