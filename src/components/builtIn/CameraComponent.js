@@ -5,7 +5,6 @@ import {STUDIO_DEFAULTS_IN_COMPONENTS} from "../../studioDefines.js";
 import {Component} from "../Component.js";
 import {Vec4} from "../../math/Vec4.js";
 import {Mat4} from "../../math/Mat4.js";
-import {createTreeViewStructure} from "../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
 import {getRaycastRayFromScreenPos, screenToWorldPos, worldToScreenPos} from "../../util/cameraUtil.js";
 
 export class CameraComponent extends Component {
@@ -20,7 +19,7 @@ export class CameraComponent extends Component {
 	 * @override
 	 */
 	static get guiStructure() {
-		const structure = createTreeViewStructure({
+		const structure = /** @satisfies {import("../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */ ({
 			fov: {
 				type: "number",
 				guiOpts: {
