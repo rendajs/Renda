@@ -4,7 +4,7 @@ import {assertIsType} from "../../../shared/typeAssertions.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
 
 Deno.test({
-	name: "send proxy and sendWithTransferProxy",
+	name: "send proxy and sendWithOptionsProxy",
 	async fn() {
 		const requestHandlers = {
 			/**
@@ -41,9 +41,9 @@ Deno.test({
 		assertEquals(result1, true);
 		const result2 = await messengerA.send.isHigher(1, 2);
 		assertEquals(result2, false);
-		const result3 = await messengerA.sendWithTransfer.isHigher([], 2, 1);
+		const result3 = await messengerA.sendWithOptions.isHigher({}, 2, 1);
 		assertEquals(result3, true);
-		const result4 = await messengerA.sendWithTransfer.isHigher([], 1, 2);
+		const result4 = await messengerA.sendWithOptions.isHigher({}, 1, 2);
 		assertEquals(result4, false);
 
 		// @ts-expect-error Verify that the parameter types are correct and not 'any':
@@ -56,7 +56,7 @@ Deno.test({
 		assertIsType("", result5);
 		assertEquals(result5, true);
 
-		const result6 = await messengerA.sendWithTransfer.returnsTrue([]);
+		const result6 = await messengerA.sendWithOptions.returnsTrue({});
 		// Verify that the return type is boolean and nothing else
 		assertIsType(true, result6);
 		// @ts-expect-error Verify that the return type is boolean and not 'any':
@@ -70,19 +70,19 @@ Deno.test({
 		// @ts-expect-error Verify that TypeScript emits an error when a non existent function is called
 		messengerA.send.nonExistent();
 		// @ts-expect-error Verify that TypeScript emits an error when a non existent function is called
-		messengerA.sendWithTransfer.nonExistent([]);
+		messengerA.sendWithOptions.nonExistent([]);
 
 		// @ts-expect-error Verify that an error is emitted when too many arguments are passed.
 		messengerA.send.noArgs("too", "many", "args");
 		// @ts-expect-error Verify that an error is emitted when too many arguments are passed.
-		messengerA.sendWithTransfer.noArgs([], "too", "many", "args");
+		messengerA.sendWithOptions.noArgs([], "too", "many", "args");
 
 		// @ts-expect-error Verify that an error is emitted when too few arguments are passed.
 		messengerA.send.twoArgs();
 		// @ts-expect-error Verify that an error is emitted when too few arguments are passed.
-		messengerA.sendWithTransfer.twoArgs([]);
+		messengerA.sendWithOptions.twoArgs([]);
 		// @ts-expect-error Verify that an error is emitted the transfer argument is missing.
-		messengerA.sendWithTransfer.twoArgs(1, 2);
+		messengerA.sendWithOptions.twoArgs(1, 2);
 
 		// @ts-expect-error Verify that an error is emitted when too many arguments are passed.
 		messengerA.send.twoArgs(1, 2, 3);
@@ -97,7 +97,7 @@ Deno.test({
 		// @ts-expect-error Verify that the type isn't 'any'
 		assertIsType("", actualBoolPromise1);
 
-		const actualBoolPromise2 = messengerA.sendWithTransfer.returnsBool([]);
+		const actualBoolPromise2 = messengerA.sendWithOptions.returnsBool({});
 		// Verify that the type is Promise<boolean> and nothing else
 		assertIsType(expectedBoolPromise, actualBoolPromise2);
 		// @ts-expect-error Verify that the type isn't 'any'
@@ -126,7 +126,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "sendWithTransfer is passed on in the transfer property",
+	name: "sendWithOptions passes on the transfer property",
 	async fn() {
 		const requestHandlers = {
 			/**
@@ -157,12 +157,27 @@ Deno.test({
 
 		const transferObj = new ArrayBuffer(0);
 
-		await messengerA.sendWithTransfer.needsTransfer([transferObj], 1, 2);
+		// Providing a transfer array should pass it on to the message data.
+		await messengerA.sendWithOptions.needsTransfer({transfer: [transferObj]}, 1, 2);
 
 		assertEquals(messages.length, 1);
 		assertEquals(messages[0].sendData.args, [1, 2]);
 		assertEquals(messages[0].transfer.length, 1);
 		assertStrictEquals(messages[0].transfer[0], transferObj);
+
+		// Providing an empty options object should result in an empty transfer array
+		await messengerA.sendWithOptions.needsTransfer({}, 3, 4);
+
+		assertEquals(messages.length, 2);
+		assertEquals(messages[1].sendData.args, [3, 4]);
+		assertEquals(messages[1].transfer.length, 0);
+
+		// Providing no options at all should result in an empty transfer array
+		await messengerA.send.needsTransfer(5, 6);
+
+		assertEquals(messages.length, 3);
+		assertEquals(messages[2].sendData.args, [5, 6]);
+		assertEquals(messages[2].transfer.length, 0);
 	},
 });
 

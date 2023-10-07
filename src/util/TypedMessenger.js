@@ -101,9 +101,16 @@
  */
 
 /**
+ * @typedef TypedMessengerSendOptions
+ * @property {Transferable[]} [transfer] An array of objects that should be transferred.
+ * For this to work, the `TypedMessenger.setSendHandler()` callback should pass the `transfer` data to the correct `postMessage()` argument.
+ * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
+ */
+
+/**
  * @template {TypedMessengerSignatures} TReq
  * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {{[x in keyof TReq]: (transfer: Transferable[], ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerWithTransferProxy
+ * @typedef {{[x in keyof TReq]: (options: TypedMessengerSendOptions, ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerWithOptionsProxy
  */
 
 /**
@@ -193,7 +200,7 @@ export class TypedMessenger {
 	 * But when this is true you should return an object with the format
 	 * `{returnValue: any, transfer?: Transferable[]}`.
 	 * Note that transferring objects that are passed in as arguments is always
-	 * supported. You can use {@linkcode sendWithTransfer} for this. This option
+	 * supported. You can use {@linkcode sendWithOptions} for this. This option
 	 * is only useful if you wish to transfer objects from return values.
 	 * For more info see
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
@@ -285,26 +292,24 @@ export class TypedMessenger {
 		 */
 		this.send = /** @type {TypedMessengerProxy<TReq, TRequireHandlerReturnObjects>} */ (proxy);
 
-		const sendWithTransferProxy = new Proxy({}, {
+		const sendWithOptionsProxy = new Proxy({}, {
 			get: (target, prop, receiver) => {
 				if (typeof prop == "symbol") {
 					return undefined;
 				}
 				/**
-				 * @param {[transfer: Transferable[], ...rest: Parameters<TReq[string]>]} args
+				 * @param {[options: TypedMessengerSendOptions, ...rest: Parameters<TReq[string]>]} args
 				 */
 				return async (...args) => {
-					const [transfer, ...restArgs] = args;
-					return await this._sendInternal(prop, transfer, ...restArgs);
+					const [options, ...restArgs] = args;
+					return await this._sendInternal(prop, options.transfer || [], ...restArgs);
 				};
 			},
 		});
 		/**
-		 * This is the same as {@linkcode send}, but the first argument is an array
-		 * that contains the objects that should be transferred.
-		 * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
+		 * This is the same as {@linkcode send}, but the first argument is an object with options.
 		 */
-		this.sendWithTransfer = /** @type {TypedMessengerWithTransferProxy<TReq, TRequireHandlerReturnObjects>} */ (sendWithTransferProxy);
+		this.sendWithOptions = /** @type {TypedMessengerWithOptionsProxy<TReq, TRequireHandlerReturnObjects>} */ (sendWithOptionsProxy);
 	}
 
 	/**
