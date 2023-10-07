@@ -3,6 +3,33 @@ import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {assertIsType} from "../../../shared/typeAssertions.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
 
+/**
+ * Directly links two TypedMessengers to each other without the use of a WebSocket or anything like that.
+ * Normally this would be kind of pointless, since you likely want to communicate with a Worker or WebSocket,
+ * but inside tests this is fine.
+ * @template {import("../../../../../src/mod.js").TypedMessengerSignatures} AToBHandlers
+ * @template {import("../../../../../src/mod.js").TypedMessengerSignatures} BToAHandlers
+ * @param {TypedMessenger<AToBHandlers, BToAHandlers, any>} messengerA
+ * @param {TypedMessenger<BToAHandlers, AToBHandlers, any>} messengerB
+ */
+function linkMessengers(messengerA, messengerB) {
+	/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<BToAHandlers, AToBHandlers, any>[]} */
+	const aToBMessages = [];
+	/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<AToBHandlers, BToAHandlers, any>[]} */
+	const bToAMessages = [];
+
+	messengerA.setSendHandler(data => {
+		aToBMessages.push(data);
+		messengerB.handleReceivedMessage(/** @type {import("../../../../../src/mod.js").TypedMessengerMessageSendData<BToAHandlers, AToBHandlers, any>} */ (data.sendData));
+	});
+	messengerB.setSendHandler(data => {
+		bToAMessages.push(data);
+		messengerA.handleReceivedMessage(/** @type {import("../../../../../src/mod.js").TypedMessengerMessageSendData<AToBHandlers, BToAHandlers, any>} */ (data.sendData));
+	});
+
+	return {aToBMessages, bToAMessages};
+}
+
 Deno.test({
 	name: "send proxy and sendWithOptionsProxy",
 	async fn() {
@@ -27,14 +54,7 @@ Deno.test({
 		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
 
-		// Normally we would send the data to the worker
-		// but since this is a test, we send it between the messengers directly.
-		messengerA.setSendHandler(data => {
-			messengerB.handleReceivedMessage(data.sendData);
-		});
-		messengerB.setSendHandler(data => {
-			messengerA.handleReceivedMessage(data.sendData);
-		});
+		linkMessengers(messengerA, messengerB);
 		messengerB.setResponseHandlers(requestHandlers);
 
 		const result1 = await messengerA.send.isHigher(2, 1);
@@ -141,18 +161,7 @@ Deno.test({
 		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
 
-		/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerRequestMessage<typeof requestHandlers>[]} */
-		const messages = [];
-
-		// Normally we would send the data to the worker
-		// but since this is a test, we send it between the messengers directly.
-		messengerA.setSendHandler(data => {
-			messages.push(data);
-			messengerB.handleReceivedMessage(data.sendData);
-		});
-		messengerB.setSendHandler(data => {
-			messengerA.handleReceivedMessage(data.sendData);
-		});
+		const {aToBMessages: messages} = linkMessengers(messengerA, messengerB);
 		messengerB.setResponseHandlers(requestHandlers);
 
 		const transferObj = new ArrayBuffer(0);
@@ -229,12 +238,7 @@ Deno.test({
 	async fn() {
 		const messengerA = new TypedMessenger();
 		const messengerB = new TypedMessenger();
-		messengerA.setSendHandler(data => {
-			messengerB.handleReceivedMessage(data.sendData);
-		});
-		messengerB.setSendHandler(data => {
-			messengerA.handleReceivedMessage(data.sendData);
-		});
+		linkMessengers(messengerA, messengerB);
 		messengerB.setResponseHandlers({});
 
 		const result = await messengerA.send.foo();
@@ -290,12 +294,7 @@ Deno.test({
 
 		const messengerA = new TypedMessenger();
 		const messengerB = new TypedMessenger();
-		messengerA.setSendHandler(data => {
-			messengerB.handleReceivedMessage(data.sendData);
-		});
-		messengerB.setSendHandler(data => {
-			messengerA.handleReceivedMessage(data.sendData);
-		});
+		linkMessengers(messengerA, messengerB);
 		messengerB.setResponseHandlers(requestHandlers);
 
 		await assertRejects(async () => {
@@ -372,12 +371,7 @@ Deno.test({
 		const messengerA = new TypedMessenger({returnTransferSupport: true});
 		/** @type {TypedMessenger<typeof requestHandlers, {}, true>} */
 		const messengerB = new TypedMessenger({returnTransferSupport: true});
-		messengerA.setSendHandler(data => {
-			messengerB.handleReceivedMessage(data.sendData);
-		});
-		messengerB.setSendHandler(data => {
-			messengerA.handleReceivedMessage(data.sendData);
-		});
+		linkMessengers(messengerA, messengerB);
 		messengerB.setResponseHandlers(requestHandlers);
 
 		const result1 = await messengerA.send.isHigher(2, 1);
@@ -445,12 +439,7 @@ Deno.test({
 
 		const messengerA = new TypedMessenger({returnTransferSupport: true});
 		const messengerB = new TypedMessenger({returnTransferSupport: true});
-		messengerA.setSendHandler(data => {
-			messengerB.handleReceivedMessage(data.sendData);
-		});
-		messengerB.setSendHandler(data => {
-			messengerA.handleReceivedMessage(data.sendData);
-		});
+		linkMessengers(messengerA, messengerB);
 		messengerB.setResponseHandlers(requestHandlers);
 
 		await assertRejects(async () => {
@@ -622,6 +611,7 @@ Deno.test({
 			return JSON.parse(JSON.stringify(data));
 		}
 
+		linkMessengers(messengerA, messengerB);
 		messengerA.setSendHandler(data => {
 			messengerB.handleReceivedMessage(serialize(data.sendData));
 		});
