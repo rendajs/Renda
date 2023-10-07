@@ -101,9 +101,18 @@
  */
 
 /**
+ * @typedef TypedMessengerSendOptions
+ * @property {Transferable[]} [transfer] An array of objects that should be transferred.
+ * For this to work, the `TypedMessenger.setSendHandler()` callback should pass the `transfer` data to the correct `postMessage()` argument.
+ * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
+ * @property {number} [timeout] Timeout in milliseconds at which point the promise will reject.
+ * The default is `0`, which disables the timeout completely. Meaning that the promise would stay unresolved indefinitely if the other end never responds.
+ */
+
+/**
  * @template {TypedMessengerSignatures} TReq
  * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {{[x in keyof TReq]: (transfer: Transferable[], ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerWithTransferProxy
+ * @typedef {{[x in keyof TReq]: (options: TypedMessengerSendOptions, ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerWithOptionsProxy
  */
 
 /**
@@ -193,7 +202,7 @@ export class TypedMessenger {
 	 * But when this is true you should return an object with the format
 	 * `{returnValue: any, transfer?: Transferable[]}`.
 	 * Note that transferring objects that are passed in as arguments is always
-	 * supported. You can use {@linkcode sendWithTransfer} for this. This option
+	 * supported. You can use {@linkcode sendWithOptions} for this. This option
 	 * is only useful if you wish to transfer objects from return values.
 	 * For more info see
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
@@ -233,11 +242,32 @@ export class TypedMessenger {
 	 * });
 	 * ```
 	 * @param {((error: unknown) => unknown)?} [options.deserializeErrorHook] See {@linkcode serializeErrorHook}.
+	 * @param {number} [options.globalTimeout] Timeout in milliseconds at which point the calls on `send` and `sendWithOptions` will reject.
+	 * The default is `0`, which disables the timeout completely. Meaning that promises would stay unresolved indefinitely if the other end never responds.
+	 * You can also set timeouts for individual messages using the `timeout` option of `sendWithOptions`.
+	 *
+	 * Note that setting a global timeout may cause errors for all messages, even if you don't expect or need a response from one of the messages.
+	 * For example:
+	 * ```js
+	 * // In this case we are clearly requesting data from the other end,
+	 * // so timeout errors are likely desired.
+	 * async function getDataFromServer() {
+	 * 	return await messenger.send.getMyData();
+	 * }
+	 *
+	 * // But here we don't expect a response, so it's easy to forget that a global timeout could still cause an error here.
+	 * // In this case the function is not async and neither does it return the promise from `notify()`,
+	 * // resulting in an uncaught promise rejection that is very difficult to catch for the caller of `notifyServerAboutSomething()`.
+	 * function notifyServerAboutSomething() {
+	 * 	messenger.send.notify();
+	 * }
+	 * ```
 	 */
 	constructor({
 		returnTransferSupport = /** @type {TRequireHandlerReturnObjects} */ (false),
 		serializeErrorHook = null,
 		deserializeErrorHook = null,
+		globalTimeout = 0,
 	} = {}) {
 		/** @private */
 		this.returnTransferSupport = returnTransferSupport;
@@ -259,6 +289,31 @@ export class TypedMessenger {
 		/** @private */
 		this.deserializeErrorHook = deserializeErrorHook;
 
+		/**
+		 * Timeout in milliseconds at which point the calls on `send` and `sendWithOptions` will reject.
+		 * Setting this to `0` disables the timeout completely. Meaning that promises would stay unresolved indefinitely if the other end never responds.
+		 * Changing this value does not retroactively change timeouts of existing messages.
+		 * You can also set timeouts for individual messages using the `timeout` option of `sendWithOptions`.
+		 *
+		 * Note that setting a global timeout may cause errors for all messages, even if you don't expect or need a response from one of the messages.
+		 * For example:
+		 * ```js
+		 * // In this case we are clearly requesting data from the other end,
+		 * // so timeout errors are likely desired.
+		 * async function getDataFromServer() {
+		 * 	return await messenger.send.getMyData();
+		 * }
+		 *
+		 * // But here we don't expect a response, so it's easy to forget that a global timeout could still cause an error here.
+		 * // In this case the function is not async and neither does it return the promise from `notify()`,
+		 * // resulting in an uncaught promise rejection that is very difficult to catch for the caller of `notifyServerAboutSomething()`.
+		 * function notifyServerAboutSomething() {
+		 * 	messenger.send.notify();
+		 * }
+		 * ```
+		 */
+		this.globalTimeout = globalTimeout;
+
 		const proxy = new Proxy({}, {
 			get: (target, prop, receiver) => {
 				if (typeof prop == "symbol") {
@@ -268,7 +323,7 @@ export class TypedMessenger {
 				 * @param {Parameters<TReq[string]>} args
 				 */
 				return async (...args) => {
-					return await this._sendInternal(prop, [], ...args);
+					return await this._sendInternal({}, prop, ...args);
 				};
 			},
 		});
@@ -285,26 +340,24 @@ export class TypedMessenger {
 		 */
 		this.send = /** @type {TypedMessengerProxy<TReq, TRequireHandlerReturnObjects>} */ (proxy);
 
-		const sendWithTransferProxy = new Proxy({}, {
+		const sendWithOptionsProxy = new Proxy({}, {
 			get: (target, prop, receiver) => {
 				if (typeof prop == "symbol") {
 					return undefined;
 				}
 				/**
-				 * @param {[transfer: Transferable[], ...rest: Parameters<TReq[string]>]} args
+				 * @param {[options: TypedMessengerSendOptions, ...rest: Parameters<TReq[string]>]} args
 				 */
 				return async (...args) => {
-					const [transfer, ...restArgs] = args;
-					return await this._sendInternal(prop, transfer, ...restArgs);
+					const [options, ...restArgs] = args;
+					return await this._sendInternal(options, prop, ...restArgs);
 				};
 			},
 		});
 		/**
-		 * This is the same as {@linkcode send}, but the first argument is an array
-		 * that contains the objects that should be transferred.
-		 * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
+		 * This is the same as {@linkcode send}, but the first argument is an object with options.
 		 */
-		this.sendWithTransfer = /** @type {TypedMessengerWithTransferProxy<TReq, TRequireHandlerReturnObjects>} */ (sendWithTransferProxy);
+		this.sendWithOptions = /** @type {TypedMessengerWithOptionsProxy<TReq, TRequireHandlerReturnObjects>} */ (sendWithOptionsProxy);
 	}
 
 	/**
@@ -528,44 +581,67 @@ export class TypedMessenger {
 	 * Sends a message to the other TypedMessenger.
 	 * @private
 	 * @template {keyof TReq} T
+	 * @param {TypedMessengerSendOptions} options
 	 * @param {T} type
-	 * @param {Transferable[]} transfer
 	 * @param {Parameters<TReq[T]>} args
 	 */
-	async _sendInternal(type, transfer, ...args) {
-		if (!this.sendHandler) {
-			throw new Error("Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
-		}
-		const requestId = this.lastRequestId++;
+	async _sendInternal(options, type, ...args) {
+		const responsePromise = (async () => {
+			if (!this.sendHandler) {
+				throw new Error("Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
+			}
+			const requestId = this.lastRequestId++;
 
-		/**
-		 * @type {Promise<GetReturnType<TReq, T, TRequireHandlerReturnObjects>>}
-		 */
-		const promise = new Promise((resolve, reject) => {
-			this.onResponseMessage(requestId, message => {
-				if (message.didThrow) {
-					/** @type {unknown} */
-					let rejectValue = message.returnValue;
-					if (this.deserializeErrorHook) {
-						rejectValue = this.deserializeErrorHook(rejectValue);
+			/**
+			 * @type {Promise<GetReturnType<TReq, T, TRequireHandlerReturnObjects>>}
+			 */
+			const promise = new Promise((resolve, reject) => {
+				this.onResponseMessage(requestId, message => {
+					if (message.didThrow) {
+						/** @type {unknown} */
+						let rejectValue = message.returnValue;
+						if (this.deserializeErrorHook) {
+							rejectValue = this.deserializeErrorHook(rejectValue);
+						}
+						reject(rejectValue);
+					} else {
+						resolve(message.returnValue);
 					}
-					reject(rejectValue);
-				} else {
-					resolve(message.returnValue);
-				}
+				});
 			});
-		});
 
-		await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
-			sendData: {
-				direction: "request",
-				id: requestId,
-				type,
-				args,
-			},
-			transfer,
-		}));
-		return await promise;
+			await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
+				sendData: {
+					direction: "request",
+					id: requestId,
+					type,
+					args,
+				},
+				transfer: options.transfer || [],
+			}));
+			return await promise;
+		})();
+
+		const timeout = options.timeout || this.globalTimeout;
+
+		if (timeout > 0) {
+			const promise = new Promise((resolve, reject) => {
+				const createdTimeout = globalThis.setTimeout(() => {
+					reject(new Error("TypedMessenger response timed out."));
+				}, timeout);
+
+				responsePromise.then(result => {
+					resolve(result);
+					globalThis.clearTimeout(createdTimeout);
+				}).catch(err => {
+					reject(err);
+					globalThis.clearTimeout(createdTimeout);
+				});
+			});
+			return await promise;
+		} else {
+			return await responsePromise;
+		}
 	}
 
 	/**

@@ -19,7 +19,7 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			 * @param {Transferable[]} transfer
 			 */
 			postWorkerMessage(data, transfer) {
-				workerTypedMessenger.sendWithTransfer.parentWindowToWorkerMessage(transfer, data);
+				workerTypedMessenger.sendWithOptions.parentWindowToWorkerMessage({transfer}, data);
 			},
 			async destructor() {
 				await destructorFunction();
@@ -31,7 +31,7 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			 * @param {Transferable[]} transfer
 			 */
 			sendToParentWindow(data, transfer) {
-				parentWindowTypedMessenger.sendWithTransfer.workerToParentWindowMessage(transfer, data);
+				parentWindowTypedMessenger.sendWithOptions.workerToParentWindowMessage({transfer}, data);
 			},
 		},
 	};

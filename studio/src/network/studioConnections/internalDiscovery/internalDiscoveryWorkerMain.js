@@ -106,8 +106,8 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				if (!otherConnection) return;
 
 				const messageChannel = new MessageChannel();
-				createdConnection.parentMessenger.sendWithTransfer.connectionCreated([messageChannel.port1], otherClientId, messageChannel.port1, {});
-				otherConnection.parentMessenger.sendWithTransfer.connectionCreated([messageChannel.port2], createdConnection.id, messageChannel.port2, connectionData || {});
+				createdConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port1]}, otherClientId, messageChannel.port1, {});
+				otherConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port2]}, createdConnection.id, messageChannel.port2, connectionData || {});
 			},
 		},
 	};
@@ -148,7 +148,7 @@ export function initializeWorker(workerGlobal) {
 
 		parentMessenger.setResponseHandlers(parentWindowResponseHandlers);
 		parentMessenger.setSendHandler(data => {
-			iframeMessenger.sendWithTransfer.sendToParentWindow(data.transfer, data.sendData, data.transfer);
+			iframeMessenger.sendWithOptions.sendToParentWindow({transfer: data.transfer}, data.sendData, data.transfer);
 		});
 	});
 }
