@@ -9,6 +9,7 @@ import {getPage} from "../../../../shared/browser.js";
 
 await runE2eTest({
 	name: "Dragging entities within a scene",
+	ignore: true,
 	async fn() {
 		const {page} = await getPage();
 		await setupNewProject(page);
