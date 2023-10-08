@@ -6,6 +6,7 @@ import {clickAsset, createAsset} from "../../../shared/assets.js";
 import {clickCreateEmptyButton, getOutlinerRootEntityTreeView} from "../../../shared/contentWindows/outliner.js";
 import {setupNewProject} from "../../../shared/project.js";
 import {getPage} from "../../../../shared/browser.js";
+import { wait } from "../../../../../../src/util/Timeout.js";
 
 /**
  * @param {import("puppeteer").Page} page
@@ -49,6 +50,7 @@ await runE2eTest({
 			clickCount: 2,
 		});
 
+		await wait(1000);
 		log("Create three children");
 		for (let i = 0; i < 3; i++) {
 			await clickCreateEmptyButton(page);
