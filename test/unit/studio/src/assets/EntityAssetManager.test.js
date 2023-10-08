@@ -1,4 +1,4 @@
-import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {Entity, LightComponent} from "../../../../../src/mod.js";
 import {EntityAssetManager, EntityChangeType} from "../../../../../studio/src/assets/EntityAssetManager.js";
 import {assertPromiseResolved, assertVecAlmostEquals} from "../../../shared/asserts.js";
@@ -522,5 +522,16 @@ Deno.test({
 
 		await assertPromiseResolved(promise, true);
 		assertEquals(entity.childCount, 1);
+	},
+});
+
+Deno.test({
+	name: "waitForSourceEntityLoad throws when no entity with the provided uuid exists",
+	fn() {
+		const {manager} = basicSetup();
+
+		assertThrows(() => {
+			manager.waitForSourceEntityLoad(BASIC_ENTITY_UUID);
+		}, Error, 'No tracked entity with uuid "basic entity uuid" exists.');
 	},
 });
