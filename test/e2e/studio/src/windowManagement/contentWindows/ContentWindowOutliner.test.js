@@ -8,7 +8,7 @@ import {setupNewProject} from "../../../shared/project.js";
 import {getPage} from "../../../../shared/browser.js";
 
 await runE2eTest({
-	name: "Dragging entities within a scene",
+	name: "Dragging entities within a hierarchy",
 	forceRunCount: 100,
 	async fn() {
 		const {page} = await getPage();
@@ -20,20 +20,26 @@ await runE2eTest({
 			clickCount: 2,
 		});
 
+		log("Create three children");
 		for (let i = 0; i < 3; i++) {
 			await clickCreateEmptyButton(page);
 		}
 
-		log("Click the second child");
+		log("Click the second created child");
 		{
 			const rootTreeView = await getOutlinerRootEntityTreeView(page);
 			const secondChildEl = await waitFor(rootTreeView, ".tree-view-child-list > :nth-child(2)");
 			await click(page, secondChildEl);
 		}
 
+		log("Create a new subchild");
 		await clickCreateEmptyButton(page);
+		const rootChildCount = await page.evaluate(() => {
+			return globalThis.studio?.selected.entity.childCount;
+		});
+		assertEquals(rootChildCount, 1);
 
-		log("Drag the new child to the root");
+		log("Drag the subchild to the root");
 		{
 			const rootTreeView = await getOutlinerRootEntityTreeView(page);
 			const rootTreeViewRow = await waitFor(rootTreeView, ".tree-view-row");
