@@ -170,9 +170,7 @@ export class TypedMessenger {
 	 * your worker/server/messageport or whatever you want to communicate with contains
 	 * a similar list of handlers.
 	 *
-	 * You can then create a new TypedMessenger using the two handler objects as
-	 * generic parameters. The first argument is the set of request handlers of the
-	 * other end, the second argument is the set of request handlers on this end.
+	 * You can then create a new TypedMessenger using the two handler objects as generic parameters.
 	 *
 	 * ```ts
 	 * import type {workerRequestHandlers} from "./yourWorkerOrServerFile";
@@ -182,12 +180,81 @@ export class TypedMessenger {
 	 * Now your types are setup correctly, so when using `messenger.send` you will
 	 * get autocompletion and type checking for the arguments you pass in.
 	 *
+	 * ## Connecting two messengers
+	 *
 	 * But you still need to connect the two messengers to each other. There are two ways
 	 * to do this:
-	 * - Using {@linkcode initialize}. This is the best method when you are dealing with workers.
-	 * - Using {@linkcode setResponseHandlers}, {@linkcode setSendHandler} and {@linkcode handleReceivedMessage}. This is for all other situations.
+	 * - Using one of the initialize functions such as {@linkcode initializeWorker}, {@linkcode initializeWorkerContext} or {@linkcode initializeWebSocket}.
+	 * - Using {@linkcode setResponseHandlers}, {@linkcode setSendHandler} and {@linkcode handleReceivedMessage} for all other situations or if you want more control.
 	 *
 	 * See these respective functions for usage examples.
+	 *
+	 * ## Sending messages
+	 *
+	 * Once the two TypedMessengers are set up, you can send a message to the other end using `TypedMessenger.send`.
+	 * For example, the following invokes the `foo` handler on the other TypedMessenger and waits for its response.
+	 *
+	 * ```js
+	 * const result = await messenger.send.bar(1234);
+	 * ```
+	 *
+	 * The `result` will be whatever the handler returned on the other end.
+	 *
+	 * Alternatively, you can use {@linkcode sendWithOptions} for extra control.
+	 *
+	 * ```js
+	 * const result = await messenger.sendWithOptions.bar({timeout: 30_000}, 1234);
+	 * ```
+	 *
+	 * ## Responding
+	 *
+	 * The handlers you provided in {@linkcode setResponseHandlers} or one of the initialze functions will automatically
+	 * respond with whatever you return in them. So let's say you have the following handlers:
+	 *
+	 * ```js
+	 * const handlers = {
+	 * 	foo() {
+	 * 		return true;
+	 * 	}
+	 * }
+	 * ```
+	 *
+	 * when the other end invokes the `messenger.send.foo()` it will return a `Promise<true>`.
+	 *
+	 * However, in some cases you need more control over how responses are being sent.
+	 * Let's say you'd like to transfer an `ArrayBuffer` for example.
+	 * In that case you can also return an object with the `$respondOptions` property:
+	 *
+	 * ```js
+	 * const handlers = {
+	 * 	foo() {
+	 * 		const buffer = new ArrayBuffer(0);
+	 * 		return {
+	 * 			$respondOptions: {
+	 * 				returnValue: buffer,
+	 * 				transfer: [buffer],
+	 * 			}
+	 * 		}
+	 * 	}
+	 * }
+	 * ```
+	 *
+	 * In the example above, a call to `messenger.send.foo()` would return the created ArrayBuffer and also transfer it.
+	 *
+	 * If you want autocompletions, you can make use of the TypeScript `satisfies` operator:
+	 *
+	 * ```js
+	 * import type {TypedMessengerRequestHandlerReturn} from "./TypedMessenger.js";
+	 * const handlers = {
+	 * 	foo() {
+	 * 		return {
+	 * 			$respondOptions: {
+	 * 				returnValue: "result",
+	 * 			}
+	 * 		} satisfies TypedMessengerRequestHandlerReturn;
+	 * 	}
+	 * }
+	 * ```
 	 *
 	 * @param {object} options
 	 * @param {((error: unknown) => unknown)?} [options.serializeErrorHook] This hook allows you to
