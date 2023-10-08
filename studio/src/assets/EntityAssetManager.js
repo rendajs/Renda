@@ -257,6 +257,7 @@ export class EntityAssetManager {
 	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
 	updateEntity(entityInstance, changeEventType, eventSource) {
+		console.log("update entity");
 		const rootData = this.findRootEntityAsset(entityInstance);
 		if (rootData) {
 			const {uuid, root, indicesPath} = rootData;
@@ -281,6 +282,7 @@ export class EntityAssetManager {
 			}
 		}
 		this.#fireEvent(entityInstance, entityInstance, changeEventType, eventSource);
+		console.log("entity child count", entityInstance.childCount);
 	}
 
 	/**
