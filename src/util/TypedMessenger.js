@@ -2,7 +2,6 @@
 /**
  * @template {TypedMessengerSignatures} TReq
  * @template {keyof TReq} TReqType
- * @template {boolean} [TRequireHandlerReturnObjects = false]
  * @typedef {Awaited<ReturnType<TReq[TReqType]>> extends infer HandlerReturn ?
  * 	TRequireHandlerReturnObjects extends true ?
  * 		HandlerReturn extends void ?
@@ -46,58 +45,50 @@
 /**
  * @template {TypedMessengerSignatures} TRes
  * @template {keyof TRes} TResType
- * @template {boolean} TRequireHandlerReturnObjects
  * @typedef TypedMessengerResponseMessageSendData
  * @property {"response"} direction
  * @property {number} id
  * @property {TResType} type
  * @property {boolean} didThrow
- * @property {GetReturnType<TRes, TResType, TRequireHandlerReturnObjects>} returnValue
+ * @property {GetReturnType<TRes, TResType>} returnValue
  */
 /**
  * @template {TypedMessengerSignatures} TRes
  * @template {keyof TRes} TResType
- * @template {boolean} TRequireHandlerReturnObjects
  * @typedef TypedMessengerResponseMessage
- * @property {TypedMessengerResponseMessageSendData<TRes, TResType, TRequireHandlerReturnObjects>} sendData
+ * @property {TypedMessengerResponseMessageSendData<TRes, TResType>} sendData
  * @property {Transferable[]} transfer
  */
 /**
  * @template {TypedMessengerSignatures} TRes
  * @template {keyof TRes} TResType
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {TResType extends keyof TRes ? TypedMessengerResponseMessage<TRes, TResType, TRequireHandlerReturnObjects> : never} TypedMessengerResponseMessageHelper
+ * @typedef {TResType extends keyof TRes ? TypedMessengerResponseMessage<TRes, TResType> : never} TypedMessengerResponseMessageHelper
  */
 /**
  * @template {TypedMessengerSignatures} TRes
  * @template {keyof TRes} TResType
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {TResType extends keyof TRes ? TypedMessengerResponseMessageSendData<TRes, TResType, TRequireHandlerReturnObjects> : never} TypedMessengerResponseMessageSendDataHelper
+ * @typedef {TResType extends keyof TRes ? TypedMessengerResponseMessageSendData<TRes, TResType> : never} TypedMessengerResponseMessageSendDataHelper
  */
 /**
  * @template {TypedMessengerSignatures} TReq
  * @template {TypedMessengerSignatures} TRes
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {TypedMessengerRequestMessageHelper<TReq> | TypedMessengerResponseMessageHelper<TRes, keyof TRes, TRequireHandlerReturnObjects>} TypedMessengerMessage
+ * @typedef {TypedMessengerRequestMessageHelper<TReq> | TypedMessengerResponseMessageHelper<TRes, keyof TRes>} TypedMessengerMessage
  */
 /**
  * @template {TypedMessengerSignatures} TReq
  * @template {TypedMessengerSignatures} TRes
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {TypedMessengerRequestMessageSendDataHelper<TReq> | TypedMessengerResponseMessageSendDataHelper<TRes, keyof TRes, TRequireHandlerReturnObjects>} TypedMessengerMessageSendData
+ * @typedef {TypedMessengerRequestMessageSendDataHelper<TReq> | TypedMessengerResponseMessageSendDataHelper<TRes, keyof TRes>} TypedMessengerMessageSendData
  */
 
 /**
  * @template {TypedMessengerSignatures} TReq
  * @template {TypedMessengerSignatures} TRes
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {(data: TypedMessengerMessage<TReq, TRes, TRequireHandlerReturnObjects>) => void | Promise<void>} TypedMessengerSendHandler
+ * @typedef {(data: TypedMessengerMessage<TReq, TRes>) => void | Promise<void>} TypedMessengerSendHandler
  */
 
 /**
  * @template {TypedMessengerSignatures} TReq
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {{[x in keyof TReq]: (...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerProxy
+ * @typedef {{[x in keyof TReq]: (...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x>>}} TypedMessengerProxy
  */
 
 /**
@@ -111,8 +102,7 @@
 
 /**
  * @template {TypedMessengerSignatures} TReq
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {{[x in keyof TReq]: (options: TypedMessengerSendOptions, ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerWithOptionsProxy
+ * @typedef {{[x in keyof TReq]: (options: TypedMessengerSendOptions, ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x>>}} TypedMessengerWithOptionsProxy
  */
 
 /**
@@ -138,7 +128,6 @@
  * ```
  * @template {TypedMessengerSignatures} TRes The handlers of this messenger.
  * @template {TypedMessengerSignatures} TReq The handlers of the other messenger.
- * @template {boolean} [TRequireHandlerReturnObjects = false]
  */
 export class TypedMessenger {
 	/**
@@ -195,17 +184,6 @@ export class TypedMessenger {
 	 * See these respective functions for usage examples.
 	 *
 	 * @param {object} options
-	 * @param {TRequireHandlerReturnObjects} [options.returnTransferSupport] Whether the
-	 * messenger has support for transferring objects from return values. When this is true,
-	 * the return values of your handlers are expected to be different:
-	 * When this is false, you can just return whatever you want from your handlers.
-	 * But when this is true you should return an object with the format
-	 * `{returnValue: any, transfer?: Transferable[]}`.
-	 * Note that transferring objects that are passed in as arguments is always
-	 * supported. You can use {@linkcode sendWithOptions} for this. This option
-	 * is only useful if you wish to transfer objects from return values.
-	 * For more info see
-	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
 	 * @param {((error: unknown) => unknown)?} [options.serializeErrorHook] This hook allows you to
 	 * serialize thrown errors before transferring them to the other TypedMessenger.
 	 * If you are using a worker or iframe, regular 'Error' objects are automatically serialized.
@@ -264,24 +242,20 @@ export class TypedMessenger {
 	 * ```
 	 */
 	constructor({
-		returnTransferSupport = /** @type {TRequireHandlerReturnObjects} */ (false),
 		serializeErrorHook = null,
 		deserializeErrorHook = null,
 		globalTimeout = 0,
 	} = {}) {
 		/** @private */
-		this.returnTransferSupport = returnTransferSupport;
-
-		/** @private */
 		this.lastRequestId = 0;
 
-		/** @private @type {TypedMessengerSendHandler<TReq, TRes, TRequireHandlerReturnObjects>?} */
+		/** @private @type {TypedMessengerSendHandler<TReq, TRes>?} */
 		this.sendHandler = null;
 
 		/** @private */
 		this.responseHandlers = null;
 
-		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq, TRequireHandlerReturnObjects>) => void>>} */
+		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq>) => void>>} */
 		this.onRequestIdMessageCbs = new Map();
 
 		/** @private */
@@ -338,7 +312,7 @@ export class TypedMessenger {
 		 * where `myFunction` is the name of one of the functions provided in {@linkcode initialize} or {@linkcode setResponseHandlers}.
 		 *
 		 */
-		this.send = /** @type {TypedMessengerProxy<TReq, TRequireHandlerReturnObjects>} */ (proxy);
+		this.send = /** @type {TypedMessengerProxy<TReq>} */ (proxy);
 
 		const sendWithOptionsProxy = new Proxy({}, {
 			get: (target, prop, receiver) => {
@@ -357,7 +331,7 @@ export class TypedMessenger {
 		/**
 		 * This is the same as {@linkcode send}, but the first argument is an object with options.
 		 */
-		this.sendWithOptions = /** @type {TypedMessengerWithOptionsProxy<TReq, TRequireHandlerReturnObjects>} */ (sendWithOptionsProxy);
+		this.sendWithOptions = /** @type {TypedMessengerWithOptionsProxy<TReq>} */ (sendWithOptionsProxy);
 	}
 
 	/**
@@ -463,7 +437,7 @@ export class TypedMessenger {
 	 * });
 	 * ```
 	 *
-	 * @param {TypedMessengerSendHandler<TReq, TRes, TRequireHandlerReturnObjects>} sendHandler
+	 * @param {TypedMessengerSendHandler<TReq, TRes>} sendHandler
 	 */
 	setSendHandler(sendHandler) {
 		this.sendHandler = sendHandler;
@@ -482,7 +456,7 @@ export class TypedMessenger {
 	 * 	messenger.handleReceivedMessage(event.data);
 	 * })
 	 * ```
-	 * @param {TypedMessengerMessageSendData<TRes, TReq, TRequireHandlerReturnObjects>} data
+	 * @param {TypedMessengerMessageSendData<TRes, TReq>} data
 	 */
 	async handleReceivedMessage(data) {
 		if (data.direction == "request") {
@@ -509,13 +483,13 @@ export class TypedMessenger {
 				}
 			}
 
-			if (this.returnTransferSupport && returnValue && !didThrow) {
+			if (false && returnValue && !didThrow) {
 				const castReturn = /** @type {RequestHandlerReturn} */ (returnValue);
 				transfer = castReturn.transfer || [];
 				returnValue = castReturn.returnValue;
 			}
 
-			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type, TRequireHandlerReturnObjects>} */ ({
+			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type>} */ ({
 				sendData: {
 					direction: "response",
 					id: data.id,
@@ -593,7 +567,7 @@ export class TypedMessenger {
 			const requestId = this.lastRequestId++;
 
 			/**
-			 * @type {Promise<GetReturnType<TReq, T, TRequireHandlerReturnObjects>>}
+			 * @type {Promise<GetReturnType<TReq, T>>}
 			 */
 			const promise = new Promise((resolve, reject) => {
 				this.onResponseMessage(requestId, message => {
@@ -648,7 +622,7 @@ export class TypedMessenger {
 	 * Adds a callback that fires when a response with a specific id is received.
 	 * @private
 	 * @param {number} requestId
-	 * @param {(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq, TRequireHandlerReturnObjects>) => void} callback
+	 * @param {(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq>) => void} callback
 	 */
 	onResponseMessage(requestId, callback) {
 		let cbs = this.onRequestIdMessageCbs.get(requestId);
