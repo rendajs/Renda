@@ -304,6 +304,7 @@ export class EntityAssetManager {
 	 * @param {unknown} source
 	 */
 	#applyEntityClone(sourceEntity, targetEntity, changeEventType, source) {
+		console.log("applyEntityClone", sourceEntity.childCount, targetEntity.childCount);
 		targetEntity.name = sourceEntity.name;
 		targetEntity.localMatrix = sourceEntity.localMatrix;
 
