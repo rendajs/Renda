@@ -257,26 +257,34 @@ export class EntityAssetManager {
 	 * This can be used to compare the source against the current content window and ignore events that were triggered by itself.
 	 */
 	updateEntity(entityInstance, changeEventType, eventSource) {
-		console.log("update entity");
+		console.log("updateEntity()", changeEventType);
 		const rootData = this.findRootEntityAsset(entityInstance);
 		if (rootData) {
+			console.log("rootData found");
 			const {uuid, root, indicesPath} = rootData;
 			const trackedData = this.#trackedEntities.get(uuid);
 			if (trackedData) {
+				console.log("trackedData found");
 				const sourceEntity = root.getEntityByIndicesPath(indicesPath);
 				if (!sourceEntity) throw new Error("Assertion failed: Source child entity was not found");
+				console.log("sourceEntity found");
 				if (root != trackedData.sourceEntity) {
+					console.log("root != source");
 					if (!trackedData.sourceEntity) {
 						throw new Error("The source entity has not been loaded yet");
 					}
 					const targetEntity = trackedData.sourceEntity.getEntityByIndicesPath(indicesPath);
 					if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
+					console.log("applying clone1");
 					this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 				}
 				for (const trackedEntity of trackedData.trackedInstances) {
+					console.log("looping of tracked instance");
 					if (trackedEntity == root) continue;
+					console.log("it's not the root");
 					const targetEntity = trackedEntity.getEntityByIndicesPath(indicesPath);
 					if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
+					console.log("applying clone2");
 					this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 				}
 			}
