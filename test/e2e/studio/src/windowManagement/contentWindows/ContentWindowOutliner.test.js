@@ -25,7 +25,6 @@ async function assertRootChildCount(page, expectedRootChildCount, expectedSubChi
 		const rootChildCount = await page.evaluate(() => {
 			return globalThis.studio?.selected.entity.childCount;
 		});
-		log({rootChildCount});
 		assertEquals(rootChildCount, expectedRootChildCount);
 
 		const subChildCount = await page.evaluate(() => {
