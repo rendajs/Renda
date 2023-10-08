@@ -373,6 +373,7 @@ export class EntityAssetManager {
 		}
 
 		this.#fireEvent(sourceEntity, targetEntity, changeEventType, source);
+		console.log("done applyEntityClone", sourceEntity.childCount, targetEntity.childCount);
 	}
 
 	/**
