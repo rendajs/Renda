@@ -197,7 +197,7 @@ export class EntityAssetManager {
 	#trackEntityAndLoad(uuid, entity, overwriteLoaded) {
 		let trackedData = this.#trackedEntities.get(uuid);
 		if (!trackedData) {
-			let resolveReady = () => {};
+			let resolveReady = /** @type {(() => void)} */ (/** @type {unknown} */ (null));
 			trackedData = {
 				sourceEntity: null,
 				trackedInstances: new IterableWeakSet(),
