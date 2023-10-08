@@ -42,7 +42,7 @@ await runE2eTest({
 			const rootTreeViewRow = await waitFor(rootTreeView, ".tree-view-row");
 			const secondChildEl = await waitFor(rootTreeView, ".tree-view-child-list > :nth-child(2) > .tree-view-child-list > :nth-child(1) > .tree-view-row");
 			await drag(page, secondChildEl, rootTreeViewRow);
-			await wait(1000);
+			await wait(5000);
 		}
 
 		log("Select root entity");
