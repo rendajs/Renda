@@ -6,9 +6,11 @@
  * 	HandlerReturn extends TypedMessengerRequestHandlerReturn ?
  * 		HandlerReturn["$respondOptions"] extends infer Options ?
  * 			Options extends TypedMessengerRespondOptions ?
- * 				Options extends {returnValue: any} ?
- * 					Options["returnValue"] :
- * 					void :
+ * 				Options extends {respond: false} ?
+ * 					never :
+ * 					Options extends {returnValue: any} ?
+ * 						Options["returnValue"] :
+ * 						void :
  * 				never :
  * 			never :
  * 		HandlerReturn :
@@ -108,6 +110,9 @@
  * For this to work, the `TypedMessenger.setSendHandler()` callback should pass the `transfer` data to the correct `postMessage()` argument.
  * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
  * @property {any} [returnValue] The value that should be sent to the requester.
+ * @property {boolean} [respond] Defaults to true, set to false to not send any response at all.
+ * This means any calls from the other end would result in a promise that never resolves.
+ * And if a `timeout` or `globalTimeout` has been set, the promise would actually reject once the timeout is reached.
  */
 
 /** @typedef {{"$respondOptions"?: TypedMessengerRespondOptions}} TypedMessengerRequestHandlerReturn */
@@ -559,6 +564,9 @@ export class TypedMessenger {
 			const castReturn = /** @type {TypedMessengerRequestHandlerReturn} */ (returnValue);
 			if (castReturn && !didThrow && typeof castReturn == "object" && "$respondOptions" in castReturn && castReturn.$respondOptions) {
 				const options = castReturn.$respondOptions;
+				if (options.respond == false) {
+					return;
+				}
 				transfer = options.transfer || [];
 				returnValue = options.returnValue;
 			}

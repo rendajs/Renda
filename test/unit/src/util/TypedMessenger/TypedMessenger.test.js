@@ -762,6 +762,37 @@ Deno.test({
 });
 
 Deno.test({
+	name: "respond false doesn't send a response",
+	async fn() {
+		const handlersB = {
+			noResponse() {
+				return /** @satisfies {import("../../../../../src/mod.js").TypedMessengerRequestHandlerReturn} */ ({
+					$respondOptions: {
+						respond: false,
+					},
+				});
+			},
+		};
+		/** @type {TypedMessenger<{}, handlersB>} */
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<handlersB, {}>} */
+		const messengerB = new TypedMessenger();
+		messengerB.setResponseHandlers(handlersB);
+		const {aToBMessages, bToAMessages} = linkMessengers(messengerA, messengerB);
+
+		const promise = messengerA.send.noResponse();
+
+		await assertPromiseResolved(promise, false);
+
+		assertEquals(aToBMessages.length, 1);
+		assertEquals(bToAMessages.length, 0);
+
+		const promiseNever = /** @type {Promise<never>} */ (Promise.resolve());
+		assertIsType(promiseNever, promise);
+	},
+});
+
+Deno.test({
 	name: "Send promise stays pending forever when no timeout is set",
 	async fn() {
 		const messenger = new TypedMessenger();
@@ -843,6 +874,48 @@ Deno.test({
 			await time.nextAsync();
 			await assertResolved4;
 			await assertRejectsPromise2;
+		} finally {
+			time.restore();
+		}
+	},
+});
+
+Deno.test({
+	name: "Timeout error is fired on handlers with no response",
+	async fn() {
+		const time = new FakeTime();
+
+		try {
+			const handlersB = {
+				noResponse() {
+					return /** @satisfies {import("../../../../../src/mod.js").TypedMessengerRequestHandlerReturn} */ ({
+						$respondOptions: {
+							respond: false,
+						},
+					});
+				},
+			};
+			/** @type {TypedMessenger<{}, handlersB>} */
+			const messengerA = new TypedMessenger({globalTimeout: 10_000});
+			/** @type {TypedMessenger<handlersB, {}>} */
+			const messengerB = new TypedMessenger();
+			messengerB.setResponseHandlers(handlersB);
+			linkMessengers(messengerA, messengerB);
+
+			const assertRejectsPromise1 = assertRejects(async () => {
+				await messengerA.send.noResponse();
+			}, Error, "TypedMessenger response timed out.");
+
+			await time.tickAsync(9_000);
+			const assertResolved1 = assertPromiseResolved(assertRejectsPromise1, false);
+			await time.nextAsync();
+			await assertResolved1;
+
+			await time.tickAsync(2_000);
+			const assertResolved2 = assertPromiseResolved(assertRejectsPromise1, true);
+			await time.nextAsync();
+			await assertResolved2;
+			await assertRejectsPromise1;
 		} finally {
 			time.restore();
 		}
