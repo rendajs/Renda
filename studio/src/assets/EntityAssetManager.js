@@ -95,6 +95,7 @@ export class EntityAssetManager {
 	 * @typedef TrackedEntityData
 	 * @property {Entity?} sourceEntity
 	 * @property {IterableWeakSet<Entity>} trackedInstances
+	 * @property {Promise<void>} ready A promise that resolves once the source entity loads.
 	 */
 	/** @type {Map<import("../../../src/mod.js").UuidString, TrackedEntityData>} */
 	#trackedEntities = new Map();
@@ -151,6 +152,21 @@ export class EntityAssetManager {
 	}
 
 	/**
+	 * Calls to {@linkcode createTrackedEntity} returns an empty entity synchronously, which is then updated
+	 * once the entity has been loaded. However, modifications to this entity using things like {@linkcode updateEntity}
+	 * are not allowed until the entity has fully loaded.
+	 * This method returns a promise which resolves once the entity has loaded.
+	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 */
+	waitForSourceEntityLoad(uuid) {
+		const trackedData = this.#trackedEntities.get(uuid);
+		if (!trackedData) {
+			throw new Error(`No tracked entity with uuid "${uuid}" exists.`);
+		}
+		return trackedData.ready;
+	}
+
+	/**
 	 * Gets the uuid of the asset that the entity is an instance of, if any.
 	 * @param {Entity} entity
 	 */
@@ -181,9 +197,13 @@ export class EntityAssetManager {
 	#trackEntityAndLoad(uuid, entity, overwriteLoaded) {
 		let trackedData = this.#trackedEntities.get(uuid);
 		if (!trackedData) {
+			let resolveReady = () => {};
 			trackedData = {
 				sourceEntity: null,
 				trackedInstances: new IterableWeakSet(),
+				ready: new Promise(resolve => {
+					resolveReady = resolve;
+				}),
 			};
 			this.#trackedEntities.set(uuid, trackedData);
 			(async () => {
@@ -198,6 +218,7 @@ export class EntityAssetManager {
 				} else {
 					this.updateEntity(sourceEntity, EntityChangeType.Load | EntityChangeType.All, null);
 				}
+				resolveReady();
 			})();
 		}
 		trackedData.trackedInstances.add(entity);
