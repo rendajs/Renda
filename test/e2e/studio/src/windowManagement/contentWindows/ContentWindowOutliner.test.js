@@ -6,7 +6,6 @@ import {clickAsset, createAsset} from "../../../shared/assets.js";
 import {clickCreateEmptyButton, getOutlinerRootEntityTreeView} from "../../../shared/contentWindows/outliner.js";
 import {setupNewProject} from "../../../shared/project.js";
 import {getPage} from "../../../../shared/browser.js";
-import {wait} from "../../../../../../src/util/Timeout.js";
 
 /**
  * @param {import("puppeteer").Page} page
@@ -51,8 +50,12 @@ await runE2eTest({
 
 		log("Wait for entity asset to load");
 		await page.evaluate(async () => {
-			await studio.projectManager.assetManager.entityAssetManager.waitForSourceEntityLoad(studio.selected.uuid);
-		})
+			const studio = globalThis.studio;
+			if (!studio) throw new Error("Studio instance does not exist");
+			const entityAssetManager = studio?.projectManager.assetManager?.entityAssetManager;
+			if (!entityAssetManager) throw new Error("Asset manager does not exist");
+			await entityAssetManager.waitForSourceEntityLoad(studio.selected.uuid);
+		});
 
 		log("Create three children");
 		for (let i = 0; i < 3; i++) {
