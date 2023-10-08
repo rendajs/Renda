@@ -49,7 +49,11 @@ await runE2eTest({
 			clickCount: 2,
 		});
 
-		await wait(1000);
+		log("Wait for entity asset to load");
+		await page.evaluate(async () => {
+			await studio.projectManager.assetManager.entityAssetManager.waitForSourceEntityLoad(studio.selected.uuid);
+		})
+
 		log("Create three children");
 		for (let i = 0; i < 3; i++) {
 			await clickCreateEmptyButton(page);
