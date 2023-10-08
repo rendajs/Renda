@@ -6,7 +6,35 @@ import {clickAsset, createAsset} from "../../../shared/assets.js";
 import {clickCreateEmptyButton, getOutlinerRootEntityTreeView} from "../../../shared/contentWindows/outliner.js";
 import {setupNewProject} from "../../../shared/project.js";
 import {getPage} from "../../../../shared/browser.js";
-import { wait } from "../../../../../../src/util/Timeout.js";
+
+/**
+ * @param {import("puppeteer").Page} page
+ * @param {number} expectedRootChildCount
+ * @param {number[]} expectedSubChildCount
+ */
+async function assertRootChildCount(page, expectedRootChildCount, expectedSubChildCount) {
+	log("Select root entity");
+	{
+		const rootTreeView = await getOutlinerRootEntityTreeView(page);
+		const rootTreeViewRow = await waitFor(rootTreeView, ".tree-view-row");
+		await click(page, rootTreeViewRow);
+	}
+
+	log("Verify entity structure");
+	{
+		const rootChildCount = await page.evaluate(() => {
+			return globalThis.studio?.selected.entity.childCount;
+		});
+		log({rootChildCount});
+		assertEquals(rootChildCount, expectedRootChildCount);
+
+		const subChildCount = await page.evaluate(() => {
+			const castEntity = /** @type {import("../../../../../../src/core/Entity.js").Entity?} */ (globalThis.studio?.selected.entity);
+			return castEntity?.children.map(child => child.childCount);
+		});
+		assertEquals(subChildCount, expectedSubChildCount);
+	}
+}
 
 await runE2eTest({
 	name: "Dragging entities within a hierarchy",
@@ -27,6 +55,8 @@ await runE2eTest({
 			await clickCreateEmptyButton(page);
 		}
 
+		await assertRootChildCount(page, 3, [0, 0, 0]);
+
 		log("Click the second created child");
 		{
 			const rootTreeView = await getOutlinerRootEntityTreeView(page);
@@ -45,28 +75,6 @@ await runE2eTest({
 			await drag(page, secondChildEl, rootTreeViewRow);
 		}
 
-		log("Select root entity");
-		{
-			// assert that the internal entity structure matches the visual outliner structure
-			const rootTreeView = await getOutlinerRootEntityTreeView(page);
-			const rootTreeViewRow = await waitFor(rootTreeView, ".tree-view-row");
-			await click(page, rootTreeViewRow);
-		}
-
-		log("Verify entity structure");
-		{
-			const rootChildCount = await page.evaluate(() => {
-				return globalThis.studio?.selected.entity.childCount;
-			});
-			log({rootChildCount});
-			assertEquals(rootChildCount, 4);
-
-			const childChildCounts = await page.evaluate(() => {
-				const castEntity = /** @type {import("../../../../../../src/core/Entity.js").Entity?} */ (globalThis.studio?.selected.entity);
-				return castEntity?.children.map(child => child.childCount);
-			});
-			log({childChildCounts});
-			assertEquals(childChildCounts, [0, 0, 0, 0]);
-		}
+		await assertRootChildCount(page, 4, [0, 0, 0, 0]);
 	},
 });
