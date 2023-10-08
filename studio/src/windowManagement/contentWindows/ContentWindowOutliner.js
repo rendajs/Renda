@@ -444,6 +444,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e
 	 */
 	#onTreeViewRearrange = e => {
+		console.log("rearrange");
 		/** @type {{entity: Entity, oldParent: Entity, newParent: Entity, insertIndex: number | undefined, removeIndex: number}[]} */
 		const actions = [];
 		for (const movedItem of e.movedItems) {
@@ -461,12 +462,17 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.studioInstance.historyManager.executeEntry({
 			uiText: actions.length > 1 ? "Rearrange entities" : "Rearrange entity",
 			redo: () => {
+				console.log("redo");
 				for (const action of actions) {
+					console.log("remove");
 					action.oldParent.remove(action.entity);
 					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.oldParent, EntityChangeType.Delete, this);
+					console.log("add");
 					action.newParent.addAtIndex(action.entity, action.insertIndex);
+					console.log("updateentity");
 					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.newParent, EntityChangeType.Create, this);
 				}
+				console.log("update treeview");
 				this.updateFullTreeView();
 			},
 			undo: () => {
@@ -486,15 +492,12 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
 	#onTreeViewDrop = async e => {
-		console.log("ondrop");
 		const parent = this.#getEntityByTreeView(e.target);
 		if (!e.rawEvent.dataTransfer) return;
-		console.log("has transfer");
 		let didDropAsset = false;
 		for (const item of e.rawEvent.dataTransfer.items) {
 			const mimeType = parseMimeType(item.type);
 			if (!mimeType) continue;
-			console.log({mimeType});
 			const dragData = this.validateDragMimeType(mimeType);
 			if (dragData && dragData.dataPopulated && dragData.assetUuid) {
 				const entityAssetUuid = dragData.assetUuid;
@@ -503,20 +506,16 @@ export class ContentWindowOutliner extends ContentWindow {
 					assertAssetType: ProjectAssetTypeEntity,
 				});
 				if (!projectAsset) throw new Error(`Assertion failed, project asset with uuid ${entityAssetUuid} not found`);
-				console.log("make persistent");
 				await assetManager.makeAssetUuidPersistent(projectAsset);
-				console.log("get live asset")
 				const entityAsset = await projectAsset.getLiveAsset();
 				if (entityAsset) {
 					const clonedEntity = assetManager.entityAssetManager.createTrackedEntity(projectAsset.uuid);
 					parent.add(clonedEntity);
-					console.log("doing it");
 					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(parent, EntityChangeType.Create, this);
 					didDropAsset = true;
 				}
 			}
 		}
-		console.log({didDropAsset})
 		if (didDropAsset) {
 			this.updateFullTreeView();
 		}
