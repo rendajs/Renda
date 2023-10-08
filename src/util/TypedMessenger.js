@@ -110,7 +110,7 @@
  * @property {any} [returnValue] The value that should be sent to the requester.
  */
 
-/** @typedef {{"$respondOptions"?: TypedMessengerRespondOptions} & unknown} TypedMessengerRequestHandlerReturn */
+/** @typedef {{"$respondOptions"?: TypedMessengerRespondOptions}} TypedMessengerRequestHandlerReturn */
 
 /**
  * @template {TypedMessengerSignatures} TReq
