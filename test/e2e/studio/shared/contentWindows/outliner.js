@@ -18,9 +18,6 @@ export async function getContentWindowOutlinerReference(page) {
  */
 export async function getOutlinerRootEntityTreeView(page) {
 	const outlinerElement = await getContentWindowElement(page, "renda:outliner");
-	await page.evaluate(outlinerElement => {
-		console.log(outlinerElement);
-	}, outlinerElement);
 	const treeViewEl = await waitFor(outlinerElement, ":scope > .studio-content-window-content > .tree-view-item");
 	assertExists(treeViewEl);
 	return treeViewEl;
