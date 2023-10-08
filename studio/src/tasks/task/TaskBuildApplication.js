@@ -33,7 +33,7 @@ export class TaskBuildApplication extends Task {
 		},
 	});
 
-	/** @type {TypedMessenger<BuildApplicationMessengerResponseHandlers, import("../workers/buildApplication/mod.js").BuildApplicationMessengerResponseHandlers, true>} */
+	/** @type {TypedMessenger<BuildApplicationMessengerResponseHandlers, import("../workers/buildApplication/mod.js").BuildApplicationMessengerResponseHandlers>} */
 	#messenger;
 
 	#lastContextId = 0;
@@ -46,7 +46,7 @@ export class TaskBuildApplication extends Task {
 	constructor(...args) {
 		super(...args);
 
-		this.#messenger = new TypedMessenger({returnTransferSupport: true});
+		this.#messenger = new TypedMessenger();
 		this.#messenger.initializeWorker(this.worker, this.getResponseHandlers());
 	}
 
@@ -92,14 +92,9 @@ export class TaskBuildApplication extends Task {
 			 */
 			readJavaScript: async (contextId, uuid) => {
 				const context = this.getContext(contextId);
-				const javaScriptContent = await context.readAssetFromUuid(uuid, {
+				return await context.readAssetFromUuid(uuid, {
 					assertAssetType: ProjectAssetTypeJavascript,
 				});
-				/** @type {import("../../../../src/util/TypedMessenger.js").RequestHandlerReturn} */
-				const result = {
-					returnValue: javaScriptContent,
-				};
-				return result;
 			},
 			/**
 			 * @param {number} contextId
@@ -123,10 +118,12 @@ export class TaskBuildApplication extends Task {
 					throw new Error("Assertion failed: unexpected asset bundle file data, not an ArrayBuffer");
 				}
 
-				/** @type {import("../../../../src/util/TypedMessenger.js").RequestHandlerReturn} */
+				/** @satisfies {import("../../../../src/util/TypedMessenger.js").TypedMessengerRequestHandlerReturn} */
 				const result = {
-					returnValue: assetBundle,
-					transfer: [assetBundle],
+					$respondOptions: {
+						returnValue: assetBundle,
+						transfer: [assetBundle],
+					},
 				};
 				return result;
 			},
@@ -148,10 +145,8 @@ export class TaskBuildApplication extends Task {
 				const servicesScript = this.#assertSingleStringWriteAsset(generateServicesResult);
 
 				return {
-					returnValue: {
-						servicesScript,
-						usedAssets: generateServicesResult.customData?.usedAssets || [],
-					},
+					servicesScript,
+					usedAssets: generateServicesResult.customData?.usedAssets || [],
 				};
 			},
 			/**
@@ -161,16 +156,13 @@ export class TaskBuildApplication extends Task {
 			 */
 			bundleScripts: async (contextId, entryPoint, servicesSource) => {
 				const context = this.getContext(contextId);
-				const bundleScriptsResult = await context.runChildTask("renda:bundleScripts", {
+				return await context.runChildTask("renda:bundleScripts", {
 					outputPath: ["js"],
 					entryPoints: [entryPoint],
 					servicesSource,
 				}, {
 					allowDiskWrites: false,
 				});
-				return {
-					returnValue: bundleScriptsResult,
-				};
 			},
 			/**
 			 * @param {number} contextId
@@ -188,10 +180,7 @@ export class TaskBuildApplication extends Task {
 				}, {
 					allowDiskWrites: false,
 				});
-				const html = this.#assertSingleStringWriteAsset(result);
-				return {
-					returnValue: html,
-				};
+				return this.#assertSingleStringWriteAsset(result);
 			},
 		};
 	}

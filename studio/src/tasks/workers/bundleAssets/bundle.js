@@ -77,7 +77,6 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 		}
 	}
 
-	let returnValue = null;
 	if (useFileStream) {
 		await messenger.sendWithOptions.writeFile({transfer: [header]}, fileStreamId, {
 			type: "write",
@@ -85,6 +84,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 			data: header,
 		});
 		await messenger.send.closeFile(fileStreamId);
+		return null;
 	} else {
 		let totalBufferLength = header.byteLength;
 		for (const buffer of assetBuffers) {
@@ -97,9 +97,6 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 			view.set(new Uint8Array(buffer), offset);
 			offset += buffer.byteLength;
 		}
-		returnValue = view.buffer;
+		return view.buffer;
 	}
-	return {
-		returnValue,
-	};
 }
