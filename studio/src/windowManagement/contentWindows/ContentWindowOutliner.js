@@ -444,7 +444,6 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e
 	 */
 	#onTreeViewRearrange = e => {
-		console.log("rearrange");
 		/** @type {{entity: Entity, oldParent: Entity, newParent: Entity, insertIndex: number | undefined, removeIndex: number}[]} */
 		const actions = [];
 		for (const movedItem of e.movedItems) {
@@ -462,17 +461,12 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.studioInstance.historyManager.executeEntry({
 			uiText: actions.length > 1 ? "Rearrange entities" : "Rearrange entity",
 			redo: () => {
-				console.log("redo");
 				for (const action of actions) {
-					console.log("remove");
 					action.oldParent.remove(action.entity);
 					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.oldParent, EntityChangeType.Delete, this);
-					console.log("add");
 					action.newParent.addAtIndex(action.entity, action.insertIndex);
-					console.log("updateentity");
 					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(action.newParent, EntityChangeType.Create, this);
 				}
-				console.log("update treeview");
 				this.updateFullTreeView();
 			},
 			undo: () => {
