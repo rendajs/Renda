@@ -3,14 +3,16 @@
  * @template {TypedMessengerSignatures} TReq
  * @template {keyof TReq} TReqType
  * @typedef {Awaited<ReturnType<TReq[TReqType]>> extends infer HandlerReturn ?
- * 	TRequireHandlerReturnObjects extends true ?
- * 		HandlerReturn extends void ?
- * 			void :
- * 			HandlerReturn extends RequestHandlerReturn ?
- * 				HandlerReturn["returnValue"] :
+ * 	HandlerReturn extends TypedMessengerRequestHandlerReturn ?
+ * 		HandlerReturn["$respondOptions"] extends infer Options ?
+ * 			Options extends TypedMessengerRespondOptions ?
+ * 				Options extends {returnValue: any} ?
+ * 					Options["returnValue"] :
+ * 					void :
  * 				never :
+ * 			never :
  * 		HandlerReturn :
- * never} GetReturnType
+ * 	never} GetReturnType
  */
 
 /**
@@ -101,14 +103,18 @@
  */
 
 /**
- * @template {TypedMessengerSignatures} TReq
- * @typedef {{[x in keyof TReq]: (options: TypedMessengerSendOptions, ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x>>}} TypedMessengerWithOptionsProxy
+ * @typedef TypedMessengerRespondOptions
+ * @property {Transferable[]} [transfer] An array of objects that should be transferred.
+ * For this to work, the `TypedMessenger.setSendHandler()` callback should pass the `transfer` data to the correct `postMessage()` argument.
+ * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
+ * @property {any} [returnValue] The value that should be sent to the requester.
  */
 
+/** @typedef {{"$respondOptions"?: TypedMessengerRespondOptions} & unknown} TypedMessengerRequestHandlerReturn */
+
 /**
- * @typedef RequestHandlerReturn
- * @property {any} returnValue
- * @property {Transferable[]} [transfer]
+ * @template {TypedMessengerSignatures} TReq
+ * @typedef {{[x in keyof TReq]: (options: TypedMessengerSendOptions, ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x>>}} TypedMessengerWithOptionsProxy
  */
 
 /**
@@ -483,10 +489,11 @@ export class TypedMessenger {
 				}
 			}
 
-			if (false && returnValue && !didThrow) {
-				const castReturn = /** @type {RequestHandlerReturn} */ (returnValue);
-				transfer = castReturn.transfer || [];
-				returnValue = castReturn.returnValue;
+			const castReturn = /** @type {TypedMessengerRequestHandlerReturn} */ (returnValue);
+			if (castReturn && !didThrow && typeof castReturn == "object" && "$respondOptions" in castReturn && castReturn.$respondOptions) {
+				const options = castReturn.$respondOptions;
+				transfer = options.transfer || [];
+				returnValue = options.returnValue;
 			}
 
 			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type>} */ ({
@@ -514,11 +521,7 @@ export class TypedMessenger {
 	 * Changes the type of a signature to allow both synchronous and asynchronous signatures.
 	 * @template {(...args: any[]) => any} T
 	 * @typedef {T extends (...args: infer Args) => infer ReturnType ?
-	 * 	TRequireHandlerReturnObjects extends true ?
-	 * 		ReturnType extends (RequestHandlerReturn | Promise<RequestHandlerReturn> | void | Promise<void>) ?
-	 * 			(...args: Args) => (Promise<ReturnType> | ReturnType) :
-	 * 			never :
-	 *		(...args: Args) => (Promise<ReturnType> | ReturnType) :
+	 *	(...args: Args) => (Promise<ReturnType> | ReturnType) :
 	 * never} PromisifyReturnValue
 	 */
 
