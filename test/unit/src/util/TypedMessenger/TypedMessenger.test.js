@@ -446,6 +446,17 @@ Deno.test({
 					},
 				};
 			},
+			maybeOptions() {
+				const condition = /** @type {boolean} */ (true);
+				if (condition) {
+					return /** @type {const} */ ("no options");
+				}
+				return {
+					$respondOptions: {
+						returnValue: /** @type {const} */ ("options"),
+					},
+				};
+			},
 		};
 
 		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
@@ -503,6 +514,16 @@ Deno.test({
 		assertIsType("", result6);
 		// @ts-expect-error Verify that the return type is string and not 'any':
 		assertIsType(true, result6);
+
+		const result7 = await messengerA.send.maybeOptions();
+
+		// Verify that the return type is "options" | "no options" and nothing else
+		const optionsNoOptions = /** @type {"options" | "no options"} */ ("");
+		assertIsType(optionsNoOptions, result7);
+		assertIsType(result7, "no options");
+		assertIsType(result7, "options");
+		// @ts-expect-error Verify that the return type is string and not 'any':
+		assertIsType(true, result7);
 
 		// Verify that the send handler types are correct and not 'any':
 		messengerA.setSendHandler(data => {
