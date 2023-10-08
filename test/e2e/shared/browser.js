@@ -111,7 +111,7 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 		console.log("-- Browser console error");
 		console.log(error);
 		console.log("--");
-	})
+	});
 
 	await page.goto(url);
 	return {
