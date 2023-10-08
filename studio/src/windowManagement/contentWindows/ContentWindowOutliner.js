@@ -486,12 +486,15 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
 	#onTreeViewDrop = async e => {
+		console.log("ondrop");
 		const parent = this.#getEntityByTreeView(e.target);
 		if (!e.rawEvent.dataTransfer) return;
+		console.log("has transfer");
 		let didDropAsset = false;
 		for (const item of e.rawEvent.dataTransfer.items) {
 			const mimeType = parseMimeType(item.type);
 			if (!mimeType) continue;
+			console.log({mimeType});
 			const dragData = this.validateDragMimeType(mimeType);
 			if (dragData && dragData.dataPopulated && dragData.assetUuid) {
 				const entityAssetUuid = dragData.assetUuid;
@@ -500,16 +503,20 @@ export class ContentWindowOutliner extends ContentWindow {
 					assertAssetType: ProjectAssetTypeEntity,
 				});
 				if (!projectAsset) throw new Error(`Assertion failed, project asset with uuid ${entityAssetUuid} not found`);
+				console.log("make persistent");
 				await assetManager.makeAssetUuidPersistent(projectAsset);
+				console.log("get live asset")
 				const entityAsset = await projectAsset.getLiveAsset();
 				if (entityAsset) {
 					const clonedEntity = assetManager.entityAssetManager.createTrackedEntity(projectAsset.uuid);
 					parent.add(clonedEntity);
+					console.log("doing it");
 					this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(parent, EntityChangeType.Create, this);
 					didDropAsset = true;
 				}
 			}
 		}
+		console.log({didDropAsset})
 		if (didDropAsset) {
 			this.updateFullTreeView();
 		}
