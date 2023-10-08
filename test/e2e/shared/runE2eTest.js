@@ -27,7 +27,7 @@ export function setPath(path) {
 let failedTests = [];
 
 const MAX_ATTEMPTS = 10;
-const REQUIRED_SUCCESS_RATE = 0.7;
+const REQUIRED_SUCCESS_RATE = 1;
 
 /**
  * @param {number} successCount

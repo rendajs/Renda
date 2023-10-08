@@ -9,7 +9,6 @@ import {getPage} from "../../../../shared/browser.js";
 
 await runE2eTest({
 	name: "Dragging entities within a hierarchy",
-	forceRunCount: 100,
 	async fn() {
 		const {page} = await getPage();
 		await setupNewProject(page);
