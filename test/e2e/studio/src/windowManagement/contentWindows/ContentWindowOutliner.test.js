@@ -57,12 +57,14 @@ await runE2eTest({
 			const rootChildCount = await page.evaluate(() => {
 				return globalThis.studio?.selected.entity.childCount;
 			});
+			log({rootChildCount});
 			assertEquals(rootChildCount, 4);
 
 			const childChildCounts = await page.evaluate(() => {
 				const castEntity = /** @type {import("../../../../../../src/core/Entity.js").Entity?} */ (globalThis.studio?.selected.entity);
 				return castEntity?.children.map(child => child.childCount);
 			});
+			log({childChildCounts});
 			assertEquals(childChildCounts, [0, 0, 0, 0]);
 		}
 	},
