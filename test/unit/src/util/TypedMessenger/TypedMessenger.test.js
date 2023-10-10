@@ -962,3 +962,42 @@ Deno.test({
 		// The Deno test runner will verify if the timeout was cleared using its test sanitizers.
 	},
 });
+
+Deno.test({
+	name: "expectResponse: false stays pending forever",
+	async fn() {
+		const messengerA = new TypedMessenger();
+		const messengerB = new TypedMessenger();
+		linkMessengers(messengerA, messengerB);
+		messengerB.setResponseHandlers({
+			foo() {},
+		});
+
+		const promise1 = messengerA.sendWithOptions.foo({expectResponse: false});
+		await assertPromiseResolved(promise1, false);
+
+		const promise2 = messengerA.sendWithOptions.foo({expectResponse: true});
+		await assertPromiseResolved(promise2, true);
+	},
+});
+
+Deno.test({
+	name: "timeout is ignored when expectResponse is false",
+	async fn() {
+		const time = new FakeTime();
+
+		try {
+			const messenger = new TypedMessenger();
+			messenger.setSendHandler(() => {});
+
+			const sendPromise = messenger.sendWithOptions.foo({expectResponse: false, timeout: 10_000});
+
+			await time.tickAsync(11_000);
+			const assertResolved1 = assertPromiseResolved(sendPromise, false);
+			await time.nextAsync();
+			await assertResolved1;
+		} finally {
+			time.restore();
+		}
+	},
+});

@@ -102,6 +102,16 @@
  * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
  * @property {number} [timeout] Timeout in milliseconds at which point the promise will reject.
  * The default is `0`, which disables the timeout completely. Meaning that the promise would stay unresolved indefinitely if the other end never responds.
+ * @property {boolean} [expectResponse] Defaults to `true`, set to `false` to notify the garbage collector that the returned promise can be collected.
+ * If you know in advance that the other end will not respond to the message,
+ * (it might have `respond` set to `false` in its `$respondOptions` for example), the promise would keep hanging forever.
+ *
+ * This might result in a severe memory leak if you `await` the call in a function that allocates a lot of memory.
+ * But even if you don't `await` the call, it would still result in a minor memory leak,
+ * because the `TypedMessenger` still has to keep some internal state while waiting for the response.
+ *
+ * If you set this to `false`, the promise would still stay pending forever, but no reference to the promise is held.
+ * That way the garbage collector will eventually get rid of your running code, even if you `await` it.
  */
 
 /**
@@ -111,8 +121,11 @@
  * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
  * @property {any} [returnValue] The value that should be sent to the requester.
  * @property {boolean} [respond] Defaults to true, set to false to not send any response at all.
- * This means any calls from the other end would result in a promise that never resolves.
- * And if a `timeout` or `globalTimeout` has been set, the promise would actually reject once the timeout is reached.
+ *
+ * **Warning:** Make sure to also set `expectResponse` to `false` on the sending end to avoid memory leaks.
+ * Otherwise the call from the other end would result in a promise that never resolves, but also isn't garbage collected.
+ *
+ * Alternatively you could set a `timeout` or `globalTimeout`, causing the promise to reject once the timeout is reached.
  */
 
 /** @typedef {{"$respondOptions"?: TypedMessengerRespondOptions}} TypedMessengerRequestHandlerReturn */
@@ -638,6 +651,7 @@ export class TypedMessenger {
 	 * @param {Parameters<TReq[T]>} args
 	 */
 	async _sendInternal(options, type, ...args) {
+		const disableResponse = options.expectResponse == false;
 		const responsePromise = (async () => {
 			if (!this.sendHandler) {
 				throw new Error("Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
@@ -647,20 +661,25 @@ export class TypedMessenger {
 			/**
 			 * @type {Promise<GetReturnType<TReq, T>>}
 			 */
-			const promise = new Promise((resolve, reject) => {
-				this.onResponseMessage(requestId, message => {
-					if (message.didThrow) {
-						/** @type {unknown} */
-						let rejectValue = message.returnValue;
-						if (this.deserializeErrorHook) {
-							rejectValue = this.deserializeErrorHook(rejectValue);
+			let promise;
+			if (disableResponse) {
+				promise = new Promise(() => {});
+			} else {
+				promise = new Promise((resolve, reject) => {
+					this.onResponseMessage(requestId, message => {
+						if (message.didThrow) {
+							/** @type {unknown} */
+							let rejectValue = message.returnValue;
+							if (this.deserializeErrorHook) {
+								rejectValue = this.deserializeErrorHook(rejectValue);
+							}
+							reject(rejectValue);
+						} else {
+							resolve(message.returnValue);
 						}
-						reject(rejectValue);
-					} else {
-						resolve(message.returnValue);
-					}
+					});
 				});
-			});
+			}
 
 			await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
 				sendData: {
@@ -676,7 +695,7 @@ export class TypedMessenger {
 
 		const timeout = options.timeout || this.globalTimeout;
 
-		if (timeout > 0) {
+		if (timeout > 0 && !disableResponse) {
 			const promise = new Promise((resolve, reject) => {
 				const createdTimeout = globalThis.setTimeout(() => {
 					reject(new Error("TypedMessenger response timed out."));
