@@ -210,7 +210,7 @@ export class TypedMessenger {
 	 * ## Sending messages
 	 *
 	 * Once the two TypedMessengers are set up, you can send a message to the other end using `TypedMessenger.send`.
-	 * For example, the following invokes the `foo` handler on the other TypedMessenger and waits for its response.
+	 * For example, the following invokes the `bar` handler on the other TypedMessenger and waits for its response.
 	 *
 	 * ```js
 	 * const result = await messenger.send.bar(1234);
@@ -218,7 +218,7 @@ export class TypedMessenger {
 	 *
 	 * The `result` will be whatever the handler returned on the other end.
 	 *
-	 * Alternatively, you can use {@linkcode sendWithOptions} for extra control.
+	 * Alternatively, you can use {@linkcode sendWithOptions} for extra control:
 	 *
 	 * ```js
 	 * const result = await messenger.sendWithOptions.bar({timeout: 30_000}, 1234);
@@ -663,6 +663,9 @@ export class TypedMessenger {
 			 */
 			let promise;
 			if (disableResponse) {
+				// The type attached to the function depends on handler set on the other end,
+				// so returning `Promise<void>` would actually clash with the expected return type.
+				// So we'll simply return a promise that stays pending forever.
 				promise = new Promise(() => {});
 			} else {
 				promise = new Promise((resolve, reject) => {
