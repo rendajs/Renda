@@ -2,16 +2,19 @@
 /**
  * @template {TypedMessengerSignatures} TReq
  * @template {keyof TReq} TReqType
- * @template {boolean} [TRequireHandlerReturnObjects = false]
  * @typedef {Awaited<ReturnType<TReq[TReqType]>> extends infer HandlerReturn ?
- * 	TRequireHandlerReturnObjects extends true ?
- * 		HandlerReturn extends void ?
- * 			void :
- * 			HandlerReturn extends RequestHandlerReturn ?
- * 				HandlerReturn["returnValue"] :
+ * 	HandlerReturn extends TypedMessengerRequestHandlerReturn ?
+ * 		HandlerReturn["$respondOptions"] extends infer Options ?
+ * 			Options extends TypedMessengerRespondOptions ?
+ * 				Options extends {respond: false} ?
+ * 					never :
+ * 					Options extends {returnValue: any} ?
+ * 						Options["returnValue"] :
+ * 						void :
  * 				never :
+ * 			never :
  * 		HandlerReturn :
- * never} GetReturnType
+ * 	never} GetReturnType
  */
 
 /**
@@ -46,58 +49,50 @@
 /**
  * @template {TypedMessengerSignatures} TRes
  * @template {keyof TRes} TResType
- * @template {boolean} TRequireHandlerReturnObjects
  * @typedef TypedMessengerResponseMessageSendData
  * @property {"response"} direction
  * @property {number} id
  * @property {TResType} type
  * @property {boolean} didThrow
- * @property {GetReturnType<TRes, TResType, TRequireHandlerReturnObjects>} returnValue
+ * @property {GetReturnType<TRes, TResType>} returnValue
  */
 /**
  * @template {TypedMessengerSignatures} TRes
  * @template {keyof TRes} TResType
- * @template {boolean} TRequireHandlerReturnObjects
  * @typedef TypedMessengerResponseMessage
- * @property {TypedMessengerResponseMessageSendData<TRes, TResType, TRequireHandlerReturnObjects>} sendData
+ * @property {TypedMessengerResponseMessageSendData<TRes, TResType>} sendData
  * @property {Transferable[]} transfer
  */
 /**
  * @template {TypedMessengerSignatures} TRes
  * @template {keyof TRes} TResType
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {TResType extends keyof TRes ? TypedMessengerResponseMessage<TRes, TResType, TRequireHandlerReturnObjects> : never} TypedMessengerResponseMessageHelper
+ * @typedef {TResType extends keyof TRes ? TypedMessengerResponseMessage<TRes, TResType> : never} TypedMessengerResponseMessageHelper
  */
 /**
  * @template {TypedMessengerSignatures} TRes
  * @template {keyof TRes} TResType
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {TResType extends keyof TRes ? TypedMessengerResponseMessageSendData<TRes, TResType, TRequireHandlerReturnObjects> : never} TypedMessengerResponseMessageSendDataHelper
+ * @typedef {TResType extends keyof TRes ? TypedMessengerResponseMessageSendData<TRes, TResType> : never} TypedMessengerResponseMessageSendDataHelper
  */
 /**
  * @template {TypedMessengerSignatures} TReq
  * @template {TypedMessengerSignatures} TRes
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {TypedMessengerRequestMessageHelper<TReq> | TypedMessengerResponseMessageHelper<TRes, keyof TRes, TRequireHandlerReturnObjects>} TypedMessengerMessage
+ * @typedef {TypedMessengerRequestMessageHelper<TReq> | TypedMessengerResponseMessageHelper<TRes, keyof TRes>} TypedMessengerMessage
  */
 /**
  * @template {TypedMessengerSignatures} TReq
  * @template {TypedMessengerSignatures} TRes
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {TypedMessengerRequestMessageSendDataHelper<TReq> | TypedMessengerResponseMessageSendDataHelper<TRes, keyof TRes, TRequireHandlerReturnObjects>} TypedMessengerMessageSendData
+ * @typedef {TypedMessengerRequestMessageSendDataHelper<TReq> | TypedMessengerResponseMessageSendDataHelper<TRes, keyof TRes>} TypedMessengerMessageSendData
  */
 
 /**
  * @template {TypedMessengerSignatures} TReq
  * @template {TypedMessengerSignatures} TRes
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {(data: TypedMessengerMessage<TReq, TRes, TRequireHandlerReturnObjects>) => void | Promise<void>} TypedMessengerSendHandler
+ * @typedef {(data: TypedMessengerMessage<TReq, TRes>) => void | Promise<void>} TypedMessengerSendHandler
  */
 
 /**
  * @template {TypedMessengerSignatures} TReq
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {{[x in keyof TReq]: (...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerProxy
+ * @typedef {{[x in keyof TReq]: (...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x>>}} TypedMessengerProxy
  */
 
 /**
@@ -107,18 +102,37 @@
  * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
  * @property {number} [timeout] Timeout in milliseconds at which point the promise will reject.
  * The default is `0`, which disables the timeout completely. Meaning that the promise would stay unresolved indefinitely if the other end never responds.
+ * @property {boolean} [expectResponse] Defaults to `true`, set to `false` to notify the garbage collector that the returned promise can be collected.
+ * If you know in advance that the other end will not respond to the message,
+ * (it might have `respond` set to `false` in its `$respondOptions` for example), the promise would keep hanging forever.
+ *
+ * This might result in a severe memory leak if you `await` the call in a function that allocates a lot of memory.
+ * But even if you don't `await` the call, it would still result in a minor memory leak,
+ * because the `TypedMessenger` still has to keep some internal state while waiting for the response.
+ *
+ * If you set this to `false`, the promise would still stay pending forever, but no reference to the promise is held.
+ * That way the garbage collector will eventually get rid of your running code, even if you `await` it.
  */
+
+/**
+ * @typedef TypedMessengerRespondOptions
+ * @property {Transferable[]} [transfer] An array of objects that should be transferred.
+ * For this to work, the `TypedMessenger.setSendHandler()` callback should pass the `transfer` data to the correct `postMessage()` argument.
+ * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
+ * @property {any} [returnValue] The value that should be sent to the requester.
+ * @property {boolean} [respond] Defaults to true, set to false to not send any response at all.
+ *
+ * **Warning:** Make sure to also set `expectResponse` to `false` on the sending end to avoid memory leaks.
+ * Otherwise the call from the other end would result in a promise that never resolves, but also isn't garbage collected.
+ *
+ * Alternatively you could set a `timeout` or `globalTimeout`, causing the promise to reject once the timeout is reached.
+ */
+
+/** @typedef {{"$respondOptions"?: TypedMessengerRespondOptions}} TypedMessengerRequestHandlerReturn */
 
 /**
  * @template {TypedMessengerSignatures} TReq
- * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {{[x in keyof TReq]: (options: TypedMessengerSendOptions, ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerWithOptionsProxy
- */
-
-/**
- * @typedef RequestHandlerReturn
- * @property {any} returnValue
- * @property {Transferable[]} [transfer]
+ * @typedef {{[x in keyof TReq]: (options: TypedMessengerSendOptions, ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x>>}} TypedMessengerWithOptionsProxy
  */
 
 /**
@@ -138,7 +152,6 @@
  * ```
  * @template {TypedMessengerSignatures} TRes The handlers of this messenger.
  * @template {TypedMessengerSignatures} TReq The handlers of the other messenger.
- * @template {boolean} [TRequireHandlerReturnObjects = false]
  */
 export class TypedMessenger {
 	/**
@@ -175,9 +188,7 @@ export class TypedMessenger {
 	 * your worker/server/messageport or whatever you want to communicate with contains
 	 * a similar list of handlers.
 	 *
-	 * You can then create a new TypedMessenger using the two handler objects as
-	 * generic parameters. The first argument is the set of request handlers of the
-	 * other end, the second argument is the set of request handlers on this end.
+	 * You can then create a new TypedMessenger using the two handler objects as generic parameters.
 	 *
 	 * ```ts
 	 * import type {workerRequestHandlers} from "./yourWorkerOrServerFile";
@@ -187,25 +198,83 @@ export class TypedMessenger {
 	 * Now your types are setup correctly, so when using `messenger.send` you will
 	 * get autocompletion and type checking for the arguments you pass in.
 	 *
+	 * ## Connecting two messengers
+	 *
 	 * But you still need to connect the two messengers to each other. There are two ways
 	 * to do this:
-	 * - Using {@linkcode initialize}. This is the best method when you are dealing with workers.
-	 * - Using {@linkcode setResponseHandlers}, {@linkcode setSendHandler} and {@linkcode handleReceivedMessage}. This is for all other situations.
+	 * - Using one of the initialize functions such as {@linkcode initializeWorker}, {@linkcode initializeWorkerContext} or {@linkcode initializeWebSocket}.
+	 * - Using {@linkcode setResponseHandlers}, {@linkcode setSendHandler} and {@linkcode handleReceivedMessage} for all other situations or if you want more control.
 	 *
 	 * See these respective functions for usage examples.
 	 *
+	 * ## Sending messages
+	 *
+	 * Once the two TypedMessengers are set up, you can send a message to the other end using `TypedMessenger.send`.
+	 * For example, the following invokes the `bar` handler on the other TypedMessenger and waits for its response.
+	 *
+	 * ```js
+	 * const result = await messenger.send.bar(1234);
+	 * ```
+	 *
+	 * The `result` will be whatever the handler returned on the other end.
+	 *
+	 * Alternatively, you can use {@linkcode sendWithOptions} for extra control:
+	 *
+	 * ```js
+	 * const result = await messenger.sendWithOptions.bar({timeout: 30_000}, 1234);
+	 * ```
+	 *
+	 * ## Responding
+	 *
+	 * The handlers you provided in {@linkcode setResponseHandlers} or one of the initialze functions will automatically
+	 * respond with whatever you return in them. So let's say you have the following handlers:
+	 *
+	 * ```js
+	 * const handlers = {
+	 * 	foo() {
+	 * 		return true;
+	 * 	}
+	 * }
+	 * ```
+	 *
+	 * when the other end invokes the `messenger.send.foo()` it will return a `Promise<true>`.
+	 *
+	 * However, in some cases you need more control over how responses are being sent.
+	 * Let's say you'd like to transfer an `ArrayBuffer` for example.
+	 * In that case you can also return an object with the `$respondOptions` property:
+	 *
+	 * ```js
+	 * const handlers = {
+	 * 	foo() {
+	 * 		const buffer = new ArrayBuffer(0);
+	 * 		return {
+	 * 			$respondOptions: {
+	 * 				returnValue: buffer,
+	 * 				transfer: [buffer],
+	 * 			}
+	 * 		}
+	 * 	}
+	 * }
+	 * ```
+	 *
+	 * In the example above, a call to `messenger.send.foo()` would return the created ArrayBuffer and also transfer it.
+	 *
+	 * If you want autocompletions, you can make use of the TypeScript `satisfies` operator:
+	 *
+	 * ```js
+	 * import type {TypedMessengerRequestHandlerReturn} from "./TypedMessenger.js";
+	 * const handlers = {
+	 * 	foo() {
+	 * 		return {
+	 * 			$respondOptions: {
+	 * 				returnValue: "result",
+	 * 			}
+	 * 		} satisfies TypedMessengerRequestHandlerReturn;
+	 * 	}
+	 * }
+	 * ```
+	 *
 	 * @param {object} options
-	 * @param {TRequireHandlerReturnObjects} [options.returnTransferSupport] Whether the
-	 * messenger has support for transferring objects from return values. When this is true,
-	 * the return values of your handlers are expected to be different:
-	 * When this is false, you can just return whatever you want from your handlers.
-	 * But when this is true you should return an object with the format
-	 * `{returnValue: any, transfer?: Transferable[]}`.
-	 * Note that transferring objects that are passed in as arguments is always
-	 * supported. You can use {@linkcode sendWithOptions} for this. This option
-	 * is only useful if you wish to transfer objects from return values.
-	 * For more info see
-	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
 	 * @param {((error: unknown) => unknown)?} [options.serializeErrorHook] This hook allows you to
 	 * serialize thrown errors before transferring them to the other TypedMessenger.
 	 * If you are using a worker or iframe, regular 'Error' objects are automatically serialized.
@@ -264,24 +333,20 @@ export class TypedMessenger {
 	 * ```
 	 */
 	constructor({
-		returnTransferSupport = /** @type {TRequireHandlerReturnObjects} */ (false),
 		serializeErrorHook = null,
 		deserializeErrorHook = null,
 		globalTimeout = 0,
 	} = {}) {
 		/** @private */
-		this.returnTransferSupport = returnTransferSupport;
-
-		/** @private */
 		this.lastRequestId = 0;
 
-		/** @private @type {TypedMessengerSendHandler<TReq, TRes, TRequireHandlerReturnObjects>?} */
+		/** @private @type {TypedMessengerSendHandler<TReq, TRes>?} */
 		this.sendHandler = null;
 
 		/** @private */
 		this.responseHandlers = null;
 
-		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq, TRequireHandlerReturnObjects>) => void>>} */
+		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq>) => void>>} */
 		this.onRequestIdMessageCbs = new Map();
 
 		/** @private */
@@ -338,7 +403,7 @@ export class TypedMessenger {
 		 * where `myFunction` is the name of one of the functions provided in {@linkcode initialize} or {@linkcode setResponseHandlers}.
 		 *
 		 */
-		this.send = /** @type {TypedMessengerProxy<TReq, TRequireHandlerReturnObjects>} */ (proxy);
+		this.send = /** @type {TypedMessengerProxy<TReq>} */ (proxy);
 
 		const sendWithOptionsProxy = new Proxy({}, {
 			get: (target, prop, receiver) => {
@@ -357,7 +422,7 @@ export class TypedMessenger {
 		/**
 		 * This is the same as {@linkcode send}, but the first argument is an object with options.
 		 */
-		this.sendWithOptions = /** @type {TypedMessengerWithOptionsProxy<TReq, TRequireHandlerReturnObjects>} */ (sendWithOptionsProxy);
+		this.sendWithOptions = /** @type {TypedMessengerWithOptionsProxy<TReq>} */ (sendWithOptionsProxy);
 	}
 
 	/**
@@ -463,7 +528,7 @@ export class TypedMessenger {
 	 * });
 	 * ```
 	 *
-	 * @param {TypedMessengerSendHandler<TReq, TRes, TRequireHandlerReturnObjects>} sendHandler
+	 * @param {TypedMessengerSendHandler<TReq, TRes>} sendHandler
 	 */
 	setSendHandler(sendHandler) {
 		this.sendHandler = sendHandler;
@@ -482,7 +547,7 @@ export class TypedMessenger {
 	 * 	messenger.handleReceivedMessage(event.data);
 	 * })
 	 * ```
-	 * @param {TypedMessengerMessageSendData<TRes, TReq, TRequireHandlerReturnObjects>} data
+	 * @param {TypedMessengerMessageSendData<TRes, TReq>} data
 	 */
 	async handleReceivedMessage(data) {
 		if (data.direction == "request") {
@@ -509,13 +574,17 @@ export class TypedMessenger {
 				}
 			}
 
-			if (this.returnTransferSupport && returnValue && !didThrow) {
-				const castReturn = /** @type {RequestHandlerReturn} */ (returnValue);
-				transfer = castReturn.transfer || [];
-				returnValue = castReturn.returnValue;
+			const castReturn = /** @type {TypedMessengerRequestHandlerReturn} */ (returnValue);
+			if (castReturn && !didThrow && typeof castReturn == "object" && "$respondOptions" in castReturn && castReturn.$respondOptions) {
+				const options = castReturn.$respondOptions;
+				if (options.respond == false) {
+					return;
+				}
+				transfer = options.transfer || [];
+				returnValue = options.returnValue;
 			}
 
-			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type, TRequireHandlerReturnObjects>} */ ({
+			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type>} */ ({
 				sendData: {
 					direction: "response",
 					id: data.id,
@@ -540,11 +609,7 @@ export class TypedMessenger {
 	 * Changes the type of a signature to allow both synchronous and asynchronous signatures.
 	 * @template {(...args: any[]) => any} T
 	 * @typedef {T extends (...args: infer Args) => infer ReturnType ?
-	 * 	TRequireHandlerReturnObjects extends true ?
-	 * 		ReturnType extends (RequestHandlerReturn | Promise<RequestHandlerReturn> | void | Promise<void>) ?
-	 * 			(...args: Args) => (Promise<ReturnType> | ReturnType) :
-	 * 			never :
-	 *		(...args: Args) => (Promise<ReturnType> | ReturnType) :
+	 *	(...args: Args) => (Promise<ReturnType> | ReturnType) :
 	 * never} PromisifyReturnValue
 	 */
 
@@ -586,6 +651,7 @@ export class TypedMessenger {
 	 * @param {Parameters<TReq[T]>} args
 	 */
 	async _sendInternal(options, type, ...args) {
+		const disableResponse = options.expectResponse == false;
 		const responsePromise = (async () => {
 			if (!this.sendHandler) {
 				throw new Error("Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
@@ -593,22 +659,30 @@ export class TypedMessenger {
 			const requestId = this.lastRequestId++;
 
 			/**
-			 * @type {Promise<GetReturnType<TReq, T, TRequireHandlerReturnObjects>>}
+			 * @type {Promise<GetReturnType<TReq, T>>}
 			 */
-			const promise = new Promise((resolve, reject) => {
-				this.onResponseMessage(requestId, message => {
-					if (message.didThrow) {
-						/** @type {unknown} */
-						let rejectValue = message.returnValue;
-						if (this.deserializeErrorHook) {
-							rejectValue = this.deserializeErrorHook(rejectValue);
+			let promise;
+			if (disableResponse) {
+				// The type attached to the function depends on handler set on the other end,
+				// so returning `Promise<void>` would actually clash with the expected return type.
+				// So we'll simply return a promise that stays pending forever.
+				promise = new Promise(() => {});
+			} else {
+				promise = new Promise((resolve, reject) => {
+					this.onResponseMessage(requestId, message => {
+						if (message.didThrow) {
+							/** @type {unknown} */
+							let rejectValue = message.returnValue;
+							if (this.deserializeErrorHook) {
+								rejectValue = this.deserializeErrorHook(rejectValue);
+							}
+							reject(rejectValue);
+						} else {
+							resolve(message.returnValue);
 						}
-						reject(rejectValue);
-					} else {
-						resolve(message.returnValue);
-					}
+					});
 				});
-			});
+			}
 
 			await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
 				sendData: {
@@ -624,7 +698,7 @@ export class TypedMessenger {
 
 		const timeout = options.timeout || this.globalTimeout;
 
-		if (timeout > 0) {
+		if (timeout > 0 && !disableResponse) {
 			const promise = new Promise((resolve, reject) => {
 				const createdTimeout = globalThis.setTimeout(() => {
 					reject(new Error("TypedMessenger response timed out."));
@@ -648,7 +722,7 @@ export class TypedMessenger {
 	 * Adds a callback that fires when a response with a specific id is received.
 	 * @private
 	 * @param {number} requestId
-	 * @param {(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq, TRequireHandlerReturnObjects>) => void} callback
+	 * @param {(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq>) => void} callback
 	 */
 	onResponseMessage(requestId, callback) {
 		let cbs = this.onRequestIdMessageCbs.get(requestId);

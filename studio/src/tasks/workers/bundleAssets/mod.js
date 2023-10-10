@@ -4,8 +4,8 @@ import {bundle} from "./bundle.js";
 /** @typedef {typeof messenger} BundleScriptsMessenger */
 /** @typedef {typeof responseHandlers} BundleAssetsMessengerResponseHandlers */
 
-/** @type {TypedMessenger<BundleAssetsMessengerResponseHandlers, import("../../task/TaskBundleAssets.js").BundleAssetsMessengerResponseHandlers, true>} */
-const messenger = new TypedMessenger({returnTransferSupport: true});
+/** @type {TypedMessenger<BundleAssetsMessengerResponseHandlers, import("../../task/TaskBundleAssets.js").BundleAssetsMessengerResponseHandlers>} */
+const messenger = new TypedMessenger();
 
 const responseHandlers = {
 	/**

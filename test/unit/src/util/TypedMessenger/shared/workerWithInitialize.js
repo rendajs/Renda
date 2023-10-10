@@ -10,12 +10,14 @@ const requestHandlers = {
 		const result = await messenger.sendWithOptions.foo({transfer: [arr]}, arr);
 		const arr2 = result.arr;
 		return {
-			returnValue: {arr: arr2},
-			transfer: [arr2],
+			$respondOptions: {
+				returnValue: {arr: arr2},
+				transfer: [arr2],
+			},
 		};
 	},
 };
 
-/** @type {TypedMessenger<typeof requestHandlers, import("../TypedMessenger.test.js").WorkerWithInitializeHandlers, true>} */
-const messenger = new TypedMessenger({returnTransferSupport: true});
+/** @type {TypedMessenger<typeof requestHandlers, import("../TypedMessenger.test.js").WorkerWithInitializeHandlers>} */
+const messenger = new TypedMessenger();
 messenger.initializeWorkerContext(requestHandlers);

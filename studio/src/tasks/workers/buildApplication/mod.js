@@ -2,8 +2,8 @@ import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 
 /** @typedef {typeof responseHandlers} BuildApplicationMessengerResponseHandlers */
 
-/** @type {TypedMessenger<BuildApplicationMessengerResponseHandlers, import("../../task/TaskBuildApplication.js").BuildApplicationMessengerResponseHandlers, true>} */
-const messenger = new TypedMessenger({returnTransferSupport: true});
+/** @type {TypedMessenger<BuildApplicationMessengerResponseHandlers, import("../../task/TaskBuildApplication.js").BuildApplicationMessengerResponseHandlers>} */
+const messenger = new TypedMessenger();
 
 const responseHandlers = {
 	/**
@@ -74,11 +74,7 @@ const responseHandlers = {
 		/** @type {import("../../task/Task.js").RunTaskReturn} */
 		const taskResult = {writeAssets};
 
-		/** @type {import("../../../../../src/util/TypedMessenger.js").RequestHandlerReturn} */
-		const requestResult = {
-			returnValue: taskResult,
-		};
-		return requestResult;
+		return taskResult;
 	},
 };
 

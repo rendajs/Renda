@@ -11,22 +11,22 @@ import {assertPromiseResolved} from "../../../shared/asserts.js";
  * but inside tests this is fine.
  * @template {import("../../../../../src/mod.js").TypedMessengerSignatures} AToBHandlers
  * @template {import("../../../../../src/mod.js").TypedMessengerSignatures} BToAHandlers
- * @param {TypedMessenger<AToBHandlers, BToAHandlers, any>} messengerA
- * @param {TypedMessenger<BToAHandlers, AToBHandlers, any>} messengerB
+ * @param {TypedMessenger<AToBHandlers, BToAHandlers>} messengerA
+ * @param {TypedMessenger<BToAHandlers, AToBHandlers>} messengerB
  */
 function linkMessengers(messengerA, messengerB) {
-	/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<BToAHandlers, AToBHandlers, any>[]} */
+	/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<BToAHandlers, AToBHandlers>[]} */
 	const aToBMessages = [];
-	/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<AToBHandlers, BToAHandlers, any>[]} */
+	/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<AToBHandlers, BToAHandlers>[]} */
 	const bToAMessages = [];
 
 	messengerA.setSendHandler(data => {
 		aToBMessages.push(data);
-		messengerB.handleReceivedMessage(/** @type {import("../../../../../src/mod.js").TypedMessengerMessageSendData<BToAHandlers, AToBHandlers, any>} */ (data.sendData));
+		messengerB.handleReceivedMessage(/** @type {import("../../../../../src/mod.js").TypedMessengerMessageSendData<BToAHandlers, AToBHandlers>} */ (data.sendData));
 	});
 	messengerB.setSendHandler(data => {
 		bToAMessages.push(data);
-		messengerA.handleReceivedMessage(/** @type {import("../../../../../src/mod.js").TypedMessengerMessageSendData<AToBHandlers, BToAHandlers, any>} */ (data.sendData));
+		messengerA.handleReceivedMessage(/** @type {import("../../../../../src/mod.js").TypedMessengerMessageSendData<AToBHandlers, BToAHandlers>} */ (data.sendData));
 	});
 
 	return {aToBMessages, bToAMessages};
@@ -193,6 +193,70 @@ Deno.test({
 });
 
 Deno.test({
+	name: "respondOptions passes on the transfer property",
+	async fn() {
+		const transferObj = new ArrayBuffer(0);
+		const requestHandlers = {
+			returnsTransfer() {
+				return {
+					$respondOptions: {
+						transfer: [transferObj],
+					},
+				};
+			},
+			returnsEmptyTransfer() {
+				return {
+					$respondOptions: {
+						transfer: [],
+					},
+				};
+			},
+			returnsNoTransfer() {
+				return {
+					$respondOptions: {},
+				};
+			},
+			returnsNoOptions() {
+				return true;
+			},
+		};
+
+		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
+		const messengerB = new TypedMessenger();
+
+		const {bToAMessages: messages} = linkMessengers(messengerA, messengerB);
+		messengerB.setResponseHandlers(requestHandlers);
+
+		// Providing a transfer array should pass it on to the message data.
+		await messengerA.send.returnsTransfer();
+
+		assertEquals(messages.length, 1);
+		assertEquals(messages[0].transfer.length, 1);
+		assertStrictEquals(messages[0].transfer[0], transferObj);
+
+		// Providing an empty array should result in an empty transfer array
+		await messengerA.send.returnsEmptyTransfer();
+
+		assertEquals(messages.length, 2);
+		assertEquals(messages[1].transfer.length, 0);
+
+		// Providing an empty options object should result in an empty transfer array
+		await messengerA.send.returnsNoTransfer();
+
+		assertEquals(messages.length, 3);
+		assertEquals(messages[2].transfer.length, 0);
+
+		// Providing no options at all should result in an empty transfer array
+		await messengerA.send.returnsNoOptions();
+
+		assertEquals(messages.length, 4);
+		assertEquals(messages[3].transfer.length, 0);
+	},
+});
+
+Deno.test({
 	name: "sending throws if no send handler has been set",
 	async fn() {
 		const messenger = new TypedMessenger();
@@ -326,7 +390,7 @@ Deno.test({
 		messengerA.setSendHandler(data => {
 			messengerB.handleReceivedMessage(data.sendData);
 		});
-		/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers, false>[]} */
+		/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers>[]} */
 		let requestQueue = [];
 		messengerB.setSendHandler(data => {
 			requestQueue.push(data);
@@ -348,12 +412,14 @@ Deno.test({
 });
 
 Deno.test({
-	name: "transferSupport: true",
+	name: "response with respondOptions",
 	async fn() {
 		const requestHandlers = {
 			returnsTrue: () => {
 				return {
-					returnValue: true,
+					$respondOptions: {
+						returnValue: true,
+					},
 				};
 			},
 			/**
@@ -362,21 +428,41 @@ Deno.test({
 			 */
 			isHigher: (num1, num2) => {
 				return {
-					returnValue: num1 > num2,
+					$respondOptions: {
+						returnValue: num1 > num2,
+					},
 				};
 			},
-			noReturnValue: () => {},
+			noOptions: () => {},
+			noReturnValue: () => {
+				return {
+					$respondOptions: {},
+				};
+			},
 			returnsPromise: async () => {
 				return {
-					returnValue: true,
+					$respondOptions: {
+						returnValue: "return value",
+					},
+				};
+			},
+			maybeOptions() {
+				const condition = /** @type {boolean} */ (true);
+				if (condition) {
+					return /** @type {const} */ ("no options");
+				}
+				return {
+					$respondOptions: {
+						returnValue: /** @type {const} */ ("options"),
+					},
 				};
 			},
 		};
 
-		/** @type {TypedMessenger<{}, typeof requestHandlers, true>} */
-		const messengerA = new TypedMessenger({returnTransferSupport: true});
-		/** @type {TypedMessenger<typeof requestHandlers, {}, true>} */
-		const messengerB = new TypedMessenger({returnTransferSupport: true});
+		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
+		const messengerB = new TypedMessenger();
 		linkMessengers(messengerA, messengerB);
 		messengerB.setResponseHandlers(requestHandlers);
 
@@ -385,32 +471,59 @@ Deno.test({
 		const result2 = await messengerA.send.isHigher(1, 2);
 		assertEquals(result2, false);
 
-		/**
-		 * Helper functions for verifying types.
-		 * @param {string} str
-		 */
-		function takesString(str) {}
+		// Verify that the return type is boolean and nothing else
+		assertIsType(true, result1);
+		// @ts-expect-error Verify that the return type is boolean and not 'any':
+		assertIsType("", result1);
 
 		// Verify that the parameter types are correct and not 'any':
 		// @ts-expect-error
 		await messengerA.send.isHigher(2, "not a number");
 
-		// Verify that the return type is boolean and not 'any':
 		const result3 = await messengerA.send.returnsTrue();
-		// @ts-expect-error
-		takesString(result3);
 		assertEquals(result3, true);
 
-		// Verify that the return type is void for functions that don't return anything:
+		// Verify that the return type is boolean and nothing else
+		assertIsType(true, result3);
+		// @ts-expect-error Verify that the return type is boolean and not 'any':
+		assertIsType("", result3);
+
+		// Verify that the return type is void for functions with no returnValue in the options:
 		const result4 = await messengerA.send.noReturnValue();
-		// @ts-expect-error
-		takesString(result4);
 		assertEquals(result4, undefined);
 
-		const result5 = await messengerA.send.returnsPromise();
-		// @ts-expect-error
-		takesString(result5);
-		assertEquals(result5, true);
+		// Verify that the return type is void and nothing else
+		const voidType = (() => {})();
+		assertIsType(voidType, result4);
+		// @ts-expect-error Verify that the return type is void and not 'any':
+		assertIsType("", result4);
+
+		// Verify that the return type is void for functions that don't return anything:
+		const result5 = await messengerA.send.noOptions();
+		assertEquals(result5, undefined);
+
+		// Verify that the return type is void and nothing else
+		assertIsType(voidType, result5);
+		// @ts-expect-error Verify that the return type is void and not 'any':
+		assertIsType("", result5);
+
+		const result6 = await messengerA.send.returnsPromise();
+		assertEquals(result6, "return value");
+
+		// Verify that the return type is string and nothing else
+		assertIsType("", result6);
+		// @ts-expect-error Verify that the return type is string and not 'any':
+		assertIsType(true, result6);
+
+		const result7 = await messengerA.send.maybeOptions();
+
+		// Verify that the return type is "options" | "no options" and nothing else
+		const optionsNoOptions = /** @type {"options" | "no options"} */ ("");
+		assertIsType(optionsNoOptions, result7);
+		assertIsType(result7, "no options");
+		assertIsType(result7, "options");
+		// @ts-expect-error Verify that the return type is string and not 'any':
+		assertIsType(true, result7);
 
 		// Verify that the send handler types are correct and not 'any':
 		messengerA.setSendHandler(data => {
@@ -434,26 +547,6 @@ Deno.test({
 	},
 });
 
-Deno.test({
-	name: "Thrown errors are passed on to the requester with transferSupport: true",
-	async fn() {
-		const requestHandlers = {
-			throws: () => {
-				throw new TypeError("Error message");
-			},
-		};
-
-		const messengerA = new TypedMessenger({returnTransferSupport: true});
-		const messengerB = new TypedMessenger({returnTransferSupport: true});
-		linkMessengers(messengerA, messengerB);
-		messengerB.setResponseHandlers(requestHandlers);
-
-		await assertRejects(async () => {
-			await messengerA.send.throws();
-		}, TypeError, "Error message");
-	},
-});
-
 /** @typedef {typeof workerWithInitializeHandlers} WorkerWithInitializeHandlers */
 
 const workerWithInitializeHandlers = {
@@ -462,21 +555,23 @@ const workerWithInitializeHandlers = {
 	 */
 	foo(arr) {
 		return {
-			returnValue: {arr},
-			transfer: [arr],
+			$respondOptions: {
+				returnValue: {arr},
+				transfer: [arr],
+			},
 		};
 	},
 };
 
 Deno.test({
-	name: "initializeWorker() with transferSupport: true",
+	name: "initializeWorker() with respondOptions and transfer array",
 	async fn() {
 		const url = new URL("./shared/workerWithInitialize.js", import.meta.url);
 		const worker = new Worker(url.href, {type: "module"});
 
 		try {
-			/** @type {TypedMessenger<WorkerWithInitializeHandlers, import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers, true>} */
-			const messenger = new TypedMessenger({returnTransferSupport: true});
+			/** @type {TypedMessenger<WorkerWithInitializeHandlers, import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers>} */
+			const messenger = new TypedMessenger();
 			messenger.initializeWorker(worker, workerWithInitializeHandlers);
 
 			const view = new Uint8Array([1, 2, 3]);
@@ -487,55 +582,6 @@ Deno.test({
 		} finally {
 			worker.terminate();
 		}
-	},
-});
-
-Deno.test({
-	name: "Passing an incorrect response handler with transferSupport: true should emit a type error",
-	async fn() {
-		/** @typedef {typeof handlers} Handlers */
-		const handlers = {
-			fooSync() {
-				return "incorrect type";
-			},
-			async fooAsync() {
-				return "incorrect type";
-			},
-		};
-
-		/** @type {TypedMessenger<Handlers, Handlers, true>} */
-		const messenger = new TypedMessenger({returnTransferSupport: true});
-		// @ts-expect-error
-		messenger.setResponseHandlers(handlers);
-		messenger.setResponseHandlers({
-			// @ts-expect-error fooSync should have type never and cause a type error
-			fooSync() {
-				return "incorrect type";
-			},
-			// @ts-expect-error fooAsync should have type never and cause a type error
-			async fooAsync() {
-				return "incorrect type";
-			},
-		});
-		const mockWorker = /** @type {Worker} */ ({
-			addEventListener: /** @type {Worker["addEventListener"]} */ (() => {}),
-			postMessage(message, options) {},
-		});
-		messenger.initializeWorker(
-			mockWorker,
-			// @ts-expect-error
-			handlers
-		);
-		messenger.initializeWorker(mockWorker, {
-			// @ts-expect-error fooSync should have type never and cause a type error
-			fooSync() {
-				return "incorrect type";
-			},
-			// @ts-expect-error fooAsync should have type never and cause a type error
-			async fooAsync() {
-				return "incorrect type";
-			},
-		});
 	},
 });
 
@@ -716,6 +762,37 @@ Deno.test({
 });
 
 Deno.test({
+	name: "respond false doesn't send a response",
+	async fn() {
+		const handlersB = {
+			noResponse() {
+				return /** @satisfies {import("../../../../../src/mod.js").TypedMessengerRequestHandlerReturn} */ ({
+					$respondOptions: {
+						respond: false,
+					},
+				});
+			},
+		};
+		/** @type {TypedMessenger<{}, handlersB>} */
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<handlersB, {}>} */
+		const messengerB = new TypedMessenger();
+		messengerB.setResponseHandlers(handlersB);
+		const {aToBMessages, bToAMessages} = linkMessengers(messengerA, messengerB);
+
+		const promise = messengerA.send.noResponse();
+
+		await assertPromiseResolved(promise, false);
+
+		assertEquals(aToBMessages.length, 1);
+		assertEquals(bToAMessages.length, 0);
+
+		const promiseNever = /** @type {Promise<never>} */ (Promise.resolve());
+		assertIsType(promiseNever, promise);
+	},
+});
+
+Deno.test({
 	name: "Send promise stays pending forever when no timeout is set",
 	async fn() {
 		const messenger = new TypedMessenger();
@@ -804,6 +881,48 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Timeout error is fired on handlers with no response",
+	async fn() {
+		const time = new FakeTime();
+
+		try {
+			const handlersB = {
+				noResponse() {
+					return /** @satisfies {import("../../../../../src/mod.js").TypedMessengerRequestHandlerReturn} */ ({
+						$respondOptions: {
+							respond: false,
+						},
+					});
+				},
+			};
+			/** @type {TypedMessenger<{}, handlersB>} */
+			const messengerA = new TypedMessenger({globalTimeout: 10_000});
+			/** @type {TypedMessenger<handlersB, {}>} */
+			const messengerB = new TypedMessenger();
+			messengerB.setResponseHandlers(handlersB);
+			linkMessengers(messengerA, messengerB);
+
+			const assertRejectsPromise1 = assertRejects(async () => {
+				await messengerA.send.noResponse();
+			}, Error, "TypedMessenger response timed out.");
+
+			await time.tickAsync(9_000);
+			const assertResolved1 = assertPromiseResolved(assertRejectsPromise1, false);
+			await time.nextAsync();
+			await assertResolved1;
+
+			await time.tickAsync(2_000);
+			const assertResolved2 = assertPromiseResolved(assertRejectsPromise1, true);
+			await time.nextAsync();
+			await assertResolved2;
+			await assertRejectsPromise1;
+		} finally {
+			time.restore();
+		}
+	},
+});
+
+Deno.test({
 	name: "Send promise does not reject when it responds in time",
 	async fn() {
 		const time = new FakeTime();
@@ -841,5 +960,44 @@ Deno.test({
 		await messengerA.sendWithOptions.foo({timeout: 10_000});
 
 		// The Deno test runner will verify if the timeout was cleared using its test sanitizers.
+	},
+});
+
+Deno.test({
+	name: "expectResponse: false stays pending forever",
+	async fn() {
+		const messengerA = new TypedMessenger();
+		const messengerB = new TypedMessenger();
+		linkMessengers(messengerA, messengerB);
+		messengerB.setResponseHandlers({
+			foo() {},
+		});
+
+		const promise1 = messengerA.sendWithOptions.foo({expectResponse: false});
+		await assertPromiseResolved(promise1, false);
+
+		const promise2 = messengerA.sendWithOptions.foo({expectResponse: true});
+		await assertPromiseResolved(promise2, true);
+	},
+});
+
+Deno.test({
+	name: "timeout is ignored when expectResponse is false",
+	async fn() {
+		const time = new FakeTime();
+
+		try {
+			const messenger = new TypedMessenger();
+			messenger.setSendHandler(() => {});
+
+			const sendPromise = messenger.sendWithOptions.foo({expectResponse: false, timeout: 10_000});
+
+			await time.tickAsync(11_000);
+			const assertResolved1 = assertPromiseResolved(sendPromise, false);
+			await time.nextAsync();
+			await assertResolved1;
+		} finally {
+			time.restore();
+		}
 	},
 });
