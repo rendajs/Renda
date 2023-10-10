@@ -9,10 +9,6 @@ export class WeakValueMap {
 	 * @param {Iterable<[K, V]>} iterable
 	 */
 	constructor(iterable = []) {
-		for (const [key, value] of iterable) {
-			this.set(key, value);
-		}
-
 		/** @private @type {Map<K, WeakRef<V>>} */
 		this._map = new Map();
 
@@ -20,6 +16,10 @@ export class WeakValueMap {
 		this._finalizationRegistry = new FinalizationRegistry(key => {
 			this._map.delete(key);
 		});
+
+		for (const [key, value] of iterable) {
+			this.set(key, value);
+		}
 	}
 
 	/**

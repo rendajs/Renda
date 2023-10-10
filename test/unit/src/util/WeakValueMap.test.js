@@ -3,6 +3,30 @@ import {forceCleanup, forceCleanupAll, runWithMockWeakRef} from "../../shared/mo
 import {WeakValueMap} from "../../../../src/util/WeakValueMap.js";
 
 Deno.test({
+	name: "Passed array in constructor is applied",
+	fn() {
+		runWithMockWeakRef(() => {
+			const refA = Symbol("A");
+			const refB = Symbol("B");
+
+			// @ts-expect-error #773
+			const map = new WeakValueMap([
+				[1, refA],
+				[2, refB],
+			]);
+
+			assertStrictEquals(map.get(1), refA);
+			assertEquals(map.has(1), true);
+
+			forceCleanup(refA);
+
+			assertEquals(map.get(1), undefined);
+			assertEquals(map.has(1), false);
+		});
+	},
+});
+
+Deno.test({
 	name: "Garbage collection removes values",
 	fn() {
 		runWithMockWeakRef(() => {
