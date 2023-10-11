@@ -1,5 +1,5 @@
 import {assertEquals, assertExists, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Mesh, MeshAttributeBuffer, Vec2, Vec3} from "../../../../src/mod.js";
+import {Mesh, MeshAttributeBuffer, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../shared/asserts.js";
 
 class FakeMesh {
@@ -316,6 +316,29 @@ Deno.test({
 });
 
 Deno.test({
+	name: "setVertexData() array of Vec4",
+	fn() {
+		const buffer = new MeshAttributeBuffer(mockMesh, {
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(2);
+
+		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(1, 2, 3, 4), new Vec4(5, 6, 7, 8)]);
+
+		const dataView = buffer.getDataView();
+
+		assertEquals(dataView.getFloat32(0, true), 1);
+		assertEquals(dataView.getFloat32(4, true), 2);
+		assertEquals(dataView.getFloat32(8, true), 3);
+		assertEquals(dataView.getFloat32(12, true), 4);
+		assertEquals(dataView.getFloat32(16, true), 5);
+		assertEquals(dataView.getFloat32(20, true), 6);
+		assertEquals(dataView.getFloat32(24, true), 7);
+		assertEquals(dataView.getFloat32(28, true), 8);
+	},
+});
+
+Deno.test({
 	name: "setVertexData() should throw when the attribute type is not present",
 	fn() {
 		const buffer = new MeshAttributeBuffer(mockMesh);
@@ -349,6 +372,14 @@ The VertexState for this attribute has a componentCount of 1.
 Potential fixes:
  - set the componentCount of "POSITION" in your VertexState to 3.
  - provide a number array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(), new Vec4()]);
+		}, Error, `Expected a number array but received a Vec4 array.
+The VertexState for this attribute has a componentCount of 1.
+Potential fixes:
+ - set the componentCount of "POSITION" in your VertexState to 4.
+ - provide a number array.`);
 	},
 });
 
@@ -378,6 +409,15 @@ Potential fixes:
  - add a VertexState with "POSITION" attribute.
  - set the \`unusedComponentCount\` option of \`setVertexData()\` to 3.
  - provide a number array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(), new Vec4()]);
+		}, Error, `Expected a number array but received a Vec4 array.
+The mesh has no VertexState.
+Potential fixes:
+ - add a VertexState with "POSITION" attribute.
+ - set the \`unusedComponentCount\` option of \`setVertexData()\` to 4.
+ - provide a number array.`);
 	},
 });
 
@@ -404,6 +444,14 @@ The VertexState for this attribute has a componentCount of 2.
 Potential fixes:
  - set the componentCount of "POSITION" in your VertexState to 3.
  - provide a Vec2 array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(), new Vec4()]);
+		}, Error, `Expected a Vec2 array but received a Vec4 array.
+The VertexState for this attribute has a componentCount of 2.
+Potential fixes:
+ - set the componentCount of "POSITION" in your VertexState to 4.
+ - provide a Vec2 array.`);
 	},
 });
 
@@ -424,6 +472,7 @@ Potential fixes:
  - add a VertexState with "POSITION" attribute.
  - set the \`unusedComponentCount\` option of \`setVertexData()\` to 1.
  - provide a Vec2 array.`);
+
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(), new Vec3()]);
 		}, Error, `Expected a Vec2 array but received a Vec3 array.
@@ -431,6 +480,15 @@ The mesh has no VertexState.
 Potential fixes:
  - add a VertexState with "POSITION" attribute.
  - set the \`unusedComponentCount\` option of \`setVertexData()\` to 3.
+ - provide a Vec2 array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(), new Vec4()]);
+		}, Error, `Expected a Vec2 array but received a Vec4 array.
+The mesh has no VertexState.
+Potential fixes:
+ - add a VertexState with "POSITION" attribute.
+ - set the \`unusedComponentCount\` option of \`setVertexData()\` to 4.
  - provide a Vec2 array.`);
 	},
 });
@@ -457,6 +515,14 @@ Potential fixes:
 The VertexState for this attribute has a componentCount of 3.
 Potential fixes:
  - set the componentCount of "POSITION" in your VertexState to 2.
+ - provide a Vec3 array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(), new Vec4()]);
+		}, Error, `Expected a Vec3 array but received a Vec4 array.
+The VertexState for this attribute has a componentCount of 3.
+Potential fixes:
+ - set the componentCount of "POSITION" in your VertexState to 4.
  - provide a Vec3 array.`);
 	},
 });
@@ -487,38 +553,128 @@ Potential fixes:
  - add a VertexState with "POSITION" attribute.
  - set the \`unusedComponentCount\` option of \`setVertexData()\` to 2.
  - provide a Vec3 array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(), new Vec4()]);
+		}, Error, `Expected a Vec3 array but received a Vec4 array.
+The mesh has no VertexState.
+Potential fixes:
+ - add a VertexState with "POSITION" attribute.
+ - set the \`unusedComponentCount\` option of \`setVertexData()\` to 4.
+ - provide a Vec3 array.`);
 	},
 });
 
 Deno.test({
-	name: "setVertexData() should throw when data doesn't match the component count (3 unused with vertexstate)",
+	name: "setVertexData() should throw when data doesn't match the component count (4)",
+	fn() {
+		const buffer = new MeshAttributeBuffer(mockMesh, {
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(2);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2]);
+		}, Error, `Expected a Vec4 array but received a Number array.
+The VertexState for this attribute has a componentCount of 4.
+Potential fixes:
+ - set the componentCount of "POSITION" in your VertexState to 1.
+ - provide a Vec4 array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(), new Vec2()]);
+		}, Error, `Expected a Vec4 array but received a Vec2 array.
+The VertexState for this attribute has a componentCount of 4.
+Potential fixes:
+ - set the componentCount of "POSITION" in your VertexState to 2.
+ - provide a Vec4 array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(), new Vec3()]);
+		}, Error, `Expected a Vec4 array but received a Vec3 array.
+The VertexState for this attribute has a componentCount of 4.
+Potential fixes:
+ - set the componentCount of "POSITION" in your VertexState to 3.
+ - provide a Vec4 array.`);
+	},
+});
+
+Deno.test({
+	name: "setVertexData() should throw when data doesn't match the component count (4 unused)",
+	fn() {
+		const buffer = new MeshAttributeBuffer(mockMesh, {
+			isUnused: true,
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(2);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2]);
+		}, Error, `Expected a Vec4 array but received a Number array.
+The mesh has no VertexState.
+Potential fixes:
+ - add a VertexState with "POSITION" attribute.
+ - set the \`unusedComponentCount\` option of \`setVertexData()\` to 1.
+ - provide a Vec4 array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(), new Vec2()]);
+		}, Error, `Expected a Vec4 array but received a Vec2 array.
+The mesh has no VertexState.
+Potential fixes:
+ - add a VertexState with "POSITION" attribute.
+ - set the \`unusedComponentCount\` option of \`setVertexData()\` to 2.
+ - provide a Vec4 array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(), new Vec3()]);
+		}, Error, `Expected a Vec4 array but received a Vec3 array.
+The mesh has no VertexState.
+Potential fixes:
+ - add a VertexState with "POSITION" attribute.
+ - set the \`unusedComponentCount\` option of \`setVertexData()\` to 3.
+ - provide a Vec4 array.`);
+	},
+});
+
+Deno.test({
+	name: "setVertexData() should throw when data doesn't match the component count (4 unused with vertexstate)",
 	fn() {
 		const mockMesh = /** @type {Mesh} */ ({
 			vertexState: {},
 		});
 		const buffer = new MeshAttributeBuffer(mockMesh, {
 			isUnused: true,
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
 		});
 		buffer.setVertexCount(2);
 
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2]);
-		}, Error, `Expected a Vec3 array but received a Number array.
+		}, Error, `Expected a Vec4 array but received a Number array.
 The provided VertexState doesn't contain a "POSITION" attribute.
 Potential fixes:
  - add a "POSITION" attribute to the VertexState.
  - set the \`unusedComponentCount\` option of \`setVertexData()\` to 1.
- - provide a Vec3 array.`);
+ - provide a Vec4 array.`);
 
 		assertThrows(() => {
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(), new Vec2()]);
-		}, Error, `Expected a Vec3 array but received a Vec2 array.
+		}, Error, `Expected a Vec4 array but received a Vec2 array.
 The provided VertexState doesn't contain a "POSITION" attribute.
 Potential fixes:
  - add a "POSITION" attribute to the VertexState.
  - set the \`unusedComponentCount\` option of \`setVertexData()\` to 2.
- - provide a Vec3 array.`);
+ - provide a Vec4 array.`);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(), new Vec3()]);
+		}, Error, `Expected a Vec4 array but received a Vec3 array.
+The provided VertexState doesn't contain a "POSITION" attribute.
+Potential fixes:
+ - add a "POSITION" attribute to the VertexState.
+ - set the \`unusedComponentCount\` option of \`setVertexData()\` to 3.
+ - provide a Vec4 array.`);
 	},
 });
 
@@ -601,6 +757,23 @@ Deno.test({
 		assertEquals(result.length, 2);
 		assertVecAlmostEquals(result[0], [1, 2, 3]);
 		assertVecAlmostEquals(result[1], [4, 5, 6]);
+	},
+});
+
+Deno.test({
+	name: "getVertexData() yielding Vec4",
+	fn() {
+		const buffer = new MeshAttributeBuffer(mockMesh, {
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(2);
+		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(1, 2, 3, 4), new Vec4(5, 6, 7, 8)]);
+
+		const result = Array.from(buffer.getVertexData(Mesh.AttributeType.POSITION));
+
+		assertEquals(result.length, 2);
+		assertVecAlmostEquals(result[0], [1, 2, 3, 4]);
+		assertVecAlmostEquals(result[1], [5, 6, 7, 8]);
 	},
 });
 
