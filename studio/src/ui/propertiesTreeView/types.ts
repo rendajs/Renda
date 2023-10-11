@@ -1,5 +1,5 @@
 import { Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
-import { UnionToIntersection } from "../../../../src/util/types.ts";
+import { UnionToIntersection } from "../../util/types.ts";
 import { ArrayGui, ArrayGuiOptions, GetArrayGuiForOptions, GetArrayGuiValueTypeForOptions } from "../ArrayGui.js";
 import { BooleanGui, BooleanGuiOptions } from "../BooleanGui.js";
 import { PathGui, PathGuiOptions } from "../PathGui.js";
