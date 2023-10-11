@@ -11,7 +11,7 @@ import {createTreeViewEntryOptions} from "../../ui/propertiesTreeView/createStru
  * @property {GPUPrimitiveTopology} [primitiveTopology]
  * @property {GPUCompareFunction} [depthCompareFunction]
  * @property {boolean} [depthWriteEnabled]
- * @property {import("../../../../src/util/types.ts").RecursivePartial<GPUBlendState>} [blend]
+ * @property {import("../../util/types.ts").RecursivePartial<GPUBlendState>} [blend]
  * @property {number} [renderOrder]
  */
 
@@ -152,7 +152,7 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			};
 
 			/**
-			 * @param {import("../../../../src/util/types.ts").RecursivePartial<GPUBlendComponent> | undefined} blendComponent
+			 * @param {import("../../util/types.ts").RecursivePartial<GPUBlendComponent> | undefined} blendComponent
 			 */
 			function parseBlendComponent(blendComponent) {
 				if (!blendComponent) return;
