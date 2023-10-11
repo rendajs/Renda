@@ -1,5 +1,6 @@
 import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
+import {Vec4} from "../math/Vec4.js";
 import {Mesh} from "./Mesh.js";
 
 /** @typedef {() => void} OnBufferChangedCallback */
@@ -109,7 +110,7 @@ export class MeshAttributeBuffer {
 	 * @param {boolean} assertion
 	 * @param {MeshAttributeSettings} attributeSettings
 	 * @param {string} expectedText
-	 * @param {number[] | Vec2[] | Vec3[]} dataArray
+	 * @param {number[] | Vec2[] | Vec3[] | Vec4[]} dataArray
 	 */
 	_assertVertexDataType(assertion, attributeSettings, expectedText, dataArray) {
 		if (!assertion) {
@@ -122,6 +123,8 @@ export class MeshAttributeBuffer {
 				receivedComponentCount = 2;
 			} else if (firstArrayItem instanceof Vec3) {
 				receivedComponentCount = 3;
+			} else if (firstArrayItem instanceof Vec4) {
+				receivedComponentCount = 4;
 			} else {
 				throw new Error("Assertion failed, unexpected array type: " + firstArrayItem);
 			}
@@ -155,7 +158,7 @@ export class MeshAttributeBuffer {
 
 	/**
 	 * @param {import("./Mesh.js").AttributeType} attributeType
-	 * @param {ArrayBufferLike | number[] | Vec2[] | Vec3[]} data
+	 * @param {ArrayBufferLike | number[] | Vec2[] | Vec3[] | Vec4[]} data
 	 */
 	setVertexData(attributeType, data) {
 		const attributeSettings = this.getAttributeSettings(attributeType);
@@ -222,8 +225,16 @@ export class MeshAttributeBuffer {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 2, pos.z, true);
 				}
+			} else if (attributeSettings.componentCount == 4) {
+				this._assertVertexDataType(data[0] instanceof Vec4, attributeSettings, "Vec4", data);
+				const castData = /** @type {Vec4[]} */ (data);
+				for (const [i, pos] of castData.entries()) {
+					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
+					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
+					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 2, pos.z, true);
+					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 3, pos.w, true);
+				}
 			}
-			// todo: support more Vec4
 		}
 
 		this.fireBufferChanged();
@@ -285,6 +296,16 @@ export class MeshAttributeBuffer {
 				const y = getFunction(i + attributeSettings.offset + valueByteSize * 1, true);
 				const z = getFunction(i + attributeSettings.offset + valueByteSize * 2, true);
 				yield new Vec3(x, y, z);
+				i += this.arrayStride;
+			}
+		} else if (attributeSettings.componentCount == 4) {
+			let i = 0;
+			while (i <= this.buffer.byteLength - this.arrayStride) {
+				const x = getFunction(i + attributeSettings.offset + valueByteSize * 0, true);
+				const y = getFunction(i + attributeSettings.offset + valueByteSize * 1, true);
+				const z = getFunction(i + attributeSettings.offset + valueByteSize * 2, true);
+				const w = getFunction(i + attributeSettings.offset + valueByteSize * 3, true);
+				yield new Vec4(x, y, z, w);
 				i += this.arrayStride;
 			}
 		}
