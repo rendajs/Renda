@@ -412,6 +412,32 @@ export class Vec4 {
 	}
 
 	/**
+	 * Sets each component to the minimum of the two vectors.
+	 * @param {Vec4Parameters} args
+	 */
+	min(...args) {
+		const vec = new Vec4(...args);
+		const x = Math.min(this._x, vec.x);
+		const y = Math.min(this._y, vec.y);
+		const z = Math.min(this._z, vec.z);
+		const w = Math.min(this._w, vec.w);
+		return this.set(x, y, z, w);
+	}
+
+	/**
+	 * Sets each component to the maximum of the two vectors.
+	 * @param {Vec4Parameters} args
+	 */
+	max(...args) {
+		const vec = new Vec4(...args);
+		const x = Math.max(this._x, vec.x);
+		const y = Math.max(this._y, vec.y);
+		const z = Math.max(this._z, vec.z);
+		const w = Math.max(this._w, vec.w);
+		return this.set(x, y, z, w);
+	}
+
+	/**
 	 * Computes the dot product between this vector and another vector.
 	 *
 	 * [Dot product visualisation](https://falstad.com/dotproduct/)
