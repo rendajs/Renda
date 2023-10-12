@@ -435,6 +435,30 @@ export class Vec3 {
 	}
 
 	/**
+	 * Sets each component to the minimum of the two vectors.
+	 * @param {Vec3Parameters} args
+	 */
+	min(...args) {
+		const vec = new Vec3(...args);
+		const x = Math.min(this._x, vec.x);
+		const y = Math.min(this._y, vec.y);
+		const z = Math.min(this._z, vec.z);
+		return this.set(x, y, z);
+	}
+
+	/**
+	 * Sets each component to the maximum of the two vectors.
+	 * @param {Vec3Parameters} args
+	 */
+	max(...args) {
+		const vec = new Vec3(...args);
+		const x = Math.max(this._x, vec.x);
+		const y = Math.max(this._y, vec.y);
+		const z = Math.max(this._z, vec.z);
+		return this.set(x, y, z);
+	}
+
+	/**
 	 * Returns the shortest angle in radians to another vector. This will always
 	 * return a value lower than pi, i.e. half a rotation. This essentially
 	 * means that if you keep rotating the second angle far enough, eventually

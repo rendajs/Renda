@@ -700,6 +700,44 @@ Deno.test({
 });
 
 Deno.test({
+	name: "min()",
+	fn() {
+		const tests = [
+			{a: [1, 1, 1, 1], b: [1, 1, 1, 1], result: [1, 1, 1, 1]},
+			{a: [2, 2, 2, 2], b: [1, 1, 1, 1], result: [1, 1, 1, 1]},
+			{a: [1, 1, 1, 1], b: [2, 2, 2, 2], result: [1, 1, 1, 1]},
+			{a: [1, 5, 2, 3], b: [2, 1, 4, 2], result: [1, 1, 2, 2]},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec4(a);
+			vec.min(b);
+
+			assertVecAlmostEquals(vec, result);
+		}
+	},
+});
+
+Deno.test({
+	name: "max()",
+	fn() {
+		const tests = [
+			{a: [1, 1, 1, 1], b: [1, 1, 1, 1], result: [1, 1, 1, 1]},
+			{a: [2, 2, 2, 2], b: [1, 1, 1, 1], result: [2, 2, 2, 2]},
+			{a: [1, 1, 1, 1], b: [2, 2, 2, 2], result: [2, 2, 2, 2]},
+			{a: [1, 5, 2, 3], b: [2, 1, 4, 2], result: [2, 5, 4, 3]},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec4(a);
+			vec.max(b);
+
+			assertVecAlmostEquals(vec, result);
+		}
+	},
+});
+
+Deno.test({
 	name: "dot()",
 	fn() {
 		const tests = [
