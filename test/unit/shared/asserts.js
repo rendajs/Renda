@@ -104,29 +104,42 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg
 }
 
 /**
+ * @param {Quat | number[]} arrayOrQuat
+ * @param {string} msg
+ */
+function arrayToQuat(arrayOrQuat, msg) {
+	if (!Array.isArray(arrayOrQuat)) {
+		return arrayOrQuat;
+	}
+	return new Quat(arrayOrQuat);
+}
+
+/**
  * @param {unknown} quat
  * @param {string} msg
- * @returns {asserts quat is Quat}
+ * @returns {asserts quat is Quat | number[]}
  */
 function assertIsQuaternion(quat, msg) {
-	if (!(quat instanceof Quat)) {
+	if (!(quat instanceof Quat) && !Array.isArray(quat)) {
 		if (msg) throw new AssertionError(msg);
-		throw new AssertionError(`${quat} is not a vector`);
+		throw new AssertionError(`${quat} is not a quaternion`);
 	}
 }
 
 /**
  * @param {unknown} actual
- * @param {Quat} expected
+ * @param {Quat | number[]} expected
  */
 export function assertQuatAlmostEquals(actual, expected, tolerance = 0.00001, msg = "") {
 	assertIsQuaternion(actual, msg);
 	assertIsQuaternion(expected, msg);
-	if (!msg) msg = `Expected Quaternion to be close to ${expected} but got ${actual}`;
-	assertAlmostEquals(actual.x, expected.x, tolerance, msg);
-	assertAlmostEquals(actual.y, expected.y, tolerance, msg);
-	assertAlmostEquals(actual.z, expected.z, tolerance, msg);
-	assertAlmostEquals(actual.w, expected.w, tolerance, msg);
+	const actualQuat = arrayToQuat(actual, msg);
+	const expectedQuat = arrayToQuat(expected, msg);
+	if (!msg) msg = `Expected Quaternion to be close to ${expectedQuat} but got ${actualQuat}`;
+	assertAlmostEquals(actualQuat.x, expectedQuat.x, tolerance, msg);
+	assertAlmostEquals(actualQuat.y, expectedQuat.y, tolerance, msg);
+	assertAlmostEquals(actualQuat.z, expectedQuat.z, tolerance, msg);
+	assertAlmostEquals(actualQuat.w, expectedQuat.w, tolerance, msg);
 }
 
 /**
