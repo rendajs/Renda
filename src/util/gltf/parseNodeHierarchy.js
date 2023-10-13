@@ -42,7 +42,7 @@ export function parseScene(scene, nodes) {
 				} else {
 					nodeText = `Node ${nodeId}`;
 				}
-				throw new Error(`Failed to load glTF. ${nodeText} is referenced to multiple times.`);
+				throw new Error(`Failed to load glTF. ${nodeText} is referenced multiple times.`);
 			}
 			sceneEntity.add(child);
 		}
@@ -73,6 +73,20 @@ function parseNodeRecursive(nodeId, nodes, createdEntities) {
 	}
 	const entity = new Entity(entityOptions);
 	createdEntities.set(nodeId, entity);
+
+	if (nodeData.matrix) {
+		entity.localMatrix.set(nodeData.matrix);
+	} else {
+		if (nodeData.translation) {
+			entity.pos.set(nodeData.translation);
+		}
+		if (nodeData.scale) {
+			entity.scale.set(nodeData.scale);
+		}
+		if (nodeData.rotation) {
+			entity.rot.set(nodeData.rotation);
+		}
+	}
 
 	if (nodeData.children) {
 		for (const childId of nodeData.children) {
