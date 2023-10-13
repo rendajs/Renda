@@ -4,6 +4,7 @@ export function getBasicOptions() {
 		defaultMaterial: null,
 		defaultMaterialMap: null,
 		defaultSampler: null,
+		hooks: {},
 	};
 	return options;
 }

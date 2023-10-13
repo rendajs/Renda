@@ -47,6 +47,7 @@ export interface GltfNodeData extends GltfRootObjectBase {
 	scale?: number[];
 	translation?: number[];
 	weights?: number[];
+	extras?: unknown;
 }
 
 export interface GltfSceneData extends GltfRootObjectBase {

@@ -1,6 +1,7 @@
-import {assertEquals, assertNotStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {parseScene, parseScenes} from "../../../../../src/util/gltf/parseNodeHierarchy.js";
 import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 
 Deno.test({
 	name: "basic scene",
@@ -21,7 +22,7 @@ Deno.test({
 			{
 				name: "Node 2",
 			},
-		]);
+		], {});
 
 		assertEquals(entity.childCount, 1);
 		const scene = entity.children[0];
@@ -61,7 +62,7 @@ Deno.test({
 				name: "Node 0",
 				translation: [1, 2, 3],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
@@ -82,7 +83,7 @@ Deno.test({
 				name: "Node 0",
 				scale: [1, 2, 3],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
@@ -103,7 +104,7 @@ Deno.test({
 				name: "Node 0",
 				rotation: [0, 0, 1, 0],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
@@ -124,7 +125,7 @@ Deno.test({
 				name: "Node 0",
 				matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
@@ -146,12 +147,79 @@ Deno.test({
 				scale: [1, 2, 3],
 				matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
 		assertVecAlmostEquals(node0.scale, [1, 1, 1]);
 		assertVecAlmostEquals(node0.pos, [1, 2, 3]);
+	},
+});
+
+Deno.test({
+	name: "Node hook fires on every node",
+	fn() {
+		/**
+		 * @param {import("../../../../../src/util/gltf/gltfParsing.js").ParsedGltfNodeHookContext} context
+		 */
+		const nodeHook = context => {};
+		const spyFn = spy(nodeHook);
+		const {entity} = parseScenes([
+			{
+				name: "Scene 0",
+				nodes: [0, 1],
+			},
+		], [
+			{
+				name: "Node 0",
+			},
+			{
+				name: "Node 1",
+				extras: {
+					foo: "bar",
+				},
+			},
+		], {
+			node: spyFn,
+		});
+
+		assertSpyCalls(spyFn, 2);
+
+		const node1 = entity.children[0].children[0];
+		assertStrictEquals(spyFn.calls[0].args[0].entity, node1);
+		assertEquals(spyFn.calls[0].args[0].nodeId, 0);
+		assertEquals(spyFn.calls[0].args[0].nodeData, {name: "Node 0"});
+
+		const node2 = entity.children[0].children[1];
+		assertStrictEquals(spyFn.calls[1].args[0].entity, node2);
+		assertEquals(spyFn.calls[1].args[0].nodeId, 1);
+		assertEquals(spyFn.calls[1].args[0].nodeData, {name: "Node 1", extras: {foo: "bar"}});
+	},
+});
+
+Deno.test({
+	name: "Node hook doesn't fire before the entity has all its children",
+	fn() {
+		parseScenes([
+			{
+				name: "Scene 0",
+				nodes: [0],
+			},
+		], [
+			{
+				name: "Node 0",
+				children: [1],
+			},
+			{
+				name: "Node 1",
+			},
+		], {
+			node({entity}) {
+				if (entity.name == "Node 0") {
+					assertEquals(entity.childCount, 1);
+				}
+			},
+		});
 	},
 });
 
@@ -174,7 +242,7 @@ Deno.test({
 			{
 				name: "Node 1",
 			},
-		]);
+		], {});
 
 		assertEquals(entity.childCount, 2);
 		const scene1 = entity.children[0];
@@ -222,7 +290,7 @@ Deno.test({
 			{
 				name: "Node 2",
 			},
-		]);
+		], {});
 
 		assertEquals(entity.childCount, 2);
 		const scene0 = entity.children[0];
@@ -262,7 +330,7 @@ Deno.test({
 		assertThrows(() => {
 			parseScene({
 				nodes: [1],
-			}, [{}]);
+			}, [{}], {});
 		}, Error, "Failed to load glTF. Pointer to node with index 1 does not exist.");
 	},
 });
@@ -280,7 +348,7 @@ Deno.test({
 				{
 					children: [0],
 				},
-			]);
+			], {});
 		}, Error, `Failed to load glTF. Node 0 is referenced multiple times.`);
 	},
 });
@@ -300,7 +368,7 @@ Deno.test({
 					name: "Named node 1",
 					children: [0],
 				},
-			]);
+			], {});
 		}, Error, `Failed to load glTF. "Named node 0" is referenced multiple times.`);
 	},
 });
@@ -327,7 +395,7 @@ Deno.test({
 				name: "Node 1",
 				children: [0],
 			},
-		]);
+		], {});
 
 		assertEquals(entity.childCount, 2);
 		const scene0 = entity.children[0];

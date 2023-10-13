@@ -14,6 +14,7 @@ import {getBufferHelper} from "./getBuffer.js";
  * @property {import("../../rendering/Material.js").Material?} defaultMaterial
  * @property {import("../../rendering/MaterialMap.js").MaterialMap?} defaultMaterialMap
  * @property {import("../../rendering/Sampler.js").Sampler?} defaultSampler
+ * @property {import("./gltfParsing.js").ParseGltfHooks} hooks
  */
 
 /**
@@ -25,6 +26,7 @@ export async function parseJsonData(jsonData, {
 	defaultMaterial,
 	defaultMaterialMap,
 	defaultSampler,
+	hooks,
 }) {
 	assertAssetVersion(jsonData);
 
@@ -82,7 +84,7 @@ export async function parseJsonData(jsonData, {
 
 	let entity = null;
 	if (jsonData.scenes) {
-		const scenesResult = parseScenes(jsonData.scenes, jsonData.nodes);
+		const scenesResult = parseScenes(jsonData.scenes, jsonData.nodes || [], hooks);
 		entity = scenesResult.entity;
 		const entityNodeIds = scenesResult.entityNodeIds;
 		await applyMeshComponents(jsonData, entityNodeIds, {
