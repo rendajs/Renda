@@ -135,6 +135,7 @@ Deno.test({
 	fn() {
 		assertQuatAlmostEquals(new Quat(1, 2, 3), new Quat(1.000001, 1.999999, 3, 1.000001));
 		assertQuatAlmostEquals(new Quat(1, 2, 3, 10), new Quat(), 10);
+		assertQuatAlmostEquals(new Quat(0, 1, 0, 2), [0, 1, 0, 2]);
 	},
 });
 
@@ -147,6 +148,9 @@ Deno.test({
 		assertThrows(() => {
 			assertQuatAlmostEquals(new Quat(1, 2, 3, 10), new Quat());
 		}, Error, "Expected Quaternion to be close to Quat<0, 0, 0, 1> but got Quat<1, 2, 3, 10>");
+		assertThrows(() => {
+			assertQuatAlmostEquals({}, [0, 1, 0, 2]);
+		}, Error, "[object Object] is not a quaternion");
 	},
 });
 

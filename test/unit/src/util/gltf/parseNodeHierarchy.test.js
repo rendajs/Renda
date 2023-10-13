@@ -1,5 +1,6 @@
 import {assertEquals, assertNotStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {parseScene, parseScenes} from "../../../../../src/util/gltf/parseNodeHierarchy.js";
+import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
 
 Deno.test({
 	name: "basic scene",
@@ -44,6 +45,113 @@ Deno.test({
 		assertEquals(entityNodeIds.get(node0), 0);
 		assertEquals(entityNodeIds.get(node1), 1);
 		assertEquals(entityNodeIds.get(node2), 2);
+	},
+});
+
+Deno.test({
+	name: "Translated entity",
+	fn() {
+		const {entity} = parseScenes([
+			{
+				name: "Scene",
+				nodes: [0],
+			},
+		], [
+			{
+				name: "Node 0",
+				translation: [1, 2, 3],
+			},
+		]);
+
+		const node0 = entity.children[0].children[0];
+		assertEquals(node0.name, "Node 0");
+		assertVecAlmostEquals(node0.pos, [1, 2, 3]);
+	},
+});
+
+Deno.test({
+	name: "Scaled entity",
+	fn() {
+		const {entity} = parseScenes([
+			{
+				name: "Scene",
+				nodes: [0],
+			},
+		], [
+			{
+				name: "Node 0",
+				scale: [1, 2, 3],
+			},
+		]);
+
+		const node0 = entity.children[0].children[0];
+		assertEquals(node0.name, "Node 0");
+		assertVecAlmostEquals(node0.scale, [1, 2, 3]);
+	},
+});
+
+Deno.test({
+	name: "Rotated entity",
+	fn() {
+		const {entity} = parseScenes([
+			{
+				name: "Scene",
+				nodes: [0],
+			},
+		], [
+			{
+				name: "Node 0",
+				rotation: [0, 0, 1, 0],
+			},
+		]);
+
+		const node0 = entity.children[0].children[0];
+		assertEquals(node0.name, "Node 0");
+		assertQuatAlmostEquals(node0.rot, [0, 0, 1, 0]);
+	},
+});
+
+Deno.test({
+	name: "Entity with matrix",
+	fn() {
+		const {entity} = parseScenes([
+			{
+				name: "Scene",
+				nodes: [0],
+			},
+		], [
+			{
+				name: "Node 0",
+				matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1],
+			},
+		]);
+
+		const node0 = entity.children[0].children[0];
+		assertEquals(node0.name, "Node 0");
+		assertVecAlmostEquals(node0.pos, [1, 2, 3]);
+	},
+});
+
+Deno.test({
+	name: "Matrix takes precedence when both a matrix and scale have been set",
+	fn() {
+		const {entity} = parseScenes([
+			{
+				name: "Scene",
+				nodes: [0],
+			},
+		], [
+			{
+				name: "Node 0",
+				scale: [1, 2, 3],
+				matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1],
+			},
+		]);
+
+		const node0 = entity.children[0].children[0];
+		assertEquals(node0.name, "Node 0");
+		assertVecAlmostEquals(node0.scale, [1, 1, 1]);
+		assertVecAlmostEquals(node0.pos, [1, 2, 3]);
 	},
 });
 
@@ -173,7 +281,7 @@ Deno.test({
 					children: [0],
 				},
 			]);
-		}, Error, `Failed to load glTF. Node 0 is referenced to multiple times.`);
+		}, Error, `Failed to load glTF. Node 0 is referenced multiple times.`);
 	},
 });
 
@@ -193,7 +301,7 @@ Deno.test({
 					children: [0],
 				},
 			]);
-		}, Error, `Failed to load glTF. "Named node 0" is referenced to multiple times.`);
+		}, Error, `Failed to load glTF. "Named node 0" is referenced multiple times.`);
 	},
 });
 
