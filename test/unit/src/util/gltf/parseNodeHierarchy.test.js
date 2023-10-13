@@ -21,7 +21,7 @@ Deno.test({
 			{
 				name: "Node 2",
 			},
-		]);
+		], {});
 
 		assertEquals(entity.childCount, 1);
 		const scene = entity.children[0];
@@ -61,7 +61,7 @@ Deno.test({
 				name: "Node 0",
 				translation: [1, 2, 3],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
@@ -82,7 +82,7 @@ Deno.test({
 				name: "Node 0",
 				scale: [1, 2, 3],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
@@ -103,7 +103,7 @@ Deno.test({
 				name: "Node 0",
 				rotation: [0, 0, 1, 0],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
@@ -124,7 +124,7 @@ Deno.test({
 				name: "Node 0",
 				matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
@@ -146,7 +146,7 @@ Deno.test({
 				scale: [1, 2, 3],
 				matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1],
 			},
-		]);
+		], {});
 
 		const node0 = entity.children[0].children[0];
 		assertEquals(node0.name, "Node 0");
@@ -174,7 +174,7 @@ Deno.test({
 			{
 				name: "Node 1",
 			},
-		]);
+		], {});
 
 		assertEquals(entity.childCount, 2);
 		const scene1 = entity.children[0];
@@ -222,7 +222,7 @@ Deno.test({
 			{
 				name: "Node 2",
 			},
-		]);
+		], {});
 
 		assertEquals(entity.childCount, 2);
 		const scene0 = entity.children[0];
@@ -262,7 +262,7 @@ Deno.test({
 		assertThrows(() => {
 			parseScene({
 				nodes: [1],
-			}, [{}]);
+			}, [{}], {});
 		}, Error, "Failed to load glTF. Pointer to node with index 1 does not exist.");
 	},
 });
@@ -280,7 +280,7 @@ Deno.test({
 				{
 					children: [0],
 				},
-			]);
+			], {});
 		}, Error, `Failed to load glTF. Node 0 is referenced multiple times.`);
 	},
 });
@@ -300,7 +300,7 @@ Deno.test({
 					name: "Named node 1",
 					children: [0],
 				},
-			]);
+			], {});
 		}, Error, `Failed to load glTF. "Named node 0" is referenced multiple times.`);
 	},
 });
@@ -327,7 +327,7 @@ Deno.test({
 				name: "Node 1",
 				children: [0],
 			},
-		]);
+		], {});
 
 		assertEquals(entity.childCount, 2);
 		const scene0 = entity.children[0];

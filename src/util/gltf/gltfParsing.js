@@ -2,6 +2,18 @@ import {parseContainerBinary} from "./parseContainerBinary.js";
 import {parseJsonData} from "./parseJsonData.js";
 
 /**
+ * @typedef ParseGltfHooks
+ * @property {(context: ParsedGltfNodeHookContext) => void} [node]
+ */
+
+/**
+ * @typedef ParsedGltfNodeHookContext
+ * @property {import("../../mod.js").Entity} entity
+ * @property {import("./types.js").GltfNodeData} nodeData
+ * @property {number} nodeId
+ */
+
+/**
  * @param {ArrayBuffer} glbBuffer
  * @param {object} options
  * @param {"gltf" | "glb"} options.fileExtension Used for asserting that the file has the correct format.
@@ -9,12 +21,14 @@ import {parseJsonData} from "./parseJsonData.js";
  * @param {import("../../rendering/Material.js").Material?} options.defaultMaterial
  * @param {import("../../rendering/MaterialMap.js").MaterialMap?} options.defaultMaterialMap
  * @param {import("../../rendering/Sampler.js").Sampler?} options.defaultSampler
+ * @param {ParseGltfHooks} [options.hooks]
  */
 export async function parseGltf(glbBuffer, {
 	fileExtension = "glb",
 	defaultMaterial,
 	defaultMaterialMap,
 	defaultSampler,
+	hooks = {},
 }) {
 	let containerBinary = null;
 	let jsonData;
@@ -31,5 +45,6 @@ export async function parseGltf(glbBuffer, {
 		defaultMaterial,
 		defaultMaterialMap,
 		defaultSampler,
+		hooks,
 	});
 }
