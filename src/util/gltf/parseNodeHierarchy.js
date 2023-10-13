@@ -2,8 +2,8 @@ import {Entity} from "../../core/Entity.js";
 
 /**
  * Parses a list of scenes and puts them into a single entity.
- * @param {import("./types.ts").GltfSceneData[]} scenes
- * @param {import("./types.ts").GltfNodeData[]} nodes
+ * @param {import("./gltfParsing.js").GltfSceneData[]} scenes
+ * @param {import("./gltfParsing.js").GltfNodeData[]} nodes
  * @param {import("./gltfParsing.js").ParseGltfHooks} hooks
  */
 export function parseScenes(scenes, nodes, hooks) {
@@ -22,8 +22,8 @@ export function parseScenes(scenes, nodes, hooks) {
 
 /**
  * Creates a single entity representing a scene and fills in its children.
- * @param {import("./types.ts").GltfSceneData} scene
- * @param {import("./types.ts").GltfNodeData[]} nodes
+ * @param {import("./gltfParsing.js").GltfSceneData} scene
+ * @param {import("./gltfParsing.js").GltfNodeData[]} nodes
  * @param {import("./gltfParsing.js").ParseGltfHooks} hooks
  */
 export function parseScene(scene, nodes, hooks) {
@@ -57,7 +57,7 @@ export function parseScene(scene, nodes, hooks) {
 
 /**
  * @param {number} nodeId
- * @param {import("./types.ts").GltfNodeData[]} nodes
+ * @param {import("./gltfParsing.js").GltfNodeData[]} nodes
  * @param {Map<number, Entity>} createdEntities
  * @param {import("./gltfParsing.js").ParseGltfHooks} hooks
  */

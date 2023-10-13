@@ -18,7 +18,7 @@ import {getBufferHelper} from "./getBuffer.js";
  */
 
 /**
- * @param {import("./types.ts").GltfJsonData} jsonData
+ * @param {import("./gltfParsing.js").GltfJsonData} jsonData
  * @param {ParseJsonDataOptions} options
  */
 export async function parseJsonData(jsonData, {
@@ -103,7 +103,7 @@ export async function parseJsonData(jsonData, {
  * Checks the version and minVersion of the json asset data against the
  * version of the parser and throws an error if the asset requires a newer
  * version of the parser.
- * @param {import("./types.ts").GltfJsonData} json
+ * @param {import("./gltfParsing.js").GltfJsonData} json
  */
 function assertAssetVersion(json) {
 	if (json.asset.minVersion !== undefined) {

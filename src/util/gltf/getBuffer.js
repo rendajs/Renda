@@ -3,7 +3,7 @@
 /**
  * Helper function for parsing and caching gltf buffers.
  *
- * @param {import("./types.ts").GltfJsonData} jsonData
+ * @param {import("./gltfParsing.js").GltfJsonData} jsonData
  * @param {number} bufferId The index of the buffer to get from the jsonData.
  * @param {Map<number, ArrayBuffer>} buffersCache
  * @param {ArrayBuffer?} containerBinary The binary data in case the glTF is using the binary container format.
@@ -49,7 +49,7 @@ export async function getBufferHelper(jsonData, bufferId, buffersCache, containe
  * Helper function for getting texture data from a gltf file and asserting that
  * it actually exists.
  *
- * @param {import("./types.ts").GltfJsonData} jsonData
+ * @param {import("./gltfParsing.js").GltfJsonData} jsonData
  * @param {number} bufferViewId The index of the image to get from the jsonData.
  */
 export function getGltfBufferViewData(jsonData, bufferViewId) {
@@ -65,7 +65,7 @@ export function getGltfBufferViewData(jsonData, bufferViewId) {
  * Helper function for getting the a slice of a buffer for a specific buffer view.
  * These values are not cached.
  *
- * @param {import("./types.ts").GltfJsonData} gltfJsonData
+ * @param {import("./gltfParsing.js").GltfJsonData} gltfJsonData
  * @param {number} bufferViewIndex
  * @param {GetBufferFn} getBufferFn
  * @param {number} [byteOffset]
