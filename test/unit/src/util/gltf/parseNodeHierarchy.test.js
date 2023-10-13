@@ -1,6 +1,7 @@
-import {assertEquals, assertNotStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {parseScene, parseScenes} from "../../../../../src/util/gltf/parseNodeHierarchy.js";
 import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 
 Deno.test({
 	name: "basic scene",
@@ -152,6 +153,73 @@ Deno.test({
 		assertEquals(node0.name, "Node 0");
 		assertVecAlmostEquals(node0.scale, [1, 1, 1]);
 		assertVecAlmostEquals(node0.pos, [1, 2, 3]);
+	},
+});
+
+Deno.test({
+	name: "Node hook fires on every node",
+	fn() {
+		/**
+		 * @param {import("../../../../../src/util/gltf/gltfParsing.js").ParsedGltfNodeHookContext} context
+		 */
+		const nodeHook = context => {};
+		const spyFn = spy(nodeHook);
+		const {entity} = parseScenes([
+			{
+				name: "Scene 0",
+				nodes: [0, 1],
+			},
+		], [
+			{
+				name: "Node 0",
+			},
+			{
+				name: "Node 1",
+				extras: {
+					foo: "bar",
+				},
+			},
+		], {
+			node: spyFn,
+		});
+
+		assertSpyCalls(spyFn, 2);
+
+		const node1 = entity.children[0].children[0];
+		assertStrictEquals(spyFn.calls[0].args[0].entity, node1);
+		assertEquals(spyFn.calls[0].args[0].nodeId, 0);
+		assertEquals(spyFn.calls[0].args[0].nodeData, {name: "Node 0"});
+
+		const node2 = entity.children[0].children[1];
+		assertStrictEquals(spyFn.calls[1].args[0].entity, node2);
+		assertEquals(spyFn.calls[1].args[0].nodeId, 1);
+		assertEquals(spyFn.calls[1].args[0].nodeData, {name: "Node 1", extras: {foo: "bar"}});
+	},
+});
+
+Deno.test({
+	name: "Node hook doesn't fire before the entity has all its children",
+	fn() {
+		parseScenes([
+			{
+				name: "Scene 0",
+				nodes: [0],
+			},
+		], [
+			{
+				name: "Node 0",
+				children: [1],
+			},
+			{
+				name: "Node 1",
+			},
+		], {
+			node({entity}) {
+				if (entity.name == "Node 0") {
+					assertEquals(entity.childCount, 1);
+				}
+			},
+		});
 	},
 });
 
