@@ -3,19 +3,20 @@
  * /studio/src/network/studioConnections/internalDiscovery/readme.md
  */
 
-import {TypedMessenger} from "../util/TypedMessenger.js";
+import { TimeoutError } from "../../util/TimeoutError.js";
+import {TypedMessenger} from "../../util/TypedMessenger.js";
 
 /** @typedef {ReturnType<InternalDiscoveryManager["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
 /** @typedef {ReturnType<InternalDiscoveryManager["_getWorkerResponseHandlers"]>} InternalDiscoveryParentWorkerHandlers */
 /**
  * @typedef AvailableClientUpdateEvent
- * @property {import("../mod.js").UuidString} clientId
- * @property {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} [clientType]
- * @property {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} [projectMetaData]
+ * @property {import("../../mod.js").UuidString} clientId
+ * @property {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} [clientType]
+ * @property {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} [projectMetaData]
  * @property {boolean} [deleted] Whether the client has become unavailable.
  */
 /** @typedef {(event: AvailableClientUpdateEvent) => void} OnAvailableClientUpdateCallback */
-/** @typedef {(otherClientId: import("../mod.js").UuidString, port: MessagePort, connectionData: InternalDiscoveryRequestConnectionData) => void} OnConnectionCreatedCallback */
+/** @typedef {(otherClientId: import("../../mod.js").UuidString, port: MessagePort, connectionData: InternalDiscoveryRequestConnectionData) => void} OnConnectionCreatedCallback */
 
 /**
  * Custom data that can be send when initiating a new connection with another client.
@@ -27,6 +28,12 @@ import {TypedMessenger} from "../util/TypedMessenger.js";
  * When a correct token is provided, the connection is accepted regardless of any origin allow lists or preferences.
  */
 
+/**
+ * This class allows you to discover other tabs within the same browser instance and open connections with them, this even works while offline.
+ * In order for this to work, the other tab has to also create an InternalDiscoveryManager and use the same discovery url.
+ * This creates an iframe with a shared worker which all discovery communication passes through.
+ * That way two arbitrary tabs can communicate with each other, and in supported browsers, it might even allow communication across origins.
+ */
 export class InternalDiscoveryManager {
 	/**
 	 * @param {object} options
@@ -79,7 +86,7 @@ export class InternalDiscoveryManager {
 
 		/**
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the iframe it created.
-		 * @private @type {TypedMessenger<InternalDiscoveryParentHandlers, import("../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers>}
+		 * @private @type {TypedMessenger<InternalDiscoveryParentHandlers, import("../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers>}
 		 */
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this._getIframeRequestHandlers());
@@ -96,7 +103,7 @@ export class InternalDiscoveryManager {
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the shared
 		 * worker that was created by the iframe. Messages first go through the iframe messenger which then
 		 * passes messages on to the sharedworker.
-		 * @private @type {TypedMessenger<InternalDiscoveryParentWorkerHandlers, import("../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers>}
+		 * @private @type {TypedMessenger<InternalDiscoveryParentWorkerHandlers, import("../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers>}
 		 */
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
@@ -109,11 +116,11 @@ export class InternalDiscoveryManager {
 		 * parent window of that page. This exists to make it possible to communicate with studio and request
 		 * the url of the to be created iframe. If the page that created the InternalDiscoveryManager is not
 		 * in an iframe, this messenger is useless.
-		 * @private @type {TypedMessenger<{}, import("../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
+		 * @private @type {TypedMessenger<{}, import("../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
 		 */
-		this.parentMessenger = new TypedMessenger();
+		this.parentMessenger = new TypedMessenger({globalTimeout: 1000});
 		this.parentMessenger.setSendHandler(data => {
-			if (!this.isInIframe()) {
+			if (window.parent == window) {
 				throw new Error("Failed to send message to parent, the page is not embedded in an iframe");
 			}
 			window.parent.postMessage(data.sendData, "*", data.transfer);
@@ -122,44 +129,6 @@ export class InternalDiscoveryManager {
 		window.addEventListener("unload", () => {
 			this.destructor();
 		});
-	}
-
-	/**
-	 * @private
-	 */
-	isInIframe() {
-		return window.parent != window;
-	}
-
-	/**
-	 * Checks if the current page is embedded in an iframe, and then sends a request to the parent.
-	 * If there is no parent or it doesn't respond in time, this returns null.
-	 * @private
-	 * @template T
-	 * @param {() => Promise<T>} fn
-	 */
-	async _requestParentWithTimeout(fn) {
-		/** @type {Promise<T | null>} */
-		const parentPromise = (async () => {
-			if (this.isInIframe()) {
-				return await fn();
-			} else {
-				return null;
-			}
-		})();
-		let timeoutId = -1;
-		let timeoutResolve = /** @type {((url: T | null) => void)?} */ (null);
-		/** @type {Promise<T | null>} */
-		const timeoutPromise = new Promise(resolve => {
-			timeoutResolve = resolve;
-			timeoutId = setTimeout(() => {
-				resolve(null);
-			}, 1000);
-		});
-		const result = await Promise.race([parentPromise, timeoutPromise]);
-		clearTimeout(timeoutId);
-		if (timeoutResolve) timeoutResolve(null);
-		return result;
 	}
 
 	/**
@@ -176,9 +145,16 @@ export class InternalDiscoveryManager {
 			this.iframe.src = forceDiscoveryUrl;
 			return;
 		}
-		let url = await this._requestParentWithTimeout(async () => {
-			return await this.parentMessenger.send.requestInternalDiscoveryUrl();
-		});
+		let url = null;
+		try {
+			url = await this.parentMessenger.send.requestInternalDiscoveryUrl();
+		} catch (e) {
+			if (e instanceof TimeoutError) {
+				// If a timeout is reached, we'll use the fallback url.
+			} else {
+				throw e;
+			}
+		}
 		if (!url) {
 			if (!fallbackDiscoveryUrl) {
 				throw new Error("Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
@@ -213,7 +189,7 @@ export class InternalDiscoveryManager {
 	_getWorkerResponseHandlers() {
 		return {
 			/**
-			 * @param {import("../mod.js").UuidString} otherClientId
+			 * @param {import("../../mod.js").UuidString} otherClientId
 			 * @param {MessagePort} port
 			 * @param {InternalDiscoveryRequestConnectionData} connectionData
 			 */
@@ -221,22 +197,22 @@ export class InternalDiscoveryManager {
 				this.onConnectionCreatedCbs.forEach(cb => cb(otherClientId, port, connectionData));
 			},
 			/**
-			 * @param {import("../mod.js").UuidString} clientId
-			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
-			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} projectMetaData
+			 * @param {import("../../mod.js").UuidString} clientId
+			 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
+			 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} projectMetaData
 			 */
 			availableClientAdded: (clientId, clientType, projectMetaData) => {
 				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, clientType, projectMetaData}));
 			},
 			/**
-			 * @param {import("../mod.js").UuidString} clientId
+			 * @param {import("../../mod.js").UuidString} clientId
 			 */
 			availableClientRemoved: clientId => {
 				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: null, deleted: true}));
 			},
 			/**
-			 * @param {import("../mod.js").UuidString} clientId
-			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
+			 * @param {import("../../mod.js").UuidString} clientId
+			 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
 			 */
 			projectMetaData: (clientId, metaData) => {
 				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: metaData}));
@@ -267,7 +243,7 @@ export class InternalDiscoveryManager {
 	 * Registers the current client, letting the discovery server know about its existence.
 	 * This broadcasts the existence of this client and its type to other clients,
 	 * allowing them to initialize connections to this client.
-	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
+	 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
 		const result = await this.workerMessenger.send.registerClient(clientType);
@@ -285,7 +261,7 @@ export class InternalDiscoveryManager {
 	/**
 	 * Initiates a connection with another client.
 	 * If the connection is successful, the `onConnectionCreated` callback gets fired.
-	 * @param {import("../mod.js").UuidString} otherClientId
+	 * @param {import("../../mod.js").UuidString} otherClientId
 	 * @param {InternalDiscoveryRequestConnectionData} [connectionData]
 	 */
 	async requestConnection(otherClientId, connectionData) {
@@ -298,21 +274,26 @@ export class InternalDiscoveryManager {
 	 * to initiate a new studio connection.
 	 */
 	async requestParentStudioConnection() {
-		const result = await this._requestParentWithTimeout(async () => {
-			return await this.parentMessenger.send.requestStudioClientData();
-		});
-		if (!result) {
-			throw new Error("Failed to get parent client data. Either the current page is not in an iframe, or the parent didn't respond with client data in timely manner. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
+		let studioClientData;
+		try {
+			studioClientData = await this.parentMessenger.send.requestStudioClientData();
+
+		} catch (e) {
+			if (e instanceof TimeoutError) {
+				throw new Error("Failed to get parent client data. Either the current page is not in an iframe, or the parent didn't respond with client data in timely manner. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
+			} else {
+				throw e;
+			}
 		}
-		await this.requestConnection(result.clientId, {
-			token: result.internalConnectionToken,
+		await this.requestConnection(studioClientData.clientId, {
+			token: studioClientData.internalConnectionToken,
 		});
 	}
 
 	/**
 	 * Provides the discovery worker with project metadata.
 	 * This way other clients can display things such as the project name in their UI.
-	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
+	 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
 	 */
 	async sendProjectMetaData(metaData) {
 		await this.workerMessenger.send.projectMetaData(metaData);

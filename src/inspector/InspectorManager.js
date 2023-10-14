@@ -1,6 +1,6 @@
 import {ENABLE_INSPECTOR_SUPPORT} from "../studioDefines.js";
 import {InspectorConnection} from "./InspectorConnection.js";
-import {InternalDiscoveryManager} from "./InternalDiscoveryManager.js";
+import {InternalDiscoveryManager} from "../network/studioConnections/InternalDiscoveryManager.js";
 
 export class InspectorManager {
 	/**

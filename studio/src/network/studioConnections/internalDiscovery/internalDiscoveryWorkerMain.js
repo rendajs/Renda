@@ -97,7 +97,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 			},
 			/**
 			 * @param {import("../../../../../src/mod.js").UuidString} otherClientId
-			 * @param {import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryRequestConnectionData} [connectionData]
+			 * @param {import("../../../../../src/network/studioConnections/InternalDiscoveryManager.js").InternalDiscoveryRequestConnectionData} [connectionData]
 			 */
 			requestConnection(otherClientId, connectionData) {
 				if (!createdConnection) return;
@@ -115,7 +115,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 /** @typedef {ReturnType<getResponseHandlers>["iframeResponseHandlers"]} InternalDiscoveryWorkerToIframeHandlers */
 /** @typedef {TypedMessenger<InternalDiscoveryWorkerToIframeHandlers, import("./internalDiscoveryIframeMain.js").InternalDiscoveryIframeWorkerHandlers>} WorkerToIframeTypedMessengerType */
 /** @typedef {ReturnType<getResponseHandlers>["parentWindowResponseHandlers"]} InternalDiscoveryWorkerToParentHandlers */
-/** @typedef {TypedMessenger<InternalDiscoveryWorkerToParentHandlers, import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryParentWorkerHandlers>} WorkerToParentTypedMessengerType */
+/** @typedef {TypedMessenger<InternalDiscoveryWorkerToParentHandlers, import("../../../../../src/network/studioConnections/InternalDiscoveryManager.js").InternalDiscoveryParentWorkerHandlers>} WorkerToParentTypedMessengerType */
 
 /**
  * @param {typeof globalThis} workerGlobal

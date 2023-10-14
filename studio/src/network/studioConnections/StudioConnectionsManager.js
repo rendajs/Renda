@@ -2,7 +2,7 @@ import {StudioConnection} from "./StudioConnection.js";
 import {MessageHandlerWebRtc} from "./messageHandlers/MessageHandlerWebRtc.js";
 import {MessageHandlerInternal} from "./messageHandlers/MessageHandlerInternal.js";
 import {ProtocolManager} from "./ProtocolManager.js";
-import {InternalDiscoveryManager} from "../../../../src/inspector/InternalDiscoveryManager.js";
+import {InternalDiscoveryManager} from "../../../../src/network/studioConnections/InternalDiscoveryManager.js";
 
 /**
  * @fileoverview The StudioConnectionsManager is responsible for managing connections with
@@ -192,7 +192,7 @@ export class StudioConnectionsManager {
 
 	/**
 	 * @param {string} otherClientId
-	 * @param {import("../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryRequestConnectionData} connectionData
+	 * @param {import("../../../../src/network/studioConnections/InternalDiscoveryManager.js").InternalDiscoveryRequestConnectionData} connectionData
 	 */
 	#verifyInternalConnectionAllowed(otherClientId, connectionData) {
 		const clientData = this.availableConnections.get(otherClientId);
