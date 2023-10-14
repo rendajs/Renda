@@ -4,7 +4,7 @@ import {assertIsType} from "../../../shared/typeAssertions.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
 import {FakeTime} from "std/testing/time.ts";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
-import { TimeoutError } from "../../../../../src/util/TimeoutError.js";
+import {TimeoutError} from "../../../../../src/util/TimeoutError.js";
 
 /**
  * Directly links two TypedMessengers to each other without the use of a WebSocket or anything like that.
