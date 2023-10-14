@@ -11,7 +11,7 @@ export const ChunkType = /** @type {const} */ ({
 
 /**
  * @typedef GltfContainerData
- * @property {import("./types.ts").GltfJsonData} json
+ * @property {import("./gltfParsing.js").GltfJsonData} json
  * @property {ArrayBuffer?} binary
  */
 

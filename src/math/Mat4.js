@@ -114,6 +114,7 @@ export class Mat4 {
 		}
 
 		this._handleChange();
+		return this;
 	}
 
 	getFlatArray() {
@@ -256,6 +257,7 @@ export class Mat4 {
 		this.values[3][1] += vec.y;
 		this.values[3][2] += vec.z;
 		this._handleChange();
+		return this;
 	}
 
 	getTranslation() {
@@ -271,6 +273,7 @@ export class Mat4 {
 		this.values[3][1] = vec.y;
 		this.values[3][2] = vec.z;
 		this._handleChange();
+		return this;
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
@@ -346,6 +349,7 @@ export class Mat4 {
 		this.values[1][1] = vec.y;
 		this.values[2][2] = vec.z;
 		this._handleChange();
+		return this;
 	}
 
 	decompose() {

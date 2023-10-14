@@ -1,6 +1,6 @@
 import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
-import {assertIsType} from "../../../shared/typeAssertions.js";
+import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
 import {FakeTime} from "std/testing/time.ts";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
@@ -1000,5 +1000,92 @@ Deno.test({
 		} finally {
 			time.restore();
 		}
+	},
+});
+
+Deno.test({
+	name: "Configuring send options via configureSendOptions()",
+	async fn() {
+		const time = new FakeTime();
+
+		try {
+			const messenger = new TypedMessenger({globalTimeout: 5000});
+			messenger.setSendHandler(() => {});
+
+			messenger.configureSendOptions({
+				foo: {
+					timeout: 1000, // Lower than the global
+				},
+				bar: {
+					timeout: 10_000, // Higher than the global
+				},
+				baz: {
+					expectResponse: false, // Should disable the timeout
+				},
+			});
+
+			// foo()
+			const assertFooPromise = assertRejects(async () => {
+				await messenger.send.foo();
+			}, Error, "TypedMessenger response timed out.");
+
+			await time.tickAsync(500);
+			const assertFooResolved = assertPromiseResolved(assertFooPromise, false);
+			await time.nextAsync();
+			await assertFooResolved;
+
+			await time.tickAsync(1000);
+			await assertFooPromise;
+
+			// bar()
+			const assertBarPromise = assertRejects(async () => {
+				await messenger.send.bar();
+			}, Error, "TypedMessenger response timed out.");
+
+			await time.tickAsync(9_500);
+			const assertBarResolved = assertPromiseResolved(assertBarPromise, false);
+			await time.nextAsync();
+			await assertBarResolved;
+
+			await time.tickAsync(1000);
+			await assertBarPromise;
+
+			// baz()
+			const bazPromise = messenger.send.baz();
+			await time.tickAsync(10_000);
+			const assertBazResolved = assertPromiseResolved(bazPromise, false);
+			await time.nextAsync();
+			await assertBazResolved;
+		} finally {
+			time.restore();
+		}
+	},
+});
+
+testTypes({
+	name: "configureSendOptions() only allows handlers from the other TypedMessenger",
+	fn() {
+		const handlers = {
+			foo() {},
+			missing() {}, // All handlers should be optional
+		};
+
+		/** @type {TypedMessenger<{}, typeof handlers>} */
+		const messenger = new TypedMessenger();
+		messenger.setResponseHandlers(handlers);
+
+		messenger.configureSendOptions({
+			foo: {
+				expectResponse: false,
+				// @ts-expect-error Object literal may only specify known properties
+				unknownProperty: "",
+			},
+		});
+
+		messenger.configureSendOptions({
+			foo: {},
+			// @ts-expect-error bar is not a handler on the other TypedMessenger.
+			bar: {},
+		});
 	},
 });
