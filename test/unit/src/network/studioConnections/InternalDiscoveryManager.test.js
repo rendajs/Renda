@@ -597,7 +597,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "requestParentStudioConnection",
+	name: "requestParentStudioConnection()",
 	async fn() {
 		await basicSetup({
 			async fn() {
@@ -614,6 +614,44 @@ Deno.test({
 						},
 					],
 				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "requestParentStudioConnection() throws when not in an iframe",
+	async fn() {
+		await basicSetup({
+			emulateStudioParent: false,
+			async fn() {
+				const manager = new InternalDiscoveryManager({fallbackDiscoveryUrl: "fallback_url"});
+				await manager.registerClient("inspector");
+				await assertRejects(async () => {
+					await manager.requestParentStudioConnection();
+				}, Error, "Failed to get parent client data. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "requestParentStudioConnection() throws when iframe doesn't respond in time",
+	async fn() {
+		await basicSetup({
+			emulateParentResponse: false,
+			async fn() {
+				const time = new FakeTime();
+				try {
+					const manager = new InternalDiscoveryManager({fallbackDiscoveryUrl: "fallback_url"});
+					const assertPromise = assertRejects(async () => {
+						await manager.requestParentStudioConnection();
+					}, Error, "Failed to get parent client data. The parent didn't respond with client data in timely manner. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
+					await time.nextAsync();
+					await assertPromise;
+				} finally {
+					time.restore();
+				}
 			},
 		});
 	},
