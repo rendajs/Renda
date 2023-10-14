@@ -345,6 +345,8 @@ export class TypedMessenger {
 
 		/** @private */
 		this.responseHandlers = null;
+		/** @private @type {SendOptions} */
+		this.sendOptions = {};
 
 		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq>) => void>>} */
 		this.onRequestIdMessageCbs = new Map();
@@ -642,6 +644,32 @@ export class TypedMessenger {
 		this.responseHandlers = handlers;
 	}
 
+	/** @typedef {{[key in keyof TReq]?: TypedMessengerSendOptions}} SendOptions */
+	/**
+	 * This allows you to configure options for specific handlers.
+	 * That way you won't have to call {@linkcode sendWithOptions} all the time.
+	 *
+	 * For example, let's say you know in advance that `messenger.send.foo()` will always result in a TimeoutError
+	 * (it might have `respond` set to `false` in its `$respondOptions` for example).
+	 * You could always call `messenger.sendWithOptions.foo({expectResponse: false})` every time you call it,
+	 * but if you call `foo()` in many places, it might be easier to use `configureSendOptions()` instead:
+	 *
+	 * ```js
+	 * messenger.configureSendOptions({
+	 * 	foo: {
+	 * 		expectResponse: false,
+	 * 	},
+	 * });
+	 * ```
+	 *
+	 * Now you can just call `messenger.send.foo()` without providing options all the time.
+	 * You can still override the behaviour by using {@linkcode sendWithOptions} in case you want to make an exception.
+	 * @param {SendOptions} sendOptions
+	 */
+	configureSendOptions(sendOptions) {
+		this.sendOptions = sendOptions;
+	}
+
 	/**
 	 * Sends a message to the other TypedMessenger.
 	 * @private
@@ -651,7 +679,12 @@ export class TypedMessenger {
 	 * @param {Parameters<TReq[T]>} args
 	 */
 	async _sendInternal(options, type, ...args) {
-		const disableResponse = options.expectResponse == false;
+		const defaultOptions = this.sendOptions[type];
+		const sendOptions = {
+			...defaultOptions,
+			...options,
+		};
+		const disableResponse = sendOptions.expectResponse == false;
 		const responsePromise = (async () => {
 			if (!this.sendHandler) {
 				throw new Error("Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
@@ -691,12 +724,12 @@ export class TypedMessenger {
 					type,
 					args,
 				},
-				transfer: options.transfer || [],
+				transfer: sendOptions.transfer || [],
 			}));
 			return await promise;
 		})();
 
-		const timeout = options.timeout || this.globalTimeout;
+		const timeout = sendOptions.timeout || this.globalTimeout;
 
 		if (timeout > 0 && !disableResponse) {
 			const promise = new Promise((resolve, reject) => {
