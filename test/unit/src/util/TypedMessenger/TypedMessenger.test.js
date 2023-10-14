@@ -1071,6 +1071,7 @@ testTypes({
 
 		/** @type {TypedMessenger<{}, typeof handlers>} */
 		const messenger = new TypedMessenger();
+		messenger.setResponseHandlers(handlers);
 
 		messenger.configureSendOptions({
 			foo: {
