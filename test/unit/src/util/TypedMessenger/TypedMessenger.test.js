@@ -4,6 +4,7 @@ import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
 import {FakeTime} from "std/testing/time.ts";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
+import { TimeoutError } from "../../../../../src/util/TimeoutError.js";
 
 /**
  * Directly links two TypedMessengers to each other without the use of a WebSocket or anything like that.
@@ -814,7 +815,7 @@ Deno.test({
 
 			const assertRejectsPromise = assertRejects(async () => {
 				await messenger.sendWithOptions.foo({timeout: 10_000});
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			await time.tickAsync(9_000);
 			const assertResolved1 = assertPromiseResolved(assertRejectsPromise, false);
@@ -843,7 +844,7 @@ Deno.test({
 
 			const assertRejectsPromise1 = assertRejects(async () => {
 				await messenger.send.foo();
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			// Changing the timeout doesn't affect existing requests.
 			messenger.globalTimeout = 5_000;
@@ -862,7 +863,7 @@ Deno.test({
 			// But new requests do use the new global timeout value
 			const assertRejectsPromise2 = assertRejects(async () => {
 				await messenger.send.foo();
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			await time.tickAsync(4_000);
 			const assertResolved3 = assertPromiseResolved(assertRejectsPromise2, false);
@@ -904,7 +905,7 @@ Deno.test({
 
 			const assertRejectsPromise1 = assertRejects(async () => {
 				await messengerA.send.noResponse();
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			await time.tickAsync(9_000);
 			const assertResolved1 = assertPromiseResolved(assertRejectsPromise1, false);
