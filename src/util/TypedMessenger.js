@@ -345,6 +345,8 @@ export class TypedMessenger {
 
 		/** @private */
 		this.responseHandlers = null;
+		/** @private @type {SendOptions} */
+		this.sendOptions = {};
 
 		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq>) => void>>} */
 		this.onRequestIdMessageCbs = new Map();
@@ -642,6 +644,14 @@ export class TypedMessenger {
 		this.responseHandlers = handlers;
 	}
 
+	/** @typedef {{[key in keyof TReq]?: TypedMessengerSendOptions}} SendOptions */
+	/**
+	 * @param {SendOptions} sendOptions
+	 */
+	configureSendOptions(sendOptions) {
+		this.sendOptions = sendOptions;
+	}
+
 	/**
 	 * Sends a message to the other TypedMessenger.
 	 * @private
@@ -651,7 +661,12 @@ export class TypedMessenger {
 	 * @param {Parameters<TReq[T]>} args
 	 */
 	async _sendInternal(options, type, ...args) {
-		const disableResponse = options.expectResponse == false;
+		const defaultOptions = this.sendOptions[type];
+		const sendOptions = {
+			...defaultOptions,
+			...options,
+		};
+		const disableResponse = sendOptions.expectResponse == false;
 		const responsePromise = (async () => {
 			if (!this.sendHandler) {
 				throw new Error("Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
@@ -691,12 +706,12 @@ export class TypedMessenger {
 					type,
 					args,
 				},
-				transfer: options.transfer || [],
+				transfer: sendOptions.transfer || [],
 			}));
 			return await promise;
 		})();
 
-		const timeout = options.timeout || this.globalTimeout;
+		const timeout = sendOptions.timeout || this.globalTimeout;
 
 		if (timeout > 0 && !disableResponse) {
 			const promise = new Promise((resolve, reject) => {
