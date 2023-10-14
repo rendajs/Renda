@@ -1078,6 +1078,10 @@ testTypes({
 				// @ts-expect-error Object literal may only specify known properties
 				unknownProperty: "",
 			},
+		});
+
+		messenger.configureSendOptions({
+			foo: {},
 			// @ts-expect-error bar is not a handler on the other TypedMessenger.
 			bar: {},
 		});
