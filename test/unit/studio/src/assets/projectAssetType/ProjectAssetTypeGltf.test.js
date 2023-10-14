@@ -8,7 +8,7 @@ Deno.test({
 	async fn() {
 		const {projectAssetTypeArgs, projectAsset} = createMockDependencies();
 
-		/** @type {import("../../../../../../src/util/gltf/types.ts").GltfJsonData} */
+		/** @type {import("../../../../../../src/util/gltf/gltfParsing.js").GltfJsonData} */
 		const json = {
 			asset: {version: "2.0"},
 			scenes: [
