@@ -107,6 +107,23 @@ Deno.test({
 });
 
 Deno.test({
+	name: "translation",
+	fn() {
+		const mat = new Mat4();
+		const changeSpy = spy();
+		mat.onChange(changeSpy);
+
+		mat.setTranslation(1, 2, 3);
+		assertSpyCalls(changeSpy, 1);
+		assertVecAlmostEquals(mat.getTranslation(), [1, 2, 3]);
+
+		mat.translate(4, 5, 6);
+		assertSpyCalls(changeSpy, 2);
+		assertVecAlmostEquals(mat.getTranslation(), [5, 7, 9]);
+	},
+});
+
+Deno.test({
 	name: "getRotation()",
 	fn() {
 		const scaleMatrix = Mat4.createPosRotScale(Vec3.zero, new Quat(), new Vec3(0.1, 1.1, 1.1));
@@ -114,6 +131,19 @@ Deno.test({
 		const multiplied = Mat4.multiplyMatrices(scaleMatrix, rotMatrix);
 		const rot = multiplied.getRotation();
 		assertQuatAlmostEquals(rot, new Quat(0, 0, 0.70710678, 0.70710678));
+	},
+});
+
+Deno.test({
+	name: "scale",
+	fn() {
+		const mat = new Mat4();
+		const changeSpy = spy();
+		mat.onChange(changeSpy);
+
+		mat.setScale(1, 2, 3);
+		assertSpyCalls(changeSpy, 1);
+		assertVecAlmostEquals(mat.getScale(), [1, 2, 3]);
 	},
 });
 
