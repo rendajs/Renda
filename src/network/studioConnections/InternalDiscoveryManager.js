@@ -3,7 +3,7 @@
  * /studio/src/network/studioConnections/internalDiscovery/readme.md
  */
 
-import { TimeoutError } from "../../util/TimeoutError.js";
+import {TimeoutError} from "../../util/TimeoutError.js";
 import {TypedMessenger} from "../../util/TypedMessenger.js";
 
 /** @typedef {ReturnType<InternalDiscoveryManager["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
@@ -120,7 +120,7 @@ export class InternalDiscoveryManager {
 		 */
 		this.parentMessenger = new TypedMessenger({globalTimeout: 1000});
 		this.parentMessenger.setSendHandler(data => {
-			if (window.parent == window) {
+			if (!this.isInIframe()) {
 				throw new Error("Failed to send message to parent, the page is not embedded in an iframe");
 			}
 			window.parent.postMessage(data.sendData, "*", data.transfer);
@@ -129,6 +129,13 @@ export class InternalDiscoveryManager {
 		window.addEventListener("unload", () => {
 			this.destructor();
 		});
+	}
+
+	/**
+	 * @private
+	 */
+	isInIframe() {
+		return window.parent != window;
 	}
 
 	/**
@@ -146,13 +153,15 @@ export class InternalDiscoveryManager {
 			return;
 		}
 		let url = null;
-		try {
-			url = await this.parentMessenger.send.requestInternalDiscoveryUrl();
-		} catch (e) {
-			if (e instanceof TimeoutError) {
-				// If a timeout is reached, we'll use the fallback url.
-			} else {
-				throw e;
+		if (this.isInIframe()) {
+			try {
+				url = await this.parentMessenger.send.requestInternalDiscoveryUrl();
+			} catch (e) {
+				if (e instanceof TimeoutError) {
+					// If a timeout is reached, we'll use the fallback url.
+				} else {
+					throw e;
+				}
 			}
 		}
 		if (!url) {
@@ -274,13 +283,17 @@ export class InternalDiscoveryManager {
 	 * to initiate a new studio connection.
 	 */
 	async requestParentStudioConnection() {
+		const sentence1 = "Failed to get parent client data.";
+		const sentence2 = "requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.";
+		if (!this.isInIframe()) {
+			throw new Error(`${sentence1} ${sentence2}`);
+		}
 		let studioClientData;
 		try {
 			studioClientData = await this.parentMessenger.send.requestStudioClientData();
-
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				throw new Error("Failed to get parent client data. Either the current page is not in an iframe, or the parent didn't respond with client data in timely manner. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
+				throw new Error(`${sentence1} The parent didn't respond with client data in timely manner. ${sentence2}`);
 			} else {
 				throw e;
 			}
