@@ -1,6 +1,6 @@
 import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
-import {assertIsType} from "../../../shared/typeAssertions.js";
+import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
 import {FakeTime} from "std/testing/time.ts";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
@@ -1058,5 +1058,28 @@ Deno.test({
 		} finally {
 			time.restore();
 		}
+	},
+});
+
+testTypes({
+	name: "configureSendOptions() only allows handlers from the other TypedMessenger",
+	fn() {
+		const handlers = {
+			foo() {},
+			missing() {}, // All handlers should be optional
+		};
+
+		/** @type {TypedMessenger<{}, typeof handlers>} */
+		const messenger = new TypedMessenger();
+
+		messenger.configureSendOptions({
+			foo: {
+				expectResponse: false,
+				// @ts-expect-error Object literal may only specify known properties
+				unknownProperty: "",
+			},
+			// @ts-expect-error bar is not a handler on the other TypedMessenger.
+			bar: {},
+		});
 	},
 });
