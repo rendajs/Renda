@@ -1,6 +1,6 @@
 import {ENABLE_INSPECTOR_SUPPORT} from "../studioDefines.js";
 import {InspectorConnection} from "./InspectorConnection.js";
-import {InternalDiscoveryManager} from "../network/studioConnections/InternalDiscoveryManager.js";
+import {DiscoveryManagerInternal} from "../network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js";
 
 export class InspectorManager {
 	/**
@@ -19,7 +19,7 @@ export class InspectorManager {
 		/** @type {Map<import("../../studio/src/../../src/util/util.js").UuidString, InspectorConnection>} */
 		this.inspectorConnections = new Map();
 
-		this.internalDiscoveryManager = new InternalDiscoveryManager({fallbackDiscoveryUrl, forceDiscoveryUrl});
+		this.internalDiscoveryManager = new DiscoveryManagerInternal({fallbackDiscoveryUrl, forceDiscoveryUrl});
 		this.internalDiscoveryManager.onConnectionCreated((otherClientId, port) => {
 			const inspectorConnection = new InspectorConnection(otherClientId, port);
 			this.inspectorConnections.set(otherClientId, inspectorConnection);

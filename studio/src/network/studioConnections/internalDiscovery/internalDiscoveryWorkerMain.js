@@ -16,8 +16,8 @@ function sendAllClientAddedMessages(activeConnections, createdConnection) {
 	for (const [id, activeConnection] of activeConnections) {
 		if (activeConnection.port == createdConnection.port) continue;
 
-		createdConnection.parentMessenger.send.availableClientAdded(id, activeConnection.clientType, activeConnection.projectMetaData);
-		activeConnection.parentMessenger.send.availableClientAdded(createdConnection.id, createdConnection.clientType, null);
+		createdConnection.parentMessenger.send.availableClientAdded(activeConnection.getConnectionData());
+		activeConnection.parentMessenger.send.availableClientAdded(createdConnection.getConnectionData());
 	}
 }
 
@@ -72,7 +72,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 		},
 		parentWindowResponseHandlers: {
 			/**
-			 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
+			 * @param {import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").ClientType} clientType
 			 */
 			registerClient(clientType) {
 				if (createdConnection) {
@@ -88,7 +88,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				};
 			},
 			/**
-			 * @param {import("../StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
+			 * @param {import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} metaData
 			 */
 			projectMetaData(metaData) {
 				if (!createdConnection) return;
@@ -97,7 +97,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 			},
 			/**
 			 * @param {import("../../../../../src/mod.js").UuidString} otherClientId
-			 * @param {import("../../../../../src/network/studioConnections/InternalDiscoveryManager.js").InternalDiscoveryRequestConnectionData} [connectionData]
+			 * @param {import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} [connectionData]
 			 */
 			requestConnection(otherClientId, connectionData) {
 				if (!createdConnection) return;
@@ -115,7 +115,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 /** @typedef {ReturnType<getResponseHandlers>["iframeResponseHandlers"]} InternalDiscoveryWorkerToIframeHandlers */
 /** @typedef {TypedMessenger<InternalDiscoveryWorkerToIframeHandlers, import("./internalDiscoveryIframeMain.js").InternalDiscoveryIframeWorkerHandlers>} WorkerToIframeTypedMessengerType */
 /** @typedef {ReturnType<getResponseHandlers>["parentWindowResponseHandlers"]} InternalDiscoveryWorkerToParentHandlers */
-/** @typedef {TypedMessenger<InternalDiscoveryWorkerToParentHandlers, import("../../../../../src/network/studioConnections/InternalDiscoveryManager.js").InternalDiscoveryParentWorkerHandlers>} WorkerToParentTypedMessengerType */
+/** @typedef {TypedMessenger<InternalDiscoveryWorkerToParentHandlers, import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryParentWorkerHandlers>} WorkerToParentTypedMessengerType */
 
 /**
  * @param {typeof globalThis} workerGlobal

@@ -54,7 +54,7 @@ export function initializeIframe(window) {
 	/** @type {TypedMessenger<InternalDiscoveryIframeWorkerHandlers, import("./internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToIframeHandlers>} */
 	const workerTypedMessenger = new TypedMessenger();
 
-	/** @type {TypedMessenger<InternalDiscoveryIframeHandlers, import("../../../../../src/network/studioConnections/InternalDiscoveryManager.js").InternalDiscoveryParentHandlers>} */
+	/** @type {TypedMessenger<InternalDiscoveryIframeHandlers, import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryParentHandlers>} */
 	const parentWindowTypedMessenger = new TypedMessenger();
 
 	const {parentToIframeHandlers, workerToIframeHandlers} = getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destructorFunction: destructor});

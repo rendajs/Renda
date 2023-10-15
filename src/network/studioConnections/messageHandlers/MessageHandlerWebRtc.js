@@ -2,14 +2,17 @@ import {MessageHandler} from "./MessageHandler.js";
 
 export class MessageHandlerWebRtc extends MessageHandler {
 	/**
-	 * @param {import("../../../../../src/util/mod.js").UuidString} otherClientUuid
-	 * @param {import("../StudioConnectionsManager.js").StudioConnectionsManager} connectionsManager
-	 * @param {boolean} isInitiator
+	 * @param {import("../../../util/mod.js").UuidString} otherClientUuid
+	 * @param {object} options
+	 * @param {(uuid: import("../../../mod.js").UuidString, candidate: RTCIceCandidate) => void} options.sendRtcIceCandidate
+	 * @param {(uuid: import("../../../mod.js").UuidString, offer: RTCSessionDescriptionInit) => void} options.sendRtcDescription
+	 * @param {boolean} [options.isInitiator]
 	 */
-	constructor(otherClientUuid, connectionsManager, isInitiator = false) {
+	constructor(otherClientUuid, {sendRtcIceCandidate, sendRtcDescription, isInitiator = false}) {
 		super();
 		this.otherClientUuid = otherClientUuid;
-		this.connectionsManager = connectionsManager;
+		/** @private */
+		this.sendRtcDescription = sendRtcDescription;
 		this.isInitiator = isInitiator;
 
 		this.rtcConnection = new RTCPeerConnection();
@@ -20,7 +23,7 @@ export class MessageHandlerWebRtc extends MessageHandler {
 
 		this.rtcConnection.addEventListener("icecandidate", e => {
 			if (e.candidate) {
-				this.connectionsManager.sendRtcIceCandidate(this.otherClientUuid, e.candidate);
+				sendRtcIceCandidate(this.otherClientUuid, e.candidate);
 			}
 		});
 		this.rtcConnection.addEventListener("datachannel", e => {
@@ -103,13 +106,13 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	async setAndSendDescription(localDescription) {
 		this.localDescription = localDescription;
 		await this.rtcConnection.setLocalDescription(localDescription);
-		this.connectionsManager.sendRtcOffer(this.otherClientUuid, localDescription);
+		this.sendRtcDescription(this.otherClientUuid, localDescription);
 	}
 
 	/**
 	 * @param {RTCSessionDescriptionInit} rtcDescription
 	 */
-	async handleRtcOffer(rtcDescription) {
+	async handleRtcDescription(rtcDescription) {
 		this.remoteDescription = rtcDescription;
 		await this.rtcConnection.setRemoteDescription(rtcDescription);
 

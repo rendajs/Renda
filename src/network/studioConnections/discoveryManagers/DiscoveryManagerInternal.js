@@ -1,22 +1,15 @@
+import {TimeoutError} from "../../../util/TimeoutError.js";
+import {TypedMessenger} from "../../../util/TypedMessenger.js";
+import {MessageHandlerInternal} from "../messageHandlers/MessageHandlerInternal.js";
+import {DiscoveryManager} from "./DiscoveryManager.js";
+
 /**
- * @fileoverview For more info about how the InspectorManagerWorks see
- * /studio/src/network/studioConnections/internalDiscovery/readme.md
+ * @fileoverview This DiscoveryManager allows connecting to other clients within the same browser using a SharedWorker.
+ * Source code of the discovery server can be found at studio/src/network/studioConnections/internalDiscovery
  */
 
-import {TimeoutError} from "../../util/TimeoutError.js";
-import {TypedMessenger} from "../../util/TypedMessenger.js";
-
-/** @typedef {ReturnType<InternalDiscoveryManager["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
-/** @typedef {ReturnType<InternalDiscoveryManager["_getWorkerResponseHandlers"]>} InternalDiscoveryParentWorkerHandlers */
-/**
- * @typedef AvailableClientUpdateEvent
- * @property {import("../../mod.js").UuidString} clientId
- * @property {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} [clientType]
- * @property {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} [projectMetaData]
- * @property {boolean} [deleted] Whether the client has become unavailable.
- */
-/** @typedef {(event: AvailableClientUpdateEvent) => void} OnAvailableClientUpdateCallback */
-/** @typedef {(otherClientId: import("../../mod.js").UuidString, port: MessagePort, connectionData: InternalDiscoveryRequestConnectionData) => void} OnConnectionCreatedCallback */
+/** @typedef {ReturnType<DiscoveryManagerInternal["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
+/** @typedef {ReturnType<DiscoveryManagerInternal["_getWorkerResponseHandlers"]>} InternalDiscoveryParentWorkerHandlers */
 
 /**
  * Custom data that can be send when initiating a new connection with another client.
@@ -33,8 +26,9 @@ import {TypedMessenger} from "../../util/TypedMessenger.js";
  * In order for this to work, the other tab has to also create an InternalDiscoveryManager and use the same discovery url.
  * This creates an iframe with a shared worker which all discovery communication passes through.
  * That way two arbitrary tabs can communicate with each other, and in supported browsers, it might even allow communication across origins.
+ * @extends {DiscoveryManager<MessageHandlerInternal>}
  */
-export class InternalDiscoveryManager {
+export class DiscoveryManagerInternal extends DiscoveryManager {
 	/**
 	 * @param {object} options
 	 * @param {string} [options.fallbackDiscoveryUrl] When the current page is inside an iframe, the discovery manager
@@ -49,6 +43,8 @@ export class InternalDiscoveryManager {
 		fallbackDiscoveryUrl = "",
 		forceDiscoveryUrl = "",
 	} = {}) {
+		super();
+
 		/** @private */
 		this.destructed = false;
 
@@ -79,14 +75,9 @@ export class InternalDiscoveryManager {
 		this.iframe.style.display = "none";
 		document.body.appendChild(this.iframe);
 
-		/** @private @type {Set<OnConnectionCreatedCallback>} */
-		this.onConnectionCreatedCbs = new Set();
-		/** @private @type {Set<OnAvailableClientUpdateCallback>} */
-		this.onAvailableClientUpdatedCbs = new Set();
-
 		/**
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the iframe it created.
-		 * @private @type {TypedMessenger<InternalDiscoveryParentHandlers, import("../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers>}
+		 * @private @type {TypedMessenger<InternalDiscoveryParentHandlers, import("../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers>}
 		 */
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this._getIframeRequestHandlers());
@@ -103,7 +94,7 @@ export class InternalDiscoveryManager {
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the shared
 		 * worker that was created by the iframe. Messages first go through the iframe messenger which then
 		 * passes messages on to the sharedworker.
-		 * @private @type {TypedMessenger<InternalDiscoveryParentWorkerHandlers, import("../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers>}
+		 * @private @type {TypedMessenger<InternalDiscoveryParentWorkerHandlers, import("../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers>}
 		 */
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
@@ -116,7 +107,7 @@ export class InternalDiscoveryManager {
 		 * parent window of that page. This exists to make it possible to communicate with studio and request
 		 * the url of the to be created iframe. If the page that created the InternalDiscoveryManager is not
 		 * in an iframe, this messenger is useless.
-		 * @private @type {TypedMessenger<{}, import("../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
+		 * @private @type {TypedMessenger<{}, import("../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
 		 */
 		this.parentMessenger = new TypedMessenger({globalTimeout: 1000});
 		this.parentMessenger.setSendHandler(data => {
@@ -198,33 +189,33 @@ export class InternalDiscoveryManager {
 	_getWorkerResponseHandlers() {
 		return {
 			/**
-			 * @param {import("../../mod.js").UuidString} otherClientId
+			 * @param {import("../../../mod.js").UuidString} otherClientId
 			 * @param {MessagePort} port
 			 * @param {InternalDiscoveryRequestConnectionData} connectionData
 			 */
 			connectionCreated: (otherClientId, port, connectionData) => {
-				this.onConnectionCreatedCbs.forEach(cb => cb(otherClientId, port, connectionData));
+				const connection = new MessageHandlerInternal(otherClientId, connectionData);
+				connection.assignMessagePort(port);
+				this.addActiveConnection(otherClientId, connection);
 			},
 			/**
-			 * @param {import("../../mod.js").UuidString} clientId
-			 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
-			 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} projectMetaData
+			 * @param {import("./DiscoveryManager.js").AvailableStudioData} connectionData
 			 */
-			availableClientAdded: (clientId, clientType, projectMetaData) => {
-				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, clientType, projectMetaData}));
+			availableClientAdded: connectionData => {
+				this.addAvailableConnection(connectionData);
 			},
 			/**
-			 * @param {import("../../mod.js").UuidString} clientId
+			 * @param {import("../../../mod.js").UuidString} clientId
 			 */
 			availableClientRemoved: clientId => {
-				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: null, deleted: true}));
+				this.removeAvailableConnection(clientId);
 			},
 			/**
-			 * @param {import("../../mod.js").UuidString} clientId
-			 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
+			 * @param {import("../../../mod.js").UuidString} clientId
+			 * @param {import("./DiscoveryManager.js").RemoteStudioMetaData?} metaData
 			 */
 			projectMetaData: (clientId, metaData) => {
-				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: metaData}));
+				this.setConnectionProjectMetaData(clientId, metaData);
 			},
 		};
 	}
@@ -252,7 +243,7 @@ export class InternalDiscoveryManager {
 	 * Registers the current client, letting the discovery server know about its existence.
 	 * This broadcasts the existence of this client and its type to other clients,
 	 * allowing them to initialize connections to this client.
-	 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
+	 * @param {import("./DiscoveryManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
 		const result = await this.workerMessenger.send.registerClient(clientType);
@@ -270,7 +261,7 @@ export class InternalDiscoveryManager {
 	/**
 	 * Initiates a connection with another client.
 	 * If the connection is successful, the `onConnectionCreated` callback gets fired.
-	 * @param {import("../../mod.js").UuidString} otherClientId
+	 * @param {import("../../../mod.js").UuidString} otherClientId
 	 * @param {InternalDiscoveryRequestConnectionData} [connectionData]
 	 */
 	async requestConnection(otherClientId, connectionData) {
@@ -304,31 +295,10 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
-	 * Provides the discovery worker with project metadata.
-	 * This way other clients can display things such as the project name in their UI.
-	 * @param {import("../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
+	 * @override
+	 * @param {import("./DiscoveryManager.js").RemoteStudioMetaData?} metaData
 	 */
-	async sendProjectMetaData(metaData) {
+	async setProjectMetaData(metaData) {
 		await this.workerMessenger.send.projectMetaData(metaData);
-	}
-
-	/**
-	 * Registers a callback that is fired when a new connection is initiated with this client,
-	 * either because `requestConnection` was called from this client or from another client.
-	 * You may choose to ignore the connection if you determine that the origin is not allowlisted,
-	 * or if the type of client is not allowed.
-	 * When doing so, it's best to immediately call `close()` on the provided messageport.
-	 * @param {OnConnectionCreatedCallback} cb
-	 */
-	onConnectionCreated(cb) {
-		this.onConnectionCreatedCbs.add(cb);
-	}
-
-	/**
-	 * Registers a callback that is fired whenever an available client is added, removed or changed.
-	 * @param {OnAvailableClientUpdateCallback} cb
-	 */
-	onAvailableClientUpdated(cb) {
-		this.onAvailableClientUpdatedCbs.add(cb);
 	}
 }

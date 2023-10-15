@@ -2,7 +2,7 @@ import {StudioConnection} from "../../../../../../studio/src/network/studioConne
 import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
 
 function createConnection() {
-	const messageHandler = /** @type {import("../../../../../../studio/src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandler} */ ({});
+	const messageHandler = /** @type {import("../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandler} */ ({});
 	const protocolManager = /** @type {import("../../../../../../studio/src/network/studioConnections/ProtocolManager.js").ProtocolManager} */ ({});
 	const connection = new StudioConnection(messageHandler, protocolManager);
 	return connection;

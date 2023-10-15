@@ -2,7 +2,7 @@ import {StorageType, binaryToObject, objectToBinary} from "../../../../src/mod.j
 
 export class StudioConnection {
 	/**
-	 * @param {import("./messageHandlers/MessageHandler.js").MessageHandler} messageHandler
+	 * @param {import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandler} messageHandler
 	 * @param {import("./ProtocolManager.js").ProtocolManager} protocolManager
 	 */
 	constructor(messageHandler, protocolManager) {
@@ -75,7 +75,7 @@ export class StudioConnection {
 	}
 
 	/**
-	 * @param {(state: import("./messageHandlers/MessageHandler.js").StudioConnectionState) => void} cb
+	 * @param {(state: import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").StudioConnectionState) => void} cb
 	 */
 	onConnectionStateChange(cb) {
 		this.messageHandler.onConnectionStateChange(cb);

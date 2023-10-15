@@ -2,20 +2,15 @@ import {MessageHandler} from "./MessageHandler.js";
 
 export class MessageHandlerInternal extends MessageHandler {
 	/**
-	 * @param {import("../../../../../src/util/mod.js").UuidString} connectionId
-	 * @param {import("../StudioConnectionsManager.js").StudioConnectionsManager} connectionsManager
-	 * @param {boolean} isInitiator
+	 * @param {import("../../../util/mod.js").UuidString} connectionId
+	 * @param {import("../discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} connectionData
 	 */
-	constructor(connectionId, connectionsManager, isInitiator = false) {
+	constructor(connectionId, connectionData) {
 		super();
 		this.connectionId = connectionId;
-		this.connectionsManager = connectionsManager;
+		this.connectionData = connectionData;
 		this.autoSerializationSupported = true;
 		this.messagePort = null;
-
-		if (isInitiator) {
-			this.connectionsManager.requestInternalMessageChannelConnection(this.connectionId);
-		}
 	}
 
 	/**
