@@ -8,7 +8,7 @@ import {generateUuid} from "../../../../../src/util/mod.js";
 export class InternalDiscoveryWorkerConnection {
 	/**
 	 * @param {MessagePort} port
-	 * @param {import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").ClientType} clientType
+	 * @param {import("../../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
 	 * @param {import("./internalDiscoveryWorkerMain.js").WorkerToIframeTypedMessengerType} iframeMessenger
 	 * @param {import("./internalDiscoveryWorkerMain.js").WorkerToParentTypedMessengerType} parentWindowMessenger
 	 */

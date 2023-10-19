@@ -185,17 +185,15 @@ export class ContentWindowBuildView extends ContentWindow {
 			 * This way the discovery url of applications is always the same as
 			 * the discovery url of the Renda Studio instance it was opened from.
 			 */
-			requestInternalDiscoveryUrl() {
-				const url = new URL("internalDiscovery", window.location.href);
-				return url.href;
-			},
-			/**
-			 * Requests a new connection token, as well as the client id of the parent window.
-			 */
-			requestStudioClientData: async () => {
+			requestDesiredStudioConnectionMethod: async () => {
 				const clientId = await this.studioInstance.projectManager.studioConnectionsManager.getInternalDiscoveryClientId();
 				const internalConnectionToken = this.studioInstance.projectManager.studioConnectionsManager.createInternalConnectionToken();
+
+				const url = new URL("internalDiscovery", window.location.href);
+				// TODO: #803 Support for providing a webrtc connection type
 				return {
+					type: /** @type {const} */ ("renda:internal"),
+					discoveryUrl: url.href,
 					clientId,
 					internalConnectionToken,
 				};

@@ -29,6 +29,8 @@ import {DiscoveryManager} from "./DiscoveryManager.js";
  * @extends {DiscoveryManager<MessageHandlerWebRtc>}
  */
 export class DiscoveryManagerWebRtc extends DiscoveryManager {
+	static type = /** @type {const} */ ("renda:webrtc");
+
 	/** @typedef {(status: DiscoveryServerStatusType) => void} OnStatusChangeCallback */
 
 	/**

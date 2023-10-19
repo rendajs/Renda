@@ -1,8 +1,7 @@
-/** @typedef {"studio" | "inspector"} ClientType */
 /**
  * @typedef {object} AvailableStudioData
  * @property {import("../../../../src/util/mod.js").UuidString} id
- * @property {ClientType} clientType
+ * @property {import("../StudioConnectionsManager.js").ClientType} clientType
  * @property {RemoteStudioMetaData?} projectMetaData
  */
 /**
@@ -18,6 +17,8 @@
  * @template {import("../messageHandlers/MessageHandler.js").MessageHandler} TMessageHandler
  */
 export class DiscoveryManager {
+	static type = "";
+
 	constructor() {
 		/** @private @type {Map<import("../../../mod.js").UuidString, AvailableStudioData>} */
 		this._availableConnections = new Map();
@@ -28,6 +29,16 @@ export class DiscoveryManager {
 		this.activeConnections = new Map();
 		/** @private @type {Set<OnConnectionCreatedCallback>} */
 		this.onConnectionCreatedCbs = new Set();
+	}
+
+	/**
+	 * Registers the current client, letting the discovery server know about its existence.
+	 * This broadcasts the existence of this client and its type to other clients,
+	 * allowing them to initialize connections to this client.
+	 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
+	 */
+	registerClient(clientType) {
+		throw new Error("base class");
 	}
 
 	/**
@@ -90,11 +101,11 @@ export class DiscoveryManager {
 	/** @typedef {(connection: TMessageHandler) => void} OnConnectionCreatedCallback */
 
 	/**
-	 * Registers a callback that is fired when a new connection is initiated with this client,
-	 * either because `requestConnection` was called from this client or from another client.
+	 * Registers a callback that is fired when a new connection is initiated with this DiscoveryManager,
+	 * either because `requestConnection` was called from this DiscoveryManager or from another DiscoveryManager which wants to connect to us.
 	 * You may choose to ignore the connection if you determine that the origin is not allowlisted,
 	 * or if the type of client is not allowed.
-	 * When doing so, it's best to immediately call `close()` on the provided messageport.
+	 * When doing so, it's best to immediately call `close()` on the provided MessageHandler.
 	 * @param {OnConnectionCreatedCallback} cb
 	 */
 	onConnectionCreated(cb) {

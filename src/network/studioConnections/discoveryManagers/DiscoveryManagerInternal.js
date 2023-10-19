@@ -1,4 +1,3 @@
-import {TimeoutError} from "../../../util/TimeoutError.js";
 import {TypedMessenger} from "../../../util/TypedMessenger.js";
 import {MessageHandlerInternal} from "../messageHandlers/MessageHandlerInternal.js";
 import {DiscoveryManager} from "./DiscoveryManager.js";
@@ -29,20 +28,13 @@ import {DiscoveryManager} from "./DiscoveryManager.js";
  * @extends {DiscoveryManager<MessageHandlerInternal>}
  */
 export class DiscoveryManagerInternal extends DiscoveryManager {
+	static type = /** @type {const} */ ("renda:internal");
+
 	/**
-	 * @param {object} options
-	 * @param {string} [options.fallbackDiscoveryUrl] When the current page is inside an iframe, the discovery manager
-	 * will ask the parent window for a discovery url. If the parent window is a studio instance, it will respond with a url.
-	 * But if the current page is either not in an iframe or the parent doesn't respond, this fallback url will be used.
-	 * The discovery url should point to the discovery iframe page of a studio instance, i.e. if two applications wish to
-	 * communicate with each other, they should both use the same discovery url.
-	 * @param {string} [options.forceDiscoveryUrl] When set, no attempt is made to get the discovery url from the parent
-	 * window, and the forced url is used immediately instead.
+	 * @param {string} discoveryUrl A url that points to the discovery iframe page of a studio instance,
+	 * i.e. if two applications wish to communicate with each other, they should both use the same discovery url.
 	 */
-	constructor({
-		fallbackDiscoveryUrl = "",
-		forceDiscoveryUrl = "",
-	} = {}) {
+	constructor(discoveryUrl) {
 		super();
 
 		/** @private */
@@ -52,8 +44,6 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 			if (!e.data) return;
 			if (e.source == this.iframe.contentWindow) {
 				this.iframeMessenger.handleReceivedMessage(e.data);
-			} else if (e.source == window.parent) {
-				this.parentMessenger.handleReceivedMessage(e.data);
 			}
 		});
 
@@ -73,6 +63,7 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 		/** @private */
 		this.iframe = document.createElement("iframe");
 		this.iframe.style.display = "none";
+		this.iframe.src = discoveryUrl;
 		document.body.appendChild(this.iframe);
 
 		/**
@@ -82,7 +73,6 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this._getIframeRequestHandlers());
 		this.iframeMessenger.setSendHandler(async data => {
-			await this._setIframeUrl(fallbackDiscoveryUrl, forceDiscoveryUrl);
 			await this._waitForIframeLoad();
 			if (!this.iframe.contentWindow) {
 				throw new Error("Failed to send message to internal discovery: iframe is not loaded.");
@@ -102,66 +92,9 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 			await this.iframeMessenger.sendWithOptions.postWorkerMessage({transfer: data.transfer}, data.sendData, data.transfer);
 		});
 
-		/**
-		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the potential
-		 * parent window of that page. This exists to make it possible to communicate with studio and request
-		 * the url of the to be created iframe. If the page that created the InternalDiscoveryManager is not
-		 * in an iframe, this messenger is useless.
-		 * @private @type {TypedMessenger<{}, import("../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
-		 */
-		this.parentMessenger = new TypedMessenger({globalTimeout: 1000});
-		this.parentMessenger.setSendHandler(data => {
-			if (!this.isInIframe()) {
-				throw new Error("Failed to send message to parent, the page is not embedded in an iframe");
-			}
-			window.parent.postMessage(data.sendData, "*", data.transfer);
-		});
-
 		window.addEventListener("unload", () => {
 			this.destructor();
 		});
-	}
-
-	/**
-	 * @private
-	 */
-	isInIframe() {
-		return window.parent != window;
-	}
-
-	/**
-	 * Requests the iframe url from the parent window. If either the parent window doesn't exist
-	 * or it doesn't respond, a fallback url will be used.
-	 * @private
-	 * @param {string} fallbackDiscoveryUrl
-	 * @param {string} forceDiscoveryUrl
-	 */
-	async _setIframeUrl(fallbackDiscoveryUrl, forceDiscoveryUrl) {
-		if (this._setIframeUrlCalled) return;
-		this._setIframeUrlCalled = true;
-		if (forceDiscoveryUrl) {
-			this.iframe.src = forceDiscoveryUrl;
-			return;
-		}
-		let url = null;
-		if (this.isInIframe()) {
-			try {
-				url = await this.parentMessenger.send.requestInternalDiscoveryUrl();
-			} catch (e) {
-				if (e instanceof TimeoutError) {
-					// If a timeout is reached, we'll use the fallback url.
-				} else {
-					throw e;
-				}
-			}
-		}
-		if (!url) {
-			if (!fallbackDiscoveryUrl) {
-				throw new Error("Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
-			}
-			url = fallbackDiscoveryUrl;
-		}
-		this.iframe.src = url;
 	}
 
 	/**
@@ -240,10 +173,8 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 	}
 
 	/**
-	 * Registers the current client, letting the discovery server know about its existence.
-	 * This broadcasts the existence of this client and its type to other clients,
-	 * allowing them to initialize connections to this client.
-	 * @param {import("./DiscoveryManager.js").ClientType} clientType
+	 * @override
+	 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
 		const result = await this.workerMessenger.send.registerClient(clientType);
@@ -266,32 +197,6 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 	 */
 	async requestConnection(otherClientId, connectionData) {
 		await this.workerMessenger.send.requestConnection(otherClientId, connectionData);
-	}
-
-	/**
-	 * Checks if the page is embedded in an iframe and if the parent is a studio instance.
-	 * If so, it attempts to request a connection token from the parent, and then use it
-	 * to initiate a new studio connection.
-	 */
-	async requestParentStudioConnection() {
-		const sentence1 = "Failed to get parent client data.";
-		const sentence2 = "requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.";
-		if (!this.isInIframe()) {
-			throw new Error(`${sentence1} ${sentence2}`);
-		}
-		let studioClientData;
-		try {
-			studioClientData = await this.parentMessenger.send.requestStudioClientData();
-		} catch (e) {
-			if (e instanceof TimeoutError) {
-				throw new Error(`${sentence1} The parent didn't respond with client data in timely manner. ${sentence2}`);
-			} else {
-				throw e;
-			}
-		}
-		await this.requestConnection(studioClientData.clientId, {
-			token: studioClientData.internalConnectionToken,
-		});
 	}
 
 	/**

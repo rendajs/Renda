@@ -13,7 +13,7 @@ import {InternalDiscoveryWorkerConnection} from "./InternalDiscoveryWorkerConnec
  * @param {InternalDiscoveryWorkerConnection} createdConnection
  */
 function sendAllClientAddedMessages(activeConnections, createdConnection) {
-	for (const [id, activeConnection] of activeConnections) {
+	for (const activeConnection of activeConnections.values()) {
 		if (activeConnection.port == createdConnection.port) continue;
 
 		createdConnection.parentMessenger.send.availableClientAdded(activeConnection.getConnectionData());
@@ -72,7 +72,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 		},
 		parentWindowResponseHandlers: {
 			/**
-			 * @param {import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").ClientType} clientType
+			 * @param {import("../../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
 			 */
 			registerClient(clientType) {
 				if (createdConnection) {

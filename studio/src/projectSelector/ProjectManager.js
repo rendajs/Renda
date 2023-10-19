@@ -498,9 +498,4 @@ export class ProjectManager {
 			});
 		}
 	}
-
-	getStudioConnectionsManager() {
-		this.updateStudioConnectionsManager();
-		return this.studioConnectionsManager;
-	}
 }
