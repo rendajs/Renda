@@ -499,9 +499,23 @@ export class TypedMessenger {
 	 *
 	 * @param {WebSocket} webSocket
 	 * @param {ResponseHandlers} responseHandlers
+	 * @param {object} [options]
+	 * @param {boolean} [options.waitForOpen]
 	 */
 	initializeWebSocket(webSocket, responseHandlers) {
-		this.setSendHandler(data => {
+		this.setSendHandler(async data => {
+			if (webSocket.readyState == WebSocket.CONNECTING) {
+				/** @type {Promise<void>} */
+				const promise = new Promise((resolve, reject) => {
+					webSocket.addEventListener("open", () => {
+						resolve();
+					}, {once: true});
+					webSocket.addEventListener("error", e => {
+						reject(new Error("Failed to connect to WebSocket."));
+					}, {once: true});
+				});
+				await promise;
+			}
 			webSocket.send(JSON.stringify(data.sendData));
 		});
 		webSocket.addEventListener("message", async message => {

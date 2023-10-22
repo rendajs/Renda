@@ -23,6 +23,8 @@ import {DiscoveryManager} from "./DiscoveryManager.js";
  */
 /** @typedef {ExternalDiscoveryRelayOfferData | ExternalDiscoveryRelayCandidateData} ExternalDiscoveryRelayData */
 
+/** @typedef {(status: DiscoveryServerStatusType) => void} OnDiscoveryManagerWebRtcStatusChangeCallback */
+
 /**
  * This class allows you to discover other tabs via a central discovery server.
  * When created, a connection to a WebSocket is made, which can be used for connecting to another client via WebRTC.
@@ -30,8 +32,6 @@ import {DiscoveryManager} from "./DiscoveryManager.js";
  */
 export class DiscoveryManagerWebRtc extends DiscoveryManager {
 	static type = /** @type {const} */ ("renda:webrtc");
-
-	/** @typedef {(status: DiscoveryServerStatusType) => void} OnStatusChangeCallback */
 
 	/**
 	 * @param {object} options
@@ -44,27 +44,26 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 
 		/** @private @type {DiscoveryServerStatusType} */
 		this._status = "connecting";
-		/** @private @type {Set<OnStatusChangeCallback>} */
+		/** @private @type {Set<OnDiscoveryManagerWebRtcStatusChangeCallback>} */
 		this.onStatusChangeCbs = new Set();
 
-		/** @private @type {import("./DiscoveryManager.js").RemoteStudioMetaData?} */
-		this.lastProjectMetaData = null;
+		/** @private */
+		this._endpoint = endpoint;
 
 		/** @private */
 		this.ws = new WebSocket(endpoint);
 		this.ws.addEventListener("open", () => {
 			this._setStatus("connected");
-			this.lastProjectMetaData = null;
 		});
 
 		/** @private @type {TypedMessenger<ExternalDiscoveryManagerResponseHandlers, import("/Users/Jesper/repositories/studio-discovery-server/src/WebSocketConnection.js").StudioDescoveryResponseHandlers>} */
-		this.messenger = new TypedMessenger();
+		this.messenger = new TypedMessenger({globalTimeout: 20_000});
 		this.messenger.initializeWebSocket(this.ws, this.getResponseHandlers());
 		this.messenger.configureSendOptions({
 			relayMessage: {
 				expectResponse: false,
 			},
-			setIsStudioHost: {
+			setClientType: {
 				expectResponse: false,
 			},
 			setProjectMetaData: {
@@ -76,9 +75,29 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 			this._setStatus("disconnected");
 			this.clearAvailableConnections();
 		});
+	}
 
-		/** @private */
-		this.messenger = new TypedMessenger({globalTimeout: 20_000});
+	/**
+	 * @override
+	 */
+	destructor() {
+		this.ws.close();
+	}
+
+	/**
+	 * @override
+	 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
+	 */
+	async registerClient(clientType) {
+		this.messenger.send.setClientType(clientType);
+	}
+
+	get endpoint() {
+		return this._endpoint;
+	}
+
+	get status() {
+		return this._status;
 	}
 
 	/**
@@ -150,14 +169,14 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 	}
 
 	/**
-	 * @param {OnStatusChangeCallback} cb
+	 * @param {OnDiscoveryManagerWebRtcStatusChangeCallback} cb
 	 */
 	onStatusChange(cb) {
 		this.onStatusChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {OnStatusChangeCallback} cb
+	 * @param {OnDiscoveryManagerWebRtcStatusChangeCallback} cb
 	 */
 	removeOnStatusChange(cb) {
 		this.onStatusChangeCbs.delete(cb);
@@ -168,16 +187,6 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 	 * @param {import("./DiscoveryManager.js").RemoteStudioMetaData?} metaData
 	 */
 	async setProjectMetaData(metaData) {
-		const oldData = this.lastProjectMetaData;
-		if (!oldData && !this.lastProjectMetaData) return;
-		if (
-			metaData && oldData &&
-			oldData.name == metaData.name &&
-			oldData.uuid == metaData.uuid &&
-			oldData.fileSystemHasWritePermissions == metaData.fileSystemHasWritePermissions
-		) return;
-		this.lastProjectMetaData = structuredClone(metaData);
-
 		await this.messenger.send.setProjectMetaData(metaData);
 	}
 

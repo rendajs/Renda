@@ -186,8 +186,8 @@ export class ContentWindowBuildView extends ContentWindow {
 			 * the discovery url of the Renda Studio instance it was opened from.
 			 */
 			requestDesiredStudioConnectionMethod: async () => {
-				const clientId = await this.studioInstance.projectManager.studioConnectionsManager.getInternalDiscoveryClientId();
-				const internalConnectionToken = this.studioInstance.projectManager.studioConnectionsManager.createInternalConnectionToken();
+				const clientId = await this.studioInstance.studioConnectionsManager.getInternalDiscoveryClientId();
+				const internalConnectionToken = this.studioInstance.studioConnectionsManager.createInternalConnectionToken();
 
 				const url = new URL("internalDiscovery", window.location.href);
 				// TODO: #803 Support for providing a webrtc connection type

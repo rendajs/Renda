@@ -3,6 +3,7 @@
  * @property {import("../../../../src/util/mod.js").UuidString} id
  * @property {import("../StudioConnectionsManager.js").ClientType} clientType
  * @property {RemoteStudioMetaData?} projectMetaData
+ * @property {string} connectionType
  */
 /**
  * @typedef {object} RemoteStudioMetaData
@@ -32,6 +33,11 @@ export class DiscoveryManager {
 	}
 
 	/**
+	 * Called by the StudioConnectionsManager when removing a DiscoveryManager.
+	 */
+	destructor() {}
+
+	/**
 	 * Registers the current client, letting the discovery server know about its existence.
 	 * This broadcasts the existence of this client and its type to other clients,
 	 * allowing them to initialize connections to this client.
@@ -50,6 +56,7 @@ export class DiscoveryManager {
 			id: connection.id,
 			clientType: connection.clientType,
 			projectMetaData: connection.projectMetaData,
+			connectionType: this.constructor.type,
 		});
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
 	}
@@ -73,6 +80,15 @@ export class DiscoveryManager {
 
 	*availableConnections() {
 		yield* this._availableConnections.values();
+	}
+
+	/**
+	 * Notify other clients about the project metadata of this client.
+	 * This way other clients can display things such as the project name in their UI.
+	 * @param {RemoteStudioMetaData?} metaData
+	 */
+	setProjectMetaData(metaData) {
+		throw new Error("base class");
 	}
 
 	/**
@@ -110,15 +126,6 @@ export class DiscoveryManager {
 	 */
 	onConnectionCreated(cb) {
 		this.onConnectionCreatedCbs.add(cb);
-	}
-
-	/**
-	 * Notify other clients about the project metadata of this client.
-	 * This way other clients can display things such as the project name in their UI.
-	 * @param {RemoteStudioMetaData?} metaData
-	 */
-	setProjectMetaData(metaData) {
-		throw new Error("base class");
 	}
 
 	/**

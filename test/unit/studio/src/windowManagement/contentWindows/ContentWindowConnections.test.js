@@ -19,8 +19,8 @@ import {getMockWindowManager} from "../shared.js";
 /**
  * @param {object} options
  * @param {(ctx: ContentWindowConnectionsTestContext) => void | Promise<void>} options.fn
- * @param {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} [options.availableConnections]
- * @param {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").ActiveStudioDataList} [options.activeConnections]
+ * @param {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").AvailableStudioDataList} [options.availableConnections]
+ * @param {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").ActiveStudioDataList} [options.activeConnections]
  * @param {boolean} [options.currentProjectIsRemote]
  */
 async function basicTest({
@@ -126,7 +126,7 @@ function assertConnectionTreeView(treeView, projectName, connectionType, status,
 Deno.test({
 	name: "Another internal studio without project meta data",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
@@ -147,7 +147,7 @@ Deno.test({
 Deno.test({
 	name: "Another internal studio with project meta data, no write permission",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
@@ -172,7 +172,7 @@ Deno.test({
 Deno.test({
 	name: "Another internal studion instance with project meta data, available",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
@@ -197,7 +197,7 @@ Deno.test({
 Deno.test({
 	name: "Another webrtc studio instance with project meta data, available",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
@@ -222,7 +222,7 @@ Deno.test({
 Deno.test({
 	name: "Old connections get removed",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
@@ -244,7 +244,7 @@ Deno.test({
 Deno.test({
 	name: "Callbacks are unregistered when destructed",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		await basicTest({
 			availableConnections,
