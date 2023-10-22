@@ -93,4 +93,21 @@ export class StudioConnectionsManager {
 	removeOnConnectionsChanged(cb) {
 		this.onConnectionsChangedCbs.delete(cb);
 	}
+
+	/**
+	 * Attempts to initiate a new connection.
+	 * If the connection succeeds, state changes can be observed using {@linkcode onConnectionsChanged}.
+	 * @param {import("../../mod.js").UuidString} id
+	 * @param {unknown} [connectionData] Optional data that can be sent to the client which allows
+	 * it to determine whether the connection should be accepted or not.
+	 */
+	requestConnection(id, connectionData) {
+		for (const discoveryManager of this.discoveryManagers.values()) {
+			if (discoveryManager.hasConnection(id)) {
+				discoveryManager.requestConnection(id, connectionData);
+				return;
+			}
+		}
+		throw new Error(`No connection with id ${id} was found.`);
+	}
 }

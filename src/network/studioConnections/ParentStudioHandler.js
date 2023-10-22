@@ -61,10 +61,11 @@ export class ParentStudioHandler {
 		for (const DiscoveryManager of supportedDiscoveryManagers) {
 			if (DiscoveryManager.type == "renda:internal" && studioClientData.type == "renda:internal") {
 				studioConnectionsManager.addDiscoveryManager(DiscoveryManager, studioClientData.discoveryUrl);
-				const discoveryManager = new DiscoveryManager(studioClientData.discoveryUrl);
-				discoveryManager.requestConnection(studioClientData.clientId, {
+				/** @type {import("./discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} */
+				const connectionData = {
 					token: studioClientData.internalConnectionToken,
-				});
+				};
+				studioConnectionsManager.requestConnection(studioClientData.clientId, connectionData);
 			}
 		}
 	}

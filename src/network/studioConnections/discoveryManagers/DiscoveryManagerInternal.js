@@ -190,8 +190,7 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 	}
 
 	/**
-	 * Initiates a connection with another client.
-	 * If the connection is successful, the `onConnectionCreated` callback gets fired.
+	 * @override
 	 * @param {import("../../../mod.js").UuidString} otherClientId
 	 * @param {InternalDiscoveryRequestConnectionData} [connectionData]
 	 */

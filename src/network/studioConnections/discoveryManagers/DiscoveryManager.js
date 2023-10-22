@@ -83,6 +83,13 @@ export class DiscoveryManager {
 	}
 
 	/**
+	 * @param {import("../../../mod.js").UuidString} id
+	 */
+	hasConnection(id) {
+		return this._availableConnections.has(id);
+	}
+
+	/**
 	 * Notify other clients about the project metadata of this client.
 	 * This way other clients can display things such as the project name in their UI.
 	 * @param {RemoteStudioMetaData?} metaData
@@ -147,5 +154,16 @@ export class DiscoveryManager {
 	 */
 	fireAvailableConnectionsChanged() {
 		this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
+	}
+
+	/**
+	 * Initiates a connection with another client.
+	 * If the connection is successful, the `onConnectionCreated` callback gets fired.
+	 * @param {import("../../../mod.js").UuidString} otherClientId
+	 * @param {unknown} [connectionData] Optional data that can be sent to the client which allows
+	 * it to determine whether the connection should be accepted or not.
+	 */
+	requestConnection(otherClientId, connectionData) {
+		throw new Error("base class");
 	}
 }

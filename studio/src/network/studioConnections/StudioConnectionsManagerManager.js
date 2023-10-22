@@ -171,6 +171,18 @@ export class StudioConnectionsManagerManager {
 	}
 
 	/**
+	 * Attempts to initiate a new connection.
+	 * If the connection succeeds, state changes can be observed using {@linkcode onConnectionsChanged}.
+	 * @param {import("../../../../src/mod.js").UuidString} id
+	 */
+	requestConnection(id) {
+		if (!this.#studioConnectionsManager){
+			throw new Error("Assertion failed, studio connections manager does not exist");
+		}
+		this.#studioConnectionsManager.requestConnection(id);
+	}
+
+	/**
 	 * @param {() => void} cb
 	 */
 	onConnectionsChanged(cb) {

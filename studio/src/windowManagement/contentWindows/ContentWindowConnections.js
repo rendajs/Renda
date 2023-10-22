@@ -159,7 +159,7 @@ export class ContentWindowConnections extends ContentWindow {
 						label: "Connect",
 						text: "Connect",
 						onClick: () => {
-							this.studioInstance.studioConnectionsManager.startConnection(connection.id);
+							this.studioInstance.studioConnectionsManager.requestConnection(connection.id);
 						},
 					},
 				});
