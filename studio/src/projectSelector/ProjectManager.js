@@ -69,6 +69,10 @@ export class ProjectManager {
 	/** @type {Set<() => void>} */
 	#onProjectOpenCbs = new Set();
 	#hasOpenProject = false;
+	#currentProjectIsRemote = false;
+	get currentProjectIsRemote() {
+		return this.#currentProjectIsRemote;
+	}
 
 	/**
 	 * Technically some file system entries might not have write permissions even though the root does.
@@ -76,9 +80,6 @@ export class ProjectManager {
 	 * The only exception would be when the user manually revokes permissions.
 	 */
 	#rootHasWritePermissions = false;
-	get rootHasWritePermissions() {
-		return this.#rootHasWritePermissions;
-	}
 
 	/** @type {Set<() => void>} */
 	#onRootHasWritePermissionsChangeCbs = new Set();
@@ -92,7 +93,6 @@ export class ProjectManager {
 		/** @type {StoredProjectEntryAny?} */
 		this.currentProjectOpenEvent = null;
 		this.currentProjectIsMarkedAsWorthSaving = false;
-		this.currentProjectIsRemote = false;
 		this.gitIgnoreManager = null;
 
 		/** @type {AssetManager?} */
@@ -129,7 +129,7 @@ export class ProjectManager {
 			this.currentProjectFileSystem.removeOnRootNameChange(this.#boundOnFileSystemRootNameChange);
 		}
 		this.currentProjectFileSystem = fileSystem;
-		this.currentProjectIsRemote = fileSystem instanceof RemoteStudioFileSystem;
+		this.#currentProjectIsRemote = fileSystem instanceof RemoteStudioFileSystem;
 		this.currentProjectOpenEvent = openProjectChangeEvent;
 		this.currentProjectIsMarkedAsWorthSaving = false;
 
@@ -450,7 +450,7 @@ export class ProjectManager {
 		return {
 			name: this.currentProjectOpenEvent.name,
 			uuid: this.currentProjectOpenEvent.projectUuid,
-			fileSystemHasWritePermissions: this.rootHasWritePermissions,
+			fileSystemHasWritePermissions: this.#rootHasWritePermissions,
 		};
 	}
 }

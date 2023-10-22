@@ -57,7 +57,7 @@ export class StudioConnectionsManagerManager {
 		const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.allowRemoteIncoming", null);
 
 		/** @type {import("../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType?} */
-		const desiredClientType = "studio-host";
+		const desiredClientType = this.#projectManager.currentProjectIsRemote ? "studio-client" : "studio-host";
 
 		if (this.#studioConnectionsManager && (!desiredClientType || desiredClientType != this.#studioConnectionsManager.clientType)) {
 			this.#studioConnectionsManager.destructor();
@@ -75,20 +75,22 @@ export class StudioConnectionsManagerManager {
 		}
 		if (this.#studioConnectionsManager) {
 			// create/destroy internal discovery manager when needed
-			if (this.#discoveryManagerInternal && !allowInternalIncoming) {
+			const needsInternalDiscovery = allowInternalIncoming || this.#projectManager.currentProjectIsRemote;
+			if (this.#discoveryManagerInternal && !needsInternalDiscovery) {
 				this.#studioConnectionsManager.removeDiscoveryManager(this.#discoveryManagerInternal);
-			} else if (!this.#discoveryManagerInternal && allowInternalIncoming) {
+			} else if (!this.#discoveryManagerInternal && needsInternalDiscovery) {
 				this.#discoveryManagerInternal = this.#studioConnectionsManager.addDiscoveryManager(DiscoveryManagerInternal, this.#getDefaultInternalDiscoveryEndPoint());
 			}
 
 			// create/destroy webrtc discovery manager when needed
+			const needsWebRtcDiscovery = allowRemoteIncoming || this.#projectManager.currentProjectIsRemote;
 			const desiredWebRtcEndpoint = this.#webRtcDiscoveryEndpoint || this.getDefaultWebRtcDiscoveryEndPoint();
-			if (this.#discoveryManagerWebRtc && (!allowRemoteIncoming || this.#discoveryManagerWebRtc.endpoint != desiredWebRtcEndpoint)) {
+			if (this.#discoveryManagerWebRtc && (!needsWebRtcDiscovery || this.#discoveryManagerWebRtc.endpoint != desiredWebRtcEndpoint)) {
 				this.#studioConnectionsManager.removeDiscoveryManager(this.#discoveryManagerWebRtc);
 				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb("disconnected"));
 				this.#discoveryManagerWebRtc = null;
 			}
-			if (!this.#discoveryManagerWebRtc && allowRemoteIncoming) {
+			if (!this.#discoveryManagerWebRtc && needsWebRtcDiscovery) {
 				this.#discoveryManagerWebRtc = this.#studioConnectionsManager.addDiscoveryManager(DiscoveryManagerWebRtc, {
 					endpoint: desiredWebRtcEndpoint,
 				});
