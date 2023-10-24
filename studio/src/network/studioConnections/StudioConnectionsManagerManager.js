@@ -1,11 +1,12 @@
 import {StudioConnectionsManager} from "../../../../src/network/studioConnections/StudioConnectionsManager.js";
 import {DiscoveryManagerInternal} from "../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js";
 import {DiscoveryManagerWebRtc} from "../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerWebRtc.js";
+import {createStudioHostHandlers} from "./handlers.js";
 
 export class StudioConnectionsManagerManager {
 	#projectManager;
 	#preferencesManager;
-	/** @type {StudioConnectionsManager?} */
+	/** @type {StudioConnectionsManager<ReturnType<createStudioHostHandlers>, ReturnType<createStudioHostHandlers>>?} */
 	#studioConnectionsManager = null;
 	/** @type {DiscoveryManagerInternal?} */
 	#discoveryManagerInternal = null;
@@ -66,11 +67,14 @@ export class StudioConnectionsManagerManager {
 			this.#discoveryManagerWebRtc = null;
 		}
 
-		if (desiredClientType && !this.#studioConnectionsManager) {
-			this.#studioConnectionsManager = new StudioConnectionsManager(desiredClientType);
+		if (desiredClientType && !this.#studioConnectionsManager && this.#projectManager.currentProjectFileSystem) {
+			this.#studioConnectionsManager = new StudioConnectionsManager(desiredClientType, createStudioHostHandlers(this.#projectManager.currentProjectFileSystem));
 			this.#lastSentProjectMetaData = null;
 			this.#studioConnectionsManager.onConnectionsChanged(() => {
 				this.#onConnectionsChangedCbs.forEach(cb => cb());
+			});
+			this.#studioConnectionsManager.onConnectionCreated(async connection => {
+
 			});
 		}
 		if (this.#studioConnectionsManager) {
@@ -178,7 +182,7 @@ export class StudioConnectionsManagerManager {
 	 * @param {import("../../../../src/mod.js").UuidString} id
 	 */
 	requestConnection(id) {
-		if (!this.#studioConnectionsManager){
+		if (!this.#studioConnectionsManager) {
 			throw new Error("Assertion failed, studio connections manager does not exist");
 		}
 		this.#studioConnectionsManager.requestConnection(id);

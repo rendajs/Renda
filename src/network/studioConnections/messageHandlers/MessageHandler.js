@@ -3,26 +3,27 @@
 /** @typedef {(state: StudioConnectionState) => void} OnConnectionStateChangeCallback */
 
 export class MessageHandler {
-	/** @typedef {(data: any) => void} OnMessageCallback */
+	/** @typedef {(data: unknown) => void} OnMessageCallback */
 
 	constructor() {
-		/** @type {Set<OnMessageCallback>} */
+		/** @private @type {Set<OnMessageCallback>} */
 		this.onMessageCbs = new Set();
 		/** @type {StudioConnectionState} */
 		this.connectionState = "disconnected";
-		/** @type {Set<OnConnectionStateChangeCallback>} */
+		/** @private @type {Set<OnConnectionStateChangeCallback>} */
 		this.onConnectionStateChangeCbs = new Set();
 		this.autoSerializationSupported = false;
 	}
 
 	/**
 	 * @abstract
-	 * @param {*} data
+	 * @param {unknown} data
 	 */
 	send(data) {}
 
 	/**
-	 * @param {*} data
+	 * @protected
+	 * @param {unknown} data
 	 */
 	handleMessageReceived(data) {
 		this.onMessageCbs.forEach(cb => cb(data));
@@ -36,6 +37,7 @@ export class MessageHandler {
 	}
 
 	/**
+	 * @protected
 	 * @param {StudioConnectionState} state
 	 */
 	setConnectionState(state) {

@@ -4,19 +4,14 @@ export class MessageHandlerInternal extends MessageHandler {
 	/**
 	 * @param {import("../../../util/mod.js").UuidString} connectionId
 	 * @param {import("../discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} connectionData
+	 * @param {MessagePort} messagePort
 	 */
-	constructor(connectionId, connectionData) {
+	constructor(connectionId, connectionData, messagePort) {
 		super();
 		this.connectionId = connectionId;
 		this.connectionData = connectionData;
 		this.autoSerializationSupported = true;
-		this.messagePort = null;
-	}
-
-	/**
-	 * @param {MessagePort} messagePort
-	 */
-	assignMessagePort(messagePort) {
+		/** @private */
 		this.messagePort = messagePort;
 		messagePort.addEventListener("message", e => {
 			this.handleMessageReceived(e.data);
@@ -27,7 +22,7 @@ export class MessageHandlerInternal extends MessageHandler {
 
 	/**
 	 * @override
-	 * @param {*} data
+	 * @param {unknown} data
 	 */
 	send(data) {
 		if (!this.messagePort) return;

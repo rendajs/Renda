@@ -1,5 +1,4 @@
 import {ENABLE_INSPECTOR_SUPPORT} from "../studioDefines.js";
-import {InspectorConnection} from "./InspectorConnection.js";
 import {DiscoveryManagerInternal} from "../network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js";
 import {StudioConnectionsManager} from "../network/studioConnections/StudioConnectionsManager.js";
 import {ParentStudioHandler} from "../network/studioConnections/ParentStudioHandler.js";
@@ -16,17 +15,13 @@ export class InspectorManager {
 	constructor() {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
 
-		/** @type {Map<import("../../studio/src/../../src/util/util.js").UuidString, InspectorConnection>} */
-		this.inspectorConnections = new Map();
-
 		/** @private */
 		this.parentStudioHandler = new ParentStudioHandler();
 		/** @private */
-		this.connectionsManager = new StudioConnectionsManager("inspector");
+		this.connectionsManager = new StudioConnectionsManager("inspector", {});
 
-		this.connectionsManager.onConnectionCreated((otherClientId, port) => {
-			const inspectorConnection = new InspectorConnection(otherClientId, port);
-			this.inspectorConnections.set(otherClientId, inspectorConnection);
+		this.connectionsManager.onConnectionCreated(connection => {
+			console.log(connection);
 		});
 		this.parentStudioHandler.requestParentStudioConnection(this.connectionsManager, [DiscoveryManagerInternal, DiscoveryManagerWebRtc]);
 	}

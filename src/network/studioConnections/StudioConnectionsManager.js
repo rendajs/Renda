@@ -1,3 +1,5 @@
+import {StudioConnection} from "./StudioConnection.js";
+
 /**
  * There are essentially three types of connection types.
  * - `"studio-host"` is a studio page which has an open project.
@@ -11,13 +13,21 @@
  * @typedef {"studio-host" | "inspector" | "studio-client"} ClientType
  */
 
+/**
+ * @template {import("../../mod.js").TypedMessengerSignatures} TReliableRespondHandlers
+ * @template {import("../../mod.js").TypedMessengerSignatures} TReliableRequestHandlers
+ */
 export class StudioConnectionsManager {
+	/** @typedef {(connection: StudioConnection<TReliableRespondHandlers, TReliableRequestHandlers>) => void} OnConnectionCreatedCallback */
 	/**
 	 * @param {ClientType} clientType
+	 * @param {TReliableRespondHandlers} reliableRespondHandlers
 	 */
-	constructor(clientType) {
+	constructor(clientType, reliableRespondHandlers) {
 		/** @readonly */
 		this.clientType = clientType;
+		/** @private */
+		this.reliableRespondHandlers = reliableRespondHandlers;
 
 		/** @private @type {import("./discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} */
 		this.projectMetaData = null;
@@ -27,6 +37,9 @@ export class StudioConnectionsManager {
 
 		/** @private @type {Set<() => void>} */
 		this.onConnectionsChangedCbs = new Set();
+
+		/** @private @type {Set<OnConnectionCreatedCallback>} */
+		this.onConnectionCreatedCbs = new Set();
 	}
 
 	destructor() {
@@ -42,16 +55,22 @@ export class StudioConnectionsManager {
 	 * @param {TArgs} args
 	 */
 	addDiscoveryManager(constructor, ...args) {
+		/** @type {import("./discoveryManagers/DiscoveryManager.js").DiscoveryManager<import("./messageHandlers/MessageHandler.js").MessageHandler>} */
 		const discoveryManager = new constructor(...args);
 		this.discoveryManagers.add(discoveryManager);
 		discoveryManager.onAvailableConnectionsChanged(() => {
 			this.onConnectionsChangedCbs.forEach(cb => cb());
 		});
+		discoveryManager.onConnectionCreated(messageHandler => {
+			/** @type {StudioConnection<TReliableRespondHandlers, TReliableRequestHandlers>} */
+			const studioConnection = new StudioConnection(messageHandler, this.reliableRespondHandlers);
+			this.onConnectionCreatedCbs.forEach(cb => cb(studioConnection));
+		});
 		discoveryManager.registerClient(this.clientType);
 		if (this.projectMetaData) {
 			discoveryManager.setProjectMetaData(this.projectMetaData);
 		}
-		return discoveryManager;
+		return /** @type {TManager} */ (discoveryManager);
 	}
 
 	/**
@@ -92,6 +111,20 @@ export class StudioConnectionsManager {
 	 */
 	removeOnConnectionsChanged(cb) {
 		this.onConnectionsChangedCbs.delete(cb);
+	}
+
+	/**
+	 * @param {OnConnectionCreatedCallback} cb
+	 */
+	onConnectionCreated(cb) {
+		this.onConnectionCreatedCbs.add(cb);
+	}
+
+	/**
+	 * @param {OnConnectionCreatedCallback} cb
+	 */
+	removeOnConnectionCreated(cb) {
+		this.onConnectionCreatedCbs.delete(cb);
 	}
 
 	/**

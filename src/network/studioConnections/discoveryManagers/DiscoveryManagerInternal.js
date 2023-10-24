@@ -127,8 +127,7 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 			 * @param {InternalDiscoveryRequestConnectionData} connectionData
 			 */
 			connectionCreated: (otherClientId, port, connectionData) => {
-				const connection = new MessageHandlerInternal(otherClientId, connectionData);
-				connection.assignMessagePort(port);
+				const connection = new MessageHandlerInternal(otherClientId, connectionData, port);
 				this.addActiveConnection(otherClientId, connection);
 			},
 			/**
