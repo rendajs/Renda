@@ -102,9 +102,18 @@ export class StudioConnectionsManager {
 		}
 	}
 
+	/**
+	 * @returns {Generator<import("./discoveryManagers/DiscoveryManager.js").AvailableConnectionData>}
+	 */
 	*availableConnections() {
 		for (const discoveryManager of this.discoveryManagers) {
-			yield* discoveryManager.availableConnections();
+			const castManager = /** @type {typeof import("./discoveryManagers/DiscoveryManager.js").DiscoveryManager} */ (discoveryManager.constructor);
+			for (const connection of discoveryManager.availableConnections()) {
+				yield {
+					...connection,
+					connectionType: castManager.type,
+				};
+			}
 		}
 	}
 

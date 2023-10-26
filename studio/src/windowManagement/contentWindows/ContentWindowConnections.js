@@ -120,12 +120,12 @@ export class ContentWindowConnections extends ContentWindow {
 	/**
 	 * @param {Map<string, ConectionGui>} guisList
 	 * @param {PropertiesTreeView<any>} listTreeView
-	 * @param {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").AvailableStudioData[]} connections
+	 * @param {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").AvailableConnectionData[]} connections
 	 * @param {import("../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType} allowedClientType
 	 */
 	updateConnectionsList(guisList, listTreeView, connections, allowedClientType) {
 		const removeGuiIds = new Set(guisList.keys());
-		for (const connection of connections.values()) {
+		for (const connection of connections) {
 			if (connection.clientType != allowedClientType) continue;
 
 			let gui = guisList.get(connection.id);

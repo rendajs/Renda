@@ -1,10 +1,14 @@
 /**
- * @typedef {object} AvailableStudioData
+ * @typedef AvailableStudioData
  * @property {import("../../../../src/util/mod.js").UuidString} id
  * @property {import("../StudioConnectionsManager.js").ClientType} clientType
  * @property {RemoteStudioMetaData?} projectMetaData
- * @property {string} connectionType
  */
+
+/**
+ * @typedef {AvailableStudioData & {connectionType: string}} AvailableConnectionData
+ */
+
 /**
  * @typedef {object} RemoteStudioMetaData
  * @property {string} name
@@ -61,7 +65,6 @@ export class DiscoveryManager {
 			id: connection.id,
 			clientType: connection.clientType,
 			projectMetaData: connection.projectMetaData,
-			connectionType: this.constructor.type,
 		});
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
 	}

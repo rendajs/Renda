@@ -18,7 +18,7 @@ export class InspectorManager {
 		/** @private */
 		this.parentStudioHandler = new ParentStudioHandler();
 		/** @private */
-		this.connectionsManager = new StudioConnectionsManager("inspector", {});
+		this.connectionsManager = new StudioConnectionsManager("inspector");
 
 		this.connectionsManager.onConnectionRequest(connection => {
 			console.log(connection);

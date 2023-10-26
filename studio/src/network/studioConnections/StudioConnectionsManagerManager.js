@@ -210,15 +210,7 @@ export class StudioConnectionsManagerManager {
 
 	*availableConnections() {
 		if (!this.#studioConnectionsManager) return;
-		for (const connection of this.#studioConnectionsManager.availableConnections()) {
-			// Studio clients can never be connected to.
-			// Their connection can only be initiated from the client.
-			// Studio client connections will not be able to connect to other client connections either,
-			// so it's safe to filter them away completely.
-			if (connection.clientType != "studio-client") {
-				yield connection;
-			}
-		}
+		yield* this.#studioConnectionsManager.availableConnections();
 	}
 
 	/**

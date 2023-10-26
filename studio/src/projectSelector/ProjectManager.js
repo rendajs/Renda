@@ -28,7 +28,7 @@ import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePr
 /**
  * @typedef {object} StoredProjectEntryRemoteProps
  * @property {import("../../../src/util/mod.js").UuidString} [remoteProjectUuid]
- * @property {import("../network/studioConnections/StudioConnectionsManagerManager.js").MessageHandlerType} [remoteProjectConnectionType]
+ * @property {string} [remoteProjectConnectionType]
  */
 
 /**
