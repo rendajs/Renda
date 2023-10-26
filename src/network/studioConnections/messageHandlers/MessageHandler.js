@@ -2,17 +2,50 @@
 
 /** @typedef {(state: StudioConnectionState) => void} OnConnectionStateChangeCallback */
 
+/**
+ * @typedef MessageHandlerOptions
+ * @property {import("../../../mod.js").UuidString} otherClientUuid
+ * @property {boolean} initiatedByMe True when the connection was initiated by our client (i.e. the client which you are currently instantiating a class for).
+ * @property {import("../discoveryManagers/DiscoveryManager.js").AvailableStudioData} connectionData
+ */
+
 export class MessageHandler {
 	/** @typedef {(data: unknown) => void} OnMessageCallback */
 
-	constructor() {
+	/**
+	 * @param {MessageHandlerOptions} options
+	 */
+	constructor(options) {
+		/** @private */
+		this._otherClientUuid = options.otherClientUuid;
+		/** @private */
+		this._initiatedByMe = options.initiatedByMe;
+		/** @private */
+		this._connectionData = options.connectionData;
+
 		/** @private @type {Set<OnMessageCallback>} */
 		this.onMessageCbs = new Set();
 		/** @type {StudioConnectionState} */
 		this.connectionState = "disconnected";
+
 		/** @private @type {Set<OnConnectionStateChangeCallback>} */
 		this.onConnectionStateChangeCbs = new Set();
 		this.autoSerializationSupported = false;
+	}
+
+	get otherClientUuid() {
+		return this._otherClientUuid;
+	}
+
+	/**
+	 * True when the connection was initiated by our client (i.e. the client that holds the instance of this class in memory).
+	 */
+	get initiatedByMe() {
+		return this._initiatedByMe;
+	}
+
+	get clientType() {
+		return this._connectionData.clientType;
 	}
 
 	/**
@@ -20,6 +53,8 @@ export class MessageHandler {
 	 * @param {unknown} data
 	 */
 	send(data) {}
+
+	close() {}
 
 	/**
 	 * @protected

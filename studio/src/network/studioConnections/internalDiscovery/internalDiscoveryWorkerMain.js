@@ -96,18 +96,18 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				sendAllProjectMetaData(activeConnections, createdConnection);
 			},
 			/**
-			 * @param {import("../../../../../src/mod.js").UuidString} otherClientId
+			 * @param {import("../../../../../src/mod.js").UuidString} otherClientUuid
 			 * @param {import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} [connectionData]
 			 */
-			requestConnection(otherClientId, connectionData) {
+			requestConnection(otherClientUuid, connectionData) {
 				if (!createdConnection) return;
 
-				const otherConnection = activeConnections.get(otherClientId);
+				const otherConnection = activeConnections.get(otherClientUuid);
 				if (!otherConnection) return;
 
 				const messageChannel = new MessageChannel();
-				createdConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port1]}, otherClientId, messageChannel.port1, {});
-				otherConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port2]}, createdConnection.id, messageChannel.port2, connectionData || {});
+				createdConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port1]}, otherClientUuid, true, messageChannel.port1, {});
+				otherConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port2]}, createdConnection.id, false, messageChannel.port2, connectionData || {});
 			},
 		},
 	};

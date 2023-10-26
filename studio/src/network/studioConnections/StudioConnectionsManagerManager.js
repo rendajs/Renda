@@ -53,6 +53,17 @@ export class StudioConnectionsManagerManager {
 		}
 	}
 
+	/**
+	 * @param {import("../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType} initiatorType
+	 * @param {import("../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType} receiverType
+	 */
+	#isValidConnectionConfiguration(initiatorType, receiverType) {
+		if (initiatorType == receiverType) return false;
+		if (receiverType == "studio-client" && initiatorType == "studio-host") return false;
+
+		return true;
+	}
+
 	#updateStudioConnectionsManager = () => {
 		const allowInternalIncoming = this.#preferencesManager.get("studioConnections.allowInternalIncoming", null);
 		const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.allowRemoteIncoming", null);
@@ -68,13 +79,38 @@ export class StudioConnectionsManagerManager {
 		}
 
 		if (desiredClientType && !this.#studioConnectionsManager && this.#projectManager.currentProjectFileSystem) {
-			this.#studioConnectionsManager = new StudioConnectionsManager(desiredClientType, createStudioHostHandlers(this.#projectManager.currentProjectFileSystem));
+			/** @type {StudioConnectionsManager<ReturnType<createStudioHostHandlers>, ReturnType<createStudioHostHandlers>>?} */
+			const studioConnectionsManager = new StudioConnectionsManager(desiredClientType, createStudioHostHandlers(this.#projectManager.currentProjectFileSystem));
+			this.#studioConnectionsManager = studioConnectionsManager;
 			this.#lastSentProjectMetaData = null;
-			this.#studioConnectionsManager.onConnectionsChanged(() => {
+			studioConnectionsManager.onConnectionsChanged(() => {
+				if (studioConnectionsManager != this.#studioConnectionsManager) {
+					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
+				}
 				this.#onConnectionsChangedCbs.forEach(cb => cb());
 			});
-			this.#studioConnectionsManager.onConnectionCreated(async connection => {
+			studioConnectionsManager.onConnectionCreated(connection => {
+				if (studioConnectionsManager != this.#studioConnectionsManager) {
+					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
+				}
 
+				let initiatorType;
+				let receiverType;
+				if (connection.initiatedByMe) {
+					initiatorType = studioConnectionsManager.clientType;
+					receiverType = connection.clientType;
+				} else {
+					initiatorType = connection.clientType;
+					receiverType = studioConnectionsManager.clientType;
+				}
+
+				if (!this.#isValidConnectionConfiguration(initiatorType, receiverType)) {
+					throw new Error(`Assertion failed, tried to connect two connections that are incompatible: "${initiatorType}" tried to connect to "${receiverType}"`);
+				}
+
+				// TODO: Add an allowlist #751
+
+				return true;
 			});
 		}
 		if (this.#studioConnectionsManager) {

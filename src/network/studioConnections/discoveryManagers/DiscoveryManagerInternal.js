@@ -25,7 +25,7 @@ import {DiscoveryManager} from "./DiscoveryManager.js";
  * In order for this to work, the other tab has to also create an InternalDiscoveryManager and use the same discovery url.
  * This creates an iframe with a shared worker which all discovery communication passes through.
  * That way two arbitrary tabs can communicate with each other, and in supported browsers, it might even allow communication across origins.
- * @extends {DiscoveryManager<MessageHandlerInternal>}
+ * @extends {DiscoveryManager<typeof MessageHandlerInternal>}
  */
 export class DiscoveryManagerInternal extends DiscoveryManager {
 	static type = /** @type {const} */ ("renda:internal");
@@ -35,7 +35,7 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 	 * i.e. if two applications wish to communicate with each other, they should both use the same discovery url.
 	 */
 	constructor(discoveryUrl) {
-		super();
+		super(MessageHandlerInternal);
 
 		/** @private */
 		this.destructed = false;
@@ -122,13 +122,13 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 	_getWorkerResponseHandlers() {
 		return {
 			/**
-			 * @param {import("../../../mod.js").UuidString} otherClientId
+			 * @param {import("../../../mod.js").UuidString} otherClientUuid
+			 * @param {boolean} initiatedByMe
 			 * @param {MessagePort} port
 			 * @param {InternalDiscoveryRequestConnectionData} connectionData
 			 */
-			connectionCreated: (otherClientId, port, connectionData) => {
-				const connection = new MessageHandlerInternal(otherClientId, connectionData, port);
-				this.addActiveConnection(otherClientId, connection);
+			connectionCreated: (otherClientUuid, initiatedByMe, port, connectionData) => {
+				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionData, port);
 			},
 			/**
 			 * @param {import("./DiscoveryManager.js").AvailableStudioData} connectionData
@@ -190,11 +190,11 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 
 	/**
 	 * @override
-	 * @param {import("../../../mod.js").UuidString} otherClientId
+	 * @param {import("../../../mod.js").UuidString} otherClientUuid
 	 * @param {InternalDiscoveryRequestConnectionData} [connectionData]
 	 */
-	async requestConnection(otherClientId, connectionData) {
-		await this.workerMessenger.send.requestConnection(otherClientId, connectionData);
+	async requestConnection(otherClientUuid, connectionData) {
+		await this.workerMessenger.send.requestConnection(otherClientUuid, connectionData);
 	}
 
 	/**

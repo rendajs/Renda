@@ -18,7 +18,7 @@ import {StudioConnection} from "./StudioConnection.js";
  * @template {import("../../mod.js").TypedMessengerSignatures} TReliableRequestHandlers
  */
 export class StudioConnectionsManager {
-	/** @typedef {(connection: StudioConnection<TReliableRespondHandlers, TReliableRequestHandlers>) => void} OnConnectionCreatedCallback */
+	/** @typedef {(connection: StudioConnection<TReliableRespondHandlers, TReliableRequestHandlers>) => boolean} OnConnectionCreatedCallback */
 	/**
 	 * @param {ClientType} clientType
 	 * @param {TReliableRespondHandlers} reliableRespondHandlers
@@ -55,7 +55,7 @@ export class StudioConnectionsManager {
 	 * @param {TArgs} args
 	 */
 	addDiscoveryManager(constructor, ...args) {
-		/** @type {import("./discoveryManagers/DiscoveryManager.js").DiscoveryManager<import("./messageHandlers/MessageHandler.js").MessageHandler>} */
+		/** @type {import("./discoveryManagers/DiscoveryManager.js").DiscoveryManager<typeof import("./messageHandlers/MessageHandler.js").MessageHandler>} */
 		const discoveryManager = new constructor(...args);
 		this.discoveryManagers.add(discoveryManager);
 		discoveryManager.onAvailableConnectionsChanged(() => {
@@ -64,7 +64,19 @@ export class StudioConnectionsManager {
 		discoveryManager.onConnectionCreated(messageHandler => {
 			/** @type {StudioConnection<TReliableRespondHandlers, TReliableRequestHandlers>} */
 			const studioConnection = new StudioConnection(messageHandler, this.reliableRespondHandlers);
-			this.onConnectionCreatedCbs.forEach(cb => cb(studioConnection));
+			let anySuccess = false;
+			for (const cb of this.onConnectionCreatedCbs) {
+				let success = false;
+				try {
+					success = cb(studioConnection);
+				} catch (e) {
+					console.error(e);
+				}
+				anySuccess = anySuccess || success;
+			}
+			if (!anySuccess) {
+				studioConnection.close();
+			}
 		});
 		discoveryManager.registerClient(this.clientType);
 		if (this.projectMetaData) {
@@ -114,6 +126,11 @@ export class StudioConnectionsManager {
 	}
 
 	/**
+	 * Registers a callback that is fired when a new connection is initiated with this DiscoveryManager,
+	 * either because `requestConnection` was called from this DiscoveryManager or from another DiscoveryManager which wants to connect to us.
+	 * If the connection should be accepted, you should return `true` from the callback.
+	 * if all registered callbacks return `false`, the connection will be closed immediately.
+	 * You can use this to filter ignore specific connections based on their client type, origin or metadata.
 	 * @param {OnConnectionCreatedCallback} cb
 	 */
 	onConnectionCreated(cb) {

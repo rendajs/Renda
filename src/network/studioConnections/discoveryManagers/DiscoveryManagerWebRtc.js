@@ -28,7 +28,7 @@ import {DiscoveryManager} from "./DiscoveryManager.js";
 /**
  * This class allows you to discover other tabs via a central discovery server.
  * When created, a connection to a WebSocket is made, which can be used for connecting to another client via WebRTC.
- * @extends {DiscoveryManager<MessageHandlerWebRtc>}
+ * @extends {DiscoveryManager<typeof MessageHandlerWebRtc>}
  */
 export class DiscoveryManagerWebRtc extends DiscoveryManager {
 	static type = /** @type {const} */ ("renda:webrtc");
@@ -40,7 +40,7 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 	constructor({
 		endpoint,
 	}) {
-		super();
+		super(MessageHandlerWebRtc);
 
 		/** @private @type {DiscoveryServerStatusType} */
 		this._status = "connecting";
@@ -198,7 +198,7 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 	_handleRtcDescription(connectionId, rtcDescription) {
 		let studioConnection = this.activeConnections.get(connectionId);
 		if (!studioConnection) {
-			studioConnection = new MessageHandlerWebRtc(connectionId, {
+			studioConnection = this.addActiveConnection(connectionId, false, {
 				sendRtcIceCandidate: (uuid, candidate) => {
 					this.messenger.send.relayMessage(uuid, {
 						type: "rtcIceCandidate",
@@ -212,7 +212,6 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 					});
 				},
 			});
-			this.addActiveConnection(connectionId, studioConnection);
 		}
 		studioConnection.handleRtcDescription(rtcDescription);
 	}

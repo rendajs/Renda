@@ -2,18 +2,15 @@ import {MessageHandler} from "./MessageHandler.js";
 
 export class MessageHandlerWebRtc extends MessageHandler {
 	/**
-	 * @param {import("../../../util/mod.js").UuidString} otherClientUuid
+	 * @param {import("./MessageHandler.js").MessageHandlerOptions} messageHandlerOptions
 	 * @param {object} options
 	 * @param {(uuid: import("../../../mod.js").UuidString, candidate: RTCIceCandidate) => void} options.sendRtcIceCandidate
 	 * @param {(uuid: import("../../../mod.js").UuidString, offer: RTCSessionDescriptionInit) => void} options.sendRtcDescription
-	 * @param {boolean} [options.isInitiator]
 	 */
-	constructor(otherClientUuid, {sendRtcIceCandidate, sendRtcDescription, isInitiator = false}) {
-		super();
-		this.otherClientUuid = otherClientUuid;
+	constructor(messageHandlerOptions, {sendRtcIceCandidate, sendRtcDescription}) {
+		super(messageHandlerOptions);
 		/** @private */
 		this.sendRtcDescription = sendRtcDescription;
-		this.isInitiator = isInitiator;
 
 		this.rtcConnection = new RTCPeerConnection();
 		this.localDescription = null;
@@ -37,7 +34,7 @@ export class MessageHandlerWebRtc extends MessageHandler {
 			this.initWebRtcConnection();
 		});
 
-		if (this.isInitiator) {
+		if (this.initiatedByMe) {
 			this.createDataChannel("reliable");
 			this.createDataChannel("unreliable", {
 				maxRetransmits: 0,
@@ -46,7 +43,7 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	}
 
 	async initWebRtcConnection() {
-		if (!this.isInitiator) return;
+		if (!this.initiatedByMe) return;
 
 		const localDescription = await this.rtcConnection.createOffer();
 		await this.setAndSendDescription(localDescription);

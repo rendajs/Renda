@@ -15,18 +15,23 @@
 /**
  * Base class for DiscoveryManagers.
  * A DiscoveryManager can list multiple available connections without connecting to them.
- * @template {import("../messageHandlers/MessageHandler.js").MessageHandler} TMessageHandler
+ * @template {new (messageHandlerOptions: import("../messageHandlers/MessageHandler.js").MessageHandlerOptions, ...args: any[]) => import("../messageHandlers/MessageHandler.js").MessageHandler} TMessageHandler
  */
 export class DiscoveryManager {
 	static type = "";
 
-	constructor() {
+	/**
+	 * @param {TMessageHandler} messageHandlerConstructor
+	 */
+	constructor(messageHandlerConstructor) {
+		/** @private */
+		this.MessageHandlerConstructor = messageHandlerConstructor;
 		/** @private @type {Map<import("../../../mod.js").UuidString, AvailableStudioData>} */
 		this._availableConnections = new Map();
 		/** @private @type {Set<() => void>} */
 		this.onAvailableConnectionsChangedCbs = new Set();
 
-		/** @protected @type {Map<import("../../../mod.js").UuidString, TMessageHandler>} */
+		/** @protected @type {Map<import("../../../mod.js").UuidString, InstanceType<TMessageHandler>>} */
 		this.activeConnections = new Map();
 		/** @private @type {Set<OnConnectionCreatedCallback>} */
 		this.onConnectionCreatedCbs = new Set();
@@ -113,22 +118,39 @@ export class DiscoveryManager {
 	}
 
 	/**
-	 * @protected
-	 * @param {import("../../../mod.js").UuidString} id
-	 * @param {TMessageHandler} connection
+	 * @template {[messageHandlerOptions: import("../messageHandlers/MessageHandler.js").MessageHandlerOptions, ...rest: any[]]} T
+	 * @typedef {T extends [messageHandlerOptions: import("../messageHandlers/MessageHandler.js").MessageHandlerOptions, ...rest: infer Params] ?
+	 * 	Params :
+	 * never} MessageHandlerRestParameters
 	 */
-	addActiveConnection(id, connection) {
-		this.onConnectionCreatedCbs.forEach(cb => cb(connection));
+
+	/**
+	 * @protected
+	 * @param {import("../../../mod.js").UuidString} otherClientUuid
+	 * @param {boolean} initiatedByMe True when the connection was initiated by our client (i.e. the client which you are currently instantiating a MessageHandler for).
+	 * @param {MessageHandlerRestParameters<ConstructorParameters<TMessageHandler>>} args
+	 */
+	addActiveConnection(otherClientUuid, initiatedByMe, ...args) {
+		const availableConnection = this._availableConnections.get(otherClientUuid);
+		if (!availableConnection) {
+			throw new Error(`Assertion failed, a new connection was created but "${otherClientUuid}" is not listed as an available connection.`);
+		}
+		const connectionData = /** @type {AvailableStudioData} */ (structuredClone(availableConnection));
+		const instance = new this.MessageHandlerConstructor({
+			otherClientUuid,
+			initiatedByMe,
+			connectionData,
+		}, ...args);
+		const castInstance = /** @type {InstanceType<TMessageHandler>} */ (instance);
+		this.onConnectionCreatedCbs.forEach(cb => cb(castInstance));
+		return castInstance;
 	}
 
-	/** @typedef {(connection: TMessageHandler) => void} OnConnectionCreatedCallback */
+	/** @typedef {(connection: InstanceType<TMessageHandler>) => void} OnConnectionCreatedCallback */
 
 	/**
 	 * Registers a callback that is fired when a new connection is initiated with this DiscoveryManager,
 	 * either because `requestConnection` was called from this DiscoveryManager or from another DiscoveryManager which wants to connect to us.
-	 * You may choose to ignore the connection if you determine that the origin is not allowlisted,
-	 * or if the type of client is not allowed.
-	 * When doing so, it's best to immediately call `close()` on the provided MessageHandler.
 	 * @param {OnConnectionCreatedCallback} cb
 	 */
 	onConnectionCreated(cb) {
@@ -159,11 +181,11 @@ export class DiscoveryManager {
 	/**
 	 * Initiates a connection with another client.
 	 * If the connection is successful, the `onConnectionCreated` callback gets fired.
-	 * @param {import("../../../mod.js").UuidString} otherClientId
+	 * @param {import("../../../mod.js").UuidString} otherClientUuid
 	 * @param {unknown} [connectionData] Optional data that can be sent to the client which allows
 	 * it to determine whether the connection should be accepted or not.
 	 */
-	requestConnection(otherClientId, connectionData) {
+	requestConnection(otherClientUuid, connectionData) {
 		throw new Error("base class");
 	}
 }

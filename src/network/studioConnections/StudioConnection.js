@@ -24,4 +24,19 @@ export class StudioConnection {
 			this.messenger.handleReceivedMessage(data);
 		});
 	}
+
+	get clientType() {
+		return this.messageHandler.clientType;
+	}
+
+	/**
+	 * True when the connection was initiated by our client (i.e. the client that holds the instance of this class in memory).
+	 */
+	get initiatedByMe() {
+		return this.messageHandler.initiatedByMe;
+	}
+
+	close() {
+		this.messageHandler.close();
+	}
 }

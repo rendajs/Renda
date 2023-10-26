@@ -2,14 +2,13 @@ import {MessageHandler} from "./MessageHandler.js";
 
 export class MessageHandlerInternal extends MessageHandler {
 	/**
-	 * @param {import("../../../util/mod.js").UuidString} connectionId
-	 * @param {import("../discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} connectionData
+	 * @param {import("./MessageHandler.js").MessageHandlerOptions} options
+	 * @param {import("../discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} interlnalConnectionData
 	 * @param {MessagePort} messagePort
 	 */
-	constructor(connectionId, connectionData, messagePort) {
-		super();
-		this.connectionId = connectionId;
-		this.connectionData = connectionData;
+	constructor(options, interlnalConnectionData, messagePort) {
+		super(options);
+		this.interlnalConnectionData = interlnalConnectionData;
 		this.autoSerializationSupported = true;
 		/** @private */
 		this.messagePort = messagePort;
@@ -27,5 +26,9 @@ export class MessageHandlerInternal extends MessageHandler {
 	send(data) {
 		if (!this.messagePort) return;
 		this.messagePort.postMessage(data);
+	}
+
+	close() {
+		this.messagePort.close();
 	}
 }

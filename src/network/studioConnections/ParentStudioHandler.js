@@ -38,7 +38,7 @@ export class ParentStudioHandler {
 	 * Checks if the page is embedded in an iframe and if the parent is a studio instance.
 	 * If so, it will ask the parent what to do, which will determine the desired method for connecting the
 	 * studio instance with the iframe.
-	 * @param {import("./StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
+	 * @param {import("./StudioConnectionsManager.js").StudioConnectionsManager<any, any>} studioConnectionsManager
 	 * @param {(typeof import("./discoveryManagers/DiscoveryManagerInternal.js").DiscoveryManagerInternal | typeof import("./discoveryManagers/DiscoveryManagerWebRtc.js").DiscoveryManagerWebRtc)[]} supportedDiscoveryManagers
 	 */
 	async requestParentStudioConnection(studioConnectionsManager, supportedDiscoveryManagers) {
