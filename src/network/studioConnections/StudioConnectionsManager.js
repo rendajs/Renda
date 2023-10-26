@@ -13,21 +13,22 @@ import {StudioConnection} from "./StudioConnection.js";
  * @typedef {"studio-host" | "inspector" | "studio-client"} ClientType
  */
 
-/**
- * @template {import("../../mod.js").TypedMessengerSignatures} TReliableRespondHandlers
- * @template {import("../../mod.js").TypedMessengerSignatures} TReliableRequestHandlers
- */
 export class StudioConnectionsManager {
-	/** @typedef {(connection: StudioConnection<TReliableRespondHandlers, TReliableRequestHandlers>) => boolean} OnConnectionCreatedCallback */
+	/**
+	 * @typedef OnConnectionCreatedRequest
+	 * @property {boolean} initiatedByMe
+	 * @property {ClientType} clientType
+	 * @property {<T extends import("../../mod.js").TypedMessengerSignatures>(reliableResponseHandlers: T) => StudioConnection<T, any>} accept Accepts the connection and
+	 * returns a StudioConnection with the provided response handlers.
+	 * If none of the registered callbacks call `accept()` (synchronously), the connection will be closed immediately.
+	 */
+	/** @typedef {(connectionRequest: OnConnectionCreatedRequest) => void} OnConnectionRequestCallback */
 	/**
 	 * @param {ClientType} clientType
-	 * @param {TReliableRespondHandlers} reliableRespondHandlers
 	 */
-	constructor(clientType, reliableRespondHandlers) {
+	constructor(clientType) {
 		/** @readonly */
 		this.clientType = clientType;
-		/** @private */
-		this.reliableRespondHandlers = reliableRespondHandlers;
 
 		/** @private @type {import("./discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} */
 		this.projectMetaData = null;
@@ -38,8 +39,8 @@ export class StudioConnectionsManager {
 		/** @private @type {Set<() => void>} */
 		this.onConnectionsChangedCbs = new Set();
 
-		/** @private @type {Set<OnConnectionCreatedCallback>} */
-		this.onConnectionCreatedCbs = new Set();
+		/** @private @type {Set<OnConnectionRequestCallback>} */
+		this.onConnectionRequestCbs = new Set();
 	}
 
 	destructor() {
@@ -61,21 +62,27 @@ export class StudioConnectionsManager {
 		discoveryManager.onAvailableConnectionsChanged(() => {
 			this.onConnectionsChangedCbs.forEach(cb => cb());
 		});
-		discoveryManager.onConnectionCreated(messageHandler => {
-			/** @type {StudioConnection<TReliableRespondHandlers, TReliableRequestHandlers>} */
-			const studioConnection = new StudioConnection(messageHandler, this.reliableRespondHandlers);
-			let anySuccess = false;
-			for (const cb of this.onConnectionCreatedCbs) {
-				let success = false;
+		discoveryManager.onConnectionRequest(messageHandler => {
+			let connectionCreated = false;
+			for (const cb of this.onConnectionRequestCbs) {
+				/** @type {OnConnectionCreatedRequest} */
+				const request = {
+					clientType: messageHandler.clientType,
+					initiatedByMe: messageHandler.initiatedByMe,
+					accept: reliableResponseHandlers => {
+						connectionCreated = true;
+						return new StudioConnection(messageHandler, reliableResponseHandlers);
+					},
+				};
 				try {
-					success = cb(studioConnection);
+					cb(request);
 				} catch (e) {
 					console.error(e);
 				}
-				anySuccess = anySuccess || success;
+				if (connectionCreated) break;
 			}
-			if (!anySuccess) {
-				studioConnection.close();
+			if (!connectionCreated) {
+				messageHandler.close();
 			}
 		});
 		discoveryManager.registerClient(this.clientType);
@@ -128,20 +135,20 @@ export class StudioConnectionsManager {
 	/**
 	 * Registers a callback that is fired when a new connection is initiated with this DiscoveryManager,
 	 * either because `requestConnection` was called from this DiscoveryManager or from another DiscoveryManager which wants to connect to us.
-	 * If the connection should be accepted, you should return `true` from the callback.
-	 * if all registered callbacks return `false`, the connection will be closed immediately.
+	 * If the connection should be accepted, you should call `accept()` on the provided connectionRequest argument.
+	 * If none of the registered callbacks call `accept()` (synchronously), the connection will be closed immediately.
 	 * You can use this to filter ignore specific connections based on their client type, origin or metadata.
-	 * @param {OnConnectionCreatedCallback} cb
+	 * @param {OnConnectionRequestCallback} cb
 	 */
-	onConnectionCreated(cb) {
-		this.onConnectionCreatedCbs.add(cb);
+	onConnectionRequest(cb) {
+		this.onConnectionRequestCbs.add(cb);
 	}
 
 	/**
-	 * @param {OnConnectionCreatedCallback} cb
+	 * @param {OnConnectionRequestCallback} cb
 	 */
-	removeOnConnectionCreated(cb) {
-		this.onConnectionCreatedCbs.delete(cb);
+	removeOnConnectionRequest(cb) {
+		this.onConnectionRequestCbs.delete(cb);
 	}
 
 	/**

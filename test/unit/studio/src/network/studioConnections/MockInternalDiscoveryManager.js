@@ -7,7 +7,7 @@ export class MockInternalDiscoveryManager {
 	/** @type {Set<import("../../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js").OnConnectionCreatedCallback>} */
 	#onConnectionCreatedCbs = new Set();
 
-	/** @type {import("../../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js").DiscoveryManagerInternal["onConnectionCreated"]} */
+	/** @type {import("../../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js").DiscoveryManagerInternal["onConnectionRequestCbs"]} */
 	onConnectionCreated(cb) {
 		this.#onConnectionCreatedCbs.add(cb);
 	}

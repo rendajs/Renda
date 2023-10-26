@@ -34,7 +34,7 @@ export class DiscoveryManager {
 		/** @protected @type {Map<import("../../../mod.js").UuidString, InstanceType<TMessageHandler>>} */
 		this.activeConnections = new Map();
 		/** @private @type {Set<OnConnectionCreatedCallback>} */
-		this.onConnectionCreatedCbs = new Set();
+		this.onConnectionRequestCbs = new Set();
 	}
 
 	/**
@@ -142,7 +142,7 @@ export class DiscoveryManager {
 			connectionData,
 		}, ...args);
 		const castInstance = /** @type {InstanceType<TMessageHandler>} */ (instance);
-		this.onConnectionCreatedCbs.forEach(cb => cb(castInstance));
+		this.onConnectionRequestCbs.forEach(cb => cb(castInstance));
 		return castInstance;
 	}
 
@@ -153,8 +153,8 @@ export class DiscoveryManager {
 	 * either because `requestConnection` was called from this DiscoveryManager or from another DiscoveryManager which wants to connect to us.
 	 * @param {OnConnectionCreatedCallback} cb
 	 */
-	onConnectionCreated(cb) {
-		this.onConnectionCreatedCbs.add(cb);
+	onConnectionRequest(cb) {
+		this.onConnectionRequestCbs.add(cb);
 	}
 
 	/**

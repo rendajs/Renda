@@ -6,7 +6,7 @@ import {createStudioHostHandlers} from "./handlers.js";
 export class StudioConnectionsManagerManager {
 	#projectManager;
 	#preferencesManager;
-	/** @type {StudioConnectionsManager<ReturnType<createStudioHostHandlers>, ReturnType<createStudioHostHandlers>>?} */
+	/** @type {StudioConnectionsManager?} */
 	#studioConnectionsManager = null;
 	/** @type {DiscoveryManagerInternal?} */
 	#discoveryManagerInternal = null;
@@ -79,8 +79,8 @@ export class StudioConnectionsManagerManager {
 		}
 
 		if (desiredClientType && !this.#studioConnectionsManager && this.#projectManager.currentProjectFileSystem) {
-			/** @type {StudioConnectionsManager<ReturnType<createStudioHostHandlers>, ReturnType<createStudioHostHandlers>>?} */
-			const studioConnectionsManager = new StudioConnectionsManager(desiredClientType, createStudioHostHandlers(this.#projectManager.currentProjectFileSystem));
+			const certainFileSystem = this.#projectManager.currentProjectFileSystem;
+			const studioConnectionsManager = new StudioConnectionsManager(desiredClientType);
 			this.#studioConnectionsManager = studioConnectionsManager;
 			this.#lastSentProjectMetaData = null;
 			studioConnectionsManager.onConnectionsChanged(() => {
@@ -89,18 +89,18 @@ export class StudioConnectionsManagerManager {
 				}
 				this.#onConnectionsChangedCbs.forEach(cb => cb());
 			});
-			studioConnectionsManager.onConnectionCreated(connection => {
+			studioConnectionsManager.onConnectionRequest(connectionRequest => {
 				if (studioConnectionsManager != this.#studioConnectionsManager) {
 					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
 				}
 
 				let initiatorType;
 				let receiverType;
-				if (connection.initiatedByMe) {
+				if (connectionRequest.initiatedByMe) {
 					initiatorType = studioConnectionsManager.clientType;
-					receiverType = connection.clientType;
+					receiverType = connectionRequest.clientType;
 				} else {
-					initiatorType = connection.clientType;
+					initiatorType = connectionRequest.clientType;
 					receiverType = studioConnectionsManager.clientType;
 				}
 
@@ -110,7 +110,14 @@ export class StudioConnectionsManagerManager {
 
 				// TODO: Add an allowlist #751
 
-				return true;
+				if (connectionRequest.initiatedByMe) {
+					const connection = connectionRequest.accept({});
+					console.log("connection initiated by me: ", connection);
+				}
+				if (studioConnectionsManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
+					const connection = connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
+					console.log("connection initiated by client: ", connection);
+				}
 			});
 		}
 		if (this.#studioConnectionsManager) {

@@ -7,15 +7,15 @@ import {TypedMessenger} from "../../util/TypedMessenger.js";
 export class StudioConnection {
 	/**
 	 * @param {import("./messageHandlers/MessageHandler.js").MessageHandler} messageHandler
-	 * @param {TReliableRespondHandlers} reliableRespondHandlers
+	 * @param {TReliableRespondHandlers} reliableResponseHandlers
 	 */
-	constructor(messageHandler, reliableRespondHandlers) {
+	constructor(messageHandler, reliableResponseHandlers) {
 		/** @private */
 		this.messageHandler = messageHandler;
 
 		/** @type {TypedMessenger<TReliableRespondHandlers, TReliableRequestHandlers>} */
 		this.messenger = new TypedMessenger();
-		this.messenger.setResponseHandlers(reliableRespondHandlers);
+		this.messenger.setResponseHandlers(reliableResponseHandlers);
 		this.messenger.setSendHandler(data => {
 			// TODO, support transfer
 			messageHandler.send(data.sendData);

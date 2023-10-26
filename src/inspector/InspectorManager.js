@@ -20,7 +20,7 @@ export class InspectorManager {
 		/** @private */
 		this.connectionsManager = new StudioConnectionsManager("inspector", {});
 
-		this.connectionsManager.onConnectionCreated(connection => {
+		this.connectionsManager.onConnectionRequest(connection => {
 			console.log(connection);
 		});
 		this.parentStudioHandler.requestParentStudioConnection(this.connectionsManager, [DiscoveryManagerInternal, DiscoveryManagerWebRtc]);

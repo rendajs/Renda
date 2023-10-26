@@ -430,14 +430,14 @@ Deno.test({
 			async fn() {
 				const manager1 = new DiscoveryManagerInternal({forceDiscoveryUrl: "url"});
 				const manager1ConnectionSpy = spy(onCreatedSpySignature);
-				manager1.onConnectionCreated(manager1ConnectionSpy);
+				manager1.onConnectionRequest(manager1ConnectionSpy);
 				const manager1AvailableSpy = spy();
 				manager1.onAvailableConnectionsChanged(manager1AvailableSpy);
 				await manager1.registerClient("studio");
 
 				const manager2 = new DiscoveryManagerInternal({forceDiscoveryUrl: "url"});
 				const manager2ConnectionSpy = spy(onCreatedSpySignature);
-				manager2.onConnectionCreated(manager2ConnectionSpy);
+				manager2.onConnectionRequest(manager2ConnectionSpy);
 				const manager2AvailableSpy = spy();
 				manager2.onAvailableConnectionsChanged(manager2AvailableSpy);
 				await manager2.registerClient("inspector");
@@ -498,12 +498,12 @@ Deno.test({
 				const manager1 = new DiscoveryManagerInternal();
 				await manager1.registerClient("studio");
 				const connectionCreatedSpy1 = spy(onCreatedSpySignature);
-				manager1.onConnectionCreated(connectionCreatedSpy1);
+				manager1.onConnectionRequest(connectionCreatedSpy1);
 
 				const studioClientId = await manager1.getClientId();
 				const manager2 = new DiscoveryManagerInternal();
 				const connectionCreatedSpy2 = spy(onCreatedSpySignature);
-				manager2.onConnectionCreated(connectionCreatedSpy2);
+				manager2.onConnectionRequest(connectionCreatedSpy2);
 				await manager2.registerClient("inspector");
 				await manager2.requestConnection(studioClientId, {
 					token: "the_token",
