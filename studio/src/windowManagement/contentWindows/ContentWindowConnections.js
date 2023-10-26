@@ -113,20 +113,20 @@ export class ContentWindowConnections extends ContentWindow {
 
 	#updateConnectionLists = () => {
 		const connections = Array.from(this.studioInstance.studioConnectionsManager.availableConnections());
-		this.updateConnectionsList(this.studioConnectionGuis, this.studioConnectionsList, connections, "studio-host");
-		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, connections, "inspector");
+		this.updateConnectionsList(this.studioConnectionGuis, this.studioConnectionsList, connections, ["studio-host", "studio-client"]);
+		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, connections, ["inspector"]);
 	};
 
 	/**
 	 * @param {Map<string, ConectionGui>} guisList
 	 * @param {PropertiesTreeView<any>} listTreeView
 	 * @param {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").AvailableConnectionData[]} connections
-	 * @param {import("../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType} allowedClientType
+	 * @param {import("../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType[]} allowedClientTypes
 	 */
-	updateConnectionsList(guisList, listTreeView, connections, allowedClientType) {
+	updateConnectionsList(guisList, listTreeView, connections, allowedClientTypes) {
 		const removeGuiIds = new Set(guisList.keys());
 		for (const connection of connections) {
-			if (connection.clientType != allowedClientType) continue;
+			if (!allowedClientTypes.includes(connection.clientType)) continue;
 
 			let gui = guisList.get(connection.id);
 			if (!gui) {
