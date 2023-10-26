@@ -3,6 +3,8 @@ import {DiscoveryManagerInternal} from "../../../../src/network/studioConnection
 import {DiscoveryManagerWebRtc} from "../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerWebRtc.js";
 import {createStudioHostHandlers} from "./handlers.js";
 
+/** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<{}, ReturnType<createStudioHostHandlers>>} StudioClientHostConnection */
+
 export class StudioConnectionsManagerManager {
 	#projectManager;
 	#preferencesManager;
@@ -111,12 +113,12 @@ export class StudioConnectionsManagerManager {
 				// TODO: Add an allowlist #751
 
 				if (connectionRequest.initiatedByMe) {
+					/** @type {StudioClientHostConnection} */
 					const connection = connectionRequest.accept({});
-					console.log("connection initiated by me: ", connection);
+					this.#projectManager.assignRemoteConnection(connection);
 				}
 				if (studioConnectionsManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
-					const connection = connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
-					console.log("connection initiated by client: ", connection);
+					connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
 				}
 			});
 		}

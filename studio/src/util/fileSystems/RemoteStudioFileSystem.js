@@ -1,40 +1,37 @@
 import {StudioFileSystem} from "./StudioFileSystem.js";
 
 export class RemoteStudioFileSystem extends StudioFileSystem {
-	constructor() {
-		super();
+	/** @type {import("../../network/studioConnections/StudioConnectionsManagerManager.js").StudioClientHostConnection?} */
+	#connection = null;
+	#connected = false;
+	/** @type {Set<() => void>} */
+	#onConnectedCbs = new Set();
 
-		this.connection = null;
-		this.connected = false;
-		/** @type {Set<() => void>} */
-		this.onConnectedCbs = new Set();
-	}
 	/**
-	 * @param {import("../../network/studioConnections/StudioConnection.js").StudioConnection} connection
+	 * @param {import("../../network/studioConnections/StudioConnectionsManagerManager.js").StudioClientHostConnection} connection
 	 */
 	setConnection(connection) {
-		this.connection = connection;
+		this.#connection = connection;
 		this.updateConnected();
-		connection.onConnectionStateChange(() => this.updateConnected());
 	}
 
 	updateConnected() {
-		const connected = !!this.connection && this.connection.connectionState == "connected";
-		if (connected != this.connected) {
-			this.connected = connected;
+		const connected = Boolean(this.#connection);
+		if (connected != this.#connected) {
+			this.#connected = connected;
 			if (connected) {
-				this.onConnectedCbs.forEach(cb => cb());
+				this.#onConnectedCbs.forEach(cb => cb());
 			}
 		}
 	}
 
 	async waitForConnection() {
-		if (this.connected && this.connection) return this.connection;
+		if (this.#connected && this.#connection) return this.#connection;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.onConnectedCbs.add(r));
+		const promise = new Promise(r => this.#onConnectedCbs.add(r));
 		await promise;
-		if (!this.connection) throw new Error("Assertion failed: Connection doesn't exist.");
-		return this.connection;
+		if (!this.#connection) throw new Error("Assertion failed: Connection doesn't exist.");
+		return this.#connection;
 	}
 
 	/**
@@ -43,7 +40,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 */
 	async readDir(path) {
 		const connection = await this.waitForConnection();
-		return await connection.call("fileSystem.readDir", path);
+		return await connection.messenger.send["fileSystem.readDir"](path);
 	}
 
 	/**
@@ -53,7 +50,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 */
 	async createDir(path) {
 		const connection = await this.waitForConnection();
-		return await connection.call("fileSystem.createDir", path);
+		return await connection.messenger.send["fileSystem.createDir"](path);
 	}
 
 	/**
@@ -63,7 +60,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 */
 	async readFile(path) {
 		const connection = await this.waitForConnection();
-		return await connection.call("fileSystem.readFile", path);
+		return await connection.messenger.send["fileSystem.readFile"](path);
 	}
 
 	/**
@@ -73,7 +70,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 */
 	async isFile(path) {
 		const connection = await this.waitForConnection();
-		return await connection.call("fileSystem.isFile", path);
+		return await connection.messenger.send["fileSystem.isFile"](path);
 	}
 
 	/**
@@ -83,7 +80,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 */
 	async isDir(path) {
 		const connection = await this.waitForConnection();
-		return await connection.call("fileSystem.isDir", path);
+		return await connection.messenger.send["fileSystem.isDir"](path);
 	}
 
 	/**
@@ -93,7 +90,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 */
 	async exists(path) {
 		const connection = await this.waitForConnection();
-		return await connection.call("fileSystem.exists", path);
+		return await connection.messenger.send["fileSystem.exists"](path);
 	}
 
 	/**
@@ -103,6 +100,6 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 */
 	async writeFile(path, file) {
 		const connection = await this.waitForConnection();
-		return await connection.call("fileSystem.writeFile", path, file);
+		return await connection.messenger.send["fileSystem.writeFile"](path, file);
 	}
 }

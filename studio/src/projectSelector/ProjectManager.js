@@ -395,6 +395,32 @@ export class ProjectManager {
 	}
 
 	/**
+	 * Assigns a connection to the current file system and project open event.
+	 * Throws if the current project is not a remote project or if a connection has already been assigned.
+	 * @param {import("../network/studioConnections/StudioConnectionsManagerManager.js").StudioClientHostConnection} connection
+	 */
+	assignRemoteConnection(connection) {
+		if (!this.currentProjectOpenEvent) {
+			throw new Error("Assertion failed: An active connection was made before a project entry was created.");
+		}
+		if (this.currentProjectOpenEvent.fileSystemType != "remote") {
+			throw new Error("Assertion failed:");
+		}
+		if (!(this.currentProjectFileSystem instanceof RemoteStudioFileSystem)) {
+			throw new Error("Assertion failed: Current project file system is not a remote file system.");
+		}
+		this.currentProjectOpenEvent = {
+			name: "metaData.name",
+			fileSystemType: "remote",
+			projectUuid: this.currentProjectOpenEvent.projectUuid,
+			remoteProjectUuid: "metaData.uuid",
+			remoteProjectConnectionType: "pickedAvailableConnection.messageHandlerType",
+		};
+		this.currentProjectFileSystem.setConnection(connection);
+		this.markCurrentProjectAsWorthSaving();
+	}
+
+	/**
 	 * @param {StoredProjectEntryAny} projectEntry
 	 * @param {boolean} fromUserGesture
 	 */
