@@ -192,17 +192,18 @@ export class ContentWindowConnections extends ContentWindow {
 			}
 
 			if (available) {
-				const activeConnection = connections.get(connection.id);
-				if (activeConnection) {
-					if (activeConnection.connectionState == "connecting") {
-						status = "Connecting";
-					} else if (activeConnection.connectionState == "connected") {
-						status = "Connected";
-					} else if (activeConnection.connectionState == "disconnected") {
-						status = "Offline";
-					}
-					available = false;
-				}
+				// TODO:
+				// const activeConnection = connections.get(connection.id);
+				// if (activeConnection) {
+				// 	if (activeConnection.connectionState == "connecting") {
+				// 		status = "Connecting";
+				// 	} else if (activeConnection.connectionState == "connected") {
+				// 		status = "Connected";
+				// 	} else if (activeConnection.connectionState == "disconnected") {
+				// 		status = "Offline";
+				// 	}
+				// 	available = false;
+				// }
 			} else {
 				tooltip = "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.";
 			}
