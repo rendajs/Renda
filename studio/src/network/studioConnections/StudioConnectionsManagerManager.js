@@ -226,6 +226,54 @@ export class StudioConnectionsManagerManager {
 	}
 
 	/**
+	 * @typedef FindConnectionConfig
+	 * @property {string} connectionType
+	 * @property {import("../../../../src/mod.js").UuidString} projectUuid
+	 */
+
+	/**
+	 * Attempts to connect to a specific connection.
+	 * If the connection doesn't exist yet, this will wait for it to become available.
+	 * @param {FindConnectionConfig} config
+	 */
+	async requestSpecificConnection(config) {
+		this.#updateStudioConnectionsManager();
+		const connection = this.#findConnection(config);
+		if (connection) {
+			this.requestConnection(connection.id);
+		} else {
+			/** @type {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").AvailableConnectionData} */
+			const connection = await new Promise(resolve => {
+				const cb = () => {
+					const connection = this.#findConnection(config);
+					if (connection) {
+						this.removeOnConnectionsChanged(cb);
+						resolve(connection);
+					}
+				};
+				this.onConnectionsChanged(cb);
+			});
+			this.requestConnection(connection.id);
+		}
+	}
+
+	/**
+	 * @param {FindConnectionConfig} config
+	 */
+	#findConnection(config) {
+		if (!this.#studioConnectionsManager) return null;
+		for (const connection of this.#studioConnectionsManager.availableConnections()) {
+			if (
+				connection.projectMetaData?.uuid == config.projectUuid &&
+				connection.connectionType == config.connectionType
+			) {
+				return connection;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * @param {() => void} cb
 	 */
 	onConnectionsChanged(cb) {

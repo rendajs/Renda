@@ -69,9 +69,8 @@ export class ProjectManager {
 	/** @type {Set<() => void>} */
 	#onProjectOpenCbs = new Set();
 	#hasOpenProject = false;
-	#currentProjectIsRemote = false;
 	get currentProjectIsRemote() {
-		return this.#currentProjectIsRemote;
+		return this.currentProjectFileSystem instanceof RemoteStudioFileSystem;
 	}
 
 	/**
@@ -129,7 +128,6 @@ export class ProjectManager {
 			this.currentProjectFileSystem.removeOnRootNameChange(this.#boundOnFileSystemRootNameChange);
 		}
 		this.currentProjectFileSystem = fileSystem;
-		this.#currentProjectIsRemote = fileSystem instanceof RemoteStudioFileSystem;
 		this.currentProjectOpenEvent = openProjectChangeEvent;
 		this.currentProjectIsMarkedAsWorthSaving = false;
 
@@ -429,23 +427,23 @@ export class ProjectManager {
 	 * @param {boolean} fromUserGesture
 	 */
 	openExistingProject(projectEntry, fromUserGesture) {
-		let fileSystem;
 		if (projectEntry.fileSystemType === "db") {
-			fileSystem = new IndexedDbStudioFileSystem(projectEntry.projectUuid);
+			this.openProject(new IndexedDbStudioFileSystem(projectEntry.projectUuid), projectEntry, fromUserGesture);
 		} else if (projectEntry.fileSystemType == "fsa") {
-			fileSystem = new FsaStudioFileSystem(projectEntry.fileSystemHandle);
+			this.openProject(new FsaStudioFileSystem(projectEntry.fileSystemHandle), projectEntry, fromUserGesture);
 		} else if (projectEntry.fileSystemType == "remote") {
-			fileSystem = new RemoteStudioFileSystem();
 			if (!projectEntry.remoteProjectUuid || !projectEntry.remoteProjectConnectionType) {
 				throw new Error("Unable to open remote project. Remote project data is corrupt.");
 			}
-			// this.#studioConnectionsManager.waitForAvailableAndConnect({
-			// 	uuid: projectEntry.remoteProjectUuid,
-			// 	messageHandlerType: projectEntry.remoteProjectConnectionType,
-			// });
+			this.openProject(new RemoteStudioFileSystem(), projectEntry, fromUserGesture);
+			getStudioInstance().studioConnectionsManager.requestSpecificConnection({
+				connectionType: projectEntry.remoteProjectConnectionType,
+				projectUuid: projectEntry.remoteProjectUuid,
+			});
+		} else {
+			const castEntry = /** @type {StoredProjectEntryAny} */ (projectEntry);
+			throw new Error("Unknown file system type: " + castEntry.fileSystemType);
 		}
-		if (!fileSystem) return;
-		this.openProject(fileSystem, projectEntry, fromUserGesture);
 	}
 
 	/**
