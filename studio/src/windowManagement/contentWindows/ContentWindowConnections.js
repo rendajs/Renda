@@ -172,16 +172,16 @@ export class ContentWindowConnections extends ContentWindow {
 			removeGuiIds.delete(connection.id);
 
 			const projectMetaData = connection.projectMetaData;
-			if (projectMetaData) {
-				gui.treeView.name = projectMetaData.name || "Untitled Project";
-			} else {
-				gui.treeView.name = "Studio";
-			}
 
 			let available = false;
 			let status = "Unavailable";
 			let tooltip = "";
-			if (projectMetaData) {
+			if (connection.clientType == "studio-client") {
+				available = false;
+				tooltip = "This connection is a studio instance without an open project. Connections can only be initiated from the other end.";
+				gui.treeView.name = "Studio Client";
+			} else if (projectMetaData) {
+				gui.treeView.name = projectMetaData.name || "Untitled Project";
 				if (projectMetaData.fileSystemHasWritePermissions) {
 					available = true;
 					status = "Available";
@@ -189,6 +189,9 @@ export class ContentWindowConnections extends ContentWindow {
 					status = "No Filesystem permissions";
 					tooltip = "The other studio instance hasn't approved file system permissions in its tab yet.";
 				}
+			} else {
+				gui.treeView.name = "Studio";
+				tooltip = "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.";
 			}
 
 			if (available) {
@@ -204,8 +207,6 @@ export class ContentWindowConnections extends ContentWindow {
 				// 	}
 				// 	available = false;
 				// }
-			} else {
-				tooltip = "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.";
 			}
 			gui.connectButton.setDisabled(!available);
 			gui.statusLabel.setValue(status);
