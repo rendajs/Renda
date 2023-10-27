@@ -155,6 +155,20 @@ export class StudioConnectionsManagerManager {
 	};
 
 	/**
+	 * @param {() => void} cb
+	 */
+	onConnectionsChanged(cb) {
+		this.#onConnectionsChangedCbs.add(cb);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	removeOnConnectionsChanged(cb) {
+		this.#onConnectionsChangedCbs.delete(cb);
+	}
+
+	/**
 	 * @param {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} oldData
 	 * @param {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} newData
 	 */
@@ -273,17 +287,38 @@ export class StudioConnectionsManagerManager {
 		return null;
 	}
 
-	/**
-	 * @param {() => void} cb
-	 */
-	onConnectionsChanged(cb) {
-		this.#onConnectionsChangedCbs.add(cb);
+	async getInternalClientId() {
+		if (!this.#studioConnectionsManager) return null;
+		if (!this.#discoveryManagerInternal) return null;
+		return this.#discoveryManagerInternal.getClientId();
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * We don't allow all incoming connections, otherwise any browser tab would be able to connect to open projects
+	 * simply by creating the discovery iframe and connecting to the first studio client it can find.
+	 * But pages created by the build view should always be allowed.
+	 * Therefore, we create tokens for every page created by the build view.
+	 * Inspectors can provide these tokens when connecting, and we'll always allow the connection when the token is valid.
+	 * @type {Set<string>}
 	 */
-	removeOnConnectionsChanged(cb) {
-		this.#onConnectionsChangedCbs.delete(cb);
+	#internalConnectionTokens = new Set();
+
+	/**
+	 * Any new connections can use this token and their connection will automatically be allowed,
+	 * regardless of its origin, the connection type, or whether internal connections are enabled.
+	 */
+	createInternalConnectionToken() {
+		const token = crypto.randomUUID();
+		this.#internalConnectionTokens.add(token);
+		return token;
+	}
+
+	/**
+	 * Prevents any new connections from being made using this token.
+	 * This doesn't close existing connections that were made using the token.
+	 * @param {string} token
+	 */
+	deleteConnectionToken(token) {
+		this.#internalConnectionTokens.delete(token);
 	}
 }
