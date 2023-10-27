@@ -29,11 +29,19 @@ export class StudioConnection {
 		return this.messageHandler.clientType;
 	}
 
+	get connectionType() {
+		return this.messageHandler.connectionType;
+	}
+
 	/**
 	 * True when the connection was initiated by our client (i.e. the client that holds the instance of this class in memory).
 	 */
 	get initiatedByMe() {
 		return this.messageHandler.initiatedByMe;
+	}
+
+	get projectMetaData() {
+		return this.messageHandler.projectMetaData;
 	}
 
 	close() {

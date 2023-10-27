@@ -139,10 +139,12 @@ export class DiscoveryManager {
 			throw new Error(`Assertion failed, a new connection was created but "${otherClientUuid}" is not listed as an available connection.`);
 		}
 		const connectionData = /** @type {AvailableStudioData} */ (structuredClone(availableConnection));
+		const castManager = /** @type {typeof DiscoveryManager} */ (this.constructor);
 		const instance = new this.MessageHandlerConstructor({
 			otherClientUuid,
 			initiatedByMe,
 			connectionData,
+			connectionType: castManager.type,
 		}, ...args);
 		const castInstance = /** @type {InstanceType<TMessageHandler>} */ (instance);
 		this.onConnectionRequestCbs.forEach(cb => cb(castInstance));

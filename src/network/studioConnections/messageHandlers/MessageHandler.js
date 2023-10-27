@@ -6,6 +6,7 @@
  * @typedef MessageHandlerOptions
  * @property {import("../../../mod.js").UuidString} otherClientUuid
  * @property {boolean} initiatedByMe True when the connection was initiated by our client (i.e. the client which you are currently instantiating a class for).
+ * @property {string} connectionType The type of the DiscoveryManager that created this connection.
  * @property {import("../discoveryManagers/DiscoveryManager.js").AvailableStudioData} connectionData
  */
 
@@ -20,6 +21,8 @@ export class MessageHandler {
 		this._otherClientUuid = options.otherClientUuid;
 		/** @private */
 		this._initiatedByMe = options.initiatedByMe;
+		/** @private */
+		this._connectionType = options.connectionType;
 		/** @private */
 		this._connectionData = options.connectionData;
 
@@ -44,8 +47,19 @@ export class MessageHandler {
 		return this._initiatedByMe;
 	}
 
+	/**
+	 * The type of the DiscoveryManager that created this connection.
+	 */
+	get connectionType() {
+		return this._connectionType;
+	}
+
 	get clientType() {
 		return this._connectionData.clientType;
+	}
+
+	get projectMetaData() {
+		return this._connectionData.projectMetaData;
 	}
 
 	/**

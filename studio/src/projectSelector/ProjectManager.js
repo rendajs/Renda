@@ -409,12 +409,16 @@ export class ProjectManager {
 		if (!(this.currentProjectFileSystem instanceof RemoteStudioFileSystem)) {
 			throw new Error("Assertion failed: Current project file system is not a remote file system.");
 		}
+		const metadata = connection.projectMetaData;
+		if (!metadata) {
+			throw new Error("Assertion failed: Connection does not have project metadata.");
+		}
 		this.currentProjectOpenEvent = {
-			name: "metaData.name",
+			name: metadata.name,
 			fileSystemType: "remote",
 			projectUuid: this.currentProjectOpenEvent.projectUuid,
-			remoteProjectUuid: "metaData.uuid",
-			remoteProjectConnectionType: "pickedAvailableConnection.messageHandlerType",
+			remoteProjectUuid: metadata.uuid,
+			remoteProjectConnectionType: connection.connectionType,
 		};
 		this.currentProjectFileSystem.setConnection(connection);
 		this.markCurrentProjectAsWorthSaving();
