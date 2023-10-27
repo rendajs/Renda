@@ -202,7 +202,7 @@ export class ContentWindowConnections extends ContentWindow {
 				status = "Connected";
 				buttonDisabled = true;
 			}
-			gui.connectButton.setDisabled(buttonDisabled);
+			gui.connectButton.setDisabled(!available || buttonDisabled);
 			gui.statusLabel.setValue(status);
 			gui.statusLabel.gui.tooltip = tooltip;
 		}
