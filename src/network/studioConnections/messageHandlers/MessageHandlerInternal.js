@@ -22,10 +22,12 @@ export class MessageHandlerInternal extends MessageHandler {
 	/**
 	 * @override
 	 * @param {unknown} data
+	 * @param {object} [sendOptions]
+	 * @param {Transferable[]} [sendOptions.transfer]
 	 */
-	send(data) {
+	send(data, {transfer} = {}) {
 		if (!this.messagePort) return;
-		this.messagePort.postMessage(data);
+		this.messagePort.postMessage(data, transfer || []);
 	}
 
 	close() {

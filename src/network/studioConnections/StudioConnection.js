@@ -17,11 +17,11 @@ export class StudioConnection {
 		this.messenger = new TypedMessenger();
 		this.messenger.setResponseHandlers(reliableResponseHandlers);
 		this.messenger.setSendHandler(data => {
-			// TODO, support transfer
-			messageHandler.send(data.sendData);
+			messageHandler.send(data.sendData, {transfer: data.transfer});
 		});
 		messageHandler.onMessage(data => {
-			this.messenger.handleReceivedMessage(data);
+			const castData = /** @type {import("../../mod.js").TypedMessengerMessageSendData<TReliableRespondHandlers, TReliableRequestHandlers>} */ (data);
+			this.messenger.handleReceivedMessage(castData);
 		});
 	}
 

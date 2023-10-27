@@ -51,8 +51,10 @@ export class MessageHandler {
 	/**
 	 * @abstract
 	 * @param {unknown} data
+	 * @param {object} [sendOptions]
+	 * @param {Transferable[]} [sendOptions.transfer]
 	 */
-	send(data) {}
+	send(data, sendOptions) {}
 
 	close() {}
 
