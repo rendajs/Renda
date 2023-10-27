@@ -3,6 +3,10 @@ import {DiscoveryManagerInternal} from "../../../../src/network/studioConnection
 import {DiscoveryManagerWebRtc} from "../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerWebRtc.js";
 import {createStudioHostHandlers} from "./handlers.js";
 
+/**
+ * @typedef {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").AvailableConnectionData & {connectionState: import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").StudioConnectionState}} StudioConnectionData
+ */
+
 /** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<{}, ReturnType<createStudioHostHandlers>>} StudioClientHostConnection */
 
 export class StudioConnectionsManagerManager {
@@ -25,6 +29,9 @@ export class StudioConnectionsManagerManager {
 
 	/** @type {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} */
 	#lastSentProjectMetaData = null;
+
+	/** @type {Map<import("../../../../src/mod.js").UuidString, import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>>} */
+	#activeConnections = new Map();
 
 	/**
 	 * @param {import("../../projectSelector/ProjectManager.js").ProjectManager} projectManager
@@ -89,7 +96,7 @@ export class StudioConnectionsManagerManager {
 				if (studioConnectionsManager != this.#studioConnectionsManager) {
 					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
 				}
-				this.#onConnectionsChangedCbs.forEach(cb => cb());
+				this.#fireOnConnectionsChanged();
 			});
 			studioConnectionsManager.onConnectionRequest(connectionRequest => {
 				if (studioConnectionsManager != this.#studioConnectionsManager) {
@@ -116,9 +123,11 @@ export class StudioConnectionsManagerManager {
 					/** @type {StudioClientHostConnection} */
 					const connection = connectionRequest.accept({});
 					this.#projectManager.assignRemoteConnection(connection);
+					this.#addActiveConnection(connection);
 				}
 				if (studioConnectionsManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
-					connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
+					const connection = connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
+					this.#addActiveConnection(connection);
 				}
 			});
 		}
@@ -153,6 +162,41 @@ export class StudioConnectionsManagerManager {
 
 		this.#updateProjectMetaData();
 	};
+
+	/**
+	 * Adds the connection to the list of active connections and listens for status changes.
+	 * @param {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>} connection
+	 */
+	#addActiveConnection(connection) {
+		this.#activeConnections.set(connection.otherClientUuid, connection);
+		connection.onConnectionStateChange(() => {
+			this.#fireOnConnectionsChanged();
+		});
+		this.#fireOnConnectionsChanged();
+	}
+
+	/**
+	 * @returns {Generator<StudioConnectionData>}
+	 */
+	*getConnections() {
+		if (!this.#studioConnectionsManager) return;
+		for (const connection of this.#studioConnectionsManager.availableConnections()) {
+			/** @type {import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").StudioConnectionState} */
+			let connectionState = "disconnected";
+			const activeConnection = this.#activeConnections.get(connection.id);
+			if (activeConnection) {
+				connectionState = activeConnection.connectionState;
+			}
+			yield {
+				...connection,
+				connectionState,
+			};
+		}
+	}
+
+	#fireOnConnectionsChanged() {
+		this.#onConnectionsChangedCbs.forEach(cb => cb());
+	}
 
 	/**
 	 * @param {() => void} cb
@@ -220,11 +264,6 @@ export class StudioConnectionsManagerManager {
 	 */
 	removeOnWebRtcDiscoveryServerStatusChange(cb) {
 		this.#onWebRtcDiscoveryServerStatusChangeCbs.delete(cb);
-	}
-
-	*availableConnections() {
-		if (!this.#studioConnectionsManager) return;
-		yield* this.#studioConnectionsManager.availableConnections();
 	}
 
 	/**

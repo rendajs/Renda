@@ -112,7 +112,7 @@ export class ContentWindowConnections extends ContentWindow {
 	};
 
 	#updateConnectionLists = () => {
-		const connections = Array.from(this.studioInstance.studioConnectionsManager.availableConnections());
+		const connections = Array.from(this.studioInstance.studioConnectionsManager.getConnections());
 		this.updateConnectionsList(this.studioConnectionGuis, this.studioConnectionsList, connections, ["studio-host", "studio-client"]);
 		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, connections, ["inspector"]);
 	};
@@ -120,7 +120,7 @@ export class ContentWindowConnections extends ContentWindow {
 	/**
 	 * @param {Map<string, ConectionGui>} guisList
 	 * @param {PropertiesTreeView<any>} listTreeView
-	 * @param {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").AvailableConnectionData[]} connections
+	 * @param {import("../../network/studioConnections/StudioConnectionsManagerManager.js").StudioConnectionData[]} connections
 	 * @param {import("../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType[]} allowedClientTypes
 	 */
 	updateConnectionsList(guisList, listTreeView, connections, allowedClientTypes) {
@@ -194,21 +194,15 @@ export class ContentWindowConnections extends ContentWindow {
 				tooltip = "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.";
 			}
 
-			if (available) {
-				// TODO:
-				// const activeConnection = connections.get(connection.id);
-				// if (activeConnection) {
-				// 	if (activeConnection.connectionState == "connecting") {
-				// 		status = "Connecting";
-				// 	} else if (activeConnection.connectionState == "connected") {
-				// 		status = "Connected";
-				// 	} else if (activeConnection.connectionState == "disconnected") {
-				// 		status = "Offline";
-				// 	}
-				// 	available = false;
-				// }
+			let buttonDisabled = false;
+			if (connection.connectionState == "connecting") {
+				status = "Connecting";
+				buttonDisabled = true;
+			} else if (connection.connectionState == "connected") {
+				status = "Connected";
+				buttonDisabled = true;
 			}
-			gui.connectButton.setDisabled(!available);
+			gui.connectButton.setDisabled(buttonDisabled);
 			gui.statusLabel.setValue(status);
 			gui.statusLabel.gui.tooltip = tooltip;
 		}

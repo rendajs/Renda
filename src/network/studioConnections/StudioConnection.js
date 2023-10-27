@@ -25,6 +25,10 @@ export class StudioConnection {
 		});
 	}
 
+	get otherClientUuid() {
+		return this.messageHandler.otherClientUuid;
+	}
+
 	get clientType() {
 		return this.messageHandler.clientType;
 	}
@@ -46,5 +50,16 @@ export class StudioConnection {
 
 	close() {
 		this.messageHandler.close();
+	}
+
+	/**
+	 * @param {import("./messageHandlers/MessageHandler.js").OnConnectionStateChangeCallback} cb
+	 */
+	onConnectionStateChange(cb) {
+		this.messageHandler.onConnectionStateChange(cb);
+	}
+
+	get connectionState() {
+		return this.messageHandler.connectionState;
 	}
 }
