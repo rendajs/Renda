@@ -1,3 +1,4 @@
+import {TimeoutError} from "./TimeoutError.js";
 
 /**
  * @template {TypedMessengerSignatures} TReq
@@ -16,8 +17,6 @@
  * 		HandlerReturn :
  * 	never} GetReturnType
  */
-
-import {TimeoutError} from "./TimeoutError.js";
 
 /**
  * @typedef {Object<string, (...args: any[]) => any>} TypedMessengerSignatures
