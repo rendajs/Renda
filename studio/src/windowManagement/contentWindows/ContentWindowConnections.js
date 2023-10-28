@@ -105,7 +105,7 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerWebRtc.js").DiscoveryServerStatusType} status
+	 * @param {import("../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").DiscoveryServerStatusType} status
 	 */
 	#updateWebRtcDiscoveryServerStatus = status => {
 		this.discoveryServerStatusLabel.setValue(status);
@@ -120,8 +120,8 @@ export class ContentWindowConnections extends ContentWindow {
 	/**
 	 * @param {Map<string, ConectionGui>} guisList
 	 * @param {PropertiesTreeView<any>} listTreeView
-	 * @param {import("../../network/studioConnections/StudioConnectionsManagerManager.js").StudioConnectionData[]} connections
-	 * @param {import("../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType[]} allowedClientTypes
+	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").StudioConnectionData[]} connections
+	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType[]} allowedClientTypes
 	 */
 	updateConnectionsList(guisList, listTreeView, connections, allowedClientTypes) {
 		const removeGuiIds = new Set(guisList.keys());

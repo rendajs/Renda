@@ -3,7 +3,7 @@ import {MessageHandler} from "./MessageHandler.js";
 export class MessageHandlerInternal extends MessageHandler {
 	/**
 	 * @param {import("./MessageHandler.js").MessageHandlerOptions} options
-	 * @param {import("../discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} interlnalConnectionData
+	 * @param {import("../discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} interlnalConnectionData
 	 * @param {MessagePort} messagePort
 	 */
 	constructor(options, interlnalConnectionData, messagePort) {

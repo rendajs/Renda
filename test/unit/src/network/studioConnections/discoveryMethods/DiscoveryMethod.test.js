@@ -1,5 +1,5 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {DiscoveryManager} from "../../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
+import {DiscoveryMethod} from "../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js";
 import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {MessageHandler} from "../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js";
 
@@ -17,9 +17,9 @@ class ExtendedMessageHandler extends MessageHandler {
 }
 
 /**
- * @extends {DiscoveryManager<typeof ExtendedMessageHandler>}
+ * @extends {DiscoveryMethod<typeof ExtendedMessageHandler>}
  */
-class ExtendedDiscoveryManager extends DiscoveryManager {
+class ExtendedDiscoveryMethod extends DiscoveryMethod {
 	static type = "test:type";
 
 	constructor() {
@@ -27,7 +27,7 @@ class ExtendedDiscoveryManager extends DiscoveryManager {
 	}
 
 	/**
-	 * @param {import("../../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").AvailableStudioData} connectionData
+	 * @param {import("../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").AvailableStudioData} connectionData
 	 */
 	addOne(connectionData) {
 		this.addAvailableConnection(connectionData);
@@ -46,7 +46,7 @@ class ExtendedDiscoveryManager extends DiscoveryManager {
 
 	/**
 	 * @param {import("../../../../../../src/mod.js").UuidString} id
-	 * @param {import("../../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} projectMetaData
+	 * @param {import("../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} projectMetaData
 	 */
 	modifyOne(id, projectMetaData) {
 		this.setConnectionProjectMetaData(id, projectMetaData);
@@ -66,7 +66,7 @@ class ExtendedDiscoveryManager extends DiscoveryManager {
 Deno.test({
 	name: "Adding and removing connections",
 	fn() {
-		const manager = new ExtendedDiscoveryManager();
+		const manager = new ExtendedDiscoveryMethod();
 		const onChangeSpy = spy();
 		manager.onAvailableConnectionsChanged(onChangeSpy);
 
@@ -97,7 +97,7 @@ Deno.test({
 Deno.test({
 	name: "Clear available connections",
 	fn() {
-		const manager = new ExtendedDiscoveryManager();
+		const manager = new ExtendedDiscoveryMethod();
 		const onChangeSpy = spy();
 		manager.onAvailableConnectionsChanged(onChangeSpy);
 
@@ -126,7 +126,7 @@ Deno.test({
 Deno.test({
 	name: "onAvailableConnectionsChanged callbacks stop firing when removed",
 	fn() {
-		const manager = new ExtendedDiscoveryManager();
+		const manager = new ExtendedDiscoveryMethod();
 		const onChangeSpy = spy();
 		manager.onAvailableConnectionsChanged(onChangeSpy);
 
@@ -151,7 +151,7 @@ Deno.test({
 Deno.test({
 	name: "registerClient() throws",
 	fn() {
-		const manager = new DiscoveryManager(ExtendedMessageHandler);
+		const manager = new DiscoveryMethod(ExtendedMessageHandler);
 		assertThrows(() => {
 			manager.registerClient("studio-client");
 		});
@@ -161,7 +161,7 @@ Deno.test({
 Deno.test({
 	name: "setProjectMetaData() throws",
 	fn() {
-		const manager = new DiscoveryManager(ExtendedMessageHandler);
+		const manager = new DiscoveryMethod(ExtendedMessageHandler);
 		assertThrows(() => {
 			manager.setProjectMetaData(null);
 		});
@@ -171,7 +171,7 @@ Deno.test({
 Deno.test({
 	name: "setConnectionProjectMetaData()",
 	fn() {
-		const manager = new ExtendedDiscoveryManager();
+		const manager = new ExtendedDiscoveryMethod();
 		manager.addOne({
 			id: "A",
 			clientType: "studio-host",
@@ -200,7 +200,7 @@ Deno.test({
 Deno.test({
 	name: "addActiveConnection() throws when the otherClientUuid doesn't exist",
 	fn() {
-		const manager = new ExtendedDiscoveryManager();
+		const manager = new ExtendedDiscoveryMethod();
 
 		assertThrows(() => {
 			manager.addActive("non existent", true, 0, "");
@@ -211,7 +211,7 @@ Deno.test({
 Deno.test({
 	name: "addActiveConnections() adds connections",
 	fn() {
-		const manager = new ExtendedDiscoveryManager();
+		const manager = new ExtendedDiscoveryMethod();
 
 		const spyFn = spy();
 		manager.onConnectionRequest(spyFn);
@@ -234,8 +234,8 @@ Deno.test({
 Deno.test({
 	name: "addActiveConnection() clones connectionData",
 	fn() {
-		const manager = new ExtendedDiscoveryManager();
-		/** @type {import("../../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData} */
+		const manager = new ExtendedDiscoveryMethod();
+		/** @type {import("../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData} */
 		const projectMetaData = {
 			fileSystemHasWritePermissions: true,
 			name: "old name",

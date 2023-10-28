@@ -27,7 +27,7 @@ import {autoRegisterPreferences} from "./preferences/autoRegisterPreferences.js"
 import {GlobalPreferencesLocation} from "./preferences/preferencesLocation/GlobalPreferencesLocation.js";
 import {GestureInProgressManager} from "./misc/GestureInProgressManager.js";
 import {WebGpuRendererError} from "../../src/rendering/renderers/webGpu/WebGpuRendererError.js";
-import {StudioConnectionsManagerManager} from "./network/studioConnections/StudioConnectionsManagerManager.js";
+import {StudioConnectionsManager} from "./network/studioConnections/StudioConnectionsManager.js";
 
 export class Studio {
 	constructor() {
@@ -68,7 +68,7 @@ export class Studio {
 		this.componentGizmosManager = new ComponentGizmosManager();
 		this.materialMapTypeSerializerManager = new MaterialMapTypeSerializerManager();
 		this.projectManager = new ProjectManager();
-		this.studioConnectionsManager = new StudioConnectionsManagerManager(this.projectManager, this.preferencesManager);
+		this.studioConnectionsManager = new StudioConnectionsManager(this.projectManager, this.preferencesManager);
 		this.builtInDefaultAssetLinksManager = new BuiltInDefaultAssetLinksManager();
 		this.builtInAssetManager = new BuiltInAssetManager(this.projectAssetTypeManager);
 		this.dragManager = new DragManager();

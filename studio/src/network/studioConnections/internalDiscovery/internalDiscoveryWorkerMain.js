@@ -72,7 +72,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 		},
 		parentWindowResponseHandlers: {
 			/**
-			 * @param {import("../../../../../src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
+			 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").ClientType} clientType
 			 */
 			registerClient(clientType) {
 				if (createdConnection) {
@@ -88,7 +88,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				};
 			},
 			/**
-			 * @param {import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} metaData
+			 * @param {import("../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} metaData
 			 */
 			projectMetaData(metaData) {
 				if (!createdConnection) return;
@@ -97,7 +97,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 			},
 			/**
 			 * @param {import("../../../../../src/mod.js").UuidString} otherClientUuid
-			 * @param {import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} [connectionData]
+			 * @param {import("../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} [connectionData]
 			 */
 			requestConnection(otherClientUuid, connectionData) {
 				if (!createdConnection) return;
@@ -115,7 +115,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 /** @typedef {ReturnType<getResponseHandlers>["iframeResponseHandlers"]} InternalDiscoveryWorkerToIframeHandlers */
 /** @typedef {TypedMessenger<InternalDiscoveryWorkerToIframeHandlers, import("./internalDiscoveryIframeMain.js").InternalDiscoveryIframeWorkerHandlers>} WorkerToIframeTypedMessengerType */
 /** @typedef {ReturnType<getResponseHandlers>["parentWindowResponseHandlers"]} InternalDiscoveryWorkerToParentHandlers */
-/** @typedef {TypedMessenger<InternalDiscoveryWorkerToParentHandlers, import("../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryParentWorkerHandlers>} WorkerToParentTypedMessengerType */
+/** @typedef {TypedMessenger<InternalDiscoveryWorkerToParentHandlers, import("../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryParentWorkerHandlers>} WorkerToParentTypedMessengerType */
 
 /**
  * @param {typeof globalThis} workerGlobal

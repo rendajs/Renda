@@ -1,6 +1,6 @@
 import {TypedMessenger} from "../../../util/TypedMessenger.js";
 import {MessageHandlerWebRtc} from "../messageHandlers/MessageHandlerWebRtc.js";
-import {DiscoveryManager} from "./DiscoveryManager.js";
+import {DiscoveryMethod} from "./DiscoveryMethod.js";
 
 /**
  * @fileoverview This DiscoveryManager allows connecting to other clients remotely.
@@ -9,7 +9,7 @@ import {DiscoveryManager} from "./DiscoveryManager.js";
 
 /** @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType */
 
-/** @typedef {ReturnType<DiscoveryManagerWebRtc["getResponseHandlers"]>} ExternalDiscoveryManagerResponseHandlers */
+/** @typedef {ReturnType<WebRtcDiscoveryMethod["getResponseHandlers"]>} ExternalDiscoveryManagerResponseHandlers */
 
 /**
  * @typedef ExternalDiscoveryRelayOfferData
@@ -28,9 +28,9 @@ import {DiscoveryManager} from "./DiscoveryManager.js";
 /**
  * This class allows you to discover other tabs via a central discovery server.
  * When created, a connection to a WebSocket is made, which can be used for connecting to another client via WebRTC.
- * @extends {DiscoveryManager<typeof MessageHandlerWebRtc>}
+ * @extends {DiscoveryMethod<typeof MessageHandlerWebRtc>}
  */
-export class DiscoveryManagerWebRtc extends DiscoveryManager {
+export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	static type = /** @type {const} */ ("renda:webrtc");
 
 	/**
@@ -86,7 +86,7 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 
 	/**
 	 * @override
-	 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
+	 * @param {import("../DiscoveryManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
 		this.messenger.send.setClientType(clientType);
@@ -112,7 +112,7 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 
 		return {
 			/**
-			 * @param {import("./DiscoveryManager.js").AvailableStudioData[]} connections
+			 * @param {import("./DiscoveryMethod.js").AvailableStudioData[]} connections
 			 */
 			nearbyHostConnectionsList: connections => {
 				this.clearAvailableConnections(false);
@@ -123,7 +123,7 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 				return disableResponseReturn;
 			},
 			/**
-			 * @param {import("./DiscoveryManager.js").AvailableStudioData} connection
+			 * @param {import("./DiscoveryMethod.js").AvailableStudioData} connection
 			 */
 			nearbyHostConnectionAdded: connection => {
 				this.addAvailableConnection(connection);
@@ -138,7 +138,7 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} id
-			 * @param {import("./DiscoveryManager.js").RemoteStudioMetaData?} projectMetaData
+			 * @param {import("./DiscoveryMethod.js").RemoteStudioMetaData?} projectMetaData
 			 */
 			nearbyHostConnectionUpdateProjectMetaData: (id, projectMetaData) => {
 				this.setConnectionProjectMetaData(id, projectMetaData);
@@ -184,7 +184,7 @@ export class DiscoveryManagerWebRtc extends DiscoveryManager {
 
 	/**
 	 * @override
-	 * @param {import("./DiscoveryManager.js").RemoteStudioMetaData?} metaData
+	 * @param {import("./DiscoveryMethod.js").RemoteStudioMetaData?} metaData
 	 */
 	async setProjectMetaData(metaData) {
 		await this.messenger.send.setProjectMetaData(metaData);

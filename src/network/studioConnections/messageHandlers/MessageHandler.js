@@ -7,7 +7,7 @@
  * @property {import("../../../mod.js").UuidString} otherClientUuid
  * @property {boolean} initiatedByMe True when the connection was initiated by our client (i.e. the client which you are currently instantiating a class for).
  * @property {string} connectionType The type of the DiscoveryManager that created this connection.
- * @property {import("../discoveryManagers/DiscoveryManager.js").AvailableStudioData} connectionData
+ * @property {import("../discoveryMethods/DiscoveryMethod.js").AvailableStudioData} connectionData
  */
 
 export class MessageHandler {

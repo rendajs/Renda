@@ -1,7 +1,7 @@
 /**
  * @typedef AvailableStudioData
- * @property {import("../../../../src/util/mod.js").UuidString} id
- * @property {import("../StudioConnectionsManager.js").ClientType} clientType
+ * @property {import("../../../util/mod.js").UuidString} id
+ * @property {import("../DiscoveryManager.js").ClientType} clientType
  * @property {RemoteStudioMetaData?} projectMetaData
  */
 
@@ -13,15 +13,15 @@
  * @typedef {object} RemoteStudioMetaData
  * @property {string} name
  * @property {boolean} fileSystemHasWritePermissions
- * @property {import("../../../../src/util/mod.js").UuidString} uuid
+ * @property {import("../../../util/mod.js").UuidString} uuid
  */
 
 /**
- * Base class for DiscoveryManagers.
- * A DiscoveryManager can list multiple available connections without connecting to them.
+ * Base class for DiscoveryMethods.
+ * A DiscoveryMethod can list multiple available connections without connecting to them.
  * @template {new (messageHandlerOptions: import("../messageHandlers/MessageHandler.js").MessageHandlerOptions, ...args: any[]) => import("../messageHandlers/MessageHandler.js").MessageHandler} TMessageHandler
  */
-export class DiscoveryManager {
+export class DiscoveryMethod {
 	static type = "";
 
 	/**
@@ -50,7 +50,7 @@ export class DiscoveryManager {
 	 * Registers the current client, letting the discovery server know about its existence.
 	 * This broadcasts the existence of this client and its type to other clients,
 	 * allowing them to initialize connections to this client.
-	 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
+	 * @param {import("../DiscoveryManager.js").ClientType} clientType
 	 */
 	registerClient(clientType) {
 		throw new Error("base class");
@@ -139,7 +139,7 @@ export class DiscoveryManager {
 			throw new Error(`Assertion failed, a new connection was created but "${otherClientUuid}" is not listed as an available connection.`);
 		}
 		const connectionData = /** @type {AvailableStudioData} */ (structuredClone(availableConnection));
-		const castManager = /** @type {typeof DiscoveryManager} */ (this.constructor);
+		const castManager = /** @type {typeof DiscoveryMethod} */ (this.constructor);
 		const instance = new this.MessageHandlerConstructor({
 			otherClientUuid,
 			initiatedByMe,

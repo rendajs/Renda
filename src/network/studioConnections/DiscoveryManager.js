@@ -13,7 +13,7 @@ import {StudioConnection} from "./StudioConnection.js";
  * @typedef {"studio-host" | "inspector" | "studio-client"} ClientType
  */
 
-export class StudioConnectionsManager {
+export class DiscoveryManager {
 	/**
 	 * @typedef OnConnectionCreatedRequest
 	 * @property {boolean} initiatedByMe
@@ -30,11 +30,11 @@ export class StudioConnectionsManager {
 		/** @readonly */
 		this.clientType = clientType;
 
-		/** @private @type {import("./discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} */
+		/** @private @type {import("./discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} */
 		this.projectMetaData = null;
 
-		/** @private @type {Set<import("./discoveryManagers/DiscoveryManager.js").DiscoveryManager<any>>} */
-		this.discoveryManagers = new Set();
+		/** @private @type {Set<import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<any>>} */
+		this.discoveryMethods = new Set();
 
 		/** @private @type {Set<() => void>} */
 		this.onConnectionsChangedCbs = new Set();
@@ -44,21 +44,21 @@ export class StudioConnectionsManager {
 	}
 
 	destructor() {
-		for (const discoveryManager of this.discoveryManagers) {
+		for (const discoveryManager of this.discoveryMethods) {
 			discoveryManager.destructor();
 		}
 	}
 
 	/**
-	 * @template {import("./discoveryManagers/DiscoveryManager.js").DiscoveryManager<any>} TManager
+	 * @template {import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<any>} TManager
 	 * @template {any[]} TArgs
 	 * @param {new (...args: TArgs) => TManager} constructor
 	 * @param {TArgs} args
 	 */
 	addDiscoveryManager(constructor, ...args) {
-		/** @type {import("./discoveryManagers/DiscoveryManager.js").DiscoveryManager<typeof import("./messageHandlers/MessageHandler.js").MessageHandler>} */
+		/** @type {import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<typeof import("./messageHandlers/MessageHandler.js").MessageHandler>} */
 		const discoveryManager = new constructor(...args);
-		this.discoveryManagers.add(discoveryManager);
+		this.discoveryMethods.add(discoveryManager);
 		discoveryManager.onAvailableConnectionsChanged(() => {
 			this.onConnectionsChangedCbs.forEach(cb => cb());
 		});
@@ -93,21 +93,21 @@ export class StudioConnectionsManager {
 	}
 
 	/**
-	 * @param {import("./discoveryManagers/DiscoveryManager.js").DiscoveryManager<any>} discoveryManager
+	 * @param {import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<any>} discoveryManager
 	 */
 	removeDiscoveryManager(discoveryManager) {
-		if (this.discoveryManagers.has(discoveryManager)) {
+		if (this.discoveryMethods.has(discoveryManager)) {
 			discoveryManager.destructor();
-			this.discoveryManagers.delete(discoveryManager);
+			this.discoveryMethods.delete(discoveryManager);
 		}
 	}
 
 	/**
-	 * @returns {Generator<import("./discoveryManagers/DiscoveryManager.js").AvailableConnectionData>}
+	 * @returns {Generator<import("./discoveryMethods/DiscoveryMethod.js").AvailableConnectionData>}
 	 */
 	*availableConnections() {
-		for (const discoveryManager of this.discoveryManagers) {
-			const castManager = /** @type {typeof import("./discoveryManagers/DiscoveryManager.js").DiscoveryManager} */ (discoveryManager.constructor);
+		for (const discoveryManager of this.discoveryMethods) {
+			const castManager = /** @type {typeof import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod} */ (discoveryManager.constructor);
 			for (const connection of discoveryManager.availableConnections()) {
 				yield {
 					...connection,
@@ -118,11 +118,11 @@ export class StudioConnectionsManager {
 	}
 
 	/**
-	 * @param {import("./discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?} metaData
+	 * @param {import("./discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} metaData
 	 */
 	setProjectMetaData(metaData) {
 		this.projectMetaData = metaData;
-		for (const discoveryManager of this.discoveryManagers.values()) {
+		for (const discoveryManager of this.discoveryMethods.values()) {
 			discoveryManager.setProjectMetaData(metaData);
 		}
 	}
@@ -168,7 +168,7 @@ export class StudioConnectionsManager {
 	 * it to determine whether the connection should be accepted or not.
 	 */
 	requestConnection(id, connectionData) {
-		for (const discoveryManager of this.discoveryManagers.values()) {
+		for (const discoveryManager of this.discoveryMethods.values()) {
 			if (discoveryManager.hasConnection(id)) {
 				discoveryManager.requestConnection(id, connectionData);
 				return;

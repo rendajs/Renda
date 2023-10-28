@@ -395,7 +395,7 @@ export class ProjectManager {
 	/**
 	 * Assigns a connection to the current file system and project open event.
 	 * Throws if the current project is not a remote project or if a connection has already been assigned.
-	 * @param {import("../network/studioConnections/StudioConnectionsManagerManager.js").StudioClientHostConnection} connection
+	 * @param {import("../network/studioConnections/StudioConnectionsManager.js").StudioClientHostConnection} connection
 	 */
 	assignRemoteConnection(connection) {
 		if (!this.currentProjectOpenEvent) {
@@ -471,7 +471,7 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @returns {import("../../../src/network/studioConnections/discoveryManagers/DiscoveryManager.js").RemoteStudioMetaData?}
+	 * @returns {import("../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?}
 	 */
 	getCurrentProjectMetaData() {
 		if (!this.currentProjectOpenEvent) return null;

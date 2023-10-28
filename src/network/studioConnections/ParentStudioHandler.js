@@ -38,8 +38,8 @@ export class ParentStudioHandler {
 	 * Checks if the page is embedded in an iframe and if the parent is a studio instance.
 	 * If so, it will ask the parent what to do, which will determine the desired method for connecting the
 	 * studio instance with the iframe.
-	 * @param {import("./StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
-	 * @param {(typeof import("./discoveryManagers/DiscoveryManagerInternal.js").DiscoveryManagerInternal | typeof import("./discoveryManagers/DiscoveryManagerWebRtc.js").DiscoveryManagerWebRtc)[]} supportedDiscoveryManagers
+	 * @param {import("./DiscoveryManager.js").DiscoveryManager} studioConnectionsManager
+	 * @param {(typeof import("./discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryMethod | typeof import("./discoveryMethods/WebRtcDiscoveryMethod.js").WebRtcDiscoveryMethod)[]} supportedDiscoveryManagers
 	 */
 	async requestParentStudioConnection(studioConnectionsManager, supportedDiscoveryManagers) {
 		const sentence1 = "Failed to get parent client data.";
@@ -61,7 +61,7 @@ export class ParentStudioHandler {
 		for (const DiscoveryManager of supportedDiscoveryManagers) {
 			if (DiscoveryManager.type == "renda:internal" && studioClientData.type == "renda:internal") {
 				studioConnectionsManager.addDiscoveryManager(DiscoveryManager, studioClientData.discoveryUrl);
-				/** @type {import("./discoveryManagers/DiscoveryManagerInternal.js").InternalDiscoveryRequestConnectionData} */
+				/** @type {import("./discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} */
 				const connectionData = {
 					token: studioClientData.internalConnectionToken,
 				};

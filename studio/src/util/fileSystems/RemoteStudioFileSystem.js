@@ -1,14 +1,14 @@
 import {StudioFileSystem} from "./StudioFileSystem.js";
 
 export class RemoteStudioFileSystem extends StudioFileSystem {
-	/** @type {import("../../network/studioConnections/StudioConnectionsManagerManager.js").StudioClientHostConnection?} */
+	/** @type {import("../../network/studioConnections/StudioConnectionsManager.js").StudioClientHostConnection?} */
 	#connection = null;
 	#connected = false;
 	/** @type {Set<() => void>} */
 	#onConnectedCbs = new Set();
 
 	/**
-	 * @param {import("../../network/studioConnections/StudioConnectionsManagerManager.js").StudioClientHostConnection} connection
+	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").StudioClientHostConnection} connection
 	 */
 	setConnection(connection) {
 		this.#connection = connection;

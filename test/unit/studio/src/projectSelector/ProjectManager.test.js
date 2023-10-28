@@ -46,7 +46,7 @@ const ProjectManagerMod = await importer.import("../../../../../studio/src/proje
 const {ProjectManager} = ProjectManagerMod;
 
 const StudiorConnectionsManagerMod = await importer.import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js");
-/** @type {() => import("../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").StudioConnectionsManagerManager} */
+/** @type {() => import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */
 const getLastStudioConnectionsManager = StudiorConnectionsManagerMod.getLastStudioConnectionsManager;
 
 const PROJECT_PREFERENCES_PATH = [".renda", "sharedPreferences.json"];
@@ -56,7 +56,7 @@ const GITIGNORE_PATH = [".gitignore"];
 /**
  * @typedef ProjectManagerTestContext
  * @property {import("../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} manager
- * @property {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").StudioConnectionsManagerManager} studioConnectionsManager
+ * @property {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
  * @property {import("../../../../../studio/src/Studio.js").Studio} studio
  * @property {PreferencesManager<typeof mockPreferencesConfig>} mockPreferencesManager
  * @property {(data: import("../../../../../studio/src/windowManagement/WindowManager.js").ContentWindowPersistentDiskData[] | null) => Promise<void>} fireFlushRequestCallbacks
@@ -169,7 +169,7 @@ Deno.test({
 				 * @param {string?} endpoint
 				 * @param {boolean} allowInternalIncoming
 				 * @param {boolean} isStudioHost
-				 * @param {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManagerManager.js").RemoteStudioMetaData} projectMetaData
+				 * @param {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData} projectMetaData
 				 */
 				function testUpdateCall(endpoint, allowInternalIncoming, isStudioHost, projectMetaData) {
 					assertSpyCall(setDiscoveryEndpointSpy, setDiscoveryEndpointSpy.calls.length - 1, {

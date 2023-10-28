@@ -1,4 +1,4 @@
-import {DiscoveryManagerInternal} from "../../../../../../src/network/studioConnections/discoveryManagers/DiscoveryManagerInternal.js";
+import {InternalDiscoveryMethod} from "../../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
 import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
 import {FakeTime} from "std/testing/time.ts";
 import {initializeIframe} from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
@@ -236,7 +236,7 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager = new DiscoveryManagerInternal();
+				const manager = new InternalDiscoveryMethod();
 				await manager.registerClient("studio");
 
 				await assertRejects(async () => {
@@ -252,7 +252,7 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new DiscoveryManagerInternal();
+				const manager1 = new InternalDiscoveryMethod();
 
 				const promise1 = manager1.getClientId();
 				await assertPromiseResolved(promise1, false);
@@ -264,7 +264,7 @@ Deno.test({
 				const promise2 = manager1.getClientId();
 				await assertPromiseResolved(promise2, true);
 
-				const manager2 = new DiscoveryManagerInternal();
+				const manager2 = new InternalDiscoveryMethod();
 				/** @type {(clientId: string) => void} */
 				let resolveStudioClientId = () => {};
 				/** @type {Promise<string>} */
@@ -290,13 +290,13 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new DiscoveryManagerInternal({forceDiscoveryUrl: "url"});
+				const manager1 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
 				const availableChangedSpy1 = spy();
 				let spyCall = 0;
 				manager1.onAvailableConnectionsChanged(availableChangedSpy1);
 				await manager1.registerClient("inspector");
 
-				const manager2 = new DiscoveryManagerInternal({forceDiscoveryUrl: "url"});
+				const manager2 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
 				await manager2.registerClient("studio");
 
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
@@ -355,7 +355,7 @@ Deno.test({
 					},
 				]);
 
-				const manager3 = new DiscoveryManagerInternal({forceDiscoveryUrl: "url"});
+				const manager3 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
 				const availableChangedSpy3 = spy();
 				manager3.onAvailableConnectionsChanged(availableChangedSpy3);
 				await manager3.registerClient("inspector");
@@ -428,14 +428,14 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new DiscoveryManagerInternal({forceDiscoveryUrl: "url"});
+				const manager1 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
 				const manager1ConnectionSpy = spy(onCreatedSpySignature);
 				manager1.onConnectionRequest(manager1ConnectionSpy);
 				const manager1AvailableSpy = spy();
 				manager1.onAvailableConnectionsChanged(manager1AvailableSpy);
 				await manager1.registerClient("studio");
 
-				const manager2 = new DiscoveryManagerInternal({forceDiscoveryUrl: "url"});
+				const manager2 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
 				const manager2ConnectionSpy = spy(onCreatedSpySignature);
 				manager2.onConnectionRequest(manager2ConnectionSpy);
 				const manager2AvailableSpy = spy();
@@ -495,13 +495,13 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new DiscoveryManagerInternal();
+				const manager1 = new InternalDiscoveryMethod();
 				await manager1.registerClient("studio");
 				const connectionCreatedSpy1 = spy(onCreatedSpySignature);
 				manager1.onConnectionRequest(connectionCreatedSpy1);
 
 				const studioClientId = await manager1.getClientId();
-				const manager2 = new DiscoveryManagerInternal();
+				const manager2 = new InternalDiscoveryMethod();
 				const connectionCreatedSpy2 = spy(onCreatedSpySignature);
 				manager2.onConnectionRequest(connectionCreatedSpy2);
 				await manager2.registerClient("inspector");
@@ -533,7 +533,7 @@ Deno.test({
 		await basicSetup({
 			assertIframeSrc: "discovery_url",
 			async fn() {
-				const manager = new DiscoveryManagerInternal();
+				const manager = new InternalDiscoveryMethod();
 				await manager.registerClient("studio");
 			},
 		});
@@ -547,7 +547,7 @@ Deno.test({
 			emulateStudioParent: false,
 			assertIframeSrc: "fallback_url",
 			async fn() {
-				const manager = new DiscoveryManagerInternal({
+				const manager = new InternalDiscoveryMethod({
 					fallbackDiscoveryUrl: "fallback_url",
 				});
 				await manager.registerClient("studio");
@@ -562,7 +562,7 @@ Deno.test({
 		await basicSetup({
 			emulateStudioParent: false,
 			async fn() {
-				const manager = new DiscoveryManagerInternal();
+				const manager = new InternalDiscoveryMethod();
 				await assertRejects(async () => {
 					await manager.registerClient("studio");
 				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
@@ -579,7 +579,7 @@ Deno.test({
 			async fn() {
 				const time = new FakeTime();
 				try {
-					const manager = new DiscoveryManagerInternal();
+					const manager = new InternalDiscoveryMethod();
 					const assertPromise = assertRejects(async () => {
 						await manager.registerClient("studio");
 					}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
@@ -598,7 +598,7 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager = new DiscoveryManagerInternal();
+				const manager = new InternalDiscoveryMethod();
 				await manager.registerClient("inspector");
 				const requestConnectionSpy = stub(manager, "requestConnection");
 				await manager.requestParentStudioConnection();
@@ -622,7 +622,7 @@ Deno.test({
 		await basicSetup({
 			emulateStudioParent: false,
 			async fn() {
-				const manager = new DiscoveryManagerInternal({fallbackDiscoveryUrl: "fallback_url"});
+				const manager = new InternalDiscoveryMethod({fallbackDiscoveryUrl: "fallback_url"});
 				await manager.registerClient("inspector");
 				await assertRejects(async () => {
 					await manager.requestParentStudioConnection();
@@ -640,7 +640,7 @@ Deno.test({
 			async fn() {
 				const time = new FakeTime();
 				try {
-					const manager = new DiscoveryManagerInternal({fallbackDiscoveryUrl: "fallback_url"});
+					const manager = new InternalDiscoveryMethod({fallbackDiscoveryUrl: "fallback_url"});
 					const assertPromise = assertRejects(async () => {
 						await manager.requestParentStudioConnection();
 					}, Error, "Failed to get parent client data. The parent didn't respond with client data in timely manner. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");

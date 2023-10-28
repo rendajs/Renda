@@ -1,14 +1,14 @@
 import {TypedMessenger} from "../../../util/TypedMessenger.js";
 import {MessageHandlerInternal} from "../messageHandlers/MessageHandlerInternal.js";
-import {DiscoveryManager} from "./DiscoveryManager.js";
+import {DiscoveryMethod} from "./DiscoveryMethod.js";
 
 /**
  * @fileoverview This DiscoveryManager allows connecting to other clients within the same browser using a SharedWorker.
  * Source code of the discovery server can be found at studio/src/network/studioConnections/internalDiscovery
  */
 
-/** @typedef {ReturnType<DiscoveryManagerInternal["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
-/** @typedef {ReturnType<DiscoveryManagerInternal["_getWorkerResponseHandlers"]>} InternalDiscoveryParentWorkerHandlers */
+/** @typedef {ReturnType<InternalDiscoveryMethod["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
+/** @typedef {ReturnType<InternalDiscoveryMethod["_getWorkerResponseHandlers"]>} InternalDiscoveryParentWorkerHandlers */
 
 /**
  * Custom data that can be send when initiating a new connection with another client.
@@ -25,9 +25,9 @@ import {DiscoveryManager} from "./DiscoveryManager.js";
  * In order for this to work, the other tab has to also create an InternalDiscoveryManager and use the same discovery url.
  * This creates an iframe with a shared worker which all discovery communication passes through.
  * That way two arbitrary tabs can communicate with each other, and in supported browsers, it might even allow communication across origins.
- * @extends {DiscoveryManager<typeof MessageHandlerInternal>}
+ * @extends {DiscoveryMethod<typeof MessageHandlerInternal>}
  */
-export class DiscoveryManagerInternal extends DiscoveryManager {
+export class InternalDiscoveryMethod extends DiscoveryMethod {
 	static type = /** @type {const} */ ("renda:internal");
 
 	/**
@@ -131,7 +131,7 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionData, port);
 			},
 			/**
-			 * @param {import("./DiscoveryManager.js").AvailableStudioData} connectionData
+			 * @param {import("./DiscoveryMethod.js").AvailableStudioData} connectionData
 			 */
 			availableClientAdded: connectionData => {
 				this.addAvailableConnection(connectionData);
@@ -144,7 +144,7 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} clientId
-			 * @param {import("./DiscoveryManager.js").RemoteStudioMetaData?} metaData
+			 * @param {import("./DiscoveryMethod.js").RemoteStudioMetaData?} metaData
 			 */
 			projectMetaData: (clientId, metaData) => {
 				this.setConnectionProjectMetaData(clientId, metaData);
@@ -173,7 +173,7 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 
 	/**
 	 * @override
-	 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
+	 * @param {import("../DiscoveryManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
 		const result = await this.workerMessenger.send.registerClient(clientType);
@@ -199,7 +199,7 @@ export class DiscoveryManagerInternal extends DiscoveryManager {
 
 	/**
 	 * @override
-	 * @param {import("./DiscoveryManager.js").RemoteStudioMetaData?} metaData
+	 * @param {import("./DiscoveryMethod.js").RemoteStudioMetaData?} metaData
 	 */
 	async setProjectMetaData(metaData) {
 		await this.workerMessenger.send.projectMetaData(metaData);
