@@ -443,7 +443,7 @@ export class TypedMessenger {
 	 * messenger.initializeWorkerContext(responseHandlers);
 	 * ```
 	 * @param {Worker} worker
-	 * @param {TRes} responseHandlers
+	 * @param {ResponseHandlers} responseHandlers
 	 */
 	initializeWorker(worker, responseHandlers) {
 		this.setSendHandler(data => {
@@ -470,7 +470,7 @@ export class TypedMessenger {
 	 * const messenger = new TypedMessenger();
 	 * messenger.initializeWorkerContext(responseHandlers);
 	 * ```
-	 * @param {TRes} responseHandlers
+	 * @param {ResponseHandlers} responseHandlers
 	 */
 	initializeWorkerContext(responseHandlers) {
 		this.setSendHandler(data => {
@@ -496,7 +496,7 @@ export class TypedMessenger {
 	 * ```
 	 *
 	 * @param {WebSocket} webSocket
-	 * @param {TRes} responseHandlers
+	 * @param {ResponseHandlers} responseHandlers
 	 * @param {object} [options]
 	 * @param {boolean} [options.waitForOpen]
 	 */
@@ -622,6 +622,18 @@ export class TypedMessenger {
 	}
 
 	/**
+	 * Changes the type of a signature to allow both synchronous and asynchronous signatures.
+	 * @template {(...args: any[]) => any} T
+	 * @typedef {T extends (...args: infer Args) => infer ReturnType ?
+	 *	(...args: Args) => (Promise<ReturnType> | ReturnType) :
+	 * never} PromisifyReturnValue
+	 */
+
+	/**
+	 * @typedef {{[key in keyof TRes]: PromisifyReturnValue<TRes[key]>}} ResponseHandlers
+	 */
+
+	/**
 	 * Sets the collection of functions that the other end can call.
 	 *
 	 * ## Usage
@@ -640,7 +652,7 @@ export class TypedMessenger {
 	 * Now whenever the other end makes a call using {@linkcode send} on its own messenger (when
 	 * hooked up correctly to {@linkcode handleReceivedMessage}), your respective handler
 	 * will be called and its return value will be sent back to the other end.
-	 * @param {TRes} handlers
+	 * @param {ResponseHandlers} handlers
 	 */
 	setResponseHandlers(handlers) {
 		this.responseHandlers = handlers;
