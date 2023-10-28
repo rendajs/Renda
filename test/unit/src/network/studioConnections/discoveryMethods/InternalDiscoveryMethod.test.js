@@ -1,27 +1,22 @@
 import {InternalDiscoveryMethod} from "../../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
-import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
-import {FakeTime} from "std/testing/time.ts";
+import {assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
 import {initializeIframe} from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
 import {initializeWorker} from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
-import {AssertionError, assertEquals, assertExists, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
+import {AssertionError, assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {TypedMessenger} from "../../../../../../src/util/TypedMessenger.js";
 import {assertPromiseResolved} from "../../../../shared/asserts.js";
 
 /**
- * Creates a mocked iframe and SharedWorker with the required functionality for the InternalDiscoveryManager.
+ * Creates a mocked iframe and SharedWorker with the required functionality for the InternalDiscoveryMethod.
  * @param {object} options
  * @param {() => Promise<void>} options.fn The test function to run
  * @param {string?} [options.assertIframeSrc] If set, makes an assertion that the iframe
  * src gets set to this value.
  * @param {boolean} [options.emulateStudioParent] Emulates a parent window.
- * @param {boolean} [options.emulateParentResponse] When `emulateStudioParent` is true, also emulates "requestInternalDiscoveryUrl" messages.
  */
 async function basicSetup({
 	fn,
 	assertIframeSrc = null,
-	emulateStudioParent = true,
-	emulateParentResponse = true,
 }) {
 	const previousDocument = globalThis.document;
 	const previousParent = window.parent;
@@ -131,41 +126,6 @@ async function basicSetup({
 			},
 		});
 
-		if (emulateStudioParent) {
-			/** @type {TypedMessenger<import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers, {}>} */
-			const parentTypedMessenger = new TypedMessenger();
-			parentTypedMessenger.setResponseHandlers({
-				requestInternalDiscoveryUrl() {
-					return "discovery_url";
-				},
-				async requestStudioClientData() {
-					return {
-						clientId: "studio_client_id",
-						internalConnectionToken: "studio_connection_token",
-					};
-				},
-			});
-			parentTypedMessenger.setSendHandler(data => {
-				parentMessageEventListeners.forEach(listener => {
-					const event = /** @type {MessageEvent} */ ({
-						data: data.sendData,
-						source: window.parent,
-					});
-					listener(event);
-				});
-			});
-
-			window.parent = /** @type {Window} */ ({
-				postMessage(message) {
-					if (emulateParentResponse) {
-						parentTypedMessenger.handleReceivedMessage(message);
-					}
-				},
-			});
-		} else {
-			window.parent = window;
-		}
-
 		/** @type {Set<MessageEventListener>} */
 		const sharedWorkerConnectCallbacks = new Set();
 
@@ -236,8 +196,8 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager = new InternalDiscoveryMethod();
-				await manager.registerClient("studio");
+				const manager = new InternalDiscoveryMethod("endpoint");
+				await manager.registerClient("studio-host");
 
 				await assertRejects(async () => {
 					await manager.registerClient("inspector");
@@ -252,19 +212,19 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new InternalDiscoveryMethod();
+				const manager1 = new InternalDiscoveryMethod("endpoint");
 
 				const promise1 = manager1.getClientId();
 				await assertPromiseResolved(promise1, false);
 
-				await manager1.registerClient("studio");
+				await manager1.registerClient("studio-host");
 
 				await assertPromiseResolved(promise1, true);
 
 				const promise2 = manager1.getClientId();
 				await assertPromiseResolved(promise2, true);
 
-				const manager2 = new InternalDiscoveryMethod();
+				const manager2 = new InternalDiscoveryMethod("endpoint");
 				/** @type {(clientId: string) => void} */
 				let resolveStudioClientId = () => {};
 				/** @type {Promise<string>} */
@@ -290,14 +250,14 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
+				const manager1 = new InternalDiscoveryMethod("url");
 				const availableChangedSpy1 = spy();
 				let spyCall = 0;
 				manager1.onAvailableConnectionsChanged(availableChangedSpy1);
 				await manager1.registerClient("inspector");
 
-				const manager2 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
-				await manager2.registerClient("studio");
+				const manager2 = new InternalDiscoveryMethod("url");
+				await manager2.registerClient("studio-host");
 
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
 				const availableConnections1 = Array.from(manager1.availableConnections());
@@ -305,7 +265,7 @@ Deno.test({
 				const manager2ClientId = availableConnections1[0].id;
 				assertEquals(availableConnections1[0], {
 					id: manager2ClientId,
-					clientType: "studio",
+					clientType: "studio-host",
 					projectMetaData: null,
 				});
 
@@ -317,7 +277,7 @@ Deno.test({
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
 				assertEquals(Array.from(manager1.availableConnections()), [
 					{
-						clientType: "studio",
+						clientType: "studio-host",
 						id: manager2ClientId,
 						projectMetaData: {
 							name: "project name 1",
@@ -335,7 +295,7 @@ Deno.test({
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
 				assertEquals(Array.from(manager1.availableConnections()), [
 					{
-						clientType: "studio",
+						clientType: "studio-host",
 						id: manager2ClientId,
 						projectMetaData: {
 							name: "project name 1",
@@ -349,13 +309,13 @@ Deno.test({
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
 				assertEquals(Array.from(manager1.availableConnections()), [
 					{
-						clientType: "studio",
+						clientType: "studio-host",
 						id: manager2ClientId,
 						projectMetaData: null,
 					},
 				]);
 
-				const manager3 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
+				const manager3 = new InternalDiscoveryMethod("url");
 				const availableChangedSpy3 = spy();
 				manager3.onAvailableConnectionsChanged(availableChangedSpy3);
 				await manager3.registerClient("inspector");
@@ -372,7 +332,7 @@ Deno.test({
 					},
 					{
 						id: manager2ClientId,
-						clientType: "studio",
+						clientType: "studio-host",
 						projectMetaData: null,
 					},
 				]);
@@ -383,7 +343,7 @@ Deno.test({
 				assertEquals(availableConnections3, [
 					{
 						id: manager2ClientId,
-						clientType: "studio",
+						clientType: "studio-host",
 						projectMetaData: null,
 					},
 					{
@@ -428,16 +388,21 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
-				const manager1ConnectionSpy = spy(onCreatedSpySignature);
-				manager1.onConnectionRequest(manager1ConnectionSpy);
+				const manager1 = new InternalDiscoveryMethod("url");
+				const manager1RequestSpy = spy(onCreatedSpySignature);
+				manager1.onConnectionRequest(manager1RequestSpy);
 				const manager1AvailableSpy = spy();
 				manager1.onAvailableConnectionsChanged(manager1AvailableSpy);
-				await manager1.registerClient("studio");
+				await manager1.registerClient("studio-host");
+				await manager1.setProjectMetaData({
+					fileSystemHasWritePermissions: true,
+					name: "project name",
+					uuid: "project uuid",
+				});
 
-				const manager2 = new InternalDiscoveryMethod({forceDiscoveryUrl: "url"});
-				const manager2ConnectionSpy = spy(onCreatedSpySignature);
-				manager2.onConnectionRequest(manager2ConnectionSpy);
+				const manager2 = new InternalDiscoveryMethod("url");
+				const manager2RequestSpy = spy(onCreatedSpySignature);
+				manager2.onConnectionRequest(manager2RequestSpy);
 				const manager2AvailableSpy = spy();
 				manager2.onAvailableConnectionsChanged(manager2AvailableSpy);
 				await manager2.registerClient("inspector");
@@ -450,205 +415,62 @@ Deno.test({
 				const availableConnections2 = Array.from(manager2.availableConnections());
 				assertEquals(availableConnections2.length, 1);
 				const manager1ClientId = availableConnections2[0].id;
-				await manager1.requestConnection(manager2ClientId);
+				await manager1.requestConnection(manager2ClientId, {
+					token: "token",
+				});
 
-				assertSpyCalls(manager1ConnectionSpy, 1);
-				const handler1 = manager1ConnectionSpy.calls[0].args[0];
-				assertEquals(handler1.connectionId, manager2ClientId);
-				const manager1Port = handler1.messagePort;
-				assertInstanceOf(manager1Port, MessagePort);
+				assertSpyCalls(manager1RequestSpy, 1);
+				const handler1 = manager1RequestSpy.calls[0].args[0];
+				assertEquals(handler1.otherClientUuid, manager2ClientId);
+				assertEquals(handler1.clientType, "inspector");
+				assertEquals(handler1.initiatedByMe, true);
+				assertEquals(handler1.interlnalConnectionData, {});
+				assertEquals(handler1.projectMetaData, null);
 
-				assertSpyCalls(manager2ConnectionSpy, 1);
-				const handler2 = manager2ConnectionSpy.calls[0].args[0];
-				assertEquals(handler2.connectionId, manager1ClientId);
-				const manager2Port = handler2.messagePort;
-				assertInstanceOf(manager2Port, MessagePort);
+				assertSpyCalls(manager2RequestSpy, 1);
+				const handler2 = manager2RequestSpy.calls[0].args[0];
+				assertEquals(handler2.otherClientUuid, manager1ClientId);
+				assertEquals(handler2.clientType, "studio-host");
+				assertEquals(handler2.initiatedByMe, false);
+				assertEquals(handler2.interlnalConnectionData, {token: "token"});
+				assertEquals(handler2.projectMetaData, {
+					fileSystemHasWritePermissions: true,
+					name: "project name",
+					uuid: "project uuid",
+				});
 
 				// Check if the two ports are connected
-				/** @type {(e: MessageEvent) => void} */
+				/** @type {(data: unknown) => void} */
 				const messageSpyFn = () => {};
 				const messageSpy1 = spy(messageSpyFn);
 				const messageSpy2 = spy(messageSpyFn);
-				manager1Port.addEventListener("message", messageSpy1);
-				manager2Port.addEventListener("message", messageSpy2);
-				manager1Port.start();
-				manager2Port.start();
-				manager1Port.postMessage("ping");
-				manager2Port.postMessage("pong");
+				handler1.onMessage(messageSpy1);
+				handler2.onMessage(messageSpy2);
+				handler1.send("ping");
+				handler2.send("pong");
 
 				await waitForMicrotasks();
 
 				assertSpyCalls(messageSpy1, 1);
 				assertSpyCalls(messageSpy2, 1);
-				assertEquals(messageSpy1.calls[0].args[0].data, "pong");
-				assertEquals(messageSpy2.calls[0].args[0].data, "ping");
+				assertEquals(messageSpy1.calls[0].args[0], "pong");
+				assertEquals(messageSpy2.calls[0].args[0], "ping");
 
-				manager1Port.close();
-				manager2Port.close();
+				handler1.close();
+				handler2.close();
 			},
 		});
 	},
 });
 
 Deno.test({
-	name: "connection data is passed from one client to another",
-	async fn() {
-		await basicSetup({
-			async fn() {
-				const manager1 = new InternalDiscoveryMethod();
-				await manager1.registerClient("studio");
-				const connectionCreatedSpy1 = spy(onCreatedSpySignature);
-				manager1.onConnectionRequest(connectionCreatedSpy1);
-
-				const studioClientId = await manager1.getClientId();
-				const manager2 = new InternalDiscoveryMethod();
-				const connectionCreatedSpy2 = spy(onCreatedSpySignature);
-				manager2.onConnectionRequest(connectionCreatedSpy2);
-				await manager2.registerClient("inspector");
-				await manager2.requestConnection(studioClientId, {
-					token: "the_token",
-				});
-
-				assertSpyCalls(connectionCreatedSpy1, 1);
-				assertSpyCalls(connectionCreatedSpy2, 1);
-				const handler1 = connectionCreatedSpy1.calls[0].args[0];
-				const handler2 = connectionCreatedSpy2.calls[0].args[0];
-				assertEquals(handler1.connectionData.token, "the_token");
-				assertEquals(handler2.connectionData.token, undefined);
-
-				const manager1Port = handler1.messagePort;
-				assertExists(manager1Port);
-				const manager2Port = handler2.messagePort;
-				assertExists(manager2Port);
-				manager1Port.close();
-				manager2Port.close();
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "Get discovery manager url from parent",
+	name: "The provided discovery url is used for the iframe",
 	async fn() {
 		await basicSetup({
 			assertIframeSrc: "discovery_url",
 			async fn() {
-				const manager = new InternalDiscoveryMethod();
-				await manager.registerClient("studio");
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "Not inside an iframe, use the fallback discovery url",
-	async fn() {
-		await basicSetup({
-			emulateStudioParent: false,
-			assertIframeSrc: "fallback_url",
-			async fn() {
-				const manager = new InternalDiscoveryMethod({
-					fallbackDiscoveryUrl: "fallback_url",
-				});
-				await manager.registerClient("studio");
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "Not inside in an iframe, no fallback url, throws",
-	async fn() {
-		await basicSetup({
-			emulateStudioParent: false,
-			async fn() {
-				const manager = new InternalDiscoveryMethod();
-				await assertRejects(async () => {
-					await manager.registerClient("studio");
-				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "Inside an iframe, but parent doesn't respond in time",
-	async fn() {
-		await basicSetup({
-			emulateParentResponse: false,
-			async fn() {
-				const time = new FakeTime();
-				try {
-					const manager = new InternalDiscoveryMethod();
-					const assertPromise = assertRejects(async () => {
-						await manager.registerClient("studio");
-					}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not opened by Renda Studio.");
-					await time.tickAsync(10_000);
-					await assertPromise;
-				} finally {
-					time.restore();
-				}
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "requestParentStudioConnection()",
-	async fn() {
-		await basicSetup({
-			async fn() {
-				const manager = new InternalDiscoveryMethod();
-				await manager.registerClient("inspector");
-				const requestConnectionSpy = stub(manager, "requestConnection");
-				await manager.requestParentStudioConnection();
-				assertSpyCalls(requestConnectionSpy, 1);
-				assertSpyCall(requestConnectionSpy, 0, {
-					args: [
-						"studio_client_id",
-						{
-							token: "studio_connection_token",
-						},
-					],
-				});
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "requestParentStudioConnection() throws when not in an iframe",
-	async fn() {
-		await basicSetup({
-			emulateStudioParent: false,
-			async fn() {
-				const manager = new InternalDiscoveryMethod({fallbackDiscoveryUrl: "fallback_url"});
-				await manager.registerClient("inspector");
-				await assertRejects(async () => {
-					await manager.requestParentStudioConnection();
-				}, Error, "Failed to get parent client data. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "requestParentStudioConnection() throws when iframe doesn't respond in time",
-	async fn() {
-		await basicSetup({
-			emulateParentResponse: false,
-			async fn() {
-				const time = new FakeTime();
-				try {
-					const manager = new InternalDiscoveryMethod({fallbackDiscoveryUrl: "fallback_url"});
-					const assertPromise = assertRejects(async () => {
-						await manager.requestParentStudioConnection();
-					}, Error, "Failed to get parent client data. The parent didn't respond with client data in timely manner. requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
-					await time.nextAsync();
-					await assertPromise;
-				} finally {
-					time.restore();
-				}
+				const manager = new InternalDiscoveryMethod("discovery_url");
+				await manager.registerClient("studio-host");
 			},
 		});
 	},
