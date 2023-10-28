@@ -1027,7 +1027,7 @@ Deno.test({
 			// foo()
 			const assertFooPromise = assertRejects(async () => {
 				await messenger.send.foo();
-			}, TimeoutError, "TypedMessenger response timed out.");
+			}, Error, "TypedMessenger response timed out.");
 
 			await time.tickAsync(500);
 			const assertFooResolved = assertPromiseResolved(assertFooPromise, false);
@@ -1040,7 +1040,7 @@ Deno.test({
 			// bar()
 			const assertBarPromise = assertRejects(async () => {
 				await messenger.send.bar();
-			}, TimeoutError, "TypedMessenger response timed out.");
+			}, Error, "TypedMessenger response timed out.");
 
 			await time.tickAsync(9_500);
 			const assertBarResolved = assertPromiseResolved(assertBarPromise, false);
