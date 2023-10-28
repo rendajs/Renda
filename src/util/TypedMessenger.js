@@ -1,3 +1,4 @@
+import {TimeoutError} from "./TimeoutError.js";
 
 /**
  * @template {TypedMessengerSignatures} TReq
@@ -443,7 +444,7 @@ export class TypedMessenger {
 	 * messenger.initializeWorkerContext(responseHandlers);
 	 * ```
 	 * @param {Worker} worker
-	 * @param {ResponseHandlers} responseHandlers
+	 * @param {TRes} responseHandlers
 	 */
 	initializeWorker(worker, responseHandlers) {
 		this.setSendHandler(data => {
@@ -470,7 +471,7 @@ export class TypedMessenger {
 	 * const messenger = new TypedMessenger();
 	 * messenger.initializeWorkerContext(responseHandlers);
 	 * ```
-	 * @param {ResponseHandlers} responseHandlers
+	 * @param {TRes} responseHandlers
 	 */
 	initializeWorkerContext(responseHandlers) {
 		this.setSendHandler(data => {
@@ -496,7 +497,7 @@ export class TypedMessenger {
 	 * ```
 	 *
 	 * @param {WebSocket} webSocket
-	 * @param {ResponseHandlers} responseHandlers
+	 * @param {TRes} responseHandlers
 	 * @param {object} [options]
 	 * @param {boolean} [options.waitForOpen]
 	 */
@@ -505,12 +506,20 @@ export class TypedMessenger {
 			if (webSocket.readyState == WebSocket.CONNECTING) {
 				/** @type {Promise<void>} */
 				const promise = new Promise((resolve, reject) => {
-					webSocket.addEventListener("open", () => {
+					function onOpen() {
 						resolve();
-					}, {once: true});
-					webSocket.addEventListener("error", e => {
+						removeListeners();
+					}
+					function onError() {
 						reject(new Error("Failed to connect to WebSocket."));
-					}, {once: true});
+						removeListeners();
+					}
+					function removeListeners() {
+						webSocket.removeEventListener("open", onOpen);
+						webSocket.removeEventListener("error", onError);
+					}
+					webSocket.addEventListener("open", onOpen);
+					webSocket.addEventListener("error", onError);
 				});
 				await promise;
 			}
@@ -622,18 +631,6 @@ export class TypedMessenger {
 	}
 
 	/**
-	 * Changes the type of a signature to allow both synchronous and asynchronous signatures.
-	 * @template {(...args: any[]) => any} T
-	 * @typedef {T extends (...args: infer Args) => infer ReturnType ?
-	 *	(...args: Args) => (Promise<ReturnType> | ReturnType) :
-	 * never} PromisifyReturnValue
-	 */
-
-	/**
-	 * @typedef {{[key in keyof TRes]: PromisifyReturnValue<TRes[key]>}} ResponseHandlers
-	 */
-
-	/**
 	 * Sets the collection of functions that the other end can call.
 	 *
 	 * ## Usage
@@ -652,7 +649,7 @@ export class TypedMessenger {
 	 * Now whenever the other end makes a call using {@linkcode send} on its own messenger (when
 	 * hooked up correctly to {@linkcode handleReceivedMessage}), your respective handler
 	 * will be called and its return value will be sent back to the other end.
-	 * @param {ResponseHandlers} handlers
+	 * @param {TRes} handlers
 	 */
 	setResponseHandlers(handlers) {
 		this.responseHandlers = handlers;
@@ -748,7 +745,7 @@ export class TypedMessenger {
 		if (timeout > 0 && !disableResponse) {
 			const promise = new Promise((resolve, reject) => {
 				const createdTimeout = globalThis.setTimeout(() => {
-					reject(new Error("TypedMessenger response timed out."));
+					reject(new TimeoutError("TypedMessenger response timed out."));
 				}, timeout);
 
 				responsePromise.then(result => {

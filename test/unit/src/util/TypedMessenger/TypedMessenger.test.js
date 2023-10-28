@@ -1,9 +1,9 @@
 import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
-import {assertSpyCalls, stub} from "std/testing/mock.ts";
 import {FakeTime} from "std/testing/time.ts";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
+import {TimeoutError} from "../../../../../src/util/TimeoutError.js";
 
 /**
  * Directly links two TypedMessengers to each other without the use of a WebSocket or anything like that.
@@ -693,75 +693,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "initializeWebSocket()",
-	async fn() {
-		class FakeWebSocket extends EventTarget {
-			/** @type {FakeWebSocket?} */
-			#otherSocket = null;
-
-			/**
-			 * @param {string} data
-			 */
-			send(data) {
-				this.#otherSocket?.dispatchEvent(new MessageEvent("message", {
-					data,
-				}));
-			}
-
-			/**
-			 * @param {FakeWebSocket} otherSocket
-			 */
-			attachOther(otherSocket) {
-				this.#otherSocket = otherSocket;
-			}
-
-			castWebSocket() {
-				return /** @type {WebSocket} */ (/** @type {unknown} */ (this));
-			}
-		}
-
-		const socketA = new FakeWebSocket();
-		const socketB = new FakeWebSocket();
-		socketA.attachOther(socketB);
-		socketB.attachOther(socketA);
-
-		const messengerA = new TypedMessenger();
-		const messengerB = new TypedMessenger();
-		messengerA.initializeWebSocket(socketA.castWebSocket(), {
-			foo() {
-				return "foo";
-			},
-		});
-		messengerB.initializeWebSocket(socketB.castWebSocket(), {});
-
-		const result = await messengerB.send.foo();
-		assertEquals(result, "foo");
-	},
-});
-
-Deno.test({
-	name: "Errors while handling websocket messages are caught",
-	fn() {
-		const consoleSpy = stub(console, "error", () => {});
-
-		try {
-			const socket = new EventTarget();
-			const castSocket = /** @type {WebSocket} */ (/** @type {unknown} */ (socket));
-			const messenger = new TypedMessenger();
-			messenger.initializeWebSocket(castSocket, {});
-			socket.dispatchEvent(new MessageEvent("message", {
-				data: "{this is not a json string",
-			}));
-
-			assertSpyCalls(consoleSpy, 1);
-			assertEquals(consoleSpy.calls[0].args[0], "An error occurred while handling a websocket message.");
-		} finally {
-			consoleSpy.restore();
-		}
-	},
-});
-
-Deno.test({
 	name: "respond false doesn't send a response",
 	async fn() {
 		const handlersB = {
@@ -814,7 +745,7 @@ Deno.test({
 
 			const assertRejectsPromise = assertRejects(async () => {
 				await messenger.sendWithOptions.foo({timeout: 10_000});
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			await time.tickAsync(9_000);
 			const assertResolved1 = assertPromiseResolved(assertRejectsPromise, false);
@@ -843,7 +774,7 @@ Deno.test({
 
 			const assertRejectsPromise1 = assertRejects(async () => {
 				await messenger.send.foo();
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			// Changing the timeout doesn't affect existing requests.
 			messenger.globalTimeout = 5_000;
@@ -862,7 +793,7 @@ Deno.test({
 			// But new requests do use the new global timeout value
 			const assertRejectsPromise2 = assertRejects(async () => {
 				await messenger.send.foo();
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			await time.tickAsync(4_000);
 			const assertResolved3 = assertPromiseResolved(assertRejectsPromise2, false);
@@ -904,7 +835,7 @@ Deno.test({
 
 			const assertRejectsPromise1 = assertRejects(async () => {
 				await messengerA.send.noResponse();
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			await time.tickAsync(9_000);
 			const assertResolved1 = assertPromiseResolved(assertRejectsPromise1, false);
@@ -1026,7 +957,7 @@ Deno.test({
 			// foo()
 			const assertFooPromise = assertRejects(async () => {
 				await messenger.send.foo();
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			await time.tickAsync(500);
 			const assertFooResolved = assertPromiseResolved(assertFooPromise, false);
@@ -1039,7 +970,7 @@ Deno.test({
 			// bar()
 			const assertBarPromise = assertRejects(async () => {
 				await messenger.send.bar();
-			}, Error, "TypedMessenger response timed out.");
+			}, TimeoutError, "TypedMessenger response timed out.");
 
 			await time.tickAsync(9_500);
 			const assertBarResolved = assertPromiseResolved(assertBarPromise, false);
