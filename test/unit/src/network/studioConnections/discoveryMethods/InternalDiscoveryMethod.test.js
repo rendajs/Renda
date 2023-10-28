@@ -208,20 +208,20 @@ Deno.test({
 });
 
 Deno.test({
-	name: "getClientId resolves with the client id after registering",
+	name: "getClientUuid resolves with the client id after registering",
 	async fn() {
 		await basicSetup({
 			async fn() {
 				const manager1 = new InternalDiscoveryMethod("endpoint");
 
-				const promise1 = manager1.getClientId();
+				const promise1 = manager1.getClientUuid();
 				await assertPromiseResolved(promise1, false);
 
 				await manager1.registerClient("studio-host");
 
 				await assertPromiseResolved(promise1, true);
 
-				const promise2 = manager1.getClientId();
+				const promise2 = manager1.getClientUuid();
 				await assertPromiseResolved(promise2, true);
 
 				const manager2 = new InternalDiscoveryMethod("endpoint");
@@ -266,10 +266,10 @@ Deno.test({
 				assertEquals(availableConnections1[0], {
 					id: manager2ClientId,
 					clientType: "studio-host",
-					projectMetaData: null,
+					projectMetadata: null,
 				});
 
-				await manager2.setProjectMetaData({
+				await manager2.setProjectMetadata({
 					name: "project name 1",
 					uuid: "project uuid 1",
 					fileSystemHasWritePermissions: false,
@@ -279,7 +279,7 @@ Deno.test({
 					{
 						clientType: "studio-host",
 						id: manager2ClientId,
-						projectMetaData: {
+						projectMetadata: {
 							name: "project name 1",
 							uuid: "project uuid 1",
 							fileSystemHasWritePermissions: false,
@@ -287,7 +287,7 @@ Deno.test({
 					},
 				]);
 
-				await manager2.setProjectMetaData({
+				await manager2.setProjectMetadata({
 					name: "project name 1",
 					uuid: "project uuid 1",
 					fileSystemHasWritePermissions: true,
@@ -297,7 +297,7 @@ Deno.test({
 					{
 						clientType: "studio-host",
 						id: manager2ClientId,
-						projectMetaData: {
+						projectMetadata: {
 							name: "project name 1",
 							uuid: "project uuid 1",
 							fileSystemHasWritePermissions: true,
@@ -305,13 +305,13 @@ Deno.test({
 					},
 				]);
 
-				await manager2.setProjectMetaData(null);
+				await manager2.setProjectMetadata(null);
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
 				assertEquals(Array.from(manager1.availableConnections()), [
 					{
 						clientType: "studio-host",
 						id: manager2ClientId,
-						projectMetaData: null,
+						projectMetadata: null,
 					},
 				]);
 
@@ -328,12 +328,12 @@ Deno.test({
 					{
 						id: manager1ClientId,
 						clientType: "inspector",
-						projectMetaData: null,
+						projectMetadata: null,
 					},
 					{
 						id: manager2ClientId,
 						clientType: "studio-host",
-						projectMetaData: null,
+						projectMetadata: null,
 					},
 				]);
 
@@ -344,12 +344,12 @@ Deno.test({
 					{
 						id: manager2ClientId,
 						clientType: "studio-host",
-						projectMetaData: null,
+						projectMetadata: null,
 					},
 					{
 						id: manager3ClientId,
 						clientType: "inspector",
-						projectMetaData: null,
+						projectMetadata: null,
 					},
 				]);
 
@@ -359,7 +359,7 @@ Deno.test({
 					{
 						id: manager3ClientId,
 						clientType: "inspector",
-						projectMetaData: null,
+						projectMetadata: null,
 					},
 				]);
 
@@ -368,7 +368,7 @@ Deno.test({
 					{
 						id: manager3ClientId,
 						clientType: "inspector",
-						projectMetaData: null,
+						projectMetadata: null,
 					},
 				]);
 
@@ -394,7 +394,7 @@ Deno.test({
 				const manager1AvailableSpy = spy();
 				manager1.onAvailableConnectionsChanged(manager1AvailableSpy);
 				await manager1.registerClient("studio-host");
-				await manager1.setProjectMetaData({
+				await manager1.setProjectMetadata({
 					fileSystemHasWritePermissions: true,
 					name: "project name",
 					uuid: "project uuid",
@@ -425,7 +425,7 @@ Deno.test({
 				assertEquals(handler1.clientType, "inspector");
 				assertEquals(handler1.initiatedByMe, true);
 				assertEquals(handler1.interlnalConnectionData, {});
-				assertEquals(handler1.projectMetaData, null);
+				assertEquals(handler1.projectMetadata, null);
 
 				assertSpyCalls(manager2RequestSpy, 1);
 				const handler2 = manager2RequestSpy.calls[0].args[0];
@@ -433,7 +433,7 @@ Deno.test({
 				assertEquals(handler2.clientType, "studio-host");
 				assertEquals(handler2.initiatedByMe, false);
 				assertEquals(handler2.interlnalConnectionData, {token: "token"});
-				assertEquals(handler2.projectMetaData, {
+				assertEquals(handler2.projectMetadata, {
 					fileSystemHasWritePermissions: true,
 					name: "project name",
 					uuid: "project uuid",

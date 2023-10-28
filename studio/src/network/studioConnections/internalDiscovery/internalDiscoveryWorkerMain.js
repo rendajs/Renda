@@ -23,12 +23,12 @@ function sendAllClientAddedMessages(activeConnections, createdConnection) {
 
 /**
  * @param {Map<import("../../../../../src/mod.js").UuidString, InternalDiscoveryWorkerConnection>} activeConnections
- * @param {import("../../../../../src/util/mod.js").UuidString} clientId
+ * @param {import("../../../../../src/util/mod.js").UuidString} clientUuid
  */
-async function sendAllClientRemoved(activeConnections, clientId) {
+async function sendAllClientRemoved(activeConnections, clientUuid) {
 	const promises = [];
 	for (const connection of activeConnections.values()) {
-		const promise = connection.parentMessenger.send.availableClientRemoved(clientId);
+		const promise = connection.parentMessenger.send.availableClientRemoved(clientUuid);
 		promises.push(promise);
 	}
 	await Promise.all(promises);
@@ -38,10 +38,10 @@ async function sendAllClientRemoved(activeConnections, clientId) {
  * @param {Map<import("../../../../../src/mod.js").UuidString, InternalDiscoveryWorkerConnection>} activeConnections
  * @param {InternalDiscoveryWorkerConnection} connection
  */
-function sendAllProjectMetaData(activeConnections, connection) {
+function sendAllProjectMetadata(activeConnections, connection) {
 	for (const otherConnection of activeConnections.values()) {
 		if (connection == otherConnection) continue;
-		otherConnection.parentMessenger.send.projectMetaData(connection.id, connection.projectMetaData);
+		otherConnection.parentMessenger.send.projectMetadata(connection.id, connection.projectMetadata);
 	}
 }
 
@@ -83,17 +83,17 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				activeConnections.set(createdConnection.id, createdConnection);
 				sendAllClientAddedMessages(activeConnections, createdConnection);
 				return {
-					/** The id of the client that was just registered. */
-					clientId: createdConnection.id,
+					/** The uuid of the client that was just registered. */
+					clientUuid: createdConnection.id,
 				};
 			},
 			/**
-			 * @param {import("../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} metaData
+			 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} metadata
 			 */
-			projectMetaData(metaData) {
+			projectMetadata(metadata) {
 				if (!createdConnection) return;
-				createdConnection.setProjectMetaData(metaData);
-				sendAllProjectMetaData(activeConnections, createdConnection);
+				createdConnection.setProjectMetadata(metadata);
+				sendAllProjectMetadata(activeConnections, createdConnection);
 			},
 			/**
 			 * @param {import("../../../../../src/mod.js").UuidString} otherClientUuid

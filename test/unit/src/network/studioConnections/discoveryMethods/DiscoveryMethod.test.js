@@ -27,7 +27,7 @@ class ExtendedDiscoveryMethod extends DiscoveryMethod {
 	}
 
 	/**
-	 * @param {import("../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").AvailableStudioData} connectionData
+	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableStudioData} connectionData
 	 */
 	addOne(connectionData) {
 		this.addAvailableConnection(connectionData);
@@ -46,10 +46,10 @@ class ExtendedDiscoveryMethod extends DiscoveryMethod {
 
 	/**
 	 * @param {import("../../../../../../src/mod.js").UuidString} id
-	 * @param {import("../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} projectMetaData
+	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} projectMetaData
 	 */
 	modifyOne(id, projectMetaData) {
-		this.setConnectionProjectMetaData(id, projectMetaData);
+		this.setConnectionProjectMetadata(id, projectMetaData);
 	}
 
 	/**
@@ -73,24 +73,24 @@ Deno.test({
 		manager.addOne({
 			id: "id",
 			clientType: "studio-host",
-			projectMetaData: null,
+			projectMetadata: null,
 		});
 		assertSpyCalls(onChangeSpy, 1);
 		assertEquals(Array.from(manager.availableConnections()), [
 			{
 				clientType: "studio-host",
 				id: "id",
-				projectMetaData: null,
+				projectMetadata: null,
 			},
 		]);
 
-		assertEquals(manager.hasConnection("id"), true);
+		assertEquals(manager.hasAvailableConnection("id"), true);
 
 		manager.removeOne("id");
 		assertSpyCalls(onChangeSpy, 2);
 		assertEquals(Array.from(manager.availableConnections()), []);
 
-		assertEquals(manager.hasConnection("id"), false);
+		assertEquals(manager.hasAvailableConnection("id"), false);
 	},
 });
 
@@ -104,12 +104,12 @@ Deno.test({
 		manager.addOne({
 			id: "1",
 			clientType: "studio-host",
-			projectMetaData: null,
+			projectMetadata: null,
 		});
 		manager.addOne({
 			id: "2",
 			clientType: "inspector",
-			projectMetaData: {
+			projectMetadata: {
 				name: "project",
 				uuid: "id",
 				fileSystemHasWritePermissions: false,
@@ -133,7 +133,7 @@ Deno.test({
 		manager.addOne({
 			id: "id",
 			clientType: "studio-host",
-			projectMetaData: null,
+			projectMetadata: null,
 		});
 		assertSpyCalls(onChangeSpy, 1);
 
@@ -141,7 +141,7 @@ Deno.test({
 		manager.addOne({
 			id: "id2",
 			clientType: "inspector",
-			projectMetaData: null,
+			projectMetadata: null,
 		});
 
 		assertSpyCalls(onChangeSpy, 1);
@@ -163,7 +163,7 @@ Deno.test({
 	fn() {
 		const manager = new DiscoveryMethod(ExtendedMessageHandler);
 		assertThrows(() => {
-			manager.setProjectMetaData(null);
+			manager.setProjectMetadata(null);
 		});
 	},
 });
@@ -175,7 +175,7 @@ Deno.test({
 		manager.addOne({
 			id: "A",
 			clientType: "studio-host",
-			projectMetaData: null,
+			projectMetadata: null,
 		});
 
 		const onChangeSpy = spy();
@@ -219,7 +219,7 @@ Deno.test({
 		manager.addOne({
 			id: "id",
 			clientType: "studio-client",
-			projectMetaData: null,
+			projectMetadata: null,
 		});
 		const messageHandler = manager.addActive("id", true, 42, "foo");
 
@@ -235,7 +235,7 @@ Deno.test({
 	name: "addActiveConnection() clones connectionData",
 	fn() {
 		const manager = new ExtendedDiscoveryMethod();
-		/** @type {import("../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData} */
+		/** @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata} */
 		const projectMetaData = {
 			fileSystemHasWritePermissions: true,
 			name: "old name",
@@ -244,13 +244,13 @@ Deno.test({
 		manager.addOne({
 			id: "id",
 			clientType: "studio-client",
-			projectMetaData,
+			projectMetadata: projectMetaData,
 		});
 
 		const messageHandler = manager.addActive("id", true, 0, "");
 
 		projectMetaData.name = "new name";
 
-		assertEquals(messageHandler.projectMetaData?.name, "old name");
+		assertEquals(messageHandler.projectMetadata?.name, "old name");
 	},
 });

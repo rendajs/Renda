@@ -1,27 +1,13 @@
 /**
- * @typedef AvailableStudioData
- * @property {import("../../../util/mod.js").UuidString} id
- * @property {import("../DiscoveryManager.js").ClientType} clientType
- * @property {RemoteStudioMetaData?} projectMetaData
- */
-
-/**
- * @typedef {AvailableStudioData & {connectionType: string}} AvailableConnectionData
- */
-
-/**
- * @typedef {object} RemoteStudioMetaData
- * @property {string} name
- * @property {boolean} fileSystemHasWritePermissions
- * @property {import("../../../util/mod.js").UuidString} uuid
- */
-
-/**
  * Base class for DiscoveryMethods.
- * A DiscoveryMethod can list multiple available connections without connecting to them.
+ * A DiscoveryMethod can list available connections and provides functionality for connecting to them
+ * DiscoveryMethods are usually created via `DiscoveryManager.addDiscoveryMethod()`.
  * @template {new (messageHandlerOptions: import("../messageHandlers/MessageHandler.js").MessageHandlerOptions, ...args: any[]) => import("../messageHandlers/MessageHandler.js").MessageHandler} TMessageHandler
  */
 export class DiscoveryMethod {
+	/**
+	 * An identifier that is used when listing available connections.
+	 */
 	static type = "";
 
 	/**
@@ -30,7 +16,7 @@ export class DiscoveryMethod {
 	constructor(messageHandlerConstructor) {
 		/** @private */
 		this.MessageHandlerConstructor = messageHandlerConstructor;
-		/** @private @type {Map<import("../../../mod.js").UuidString, AvailableStudioData>} */
+		/** @private @type {Map<import("../../../mod.js").UuidString, import("../DiscoveryManager.js").AvailableStudioData>} */
 		this._availableConnections = new Map();
 		/** @private @type {Set<() => void>} */
 		this.onAvailableConnectionsChangedCbs = new Set();
@@ -42,14 +28,14 @@ export class DiscoveryMethod {
 	}
 
 	/**
-	 * Called by the StudioConnectionsManager when removing a DiscoveryManager.
+	 * Called by the DiscoveryManager when removing this DiscoveryMethod.
 	 */
 	destructor() {}
 
 	/**
-	 * Registers the current client, letting the discovery server know about its existence.
-	 * This broadcasts the existence of this client and its type to other clients,
-	 * allowing them to initialize connections to this client.
+	 * Registers the current client, letting the discovery method know about its existence.
+	 * This should broadcast the existence of this client and its type to other clients.
+	 *
 	 * @param {import("../DiscoveryManager.js").ClientType} clientType
 	 */
 	registerClient(clientType) {
@@ -57,28 +43,34 @@ export class DiscoveryMethod {
 	}
 
 	/**
+	 * Call this when another client becomes available.
+	 *
 	 * @protected
-	 * @param {AvailableStudioData} connection
+	 * @param {import("../DiscoveryManager.js").AvailableStudioData} connection
 	 */
 	addAvailableConnection(connection, fireAvailableConnectionsChanged = true) {
 		this._availableConnections.set(connection.id, {
 			id: connection.id,
 			clientType: connection.clientType,
-			projectMetaData: connection.projectMetaData,
+			projectMetadata: connection.projectMetadata,
 		});
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
 	}
 
 	/**
+	 * Call this when another client is no longer available.
+	 *
 	 * @protected
-	 * @param {import("../../../mod.js").UuidString} id
+	 * @param {import("../../../mod.js").UuidString} clientUuid
 	 */
-	removeAvailableConnection(id) {
-		this._availableConnections.delete(id);
+	removeAvailableConnection(clientUuid) {
+		this._availableConnections.delete(clientUuid);
 		this.fireAvailableConnectionsChanged();
 	}
 
 	/**
+	 * Call this when the connection to your discovery server closes for instance.
+	 *
 	 * @protected
 	 */
 	clearAvailableConnections(fireAvailableConnectionsChanged = true) {
@@ -91,31 +83,31 @@ export class DiscoveryMethod {
 	}
 
 	/**
-	 * @param {import("../../../mod.js").UuidString} id
+	 * @param {import("../../../mod.js").UuidString} clientUuid
 	 */
-	hasConnection(id) {
-		return this._availableConnections.has(id);
+	hasAvailableConnection(clientUuid) {
+		return this._availableConnections.has(clientUuid);
 	}
 
 	/**
 	 * Notify other clients about the project metadata of this client.
 	 * This way other clients can display things such as the project name in their UI.
-	 * @param {RemoteStudioMetaData?} metaData
+	 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
 	 */
-	setProjectMetaData(metaData) {
+	setProjectMetadata(metadata) {
 		throw new Error("base class");
 	}
 
 	/**
 	 * Updates the metadata of a specific connection and fires change events.
 	 * @protected
-	 * @param {import("../../../mod.js").UuidString} id
-	 * @param {RemoteStudioMetaData?} metaData
+	 * @param {import("../../../mod.js").UuidString} clientUuid
+	 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
 	 */
-	setConnectionProjectMetaData(id, metaData) {
-		const connection = this._availableConnections.get(id);
+	setConnectionProjectMetadata(clientUuid, metadata) {
+		const connection = this._availableConnections.get(clientUuid);
 		if (connection) {
-			connection.projectMetaData = metaData;
+			connection.projectMetadata = metadata;
 			this.fireAvailableConnectionsChanged();
 		}
 	}
@@ -128,6 +120,8 @@ export class DiscoveryMethod {
 	 */
 
 	/**
+	 * This should be called when either the creator of this instance called {@linkcode requestConnection}
+	 * or another client started a connection to us.
 	 * @protected
 	 * @param {import("../../../mod.js").UuidString} otherClientUuid
 	 * @param {boolean} initiatedByMe True when the connection was initiated by our client (i.e. the client which you are currently instantiating a MessageHandler for).
@@ -138,7 +132,7 @@ export class DiscoveryMethod {
 		if (!availableConnection) {
 			throw new Error(`Assertion failed, a new connection was created but "${otherClientUuid}" is not listed as an available connection.`);
 		}
-		const connectionData = /** @type {AvailableStudioData} */ (structuredClone(availableConnection));
+		const connectionData = /** @type {import("../DiscoveryManager.js").AvailableStudioData} */ (structuredClone(availableConnection));
 		const castManager = /** @type {typeof DiscoveryMethod} */ (this.constructor);
 		const instance = new this.MessageHandlerConstructor({
 			otherClientUuid,
@@ -185,7 +179,9 @@ export class DiscoveryMethod {
 
 	/**
 	 * Initiates a connection with another client.
-	 * If the connection is successful, the `onConnectionCreated` callback gets fired.
+	 * This should call {@linkcode addActiveConnection} on both this instance,
+	 * and on the instance of the other client for which the connection was requested.
+	 *
 	 * @param {import("../../../mod.js").UuidString} otherClientUuid
 	 * @param {unknown} [connectionData] Optional data that can be sent to the client which allows
 	 * it to determine whether the connection should be accepted or not.

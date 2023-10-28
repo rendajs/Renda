@@ -44,8 +44,8 @@ export class StudioConnection {
 		return this.messageHandler.initiatedByMe;
 	}
 
-	get projectMetaData() {
-		return this.messageHandler.projectMetaData;
+	get projectMetadata() {
+		return this.messageHandler.projectMetadata;
 	}
 
 	close() {

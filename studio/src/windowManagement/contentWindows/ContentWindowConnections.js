@@ -171,7 +171,7 @@ export class ContentWindowConnections extends ContentWindow {
 
 			removeGuiIds.delete(connection.id);
 
-			const projectMetaData = connection.projectMetaData;
+			const projectMetadata = connection.projectMetadata;
 
 			let available = false;
 			let status = "Unavailable";
@@ -180,9 +180,9 @@ export class ContentWindowConnections extends ContentWindow {
 				available = false;
 				tooltip = "This connection is a studio instance without an open project. Connections can only be initiated from the other end.";
 				gui.treeView.name = "Studio Client";
-			} else if (projectMetaData) {
-				gui.treeView.name = projectMetaData.name || "Untitled Project";
-				if (projectMetaData.fileSystemHasWritePermissions) {
+			} else if (projectMetadata) {
+				gui.treeView.name = projectMetadata.name || "Untitled Project";
+				if (projectMetadata.fileSystemHasWritePermissions) {
 					available = true;
 					status = "Available";
 				} else {

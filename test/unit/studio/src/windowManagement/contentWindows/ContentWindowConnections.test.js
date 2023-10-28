@@ -126,7 +126,7 @@ Deno.test({
 					clientType: "studio-host",
 					connectionState: "disconnected",
 					connectionType: "renda:internal",
-					projectMetaData: null,
+					projectMetadata: null,
 				},
 			],
 			fn({studiosListTreeView}) {
@@ -147,7 +147,7 @@ Deno.test({
 					clientType: "studio-host",
 					connectionState: "disconnected",
 					connectionType: "renda:internal",
-					projectMetaData: {
+					projectMetadata: {
 						fileSystemHasWritePermissions: false,
 						name: "My Project",
 						uuid: "uuid",
@@ -172,7 +172,7 @@ Deno.test({
 					clientType: "studio-host",
 					connectionState: "disconnected",
 					connectionType: "renda:internal",
-					projectMetaData: {
+					projectMetadata: {
 						fileSystemHasWritePermissions: true,
 						name: "",
 						uuid: "uuid",
@@ -197,7 +197,7 @@ Deno.test({
 					clientType: "studio-host",
 					connectionState: "disconnected",
 					connectionType: "renda:webrtc",
-					projectMetaData: {
+					projectMetadata: {
 						fileSystemHasWritePermissions: true,
 						name: "",
 						uuid: "uuid",
@@ -224,7 +224,7 @@ Deno.test({
 				clientType: "studio-host",
 				connectionState: "disconnected",
 				connectionType: "renda:webrtc",
-				projectMetaData: {
+				projectMetadata: {
 					fileSystemHasWritePermissions: true,
 					name: "my project",
 					uuid: "uuid",
@@ -258,7 +258,7 @@ Deno.test({
 					clientType: "studio-host",
 					connectionState: "disconnected",
 					connectionType: "renda:webrtc",
-					projectMetaData: null,
+					projectMetadata: null,
 				});
 				fireOnAvailableConnectionsChanged();
 				assertEquals(studiosListTreeView.children.length, 1);

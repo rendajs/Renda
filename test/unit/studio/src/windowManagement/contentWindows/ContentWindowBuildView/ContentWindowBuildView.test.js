@@ -51,7 +51,7 @@ Deno.test({
 				const {args, mockStudioInstance} = getMockArgs();
 				mockStudioInstance.gestureInProgressManager = new GestureInProgressManager();
 				mockStudioInstance.studioConnectionsManager = /** @type {import("../../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */ ({
-					getInternalClientId() {
+					getInternalClientUuid() {
 						return Promise.resolve("the_client_id");
 					},
 					createInternalConnectionToken() {
@@ -66,7 +66,7 @@ Deno.test({
 				assertEquals(result, {
 					type: "renda:internal",
 					discoveryUrl: "https://example.com/internalDiscovery",
-					clientId: "the_client_id",
+					clientUuid: "the_client_id",
 					internalConnectionToken: "the_token",
 				});
 			} finally {

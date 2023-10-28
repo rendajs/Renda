@@ -4,7 +4,7 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
 
 /**
  * @fileoverview This DiscoveryManager allows connecting to other clients within the same browser using a SharedWorker.
- * Source code of the discovery server can be found at studio/src/network/studioConnections/internalDiscovery
+ * Source code of the discovery iframe and SharedWorker can be found at studio/src/network/studioConnections/internalDiscovery
  */
 
 /** @typedef {ReturnType<InternalDiscoveryMethod["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
@@ -22,9 +22,10 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
 
 /**
  * This class allows you to discover other tabs within the same browser instance and open connections with them, this even works while offline.
- * In order for this to work, the other tab has to also create an InternalDiscoveryManager and use the same discovery url.
+ * In order for this to work, the other tab has to also create an InternalDiscoveryMethod and use the same discovery url.
  * This creates an iframe with a shared worker which all discovery communication passes through.
  * That way two arbitrary tabs can communicate with each other, and in supported browsers, it might even allow communication across origins.
+ * See https://github.com/rendajs/Renda/issues/805 for updates on cross origin communication.
  * @extends {DiscoveryMethod<typeof MessageHandlerInternal>}
  */
 export class InternalDiscoveryMethod extends DiscoveryMethod {
@@ -32,7 +33,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 
 	/**
 	 * @param {string} discoveryUrl A url that points to the discovery iframe page of a studio instance,
-	 * i.e. if two applications wish to communicate with each other, they should both use the same discovery url.
+	 * If two applications wish to communicate with each other, they should both use the same discovery url.
 	 */
 	constructor(discoveryUrl) {
 		super(MessageHandlerInternal);
@@ -47,15 +48,13 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 			}
 		});
 
-		/** @private @type {((id: string) => void) | null} */
-		this._clientIdResolve = null;
+		/** @private @type {(id: string) => void} */
+		this._resolveClientUuidPromise = id => {};
 		/** @private @type {Promise<string>} */
-		this._clientIdPromise = new Promise(resolve => {
-			this._clientIdResolve = resolve;
+		this._clientUuidPromise = new Promise(resolve => {
+			this._resolveClientUuidPromise = resolve;
 		});
 
-		/** @private */
-		this._setIframeUrlCalled = false;
 		/** @private */
 		this.iframeLoaded = false;
 		/** @private @type {Set<() => void>} */
@@ -67,7 +66,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 		document.body.appendChild(this.iframe);
 
 		/**
-		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the iframe it created.
+		 * The messenger between whatever page instantiated the InternalDiscoveryMethod and the iframe it created.
 		 * @private @type {TypedMessenger<InternalDiscoveryParentHandlers, import("../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers>}
 		 */
 		this.iframeMessenger = new TypedMessenger();
@@ -81,7 +80,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 		});
 
 		/**
-		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the shared
+		 * The messenger between whatever page instantiated the InternalDiscoveryMethod and the shared
 		 * worker that was created by the iframe. Messages first go through the iframe messenger which then
 		 * passes messages on to the sharedworker.
 		 * @private @type {TypedMessenger<InternalDiscoveryParentWorkerHandlers, import("../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers>}
@@ -131,23 +130,23 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionData, port);
 			},
 			/**
-			 * @param {import("./DiscoveryMethod.js").AvailableStudioData} connectionData
+			 * @param {import("../DiscoveryManager.js").AvailableStudioData} connectionData
 			 */
 			availableClientAdded: connectionData => {
 				this.addAvailableConnection(connectionData);
 			},
 			/**
-			 * @param {import("../../../mod.js").UuidString} clientId
+			 * @param {import("../../../mod.js").UuidString} clientUuid
 			 */
-			availableClientRemoved: clientId => {
-				this.removeAvailableConnection(clientId);
+			availableClientRemoved: clientUuid => {
+				this.removeAvailableConnection(clientUuid);
 			},
 			/**
-			 * @param {import("../../../mod.js").UuidString} clientId
-			 * @param {import("./DiscoveryMethod.js").RemoteStudioMetaData?} metaData
+			 * @param {import("../../../mod.js").UuidString} clientUuid
+			 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
 			 */
-			projectMetaData: (clientId, metaData) => {
-				this.setConnectionProjectMetaData(clientId, metaData);
+			projectMetadata: (clientUuid, metadata) => {
+				this.setConnectionProjectMetadata(clientUuid, metadata);
 			},
 		};
 	}
@@ -177,15 +176,15 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 	 */
 	async registerClient(clientType) {
 		const result = await this.workerMessenger.send.registerClient(clientType);
-		if (this._clientIdResolve) this._clientIdResolve(result.clientId);
+		this._resolveClientUuidPromise(result.clientUuid);
 	}
 
 	/**
-	 * Returns the client id of the registered client.
+	 * Returns the client uuid of the registered client.
 	 * Other tabs can use this id to connect to the registered client.
 	 */
-	getClientId() {
-		return this._clientIdPromise;
+	getClientUuid() {
+		return this._clientUuidPromise;
 	}
 
 	/**
@@ -199,9 +198,9 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 
 	/**
 	 * @override
-	 * @param {import("./DiscoveryMethod.js").RemoteStudioMetaData?} metaData
+	 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
 	 */
-	async setProjectMetaData(metaData) {
-		await this.workerMessenger.send.projectMetaData(metaData);
+	async setProjectMetadata(metadata) {
+		await this.workerMessenger.send.projectMetadata(metadata);
 	}
 }

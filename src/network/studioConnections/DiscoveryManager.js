@@ -13,6 +13,24 @@ import {StudioConnection} from "./StudioConnection.js";
  * @typedef {"studio-host" | "inspector" | "studio-client"} ClientType
  */
 
+/**
+ * @typedef AvailableStudioData
+ * @property {import("../../util/util.js").UuidString} id
+ * @property {ClientType} clientType
+ * @property {RemoteStudioMetadata?} projectMetadata
+ */
+
+/**
+ * @typedef {AvailableStudioData & {connectionType: string}} AvailableConnectionData
+ */
+
+/**
+ * @typedef {object} RemoteStudioMetadata
+ * @property {string} name
+ * @property {boolean} fileSystemHasWritePermissions
+ * @property {import("../../util/util.js").UuidString} uuid
+ */
+
 export class DiscoveryManager {
 	/**
 	 * @typedef OnConnectionCreatedRequest
@@ -30,8 +48,8 @@ export class DiscoveryManager {
 		/** @readonly */
 		this.clientType = clientType;
 
-		/** @private @type {import("./discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} */
-		this.projectMetaData = null;
+		/** @private @type {RemoteStudioMetadata?} */
+		this.projectMetadata = null;
 
 		/** @private @type {Set<import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<any>>} */
 		this.discoveryMethods = new Set();
@@ -55,7 +73,7 @@ export class DiscoveryManager {
 	 * @param {new (...args: TArgs) => TManager} constructor
 	 * @param {TArgs} args
 	 */
-	addDiscoveryManager(constructor, ...args) {
+	addDiscoveryMethod(constructor, ...args) {
 		/** @type {import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<typeof import("./messageHandlers/MessageHandler.js").MessageHandler>} */
 		const discoveryManager = new constructor(...args);
 		this.discoveryMethods.add(discoveryManager);
@@ -86,24 +104,24 @@ export class DiscoveryManager {
 			}
 		});
 		discoveryManager.registerClient(this.clientType);
-		if (this.projectMetaData) {
-			discoveryManager.setProjectMetaData(this.projectMetaData);
+		if (this.projectMetadata) {
+			discoveryManager.setProjectMetadata(this.projectMetadata);
 		}
 		return /** @type {TManager} */ (discoveryManager);
 	}
 
 	/**
-	 * @param {import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<any>} discoveryManager
+	 * @param {import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<any>} discoveryMethod
 	 */
-	removeDiscoveryManager(discoveryManager) {
-		if (this.discoveryMethods.has(discoveryManager)) {
-			discoveryManager.destructor();
-			this.discoveryMethods.delete(discoveryManager);
+	removeDiscoveryMethod(discoveryMethod) {
+		if (this.discoveryMethods.has(discoveryMethod)) {
+			discoveryMethod.destructor();
+			this.discoveryMethods.delete(discoveryMethod);
 		}
 	}
 
 	/**
-	 * @returns {Generator<import("./discoveryMethods/DiscoveryMethod.js").AvailableConnectionData>}
+	 * @returns {Generator<AvailableConnectionData>}
 	 */
 	*availableConnections() {
 		for (const discoveryManager of this.discoveryMethods) {
@@ -118,12 +136,12 @@ export class DiscoveryManager {
 	}
 
 	/**
-	 * @param {import("./discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} metaData
+	 * @param {RemoteStudioMetadata?} metadata
 	 */
-	setProjectMetaData(metaData) {
-		this.projectMetaData = metaData;
+	setProjectMetadata(metadata) {
+		this.projectMetadata = metadata;
 		for (const discoveryManager of this.discoveryMethods.values()) {
-			discoveryManager.setProjectMetaData(metaData);
+			discoveryManager.setProjectMetadata(metadata);
 		}
 	}
 
@@ -162,18 +180,20 @@ export class DiscoveryManager {
 
 	/**
 	 * Attempts to initiate a new connection.
-	 * If the connection succeeds, state changes can be observed using {@linkcode onConnectionsChanged}.
-	 * @param {import("../../mod.js").UuidString} id
+	 * If the connection succeeds, state changes can be observed using {@linkcode onConnectionsChanged}
+	 * and the {@linkcode onConnectionRequest} callback is fired.
+	 *
+	 * @param {import("../../mod.js").UuidString} otherClientUuid
 	 * @param {unknown} [connectionData] Optional data that can be sent to the client which allows
 	 * it to determine whether the connection should be accepted or not.
 	 */
-	requestConnection(id, connectionData) {
+	requestConnection(otherClientUuid, connectionData) {
 		for (const discoveryManager of this.discoveryMethods.values()) {
-			if (discoveryManager.hasConnection(id)) {
-				discoveryManager.requestConnection(id, connectionData);
+			if (discoveryManager.hasAvailableConnection(otherClientUuid)) {
+				discoveryManager.requestConnection(otherClientUuid, connectionData);
 				return;
 			}
 		}
-		throw new Error(`No connection with id ${id} was found.`);
+		throw new Error(`No connection with id ${otherClientUuid} was found.`);
 	}
 }

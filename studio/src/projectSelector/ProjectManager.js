@@ -407,7 +407,7 @@ export class ProjectManager {
 		if (!(this.currentProjectFileSystem instanceof RemoteStudioFileSystem)) {
 			throw new Error("Assertion failed: Current project file system is not a remote file system.");
 		}
-		const metadata = connection.projectMetaData;
+		const metadata = connection.projectMetadata;
 		if (!metadata) {
 			throw new Error("Assertion failed: Connection does not have project metadata.");
 		}
@@ -471,9 +471,9 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @returns {import("../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?}
+	 * @returns {import("../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?}
 	 */
-	getCurrentProjectMetaData() {
+	getCurrentProjectMetadata() {
 		if (!this.currentProjectOpenEvent) return null;
 		return {
 			name: this.currentProjectOpenEvent.name,

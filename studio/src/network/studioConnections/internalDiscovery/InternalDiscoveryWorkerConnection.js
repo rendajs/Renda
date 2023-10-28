@@ -20,27 +20,27 @@ export class InternalDiscoveryWorkerConnection {
 		 */
 		this.port = port;
 		this.clientType = clientType;
-		/** @type {import("../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} */
-		this.projectMetaData = null;
+		/** @type {import("../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} */
+		this.projectMetadata = null;
 		this.iframeMessenger = iframeMessenger;
 		this.parentMessenger = parentWindowMessenger;
 	}
 
 	/**
-	 * @param {import("../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").RemoteStudioMetaData?} projectMetaData
+	 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} projectMetadata
 	 */
-	setProjectMetaData(projectMetaData) {
-		this.projectMetaData = projectMetaData;
+	setProjectMetadata(projectMetadata) {
+		this.projectMetadata = projectMetadata;
 	}
 
 	/**
-	 * @returns {import("../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js").AvailableStudioData}
+	 * @returns {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableStudioData}
 	 */
 	getConnectionData() {
 		return {
 			id: this.id,
 			clientType: this.clientType,
-			projectMetaData: this.projectMetaData,
+			projectMetadata: this.projectMetadata,
 		};
 	}
 }

@@ -66,7 +66,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			setClientType: {
 				expectResponse: false,
 			},
-			setProjectMetaData: {
+			setProjectMetadata: {
 				expectResponse: false,
 			},
 		});
@@ -112,7 +112,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 
 		return {
 			/**
-			 * @param {import("./DiscoveryMethod.js").AvailableStudioData[]} connections
+			 * @param {import("../DiscoveryManager.js").AvailableStudioData[]} connections
 			 */
 			nearbyHostConnectionsList: connections => {
 				this.clearAvailableConnections(false);
@@ -123,7 +123,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 				return disableResponseReturn;
 			},
 			/**
-			 * @param {import("./DiscoveryMethod.js").AvailableStudioData} connection
+			 * @param {import("../DiscoveryManager.js").AvailableStudioData} connection
 			 */
 			nearbyHostConnectionAdded: connection => {
 				this.addAvailableConnection(connection);
@@ -138,10 +138,10 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} id
-			 * @param {import("./DiscoveryMethod.js").RemoteStudioMetaData?} projectMetaData
+			 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} projectMetadata
 			 */
-			nearbyHostConnectionUpdateProjectMetaData: (id, projectMetaData) => {
-				this.setConnectionProjectMetaData(id, projectMetaData);
+			nearbyHostConnectionUpdateProjectMetadata: (id, projectMetadata) => {
+				this.setConnectionProjectMetadata(id, projectMetadata);
 				return disableResponseReturn;
 			},
 			/**
@@ -184,10 +184,10 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 
 	/**
 	 * @override
-	 * @param {import("./DiscoveryMethod.js").RemoteStudioMetaData?} metaData
+	 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
 	 */
-	async setProjectMetaData(metaData) {
-		await this.messenger.send.setProjectMetaData(metaData);
+	async setProjectMetadata(metadata) {
+		await this.messenger.send.setProjectMetadata(metadata);
 	}
 
 	/**

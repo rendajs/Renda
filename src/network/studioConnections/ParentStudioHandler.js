@@ -60,12 +60,12 @@ export class ParentStudioHandler {
 
 		for (const DiscoveryManager of supportedDiscoveryManagers) {
 			if (DiscoveryManager.type == "renda:internal" && studioClientData.type == "renda:internal") {
-				studioConnectionsManager.addDiscoveryManager(DiscoveryManager, studioClientData.discoveryUrl);
+				studioConnectionsManager.addDiscoveryMethod(DiscoveryManager, studioClientData.discoveryUrl);
 				/** @type {import("./discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} */
 				const connectionData = {
 					token: studioClientData.internalConnectionToken,
 				};
-				studioConnectionsManager.requestConnection(studioClientData.clientId, connectionData);
+				studioConnectionsManager.requestConnection(studioClientData.clientUuid, connectionData);
 			}
 		}
 	}

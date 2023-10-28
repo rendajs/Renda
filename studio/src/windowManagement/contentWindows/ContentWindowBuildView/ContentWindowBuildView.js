@@ -186,8 +186,8 @@ export class ContentWindowBuildView extends ContentWindow {
 			 * the discovery url of the Renda Studio instance it was opened from.
 			 */
 			requestDesiredStudioConnectionMethod: async () => {
-				const clientId = await this.studioInstance.studioConnectionsManager.getInternalClientId();
-				if (!clientId) throw new Error("Failed to get internal client id");
+				const clientUuid = await this.studioInstance.studioConnectionsManager.getInternalClientUuid();
+				if (!clientUuid) throw new Error("Failed to get internal client id");
 				const internalConnectionToken = this.studioInstance.studioConnectionsManager.createInternalConnectionToken();
 
 				const url = new URL("internalDiscovery", window.location.href);
@@ -195,7 +195,7 @@ export class ContentWindowBuildView extends ContentWindow {
 				return {
 					type: /** @type {const} */ ("renda:internal"),
 					discoveryUrl: url.href,
-					clientId,
+					clientUuid,
 					internalConnectionToken,
 				};
 			},
