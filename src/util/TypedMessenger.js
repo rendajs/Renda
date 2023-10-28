@@ -17,8 +17,6 @@
  * 	never} GetReturnType
  */
 
-import {TimeoutError} from "./TimeoutError.js";
-
 /**
  * @typedef {Object<string, (...args: any[]) => any>} TypedMessengerSignatures
  */
@@ -738,7 +736,7 @@ export class TypedMessenger {
 		if (timeout > 0 && !disableResponse) {
 			const promise = new Promise((resolve, reject) => {
 				const createdTimeout = globalThis.setTimeout(() => {
-					reject(new TimeoutError("TypedMessenger response timed out."));
+					reject(new Error("TypedMessenger response timed out."));
 				}, timeout);
 
 				responsePromise.then(result => {
