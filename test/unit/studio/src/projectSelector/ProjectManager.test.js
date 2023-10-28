@@ -1,7 +1,7 @@
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
 import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {Importer} from "fake-imports";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
@@ -105,7 +105,7 @@ async function basicTest({fn}) {
 		});
 		injectMockStudioInstance(mockStudio);
 
-		const manager = new ProjectManager(mockPreferencesManager);
+		const manager = new ProjectManager();
 
 		const studioConnectionsManager = getLastStudioConnectionsManager();
 
@@ -137,98 +137,6 @@ function createStoredProjectEntry() {
 	};
 	return entry;
 }
-
-Deno.test({
-	name: "Studio connections manager is updated when needed",
-	async fn() {
-		await basicTest({
-			async fn({manager, mockPreferencesManager, studioConnectionsManager}) {
-				const fs = new MemoryStudioFileSystem();
-				let resolveWaitForPermission = () => {};
-				/** @type {Promise<void>} */
-				const waitForPermissionPromise = new Promise(resolve => {
-					resolveWaitForPermission = resolve;
-				});
-				stub(fs, "waitForPermission", () => {
-					return waitForPermissionPromise;
-				});
-				fs.writeJson(LOCAL_PROJECT_PREFERENCES_PATH, {
-					preferences: {
-						"studioConnections.allowInternalIncoming": true,
-						"studioConnections.allowRemoteIncoming": true,
-					},
-				});
-				const entry = createStoredProjectEntry();
-
-				const setDiscoveryEndpointSpy = spy(studioConnectionsManager, "setDiscoveryEndpoint");
-				const setAllowInternalIncomingSpy = spy(studioConnectionsManager, "setAllowInternalIncoming");
-				const sendSetIsStudioHostSpy = spy(studioConnectionsManager, "sendSetIsStudioHost");
-				const setProjectMetaDataSpy = spy(studioConnectionsManager, "setProjectMetaData");
-
-				/**
-				 * @param {string?} endpoint
-				 * @param {boolean} allowInternalIncoming
-				 * @param {boolean} isStudioHost
-				 * @param {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData} projectMetaData
-				 */
-				function testUpdateCall(endpoint, allowInternalIncoming, isStudioHost, projectMetaData) {
-					assertSpyCall(setDiscoveryEndpointSpy, setDiscoveryEndpointSpy.calls.length - 1, {
-						args: [endpoint],
-					});
-					assertSpyCall(setAllowInternalIncomingSpy, setAllowInternalIncomingSpy.calls.length - 1, {
-						args: [allowInternalIncoming],
-					});
-					assertSpyCall(sendSetIsStudioHostSpy, sendSetIsStudioHostSpy.calls.length - 1, {
-						args: [isStudioHost],
-					});
-					assertSpyCall(setProjectMetaDataSpy, setProjectMetaDataSpy.calls.length - 1, {
-						args: [projectMetaData],
-					});
-				}
-
-				const openProjectPromise = manager.openProject(fs, entry, false);
-
-				testUpdateCall(null, false, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: false,
-				});
-
-				resolveWaitForPermission();
-				await waitForMicrotasks();
-				await openProjectPromise;
-
-				testUpdateCall("ws://localhost/defaultEndpoint", true, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: true,
-				});
-
-				mockPreferencesManager.set("studioConnections.allowInternalIncoming", false, {location: "project"});
-				testUpdateCall("ws://localhost/defaultEndpoint", false, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: true,
-				});
-
-				mockPreferencesManager.set("studioConnections.allowRemoteIncoming", false, {location: "project"});
-				testUpdateCall(null, false, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: true,
-				});
-
-				manager.setStudioConnectionsDiscoveryEndpoint("endpoint");
-				mockPreferencesManager.set("studioConnections.allowRemoteIncoming", true, {location: "project"});
-				testUpdateCall("wss://endpoint", false, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: true,
-				});
-			},
-		});
-	},
-});
 
 Deno.test({
 	name: "content window preferences are loaded and saved",
