@@ -95,6 +95,44 @@ Deno.test({
 });
 
 Deno.test({
+	name: "addAvailableConnection() clones the connection data.",
+	fn() {
+		const manager = new ExtendedDiscoveryMethod();
+
+		/**
+		 * @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableStudioData}
+		 */
+		const connection = {
+			id: "id",
+			clientType: "studio-host",
+			projectMetadata: {
+				name: "old project name",
+				fileSystemHasWritePermissions: false,
+				uuid: "uuid",
+			},
+		};
+		manager.addOne(connection);
+		connection.clientType = "studio-client";
+		if (connection.projectMetadata) {
+			connection.projectMetadata.name = "new project name";
+			connection.projectMetadata.fileSystemHasWritePermissions = true;
+		}
+
+		assertEquals(Array.from(manager.availableConnections()), [
+			{
+				id: "id",
+				clientType: "studio-host",
+				projectMetadata: {
+					fileSystemHasWritePermissions: false,
+					name: "old project name",
+					uuid: "uuid",
+				},
+			},
+		]);
+	},
+});
+
+Deno.test({
 	name: "Clear available connections",
 	fn() {
 		const manager = new ExtendedDiscoveryMethod();

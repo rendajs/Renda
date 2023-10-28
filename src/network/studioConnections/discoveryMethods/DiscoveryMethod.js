@@ -49,11 +49,8 @@ export class DiscoveryMethod {
 	 * @param {import("../DiscoveryManager.js").AvailableStudioData} connection
 	 */
 	addAvailableConnection(connection, fireAvailableConnectionsChanged = true) {
-		this._availableConnections.set(connection.id, {
-			id: connection.id,
-			clientType: connection.clientType,
-			projectMetadata: connection.projectMetadata,
-		});
+		const clonedConnection = /** @type {import("../DiscoveryManager.js").AvailableStudioData} */ (structuredClone(connection));
+		this._availableConnections.set(connection.id, clonedConnection);
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
 	}
 
