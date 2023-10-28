@@ -149,9 +149,7 @@ export class StudioConnectionsManager {
 				this.webRtcDiscoveryMethod = null;
 			}
 			if (!this.webRtcDiscoveryMethod && needsWebRtcDiscovery) {
-				this.webRtcDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(WebRtcDiscoveryMethod, {
-					endpoint: desiredWebRtcEndpoint,
-				});
+				this.webRtcDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(WebRtcDiscoveryMethod, desiredWebRtcEndpoint);
 				this.webRtcDiscoveryMethod.onStatusChange(status => {
 					this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
 				});

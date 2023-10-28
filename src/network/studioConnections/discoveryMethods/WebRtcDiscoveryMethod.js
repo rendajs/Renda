@@ -34,12 +34,9 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	static type = /** @type {const} */ ("renda:webrtc");
 
 	/**
-	 * @param {object} options
-	 * @param {string} options.endpoint The url where the WebSocket is hosted.
+	 * @param {string} endpoint The url where the WebSocket is hosted.
 	 */
-	constructor({
-		endpoint,
-	}) {
+	constructor(endpoint) {
 		super(MessageHandlerWebRtc);
 
 		/** @private @type {DiscoveryServerStatusType} */
@@ -57,13 +54,10 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		});
 
 		/** @private @type {TypedMessenger<ExternalDiscoveryManagerResponseHandlers, import("/Users/Jesper/repositories/studio-discovery-server/src/WebSocketConnection.js").StudioDescoveryResponseHandlers>} */
-		this.messenger = new TypedMessenger({globalTimeout: 20_000});
-		this.messenger.initializeWebSocket(this.ws, this.getResponseHandlers());
-		this.messenger.configureSendOptions({
+		this.webSocketMessenger = new TypedMessenger({globalTimeout: 20_000});
+		this.webSocketMessenger.initializeWebSocket(this.ws, this.getResponseHandlers());
+		this.webSocketMessenger.configureSendOptions({
 			relayMessage: {
-				expectResponse: false,
-			},
-			setClientType: {
 				expectResponse: false,
 			},
 			setProjectMetadata: {
@@ -89,7 +83,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	 * @param {import("../DiscoveryManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
-		this.messenger.send.setClientType(clientType);
+		await this.webSocketMessenger.send.registerClient(clientType);
 	}
 
 	get endpoint() {
@@ -104,44 +98,41 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	 * @private
 	 */
 	getResponseHandlers() {
-		const disableResponseReturn = /** @satisfies {import("../../../mod.js").TypedMessengerRequestHandlerReturn} */ ({
+		/** @satisfies {import("../../../mod.js").TypedMessengerRequestHandlerReturn} */
+		const disableResponseReturn = {
 			$respondOptions: {
 				respond: false,
 			},
-		});
+		};
 
 		return {
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableStudioData[]} connections
 			 */
-			nearbyHostConnectionsList: connections => {
-				this.clearAvailableConnections(false);
-				for (const connection of connections) {
-					this.addAvailableConnection(connection, false);
-				}
-				this.fireAvailableConnectionsChanged();
+			setAvailableConnections: connections => {
+				this.setAvailableConnections(connections);
 				return disableResponseReturn;
 			},
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableStudioData} connection
 			 */
-			nearbyHostConnectionAdded: connection => {
+			addAvailableConnection: connection => {
 				this.addAvailableConnection(connection);
 				return disableResponseReturn;
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} id
 			 */
-			nearbyHostConnectionRemoved: id => {
+			removeAvailableConnection: id => {
 				this.removeAvailableConnection(id);
 				return disableResponseReturn;
 			},
 			/**
-			 * @param {import("../../../mod.js").UuidString} id
+			 * @param {import("../../../mod.js").UuidString} uuid
 			 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} projectMetadata
 			 */
-			nearbyHostConnectionUpdateProjectMetadata: (id, projectMetadata) => {
-				this.setConnectionProjectMetadata(id, projectMetadata);
+			setConnectionProjectMetadata: (uuid, projectMetadata) => {
+				this.setConnectionProjectMetadata(uuid, projectMetadata);
 				return disableResponseReturn;
 			},
 			/**
@@ -154,6 +145,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 				} else if (relayData.type == "rtcIceCandidate") {
 					this._handleRtcIceCandidate(fromUuid, relayData.candidate);
 				}
+				return disableResponseReturn;
 			},
 		};
 	}
@@ -187,7 +179,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
 	 */
 	async setProjectMetadata(metadata) {
-		await this.messenger.send.setProjectMetadata(metadata);
+		await this.webSocketMessenger.send.setProjectMetadata(metadata);
 	}
 
 	/**
@@ -200,13 +192,13 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		if (!studioConnection) {
 			studioConnection = this.addActiveConnection(connectionId, false, {
 				sendRtcIceCandidate: (uuid, candidate) => {
-					this.messenger.send.relayMessage(uuid, {
+					this.webSocketMessenger.send.relayMessage(uuid, {
 						type: "rtcIceCandidate",
 						candidate,
 					});
 				},
 				sendRtcDescription: (uuid, description) => {
-					this.messenger.send.relayMessage(uuid, {
+					this.webSocketMessenger.send.relayMessage(uuid, {
 						type: "rtcDescription",
 						description,
 					});

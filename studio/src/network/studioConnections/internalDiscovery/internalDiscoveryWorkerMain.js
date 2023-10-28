@@ -13,12 +13,14 @@ import {InternalDiscoveryWorkerConnection} from "./InternalDiscoveryWorkerConnec
  * @param {InternalDiscoveryWorkerConnection} createdConnection
  */
 function sendAllClientAddedMessages(activeConnections, createdConnection) {
+	const availableConnections = [];
 	for (const activeConnection of activeConnections.values()) {
 		if (activeConnection.port == createdConnection.port) continue;
 
-		createdConnection.parentMessenger.send.availableClientAdded(activeConnection.getConnectionData());
-		activeConnection.parentMessenger.send.availableClientAdded(createdConnection.getConnectionData());
+		availableConnections.push(activeConnection.getConnectionData());
+		activeConnection.parentMessenger.send.addAvailableConnection(createdConnection.getConnectionData());
 	}
+	createdConnection.parentMessenger.send.setAvailableConnections(availableConnections);
 }
 
 /**
@@ -28,7 +30,7 @@ function sendAllClientAddedMessages(activeConnections, createdConnection) {
 async function sendAllClientRemoved(activeConnections, clientUuid) {
 	const promises = [];
 	for (const connection of activeConnections.values()) {
-		const promise = connection.parentMessenger.send.availableClientRemoved(clientUuid);
+		const promise = connection.parentMessenger.send.removeAvailableConnection(clientUuid);
 		promises.push(promise);
 	}
 	await Promise.all(promises);
@@ -41,7 +43,7 @@ async function sendAllClientRemoved(activeConnections, clientUuid) {
 function sendAllProjectMetadata(activeConnections, connection) {
 	for (const otherConnection of activeConnections.values()) {
 		if (connection == otherConnection) continue;
-		otherConnection.parentMessenger.send.projectMetadata(connection.id, connection.projectMetadata);
+		otherConnection.parentMessenger.send.setConnectionProjectMetadata(connection.id, connection.projectMetadata);
 	}
 }
 
@@ -106,8 +108,8 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				if (!otherConnection) return;
 
 				const messageChannel = new MessageChannel();
-				createdConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port1]}, otherClientUuid, true, messageChannel.port1, {});
-				otherConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port2]}, createdConnection.id, false, messageChannel.port2, connectionData || {});
+				createdConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port1]}, otherClientUuid, true, messageChannel.port1, {});
+				otherConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port2]}, createdConnection.id, false, messageChannel.port2, connectionData || {});
 			},
 		},
 	};

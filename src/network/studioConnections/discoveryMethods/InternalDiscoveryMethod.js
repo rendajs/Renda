@@ -126,26 +126,32 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 			 * @param {MessagePort} port
 			 * @param {InternalDiscoveryRequestConnectionData} connectionData
 			 */
-			connectionCreated: (otherClientUuid, initiatedByMe, port, connectionData) => {
+			addActiveConnection: (otherClientUuid, initiatedByMe, port, connectionData) => {
 				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionData, port);
+			},
+			/**
+			 * @param {import("../DiscoveryManager.js").AvailableStudioData[]} connections
+			 */
+			setAvailableConnections: connections => {
+				this.setAvailableConnections(connections);
 			},
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableStudioData} connectionData
 			 */
-			availableClientAdded: connectionData => {
+			addAvailableConnection: connectionData => {
 				this.addAvailableConnection(connectionData);
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} clientUuid
 			 */
-			availableClientRemoved: clientUuid => {
+			removeAvailableConnection: clientUuid => {
 				this.removeAvailableConnection(clientUuid);
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} clientUuid
 			 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
 			 */
-			projectMetadata: (clientUuid, metadata) => {
+			setConnectionProjectMetadata: (clientUuid, metadata) => {
 				this.setConnectionProjectMetadata(clientUuid, metadata);
 			},
 		};

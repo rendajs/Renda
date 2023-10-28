@@ -48,7 +48,28 @@ export class DiscoveryMethod {
 	 * @protected
 	 * @param {import("../DiscoveryManager.js").AvailableStudioData} connection
 	 */
-	addAvailableConnection(connection, fireAvailableConnectionsChanged = true) {
+	addAvailableConnection(connection) {
+		this._addAvailableConnectionInternal(connection);
+	}
+
+	/**
+	 * @protected
+	 * @param {import("../DiscoveryManager.js").AvailableStudioData[]} connections
+	 */
+	setAvailableConnections(connections) {
+		if (connections.length == 0 && this._availableConnections.size == 0) return;
+		this.clearAvailableConnections(false);
+		for (const connection of connections) {
+			this._addAvailableConnectionInternal(connection, false);
+		}
+		this.fireAvailableConnectionsChanged();
+	}
+
+	/**
+	 * @private
+	 * @param {import("../DiscoveryManager.js").AvailableStudioData} connection
+	 */
+	_addAvailableConnectionInternal(connection, fireAvailableConnectionsChanged = true) {
 		const clonedConnection = /** @type {import("../DiscoveryManager.js").AvailableStudioData} */ (structuredClone(connection));
 		this._availableConnections.set(connection.id, clonedConnection);
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();

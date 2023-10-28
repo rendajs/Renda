@@ -34,6 +34,13 @@ class ExtendedDiscoveryMethod extends DiscoveryMethod {
 	}
 
 	/**
+	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableStudioData[]} connections
+	 */
+	setMultiple(connections) {
+		this.setAvailableConnections(connections);
+	}
+
+	/**
 	 * @param {import("../../../../../../src/mod.js").UuidString} id
 	 */
 	removeOne(id) {
@@ -162,6 +169,55 @@ Deno.test({
 });
 
 Deno.test({
+	name: "setAvailableConnections()",
+	fn() {
+		const manager = new ExtendedDiscoveryMethod();
+
+		const onChangeSpy = spy();
+		let spyCallCount = 0;
+		manager.onAvailableConnectionsChanged(onChangeSpy);
+
+		// Setting an empty array while the array is already empty shouldn't fire the callback
+		manager.setMultiple([]);
+		assertSpyCalls(onChangeSpy, spyCallCount);
+
+		// This connection should be removed once we call setAvailableConnections()
+		manager.addOne({
+			id: "shouldnotexist",
+			clientType: "inspector",
+			projectMetadata: null,
+		});
+		assertSpyCalls(onChangeSpy, ++spyCallCount);
+
+		manager.setMultiple([
+			{
+				id: "1",
+				clientType: "studio-client",
+				projectMetadata: null,
+			},
+			{
+				id: "2",
+				clientType: "studio-host",
+				projectMetadata: null,
+			},
+		]);
+		assertSpyCalls(onChangeSpy, ++spyCallCount);
+		assertEquals(Array.from(manager.availableConnections()), [
+			{
+				id: "1",
+				clientType: "studio-client",
+				projectMetadata: null,
+			},
+			{
+				id: "2",
+				clientType: "studio-host",
+				projectMetadata: null,
+			},
+		]);
+	},
+});
+
+Deno.test({
 	name: "onAvailableConnectionsChanged callbacks stop firing when removed",
 	fn() {
 		const manager = new ExtendedDiscoveryMethod();
@@ -192,7 +248,7 @@ Deno.test({
 		const manager = new DiscoveryMethod(ExtendedMessageHandler);
 		assertThrows(() => {
 			manager.registerClient("studio-client");
-		});
+		}, Error, "base class");
 	},
 });
 
@@ -202,7 +258,17 @@ Deno.test({
 		const manager = new DiscoveryMethod(ExtendedMessageHandler);
 		assertThrows(() => {
 			manager.setProjectMetadata(null);
-		});
+		}, Error, "base class");
+	},
+});
+
+Deno.test({
+	name: "requestConnection() throws",
+	fn() {
+		const manager = new DiscoveryMethod(ExtendedMessageHandler);
+		assertThrows(() => {
+			manager.requestConnection("id");
+		}, Error, "base class");
 	},
 });
 

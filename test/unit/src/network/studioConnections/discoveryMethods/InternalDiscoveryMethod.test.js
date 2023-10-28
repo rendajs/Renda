@@ -320,7 +320,7 @@ Deno.test({
 				manager3.onAvailableConnectionsChanged(availableChangedSpy3);
 				await manager3.registerClient("inspector");
 
-				assertSpyCalls(availableChangedSpy3, 2);
+				assertSpyCalls(availableChangedSpy3, 1);
 				const availableConnections2 = Array.from(manager3.availableConnections());
 				assertEquals(availableConnections2.length, 2);
 				const manager1ClientId = availableConnections2[0].id;
@@ -363,7 +363,7 @@ Deno.test({
 					},
 				]);
 
-				assertSpyCalls(availableChangedSpy3, 3);
+				assertSpyCalls(availableChangedSpy3, 2);
 				assertEquals(Array.from(manager1.availableConnections()), [
 					{
 						id: manager3ClientId,
