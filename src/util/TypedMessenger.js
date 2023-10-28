@@ -1,3 +1,4 @@
+import {TimeoutError} from "./TimeoutError.js";
 
 /**
  * @template {TypedMessengerSignatures} TReq
@@ -734,7 +735,7 @@ export class TypedMessenger {
 		if (timeout > 0 && !disableResponse) {
 			const promise = new Promise((resolve, reject) => {
 				const createdTimeout = globalThis.setTimeout(() => {
-					reject(new Error("TypedMessenger response timed out."));
+					reject(new TimeoutError("TypedMessenger response timed out."));
 				}, timeout);
 
 				responsePromise.then(result => {
