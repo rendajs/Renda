@@ -502,7 +502,27 @@ export class TypedMessenger {
 	 * @param {boolean} [options.waitForOpen]
 	 */
 	initializeWebSocket(webSocket, responseHandlers) {
-		this.setSendHandler(data => {
+		this.setSendHandler(async data => {
+			if (webSocket.readyState == WebSocket.CONNECTING) {
+				/** @type {Promise<void>} */
+				const promise = new Promise((resolve, reject) => {
+					function onOpen() {
+						resolve();
+						removeListeners();
+					}
+					function onError() {
+						reject(new Error("Failed to connect to WebSocket."));
+						removeListeners();
+					}
+					function removeListeners() {
+						webSocket.removeEventListener("open", onOpen);
+						webSocket.removeEventListener("error", onError);
+					}
+					webSocket.addEventListener("open", onOpen);
+					webSocket.addEventListener("error", onError);
+				});
+				await promise;
+			}
 			webSocket.send(JSON.stringify(data.sendData));
 		});
 		webSocket.addEventListener("message", async message => {
