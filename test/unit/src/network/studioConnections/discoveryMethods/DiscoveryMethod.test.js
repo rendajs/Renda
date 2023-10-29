@@ -27,14 +27,14 @@ class ExtendedDiscoveryMethod extends DiscoveryMethod {
 	}
 
 	/**
-	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableStudioData} connectionData
+	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection} connectionData
 	 */
 	addOne(connectionData) {
 		this.addAvailableConnection(connectionData);
 	}
 
 	/**
-	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableStudioData[]} connections
+	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection[]} connections
 	 */
 	setMultiple(connections) {
 		this.setAvailableConnections(connections);
@@ -53,7 +53,7 @@ class ExtendedDiscoveryMethod extends DiscoveryMethod {
 
 	/**
 	 * @param {import("../../../../../../src/mod.js").UuidString} id
-	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} projectMetaData
+	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} projectMetaData
 	 */
 	modifyOne(id, projectMetaData) {
 		this.setConnectionProjectMetadata(id, projectMetaData);
@@ -107,7 +107,7 @@ Deno.test({
 		const manager = new ExtendedDiscoveryMethod();
 
 		/**
-		 * @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableStudioData}
+		 * @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection}
 		 */
 		const connection = {
 			id: "id",
@@ -339,7 +339,7 @@ Deno.test({
 	name: "addActiveConnection() clones connectionData",
 	fn() {
 		const manager = new ExtendedDiscoveryMethod();
-		/** @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata} */
+		/** @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata} */
 		const projectMetaData = {
 			fileSystemHasWritePermissions: true,
 			name: "old name",

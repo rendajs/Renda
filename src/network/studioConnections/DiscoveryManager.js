@@ -8,29 +8,34 @@ import {StudioConnection} from "./StudioConnection.js";
  * This connection type can initiate new connections to both `"studio-host"` and `"inspector"` connections.
  * - `"inspector"` is an application that makes use of Renda objects.
  * It could be a built application by a developer, or one hosted inside the Renda studio buildview.
- * `"inspector"` connections can only initiate connections to `"studio-host"` or `"studio-client"` connections,
- * though host connections are preferred since client connections will mostly forward any requests to the host studio connection.
+ * `"inspector"` connections can initiate connections to both `"studio-host"` and `"studio-client"` connections,
+ * though `"studio-host"` connections are preferred since `"studio-client"` connections will mostly just
+ * forward any requests to the `"studio-host"` connection anyway.
  * @typedef {"studio-host" | "inspector" | "studio-client"} ClientType
  */
 
 /**
- * @typedef AvailableStudioData
+ * @typedef AvailableConnection
  * @property {import("../../util/util.js").UuidString} id
  * @property {ClientType} clientType
- * @property {RemoteStudioMetadata?} projectMetadata
+ * @property {AvailableConnectionProjectMetadata?} projectMetadata
  */
 
 /**
- * @typedef {AvailableStudioData & {connectionType: string}} AvailableConnectionData
+ * @typedef {AvailableConnection & {connectionType: string}} AvailableConnectionWithType
  */
 
 /**
- * @typedef {object} RemoteStudioMetadata
+ * @typedef {object} AvailableConnectionProjectMetadata
  * @property {string} name
  * @property {boolean} fileSystemHasWritePermissions
  * @property {import("../../util/util.js").UuidString} uuid
  */
 
+/**
+ * The DiscoveryManager allows you to list available connections and connect to them.
+ * You can add multiple DiscoveryMethods and observe changes to their available connections.
+ */
 export class DiscoveryManager {
 	/**
 	 * @typedef OnConnectionCreatedRequest
@@ -41,29 +46,43 @@ export class DiscoveryManager {
 	 * If none of the registered callbacks call `accept()` (synchronously), the connection will be closed immediately.
 	 */
 	/** @typedef {(connectionRequest: OnConnectionCreatedRequest) => void} OnConnectionRequestCallback */
+
 	/**
+	 * The DiscoveryManager allows you to list available connections and connect to them.
+	 * You can add multiple DiscoveryMethods and observe changes to their available connections.
+	 *
+	 * @example
+	 * ```js
+	 * const manager = new DiscoveryManager("inspector");
+	 * const internalMethod = manager.addDiscoveryMethod(InternalDiscoveryMethod, "https://renda.studio/internalDiscovery");
+	 * manager.onAvailableConnectionsChanged(() => {
+	 * 	for (const connection of manager.availableConnections()) {
+	 * 		manager.requestConnection(connection.id);
+	 * 	}
+	 * });
+	 * ```
 	 * @param {ClientType} clientType
 	 */
 	constructor(clientType) {
 		/** @readonly */
 		this.clientType = clientType;
 
-		/** @private @type {RemoteStudioMetadata?} */
+		/** @private @type {AvailableConnectionProjectMetadata?} */
 		this.projectMetadata = null;
 
 		/** @private @type {Set<import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<any>>} */
 		this.discoveryMethods = new Set();
 
 		/** @private @type {Set<() => void>} */
-		this.onConnectionsChangedCbs = new Set();
+		this.onAvailableConnectionsChangedCbs = new Set();
 
 		/** @private @type {Set<OnConnectionRequestCallback>} */
 		this.onConnectionRequestCbs = new Set();
 	}
 
 	destructor() {
-		for (const discoveryManager of this.discoveryMethods) {
-			discoveryManager.destructor();
+		for (const discoveryMethod of this.discoveryMethods) {
+			discoveryMethod.destructor();
 		}
 	}
 
@@ -75,12 +94,12 @@ export class DiscoveryManager {
 	 */
 	addDiscoveryMethod(constructor, ...args) {
 		/** @type {import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<typeof import("./messageHandlers/MessageHandler.js").MessageHandler>} */
-		const discoveryManager = new constructor(...args);
-		this.discoveryMethods.add(discoveryManager);
-		discoveryManager.onAvailableConnectionsChanged(() => {
-			this.onConnectionsChangedCbs.forEach(cb => cb());
+		const discoveryMethod = new constructor(...args);
+		this.discoveryMethods.add(discoveryMethod);
+		discoveryMethod.onAvailableConnectionsChanged(() => {
+			this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
 		});
-		discoveryManager.onConnectionRequest(messageHandler => {
+		discoveryMethod.onConnectionRequest(messageHandler => {
 			let connectionCreated = false;
 			for (const cb of this.onConnectionRequestCbs) {
 				/** @type {OnConnectionCreatedRequest} */
@@ -103,11 +122,11 @@ export class DiscoveryManager {
 				messageHandler.close();
 			}
 		});
-		discoveryManager.registerClient(this.clientType);
+		discoveryMethod.registerClient(this.clientType);
 		if (this.projectMetadata) {
-			discoveryManager.setProjectMetadata(this.projectMetadata);
+			discoveryMethod.setProjectMetadata(this.projectMetadata);
 		}
-		return /** @type {TManager} */ (discoveryManager);
+		return /** @type {TManager} */ (discoveryMethod);
 	}
 
 	/**
@@ -121,12 +140,12 @@ export class DiscoveryManager {
 	}
 
 	/**
-	 * @returns {Generator<AvailableConnectionData>}
+	 * @returns {Generator<AvailableConnectionWithType>}
 	 */
 	*availableConnections() {
-		for (const discoveryManager of this.discoveryMethods) {
-			const castManager = /** @type {typeof import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod} */ (discoveryManager.constructor);
-			for (const connection of discoveryManager.availableConnections()) {
+		for (const discoveryMethod of this.discoveryMethods) {
+			const castManager = /** @type {typeof import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod} */ (discoveryMethod.constructor);
+			for (const connection of discoveryMethod.availableConnections()) {
 				yield {
 					...connection,
 					connectionType: castManager.type,
@@ -136,27 +155,31 @@ export class DiscoveryManager {
 	}
 
 	/**
-	 * @param {RemoteStudioMetadata?} metadata
+	 * @param {AvailableConnectionProjectMetadata?} metadata
 	 */
 	setProjectMetadata(metadata) {
 		this.projectMetadata = metadata;
-		for (const discoveryManager of this.discoveryMethods.values()) {
-			discoveryManager.setProjectMetadata(metadata);
+		for (const discoveryMethod of this.discoveryMethods.values()) {
+			discoveryMethod.setProjectMetadata(metadata);
 		}
 	}
 
 	/**
+	 * Registers a callback that fires when the list of available connections changes.
+	 * Either because a connection is added/removed, or if the project metadata of one of the
+	 * connections is changed.
+	 * You can use {@linkcode availableConnections} to iterate over the current list of available connections.
 	 * @param {() => void} cb
 	 */
-	onConnectionsChanged(cb) {
-		this.onConnectionsChangedCbs.add(cb);
+	onAvailableConnectionsChanged(cb) {
+		this.onAvailableConnectionsChangedCbs.add(cb);
 	}
 
 	/**
 	 * @param {() => void} cb
 	 */
-	removeOnConnectionsChanged(cb) {
-		this.onConnectionsChangedCbs.delete(cb);
+	removeOnAvailableConnectionsChanged(cb) {
+		this.onAvailableConnectionsChangedCbs.delete(cb);
 	}
 
 	/**
@@ -164,7 +187,7 @@ export class DiscoveryManager {
 	 * either because `requestConnection` was called from this DiscoveryManager or from another DiscoveryManager which wants to connect to us.
 	 * If the connection should be accepted, you should call `accept()` on the provided connectionRequest argument.
 	 * If none of the registered callbacks call `accept()` (synchronously), the connection will be closed immediately.
-	 * You can use this to filter ignore specific connections based on their client type, origin or metadata.
+	 * You can use this to filter specific connections based on their client type, origin or metadata.
 	 * @param {OnConnectionRequestCallback} cb
 	 */
 	onConnectionRequest(cb) {
@@ -180,17 +203,16 @@ export class DiscoveryManager {
 
 	/**
 	 * Attempts to initiate a new connection.
-	 * If the connection succeeds, state changes can be observed using {@linkcode onConnectionsChanged}
-	 * and the {@linkcode onConnectionRequest} callback is fired.
+	 * If the connection succeeds, the {@linkcode onConnectionRequest} callback is fired.
 	 *
 	 * @param {import("../../mod.js").UuidString} otherClientUuid
 	 * @param {unknown} [connectionData] Optional data that can be sent to the client which allows
 	 * it to determine whether the connection should be accepted or not.
 	 */
 	requestConnection(otherClientUuid, connectionData) {
-		for (const discoveryManager of this.discoveryMethods.values()) {
-			if (discoveryManager.hasAvailableConnection(otherClientUuid)) {
-				discoveryManager.requestConnection(otherClientUuid, connectionData);
+		for (const discoveryMethod of this.discoveryMethods.values()) {
+			if (discoveryMethod.hasAvailableConnection(otherClientUuid)) {
+				discoveryMethod.requestConnection(otherClientUuid, connectionData);
 				return;
 			}
 		}

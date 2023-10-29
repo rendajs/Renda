@@ -16,7 +16,7 @@ export class DiscoveryMethod {
 	constructor(messageHandlerConstructor) {
 		/** @private */
 		this.MessageHandlerConstructor = messageHandlerConstructor;
-		/** @private @type {Map<import("../../../mod.js").UuidString, import("../DiscoveryManager.js").AvailableStudioData>} */
+		/** @private @type {Map<import("../../../mod.js").UuidString, import("../DiscoveryManager.js").AvailableConnection>} */
 		this._availableConnections = new Map();
 		/** @private @type {Set<() => void>} */
 		this.onAvailableConnectionsChangedCbs = new Set();
@@ -29,6 +29,9 @@ export class DiscoveryMethod {
 
 	/**
 	 * Called by the DiscoveryManager when removing this DiscoveryMethod.
+	 * You should use `DiscoveryManager.removeDiscoveryMethod()` instead of calling this directly.
+	 * Cleans up any resources created for discovering other clients,
+	 * but doesn't necessarily close created MessageHandlers.
 	 */
 	destructor() {}
 
@@ -46,7 +49,7 @@ export class DiscoveryMethod {
 	 * Call this when another client becomes available.
 	 *
 	 * @protected
-	 * @param {import("../DiscoveryManager.js").AvailableStudioData} connection
+	 * @param {import("../DiscoveryManager.js").AvailableConnection} connection
 	 */
 	addAvailableConnection(connection) {
 		this._addAvailableConnectionInternal(connection);
@@ -54,7 +57,7 @@ export class DiscoveryMethod {
 
 	/**
 	 * @protected
-	 * @param {import("../DiscoveryManager.js").AvailableStudioData[]} connections
+	 * @param {import("../DiscoveryManager.js").AvailableConnection[]} connections
 	 */
 	setAvailableConnections(connections) {
 		if (connections.length == 0 && this._availableConnections.size == 0) return;
@@ -67,10 +70,10 @@ export class DiscoveryMethod {
 
 	/**
 	 * @private
-	 * @param {import("../DiscoveryManager.js").AvailableStudioData} connection
+	 * @param {import("../DiscoveryManager.js").AvailableConnection} connection
 	 */
 	_addAvailableConnectionInternal(connection, fireAvailableConnectionsChanged = true) {
-		const clonedConnection = /** @type {import("../DiscoveryManager.js").AvailableStudioData} */ (structuredClone(connection));
+		const clonedConnection = /** @type {import("../DiscoveryManager.js").AvailableConnection} */ (structuredClone(connection));
 		this._availableConnections.set(connection.id, clonedConnection);
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
 	}
@@ -110,7 +113,7 @@ export class DiscoveryMethod {
 	/**
 	 * Notify other clients about the project metadata of this client.
 	 * This way other clients can display things such as the project name in their UI.
-	 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
+	 * @param {import("../DiscoveryManager.js").AvailableConnectionProjectMetadata?} metadata
 	 */
 	setProjectMetadata(metadata) {
 		throw new Error("base class");
@@ -120,7 +123,7 @@ export class DiscoveryMethod {
 	 * Updates the metadata of a specific connection and fires change events.
 	 * @protected
 	 * @param {import("../../../mod.js").UuidString} clientUuid
-	 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
+	 * @param {import("../DiscoveryManager.js").AvailableConnectionProjectMetadata?} metadata
 	 */
 	setConnectionProjectMetadata(clientUuid, metadata) {
 		const connection = this._availableConnections.get(clientUuid);
@@ -150,7 +153,7 @@ export class DiscoveryMethod {
 		if (!availableConnection) {
 			throw new Error(`Assertion failed, a new connection was created but "${otherClientUuid}" is not listed as an available connection.`);
 		}
-		const connectionData = /** @type {import("../DiscoveryManager.js").AvailableStudioData} */ (structuredClone(availableConnection));
+		const connectionData = /** @type {import("../DiscoveryManager.js").AvailableConnection} */ (structuredClone(availableConnection));
 		const castManager = /** @type {typeof DiscoveryMethod} */ (this.constructor);
 		const instance = new this.MessageHandlerConstructor({
 			otherClientUuid,
@@ -166,8 +169,8 @@ export class DiscoveryMethod {
 	/** @typedef {(connection: InstanceType<TMessageHandler>) => void} OnConnectionCreatedCallback */
 
 	/**
-	 * Registers a callback that is fired when a new connection is initiated with this DiscoveryManager,
-	 * either because `requestConnection` was called from this DiscoveryManager or from another DiscoveryManager which wants to connect to us.
+	 * Registers a callback that is fired when a new connection is initiated with this DiscoveryMethod,
+	 * either because `requestConnection` was called from this DiscoveryMethod or from another DiscoveryMethod which wants to connect to us.
 	 * @param {OnConnectionCreatedCallback} cb
 	 */
 	onConnectionRequest(cb) {

@@ -4,7 +4,7 @@ import {TimeoutError} from "../../util/TimeoutError.js";
 /**
  * This establishes a connection with the parent window in case the page is embedded in an iframe.
  * If the page is embedded by a studio instance in a build view,
- * this connection allows us to communicate with the studio instance.
+ * we can communicate with the studio instance.
  */
 export class ParentStudioHandler {
 	constructor() {
@@ -36,20 +36,20 @@ export class ParentStudioHandler {
 
 	/**
 	 * Checks if the page is embedded in an iframe and if the parent is a studio instance.
-	 * If so, it will ask the parent what to do, which will determine the desired method for connecting the
-	 * studio instance with the iframe.
-	 * @param {import("./DiscoveryManager.js").DiscoveryManager} studioConnectionsManager
-	 * @param {(typeof import("./discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryMethod | typeof import("./discoveryMethods/WebRtcDiscoveryMethod.js").WebRtcDiscoveryMethod)[]} supportedDiscoveryManagers
+	 * If so, it will ask the parent what its preferred method of connection is.
+	 * If the parent responds in time, a connection will be established via the provided DiscoveryManager
+	 * @param {import("./DiscoveryManager.js").DiscoveryManager} discoveryManager
+	 * @param {(typeof import("./discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryMethod | typeof import("./discoveryMethods/WebRtcDiscoveryMethod.js").WebRtcDiscoveryMethod)[]} supportedDiscoveryMethods
 	 */
-	async requestParentStudioConnection(studioConnectionsManager, supportedDiscoveryManagers) {
+	async requestDesiredParentStudioConnection(discoveryManager, supportedDiscoveryMethods) {
 		const sentence1 = "Failed to get parent client data.";
 		const sentence2 = "requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.";
 		if (!this.isInIframe()) {
 			throw new Error(`${sentence1} ${sentence2}`);
 		}
-		let studioClientData;
+		let desiredConnectionData;
 		try {
-			studioClientData = await this.parentMessenger.send.requestDesiredStudioConnectionMethod();
+			desiredConnectionData = await this.parentMessenger.send.requestDesiredStudioConnectionMethod();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
 				throw new Error(`${sentence1} The parent didn't respond with client data in timely manner. ${sentence2}`);
@@ -58,14 +58,14 @@ export class ParentStudioHandler {
 			}
 		}
 
-		for (const DiscoveryManager of supportedDiscoveryManagers) {
-			if (DiscoveryManager.type == "renda:internal" && studioClientData.type == "renda:internal") {
-				studioConnectionsManager.addDiscoveryMethod(DiscoveryManager, studioClientData.discoveryUrl);
+		for (const DiscoveryMethod of supportedDiscoveryMethods) {
+			if (DiscoveryMethod.type == "renda:internal" && desiredConnectionData.type == "renda:internal") {
+				discoveryManager.addDiscoveryMethod(DiscoveryMethod, desiredConnectionData.discoveryUrl);
 				/** @type {import("./discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} */
 				const connectionData = {
-					token: studioClientData.internalConnectionToken,
+					token: desiredConnectionData.internalConnectionToken,
 				};
-				studioConnectionsManager.requestConnection(studioClientData.clientUuid, connectionData);
+				discoveryManager.requestConnection(desiredConnectionData.clientUuid, connectionData);
 			}
 		}
 	}

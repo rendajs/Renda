@@ -1,5 +1,5 @@
 import {TypedMessenger} from "../../../util/TypedMessenger.js";
-import {MessageHandlerWebRtc} from "../messageHandlers/MessageHandlerWebRtc.js";
+import {WebRtcMessageHandler} from "../messageHandlers/WebRtcMessageHandler.js";
 import {DiscoveryMethod} from "./DiscoveryMethod.js";
 
 /**
@@ -28,7 +28,7 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
 /**
  * This class allows you to discover other tabs via a central discovery server.
  * When created, a connection to a WebSocket is made, which can be used for connecting to another client via WebRTC.
- * @extends {DiscoveryMethod<typeof MessageHandlerWebRtc>}
+ * @extends {DiscoveryMethod<typeof WebRtcMessageHandler>}
  */
 export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	static type = /** @type {const} */ ("renda:webrtc");
@@ -37,7 +37,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	 * @param {string} endpoint The url where the WebSocket is hosted.
 	 */
 	constructor(endpoint) {
-		super(MessageHandlerWebRtc);
+		super(WebRtcMessageHandler);
 
 		/** @private @type {DiscoveryServerStatusType} */
 		this._status = "connecting";
@@ -107,14 +107,14 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 
 		return {
 			/**
-			 * @param {import("../DiscoveryManager.js").AvailableStudioData[]} connections
+			 * @param {import("../DiscoveryManager.js").AvailableConnection[]} connections
 			 */
 			setAvailableConnections: connections => {
 				this.setAvailableConnections(connections);
 				return disableResponseReturn;
 			},
 			/**
-			 * @param {import("../DiscoveryManager.js").AvailableStudioData} connection
+			 * @param {import("../DiscoveryManager.js").AvailableConnection} connection
 			 */
 			addAvailableConnection: connection => {
 				this.addAvailableConnection(connection);
@@ -129,7 +129,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} uuid
-			 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} projectMetadata
+			 * @param {import("../DiscoveryManager.js").AvailableConnectionProjectMetadata?} projectMetadata
 			 */
 			setConnectionProjectMetadata: (uuid, projectMetadata) => {
 				this.setConnectionProjectMetadata(uuid, projectMetadata);
@@ -176,7 +176,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 
 	/**
 	 * @override
-	 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
+	 * @param {import("../DiscoveryManager.js").AvailableConnectionProjectMetadata?} metadata
 	 */
 	async setProjectMetadata(metadata) {
 		await this.webSocketMessenger.send.setProjectMetadata(metadata);

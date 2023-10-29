@@ -11,11 +11,11 @@ export class InspectorManager {
 		/** @private */
 		this.parentStudioHandler = new ParentStudioHandler();
 		/** @private */
-		this.connectionsManager = new DiscoveryManager("inspector");
+		this.discoveryManager = new DiscoveryManager("inspector");
 
-		this.connectionsManager.onConnectionRequest(connection => {
+		this.discoveryManager.onConnectionRequest(connection => {
 			console.log(connection);
 		});
-		this.parentStudioHandler.requestParentStudioConnection(this.connectionsManager, [InternalDiscoveryMethod, WebRtcDiscoveryMethod]);
+		this.parentStudioHandler.requestDesiredParentStudioConnection(this.discoveryManager, [InternalDiscoveryMethod, WebRtcDiscoveryMethod]);
 	}
 }

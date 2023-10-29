@@ -4,7 +4,7 @@ import {WebRtcDiscoveryMethod} from "../../../../src/network/studioConnections/d
 import {createStudioHostHandlers} from "./handlers.js";
 
 /**
- * @typedef {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionData & {connectionState: import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").StudioConnectionState}} StudioConnectionData
+ * @typedef {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType & {connectionState: import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus}} StudioConnectionData
  */
 
 /** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<{}, ReturnType<createStudioHostHandlers>>} StudioClientHostConnection */
@@ -27,7 +27,7 @@ export class StudioConnectionsManager {
 	/** @type {Set<() => void>} */
 	#onConnectionsChangedCbs = new Set();
 
-	/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} */
+	/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} */
 	#lastSentProjectMetadata = null;
 
 	/** @type {Map<import("../../../../src/mod.js").UuidString, import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>>} */
@@ -92,7 +92,7 @@ export class StudioConnectionsManager {
 			const studioConnectionsManager = new DiscoveryManager(desiredClientType);
 			this.#discoveryManager = studioConnectionsManager;
 			this.#lastSentProjectMetadata = null;
-			studioConnectionsManager.onConnectionsChanged(() => {
+			studioConnectionsManager.onAvailableConnectionsChanged(() => {
 				if (studioConnectionsManager != this.#discoveryManager) {
 					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
 				}
@@ -167,7 +167,7 @@ export class StudioConnectionsManager {
 	 */
 	#addActiveConnection(connection) {
 		this.#activeConnections.set(connection.otherClientUuid, connection);
-		connection.onConnectionStateChange(() => {
+		connection.onStatusChange(() => {
 			this.#fireOnConnectionsChanged();
 		});
 		this.#fireOnConnectionsChanged();
@@ -179,11 +179,11 @@ export class StudioConnectionsManager {
 	*getConnections() {
 		if (!this.#discoveryManager) return;
 		for (const connection of this.#discoveryManager.availableConnections()) {
-			/** @type {import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").StudioConnectionState} */
+			/** @type {import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus} */
 			let connectionState = "disconnected";
 			const activeConnection = this.#activeConnections.get(connection.id);
 			if (activeConnection) {
-				connectionState = activeConnection.connectionState;
+				connectionState = activeConnection.status;
 			}
 			yield {
 				...connection,
@@ -211,8 +211,8 @@ export class StudioConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} oldData
-	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} newData
+	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} oldData
+	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} newData
 	 */
 	#metadataEquals(oldData, newData) {
 		if (oldData == newData) return true;
@@ -293,7 +293,7 @@ export class StudioConnectionsManager {
 		if (connection) {
 			this.requestConnection(connection.id);
 		} else {
-			/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionData} */
+			/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType} */
 			const connection = await new Promise(resolve => {
 				const cb = () => {
 					const connection = this.#findConnection(config);

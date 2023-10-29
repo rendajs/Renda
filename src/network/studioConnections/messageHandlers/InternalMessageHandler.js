@@ -1,6 +1,6 @@
 import {MessageHandler} from "./MessageHandler.js";
 
-export class MessageHandlerInternal extends MessageHandler {
+export class InternalMessageHandler extends MessageHandler {
 	/**
 	 * @param {import("./MessageHandler.js").MessageHandlerOptions} options
 	 * @param {import("../discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} interlnalConnectionData
@@ -9,14 +9,13 @@ export class MessageHandlerInternal extends MessageHandler {
 	constructor(options, interlnalConnectionData, messagePort) {
 		super(options);
 		this.interlnalConnectionData = interlnalConnectionData;
-		this.autoSerializationSupported = true;
 		/** @private */
 		this.messagePort = messagePort;
 		messagePort.addEventListener("message", e => {
 			this.handleMessageReceived(e.data);
 		});
 		messagePort.start();
-		this.setConnectionState("connected");
+		this.setStatus("connected");
 	}
 
 	/**

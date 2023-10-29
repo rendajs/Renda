@@ -90,7 +90,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				};
 			},
 			/**
-			 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} metadata
+			 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} metadata
 			 */
 			projectMetadata(metadata) {
 				if (!createdConnection) return;

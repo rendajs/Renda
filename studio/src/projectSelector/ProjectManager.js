@@ -471,7 +471,7 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @returns {import("../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?}
+	 * @returns {import("../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?}
 	 */
 	getCurrentProjectMetadata() {
 		if (!this.currentProjectOpenEvent) return null;

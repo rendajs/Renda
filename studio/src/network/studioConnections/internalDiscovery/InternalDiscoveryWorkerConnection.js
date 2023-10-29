@@ -20,21 +20,21 @@ export class InternalDiscoveryWorkerConnection {
 		 */
 		this.port = port;
 		this.clientType = clientType;
-		/** @type {import("../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} */
+		/** @type {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} */
 		this.projectMetadata = null;
 		this.iframeMessenger = iframeMessenger;
 		this.parentMessenger = parentWindowMessenger;
 	}
 
 	/**
-	 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").RemoteStudioMetadata?} projectMetadata
+	 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} projectMetadata
 	 */
 	setProjectMetadata(projectMetadata) {
 		this.projectMetadata = projectMetadata;
 	}
 
 	/**
-	 * @returns {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableStudioData}
+	 * @returns {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection}
 	 */
 	getConnectionData() {
 		return {

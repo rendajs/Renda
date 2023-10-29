@@ -1,6 +1,6 @@
 import {MessageHandler} from "./MessageHandler.js";
 
-export class MessageHandlerWebRtc extends MessageHandler {
+export class WebRtcMessageHandler extends MessageHandler {
 	/**
 	 * @param {import("./MessageHandler.js").MessageHandlerOptions} messageHandlerOptions
 	 * @param {object} options
@@ -12,10 +12,9 @@ export class MessageHandlerWebRtc extends MessageHandler {
 		/** @private */
 		this.sendRtcDescription = sendRtcDescription;
 
+		/** @private */
 		this.rtcConnection = new RTCPeerConnection();
-		this.localDescription = null;
-		this.remoteDescription = null;
-		/** @type {Map<string, RTCDataChannel>} */
+		/** @private @type {Map<string, RTCDataChannel>} */
 		this.dataChannels = new Map();
 
 		this.rtcConnection.addEventListener("icecandidate", e => {
@@ -28,7 +27,7 @@ export class MessageHandlerWebRtc extends MessageHandler {
 			this.dataChannels.set(e.channel.label, e.channel);
 		});
 		this.rtcConnection.addEventListener("connectionstatechange", e => {
-			this.updateConnectionState();
+			this.updateStatus();
 		});
 		this.rtcConnection.addEventListener("negotiationneeded", e => {
 			this.initWebRtcConnection();
@@ -42,6 +41,9 @@ export class MessageHandlerWebRtc extends MessageHandler {
 		}
 	}
 
+	/**
+	 * @private
+	 */
 	async initWebRtcConnection() {
 		if (!this.initiatedByMe) return;
 
@@ -49,14 +51,17 @@ export class MessageHandlerWebRtc extends MessageHandler {
 		await this.setAndSendDescription(localDescription);
 	}
 
-	updateConnectionState() {
+	/**
+	 * @private
+	 */
+	updateStatus() {
 		const rtcState = this.rtcConnection.connectionState;
-		/** @type {import("./MessageHandler.js").StudioConnectionState} */
-		let state = "disconnected";
+		/** @type {import("./MessageHandler.js").MessageHandlerStatus} */
+		let status = "disconnected";
 		if (rtcState == "new" || rtcState == "connecting") {
-			state = "connecting";
+			status = "connecting";
 		} else if (rtcState == "connected") {
-			state = "connecting";
+			status = "connecting";
 			if (this.dataChannels.size > 0) {
 				let allConnected = true;
 				for (const channel of this.dataChannels.values()) {
@@ -66,14 +71,15 @@ export class MessageHandlerWebRtc extends MessageHandler {
 					}
 				}
 				if (allConnected) {
-					state = "connected";
+					status = "connected";
 				}
 			}
 		}
-		this.setConnectionState(state);
+		this.setStatus(status);
 	}
 
 	/**
+	 * @private
 	 * @param {string} label
 	 * @param {RTCDataChannelInit} options
 	 * @returns {RTCDataChannel}
@@ -86,11 +92,12 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	}
 
 	/**
+	 * @private
 	 * @param {RTCDataChannel} channel
 	 */
 	addDataChannelListeners(channel) {
 		channel.addEventListener("open", e => {
-			this.updateConnectionState();
+			this.updateStatus();
 		});
 		channel.addEventListener("message", e => {
 			this.handleMessageReceived(e.data);
@@ -98,10 +105,10 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	}
 
 	/**
+	 * @private
 	 * @param {RTCSessionDescriptionInit} localDescription
 	 */
 	async setAndSendDescription(localDescription) {
-		this.localDescription = localDescription;
 		await this.rtcConnection.setLocalDescription(localDescription);
 		this.sendRtcDescription(this.otherClientUuid, localDescription);
 	}
@@ -110,7 +117,6 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	 * @param {RTCSessionDescriptionInit} rtcDescription
 	 */
 	async handleRtcDescription(rtcDescription) {
-		this.remoteDescription = rtcDescription;
 		await this.rtcConnection.setRemoteDescription(rtcDescription);
 
 		if (rtcDescription.type == "offer") {

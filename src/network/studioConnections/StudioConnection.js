@@ -53,13 +53,13 @@ export class StudioConnection {
 	}
 
 	/**
-	 * @param {import("./messageHandlers/MessageHandler.js").OnConnectionStateChangeCallback} cb
+	 * @param {import("./messageHandlers/MessageHandler.js").OnStatusChangeCallback} cb
 	 */
-	onConnectionStateChange(cb) {
-		this.messageHandler.onConnectionStateChange(cb);
+	onStatusChange(cb) {
+		this.messageHandler.onStatusChange(cb);
 	}
 
-	get connectionState() {
-		return this.messageHandler.connectionState;
+	get status() {
+		return this.messageHandler.status;
 	}
 }

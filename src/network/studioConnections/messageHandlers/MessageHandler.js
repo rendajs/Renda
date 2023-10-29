@@ -1,13 +1,13 @@
-/** @typedef {"disconnected" | "connecting" | "connected"} StudioConnectionState */
+/** @typedef {"disconnected" | "connecting" | "connected"} MessageHandlerStatus */
 
-/** @typedef {(state: StudioConnectionState) => void} OnConnectionStateChangeCallback */
+/** @typedef {(state: MessageHandlerStatus) => void} OnStatusChangeCallback */
 
 /**
  * @typedef MessageHandlerOptions
  * @property {import("../../../mod.js").UuidString} otherClientUuid
  * @property {boolean} initiatedByMe True when the connection was initiated by our client (i.e. the client which you are currently instantiating a class for).
  * @property {string} connectionType The type of the DiscoveryManager that created this connection.
- * @property {import("../DiscoveryManager.js").AvailableStudioData} connectionData
+ * @property {import("../DiscoveryManager.js").AvailableConnection} connectionData
  */
 
 export class MessageHandler {
@@ -28,12 +28,11 @@ export class MessageHandler {
 
 		/** @private @type {Set<OnMessageCallback>} */
 		this.onMessageCbs = new Set();
-		/** @type {StudioConnectionState} */
-		this.connectionState = "disconnected";
+		/** @type {MessageHandlerStatus} */
+		this.status = "disconnected";
 
-		/** @private @type {Set<OnConnectionStateChangeCallback>} */
-		this.onConnectionStateChangeCbs = new Set();
-		this.autoSerializationSupported = false;
+		/** @private @type {Set<OnStatusChangeCallback>} */
+		this.onStatusChangeCbs = new Set();
 	}
 
 	get otherClientUuid() {
@@ -89,18 +88,18 @@ export class MessageHandler {
 
 	/**
 	 * @protected
-	 * @param {StudioConnectionState} state
+	 * @param {MessageHandlerStatus} status
 	 */
-	setConnectionState(state) {
-		if (state == this.connectionState) return;
-		this.connectionState = state;
-		this.onConnectionStateChangeCbs.forEach(cb => cb(state));
+	setStatus(status) {
+		if (status == this.status) return;
+		this.status = status;
+		this.onStatusChangeCbs.forEach(cb => cb(status));
 	}
 
 	/**
-	 * @param {OnConnectionStateChangeCallback} cb
+	 * @param {OnStatusChangeCallback} cb
 	 */
-	onConnectionStateChange(cb) {
-		this.onConnectionStateChangeCbs.add(cb);
+	onStatusChange(cb) {
+		this.onStatusChangeCbs.add(cb);
 	}
 }

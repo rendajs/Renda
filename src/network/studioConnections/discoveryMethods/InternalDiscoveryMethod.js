@@ -1,9 +1,9 @@
 import {TypedMessenger} from "../../../util/TypedMessenger.js";
-import {MessageHandlerInternal} from "../messageHandlers/MessageHandlerInternal.js";
+import {InternalMessageHandler} from "../messageHandlers/InternalMessageHandler.js";
 import {DiscoveryMethod} from "./DiscoveryMethod.js";
 
 /**
- * @fileoverview This DiscoveryManager allows connecting to other clients within the same browser using a SharedWorker.
+ * @fileoverview This DiscoveryMethod allows connecting to other clients within the same browser using a SharedWorker.
  * Source code of the discovery iframe and SharedWorker can be found at studio/src/network/studioConnections/internalDiscovery
  */
 
@@ -26,7 +26,7 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
  * This creates an iframe with a shared worker which all discovery communication passes through.
  * That way two arbitrary tabs can communicate with each other, and in supported browsers, it might even allow communication across origins.
  * See https://github.com/rendajs/Renda/issues/805 for updates on cross origin communication.
- * @extends {DiscoveryMethod<typeof MessageHandlerInternal>}
+ * @extends {DiscoveryMethod<typeof InternalMessageHandler>}
  */
 export class InternalDiscoveryMethod extends DiscoveryMethod {
 	static type = /** @type {const} */ ("renda:internal");
@@ -36,7 +36,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 	 * If two applications wish to communicate with each other, they should both use the same discovery url.
 	 */
 	constructor(discoveryUrl) {
-		super(MessageHandlerInternal);
+		super(InternalMessageHandler);
 
 		/** @private */
 		this.destructed = false;
@@ -130,13 +130,13 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionData, port);
 			},
 			/**
-			 * @param {import("../DiscoveryManager.js").AvailableStudioData[]} connections
+			 * @param {import("../DiscoveryManager.js").AvailableConnection[]} connections
 			 */
 			setAvailableConnections: connections => {
 				this.setAvailableConnections(connections);
 			},
 			/**
-			 * @param {import("../DiscoveryManager.js").AvailableStudioData} connectionData
+			 * @param {import("../DiscoveryManager.js").AvailableConnection} connectionData
 			 */
 			addAvailableConnection: connectionData => {
 				this.addAvailableConnection(connectionData);
@@ -149,7 +149,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} clientUuid
-			 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
+			 * @param {import("../DiscoveryManager.js").AvailableConnectionProjectMetadata?} metadata
 			 */
 			setConnectionProjectMetadata: (clientUuid, metadata) => {
 				this.setConnectionProjectMetadata(clientUuid, metadata);
@@ -158,8 +158,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 	}
 
 	/**
-	 * Destroys the InternalDiscoverManager and lets the shared worker know
-	 * that this client is no longer available.
+	 * @override
 	 */
 	async destructor() {
 		this.destructed = true;
@@ -204,7 +203,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 
 	/**
 	 * @override
-	 * @param {import("../DiscoveryManager.js").RemoteStudioMetadata?} metadata
+	 * @param {import("../DiscoveryManager.js").AvailableConnectionProjectMetadata?} metadata
 	 */
 	async setProjectMetadata(metadata) {
 		await this.workerMessenger.send.projectMetadata(metadata);

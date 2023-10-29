@@ -380,7 +380,7 @@ Deno.test({
 	},
 });
 
-/** @type {(handler: import("../../../../../../src/network/studioConnections/messageHandlers/MessageHandlerInternal.js").MessageHandlerInternal) => void} */
+/** @type {(handler: import("../../../../../../src/network/studioConnections/messageHandlers/InternalMessageHandler.js").InternalMessageHandler) => void} */
 const onCreatedSpySignature = () => {};
 
 Deno.test({
