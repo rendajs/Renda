@@ -51,6 +51,9 @@ export async function dev({
 				"npm:rollup-plugin-resolve-url-objects@0.0.4",
 				"npm:eslint-plugin-jsdoc@39.8.0",
 				"npm:jszip@3.5.0",
+				// Remove these once https://github.com/rendajs/studio-discovery-server/issues/2 is fixed.
+				"https://raw.githubusercontent.com/rendajs/Renda/015df2634a012df1fdd144f059dcdcb17d3aa51e/src/network/studioConnections/DiscoveryManager.js",
+				"https://raw.githubusercontent.com/rendajs/Renda/015df2634a012df1fdd144f059dcdcb17d3aa51e/src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js",
 			],
 			extraTypeRoots: {
 				// We prefix webgpu with aa to ensure it is placed above deno-types.
@@ -67,6 +70,12 @@ export async function dev({
 			},
 			logLevel: suppressTypesLogging ? "WARNING" : "DEBUG",
 		});
+
+		// eslint-disable-next-line no-constant-condition
+		if (false) {
+			// This import exists just to make deno_tsc_helper add this path to the generated tsconfig.js
+			await import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/WebSocketConnection.js");
+		}
 		if (needsTypesSync) {
 			await promise;
 		}
