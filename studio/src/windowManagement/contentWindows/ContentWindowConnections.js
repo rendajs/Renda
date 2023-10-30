@@ -62,7 +62,7 @@ export class ContentWindowConnections extends ContentWindow {
 			/** @type {import("../../ui/TextGui.js").TextGuiOptions} */
 			guiOpts: {
 				label: "Discovery Server",
-				placeholder: this.studioInstance.studioConnectionsManager.getDefaultWebRtcDiscoveryEndPoint(),
+				placeholder: this.studioInstance.studioConnectionsManager.getDefaultWebRtcDiscoveryEndpoint(),
 			},
 		});
 		discoveryServerEndpointField.onValueChange(changeEvent => {

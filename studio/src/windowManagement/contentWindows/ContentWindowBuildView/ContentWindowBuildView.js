@@ -181,9 +181,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	getIframeResponseHandlers() {
 		return {
 			/**
-			 * Requests the discovery url that the parent window is using.
-			 * This way the discovery url of applications is always the same as
-			 * the discovery url of the Renda Studio instance it was opened from.
+			 * Requests the desired method for connecting inspectors to the studio instance that hosts the application.
 			 */
 			requestDesiredStudioConnectionMethod: async () => {
 				const clientUuid = await this.studioInstance.studioConnectionsManager.getInternalClientUuid();

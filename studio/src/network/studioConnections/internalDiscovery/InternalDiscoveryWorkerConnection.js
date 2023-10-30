@@ -36,7 +36,7 @@ export class InternalDiscoveryWorkerConnection {
 	/**
 	 * @returns {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection}
 	 */
-	getConnectionData() {
+	getAvailableConnectionData() {
 		return {
 			id: this.id,
 			clientType: this.clientType,

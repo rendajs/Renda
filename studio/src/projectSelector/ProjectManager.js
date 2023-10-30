@@ -401,11 +401,8 @@ export class ProjectManager {
 		if (!this.currentProjectOpenEvent) {
 			throw new Error("Assertion failed: An active connection was made before a project entry was created.");
 		}
-		if (this.currentProjectOpenEvent.fileSystemType != "remote") {
-			throw new Error("Assertion failed:");
-		}
-		if (!(this.currentProjectFileSystem instanceof RemoteStudioFileSystem)) {
-			throw new Error("Assertion failed: Current project file system is not a remote file system.");
+		if (this.currentProjectOpenEvent.fileSystemType != "remote" || !(this.currentProjectFileSystem instanceof RemoteStudioFileSystem)) {
+			throw new Error("Assertion failed: Current file system is not a remote file system.");
 		}
 		const metadata = connection.projectMetadata;
 		if (!metadata) {

@@ -13,14 +13,14 @@ import {InternalDiscoveryWorkerConnection} from "./InternalDiscoveryWorkerConnec
  * @param {InternalDiscoveryWorkerConnection} createdConnection
  */
 function sendAllClientAddedMessages(activeConnections, createdConnection) {
-	const availableConnections = [];
+	const availableConnectionDatas = [];
 	for (const activeConnection of activeConnections.values()) {
 		if (activeConnection.port == createdConnection.port) continue;
 
-		availableConnections.push(activeConnection.getConnectionData());
-		activeConnection.parentMessenger.send.addAvailableConnection(createdConnection.getConnectionData());
+		availableConnectionDatas.push(activeConnection.getAvailableConnectionData());
+		activeConnection.parentMessenger.send.addAvailableConnection(createdConnection.getAvailableConnectionData());
 	}
-	createdConnection.parentMessenger.send.setAvailableConnections(availableConnections);
+	createdConnection.parentMessenger.send.setAvailableConnections(availableConnectionDatas);
 }
 
 /**

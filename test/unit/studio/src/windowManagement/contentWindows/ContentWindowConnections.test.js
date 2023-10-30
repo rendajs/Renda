@@ -34,7 +34,7 @@ async function basicTest({
 		const onAvailableConnectionsChangedCbs = new Set();
 		const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 			studioConnectionsManager: {
-				getDefaultWebRtcDiscoveryEndPoint() {
+				getDefaultWebRtcDiscoveryEndpoint() {
 					return "discovery.renda.studio";
 				},
 				onWebRtcDiscoveryServerStatusChange(cb) {},

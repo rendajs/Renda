@@ -15,9 +15,9 @@ export class StudioConnectionsManager {
 	/** @type {DiscoveryManager?} */
 	#discoveryManager = null;
 	/** @type {InternalDiscoveryMethod?} */
-	internalDiscoveryMethod = null;
+	#internalDiscoveryMethod = null;
 	/** @type {WebRtcDiscoveryMethod?} */
-	webRtcDiscoveryMethod = null;
+	#webRtcDiscoveryMethod = null;
 
 	/** @type {string?} */
 	#webRtcDiscoveryEndpoint = null;
@@ -49,11 +49,11 @@ export class StudioConnectionsManager {
 		preferencesManager.onChange("studioConnections.allowRemoteIncoming", null, this.#updateStudioConnectionsManager);
 	}
 
-	#getDefaultInternalDiscoveryEndPoint() {
+	#getDefaultInternalDiscoveryUrl() {
 		return new URL("internalDiscovery", window.location.href).href;
 	}
 
-	getDefaultWebRtcDiscoveryEndPoint() {
+	getDefaultWebRtcDiscoveryEndpoint() {
 		if (window.location.hostname == "renda.studio" || window.location.hostname.endsWith(".renda.studio")) {
 			return "discovery.renda.studio";
 		} else {
@@ -83,34 +83,34 @@ export class StudioConnectionsManager {
 		if (this.#discoveryManager && (!desiredClientType || desiredClientType != this.#discoveryManager.clientType)) {
 			this.#discoveryManager.destructor();
 			this.#discoveryManager = null;
-			this.internalDiscoveryMethod = null;
-			this.webRtcDiscoveryMethod = null;
+			this.#internalDiscoveryMethod = null;
+			this.#webRtcDiscoveryMethod = null;
 		}
 
 		if (desiredClientType && !this.#discoveryManager && this.#projectManager.currentProjectFileSystem) {
 			const certainFileSystem = this.#projectManager.currentProjectFileSystem;
-			const studioConnectionsManager = new DiscoveryManager(desiredClientType);
-			this.#discoveryManager = studioConnectionsManager;
+			const discoveryManager = new DiscoveryManager(desiredClientType);
+			this.#discoveryManager = discoveryManager;
 			this.#lastSentProjectMetadata = null;
-			studioConnectionsManager.onAvailableConnectionsChanged(() => {
-				if (studioConnectionsManager != this.#discoveryManager) {
+			discoveryManager.onAvailableConnectionsChanged(() => {
+				if (discoveryManager != this.#discoveryManager) {
 					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
 				}
 				this.#fireOnConnectionsChanged();
 			});
-			studioConnectionsManager.onConnectionRequest(connectionRequest => {
-				if (studioConnectionsManager != this.#discoveryManager) {
+			discoveryManager.onConnectionRequest(connectionRequest => {
+				if (discoveryManager != this.#discoveryManager) {
 					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
 				}
 
 				let initiatorType;
 				let receiverType;
 				if (connectionRequest.initiatedByMe) {
-					initiatorType = studioConnectionsManager.clientType;
+					initiatorType = discoveryManager.clientType;
 					receiverType = connectionRequest.clientType;
 				} else {
 					initiatorType = connectionRequest.clientType;
-					receiverType = studioConnectionsManager.clientType;
+					receiverType = discoveryManager.clientType;
 				}
 
 				if (!this.#isValidConnectionConfiguration(initiatorType, receiverType)) {
@@ -125,35 +125,35 @@ export class StudioConnectionsManager {
 					this.#projectManager.assignRemoteConnection(connection);
 					this.#addActiveConnection(connection);
 				}
-				if (studioConnectionsManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
+				if (discoveryManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
 					const connection = connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
 					this.#addActiveConnection(connection);
 				}
 			});
 		}
 		if (this.#discoveryManager) {
-			// create/destroy internal discovery manager when needed
+			// create/destroy internal discovery method when needed
 			const needsInternalDiscovery = allowInternalIncoming || this.#projectManager.currentProjectIsRemote;
-			if (this.internalDiscoveryMethod && !needsInternalDiscovery) {
-				this.#discoveryManager.removeDiscoveryMethod(this.internalDiscoveryMethod);
-			} else if (!this.internalDiscoveryMethod && needsInternalDiscovery) {
-				this.internalDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(InternalDiscoveryMethod, this.#getDefaultInternalDiscoveryEndPoint());
+			if (this.#internalDiscoveryMethod && !needsInternalDiscovery) {
+				this.#discoveryManager.removeDiscoveryMethod(this.#internalDiscoveryMethod);
+			} else if (!this.#internalDiscoveryMethod && needsInternalDiscovery) {
+				this.#internalDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(InternalDiscoveryMethod, this.#getDefaultInternalDiscoveryUrl());
 			}
 
-			// create/destroy webrtc discovery manager when needed
+			// create/destroy webrtc discovery method when needed
 			const needsWebRtcDiscovery = allowRemoteIncoming || this.#projectManager.currentProjectIsRemote;
-			const desiredWebRtcEndpoint = this.#webRtcDiscoveryEndpoint || this.getDefaultWebRtcDiscoveryEndPoint();
-			if (this.webRtcDiscoveryMethod && (!needsWebRtcDiscovery || this.webRtcDiscoveryMethod.endpoint != desiredWebRtcEndpoint)) {
-				this.#discoveryManager.removeDiscoveryMethod(this.webRtcDiscoveryMethod);
+			const desiredWebRtcEndpoint = this.#webRtcDiscoveryEndpoint || this.getDefaultWebRtcDiscoveryEndpoint();
+			if (this.#webRtcDiscoveryMethod && (!needsWebRtcDiscovery || this.#webRtcDiscoveryMethod.endpoint != desiredWebRtcEndpoint)) {
+				this.#discoveryManager.removeDiscoveryMethod(this.#webRtcDiscoveryMethod);
 				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb("disconnected"));
-				this.webRtcDiscoveryMethod = null;
+				this.#webRtcDiscoveryMethod = null;
 			}
-			if (!this.webRtcDiscoveryMethod && needsWebRtcDiscovery) {
-				this.webRtcDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(WebRtcDiscoveryMethod, desiredWebRtcEndpoint);
-				this.webRtcDiscoveryMethod.onStatusChange(status => {
+			if (!this.#webRtcDiscoveryMethod && needsWebRtcDiscovery) {
+				this.#webRtcDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(WebRtcDiscoveryMethod, desiredWebRtcEndpoint);
+				this.#webRtcDiscoveryMethod.onStatusChange(status => {
 					this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
 				});
-				const status = this.webRtcDiscoveryMethod.status;
+				const status = this.#webRtcDiscoveryMethod.status;
 				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
 			}
 		}
@@ -246,8 +246,8 @@ export class StudioConnectionsManager {
 
 	/** @type {import("../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").DiscoveryServerStatusType} */
 	get webRtcDiscoveryServerStatus() {
-		if (!this.webRtcDiscoveryMethod) return "disconnected";
-		return this.webRtcDiscoveryMethod.status;
+		if (!this.#webRtcDiscoveryMethod) return "disconnected";
+		return this.#webRtcDiscoveryMethod.status;
 	}
 
 	/**
@@ -267,13 +267,13 @@ export class StudioConnectionsManager {
 	/**
 	 * Attempts to initiate a new connection.
 	 * If the connection succeeds, state changes can be observed using {@linkcode onConnectionsChanged}.
-	 * @param {import("../../../../src/mod.js").UuidString} id
+	 * @param {import("../../../../src/mod.js").UuidString} otherClientUuid
 	 */
-	requestConnection(id) {
+	requestConnection(otherClientUuid) {
 		if (!this.#discoveryManager) {
 			throw new Error("Assertion failed, studio connections manager does not exist");
 		}
-		this.#discoveryManager.requestConnection(id);
+		this.#discoveryManager.requestConnection(otherClientUuid);
 	}
 
 	/**
@@ -324,10 +324,13 @@ export class StudioConnectionsManager {
 		return null;
 	}
 
+	/**
+	 * Returns the client uuid of the InternalDiscoveryMethod.
+	 */
 	async getInternalClientUuid() {
 		if (!this.#discoveryManager) return null;
-		if (!this.internalDiscoveryMethod) return null;
-		return this.internalDiscoveryMethod.getClientUuid();
+		if (!this.#internalDiscoveryMethod) return null;
+		return this.#internalDiscoveryMethod.getClientUuid();
 	}
 
 	/**

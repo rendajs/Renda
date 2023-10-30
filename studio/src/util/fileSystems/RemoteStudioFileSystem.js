@@ -11,6 +11,9 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").StudioClientHostConnection} connection
 	 */
 	setConnection(connection) {
+		if (this.#connection) {
+			throw new Error("A connection has already been assigned to this file system.");
+		}
 		this.#connection = connection;
 		this.updateConnected();
 	}
