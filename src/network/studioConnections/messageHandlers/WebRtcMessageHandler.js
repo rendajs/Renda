@@ -43,6 +43,8 @@ export class WebRtcMessageHandler extends MessageHandler {
 				maxRetransmits: 0,
 			});
 		}
+
+		this.updateStatus();
 	}
 
 	/**
