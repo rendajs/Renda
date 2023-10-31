@@ -44,6 +44,9 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		/** @private @type {Set<OnDiscoveryManagerWebRtcStatusChangeCallback>} */
 		this.onStatusChangeCbs = new Set();
 
+		/** @private @type {Map<import("../../../mod.js").UuidString, WebRtcMessageHandler>} */
+		this.activeConnections = new Map();
+
 		/** @private */
 		this._endpoint = endpoint;
 
@@ -184,39 +187,59 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 
 	/**
 	 * @private
-	 * @param {import("../../../mod.js").UuidString} connectionId
-	 * @param {RTCSessionDescriptionInit} rtcDescription
+	 * @returns {import("../messageHandlers/WebRtcMessageHandler.js").WebRtcMessageHandlerOptions}
 	 */
-	_handleRtcDescription(connectionId, rtcDescription) {
-		let studioConnection = this.activeConnections.get(connectionId);
-		if (!studioConnection) {
-			studioConnection = this.addActiveConnection(connectionId, false, {
-				sendRtcIceCandidate: (uuid, candidate) => {
-					this.webSocketMessenger.send.relayMessage(uuid, {
-						type: "rtcIceCandidate",
-						candidate,
-					});
-				},
-				sendRtcDescription: (uuid, description) => {
-					this.webSocketMessenger.send.relayMessage(uuid, {
-						type: "rtcDescription",
-						description,
-					});
-				},
-			});
+	_createConnectionOptions() {
+		return {
+			sendRtcIceCandidate: (uuid, candidate) => {
+				this.webSocketMessenger.send.relayMessage(uuid, {
+					type: "rtcIceCandidate",
+					candidate,
+				});
+			},
+			sendRtcDescription: (uuid, description) => {
+				this.webSocketMessenger.send.relayMessage(uuid, {
+					type: "rtcDescription",
+					description,
+				});
+			},
+		};
+	}
+
+	/**
+	 * @override
+	 * @param {import("../../../mod.js").UuidString} otherClientUuid
+	 */
+	async requestConnection(otherClientUuid) {
+		if (this.activeConnections.has(otherClientUuid)) {
+			throw new Error("A connection with this client has already been created");
 		}
-		studioConnection.handleRtcDescription(rtcDescription);
+		const connection = this.addActiveConnection(otherClientUuid, true, this._createConnectionOptions());
+		this.activeConnections.set(otherClientUuid, connection);
 	}
 
 	/**
 	 * @private
-	 * @param {import("../../../mod.js").UuidString} studioId
+	 * @param {import("../../../mod.js").UuidString} otherClientUuid
+	 * @param {RTCSessionDescriptionInit} rtcDescription
+	 */
+	_handleRtcDescription(otherClientUuid, rtcDescription) {
+		let connection = this.activeConnections.get(otherClientUuid);
+		if (!connection) {
+			connection = this.addActiveConnection(otherClientUuid, false, this._createConnectionOptions());
+		}
+		connection.handleRtcDescription(rtcDescription);
+	}
+
+	/**
+	 * @private
+	 * @param {import("../../../mod.js").UuidString} otherClientUuid
 	 * @param {RTCIceCandidateInit} iceCandidate
 	 */
-	_handleRtcIceCandidate(studioId, iceCandidate) {
-		const studioConnection = this.activeConnections.get(studioId);
-		if (!studioConnection) return;
+	_handleRtcIceCandidate(otherClientUuid, iceCandidate) {
+		const connection = this.activeConnections.get(otherClientUuid);
+		if (!connection) return;
 
-		studioConnection.handleRtcIceCandidate(iceCandidate);
+		connection.handleRtcIceCandidate(iceCandidate);
 	}
 }

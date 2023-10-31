@@ -21,8 +21,6 @@ export class DiscoveryMethod {
 		/** @private @type {Set<() => void>} */
 		this.onAvailableConnectionsChangedCbs = new Set();
 
-		/** @protected @type {Map<import("../../../mod.js").UuidString, InstanceType<TMessageHandler>>} */
-		this.activeConnections = new Map();
 		/** @private @type {Set<OnConnectionCreatedCallback>} */
 		this.onConnectionRequestCbs = new Set();
 	}

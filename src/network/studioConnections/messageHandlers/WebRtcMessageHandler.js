@@ -1,11 +1,15 @@
 import {MessageHandler} from "./MessageHandler.js";
 
+/**
+ * @typedef WebRtcMessageHandlerOptions
+ * @property {(uuid: import("../../../mod.js").UuidString, candidate: RTCIceCandidate) => void} sendRtcIceCandidate
+ * @property {(uuid: import("../../../mod.js").UuidString, offer: RTCSessionDescriptionInit) => void} sendRtcDescription
+ */
+
 export class WebRtcMessageHandler extends MessageHandler {
 	/**
 	 * @param {import("./MessageHandler.js").MessageHandlerOptions} messageHandlerOptions
-	 * @param {object} options
-	 * @param {(uuid: import("../../../mod.js").UuidString, candidate: RTCIceCandidate) => void} options.sendRtcIceCandidate
-	 * @param {(uuid: import("../../../mod.js").UuidString, offer: RTCSessionDescriptionInit) => void} options.sendRtcDescription
+	 * @param {WebRtcMessageHandlerOptions} options
 	 */
 	constructor(messageHandlerOptions, {sendRtcIceCandidate, sendRtcDescription}) {
 		super(messageHandlerOptions);
