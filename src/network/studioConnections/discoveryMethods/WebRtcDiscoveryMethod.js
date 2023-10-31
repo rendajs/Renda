@@ -9,7 +9,7 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
 
 /** @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType */
 
-/** @typedef {ReturnType<WebRtcDiscoveryMethod["getResponseHandlers"]>} ExternalDiscoveryManagerResponseHandlers */
+/** @typedef {ReturnType<WebRtcDiscoveryMethod["getResponseHandlers"]>} ExternalDiscoveryMethodResponseHandlers */
 
 /**
  * @typedef ExternalDiscoveryRelayOfferData
@@ -53,7 +53,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			this._setStatus("connected");
 		});
 
-		/** @private @type {TypedMessenger<ExternalDiscoveryManagerResponseHandlers, import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/WebSocketConnection.js").StudioDescoveryResponseHandlers>} */
+		/** @private @type {TypedMessenger<ExternalDiscoveryMethodResponseHandlers, import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/WebSocketConnection.js").StudioDescoveryResponseHandlers>} */
 		this.webSocketMessenger = new TypedMessenger({globalTimeout: 20_000});
 		this.webSocketMessenger.initializeWebSocket(this.ws, this.getResponseHandlers());
 		this.webSocketMessenger.configureSendOptions({
@@ -178,8 +178,8 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	 * @override
 	 * @param {import("../DiscoveryManager.js").AvailableConnectionProjectMetadata?} metadata
 	 */
-	async setProjectMetadata(metadata) {
-		await this.webSocketMessenger.send.setProjectMetadata(metadata);
+	setProjectMetadata(metadata) {
+		this.webSocketMessenger.send.setProjectMetadata(metadata);
 	}
 
 	/**
