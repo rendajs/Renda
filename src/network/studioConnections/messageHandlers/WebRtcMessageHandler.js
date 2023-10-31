@@ -16,6 +16,8 @@ export class WebRtcMessageHandler extends MessageHandler {
 		/** @private */
 		this.sendRtcDescription = sendRtcDescription;
 
+		/** @private @type {Set<() => void>} */
+		this._waitForConnectedCbs = new Set();
 		/** @private */
 		this.rtcConnection = new RTCPeerConnection();
 		/** @private @type {Map<string, RTCDataChannel>} */
@@ -63,11 +65,11 @@ export class WebRtcMessageHandler extends MessageHandler {
 	updateStatus() {
 		const rtcState = this.rtcConnection.connectionState;
 		/** @type {import("./MessageHandler.js").MessageHandlerStatus} */
-		let status = "disconnected";
+		let newStatus = "disconnected";
 		if (rtcState == "new" || rtcState == "connecting") {
-			status = "connecting";
+			newStatus = "connecting";
 		} else if (rtcState == "connected") {
-			status = "connecting";
+			newStatus = "connecting";
 			if (this.dataChannels.size > 0) {
 				let allConnected = true;
 				for (const channel of this.dataChannels.values()) {
@@ -77,11 +79,15 @@ export class WebRtcMessageHandler extends MessageHandler {
 					}
 				}
 				if (allConnected) {
-					status = "connected";
+					newStatus = "connected";
 				}
 			}
 		}
-		this.setStatus(status);
+		if (newStatus == "connected") {
+			this._waitForConnectedCbs.forEach(cb => cb());
+			this._waitForConnectedCbs.clear();
+		}
+		this.setStatus(newStatus);
 	}
 
 	/**
@@ -139,12 +145,28 @@ export class WebRtcMessageHandler extends MessageHandler {
 	}
 
 	/**
-	 * @override
-	 * @param {*} data
+	 * @private
 	 */
-	send(data) {
+	_waitForConnected() {
+		if (this.status == "connected") return;
+		/** @type {Promise<void>} */
+		const promise = new Promise(resolve => {
+			this._waitForConnectedCbs.add(resolve);
+		});
+		return promise;
+	}
+
+	/**
+	 * @override
+	 * @param {unknown} data
+	 */
+	async send(data) {
+		await this._waitForConnected();
 		const channel = this.dataChannels.get("reliable");
 		if (!channel) throw new Error("Assertion failed, reliable channel does not exist.");
+		if (!(data instanceof ArrayBuffer)) {
+			throw new Error("This message handler only supports sending array buffers");
+		}
 		channel.send(data);
 	}
 }
