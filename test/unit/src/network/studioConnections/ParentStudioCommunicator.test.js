@@ -131,11 +131,15 @@ Deno.test({
 				const {discoveryManager} = createMockDiscoveryManager();
 				const time = new FakeTime();
 
-				const assertionPromise = assertRejects(async () => {
-					await communicator.requestDesiredParentStudioConnection(discoveryManager, []);
-				}, Error, "Failed to get parent client data. The parent didn't respond with client data in a timely manner. requestDesiredParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
-				await time.nextAsync();
-				await assertionPromise;
+				try {
+					const assertionPromise = assertRejects(async () => {
+						await communicator.requestDesiredParentStudioConnection(discoveryManager, []);
+					}, Error, "Failed to get parent client data. The parent didn't respond with client data in a timely manner. requestDesiredParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.");
+					await time.nextAsync();
+					await assertionPromise;
+				} finally {
+					time.restore();
+				}
 			},
 		});
 	},
