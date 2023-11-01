@@ -2,7 +2,7 @@ import {FakeTime} from "std/testing/time.ts";
 import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
 import {TypedMessenger} from "../../../../../src/mod.js";
 import {ParentStudioCommunicator} from "../../../../../src/network/studioConnections/ParentStudioCommunicator.js";
-import {assertEquals, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 
 /**
  * Creates a mocked parent window that simulates a studio instance.
@@ -174,7 +174,7 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const communicator = new ParentStudioCommunicator();
-				const {discoveryManager, InternalDiscoveryMethod, addDiscoveryMethodSpy, requestConnectionSpy} = createMockDiscoveryManager();
+				const {discoveryManager} = createMockDiscoveryManager();
 
 				await assertRejects(async () => {
 					await communicator.requestDesiredParentStudioConnection(discoveryManager, []);
