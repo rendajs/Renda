@@ -306,7 +306,13 @@ Deno.test({
 				assertEquals(handler.status, "connecting");
 
 				const rtcConnection = getSingleCreatedRtcConnection();
-				assertEquals(rtcConnection.localDescription, null);
+				rtcConnection.dispatchEvent(new Event("negotiationneeded"));
+				await waitForMicrotasks();
+
+				assertEquals(rtcConnection.localDescription, /** @type {RTCSessionDescription} */ ({
+					type: "answer",
+					sdp: "",
+				}));
 				assertEquals(rtcConnection.remoteDescription, /** @type {RTCSessionDescription} */ ({
 					type: "offer",
 					sdp: "offer",
@@ -328,6 +334,77 @@ Deno.test({
 							description: {
 								type: "answer",
 							},
+						},
+					],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Requesting a new connection sends the right messages and creates datachannels",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager = new WebRtcDiscoveryMethod("endpoint");
+				/** @param {WebRtcMessageHandler} handler */
+				const onConnectionRequest = handler => {};
+				const onConnectionRequestSpy = spy(onConnectionRequest);
+				manager.onConnectionRequest(onConnectionRequestSpy);
+
+				const socket = getSingleCreatedWebSocket();
+				socket.messenger.send.addAvailableConnection({
+					id: "otherUuid",
+					clientType: "inspector",
+					projectMetadata: null,
+				});
+
+				manager.requestConnection("otherUuid");
+
+				assertSpyCalls(onConnectionRequestSpy, 1);
+				const handler = onConnectionRequestSpy.calls[0].args[0];
+				assertInstanceOf(handler, WebRtcMessageHandler);
+				assertEquals(handler.status, "connecting");
+
+				const rtcConnection = getSingleCreatedRtcConnection();
+				rtcConnection.dispatchEvent(new Event("negotiationneeded"));
+				await waitForMicrotasks();
+
+				assertEquals(rtcConnection.localDescription, /** @type {RTCSessionDescription} */ ({
+					type: "offer",
+					sdp: "",
+				}));
+				assertSpyCalls(socket.relayMessageSpy, 1);
+				assertSpyCall(socket.relayMessageSpy, 0, {
+					args: [
+						"otherUuid",
+						{
+							type: "rtcDescription",
+							description: {
+								type: "offer",
+							},
+						},
+					],
+				});
+
+				const candidateEvent = /** @type {RTCPeerConnectionIceEvent} */ (new Event("icecandidate"));
+				// @ts-ignore
+				candidateEvent.candidate = {
+					candidate: "candidate",
+				};
+				rtcConnection.dispatchEvent(candidateEvent);
+				await waitForMicrotasks();
+
+				assertSpyCalls(socket.relayMessageSpy, 2);
+				assertSpyCall(socket.relayMessageSpy, 1, {
+					args: [
+						"otherUuid",
+						{
+							type: "rtcIceCandidate",
+							candidate: /** @type {RTCIceCandidate} */ ({
+								candidate: "candidate",
+							}),
 						},
 					],
 				});

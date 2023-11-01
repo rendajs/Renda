@@ -18,6 +18,10 @@ export function clearCreatedRtcConnections() {
 	createdRtcConnections.clear();
 }
 
+class MockRTCDataChannel extends EventTarget {
+
+}
+
 export class MockRTCPeerConnection extends EventTarget {
 	/** @type {RTCSessionDescription?} */
 	#localDescription = null;
@@ -47,13 +51,22 @@ export class MockRTCPeerConnection extends EventTarget {
 	}
 
 	/**
-	 * @param {RTCLocalSessionDescriptionInit} [description]
+	 * @param {RTCLocalSessionDescriptionInit} description
 	 */
 	async setRemoteDescription(description) {
 		this.#remoteDescription = /** @type {RTCSessionDescription} */ ({
-			type: description?.type || "offer",
-			sdp: description?.sdp || "",
+			type: description.type || "",
+			sdp: description.sdp || "",
 		});
+	}
+
+	/**
+	 * @returns {Promise<RTCSessionDescriptionInit>}
+	 */
+	async createOffer() {
+		return {
+			type: "offer",
+		};
 	}
 
 	/**
@@ -77,6 +90,14 @@ export class MockRTCPeerConnection extends EventTarget {
 	 */
 	addIceCandidate(iceCandidate) {
 		this.#addedIceCandidates.add(iceCandidate);
+	}
+
+	/**
+	 * @param {string} label
+	 * @param {RTCDataChannelInit} options
+	 */
+	createDataChannel(label, options) {
+		return new MockRTCDataChannel();
 	}
 
 	/** @type {RTCPeerConnectionState} */
