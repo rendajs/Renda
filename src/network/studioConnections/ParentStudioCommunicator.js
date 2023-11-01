@@ -6,7 +6,7 @@ import {TimeoutError} from "../../util/TimeoutError.js";
  * If the page is embedded by a studio instance in a build view,
  * we can communicate with the studio instance.
  */
-export class ParentStudioHandler {
+export class ParentStudioCommunicator {
 	constructor() {
 		/**
 		 * @private @type {TypedMessenger<{}, import("../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
