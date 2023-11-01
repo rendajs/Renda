@@ -1,102 +1,10 @@
-import {AssertionError, assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {WebRtcDiscoveryMethod} from "../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
-import {TypedMessenger} from "../../../../../../src/mod.js";
-
-/** @type {Set<MockWebSocket>} */
-const createdWebSockets = new Set();
-
-/**
- * Asserts that exactly only one websocket was created and returns it.
- */
-function getSingleCreatedWebSocket() {
-	assertEquals(createdWebSockets.size, 1);
-	for (const socket of createdWebSockets) {
-		return socket;
-	}
-	throw new AssertionError("");
-}
-
-const originalWebSocketConnecting = WebSocket.CONNECTING;
-const originalWebSocketOpen = WebSocket.OPEN;
-const originalWebSocketClosed = WebSocket.CLOSED;
-class MockWebSocket extends EventTarget {
-	#endpoint;
-	get endpoint() {
-		return this.#endpoint;
-	}
-
-	/** @type {TypedMessenger<import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/WebSocketConnection.js").StudioDescoveryResponseHandlers, import("../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").ExternalDiscoveryMethodResponseHandlers>} */
-	#messenger = new TypedMessenger();
-	get messenger() {
-		return this.#messenger;
-	}
-
-	/** @type {number} */
-	#readyState = originalWebSocketConnecting;
-	get readyState() {
-		return this.#readyState;
-	}
-
-	/**
-	 * @param {string} endpoint
-	 */
-	constructor(endpoint) {
-		super();
-		this.#endpoint = endpoint;
-
-		/** @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").ClientType} clientType */
-		const registerClient = clientType => {};
-		this.registerClientSpy = spy(registerClient);
-
-		/** @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata} projectMetada */
-		const setProjectMetadata = projectMetada => {};
-		this.setProjectMetadataSpy = spy(setProjectMetadata);
-
-		this.#messenger.setSendHandler(data => {
-			this.dispatchEvent(new MessageEvent("message", {
-				data: JSON.stringify(data.sendData),
-			}));
-		});
-		this.#messenger.setResponseHandlers({
-			registerClient: clientType => {
-				this.registerClientSpy(clientType);
-			},
-			relayMessage(otherClientUuid, data) {
-				return {
-					$respondOptions: {respond: false},
-				};
-			},
-			setProjectMetadata: projectMetadata => {
-				this.setProjectMetadataSpy(projectMetadata);
-				return {
-					$respondOptions: {respond: false},
-				};
-			},
-		});
-
-		createdWebSockets.add(this);
-	}
-
-	/**
-	 * @param {string} data
-	 */
-	send(data) {
-		/** @type {import("../../../../../../src/mod.js").TypedMessengerMessageSendData<import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/WebSocketConnection.js").StudioDescoveryResponseHandlers, import("../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").ExternalDiscoveryMethodResponseHandlers>} */
-		const parsed = JSON.parse(data);
-		this.#messenger.handleReceivedMessage(parsed);
-	}
-
-	close() {
-		this.#readyState = originalWebSocketClosed;
-		this.dispatchEvent(new CloseEvent("close"));
-	}
-
-	open() {
-		this.#readyState = originalWebSocketOpen;
-		this.dispatchEvent(new Event("open"));
-	}
-}
+import {WebRtcDiscoveryMethod} from "../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
+import {WebRtcMessageHandler} from "../../../../../../../src/network/studioConnections/messageHandlers/WebRtcMessageHandler.js";
+import {MockWebSocket, clearCreatedWebSockets, getSingleCreatedWebSocket, originalWebSocketClosed} from "./MockWebSocket.js";
+import {MockRTCPeerConnection, clearCreatedRtcConnections, getSingleCreatedRtcConnection} from "./MockRTCPeerConnection.js";
+import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
 /**
  * @param {object} options
@@ -107,12 +15,16 @@ async function basicSetup({
 }) {
 	const oldWebSocket = globalThis.WebSocket;
 	globalThis.WebSocket = /** @type {typeof WebSocket} */ (/** @type {unknown} */ (MockWebSocket));
+	const oldRTCPeerConnection = globalThis.RTCPeerConnection;
+	globalThis.RTCPeerConnection = /** @type {typeof RTCPeerConnection} */ (/** @type {unknown} */ (MockRTCPeerConnection));
 
 	try {
 		await fn();
 	} finally {
-		createdWebSockets.clear();
+		clearCreatedWebSockets();
+		clearCreatedRtcConnections();
 		globalThis.WebSocket = oldWebSocket;
+		globalThis.RTCPeerConnection = oldRTCPeerConnection;
 	}
 }
 
@@ -122,7 +34,7 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const manager = new WebRtcDiscoveryMethod("endpoint");
-				/** @type {import("../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").OnDiscoveryManagerWebRtcStatusChangeCallback} */
+				/** @type {import("../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").OnDiscoveryManagerWebRtcStatusChangeCallback} */
 				const onStatusChange = status => {};
 				const onStatusChangeSpy = spy(onStatusChange);
 				manager.onStatusChange(onStatusChangeSpy);
@@ -208,7 +120,7 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const manager = new WebRtcDiscoveryMethod("endpoint");
-				/** @type {import("../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").OnDiscoveryManagerWebRtcStatusChangeCallback} */
+				/** @type {import("../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").OnDiscoveryManagerWebRtcStatusChangeCallback} */
 				const onStatusChange = status => {};
 				const onStatusChangeSpy = spy(onStatusChange);
 				manager.onStatusChange(onStatusChangeSpy);
@@ -349,6 +261,73 @@ Deno.test({
 							fileSystemHasWritePermissions: false,
 							name: "name",
 							uuid: "id",
+						},
+					],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Receiving an rtc description and ice candidate creates a new connection",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const manager = new WebRtcDiscoveryMethod("endpoint");
+				/** @param {WebRtcMessageHandler} handler */
+				const onConnectionRequest = handler => {};
+				const onConnectionRequestSpy = spy(onConnectionRequest);
+				manager.onConnectionRequest(onConnectionRequestSpy);
+
+				const socket = getSingleCreatedWebSocket();
+				socket.messenger.send.addAvailableConnection({
+					id: "otherUuid",
+					clientType: "inspector",
+					projectMetadata: null,
+				});
+				socket.messenger.send.relayMessage("otherUuid", {
+					type: "rtcDescription",
+					description: {
+						type: "offer",
+						sdp: "offer",
+					},
+				});
+				socket.messenger.send.relayMessage("otherUuid", {
+					type: "rtcIceCandidate",
+					candidate: /** @type {RTCIceCandidate} */ ({
+						candidate: "other ice candidate",
+					}),
+				});
+
+				assertSpyCalls(onConnectionRequestSpy, 1);
+				const handler = onConnectionRequestSpy.calls[0].args[0];
+				assertInstanceOf(handler, WebRtcMessageHandler);
+				assertEquals(handler.status, "connecting");
+
+				const rtcConnection = getSingleCreatedRtcConnection();
+				assertEquals(rtcConnection.localDescription, null);
+				assertEquals(rtcConnection.remoteDescription, /** @type {RTCSessionDescription} */ ({
+					type: "offer",
+					sdp: "offer",
+				}));
+				assertEquals(rtcConnection.addedIceCandidates, [
+					{
+						candidate: "other ice candidate",
+					},
+				]);
+
+				await waitForMicrotasks();
+
+				assertSpyCalls(socket.relayMessageSpy, 1);
+				assertSpyCall(socket.relayMessageSpy, 0, {
+					args: [
+						"otherUuid",
+						{
+							type: "rtcDescription",
+							description: {
+								type: "answer",
+							},
 						},
 					],
 				});

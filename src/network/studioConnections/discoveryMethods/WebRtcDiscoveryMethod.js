@@ -227,6 +227,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		let connection = this.activeConnections.get(otherClientUuid);
 		if (!connection) {
 			connection = this.addActiveConnection(otherClientUuid, false, this._createConnectionOptions());
+			this.activeConnections.set(otherClientUuid, connection);
 		}
 		connection.handleRtcDescription(rtcDescription);
 	}
