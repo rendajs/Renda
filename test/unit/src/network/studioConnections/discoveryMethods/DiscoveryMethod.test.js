@@ -1,74 +1,7 @@
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {DiscoveryMethod} from "../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js";
 import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {MessageHandler} from "../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js";
-
-class ExtendedMessageHandler extends MessageHandler {
-	/**
-	 * @param {import("../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerOptions} options
-	 * @param {number} param1
-	 * @param {string} param2
-	 */
-	constructor(options, param1, param2) {
-		super(options);
-		this.param1 = param1;
-		this.param2 = param2;
-	}
-}
-
-/**
- * @extends {DiscoveryMethod<typeof ExtendedMessageHandler>}
- */
-class ExtendedDiscoveryMethod extends DiscoveryMethod {
-	static type = "test:type";
-
-	constructor() {
-		super(ExtendedMessageHandler);
-	}
-
-	/**
-	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection} connectionData
-	 */
-	addOne(connectionData) {
-		this.addAvailableConnection(connectionData);
-	}
-
-	/**
-	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection[]} connections
-	 */
-	setMultiple(connections) {
-		this.setAvailableConnections(connections);
-	}
-
-	/**
-	 * @param {import("../../../../../../src/mod.js").UuidString} id
-	 */
-	removeOne(id) {
-		this.removeAvailableConnection(id);
-	}
-
-	clearAll() {
-		this.clearAvailableConnections();
-	}
-
-	/**
-	 * @param {import("../../../../../../src/mod.js").UuidString} id
-	 * @param {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} projectMetaData
-	 */
-	modifyOne(id, projectMetaData) {
-		this.setConnectionProjectMetadata(id, projectMetaData);
-	}
-
-	/**
-	 * @param {import("../../../../../../src/mod.js").UuidString} otherClientUuid
-	 * @param {boolean} initiatedByMe
-	 * @param {number} param1
-	 * @param {string} param2
-	 */
-	addActive(otherClientUuid, initiatedByMe, param1, param2) {
-		return this.addActiveConnection(otherClientUuid, initiatedByMe, param1, param2);
-	}
-}
+import {ExtendedDiscoveryMethod, ExtendedMessageHandler} from "./shared/ExtendedDiscoveryMethod.js";
 
 Deno.test({
 	name: "Adding and removing connections",

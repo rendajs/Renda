@@ -31,20 +31,20 @@ import {StudioConnection} from "./StudioConnection.js";
  * @property {boolean} fileSystemHasWritePermissions
  * @property {import("../../util/util.js").UuidString} uuid
  */
+/**
+ * @typedef OnConnectionCreatedRequest
+ * @property {boolean} initiatedByMe
+ * @property {ClientType} clientType
+ * @property {<T extends import("../../mod.js").TypedMessengerSignatures>(reliableResponseHandlers: T) => StudioConnection<T, any>} accept Accepts the connection and
+ * returns a StudioConnection with the provided response handlers.
+ * If none of the registered callbacks call `accept()` (synchronously), the connection will be closed immediately.
+ */
 
 /**
  * The DiscoveryManager allows you to list available connections and connect to them.
  * You can add multiple DiscoveryMethods and observe changes to their available connections.
  */
 export class DiscoveryManager {
-	/**
-	 * @typedef OnConnectionCreatedRequest
-	 * @property {boolean} initiatedByMe
-	 * @property {ClientType} clientType
-	 * @property {<T extends import("../../mod.js").TypedMessengerSignatures>(reliableResponseHandlers: T) => StudioConnection<T, any>} accept Accepts the connection and
-	 * returns a StudioConnection with the provided response handlers.
-	 * If none of the registered callbacks call `accept()` (synchronously), the connection will be closed immediately.
-	 */
 	/** @typedef {(connectionRequest: OnConnectionCreatedRequest) => void} OnConnectionRequestCallback */
 
 	/**
@@ -136,6 +136,14 @@ export class DiscoveryManager {
 		if (this.discoveryMethods.has(discoveryMethod)) {
 			discoveryMethod.destructor();
 			this.discoveryMethods.delete(discoveryMethod);
+			let hadConnections = false;
+			for (const _ of discoveryMethod.availableConnections()) {
+				hadConnections = true;
+				break;
+			}
+			if (hadConnections) {
+				this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
+			}
 		}
 	}
 
@@ -216,6 +224,6 @@ export class DiscoveryManager {
 				return;
 			}
 		}
-		throw new Error(`No connection with id ${otherClientUuid} was found.`);
+		throw new Error(`No connection with id "${otherClientUuid}" was found.`);
 	}
 }
