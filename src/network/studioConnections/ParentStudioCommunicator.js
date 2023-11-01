@@ -43,7 +43,7 @@ export class ParentStudioCommunicator {
 	 */
 	async requestDesiredParentStudioConnection(discoveryManager, supportedDiscoveryMethods) {
 		const sentence1 = "Failed to get parent client data.";
-		const sentence2 = "requestParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.";
+		const sentence2 = "requestDesiredParentStudioConnection() only works when called on a page that was created by Renda Studio. If this is not the case, use requestConnection() to connect to the specific client you wish to connect to.";
 		if (!this.isInIframe()) {
 			throw new Error(`${sentence1} ${sentence2}`);
 		}
@@ -52,12 +52,13 @@ export class ParentStudioCommunicator {
 			desiredConnectionData = await this.parentMessenger.send.requestDesiredStudioConnectionMethod();
 		} catch (e) {
 			if (e instanceof TimeoutError) {
-				throw new Error(`${sentence1} The parent didn't respond with client data in timely manner. ${sentence2}`);
+				throw new Error(`${sentence1} The parent didn't respond with client data in a timely manner. ${sentence2}`);
 			} else {
 				throw e;
 			}
 		}
 
+		let foundMethod = false;
 		for (const DiscoveryMethod of supportedDiscoveryMethods) {
 			if (DiscoveryMethod.type == "renda:internal" && desiredConnectionData.type == "renda:internal") {
 				discoveryManager.addDiscoveryMethod(DiscoveryMethod, desiredConnectionData.discoveryUrl);
@@ -66,7 +67,12 @@ export class ParentStudioCommunicator {
 					token: desiredConnectionData.internalConnectionToken,
 				};
 				discoveryManager.requestConnection(desiredConnectionData.clientUuid, connectionData);
+				foundMethod = true;
+				break;
 			}
+		}
+		if (!foundMethod) {
+			throw new Error(`The parent requested a discovery method of type "${desiredConnectionData.type}", but no constructor with this type was provided.`);
 		}
 	}
 }

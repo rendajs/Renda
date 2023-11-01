@@ -9,13 +9,13 @@ export class InspectorManager {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
 
 		/** @private */
-		this.parentStudioHandler = new ParentStudioCommunicator();
+		this.parentStudioCommunicator = new ParentStudioCommunicator();
 		/** @private */
 		this.discoveryManager = new DiscoveryManager("inspector");
 
 		this.discoveryManager.onConnectionRequest(connection => {
 			console.log(connection);
 		});
-		this.parentStudioHandler.requestDesiredParentStudioConnection(this.discoveryManager, [InternalDiscoveryMethod, WebRtcDiscoveryMethod]);
+		this.parentStudioCommunicator.requestDesiredParentStudioConnection(this.discoveryManager, [InternalDiscoveryMethod, WebRtcDiscoveryMethod]);
 	}
 }
