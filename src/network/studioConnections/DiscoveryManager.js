@@ -163,16 +163,6 @@ export class DiscoveryManager {
 	}
 
 	/**
-	 * @param {AvailableConnectionProjectMetadata?} metadata
-	 */
-	setProjectMetadata(metadata) {
-		this.projectMetadata = metadata;
-		for (const discoveryMethod of this.discoveryMethods.values()) {
-			discoveryMethod.setProjectMetadata(metadata);
-		}
-	}
-
-	/**
 	 * Registers a callback that fires when the list of available connections changes.
 	 * Either because a connection is added/removed, or if the project metadata of one of the
 	 * connections is changed.

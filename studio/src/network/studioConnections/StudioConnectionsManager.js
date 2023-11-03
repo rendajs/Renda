@@ -28,7 +28,9 @@ export class StudioConnectionsManager {
 	#onConnectionsChangedCbs = new Set();
 
 	/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} */
-	#lastSentProjectMetadata = null;
+	#lastSentProjectMetadataInternal = null;
+	/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} */
+	#lastSentProjectMetadataWebRtc = null;
 
 	/** @type {Map<import("../../../../src/mod.js").UuidString, import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>>} */
 	#activeConnections = new Map();
@@ -75,7 +77,6 @@ export class StudioConnectionsManager {
 
 	#updateStudioConnectionsManager = () => {
 		const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
-		const allowInternalIncoming = this.#preferencesManager.get("studioConnections.enableInternalDiscovery", null);
 
 		/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType?} */
 		const desiredClientType = this.#projectManager.currentProjectIsRemote ? "studio-client" : "studio-host";
@@ -83,15 +84,16 @@ export class StudioConnectionsManager {
 		if (this.#discoveryManager && (!desiredClientType || desiredClientType != this.#discoveryManager.clientType)) {
 			this.#discoveryManager.destructor();
 			this.#discoveryManager = null;
-			this.#internalDiscoveryMethod = null;
 			this.#webRtcDiscoveryMethod = null;
+			this.#internalDiscoveryMethod = null;
+			this.#lastSentProjectMetadataWebRtc = null;
+			this.#lastSentProjectMetadataInternal = null;
 		}
 
 		if (desiredClientType && !this.#discoveryManager && this.#projectManager.currentProjectFileSystem) {
 			const certainFileSystem = this.#projectManager.currentProjectFileSystem;
 			const discoveryManager = new DiscoveryManager(desiredClientType);
 			this.#discoveryManager = discoveryManager;
-			this.#lastSentProjectMetadata = null;
 			discoveryManager.onAvailableConnectionsChanged(() => {
 				if (discoveryManager != this.#discoveryManager) {
 					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
@@ -132,15 +134,12 @@ export class StudioConnectionsManager {
 			});
 		}
 		if (this.#discoveryManager) {
-			// create/destroy internal discovery method when needed
-			const needsInternalDiscovery = allowInternalIncoming || this.#projectManager.currentProjectIsRemote;
-			if (this.#internalDiscoveryMethod && !needsInternalDiscovery) {
-				this.#discoveryManager.removeDiscoveryMethod(this.#internalDiscoveryMethod);
-			} else if (!this.#internalDiscoveryMethod && needsInternalDiscovery) {
+			// An internal discovery method is always needed
+			if (!this.#internalDiscoveryMethod) {
 				this.#internalDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(InternalDiscoveryMethod, this.#getDefaultInternalDiscoveryUrl());
 			}
 
-			// create/destroy webrtc discovery method when needed
+			// Create/destroy webrtc discovery method when needed
 			const needsWebRtcDiscovery = allowRemoteIncoming || this.#projectManager.currentProjectIsRemote;
 			const desiredWebRtcEndpoint = this.#webRtcDiscoveryEndpoint || this.getDefaultWebRtcDiscoveryEndpoint();
 			if (this.#webRtcDiscoveryMethod && (!needsWebRtcDiscovery || this.#webRtcDiscoveryMethod.endpoint != desiredWebRtcEndpoint)) {
@@ -232,8 +231,24 @@ export class StudioConnectionsManager {
 	#updateProjectMetadata() {
 		if (!this.#discoveryManager) return;
 		const metadata = this.#projectManager.getCurrentProjectMetadata();
-		if (this.#metadataEquals(metadata, this.#lastSentProjectMetadata)) return;
-		this.#discoveryManager.setProjectMetadata(metadata);
+
+		if (this.#webRtcDiscoveryMethod) {
+			const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
+			const webRtcMetadata = allowRemoteIncoming ? metadata : null;
+			if (!this.#metadataEquals(webRtcMetadata, this.#lastSentProjectMetadataWebRtc)) {
+				this.#webRtcDiscoveryMethod.setProjectMetadata(webRtcMetadata);
+				this.#lastSentProjectMetadataWebRtc = webRtcMetadata;
+			}
+		}
+
+		if (this.#internalDiscoveryMethod) {
+			const allowInternalIncoming = this.#preferencesManager.get("studioConnections.enableInternalDiscovery", null);
+			const internalMetadata = allowInternalIncoming ? metadata : null;
+			if (!this.#metadataEquals(internalMetadata, this.#lastSentProjectMetadataInternal)) {
+				this.#internalDiscoveryMethod.setProjectMetadata(internalMetadata);
+				this.#lastSentProjectMetadataInternal = internalMetadata;
+			}
+		}
 	}
 
 	/**
