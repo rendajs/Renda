@@ -20,8 +20,8 @@ export class ContentWindowConnections extends ContentWindow {
 		super(...args);
 
 		this.addPreferencesButton([
-			"studioConnections.allowInternalIncoming",
-			"studioConnections.allowRemoteIncoming",
+			"studioConnections.enableRemoteDiscovery",
+			"studioConnections.enableInternalDiscovery",
 		]);
 
 		this.headerTreeView = new PropertiesTreeView();

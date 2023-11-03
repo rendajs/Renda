@@ -28,7 +28,6 @@ export class StudioConnectionsManager {
 	}
 	onActiveConnectionsChanged() {}
 	setDiscoveryEndpoint() {}
-	setAllowInternalIncoming() {}
 	sendSetIsStudioHost() {}
 	setProjectMetaData() {}
 }
@@ -63,15 +62,14 @@ const GITIGNORE_PATH = [".gitignore"];
  */
 
 const mockPreferencesConfig = /** @type {const} @satisfies {Object<string, import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig>} */ ({
-
 	strPref: {
 		type: "string",
 		default: "default",
 	},
-	"studioConnections.allowInternalIncoming": {
+	"studioConnections.allowRemoteIncoming": {
 		type: "boolean",
 	},
-	"studioConnections.allowRemoteIncoming": {
+	"studioConnections.enableInternalDiscovery": {
 		type: "boolean",
 	},
 });

@@ -1,7 +1,6 @@
 import {Importer} from "fake-imports";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assertEquals} from "std/testing/asserts.ts";
-import { createPreferencesManager } from "../../../shared/createPreferencesManager.js";
+import {stub} from "std/testing/mock.ts";
+import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("../../../../../../src/mod.js");
@@ -17,7 +16,7 @@ const {StudioConnectionsManager} = StudioConnectionsManagerMod;
  * @property {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} manager
  */
 
-const OTHER_CLIENT_ID = "other_client_id";
+// const OTHER_CLIENT_ID = "other_client_id";
 
 /**
  * @param {object} options
@@ -41,14 +40,14 @@ function basicTest({
 			onProjectOpen(cb) {},
 			onRootHasWritePermissionsChange(cb) {},
 			onProjectOpenEntryChange(cb) {},
-		})
+		});
 		const {preferencesManager} = createPreferencesManager({
-			"studioConnections.allowInternalIncoming": {
+			"studioConnections.enableRemoteDiscovery": {
 				type: "boolean",
 			},
-			"studioConnections.allowRemoteIncoming": {
+			"studioConnections.enableInternalDiscovery": {
 				type: "boolean",
-			}
+			},
 		});
 
 		const manager = new StudioConnectionsManager(mockProjectManager, preferencesManager);
@@ -66,7 +65,7 @@ Deno.test({
 		basicTest({
 			fn({manager}) {
 
-			}
-		})
-	}
-})
+			},
+		});
+	},
+});

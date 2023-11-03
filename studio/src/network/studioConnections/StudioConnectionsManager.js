@@ -45,8 +45,8 @@ export class StudioConnectionsManager {
 		projectManager.onRootHasWritePermissionsChange(this.#updateStudioConnectionsManager);
 		projectManager.onProjectOpenEntryChange(this.#updateStudioConnectionsManager);
 
-		preferencesManager.onChange("studioConnections.allowInternalIncoming", null, this.#updateStudioConnectionsManager);
-		preferencesManager.onChange("studioConnections.allowRemoteIncoming", null, this.#updateStudioConnectionsManager);
+		preferencesManager.onChange("studioConnections.enableRemoteDiscovery", null, this.#updateStudioConnectionsManager);
+		preferencesManager.onChange("studioConnections.enableInternalDiscovery", null, this.#updateStudioConnectionsManager);
 	}
 
 	#getDefaultInternalDiscoveryUrl() {
@@ -74,8 +74,8 @@ export class StudioConnectionsManager {
 	}
 
 	#updateStudioConnectionsManager = () => {
-		const allowInternalIncoming = this.#preferencesManager.get("studioConnections.allowInternalIncoming", null);
-		const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.allowRemoteIncoming", null);
+		const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
+		const allowInternalIncoming = this.#preferencesManager.get("studioConnections.enableInternalDiscovery", null);
 
 		/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType?} */
 		const desiredClientType = this.#projectManager.currentProjectIsRemote ? "studio-client" : "studio-host";
