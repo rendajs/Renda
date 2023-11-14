@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../../../src/util/TypedMessenger.js";
 
 /** @typedef {typeof requestHandlers} WorkerWithInitializeHandlers */
 
