@@ -1,5 +1,5 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {TypedMessenger} from "../../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
 import {assertPromiseResolved} from "../../../../shared/asserts.js";
 

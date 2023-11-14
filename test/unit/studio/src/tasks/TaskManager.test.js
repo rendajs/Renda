@@ -3,7 +3,7 @@ import {assertEquals, assertExists, assertInstanceOf, assertRejects, assertThrow
 import {Task} from "../../../../../studio/src/tasks/task/Task.js";
 import {TaskManager} from "../../../../../studio/src/tasks/TaskManager.js";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
 import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
 import {stringArrayEquals} from "../../../../../src/mod.js";

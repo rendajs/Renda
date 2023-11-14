@@ -1,4 +1,4 @@
-import {TimeoutError} from "./TimeoutError.js";
+import {TimeoutError} from "../TimeoutError.js";
 
 /**
  * @template {TypedMessengerSignatures} TReq

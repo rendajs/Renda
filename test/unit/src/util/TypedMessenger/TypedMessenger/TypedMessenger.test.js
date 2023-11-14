@@ -1,5 +1,5 @@
 import {assertEquals, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
-import {TypedMessenger} from "../../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
 import {FakeTime} from "std/testing/time.ts";
 import {assertPromiseResolved} from "../../../../shared/asserts.js";
@@ -16,9 +16,9 @@ import {deserializeErrorHook, serializeErrorHook} from "../../../../../../src/ut
  * @param {TypedMessenger<BToAHandlers, AToBHandlers>} messengerB
  */
 function linkMessengers(messengerA, messengerB) {
-	/** @type {import("../../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<BToAHandlers, AToBHandlers>[]} */
+	/** @type {import("../../../../../../src/util/TypedMessenger/TypedMessenger.js").TypedMessengerMessage<BToAHandlers, AToBHandlers>[]} */
 	const aToBMessages = [];
-	/** @type {import("../../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<AToBHandlers, BToAHandlers>[]} */
+	/** @type {import("../../../../../../src/util/TypedMessenger/TypedMessenger.js").TypedMessengerMessage<AToBHandlers, BToAHandlers>[]} */
 	const bToAMessages = [];
 
 	messengerA.setSendHandler(data => {
@@ -391,7 +391,7 @@ Deno.test({
 		messengerA.setSendHandler(data => {
 			messengerB.handleReceivedMessage(data.sendData);
 		});
-		/** @type {import("../../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers>[]} */
+		/** @type {import("../../../../../../src/util/TypedMessenger/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers>[]} */
 		let requestQueue = [];
 		messengerB.setSendHandler(data => {
 			requestQueue.push(data);

@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../src/util/TypedMessenger/TypedMessenger.js";
 
 const castSelf = /** @type {unknown} */ (self);
 const swSelf = /** @type {ServiceWorkerGlobalScope} */ (castSelf);
