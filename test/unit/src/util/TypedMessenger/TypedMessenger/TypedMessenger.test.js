@@ -1,4 +1,4 @@
-import {assertEquals, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertExists, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {TypedMessenger} from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
 import {FakeTime} from "std/testing/time.ts";
@@ -650,7 +650,10 @@ Deno.test({
 				if (error) {
 					const castError = /** @type {SerializedError} */ (error);
 					if (castError.type == "myError") {
-						return new MyError(castError.message);
+						const error = new MyError(castError.message);
+						// Add a custom stack trace so that we can verify that it is maintained.
+						error.stack = "custom stack trace";
+						return error;
 					}
 				}
 				return error;
@@ -673,24 +676,40 @@ Deno.test({
 		});
 		messengerA.setResponseHandlers(handlers);
 
+		// Throwing {} or undefined is not helpful because it doesn't contain a message or a stacktrace.
+		// So instead, the TypedMessenger should throw its own error with a usable stack trace when it finds
+		// that the other endpoint does not contain any useful error info.
+		// We wrap some calls in a named function so that we can verify that these functions are included in the stack trace.
+		async function namedThrowError() {
+			await messengerB.send.throwError();
+		}
+
+		async function namedThrowUnhandledError() {
+			await messengerB.send.throwUnhandledError();
+		}
+
 		// When dealing with workers, `Error` objects are serialized for us.
 		// However, in WebSockets messages are often serialized using JSON.parse.
 		// In that case errors are flattened to `{}`.
+		// As a result, the hooks simply ignore the error and return them as is.
 		const rejectValue1 = await assertRejects(async () => {
-			await messengerB.send.throwError();
-		});
-		assertEquals(rejectValue1, {});
+			await namedThrowError();
+		}, Error);
+		assertExists(rejectValue1.stack);
+		assert(rejectValue1.stack.includes("at namedThrowError"), "Expected stack trace to include 'at namedThrowError'");
 
 		// The hooks contain serialization logic for MyError.
-		await assertRejects(async () => {
+		const rejectValue2 = await assertRejects(async () => {
 			await messengerB.send.throwMyError();
 		}, MyError, "Error message");
+		assertEquals(rejectValue2.stack, "custom stack trace");
 
 		// But no logic for UnhandledError, so it should be undefined.
-		const rejectValue2 = await assertRejects(async () => {
-			await messengerB.send.throwUnhandledError();
-		});
-		assertEquals(rejectValue2, undefined);
+		const rejectValue3 = await assertRejects(async () => {
+			await namedThrowUnhandledError();
+		}, Error);
+		assertExists(rejectValue3.stack);
+		assert(rejectValue3.stack.includes("at namedThrowUnhandledError"), "Expected stack trace to include 'at namedThrowUnhandledError'");
 	},
 });
 

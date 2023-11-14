@@ -720,6 +720,9 @@ export class TypedMessenger {
 							if (this.deserializeErrorHook) {
 								rejectValue = this.deserializeErrorHook(rejectValue);
 							}
+							if (!rejectValue || typeof rejectValue != "object" || !("stack" in rejectValue) || !rejectValue.stack) {
+								rejectValue = new Error("An unknown error occurred while handling the message.");
+							}
 							reject(rejectValue);
 						} else {
 							resolve(message.returnValue);
