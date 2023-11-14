@@ -1,5 +1,5 @@
 import {bundle} from "./bundle.js";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 
 /** @typedef {typeof messenger} BundleScriptsMessenger */
 /** @typedef {typeof responseHandlers} BundleScriptsMessengerResponseHandlers */

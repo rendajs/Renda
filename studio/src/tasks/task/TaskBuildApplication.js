@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {ProjectAssetTypeJavascript} from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "./Task.js";
@@ -118,7 +118,7 @@ export class TaskBuildApplication extends Task {
 					throw new Error("Assertion failed: unexpected asset bundle file data, not an ArrayBuffer");
 				}
 
-				/** @satisfies {import("../../../../src/util/TypedMessenger.js").TypedMessengerRequestHandlerReturn} */
+				/** @satisfies {import("../../../../src/util/TypedMessenger/TypedMessenger.js").TypedMessengerRequestHandlerReturn} */
 				const result = {
 					$respondOptions: {
 						returnValue: assetBundle,

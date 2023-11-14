@@ -2,7 +2,7 @@ import {ContentWindow} from "../ContentWindow.js";
 import {Button} from "../../../ui/Button.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {EntryPointPopover, getSelectedScriptEntryPoint} from "./EntryPointPopover.js";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
 import {PopoverToggleButton} from "../../../ui/popoverMenus/PopoverToggleButton.js";

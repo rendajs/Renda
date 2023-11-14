@@ -1,4 +1,4 @@
-import {TimeoutError} from "./TimeoutError.js";
+import {TimeoutError} from "../TimeoutError.js";
 
 /**
  * @template {TypedMessengerSignatures} TReq
@@ -719,6 +719,9 @@ export class TypedMessenger {
 							let rejectValue = message.returnValue;
 							if (this.deserializeErrorHook) {
 								rejectValue = this.deserializeErrorHook(rejectValue);
+							}
+							if (!rejectValue || typeof rejectValue != "object" || !("stack" in rejectValue) || !rejectValue.stack) {
+								rejectValue = new Error("An unknown error occurred while handling the message.");
 							}
 							reject(rejectValue);
 						} else {

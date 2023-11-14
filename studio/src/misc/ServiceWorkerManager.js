@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../src/util/TypedMessenger/TypedMessenger.js";
 import {ENGINE_SOURCE_PATH} from "../studioDefines.js";
 import {getStudioInstance} from "../studioInstance.js";
 

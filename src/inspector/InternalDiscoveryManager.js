@@ -3,7 +3,7 @@
  * /studio/src/network/studioConnections/internalDiscovery/readme.md
  */
 
-import {TypedMessenger} from "../util/TypedMessenger.js";
+import {TypedMessenger} from "../util/TypedMessenger/TypedMessenger.js";
 
 /** @typedef {ReturnType<InternalDiscoveryManager["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
 /** @typedef {ReturnType<InternalDiscoveryManager["_getWorkerResponseHandlers"]>} InternalDiscoveryParentWorkerHandlers */

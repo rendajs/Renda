@@ -1,7 +1,7 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
-import {assertPromiseResolved} from "../../../shared/asserts.js";
+import {assertPromiseResolved} from "../../../../shared/asserts.js";
 
 class FakeWebSocket extends EventTarget {
 	/** @type {FakeWebSocket?} */
@@ -60,8 +60,8 @@ function createLinkedWebSockets({
 }
 
 /**
- * @template {import("../../../../../src/mod.js").TypedMessengerSignatures} TResA
- * @template {import("../../../../../src/mod.js").TypedMessengerSignatures} TResB
+ * @template {import("../../../../../../src/mod.js").TypedMessengerSignatures} TResA
+ * @template {import("../../../../../../src/mod.js").TypedMessengerSignatures} TResB
  * @param {WebSocket | FakeWebSocket} socketA
  * @param {WebSocket | FakeWebSocket} socketB
  * @param {TResA} handlersA

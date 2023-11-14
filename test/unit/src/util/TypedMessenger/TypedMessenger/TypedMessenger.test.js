@@ -1,32 +1,33 @@
-import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
-import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
+import {assert, assertEquals, assertExists, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
+import {TypedMessenger} from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
 import {FakeTime} from "std/testing/time.ts";
-import {assertPromiseResolved} from "../../../shared/asserts.js";
-import {TimeoutError} from "../../../../../src/util/TimeoutError.js";
+import {assertPromiseResolved} from "../../../../shared/asserts.js";
+import {TimeoutError} from "../../../../../../src/util/TimeoutError.js";
+import {deserializeErrorHook, serializeErrorHook} from "../../../../../../src/util/TypedMessenger/errorSerialization.js";
 
 /**
  * Directly links two TypedMessengers to each other without the use of a WebSocket or anything like that.
  * Normally this would be kind of pointless, since you likely want to communicate with a Worker or WebSocket,
  * but inside tests this is fine.
- * @template {import("../../../../../src/mod.js").TypedMessengerSignatures} AToBHandlers
- * @template {import("../../../../../src/mod.js").TypedMessengerSignatures} BToAHandlers
+ * @template {import("../../../../../../src/mod.js").TypedMessengerSignatures} AToBHandlers
+ * @template {import("../../../../../../src/mod.js").TypedMessengerSignatures} BToAHandlers
  * @param {TypedMessenger<AToBHandlers, BToAHandlers>} messengerA
  * @param {TypedMessenger<BToAHandlers, AToBHandlers>} messengerB
  */
 function linkMessengers(messengerA, messengerB) {
-	/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<BToAHandlers, AToBHandlers>[]} */
+	/** @type {import("../../../../../../src/util/TypedMessenger/TypedMessenger.js").TypedMessengerMessage<BToAHandlers, AToBHandlers>[]} */
 	const aToBMessages = [];
-	/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<AToBHandlers, BToAHandlers>[]} */
+	/** @type {import("../../../../../../src/util/TypedMessenger/TypedMessenger.js").TypedMessengerMessage<AToBHandlers, BToAHandlers>[]} */
 	const bToAMessages = [];
 
 	messengerA.setSendHandler(data => {
 		aToBMessages.push(data);
-		messengerB.handleReceivedMessage(/** @type {import("../../../../../src/mod.js").TypedMessengerMessageSendData<BToAHandlers, AToBHandlers>} */ (data.sendData));
+		messengerB.handleReceivedMessage(/** @type {import("../../../../../../src/mod.js").TypedMessengerMessageSendData<BToAHandlers, AToBHandlers>} */ (data.sendData));
 	});
 	messengerB.setSendHandler(data => {
 		bToAMessages.push(data);
-		messengerA.handleReceivedMessage(/** @type {import("../../../../../src/mod.js").TypedMessengerMessageSendData<AToBHandlers, BToAHandlers>} */ (data.sendData));
+		messengerA.handleReceivedMessage(/** @type {import("../../../../../../src/mod.js").TypedMessengerMessageSendData<AToBHandlers, BToAHandlers>} */ (data.sendData));
 	});
 
 	return {aToBMessages, bToAMessages};
@@ -390,7 +391,7 @@ Deno.test({
 		messengerA.setSendHandler(data => {
 			messengerB.handleReceivedMessage(data.sendData);
 		});
-		/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers>[]} */
+		/** @type {import("../../../../../../src/util/TypedMessenger/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers>[]} */
 		let requestQueue = [];
 		messengerB.setSendHandler(data => {
 			requestQueue.push(data);
@@ -649,7 +650,10 @@ Deno.test({
 				if (error) {
 					const castError = /** @type {SerializedError} */ (error);
 					if (castError.type == "myError") {
-						return new MyError(castError.message);
+						const error = new MyError(castError.message);
+						// Add a custom stack trace so that we can verify that it is maintained.
+						error.stack = "custom stack trace";
+						return error;
 					}
 				}
 				return error;
@@ -672,23 +676,105 @@ Deno.test({
 		});
 		messengerA.setResponseHandlers(handlers);
 
-		// When dealing with workers, `Error` objects are serialized for us.
-		// However, in this test we're serializing using JSON.parse. In that case errors are flattened to `{}`.
-		const rejectValue1 = await assertRejects(async () => {
+		// Throwing {} or undefined is not helpful because it doesn't contain a message or a stacktrace.
+		// So instead, the TypedMessenger should throw its own error with a usable stack trace when it finds
+		// that the other endpoint does not contain any useful error info.
+		// We wrap some calls in a named function so that we can verify that these functions are included in the stack trace.
+		async function namedThrowError() {
 			await messengerB.send.throwError();
-		});
-		assertEquals(rejectValue1, {});
+		}
+
+		async function namedThrowUnhandledError() {
+			await messengerB.send.throwUnhandledError();
+		}
+
+		// When dealing with workers, `Error` objects are serialized for us.
+		// However, in WebSockets messages are often serialized using JSON.parse.
+		// In that case errors are flattened to `{}`.
+		// As a result, the hooks simply ignore the error and return them as is.
+		const rejectValue1 = await assertRejects(async () => {
+			await namedThrowError();
+		}, Error);
+		assertExists(rejectValue1.stack);
+		assert(rejectValue1.stack.includes("at namedThrowError"), "Expected stack trace to include 'at namedThrowError'");
 
 		// The hooks contain serialization logic for MyError.
-		await assertRejects(async () => {
+		const rejectValue2 = await assertRejects(async () => {
 			await messengerB.send.throwMyError();
 		}, MyError, "Error message");
+		assertEquals(rejectValue2.stack, "custom stack trace");
 
 		// But no logic for UnhandledError, so it should be undefined.
-		const rejectValue2 = await assertRejects(async () => {
-			await messengerB.send.throwUnhandledError();
+		const rejectValue3 = await assertRejects(async () => {
+			await namedThrowUnhandledError();
+		}, Error);
+		assertExists(rejectValue3.stack);
+		assert(rejectValue3.stack.includes("at namedThrowUnhandledError"), "Expected stack trace to include 'at namedThrowUnhandledError'");
+	},
+});
+
+Deno.test({
+	name: "Serializing and deserializing errors using included serializer",
+	async fn() {
+		const handlers = {
+			throwError() {
+				throw new Error("Error message");
+			},
+			throwAggregateError() {
+				const error1 = new Error("message1");
+				const error2 = new Error("message2");
+				throw new AggregateError([error1, error2], "Aggregate message");
+			},
+		};
+
+		/** @type {TypedMessenger<typeof handlers, {}>} */
+		const messengerA = new TypedMessenger({
+			serializeErrorHook,
+			deserializeErrorHook,
 		});
-		assertEquals(rejectValue2, undefined);
+
+		/**
+		 * @typedef SerializedError
+		 * @property {string} type
+		 * @property {string} message
+		 */
+
+		/** @type {TypedMessenger<{}, typeof handlers>} */
+		const messengerB = new TypedMessenger({
+			serializeErrorHook,
+			deserializeErrorHook,
+		});
+
+		/**
+		 * @param {any} data
+		 */
+		function serialize(data) {
+			return JSON.parse(JSON.stringify(data));
+		}
+
+		linkMessengers(messengerA, messengerB);
+		messengerA.setSendHandler(data => {
+			messengerB.handleReceivedMessage(serialize(data.sendData));
+		});
+		messengerB.setSendHandler(data => {
+			messengerA.handleReceivedMessage(serialize(data.sendData));
+		});
+		messengerA.setResponseHandlers(handlers);
+
+		// When dealing with workers, `Error` objects are serialized for us.
+		// However, in this test we're serializing using JSON.parse. In that case errors are flattened to `{}`.
+		await assertRejects(async () => {
+			await messengerB.send.throwError();
+		}, Error, "Error message");
+
+		const aggregateError = await assertRejects(async () => {
+			await messengerB.send.throwAggregateError();
+		});
+		assertInstanceOf(aggregateError, AggregateError);
+		assertEquals(aggregateError.message, "Aggregate message");
+		assertEquals(aggregateError.errors.length, 2);
+		assertEquals(aggregateError.errors[0].message, "message1");
+		assertEquals(aggregateError.errors[1].message, "message2");
 	},
 });
 
@@ -697,7 +783,7 @@ Deno.test({
 	async fn() {
 		const handlersB = {
 			noResponse() {
-				return /** @satisfies {import("../../../../../src/mod.js").TypedMessengerRequestHandlerReturn} */ ({
+				return /** @satisfies {import("../../../../../../src/mod.js").TypedMessengerRequestHandlerReturn} */ ({
 					$respondOptions: {
 						respond: false,
 					},
@@ -819,7 +905,7 @@ Deno.test({
 		try {
 			const handlersB = {
 				noResponse() {
-					return /** @satisfies {import("../../../../../src/mod.js").TypedMessengerRequestHandlerReturn} */ ({
+					return /** @satisfies {import("../../../../../../src/mod.js").TypedMessengerRequestHandlerReturn} */ ({
 						$respondOptions: {
 							respond: false,
 						},

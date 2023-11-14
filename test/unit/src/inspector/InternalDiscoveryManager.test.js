@@ -5,7 +5,7 @@ import {initializeIframe} from "../../../../studio/src/network/studioConnections
 import {initializeWorker} from "../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
 import {AssertionError, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
-import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {assertPromiseResolved} from "../../shared/asserts.js";
 
 /**
