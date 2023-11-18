@@ -36,6 +36,16 @@ export class StudioConnectionsManager {
 	#activeConnections = new Map();
 
 	/**
+	 * We don't allow all incoming connections, otherwise any browser tab would be able to connect to open projects
+	 * simply by creating the discovery iframe and connecting to the first studio client it can find.
+	 * But pages created by the build view should always be allowed.
+	 * Therefore, we create tokens for every page created by the build view.
+	 * Inspectors can provide these tokens when connecting, and we'll always allow the connection when the token is valid.
+	 * @type {Set<string>}
+	 */
+	#internalConnectionTokens = new Set();
+
+	/**
 	 * @param {import("../../projectSelector/ProjectManager.js").ProjectManager} projectManager
 	 * @param {import("../../Studio.js").Studio["preferencesManager"]} preferencesManager
 	 */
@@ -57,7 +67,7 @@ export class StudioConnectionsManager {
 
 	getDefaultWebRtcDiscoveryEndpoint() {
 		if (window.location.hostname == "renda.studio" || window.location.hostname.endsWith(".renda.studio")) {
-			return "discovery.renda.studio";
+			return "wss://discovery.renda.studio/";
 		} else {
 			const protocol = window.location.protocol == "https:" ? "wss" : "ws";
 			return `${protocol}://${window.location.host}/studioDiscovery`;
@@ -76,12 +86,12 @@ export class StudioConnectionsManager {
 	}
 
 	#updateStudioConnectionsManager = () => {
-		const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
+		const enableRemoteDiscovery = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
 
 		/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType?} */
 		const desiredClientType = this.#projectManager.currentProjectIsRemote ? "studio-client" : "studio-host";
 
-		if (this.#discoveryManager && (!desiredClientType || desiredClientType != this.#discoveryManager.clientType)) {
+		if (this.#discoveryManager && (desiredClientType != this.#discoveryManager.clientType)) {
 			this.#discoveryManager.destructor();
 			this.#discoveryManager = null;
 			this.#webRtcDiscoveryMethod = null;
@@ -120,6 +130,8 @@ export class StudioConnectionsManager {
 				}
 
 				// TODO: Add an allowlist #751
+				// TODO: Automatically accept connections that have been hosted by this studio instance
+				// TODO: Add connection prompt #812
 
 				if (connectionRequest.initiatedByMe) {
 					/** @type {StudioClientHostConnection} */
@@ -140,7 +152,7 @@ export class StudioConnectionsManager {
 			}
 
 			// Create/destroy webrtc discovery method when needed
-			const needsWebRtcDiscovery = allowRemoteIncoming || this.#projectManager.currentProjectIsRemote;
+			const needsWebRtcDiscovery = enableRemoteDiscovery || this.#projectManager.currentProjectIsRemote;
 			const desiredWebRtcEndpoint = this.#webRtcDiscoveryEndpoint || this.getDefaultWebRtcDiscoveryEndpoint();
 			if (this.#webRtcDiscoveryMethod && (!needsWebRtcDiscovery || this.#webRtcDiscoveryMethod.endpoint != desiredWebRtcEndpoint)) {
 				this.#discoveryManager.removeDiscoveryMethod(this.#webRtcDiscoveryMethod);
@@ -233,8 +245,8 @@ export class StudioConnectionsManager {
 		const metadata = this.#projectManager.getCurrentProjectMetadata();
 
 		if (this.#webRtcDiscoveryMethod) {
-			const allowRemoteIncoming = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
-			const webRtcMetadata = allowRemoteIncoming ? metadata : null;
+			const enableRemoteDiscovery = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
+			const webRtcMetadata = enableRemoteDiscovery ? metadata : null;
 			if (!this.#metadataEquals(webRtcMetadata, this.#lastSentProjectMetadataWebRtc)) {
 				this.#webRtcDiscoveryMethod.setProjectMetadata(webRtcMetadata);
 				this.#lastSentProjectMetadataWebRtc = webRtcMetadata;
@@ -242,8 +254,8 @@ export class StudioConnectionsManager {
 		}
 
 		if (this.#internalDiscoveryMethod) {
-			const allowInternalIncoming = this.#preferencesManager.get("studioConnections.enableInternalDiscovery", null);
-			const internalMetadata = allowInternalIncoming ? metadata : null;
+			const enableInternalDiscovery = this.#preferencesManager.get("studioConnections.enableInternalDiscovery", null);
+			const internalMetadata = enableInternalDiscovery ? metadata : null;
 			if (!this.#metadataEquals(internalMetadata, this.#lastSentProjectMetadataInternal)) {
 				this.#internalDiscoveryMethod.setProjectMetadata(internalMetadata);
 				this.#lastSentProjectMetadataInternal = internalMetadata;
@@ -347,16 +359,6 @@ export class StudioConnectionsManager {
 		if (!this.#internalDiscoveryMethod) return null;
 		return this.#internalDiscoveryMethod.getClientUuid();
 	}
-
-	/**
-	 * We don't allow all incoming connections, otherwise any browser tab would be able to connect to open projects
-	 * simply by creating the discovery iframe and connecting to the first studio client it can find.
-	 * But pages created by the build view should always be allowed.
-	 * Therefore, we create tokens for every page created by the build view.
-	 * Inspectors can provide these tokens when connecting, and we'll always allow the connection when the token is valid.
-	 * @type {Set<string>}
-	 */
-	#internalConnectionTokens = new Set();
 
 	/**
 	 * Any new connections can use this token and their connection will automatically be allowed,

@@ -30,6 +30,12 @@ export class ExtendedDiscoveryMethod extends DiscoveryMethod {
 		this.destructorSpy = spy(this, "destructor");
 	}
 
+	destructed = false;
+
+	destructor() {
+		this.destructed = true;
+	}
+
 	/**
 	 * @param {import("../../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection} connectionData
 	 */

@@ -70,7 +70,7 @@ export class DiscoveryManager {
 		/** @private @type {AvailableConnectionProjectMetadata?} */
 		this.projectMetadata = null;
 
-		/** @private @type {Set<import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<any>>} */
+		/** @protected @type {Set<import("./discoveryMethods/DiscoveryMethod.js").DiscoveryMethod<any>>} */
 		this.discoveryMethods = new Set();
 
 		/** @private @type {Set<() => void>} */
