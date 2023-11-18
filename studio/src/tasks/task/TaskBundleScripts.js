@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {ProjectAssetTypeJavascript} from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "./Task.js";

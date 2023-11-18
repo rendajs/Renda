@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {bundle} from "./bundle.js";
 
 /** @typedef {typeof messenger} BundleScriptsMessenger */

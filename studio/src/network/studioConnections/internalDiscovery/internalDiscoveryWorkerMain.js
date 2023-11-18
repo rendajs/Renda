@@ -2,7 +2,7 @@
  * @fileoverview This is the entry point for the internalDiscovery SharedWorker.
  */
 
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {InternalDiscoveryWorkerConnection} from "./InternalDiscoveryWorkerConnection.js";
 
 /**

@@ -3,7 +3,7 @@
  * The page is expected to be loaded in an iframe.
  */
 
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 
 /**
  * @param {object} params

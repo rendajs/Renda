@@ -2,7 +2,7 @@ import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
 import {ServiceWorkerManager} from "../../../../../studio/src/misc/ServiceWorkerManager.js";
 import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 
 /**
