@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../util/TypedMessenger.js";
+import {TypedMessenger} from "../../util/TypedMessenger/TypedMessenger.js";
 import {TimeoutError} from "../../util/TimeoutError.js";
 
 /**

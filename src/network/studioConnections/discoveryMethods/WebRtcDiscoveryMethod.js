@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../util/TypedMessenger.js";
+import {TypedMessenger} from "../../../util/TypedMessenger/TypedMessenger.js";
 import {WebRtcMessageHandler} from "../messageHandlers/WebRtcMessageHandler.js";
 import {DiscoveryMethod} from "./DiscoveryMethod.js";
 
