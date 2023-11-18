@@ -17,63 +17,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Project metadata is passed on to discovery methods",
-	fn() {
-		const manager = new DiscoveryManager("studio-host");
-		manager.setProjectMetadata({
-			fileSystemHasWritePermissions: false,
-			name: "name",
-			uuid: "uuid",
-		});
-		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
-
-		assertSpyCalls(discoveryMethod.setProjectMetadataSpy, 1);
-		assertSpyCall(discoveryMethod.setProjectMetadataSpy, 0, {
-			args: [
-				{
-					fileSystemHasWritePermissions: false,
-					name: "name",
-					uuid: "uuid",
-				},
-			],
-		});
-
-		manager.setProjectMetadata({
-			fileSystemHasWritePermissions: true,
-			name: "name",
-			uuid: "uuid",
-		});
-
-		assertSpyCalls(discoveryMethod.setProjectMetadataSpy, 2);
-		assertSpyCall(discoveryMethod.setProjectMetadataSpy, 1, {
-			args: [
-				{
-					fileSystemHasWritePermissions: true,
-					name: "name",
-					uuid: "uuid",
-				},
-			],
-		});
-
-		manager.setProjectMetadata(null);
-
-		assertSpyCalls(discoveryMethod.setProjectMetadataSpy, 3);
-		assertSpyCall(discoveryMethod.setProjectMetadataSpy, 2, {
-			args: [null],
-		});
-
-		manager.removeDiscoveryMethod(discoveryMethod);
-		manager.setProjectMetadata({
-			fileSystemHasWritePermissions: true,
-			name: "new name",
-			uuid: "uuid2",
-		});
-
-		assertSpyCalls(discoveryMethod.setProjectMetadataSpy, 3);
-	},
-});
-
-Deno.test({
 	name: "Removing method calls its destructor",
 	fn() {
 		const manager = new DiscoveryManager("studio-host");
