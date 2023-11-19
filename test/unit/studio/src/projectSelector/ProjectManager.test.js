@@ -8,30 +8,10 @@ import {PreferencesManager} from "../../../../../studio/src/preferences/Preferen
 import {assertPromiseResolved} from "../../../shared/asserts.js";
 import {SingleInstancePromise} from "../../../../../src/mod.js";
 
-console.log(import.meta.url);
 const importer = new Importer(import.meta.url);
 importer.makeReal("../../../../../studio/src/studioInstance.js");
 importer.makeReal("../../../../../studio/src/preferences/preferencesLocation/FilePreferencesLocation.js");
 importer.fakeModule("../../../../../studio/src/windowManagement/contentWindows/ContentWindowConnections.js", "export const ContentWindowConnections = {}");
-importer.fakeModule("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js", `
-let lastStudioConnectionsManager;
-export function getLastStudioConnectionsManager() {
-	return lastStudioConnectionsManager;
-}
-
-export class StudioConnectionsManager {
-	constructor() {
-		lastStudioConnectionsManager = this;
-	}
-	getDefaultEndPoint() {
-		return "ws://localhost/defaultEndpoint";
-	}
-	onActiveConnectionsChanged() {}
-	setDiscoveryEndpoint() {}
-	sendSetIsStudioHost() {}
-	setProjectMetaData() {}
-}
-`);
 importer.fakeModule("../../../../../studio/src/assets/ProjectAsset.js", "export const ProjectAsset = {}");
 importer.fakeModule("../../../../../studio/src/assets/AssetManager.js", `export class AssetManager {
 	assetSettingsLoaded = true;
@@ -44,10 +24,6 @@ importer.fakeModule("../../../../../studio/src/assets/AssetManager.js", `export 
 const ProjectManagerMod = await importer.import("../../../../../studio/src/projectSelector/ProjectManager.js");
 const {ProjectManager} = ProjectManagerMod;
 
-const StudiorConnectionsManagerMod = await importer.import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js");
-/** @type {() => import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */
-const getLastStudioConnectionsManager = StudiorConnectionsManagerMod.getLastStudioConnectionsManager;
-
 const PROJECT_PREFERENCES_PATH = [".renda", "sharedPreferences.json"];
 const LOCAL_PROJECT_PREFERENCES_PATH = [".renda", "localPreferences.json"];
 const GITIGNORE_PATH = [".gitignore"];
@@ -55,7 +31,6 @@ const GITIGNORE_PATH = [".gitignore"];
 /**
  * @typedef ProjectManagerTestContext
  * @property {import("../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} manager
- * @property {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
  * @property {import("../../../../../studio/src/Studio.js").Studio} studio
  * @property {PreferencesManager<typeof mockPreferencesConfig>} mockPreferencesManager
  * @property {(data: import("../../../../../studio/src/windowManagement/WindowManager.js").ContentWindowPersistentDiskData[] | null) => Promise<void>} fireFlushRequestCallbacks
@@ -105,11 +80,9 @@ async function basicTest({fn}) {
 
 		const manager = new ProjectManager();
 
-		const studioConnectionsManager = getLastStudioConnectionsManager();
-
 		await fn({
 			manager,
-			studioConnectionsManager, studio: mockStudio,
+			studio: mockStudio,
 			mockPreferencesManager,
 			async fireFlushRequestCallbacks(data) {
 				const promises = [];
