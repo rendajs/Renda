@@ -22,7 +22,14 @@ export class DiscoveryManager extends RealDiscoveryManager {
 	 */
 	constructor(...args) {
 		super(...args);
+		this.destructed = false;
+
 		createdDiscoveryManagers.add(this);
+	}
+
+	destructor() {
+		this.destructed = true;
+		super.destructor();
 	}
 
 	getCreatedDiscoveryMethods() {

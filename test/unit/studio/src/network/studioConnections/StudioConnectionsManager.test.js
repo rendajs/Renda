@@ -5,6 +5,7 @@ import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSyst
 import {assertEquals} from "std/testing/asserts.ts";
 import {clearCreatedDiscoveryManagers, getCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
 import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} from "./shared/MockWebRtcDiscoveryMethod.js";
+import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("./shared/MockDiscoveryManager.js");
@@ -22,7 +23,11 @@ const {StudioConnectionsManager} = StudioConnectionsManagerMod;
  * @typedef StudioConnectionsManagerTestContext
  * @property {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} manager
  * @property {(hasFileSystem: boolean) => void} setHasProjectFileSystem
+ * @property {(currentProjectIsRemote: boolean) => void} setCurrentProjectIsRemote
+ * @property {(currentProjectIsRemote: import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata) => void} setCurrentProjectMetadata
  * @property {() => void} fireOnProjectOpen
+ * @property {() => void} fireOnProjectOpenEntryChange
+ * @property {import("../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} projectManager
  * @property {import("../../../../../../studio/src/preferences/PreferencesManager.js").PreferencesManager<{"studioConnections.enableRemoteDiscovery": {
  *type: "boolean",
  *},
@@ -31,13 +36,13 @@ const {StudioConnectionsManager} = StudioConnectionsManagerMod;
  *}}>} preferencesManager
  */
 
-// const OTHER_CLIENT_ID = "other_client_id";
-
 /**
  * @param {object} options
- * @param {(ctx: StudioConnectionsManagerTestContext) => void} options.fn
+ * @param {string} [options.location]
+ * @param {(ctx: StudioConnectionsManagerTestContext) => Promise<void> | void} options.fn
  */
-function basicTest({
+async function basicTest({
+	location = "https://renda.studio/",
 	fn,
 }) {
 	let randomUuid = 0;
@@ -47,22 +52,30 @@ function basicTest({
 	});
 	const oldLocation = window.location;
 	try {
-		window.location = /** @type {Location} */ ({
-			href: "https://renda.studio/",
-			hostname: "renda.studio",
-		});
+		window.location = /** @type {Location} */ (/** @type {unknown} */ (new URL(location)));
 
 		/** @type {Set<() => void>} */
 		const onProjectOpenCbs = new Set();
+		/** @type {Set<(entry: import("../../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny) => void>} */
+		const onProjectOpenEntryChangeCbs = new Set();
+
+		let currentProjectIsRemote = false;
+		/** @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} */
+		let currentProjectMetadata = null;
 
 		const mockProjectManager = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
 			onProjectOpen(cb) {
 				onProjectOpenCbs.add(cb);
 			},
 			onRootHasWritePermissionsChange(cb) {},
-			onProjectOpenEntryChange(cb) {},
+			onProjectOpenEntryChange(cb) {
+				onProjectOpenEntryChangeCbs.add(cb);
+			},
 			getCurrentProjectMetadata() {
-				return null;
+				return currentProjectMetadata;
+			},
+			get currentProjectIsRemote() {
+				return currentProjectIsRemote;
 			},
 		});
 		const {preferencesManager} = createPreferencesManager({
@@ -76,14 +89,25 @@ function basicTest({
 
 		const manager = new StudioConnectionsManager(mockProjectManager, preferencesManager);
 
-		fn({
+		await fn({
 			manager,
+			projectManager: mockProjectManager,
 			preferencesManager,
 			fireOnProjectOpen() {
 				onProjectOpenCbs.forEach(cb => cb());
 			},
+			fireOnProjectOpenEntryChange() {
+				const entry = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny} */ ({});
+				onProjectOpenEntryChangeCbs.forEach(cb => cb(entry));
+			},
 			setHasProjectFileSystem(hasFileSystem) {
 				mockProjectManager.currentProjectFileSystem = hasFileSystem ? new MemoryStudioFileSystem() : null;
+			},
+			setCurrentProjectIsRemote(newCurrentProjectIsRemote) {
+				currentProjectIsRemote = newCurrentProjectIsRemote;
+			},
+			setCurrentProjectMetadata(metadata) {
+				currentProjectMetadata = metadata;
 			},
 		});
 	} finally {
@@ -91,6 +115,7 @@ function basicTest({
 		mockUuid.restore();
 		clearCreatedDiscoveryManagers();
 		clearCreatedWebRtcDiscoveryMethods();
+		clearCreatedInternalDiscoveryMethods();
 	}
 }
 
@@ -110,6 +135,16 @@ function assertLastDiscoveryManager(length = 1) {
  */
 function assertLastWebRtcDiscoveryMethod(length = 1) {
 	const discoveryManagers = Array.from(getCreatedWebRtcDiscoveryMethods());
+	assertEquals(discoveryManagers.length, length);
+	return discoveryManagers[length - 1];
+}
+
+/**
+ * Asserts that the specified amount of internal discovery methods was created and returns the last one.
+ * @param {number} length
+ */
+function assertLastInternalDiscoveryMethod(length = 1) {
+	const discoveryManagers = Array.from(getCreatedInternalDiscoveryMethods());
 	assertEquals(discoveryManagers.length, length);
 	return discoveryManagers[length - 1];
 }
@@ -137,8 +172,13 @@ Deno.test({
 	name: "Changing studioConnections.enableRemoteDiscovery and discovery endpoint creates and destroys the webrtc discovery method",
 	fn() {
 		basicTest({
-			fn({manager, preferencesManager, fireOnProjectOpen, setHasProjectFileSystem}) {
+			fn({manager, preferencesManager, setCurrentProjectMetadata, fireOnProjectOpen, setHasProjectFileSystem}) {
 				setHasProjectFileSystem(true);
+				setCurrentProjectMetadata({
+					fileSystemHasWritePermissions: true,
+					name: "project name",
+					uuid: "id",
+				});
 				fireOnProjectOpen();
 				/** @type {import("../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").OnDiscoveryManagerWebRtcStatusChangeCallback} */
 				const onStatusChangeFn = () => {};
@@ -169,15 +209,27 @@ Deno.test({
 				assertSpyCall(onStatusChangeSpy, 0, {
 					args: ["connecting"],
 				});
+				assertEquals(manager.webRtcDiscoveryServerStatus, "connecting");
 
 				const discoveryMethod = assertLastWebRtcDiscoveryMethod();
 				assertEquals(discoveryMethod.endpoint, "wss://discovery.renda.studio/");
+				assertSpyCalls(discoveryMethod.setProjectMetadataSpy, 1);
+				assertSpyCall(discoveryMethod.setProjectMetadataSpy, 0, {
+					args: [
+						{
+							fileSystemHasWritePermissions: true,
+							name: "project name",
+							uuid: "id",
+						},
+					],
+				});
 
 				discoveryMethod.setStatus("connected");
 				assertSpyCalls(onStatusChangeSpy, 2);
 				assertSpyCall(onStatusChangeSpy, 1, {
 					args: ["connected"],
 				});
+				assertEquals(manager.webRtcDiscoveryServerStatus, "connected");
 
 				preferencesManager.set("studioConnections.enableRemoteDiscovery", false);
 				assertEquals(discoveryMethod.destructed, true);
@@ -185,17 +237,19 @@ Deno.test({
 				assertSpyCall(onStatusChangeSpy, 2, {
 					args: ["disconnected"],
 				});
+				assertEquals(manager.webRtcDiscoveryServerStatus, "disconnected");
 
 				preferencesManager.set("studioConnections.enableRemoteDiscovery", true);
 
 				const discoveryMethod2 = assertLastWebRtcDiscoveryMethod(2);
 				assertEquals(discoveryMethod2.endpoint, "wss://discovery.renda.studio/");
 
-				discoveryMethod.setStatus("connected");
+				discoveryMethod2.setStatus("connected");
 				assertSpyCalls(onStatusChangeSpy, 5);
 				assertSpyCall(onStatusChangeSpy, 4, {
 					args: ["connected"],
 				});
+				assertEquals(manager.webRtcDiscoveryServerStatus, "connected");
 
 				manager.setWebRtcDiscoveryEndpoint("wss://example.com/newendpoint");
 
@@ -209,6 +263,203 @@ Deno.test({
 				assertSpyCall(onStatusChangeSpy, 6, {
 					args: ["connecting"],
 				});
+				assertEquals(manager.webRtcDiscoveryServerStatus, "connecting");
+
+				manager.removeOnWebRtcDiscoveryServerStatusChange(onStatusChangeSpy);
+				discoveryMethod3.setStatus("disconnected");
+				assertSpyCalls(onStatusChangeSpy, 7);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "getDefaultWebRtcDiscoveryEndpoint on main domain",
+	fn() {
+		basicTest({
+			fn({manager}) {
+				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "wss://discovery.renda.studio/");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "getDefaultWebRtcDiscoveryEndpoint on subdomain domain",
+	fn() {
+		basicTest({
+			location: "https://canary.renda.studio",
+			fn({manager}) {
+				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "wss://discovery.renda.studio/");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "getDefaultWebRtcDiscoveryEndpoint on localhost",
+	fn() {
+		basicTest({
+			location: "http://localhost:8080",
+			fn({manager}) {
+				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "ws://localhost:8080/studioDiscovery");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "getDefaultWebRtcDiscoveryEndpoint on secure localhost",
+	fn() {
+		basicTest({
+			location: "https://localhost:8080",
+			fn({manager}) {
+				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "wss://localhost:8080/studioDiscovery");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Switching to a remote project recreates the discovery manager",
+	fn() {
+		basicTest({
+			fn({setHasProjectFileSystem, fireOnProjectOpen, setCurrentProjectIsRemote, fireOnProjectOpenEntryChange}) {
+				setHasProjectFileSystem(true);
+				fireOnProjectOpen();
+
+				const discoveryManager1 = assertLastDiscoveryManager();
+				assertEquals(discoveryManager1.clientType, "studio-host");
+
+				setCurrentProjectIsRemote(true);
+				fireOnProjectOpenEntryChange();
+
+				assertEquals(discoveryManager1.destructed, true);
+				const discoveryManager2 = assertLastDiscoveryManager(2);
+				assertEquals(discoveryManager2.clientType, "studio-client");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "List and update available connections",
+	fn() {
+		basicTest({
+			fn({manager, setHasProjectFileSystem, fireOnProjectOpen}) {
+				assertEquals(Array.from(manager.getConnections()), []);
+
+				setHasProjectFileSystem(true);
+				fireOnProjectOpen();
+
+				const onConnectionsChangedSpy = spy();
+				manager.onConnectionsChanged(onConnectionsChangedSpy);
+
+				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				discoveryMethod.addOne({
+					clientType: "inspector",
+					id: "id",
+					projectMetadata: null,
+				});
+
+				assertSpyCalls(onConnectionsChangedSpy, 1);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "inspector",
+						connectionState: "disconnected",
+						connectionType: "renda:internal",
+						id: "id",
+						projectMetadata: null,
+					},
+				]);
+
+				manager.removeOnConnectionsChanged(onConnectionsChangedSpy);
+				discoveryMethod.addOne({
+					clientType: "inspector",
+					id: "id2",
+					projectMetadata: null,
+				});
+				assertSpyCalls(onConnectionsChangedSpy, 1);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Internal discovery method is informed of project metadata changes",
+	fn() {
+		basicTest({
+			fn({manager, preferencesManager, setHasProjectFileSystem, fireOnProjectOpen, setCurrentProjectMetadata}) {
+				setHasProjectFileSystem(true);
+
+				setCurrentProjectMetadata({
+					fileSystemHasWritePermissions: true,
+					name: "project name",
+					uuid: "id",
+				});
+				fireOnProjectOpen();
+
+				const method = assertLastInternalDiscoveryMethod();
+				assertSpyCalls(method.setProjectMetadataSpy, 0);
+
+				preferencesManager.set("studioConnections.enableInternalDiscovery", true);
+				assertSpyCalls(method.setProjectMetadataSpy, 1);
+				assertSpyCall(method.setProjectMetadataSpy, 0, {
+					args: [
+						{
+							fileSystemHasWritePermissions: true,
+							name: "project name",
+							uuid: "id",
+						},
+					],
+				});
+
+				setCurrentProjectMetadata({
+					fileSystemHasWritePermissions: true,
+					name: "other project name",
+					uuid: "other id",
+				});
+				fireOnProjectOpen();
+				assertSpyCalls(method.setProjectMetadataSpy, 2);
+				assertSpyCall(method.setProjectMetadataSpy, 1, {
+					args: [
+						{
+							fileSystemHasWritePermissions: true,
+							name: "other project name",
+							uuid: "other id",
+						},
+					],
+				});
+
+				// Trigger an update with the same data to make sure the metadata isn't sent unnecessarily
+				setCurrentProjectMetadata({
+					fileSystemHasWritePermissions: true,
+					name: "other project name",
+					uuid: "other id",
+				});
+				preferencesManager.set("studioConnections.enableRemoteDiscovery", true);
+				assertSpyCalls(method.setProjectMetadataSpy, 2);
+
+				preferencesManager.set("studioConnections.enableInternalDiscovery", false);
+				assertSpyCalls(method.setProjectMetadataSpy, 3);
+				assertSpyCall(method.setProjectMetadataSpy, 2, {
+					args: [null],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "getInternalClientUuid",
+	async fn() {
+		await basicTest({
+			async fn({manager, fireOnProjectOpen, setHasProjectFileSystem}) {
+				assertEquals(await manager.getInternalClientUuid(), null);
+				setHasProjectFileSystem(true);
+				fireOnProjectOpen();
+
+				assertEquals(await manager.getInternalClientUuid(), "client uuid");
 			},
 		});
 	},

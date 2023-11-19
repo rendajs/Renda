@@ -355,9 +355,10 @@ export class StudioConnectionsManager {
 	 * Returns the client uuid of the InternalDiscoveryMethod.
 	 */
 	async getInternalClientUuid() {
-		if (!this.#discoveryManager) return null;
-		if (!this.#internalDiscoveryMethod) return null;
-		return this.#internalDiscoveryMethod.getClientUuid();
+		if (this.#discoveryManager && this.#internalDiscoveryMethod) {
+			return await this.#internalDiscoveryMethod.getClientUuid();
+		}
+		return null;
 	}
 
 	/**
