@@ -6,6 +6,7 @@ import {assertEquals} from "std/testing/asserts.ts";
 import {clearCreatedDiscoveryManagers, getCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
 import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} from "./shared/MockWebRtcDiscoveryMethod.js";
 import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
+import {assertPromiseResolved} from "../../../../shared/asserts.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("./shared/MockDiscoveryManager.js");
@@ -460,6 +461,140 @@ Deno.test({
 				fireOnProjectOpen();
 
 				assertEquals(await manager.getInternalClientUuid(), "client uuid");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "requestSpecificConnection() connects when it is already available",
+	async fn() {
+		await basicTest({
+			async fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(true);
+				fireOnProjectOpen();
+
+				const discoveryManager = assertLastDiscoveryManager();
+				const requestConnectionSpy = spy(discoveryManager, "requestConnection");
+
+				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				discoveryMethod.addOne({
+					clientType: "studio-host",
+					id: "wrong connection id",
+					projectMetadata: {
+						fileSystemHasWritePermissions: true,
+						name: "My Project",
+						uuid: "wrong project uuid",
+					},
+				});
+				discoveryMethod.addOne({
+					clientType: "studio-host",
+					id: "expected connection id",
+					projectMetadata: {
+						fileSystemHasWritePermissions: true,
+						name: "My Project",
+						uuid: "expected project uuid",
+					},
+				});
+
+				const promise = manager.requestSpecificConnection({
+					connectionType: "renda:internal",
+					projectUuid: "expected project uuid",
+				});
+				await assertPromiseResolved(promise, true);
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: ["expected connection id"],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "requestSpecificConnection() connects once the connection becomes available",
+	async fn() {
+		await basicTest({
+			async fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(true);
+				fireOnProjectOpen();
+
+				const discoveryManager = assertLastDiscoveryManager();
+				const requestConnectionSpy = spy(discoveryManager, "requestConnection");
+				const discoveryMethod = assertLastInternalDiscoveryMethod();
+
+				const promise = manager.requestSpecificConnection({
+					connectionType: "renda:internal",
+					projectUuid: "expected project uuid",
+				});
+				await assertPromiseResolved(promise, false);
+
+				discoveryMethod.addOne({
+					clientType: "studio-host",
+					id: "wrong connection id",
+					projectMetadata: {
+						fileSystemHasWritePermissions: true,
+						name: "My Project",
+						uuid: "wrong project uuid",
+					},
+				});
+				await assertPromiseResolved(promise, false);
+				assertSpyCalls(requestConnectionSpy, 0);
+
+				discoveryMethod.addOne({
+					clientType: "studio-host",
+					id: "expected connection id",
+					projectMetadata: {
+						fileSystemHasWritePermissions: true,
+						name: "My Project",
+						uuid: "expected project uuid",
+					},
+				});
+				await assertPromiseResolved(promise, true);
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: ["expected connection id"],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "requestSpecificConnection() can be called even when no project has been opened yet",
+	async fn() {
+		await basicTest({
+			async fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				const promise = manager.requestSpecificConnection({
+					connectionType: "renda:internal",
+					projectUuid: "expected project uuid",
+				});
+				await assertPromiseResolved(promise, false);
+
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(true);
+				fireOnProjectOpen();
+
+				const discoveryManager = assertLastDiscoveryManager();
+				const requestConnectionSpy = spy(discoveryManager, "requestConnection");
+				const discoveryMethod = assertLastInternalDiscoveryMethod();
+
+				discoveryMethod.addOne({
+					clientType: "studio-host",
+					id: "expected connection id",
+					projectMetadata: {
+						fileSystemHasWritePermissions: true,
+						name: "My Project",
+						uuid: "expected project uuid",
+					},
+				});
+				await assertPromiseResolved(promise, true);
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: ["expected connection id"],
+				});
 			},
 		});
 	},
