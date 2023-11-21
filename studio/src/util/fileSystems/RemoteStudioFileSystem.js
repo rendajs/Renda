@@ -15,10 +15,10 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 			throw new Error("A connection has already been assigned to this file system.");
 		}
 		this.#connection = connection;
-		this.updateConnected();
+		this.#updateConnected();
 	}
 
-	updateConnected() {
+	#updateConnected() {
 		const connected = Boolean(this.#connection);
 		if (connected != this.#connected) {
 			this.#connected = connected;
@@ -28,7 +28,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 		}
 	}
 
-	async waitForConnection() {
+	async #waitForConnection() {
 		if (this.#connected && this.#connection) return this.#connection;
 		/** @type {Promise<void>} */
 		const promise = new Promise(r => this.#onConnectedCbs.add(r));
@@ -42,7 +42,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async readDir(path) {
-		const connection = await this.waitForConnection();
+		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.readDir"](path);
 	}
 
@@ -52,7 +52,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<void>}
 	 */
 	async createDir(path) {
-		const connection = await this.waitForConnection();
+		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.createDir"](path);
 	}
 
@@ -62,7 +62,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path) {
-		const connection = await this.waitForConnection();
+		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.readFile"](path);
 	}
 
@@ -72,7 +72,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	async isFile(path) {
-		const connection = await this.waitForConnection();
+		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.isFile"](path);
 	}
 
@@ -82,7 +82,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	async isDir(path) {
-		const connection = await this.waitForConnection();
+		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.isDir"](path);
 	}
 
@@ -92,7 +92,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	async exists(path) {
-		const connection = await this.waitForConnection();
+		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.exists"](path);
 	}
 
@@ -102,7 +102,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @param {import("./StudioFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
-		const connection = await this.waitForConnection();
+		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.writeFile"](path, file);
 	}
 }
