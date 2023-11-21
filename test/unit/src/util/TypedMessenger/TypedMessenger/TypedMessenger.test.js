@@ -278,7 +278,7 @@ Deno.test({
 				id: 0,
 				args: [],
 			});
-		}, Error, "Failed to handle message, no request handlers set. Make sure to call `setRequestHandlers` before handling messages.");
+		}, Error, "Failed to handle message, no request handlers set. Make sure to call `setResponseHandlers` before handling messages.");
 	},
 });
 
