@@ -74,17 +74,6 @@ export class StudioConnectionsManager {
 		}
 	}
 
-	/**
-	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType} initiatorType
-	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType} receiverType
-	 */
-	#isValidConnectionConfiguration(initiatorType, receiverType) {
-		if (initiatorType == receiverType) return false;
-		if (receiverType == "studio-client" && initiatorType == "studio-host") return false;
-
-		return true;
-	}
-
 	#updateStudioConnectionsManager = () => {
 		const enableRemoteDiscovery = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
 
@@ -115,34 +104,34 @@ export class StudioConnectionsManager {
 					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
 				}
 
-				let initiatorType;
-				let receiverType;
-				if (connectionRequest.initiatedByMe) {
-					initiatorType = discoveryManager.clientType;
-					receiverType = connectionRequest.clientType;
-				} else {
-					initiatorType = connectionRequest.clientType;
-					receiverType = discoveryManager.clientType;
-				}
-
-				if (!this.#isValidConnectionConfiguration(initiatorType, receiverType)) {
-					throw new Error(`Assertion failed, tried to connect two connections that are incompatible: "${initiatorType}" tried to connect to "${receiverType}"`);
-				}
-
 				// TODO: Add an allowlist #751
 				// TODO: Automatically accept connections that have been hosted by this studio instance #810
 				// TODO: Make inspector connections work: #817
 				// TODO: Add connection prompt #812
 
-				if (connectionRequest.initiatedByMe) {
+				if (discoveryManager.clientType == "studio-client" && connectionRequest.clientType == "studio-host") {
+					if (!connectionRequest.initiatedByMe) {
+						throw new Error('Assertion failed, a "studio-host" connection cannot connect to a "studio-client"');
+					}
 					/** @type {StudioClientHostConnection} */
 					const connection = connectionRequest.accept({});
 					this.#projectManager.assignRemoteConnection(connection);
 					this.#addActiveConnection(connection);
-				}
-				if (discoveryManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
+				} else if (discoveryManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
 					const connection = connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
 					this.#addActiveConnection(connection);
+				} else {
+					let initiatorType;
+					let receiverType;
+					if (connectionRequest.initiatedByMe) {
+						initiatorType = discoveryManager.clientType;
+						receiverType = connectionRequest.clientType;
+					} else {
+						initiatorType = connectionRequest.clientType;
+						receiverType = discoveryManager.clientType;
+					}
+
+					throw new Error(`Assertion failed, tried to connect two connections that are incompatible: "${initiatorType}" tried to connect to "${receiverType}"`);
 				}
 			});
 		}

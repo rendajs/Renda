@@ -2,6 +2,17 @@ import {spy} from "std/testing/mock.ts";
 import {DiscoveryMethod} from "../../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js";
 import {MessageHandler} from "../../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js";
 
+/** @type {Set<ExtendedMessageHandler>} */
+const createdMessageHandlers = new Set();
+
+export function *getCreatedMessageHandlers() {
+	yield* createdMessageHandlers;
+}
+
+export function clearCreatedMessageHandlers() {
+	createdMessageHandlers.clear();
+}
+
 export class ExtendedMessageHandler extends MessageHandler {
 	/**
 	 * @param {import("../../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerOptions} options
@@ -14,6 +25,12 @@ export class ExtendedMessageHandler extends MessageHandler {
 		this.param2 = param2;
 
 		this.closeSpy = spy(this, "close");
+		this.setStatus("connecting");
+		createdMessageHandlers.add(this);
+	}
+
+	markAsConnected() {
+		this.setStatus("connected");
 	}
 }
 

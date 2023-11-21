@@ -2,11 +2,12 @@ import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
 import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {assertEquals} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
 import {clearCreatedDiscoveryManagers, getCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
 import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} from "./shared/MockWebRtcDiscoveryMethod.js";
 import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
 import {assertPromiseResolved} from "../../../../shared/asserts.js";
+import {clearCreatedMessageHandlers, getCreatedMessageHandlers} from "../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("./shared/MockDiscoveryManager.js");
@@ -78,6 +79,7 @@ async function basicTest({
 			get currentProjectIsRemote() {
 				return currentProjectIsRemote;
 			},
+			assignRemoteConnection(connection) {},
 		});
 		const {preferencesManager} = createPreferencesManager({
 			"studioConnections.enableRemoteDiscovery": {
@@ -117,6 +119,7 @@ async function basicTest({
 		clearCreatedDiscoveryManagers();
 		clearCreatedWebRtcDiscoveryMethods();
 		clearCreatedInternalDiscoveryMethods();
+		clearCreatedMessageHandlers();
 	}
 }
 
@@ -150,10 +153,20 @@ function assertLastInternalDiscoveryMethod(length = 1) {
 	return discoveryManagers[length - 1];
 }
 
+/**
+ * Asserts that the specified amount of MessageHandlers were created and returns the last one.
+ * @param {number} length
+ */
+function assertLastMessageHandler(length = 1) {
+	const discoveryManagers = Array.from(getCreatedMessageHandlers());
+	assertEquals(discoveryManagers.length, length);
+	return discoveryManagers[length - 1];
+}
+
 Deno.test({
 	name: "Opening a project creates a discovery manager",
-	fn() {
-		basicTest({
+	async fn() {
+		await basicTest({
 			fn({manager, fireOnProjectOpen, setHasProjectFileSystem}) {
 				setHasProjectFileSystem(true);
 				fireOnProjectOpen();
@@ -171,8 +184,8 @@ Deno.test({
 
 Deno.test({
 	name: "Changing studioConnections.enableRemoteDiscovery and discovery endpoint creates and destroys the webrtc discovery method",
-	fn() {
-		basicTest({
+	async fn() {
+		await basicTest({
 			fn({manager, preferencesManager, setCurrentProjectMetadata, fireOnProjectOpen, setHasProjectFileSystem}) {
 				setHasProjectFileSystem(true);
 				setCurrentProjectMetadata({
@@ -276,8 +289,8 @@ Deno.test({
 
 Deno.test({
 	name: "getDefaultWebRtcDiscoveryEndpoint on main domain",
-	fn() {
-		basicTest({
+	async fn() {
+		await basicTest({
 			fn({manager}) {
 				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "wss://discovery.renda.studio/");
 			},
@@ -287,8 +300,8 @@ Deno.test({
 
 Deno.test({
 	name: "getDefaultWebRtcDiscoveryEndpoint on subdomain domain",
-	fn() {
-		basicTest({
+	async fn() {
+		await basicTest({
 			location: "https://canary.renda.studio",
 			fn({manager}) {
 				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "wss://discovery.renda.studio/");
@@ -299,8 +312,8 @@ Deno.test({
 
 Deno.test({
 	name: "getDefaultWebRtcDiscoveryEndpoint on localhost",
-	fn() {
-		basicTest({
+	async fn() {
+		await basicTest({
 			location: "http://localhost:8080",
 			fn({manager}) {
 				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "ws://localhost:8080/studioDiscovery");
@@ -311,8 +324,8 @@ Deno.test({
 
 Deno.test({
 	name: "getDefaultWebRtcDiscoveryEndpoint on secure localhost",
-	fn() {
-		basicTest({
+	async fn() {
+		await basicTest({
 			location: "https://localhost:8080",
 			fn({manager}) {
 				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "wss://localhost:8080/studioDiscovery");
@@ -323,8 +336,8 @@ Deno.test({
 
 Deno.test({
 	name: "Switching to a remote project recreates the discovery manager",
-	fn() {
-		basicTest({
+	async fn() {
+		await basicTest({
 			fn({setHasProjectFileSystem, fireOnProjectOpen, setCurrentProjectIsRemote, fireOnProjectOpenEntryChange}) {
 				setHasProjectFileSystem(true);
 				fireOnProjectOpen();
@@ -345,8 +358,8 @@ Deno.test({
 
 Deno.test({
 	name: "List and update available connections",
-	fn() {
-		basicTest({
+	async fn() {
+		await basicTest({
 			fn({manager, setHasProjectFileSystem, fireOnProjectOpen}) {
 				assertEquals(Array.from(manager.getConnections()), []);
 
@@ -388,8 +401,8 @@ Deno.test({
 
 Deno.test({
 	name: "Internal discovery method is informed of project metadata changes",
-	fn() {
-		basicTest({
+	async fn() {
+		await basicTest({
 			fn({manager, preferencesManager, setHasProjectFileSystem, fireOnProjectOpen, setCurrentProjectMetadata}) {
 				setHasProjectFileSystem(true);
 
@@ -595,6 +608,212 @@ Deno.test({
 				assertSpyCall(requestConnectionSpy, 0, {
 					args: ["expected connection id"],
 				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "requestConnection throws when called without a project open",
+	async fn() {
+		await basicTest({
+			fn({manager}) {
+				assertThrows(() => {
+					manager.requestConnection("id");
+				}, Error, "studio connections manager does not exist");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Connecting to a studio-host from a studio-client",
+	async fn() {
+		await basicTest({
+			fn({manager, projectManager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				const onConnectionsChangedSpy = spy();
+				manager.onConnectionsChanged(onConnectionsChangedSpy);
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(true);
+				fireOnProjectOpen();
+
+				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const requestConnectionSpy = spy(discoveryMethod, "requestConnection");
+				discoveryMethod.addOne({
+					clientType: "studio-host",
+					id: "connection id",
+					projectMetadata: {
+						fileSystemHasWritePermissions: true,
+						name: "My Project",
+						uuid: "project uuid",
+					},
+				});
+				assertSpyCalls(onConnectionsChangedSpy, 1);
+
+				manager.requestConnection("connection id");
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: ["connection id", undefined],
+				});
+
+				const assignRemoteConnectionSpy = spy(projectManager, "assignRemoteConnection");
+
+				discoveryMethod.addActive("connection id", true, 0, "");
+				assertSpyCalls(assignRemoteConnectionSpy, 1);
+				assertSpyCalls(onConnectionsChangedSpy, 2);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "studio-host",
+						connectionState: "connecting",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: {
+							fileSystemHasWritePermissions: true,
+							name: "My Project",
+							uuid: "project uuid",
+						},
+					},
+				]);
+
+				const messageHandler = assertLastMessageHandler();
+				messageHandler.markAsConnected();
+				assertSpyCalls(onConnectionsChangedSpy, 3);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "studio-host",
+						connectionState: "connected",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: {
+							fileSystemHasWritePermissions: true,
+							name: "My Project",
+							uuid: "project uuid",
+						},
+					},
+				]);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Receiving a studio-client connection to a studio-host",
+	async fn() {
+		await basicTest({
+			fn({manager, projectManager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				const onConnectionsChangedSpy = spy();
+				manager.onConnectionsChanged(onConnectionsChangedSpy);
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(false);
+				fireOnProjectOpen();
+
+				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const requestConnectionSpy = spy(discoveryMethod, "requestConnection");
+				discoveryMethod.addOne({
+					clientType: "studio-client",
+					id: "connection id",
+					projectMetadata: null,
+				});
+				assertSpyCalls(onConnectionsChangedSpy, 1);
+
+				manager.requestConnection("connection id");
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: ["connection id", undefined],
+				});
+
+				discoveryMethod.addActive("connection id", true, 0, "");
+				assertSpyCalls(onConnectionsChangedSpy, 2);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "studio-client",
+						connectionState: "connecting",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
+
+				const messageHandler = assertLastMessageHandler();
+				messageHandler.markAsConnected();
+				assertSpyCalls(onConnectionsChangedSpy, 3);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "studio-client",
+						connectionState: "connected",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Throws when a studio-host tries to connect to a studio-client",
+	async fn() {
+		await basicTest({
+			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(true);
+				fireOnProjectOpen();
+
+				// DiscoveryManager callback errors are printed to the console instead of thrown
+				const consoleErrorSpy = stub(console, "error");
+
+				try {
+					const discoveryMethod = assertLastInternalDiscoveryMethod();
+					discoveryMethod.addOne({
+						clientType: "studio-host",
+						id: "connection id",
+						projectMetadata: null,
+					});
+					discoveryMethod.addActive("connection id", false, 0, "");
+
+					assertSpyCalls(consoleErrorSpy, 1);
+					const error = consoleErrorSpy.calls[0].args[0];
+					assertInstanceOf(error, Error);
+					const expectedText = 'a "studio-host" connection cannot connect to a "studio-client"';
+					assert(error.message.includes(expectedText), `Expected error message to contain "${expectedText}"`);
+				} finally {
+					consoleErrorSpy.restore();
+				}
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Throws when an invalid configuration tries to connect",
+	async fn() {
+		await basicTest({
+			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(false);
+				fireOnProjectOpen();
+
+				// DiscoveryManager callback errors are printed to the console instead of thrown
+				const consoleErrorSpy = stub(console, "error");
+
+				try {
+					const discoveryMethod = assertLastInternalDiscoveryMethod();
+					discoveryMethod.addOne({
+						clientType: "studio-host",
+						id: "host id",
+						projectMetadata: null,
+					});
+					discoveryMethod.addActive("host id", false, 0, "");
+
+					assertSpyCalls(consoleErrorSpy, 1);
+					const error = consoleErrorSpy.calls[0].args[0];
+					assertInstanceOf(error, Error);
+					const expectedText = 'tried to connect two connections that are incompatible: "studio-host" tried to connect to "studio-host"';
+					assert(error.message.includes(expectedText), `Expected error message to contain "${expectedText}"`);
+				} finally {
+					consoleErrorSpy.restore();
+				}
 			},
 		});
 	},
