@@ -6,9 +6,11 @@ import {assertPromiseResolved} from "../../../../../../shared/asserts.js";
 import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
 import {registerOnChangeSpy} from "../../shared.js";
 import {IndexedDbStudioFileSystem, testAll} from "../shared.js";
+import {RemoteStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
 
 testAll({
 	name: "writeFile should create the file and fire onChange",
+	ignore: [RemoteStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -40,6 +42,7 @@ testAll({
 
 testAll({
 	name: "writeFile to existing file should overwrite it and fire change event",
+	ignore: [RemoteStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs({disableStructuredClone: true});
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -71,6 +74,7 @@ testAll({
 
 testAll({
 	name: "writeFile should create parent directories when they don't exist",
+	ignore: [RemoteStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -149,7 +153,7 @@ testAll({
 
 testAll({
 	name: "writeFile() causes waitForWritesFinish to stay pending until done",
-	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem],
+	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem, RemoteStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

@@ -42,6 +42,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async readDir(path) {
+		path = [...path];
 		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.readDir"](path);
 	}
@@ -52,6 +53,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<void>}
 	 */
 	async createDir(path) {
+		path = [...path];
 		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.createDir"](path);
 	}
@@ -62,6 +64,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path) {
+		path = [...path];
 		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.readFile"](path);
 	}
@@ -72,6 +75,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	async isFile(path) {
+		path = [...path];
 		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.isFile"](path);
 	}
@@ -82,6 +86,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	async isDir(path) {
+		path = [...path];
 		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.isDir"](path);
 	}
@@ -92,6 +97,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	async exists(path) {
+		path = [...path];
 		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.exists"](path);
 	}
@@ -102,6 +108,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	 * @param {import("./StudioFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
+		path = [...path];
 		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.writeFile"](path, file);
 	}

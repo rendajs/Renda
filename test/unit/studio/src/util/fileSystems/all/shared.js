@@ -77,10 +77,10 @@ const fileSystems = [
 
 			// Link the two messengers to each other
 			hostMessenger.setSendHandler(data => {
-				clientMessenger.handleReceivedMessage(structuredClone(data.sendData));
+				clientMessenger.handleReceivedMessage(data.sendData);
 			});
 			clientMessenger.setSendHandler(data => {
-				hostMessenger.handleReceivedMessage(structuredClone(data.sendData));
+				hostMessenger.handleReceivedMessage(data.sendData);
 			});
 
 			const clientConnection = /** @type {import("../../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioClientHostConnection} */ (/** @type {unknown} */ ({
