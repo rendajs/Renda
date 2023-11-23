@@ -66,8 +66,12 @@ export class ProjectManager {
 	/** @type {Set<OnAssetManagerChangeCallback>} */
 	#onAssetManagerChangeCbs = new Set();
 
+	/** @type {StoredProjectEntryAny?} */
+	#currentProjectOpenEvent = null;
 	/** @type {Set<() => void>} */
 	#onProjectOpenCbs = new Set();
+	/** @type {Set<() => void>} */
+	#onProjectOpenOnceCbs = new Set();
 	#hasOpenProject = false;
 	get currentProjectIsRemote() {
 		return this.currentProjectFileSystem instanceof RemoteStudioFileSystem;
@@ -83,14 +87,12 @@ export class ProjectManager {
 	/** @type {Set<() => void>} */
 	#onRootHasWritePermissionsChangeCbs = new Set();
 
-	/** @type {Set<(entry: StoredProjectEntryAny) => any>} */
+	/** @type {Set<(entry: StoredProjectEntryAny?) => any>} */
 	#onProjectOpenEntryChangeCbs = new Set();
 
 	constructor() {
 		/** @type {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} */
 		this.currentProjectFileSystem = null;
-		/** @type {StoredProjectEntryAny?} */
-		this.currentProjectOpenEvent = null;
 		this.currentProjectIsMarkedAsWorthSaving = false;
 		this.gitIgnoreManager = null;
 
@@ -99,10 +101,10 @@ export class ProjectManager {
 
 		/** @type {(newName: string) => void} */
 		this.#boundOnFileSystemRootNameChange = newName => {
-			if (!this.currentProjectOpenEvent) {
+			if (!this.#currentProjectOpenEvent) {
 				throw new Error("Cannot change the name of a remote project before it has been created.");
 			}
-			this.currentProjectOpenEvent.name = newName;
+			this.#currentProjectOpenEvent.name = newName;
 			this.#fireOnProjectOpenEntryChangeCbs();
 		};
 
@@ -128,8 +130,9 @@ export class ProjectManager {
 			this.currentProjectFileSystem.removeOnRootNameChange(this.#boundOnFileSystemRootNameChange);
 		}
 		this.currentProjectFileSystem = fileSystem;
-		this.currentProjectOpenEvent = openProjectChangeEvent;
+		this.#currentProjectOpenEvent = openProjectChangeEvent;
 		this.currentProjectIsMarkedAsWorthSaving = false;
+		this.#fireOnProjectOpenEntryChangeCbs();
 
 		this.#rootHasWritePermissions = false;
 		this.#onRootHasWritePermissionsChangeCbs.forEach(cb => cb());
@@ -162,9 +165,6 @@ export class ProjectManager {
 
 		fileSystem.onChange(this.#onFileSystemChange);
 		fileSystem.onRootNameChange(this.#boundOnFileSystemRootNameChange);
-		if (openProjectChangeEvent.fileSystemType == "db" && !this.currentProjectIsMarkedAsWorthSaving) {
-			this.#fireOnProjectOpenEntryChangeCbs();
-		}
 		this.removeAssetManager();
 		studio.windowManager.removeOnContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
 		await studio.windowManager.reloadWorkspaceInstance.run();
@@ -178,7 +178,8 @@ export class ProjectManager {
 
 		this.#hasOpenProject = true;
 		this.#onProjectOpenCbs.forEach(cb => cb());
-		this.#onProjectOpenCbs.clear();
+		this.#onProjectOpenOnceCbs.forEach(cb => cb());
+		this.#onProjectOpenOnceCbs.clear();
 	}
 
 	/**
@@ -204,8 +205,8 @@ export class ProjectManager {
 	 * @param {StoredProjectEntryAny} entry
 	 */
 	isCurrentProjectEntry(entry) {
-		if (!this.currentProjectOpenEvent) return false;
-		return this.currentProjectOpenEvent.projectUuid == entry.projectUuid;
+		if (!this.#currentProjectOpenEvent) return false;
+		return this.#currentProjectOpenEvent.projectUuid == entry.projectUuid;
 	}
 
 	removeAssetManager() {
@@ -281,24 +282,23 @@ export class ProjectManager {
 	};
 
 	markCurrentProjectAsWorthSaving() {
-		if (this.currentProjectIsMarkedAsWorthSaving || !this.currentProjectOpenEvent) return;
+		if (this.currentProjectIsMarkedAsWorthSaving || !this.#currentProjectOpenEvent) return;
 		this.currentProjectIsMarkedAsWorthSaving = true;
-		this.currentProjectOpenEvent.isWorthSaving = true;
+		this.#currentProjectOpenEvent.isWorthSaving = true;
 		this.#fireOnProjectOpenEntryChangeCbs();
 	}
 
 	/**
 	 * Registers a callback that fires whenever the metadata
 	 * of the currently open project changes.
-	 * @param {(entry: StoredProjectEntryAny) => any} cb
+	 * @param {(entry: StoredProjectEntryAny?) => any} cb
 	 */
 	onProjectOpenEntryChange(cb) {
 		this.#onProjectOpenEntryChangeCbs.add(cb);
 	}
 
 	#fireOnProjectOpenEntryChangeCbs() {
-		const entry = this.currentProjectOpenEvent;
-		if (!entry) return;
+		const entry = this.#currentProjectOpenEvent;
 		this.#onProjectOpenEntryChangeCbs.forEach(cb => cb(entry));
 	}
 
@@ -309,7 +309,7 @@ export class ProjectManager {
 	async waitForProjectOpen(allowExisting = true) {
 		if (allowExisting && this.#hasOpenProject) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.#onProjectOpenCbs.add(r));
+		const promise = new Promise(r => this.#onProjectOpenOnceCbs.add(r));
 		await promise;
 	}
 
@@ -398,20 +398,20 @@ export class ProjectManager {
 	 * @param {import("../network/studioConnections/StudioConnectionsManager.js").StudioClientHostConnection} connection
 	 */
 	assignRemoteConnection(connection) {
-		if (!this.currentProjectOpenEvent) {
+		if (!this.#currentProjectOpenEvent) {
 			throw new Error("Assertion failed: An active connection was made before a project entry was created.");
 		}
-		if (this.currentProjectOpenEvent.fileSystemType != "remote" || !(this.currentProjectFileSystem instanceof RemoteStudioFileSystem)) {
+		if (this.#currentProjectOpenEvent.fileSystemType != "remote" || !(this.currentProjectFileSystem instanceof RemoteStudioFileSystem)) {
 			throw new Error("Assertion failed: Current file system is not a remote file system.");
 		}
 		const metadata = connection.projectMetadata;
 		if (!metadata) {
 			throw new Error("Assertion failed: Connection does not have project metadata.");
 		}
-		this.currentProjectOpenEvent = {
+		this.#currentProjectOpenEvent = {
 			name: metadata.name,
 			fileSystemType: "remote",
-			projectUuid: this.currentProjectOpenEvent.projectUuid,
+			projectUuid: this.#currentProjectOpenEvent.projectUuid,
 			remoteProjectUuid: metadata.uuid,
 			remoteProjectConnectionType: connection.connectionType,
 		};
@@ -423,23 +423,23 @@ export class ProjectManager {
 	 * @param {StoredProjectEntryAny} projectEntry
 	 * @param {boolean} fromUserGesture
 	 */
-	openExistingProject(projectEntry, fromUserGesture) {
+	async openExistingProject(projectEntry, fromUserGesture) {
 		if (projectEntry.fileSystemType === "db") {
-			this.openProject(new IndexedDbStudioFileSystem(projectEntry.projectUuid), projectEntry, fromUserGesture);
+			await this.openProject(new IndexedDbStudioFileSystem(projectEntry.projectUuid), projectEntry, fromUserGesture);
 		} else if (projectEntry.fileSystemType == "fsa") {
-			this.openProject(new FsaStudioFileSystem(projectEntry.fileSystemHandle), projectEntry, fromUserGesture);
+			await this.openProject(new FsaStudioFileSystem(projectEntry.fileSystemHandle), projectEntry, fromUserGesture);
 		} else if (projectEntry.fileSystemType == "remote") {
 			if (!projectEntry.remoteProjectUuid || !projectEntry.remoteProjectConnectionType) {
 				throw new Error("Unable to open remote project. Remote project data is corrupt.");
 			}
-			this.openProject(new RemoteStudioFileSystem(), projectEntry, fromUserGesture);
+			await this.openProject(new RemoteStudioFileSystem(), projectEntry, fromUserGesture);
 			getStudioInstance().studioConnectionsManager.requestSpecificConnection({
 				connectionType: projectEntry.remoteProjectConnectionType,
 				projectUuid: projectEntry.remoteProjectUuid,
 			});
 		} else {
 			const castEntry = /** @type {StoredProjectEntryAny} */ (projectEntry);
-			throw new Error("Unknown file system type: " + castEntry.fileSystemType);
+			throw new Error(`Unknown file system type: "${castEntry.fileSystemType}".`);
 		}
 	}
 
@@ -471,10 +471,10 @@ export class ProjectManager {
 	 * @returns {import("../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?}
 	 */
 	getCurrentProjectMetadata() {
-		if (!this.currentProjectOpenEvent) return null;
+		if (!this.#currentProjectOpenEvent) return null;
 		return {
-			name: this.currentProjectOpenEvent.name,
-			uuid: this.currentProjectOpenEvent.projectUuid,
+			name: this.#currentProjectOpenEvent.name,
+			uuid: this.#currentProjectOpenEvent.projectUuid,
 			fileSystemHasWritePermissions: this.#rootHasWritePermissions,
 		};
 	}
