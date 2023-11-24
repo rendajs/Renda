@@ -21,13 +21,9 @@ export class WebGpuChunkedBufferChunk {
 
 	/**
 	 * @param {GPUBindGroupLayout} bindGroupLayout
-	 * @param {Iterable<GPUBindGroupEntry>?} bindGroupEntries
+	 * @param {Iterable<GPUBindGroupEntry>} bindGroupEntries
 	 */
-	getBindGroup(bindGroupLayout, bindGroupEntries = null) {
-		if (!bindGroupEntries) {
-			bindGroupEntries = [this.createBindGroupEntry()];
-		}
-
+	getBindGroup(bindGroupLayout, bindGroupEntries) {
 		const bindGroup = this.chunkedBuffer.device.createBindGroup({
 			label: this.label,
 			layout: bindGroupLayout,
@@ -36,7 +32,11 @@ export class WebGpuChunkedBufferChunk {
 		return bindGroup;
 	}
 
-	createBindGroupEntry({binding = 0} = {}) {
+	/**
+	 * @param {object} options
+	 * @param {number} options.binding
+	 */
+	createBindGroupEntry({binding}) {
 		return {
 			binding,
 			resource: {

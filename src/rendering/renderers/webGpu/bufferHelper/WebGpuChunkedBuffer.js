@@ -66,13 +66,10 @@ export class WebGpuChunkedBuffer {
 
 	/**
 	 * Gets the current bind group and offset to be passed along to {@link GPUProgrammablePassEncoder.setBindGroup}.
-	 * @param {GPUBindGroupLayout?} bindGroupLayout
-	 * @param {Iterable<GPUBindGroupEntry>?} bindGroupEntries
+	 * @param {GPUBindGroupLayout} bindGroupLayout
+	 * @param {Iterable<GPUBindGroupEntry>} bindGroupEntries
 	 */
-	getCurrentEntryLocation(bindGroupLayout = this.bindGroupLayout, bindGroupEntries = null) {
-		if (!bindGroupLayout) {
-			throw new Error("Cannot get entry location for Chunked buffers without a bindGroupLayout");
-		}
+	getCurrentEntryLocation(bindGroupLayout, bindGroupEntries) {
 		const chunk = this.getCurrentChunk();
 		return {
 			bindGroup: chunk.getBindGroup(bindGroupLayout, bindGroupEntries),

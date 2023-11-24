@@ -246,7 +246,7 @@ export class WebGpuRenderer extends Renderer {
 	render(domTarget, camera) {
 		if (!this.isInit) return;
 		if (!domTarget.ready || !domTarget.swapChainFormat) return;
-		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.placeHolderSampler) {
+		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.objectUniformsBindGroupLayout || !this.placeHolderSampler) {
 			// All these objects should exist when this.isInit is true, which we already checked for above.
 			throw new Error("Assertion failed, some required objects do not exist");
 		}
@@ -359,9 +359,9 @@ export class WebGpuRenderer extends Renderer {
 				if (!material || material.destructed || !material.materialMap) continue; // todo: log a (supressable) warning when the material is destructed
 
 				const materialData = this.getCachedMaterialData(material);
-				const forwardPipelineConfig = materialData.getForwardPipelineConfig(material);
+				const forwardPipelineConfig = materialData.getForwardPipelineConfig();
 				if (!forwardPipelineConfig || !forwardPipelineConfig.vertexShader || !forwardPipelineConfig.fragmentShader) continue;
-				const pipelineLayout = materialData.getPipelineLayout(material);
+				const pipelineLayout = materialData.getPipelineLayout();
 				if (!pipelineLayout) continue;
 				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, renderData.component.mesh.vertexState, domTarget.swapChainFormat, outputConfig, camera.clusteredLightsConfig);
 
@@ -462,13 +462,18 @@ export class WebGpuRenderer extends Renderer {
 				}
 				materialData.placeHolderTextureRefs = placeHolderTextureRefs;
 
-				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation(materialData.uniformsBindGroupLayout, bindGroupEntries);
+				const uniformsBindGroupLayout = materialData.getUniformsBindGroupLayout();
+				if (!uniformsBindGroupLayout) {
+					throw new Error("Assertion failed, material doesn't have a uniformsBindGroupLayout.");
+				}
+				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation(uniformsBindGroupLayout, bindGroupEntries);
 				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
 
 				for (const {component: meshComponent, worldMatrix} of renderDatas) {
 					const mesh = meshComponent.mesh;
 					if (!mesh) continue;
-					const {bindGroup, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation();
+					const entries = [this.objectUniformsBuffer.getCurrentChunk().createBindGroupEntry({binding: 0})];
+					const {bindGroup, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation(this.objectUniformsBindGroupLayout, entries);
 					renderPassEncoder.setBindGroup(2, bindGroup, [dynamicOffset]);
 					const meshData = this.getCachedMeshData(mesh);
 					for (const {index, gpuBuffer, newBufferData} of meshData.getVertexBufferGpuCommands()) {
@@ -529,7 +534,7 @@ export class WebGpuRenderer extends Renderer {
 	getCachedMaterialData(material) {
 		let data = this.cachedMaterialData.get(material);
 		if (!data) {
-			data = new CachedMaterialData(this);
+			data = new CachedMaterialData(this, material);
 			this.cachedMaterialData.set(material, data);
 			this.#cachedMaterialDataRegistry.register(material, data, material);
 			const dataRef = data;
