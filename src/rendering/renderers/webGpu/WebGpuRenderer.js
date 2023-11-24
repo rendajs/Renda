@@ -466,14 +466,24 @@ export class WebGpuRenderer extends Renderer {
 				if (!uniformsBindGroupLayout) {
 					throw new Error("Assertion failed, material doesn't have a uniformsBindGroupLayout.");
 				}
-				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation(uniformsBindGroupLayout, bindGroupEntries);
+				const {label, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
+				const bindGroup = this.device.createBindGroup({
+					label,
+					layout: uniformsBindGroupLayout,
+					entries: bindGroupEntries,
+				});
 				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
 
 				for (const {component: meshComponent, worldMatrix} of renderDatas) {
 					const mesh = meshComponent.mesh;
 					if (!mesh) continue;
 					const entries = [this.objectUniformsBuffer.getCurrentChunk().createBindGroupEntry({binding: 0})];
-					const {bindGroup, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation(this.objectUniformsBindGroupLayout, entries);
+					const {label, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation();
+					const bindGroup = this.device.createBindGroup({
+						label,
+						layout: this.objectUniformsBindGroupLayout,
+						entries,
+					});
 					renderPassEncoder.setBindGroup(2, bindGroup, [dynamicOffset]);
 					const meshData = this.getCachedMeshData(mesh);
 					for (const {index, gpuBuffer, newBufferData} of meshData.getVertexBufferGpuCommands()) {
