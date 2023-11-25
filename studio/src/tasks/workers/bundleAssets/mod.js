@@ -1,11 +1,11 @@
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {bundle} from "./bundle.js";
 
 /** @typedef {typeof messenger} BundleScriptsMessenger */
 /** @typedef {typeof responseHandlers} BundleAssetsMessengerResponseHandlers */
 
-/** @type {TypedMessenger<BundleAssetsMessengerResponseHandlers, import("../../task/TaskBundleAssets.js").BundleAssetsMessengerResponseHandlers, true>} */
-const messenger = new TypedMessenger({returnTransferSupport: true});
+/** @type {TypedMessenger<BundleAssetsMessengerResponseHandlers, import("../../task/TaskBundleAssets.js").BundleAssetsMessengerResponseHandlers>} */
+const messenger = new TypedMessenger();
 
 const responseHandlers = {
 	/**
@@ -17,4 +17,4 @@ const responseHandlers = {
 	},
 };
 
-messenger.initialize(globalThis, responseHandlers);
+messenger.initializeWorkerContext(responseHandlers);

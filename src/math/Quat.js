@@ -13,11 +13,11 @@ import {Vec4} from "./Vec4.js";
  * @typedef {(vec: Vec4) => Quat} quatSetVec4Signature
  * @typedef {(x?: number, y?: number, z?: number, w?: number) => Quat} quatSetNumNumNumNumSignature
  * @typedef {(xyzw: number[]) => Quat} quatSetArraySignature
- * @typedef {import("./types.ts").MergeParameters<quatSetEmptySignature | quatSetQuatSignature | quatSetVec2Signature | quatSetVec3Signature | quatSetVec4Signature | quatSetNumNumNumNumSignature | quatSetArraySignature>} QuatParameters
+ * @typedef {import("./MathTypes.js").MergeParameters<quatSetEmptySignature | quatSetQuatSignature | quatSetVec2Signature | quatSetVec3Signature | quatSetVec4Signature | quatSetNumNumNumNumSignature | quatSetArraySignature>} QuatParameters
  */
 
 /**
- * @typedef {import("./types.ts").GetFirstParam<QuatParameters>} QuatParameterSingle
+ * @typedef {import("./MathTypes.js").GetFirstParam<QuatParameters>} QuatParameterSingle
  */
 
 export class Quat {
@@ -176,7 +176,7 @@ export class Quat {
 	 * @typedef {(axis: Vec3, angle: number) => this} fromAxisAngleVecNumSignature
 	 * @typedef {(x: number, y: number, z: number) => this} fromAxisAngleNumNumNumSignature
 	 * @typedef {(x: number, y: number, z: number, angle: number) => this} fromAxisAngleNumNumNumNumSignature
-	 * @typedef {import("./types.ts").MergeParameters<fromAxisAngleVecNumSignature | fromAxisAngleNumNumNumNumSignature | fromAxisAngleNumNumNumSignature | fromAxisAngleVecSignature>} FromAxisAngleParameters
+	 * @typedef {import("./MathTypes.js").MergeParameters<fromAxisAngleVecNumSignature | fromAxisAngleNumNumNumNumSignature | fromAxisAngleNumNumNumSignature | fromAxisAngleVecSignature>} FromAxisAngleParameters
 	 */
 
 	/**

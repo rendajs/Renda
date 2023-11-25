@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "./Task.js";
 
@@ -45,7 +45,7 @@ function getResponseHandlers(assetManager, fileStreams) {
 		 */
 		async getBundledAssetData(assetUuid) {
 			const asset = await assetManager.getProjectAssetFromUuid(assetUuid);
-			if (!asset) return {returnValue: null};
+			if (!asset) return null;
 
 			const assetTypeUuid = await asset.getAssetTypeUuid();
 			// TODO: Ideally assets without an asset type are filtered out before the initial message is sent to the worker.
@@ -60,13 +60,17 @@ function getResponseHandlers(assetManager, fileStreams) {
 				transfer = [bufferOrString];
 			}
 
-			return {
-				returnValue: {
-					assetTypeUuid,
-					assetData: bufferOrString,
+			/** @satisfies {import("../../../../src/mod.js").TypedMessengerRequestHandlerReturn} */
+			const result = {
+				$respondOptions: {
+					returnValue: {
+						assetTypeUuid,
+						assetData: bufferOrString,
+					},
+					transfer,
 				},
-				transfer,
 			};
+			return result;
 		},
 	};
 }
@@ -142,7 +146,7 @@ export class TaskBundleAssets extends Task {
 		},
 	});
 
-	/** @type {TypedMessenger<BundleAssetsMessengerResponseHandlers, import("../workers/bundleAssets/mod.js").BundleAssetsMessengerResponseHandlers, true>} */
+	/** @type {TypedMessenger<BundleAssetsMessengerResponseHandlers, import("../workers/bundleAssets/mod.js").BundleAssetsMessengerResponseHandlers>} */
 	#messenger;
 
 	#lastFileStreamId = 0;
@@ -155,12 +159,12 @@ export class TaskBundleAssets extends Task {
 	constructor(...args) {
 		super(...args);
 
-		this.#messenger = new TypedMessenger({returnTransferSupport: true});
+		this.#messenger = new TypedMessenger();
 		const assetManager = this.studioInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to create Bundle Scripts task: no asset manager.");
 		}
-		this.#messenger.initialize(this.worker, getResponseHandlers(assetManager, this.#fileStreams));
+		this.#messenger.initializeWorker(this.worker, getResponseHandlers(assetManager, this.#fileStreams));
 	}
 
 	/**

@@ -1,5 +1,5 @@
 import {bundle} from "./bundle.js";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 
 /** @typedef {typeof messenger} BundleScriptsMessenger */
 /** @typedef {typeof responseHandlers} BundleScriptsMessengerResponseHandlers */
@@ -15,5 +15,5 @@ const responseHandlers = {
 
 /** @type {TypedMessenger<BundleScriptsMessengerResponseHandlers, import("../../task/TaskBundleScripts.js").BundleScriptsMessengerResponseHandlers>} */
 const messenger = new TypedMessenger();
-messenger.initialize(globalThis, responseHandlers);
+messenger.initializeWorkerContext(responseHandlers);
 

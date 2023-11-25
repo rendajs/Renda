@@ -3,7 +3,6 @@ import {STUDIO_DEFAULTS_IN_COMPONENTS} from "../../studioDefines.js";
 import {StorageType} from "../../util/binarySerialization.js";
 import {Material} from "../../rendering/Material.js";
 import {Component} from "../Component.js";
-import {createTreeViewStructure} from "../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
 
 export class MeshComponent extends Component {
 	static get componentName() {
@@ -17,7 +16,7 @@ export class MeshComponent extends Component {
 	 * @override
 	 */
 	static get guiStructure() {
-		const structure = createTreeViewStructure({
+		const structure = /** @satisfies {import("../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */ ({
 			mesh: {
 				type: "droppable",
 				guiOpts: {

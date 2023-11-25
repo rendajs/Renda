@@ -14,10 +14,11 @@ import {getBufferHelper} from "./getBuffer.js";
  * @property {import("../../rendering/Material.js").Material?} defaultMaterial
  * @property {import("../../rendering/MaterialMap.js").MaterialMap?} defaultMaterialMap
  * @property {import("../../rendering/Sampler.js").Sampler?} defaultSampler
+ * @property {import("./gltfParsing.js").ParseGltfHooks} hooks
  */
 
 /**
- * @param {import("./types.ts").GltfJsonData} jsonData
+ * @param {import("./gltfParsing.js").GltfJsonData} jsonData
  * @param {ParseJsonDataOptions} options
  */
 export async function parseJsonData(jsonData, {
@@ -25,6 +26,7 @@ export async function parseJsonData(jsonData, {
 	defaultMaterial,
 	defaultMaterialMap,
 	defaultSampler,
+	hooks,
 }) {
 	assertAssetVersion(jsonData);
 
@@ -82,7 +84,7 @@ export async function parseJsonData(jsonData, {
 
 	let entity = null;
 	if (jsonData.scenes) {
-		const scenesResult = parseScenes(jsonData.scenes, jsonData.nodes);
+		const scenesResult = parseScenes(jsonData.scenes, jsonData.nodes || [], hooks);
 		entity = scenesResult.entity;
 		const entityNodeIds = scenesResult.entityNodeIds;
 		await applyMeshComponents(jsonData, entityNodeIds, {
@@ -101,7 +103,7 @@ export async function parseJsonData(jsonData, {
  * Checks the version and minVersion of the json asset data against the
  * version of the parser and throws an error if the asset requires a newer
  * version of the parser.
- * @param {import("./types.ts").GltfJsonData} json
+ * @param {import("./gltfParsing.js").GltfJsonData} json
  */
 function assertAssetVersion(json) {
 	if (json.asset.minVersion !== undefined) {

@@ -2,7 +2,7 @@ import {getMockArgs} from "../shared.js";
 import {ContentWindowBuildView} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js";
 import {runWithDomAsync} from "../../../../shared/runWithDom.js";
 import {GestureInProgressManager} from "../../../../../../../studio/src/misc/GestureInProgressManager.js";
-import {TypedMessenger} from "../../../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {assertEquals} from "std/testing/asserts.ts";
 
 /**
@@ -39,7 +39,7 @@ function installIframeContentWindow(buildview) {
 }
 
 Deno.test({
-	name: "requestInternalDiscoveryUrl()",
+	name: "requestDesiredStudioConnectionMethod()",
 	async fn() {
 		await runWithDomAsync(async () => {
 			const oldLocation = window.location;
@@ -50,44 +50,28 @@ Deno.test({
 			try {
 				const {args, mockStudioInstance} = getMockArgs();
 				mockStudioInstance.gestureInProgressManager = new GestureInProgressManager();
-
-				const contentWindow = new ContentWindowBuildView(...args);
-				const {iframeWindowMessenger} = installIframeContentWindow(contentWindow);
-
-				const result = await iframeWindowMessenger.send.requestInternalDiscoveryUrl();
-				assertEquals(result, "https://example.com/internalDiscovery");
-			} finally {
-				window.location = oldLocation;
-			}
-		});
-	},
-});
-
-Deno.test({
-	name: "requestInternalDiscoveryUrl()",
-	async fn() {
-		await runWithDomAsync(async () => {
-			const {args, mockStudioInstance} = getMockArgs();
-			mockStudioInstance.gestureInProgressManager = new GestureInProgressManager();
-			mockStudioInstance.projectManager = /** @type {import("../../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
-				studioConnectionsManager: {
-					getInternalDiscoveryClientId() {
+				mockStudioInstance.studioConnectionsManager = /** @type {import("../../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */ ({
+					getInternalClientUuid() {
 						return Promise.resolve("the_client_id");
 					},
 					createInternalConnectionToken() {
 						return "the_token";
 					},
-				},
-			});
+				});
 
-			const contentWindow = new ContentWindowBuildView(...args);
-			const {iframeWindowMessenger} = installIframeContentWindow(contentWindow);
+				const contentWindow = new ContentWindowBuildView(...args);
+				const {iframeWindowMessenger} = installIframeContentWindow(contentWindow);
 
-			const result = await iframeWindowMessenger.send.requestStudioClientData();
-			assertEquals(result, {
-				clientId: "the_client_id",
-				internalConnectionToken: "the_token",
-			});
+				const result = await iframeWindowMessenger.send.requestDesiredStudioConnectionMethod();
+				assertEquals(result, {
+					type: "renda:internal",
+					discoveryUrl: "https://example.com/internalDiscovery",
+					clientUuid: "the_client_id",
+					internalConnectionToken: "the_token",
+				});
+			} finally {
+				window.location = oldLocation;
+			}
 		});
 	},
 });

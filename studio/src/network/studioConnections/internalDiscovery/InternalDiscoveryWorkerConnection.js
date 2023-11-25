@@ -8,7 +8,7 @@ import {generateUuid} from "../../../../../src/util/mod.js";
 export class InternalDiscoveryWorkerConnection {
 	/**
 	 * @param {MessagePort} port
-	 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
+	 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").ClientType} clientType
 	 * @param {import("./internalDiscoveryWorkerMain.js").WorkerToIframeTypedMessengerType} iframeMessenger
 	 * @param {import("./internalDiscoveryWorkerMain.js").WorkerToParentTypedMessengerType} parentWindowMessenger
 	 */
@@ -20,16 +20,27 @@ export class InternalDiscoveryWorkerConnection {
 		 */
 		this.port = port;
 		this.clientType = clientType;
-		/** @type {import("../StudioConnectionsManager.js").RemoteStudioMetaData?} */
-		this.projectMetaData = null;
+		/** @type {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} */
+		this.projectMetadata = null;
 		this.iframeMessenger = iframeMessenger;
 		this.parentMessenger = parentWindowMessenger;
 	}
 
 	/**
-	 * @param {import("../StudioConnectionsManager.js").RemoteStudioMetaData?} projectMetaData
+	 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} projectMetadata
 	 */
-	setProjectMetaData(projectMetaData) {
-		this.projectMetaData = projectMetaData;
+	setProjectMetadata(projectMetadata) {
+		this.projectMetadata = projectMetadata;
+	}
+
+	/**
+	 * @returns {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection}
+	 */
+	getAvailableConnectionData() {
+		return {
+			id: this.id,
+			clientType: this.clientType,
+			projectMetadata: this.projectMetadata,
+		};
 	}
 }

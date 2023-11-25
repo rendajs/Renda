@@ -13,7 +13,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 	// fill header with zeros
 	const emptyHeader = new ArrayBuffer(headerByteLength);
 	if (useFileStream) {
-		await messenger.sendWithTransfer.writeFile([emptyHeader], fileStreamId, emptyHeader);
+		await messenger.sendWithOptions.writeFile({transfer: [emptyHeader]}, fileStreamId, emptyHeader);
 	}
 
 	const header = new ArrayBuffer(headerByteLength);
@@ -65,7 +65,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 			transfer.push(assetData);
 		}
 		if (useFileStream) {
-			await messenger.sendWithTransfer.writeFile([], fileStreamId, assetData);
+			await messenger.send.writeFile(fileStreamId, assetData);
 		} else {
 			let buffer;
 			if (typeof assetData == "string") {
@@ -77,14 +77,14 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 		}
 	}
 
-	let returnValue = null;
 	if (useFileStream) {
-		await messenger.sendWithTransfer.writeFile([header], fileStreamId, {
+		await messenger.sendWithOptions.writeFile({transfer: [header]}, fileStreamId, {
 			type: "write",
 			position: 0,
 			data: header,
 		});
 		await messenger.send.closeFile(fileStreamId);
+		return null;
 	} else {
 		let totalBufferLength = header.byteLength;
 		for (const buffer of assetBuffers) {
@@ -97,9 +97,6 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 			view.set(new Uint8Array(buffer), offset);
 			offset += buffer.byteLength;
 		}
-		returnValue = view.buffer;
+		return view.buffer;
 	}
-	return {
-		returnValue,
-	};
 }

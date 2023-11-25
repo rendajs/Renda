@@ -26,3 +26,25 @@ export function mathTypeToJson(value) {
 	}
 	return null;
 }
+
+/**
+ * @template T
+ * @typedef {T extends [infer P] ? P : never} GetFirstParam
+ */
+
+/**
+ * Mergest multiple signatures into one, so that it can easily be reused between multiple functions.
+ * @template {(...args: any) => any} T
+ * @typedef {Parameters<T> | [GetFirstParam<Parameters<T>>]} MergeParameters
+ */
+
+/**
+ * @typedef RaycastResult
+ * @property {Vec3} pos
+ * @property {number} dist
+ */
+
+/**
+ * @typedef RaycastShape
+ * @property {(start: Vec3, dir: Vec3) => (RaycastResult | null)} raycast
+ */

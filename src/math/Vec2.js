@@ -9,11 +9,11 @@ import {Vec4} from "./Vec4.js";
  * @typedef {(vec: Vec4) => Vec2} vec2SetVec4Signature
  * @typedef {(x: number, y: number) => Vec2} vec2SetNumNumSignature
  * @typedef {(xy: number[]) => Vec2} vec2SetArraySignature
- * @typedef {import("./types.ts").MergeParameters<vec2SetEmptySignature | vec2SetVec2Signature | vec2SetVec3Signature | vec2SetVec4Signature | vec2SetNumNumSignature | vec2SetArraySignature>} Vec2Parameters
+ * @typedef {import("./MathTypes.js").MergeParameters<vec2SetEmptySignature | vec2SetVec2Signature | vec2SetVec3Signature | vec2SetVec4Signature | vec2SetNumNumSignature | vec2SetArraySignature>} Vec2Parameters
  */
 
 /**
- * @typedef {import("./types.ts").GetFirstParam<Vec2Parameters>} Vec2ParameterSingle
+ * @typedef {import("./MathTypes.js").GetFirstParam<Vec2Parameters>} Vec2ParameterSingle
  */
 
 export class Vec2 {
@@ -326,6 +326,28 @@ export class Vec2 {
 	subVector(vector) {
 		const x = this._x - vector.x;
 		const y = this._y - vector.y;
+		return this.set(x, y);
+	}
+
+	/**
+	 * Sets each component to the minimum of the two vectors.
+	 * @param {Vec2Parameters} args
+	 */
+	min(...args) {
+		const vec = new Vec2(...args);
+		const x = Math.min(this._x, vec.x);
+		const y = Math.min(this._y, vec.y);
+		return this.set(x, y);
+	}
+
+	/**
+	 * Sets each component to the maximum of the two vectors.
+	 * @param {Vec2Parameters} args
+	 */
+	max(...args) {
+		const vec = new Vec2(...args);
+		const x = Math.max(this._x, vec.x);
+		const y = Math.max(this._y, vec.y);
 		return this.set(x, y);
 	}
 

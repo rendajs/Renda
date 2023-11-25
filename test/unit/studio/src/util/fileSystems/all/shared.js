@@ -2,7 +2,9 @@ import {FsaStudioFileSystem} from "../../../../../../../studio/src/util/fileSyst
 import {MemoryStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {FakeHandle} from "../FsaStudioFileSystem/shared.js";
 import {Importer} from "fake-imports";
-import {generateUuid} from "../../../../../../../src/mod.js";
+import {TypedMessenger, generateUuid} from "../../../../../../../src/mod.js";
+import {RemoteStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
+import {createFileSystemHandlers} from "../../../../../../../studio/src/network/studioConnections/responseHandlers/fileSystem.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../../../../shared/MockIndexedDbUtil.js");
@@ -15,7 +17,7 @@ export {IndexedDbStudioFileSystem};
 const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
 const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../shared/MockIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
-/** @typedef {typeof FsaStudioFileSystem | typeof IndexedDbStudioFileSystem | typeof MemoryStudioFileSystem} FileSystemTypes */
+/** @typedef {typeof FsaStudioFileSystem | typeof IndexedDbStudioFileSystem | typeof MemoryStudioFileSystem | typeof RemoteStudioFileSystem} FileSystemTypes */
 
 /**
  * @typedef FileSystemTestConfig
@@ -64,6 +66,34 @@ const fileSystems = [
 			throw new Error("Not yet implemented");
 		},
 	},
+	{
+		ctor: RemoteStudioFileSystem,
+		create() {
+			const memoryFs = new MemoryStudioFileSystem();
+			const handlers = createFileSystemHandlers(memoryFs);
+			const hostMessenger = new TypedMessenger();
+			hostMessenger.setResponseHandlers(handlers);
+			const clientMessenger = new TypedMessenger();
+
+			// Link the two messengers to each other
+			hostMessenger.setSendHandler(data => {
+				clientMessenger.handleReceivedMessage(data.sendData);
+			});
+			clientMessenger.setSendHandler(data => {
+				hostMessenger.handleReceivedMessage(data.sendData);
+			});
+
+			const clientConnection = /** @type {import("../../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioClientHostConnection} */ (/** @type {unknown} */ ({
+				messenger: clientMessenger,
+			}));
+			const remoteFs = new RemoteStudioFileSystem();
+			remoteFs.setConnection(clientConnection);
+			return remoteFs;
+		},
+		forcePendingOperations(pending) {
+			throw new Error("Not yet implemented");
+		},
+	},
 ];
 
 /**
@@ -79,7 +109,7 @@ const fileSystems = [
  * @property {(ctx: FileSystemTestContext) => (void | Promise<void>)} fn
  * @property {FileSystemTypes[] | boolean} [ignore] The file system types to ignore this test for.
  * @property {FileSystemTypes[]} [exclude] The file system types to exclude, unlike `ignore` this does not
- * count against the ignored tests in the results, and in stead this test is just completely omitted from the results.
+ * count against the ignored tests in the results, and instead this test is just completely omitted from the results.
  * @property {boolean} [only] Runs only this test and no others.
  */
 

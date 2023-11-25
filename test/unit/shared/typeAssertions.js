@@ -1,5 +1,5 @@
 /**
- * These is a helper function for verifying types. You can use them to verify
+ * This is a helper function for verifying types. You can use them to verify
  * return types from functions with generics.
  *
  * This function checks if the second parameter 'fits' inside the first parameter.

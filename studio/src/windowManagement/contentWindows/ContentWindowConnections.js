@@ -20,8 +20,8 @@ export class ContentWindowConnections extends ContentWindow {
 		super(...args);
 
 		this.addPreferencesButton([
-			"studioConnections.allowInternalIncoming",
-			"studioConnections.allowRemoteIncoming",
+			"studioConnections.enableRemoteDiscovery",
+			"studioConnections.enableInternalDiscovery",
 		]);
 
 		this.headerTreeView = new PropertiesTreeView();
@@ -40,34 +40,20 @@ export class ContentWindowConnections extends ContentWindow {
 		const {inspectorConnectionsList} = this.createInspectorConnectionsUi();
 		this.inspectorConnectionsList = inspectorConnectionsList;
 
-		this.studioClientConnectionTreeView.visible = this.studioInstance.projectManager.currentProjectIsRemote;
+		const connectionsManager = this.studioInstance.studioConnectionsManager;
+		connectionsManager.onWebRtcDiscoveryServerStatusChange(this.#updateWebRtcDiscoveryServerStatus);
 
-		const connectionsManager = this.studioInstance.projectManager.studioConnectionsManager;
-		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
-		/**
-		 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").DiscoveryServerStatusType} status
-		 */
-		this.boundUpdateDiscoveryServerStatus = status => {
-			this.updateDiscoveryServerStatus(status);
-		};
-		connectionsManager.onDiscoveryServerStatusChange(this.boundUpdateDiscoveryServerStatus);
+		connectionsManager.onConnectionsChanged(this.#updateConnectionLists);
 
-		this.boundUpdateConnectionLists = () => {
-			this.updateConnectionLists();
-		};
-		connectionsManager.onAvailableConnectionsChanged(this.boundUpdateConnectionLists);
-		connectionsManager.onActiveConnectionsChanged(this.boundUpdateConnectionLists);
+		this.#updateWebRtcDiscoveryServerStatus(connectionsManager.webRtcDiscoveryServerStatus);
 
-		this.updateDiscoveryServerStatus("disconnected");
-
-		this.updateConnectionLists();
+		this.#updateConnectionLists();
 	}
 
 	destructor() {
-		const connectionsManager = this.studioInstance.projectManager.studioConnectionsManager;
-		connectionsManager.removeOnDiscoveryServerStatusChange(this.boundUpdateDiscoveryServerStatus);
-		connectionsManager.removeOnAvailableConnectionsChanged(this.boundUpdateConnectionLists);
-		connectionsManager.removeOnActiveConnectionsChanged(this.boundUpdateConnectionLists);
+		const connectionsManager = this.studioInstance.studioConnectionsManager;
+		connectionsManager.removeOnWebRtcDiscoveryServerStatusChange(this.#updateWebRtcDiscoveryServerStatus);
+		connectionsManager.removeOnConnectionsChanged(this.#updateConnectionLists);
 	}
 
 	createHeaderUi() {
@@ -76,11 +62,11 @@ export class ContentWindowConnections extends ContentWindow {
 			/** @type {import("../../ui/TextGui.js").TextGuiOptions} */
 			guiOpts: {
 				label: "Discovery Server",
-				placeholder: this.studioInstance.projectManager.studioConnectionsManager.getDefaultEndPoint(),
+				placeholder: this.studioInstance.studioConnectionsManager.getDefaultWebRtcDiscoveryEndpoint(),
 			},
 		});
 		discoveryServerEndpointField.onValueChange(changeEvent => {
-			this.studioInstance.projectManager.setStudioConnectionsDiscoveryEndpoint(changeEvent.value);
+			this.studioInstance.studioConnectionsManager.setWebRtcDiscoveryEndpoint(changeEvent.value);
 		});
 		const discoveryServerStatusLabel = this.headerTreeView.addItem({
 			type: "label",
@@ -119,29 +105,28 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").DiscoveryServerStatusType} status
+	 * @param {import("../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").DiscoveryServerStatusType} status
 	 */
-	updateDiscoveryServerStatus(status) {
+	#updateWebRtcDiscoveryServerStatus = status => {
 		this.discoveryServerStatusLabel.setValue(status);
-	}
+	};
 
-	updateConnectionLists() {
-		const {availableConnections, activeConnections} = this.studioInstance.projectManager.studioConnectionsManager;
-		this.updateConnectionsList(this.studioConnectionGuis, this.studioConnectionsList, availableConnections, activeConnections, "studio");
-		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, availableConnections, activeConnections, "inspector");
-	}
+	#updateConnectionLists = () => {
+		const connections = Array.from(this.studioInstance.studioConnectionsManager.getConnections());
+		this.updateConnectionsList(this.studioConnectionGuis, this.studioConnectionsList, connections, ["studio-host", "studio-client"]);
+		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, connections, ["inspector"]);
+	};
 
 	/**
 	 * @param {Map<string, ConectionGui>} guisList
 	 * @param {PropertiesTreeView<any>} listTreeView
-	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} availableConnections
-	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").ActiveStudioDataList} activeConnections
-	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").ClientType} allowedClientType
+	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").StudioConnectionData[]} connections
+	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType[]} allowedClientTypes
 	 */
-	updateConnectionsList(guisList, listTreeView, availableConnections, activeConnections, allowedClientType) {
+	updateConnectionsList(guisList, listTreeView, connections, allowedClientTypes) {
 		const removeGuiIds = new Set(guisList.keys());
-		for (const connection of availableConnections.values()) {
-			if (connection.clientType != allowedClientType) continue;
+		for (const connection of connections) {
+			if (!allowedClientTypes.includes(connection.clientType)) continue;
 
 			let gui = guisList.get(connection.id);
 			if (!gui) {
@@ -154,12 +139,12 @@ export class ContentWindowConnections extends ContentWindow {
 						showLabelBackground: false,
 					},
 				});
-				if (connection.messageHandlerType == "internal") {
+				if (connection.connectionType == "renda:internal") {
 					connectionTypeLabel.setValue("Internal");
-				} else if (connection.messageHandlerType == "webRtc") {
+				} else if (connection.connectionType == "renda:webrtc") {
 					connectionTypeLabel.setValue("WebRTC");
 				} else {
-					connectionTypeLabel.setValue("Unknown");
+					connectionTypeLabel.setValue(connection.connectionType);
 				}
 				const statusLabel = treeView.addItem({
 					type: "label",
@@ -174,7 +159,7 @@ export class ContentWindowConnections extends ContentWindow {
 						label: "Connect",
 						text: "Connect",
 						onClick: () => {
-							this.studioInstance.projectManager.studioConnectionsManager.startConnection(connection.id);
+							this.studioInstance.studioConnectionsManager.requestConnection(connection.id);
 						},
 					},
 				});
@@ -186,42 +171,38 @@ export class ContentWindowConnections extends ContentWindow {
 
 			removeGuiIds.delete(connection.id);
 
-			const projectMetaData = connection.projectMetaData;
-			if (projectMetaData) {
-				gui.treeView.name = projectMetaData.name || "Untitled Project";
-			} else {
-				gui.treeView.name = "Studio";
-			}
+			const projectMetadata = connection.projectMetadata;
 
 			let available = false;
 			let status = "Unavailable";
 			let tooltip = "";
-			if (projectMetaData) {
-				if (projectMetaData.fileSystemHasWritePermissions) {
+			if (connection.clientType == "studio-client") {
+				available = false;
+				tooltip = "This connection is a studio instance without an open project. Connections can only be initiated from the other end.";
+				gui.treeView.name = "Studio Client";
+			} else if (projectMetadata) {
+				gui.treeView.name = projectMetadata.name || "Untitled Project";
+				if (projectMetadata.fileSystemHasWritePermissions) {
 					available = true;
 					status = "Available";
 				} else {
 					status = "No Filesystem permissions";
-					tooltip = "The other studio instance hasn't aproved file system permissions in its tab yet.";
-				}
-			}
-
-			if (available) {
-				const activeConnection = activeConnections.get(connection.id);
-				if (activeConnection) {
-					if (activeConnection.connectionState == "connecting") {
-						status = "Connecting";
-					} else if (activeConnection.connectionState == "connected") {
-						status = "Connected";
-					} else if (activeConnection.connectionState == "disconnected") {
-						status = "Offline";
-					}
-					available = false;
+					tooltip = "The other studio instance hasn't approved file system permissions in its tab yet.";
 				}
 			} else {
+				gui.treeView.name = "Studio";
 				tooltip = "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.";
 			}
-			gui.connectButton.setDisabled(!available);
+
+			let buttonDisabled = false;
+			if (connection.connectionState == "connecting") {
+				status = "Connecting";
+				buttonDisabled = true;
+			} else if (connection.connectionState == "connected") {
+				status = "Connected";
+				buttonDisabled = true;
+			}
+			gui.connectButton.setDisabled(!available || buttonDisabled);
 			gui.statusLabel.setValue(status);
 			gui.statusLabel.gui.tooltip = tooltip;
 		}

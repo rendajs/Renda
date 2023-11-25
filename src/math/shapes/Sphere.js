@@ -12,11 +12,11 @@ import {Vec3} from "../Vec3.js";
  * @typedef {(radius: number, xyz: number[]) => Sphere} sphereSetRadiusArraySignature
  *
  * @typedef {(sphere: Sphere) => Sphere} sphereSetSphereSignature
- * @typedef {import("../types.ts").MergeParameters<sphereSetEmptySignature | sphereSetRadiusSignature | sphereSetRadiusVec2Signature | sphereSetRadiusVec3Signature | sphereSetRadiusVec4Signature | sphereSetRadiusNumNumSignature | sphereSetRadiusArraySignature | sphereSetSphereSignature>} SphereParameters
+ * @typedef {import("../MathTypes.js").MergeParameters<sphereSetEmptySignature | sphereSetRadiusSignature | sphereSetRadiusVec2Signature | sphereSetRadiusVec3Signature | sphereSetRadiusVec4Signature | sphereSetRadiusNumNumSignature | sphereSetRadiusArraySignature | sphereSetSphereSignature>} SphereParameters
  */
 
 /**
- * @typedef {import("../types.ts").GetFirstParam<SphereParameters>} SphereParameterSingle
+ * @typedef {import("../MathTypes.js").GetFirstParam<SphereParameters>} SphereParameterSingle
  */
 
 export class Sphere {
@@ -89,7 +89,7 @@ export class Sphere {
 	 * Returns null when the ray does not intersect the sphere.
 	 * @param {Vec3} start
 	 * @param {Vec3} dir
-	 * @returns {import("../types.ts").RaycastResult?}
+	 * @returns {import("../MathTypes.js").RaycastResult?}
 	 */
 	raycast(start, dir) {
 		//   B           C

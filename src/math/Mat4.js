@@ -7,11 +7,11 @@ import {Quat} from "./Quat.js";
  * @typedef {(mat: Mat4) => Mat4} mat4SetMat4Signature
  * @typedef {(mat: number[]) => Mat4} mat4SetNumArraySignature
  * @typedef {(mat: number[][]) => Mat4} mat4SetNumArrayArraySignature
- * @typedef {import("./types.ts").MergeParameters<mat4SetEmptySignature | mat4SetFloat32ArraySignature | mat4SetMat4Signature | mat4SetNumArraySignature | mat4SetNumArrayArraySignature>} Mat4Parameters
+ * @typedef {import("./MathTypes.js").MergeParameters<mat4SetEmptySignature | mat4SetFloat32ArraySignature | mat4SetMat4Signature | mat4SetNumArraySignature | mat4SetNumArrayArraySignature>} Mat4Parameters
  */
 
 /**
- * @typedef {import("./types.ts").GetFirstParam<Mat4Parameters>} Mat4ParameterSingle
+ * @typedef {import("./MathTypes.js").GetFirstParam<Mat4Parameters>} Mat4ParameterSingle
  */
 
 export class Mat4 {
@@ -114,6 +114,7 @@ export class Mat4 {
 		}
 
 		this._handleChange();
+		return this;
 	}
 
 	getFlatArray() {
@@ -256,6 +257,7 @@ export class Mat4 {
 		this.values[3][1] += vec.y;
 		this.values[3][2] += vec.z;
 		this._handleChange();
+		return this;
 	}
 
 	getTranslation() {
@@ -271,6 +273,7 @@ export class Mat4 {
 		this.values[3][1] = vec.y;
 		this.values[3][2] = vec.z;
 		this._handleChange();
+		return this;
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
@@ -346,6 +349,7 @@ export class Mat4 {
 		this.values[1][1] = vec.y;
 		this.values[2][2] = vec.z;
 		this._handleChange();
+		return this;
 	}
 
 	decompose() {

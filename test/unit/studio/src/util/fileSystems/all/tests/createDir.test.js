@@ -5,9 +5,11 @@ import {registerOnChangeSpy} from "../../shared.js";
 import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
 import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
 import {MemoryStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import {RemoteStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
 
 testAll({
 	name: "createDir() should create a directory and fire onchange",
+	ignore: [RemoteStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -69,7 +71,7 @@ testAll({
 
 testAll({
 	name: "createDir() causes waitForWritesFinish to stay pending until done",
-	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem],
+	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem, RemoteStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 

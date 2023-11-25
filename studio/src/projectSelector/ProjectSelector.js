@@ -283,7 +283,9 @@ export class ProjectSelector {
 	setStudioLoaded(studio) {
 		this.loadedStudio = studio;
 		studio.projectManager.onProjectOpenEntryChange(entry => {
-			this.addRecentProjectEntry(entry);
+			if (entry) {
+				this.addRecentProjectEntry(entry);
+			}
 		});
 		if (this.shouldOpenEmptyOnLoad) {
 			studio.projectManager.openNewDbProject(false);

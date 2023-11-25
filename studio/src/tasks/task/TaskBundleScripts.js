@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../src/util/TypedMessenger/TypedMessenger.js";
 import {ProjectAssetTypeJavascript} from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "./Task.js";
@@ -56,7 +56,7 @@ export class TaskBundleScripts extends Task {
 		super(...args);
 
 		this.#messenger = new TypedMessenger();
-		this.#messenger.initialize(this.worker, this.getResponseHandlers());
+		this.#messenger.initializeWorker(this.worker, this.getResponseHandlers());
 	}
 
 	/**

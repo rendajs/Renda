@@ -3,7 +3,7 @@
  * The page is expected to be loaded in an iframe.
  */
 
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 
 /**
  * @param {object} params
@@ -19,7 +19,7 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			 * @param {Transferable[]} transfer
 			 */
 			postWorkerMessage(data, transfer) {
-				workerTypedMessenger.sendWithTransfer.parentWindowToWorkerMessage(transfer, data);
+				workerTypedMessenger.sendWithOptions.parentWindowToWorkerMessage({transfer}, data);
 			},
 			async destructor() {
 				await destructorFunction();
@@ -31,7 +31,7 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			 * @param {Transferable[]} transfer
 			 */
 			sendToParentWindow(data, transfer) {
-				parentWindowTypedMessenger.sendWithTransfer.workerToParentWindowMessage(transfer, data);
+				parentWindowTypedMessenger.sendWithOptions.workerToParentWindowMessage({transfer}, data);
 			},
 		},
 	};
@@ -54,7 +54,7 @@ export function initializeIframe(window) {
 	/** @type {TypedMessenger<InternalDiscoveryIframeWorkerHandlers, import("./internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToIframeHandlers>} */
 	const workerTypedMessenger = new TypedMessenger();
 
-	/** @type {TypedMessenger<InternalDiscoveryIframeHandlers, import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryParentHandlers>} */
+	/** @type {TypedMessenger<InternalDiscoveryIframeHandlers, import("../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryParentHandlers>} */
 	const parentWindowTypedMessenger = new TypedMessenger();
 
 	const {parentToIframeHandlers, workerToIframeHandlers} = getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destructorFunction: destructor});

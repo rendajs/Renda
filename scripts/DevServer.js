@@ -8,7 +8,7 @@
 import {serveDir} from "std/http/file_server.ts";
 import {Server} from "std/http/server.ts";
 import {Application as DevSocket} from "../studio/devSocket/src/Application.js";
-import {Application as StudioDiscovery} from "https://raw.githubusercontent.com/rendajs/studio-discovery-server/52fac72d9218402e491a63f69670b349529df39e/src/main.js";
+import {Application as StudioDiscovery} from "https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/main.js";
 import * as path from "std/path/mod.ts";
 import * as fs from "std/fs/mod.ts";
 

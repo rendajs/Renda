@@ -3,51 +3,61 @@ import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems
 import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
 import {SingleInstancePromise} from "../../../../../src/mod.js";
 
-console.log(import.meta.url);
 const importer = new Importer(import.meta.url);
 importer.makeReal("../../../../../studio/src/studioInstance.js");
 importer.makeReal("../../../../../studio/src/preferences/preferencesLocation/FilePreferencesLocation.js");
 importer.fakeModule("../../../../../studio/src/windowManagement/contentWindows/ContentWindowConnections.js", "export const ContentWindowConnections = {}");
-importer.fakeModule("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js", `
-let lastStudioConnectionsManager;
-export function getLastStudioConnectionsManager() {
-	return lastStudioConnectionsManager;
+importer.fakeModule("../../../../../studio/src/assets/ProjectAsset.js", "export const ProjectAsset = {}");
+importer.fakeModule("../../../../../studio/src/assets/AssetManager.js", `
+let waitForAssetListsLoadPromise = Promise.resolve();
+let resolveAssetListsPromise = null;
+
+export function forcePendingAssetListsPromise(pending) {
+	if (pending) {
+		if (!resolveAssetListsPromise) {
+			waitForAssetListsLoadPromise = new Promise(resolve => {
+				resolveAssetListsPromise = resolve;
+			})
+		}
+	} else {
+		if (resolveAssetListsPromise) {
+			resolveAssetListsPromise();
+			resolveAssetListsPromise = null;
+		}
+	}
 }
 
-export class StudioConnectionsManager {
-	constructor() {
-		lastStudioConnectionsManager = this;
-	}
-	getDefaultEndPoint() {
-		return "ws://localhost/defaultEndpoint";
-	}
-	onActiveConnectionsChanged() {}
-	setDiscoveryEndpoint() {}
-	setAllowInternalIncoming() {}
-	sendSetIsStudioHost() {}
-	setProjectMetaData() {}
-}
-`);
-importer.fakeModule("../../../../../studio/src/assets/ProjectAsset.js", "export const ProjectAsset = {}");
-importer.fakeModule("../../../../../studio/src/assets/AssetManager.js", `export class AssetManager {
+export class AssetManager {
 	assetSettingsLoaded = true;
 	async waitForAssetSettingsLoad() {}
-	async waitForAssetListsLoad() {}
+	waitForAssetListsLoad() {
+		return waitForAssetListsLoadPromise;
+	}
 	destructor() {}
 }`);
+importer.fakeModule("../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js", `
+import {MemoryStudioFileSystem} from "./MemoryStudioFileSystem.js";
+export class RemoteStudioFileSystem extends MemoryStudioFileSystem {
+	setConnection(connection) {}
+}
+`);
 
 /** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js")} */
 const ProjectManagerMod = await importer.import("../../../../../studio/src/projectSelector/ProjectManager.js");
 const {ProjectManager} = ProjectManagerMod;
 
-const StudiorConnectionsManagerMod = await importer.import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js");
-/** @type {() => import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */
-const getLastStudioConnectionsManager = StudiorConnectionsManagerMod.getLastStudioConnectionsManager;
+const AssetManagerMod = await importer.import("../../../../../studio/src/assets/AssetManager.js");
+/** @type {(pending: boolean) => void} */
+const forcePendingAssetListsPromise = AssetManagerMod.forcePendingAssetListsPromise;
+
+/** @type {import("../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js")} */
+const RemoteStudioFileSystemMod = await importer.import("../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js");
+const {RemoteStudioFileSystem} = RemoteStudioFileSystemMod;
 
 const PROJECT_PREFERENCES_PATH = [".renda", "sharedPreferences.json"];
 const LOCAL_PROJECT_PREFERENCES_PATH = [".renda", "localPreferences.json"];
@@ -56,22 +66,20 @@ const GITIGNORE_PATH = [".gitignore"];
 /**
  * @typedef ProjectManagerTestContext
  * @property {import("../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} manager
- * @property {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
  * @property {import("../../../../../studio/src/Studio.js").Studio} studio
  * @property {PreferencesManager<typeof mockPreferencesConfig>} mockPreferencesManager
  * @property {(data: import("../../../../../studio/src/windowManagement/WindowManager.js").ContentWindowPersistentDiskData[] | null) => Promise<void>} fireFlushRequestCallbacks
  */
 
 const mockPreferencesConfig = /** @type {const} @satisfies {Object<string, import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig>} */ ({
-
 	strPref: {
 		type: "string",
 		default: "default",
 	},
-	"studioConnections.allowInternalIncoming": {
+	"studioConnections.allowRemoteIncoming": {
 		type: "boolean",
 	},
-	"studioConnections.allowRemoteIncoming": {
+	"studioConnections.enableInternalDiscovery": {
 		type: "boolean",
 	},
 });
@@ -100,18 +108,20 @@ async function basicTest({fn}) {
 				},
 				setContentWindowPreferences() {},
 				reloadWorkspaceInstance: new SingleInstancePromise(() => {}),
+				focusOrCreateContentWindow(contentWindowConstructorOrId) {},
 			},
 			preferencesManager: /** @type {PreferencesManager<any>} */ (mockPreferencesManager),
+			studioConnectionsManager: {
+				requestSpecificConnection(config) {},
+			},
 		});
 		injectMockStudioInstance(mockStudio);
 
-		const manager = new ProjectManager(mockPreferencesManager);
-
-		const studioConnectionsManager = getLastStudioConnectionsManager();
+		const manager = new ProjectManager();
 
 		await fn({
 			manager,
-			studioConnectionsManager, studio: mockStudio,
+			studio: mockStudio,
 			mockPreferencesManager,
 			async fireFlushRequestCallbacks(data) {
 				const promises = [];
@@ -124,111 +134,28 @@ async function basicTest({fn}) {
 	} finally {
 		globalThis.document = oldDocument;
 		injectMockStudioInstance(null);
+		forcePendingAssetListsPromise(false);
 	}
 }
 
-function createStoredProjectEntry() {
+/**
+ * @param {object} options
+ * @param {boolean} [options.isWorthSaving]
+ * @param {"db" | "remote"} [options.fileSystemType]
+ */
+function createStoredProjectEntry({
+	isWorthSaving = true,
+	fileSystemType = "db",
+} = {}) {
 	/** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny} */
 	const entry = {
-		fileSystemType: "db",
+		fileSystemType,
 		projectUuid: "uuid",
 		name: "name",
-		isWorthSaving: true,
+		isWorthSaving,
 	};
 	return entry;
 }
-
-Deno.test({
-	name: "Studio connections manager is updated when needed",
-	async fn() {
-		await basicTest({
-			async fn({manager, mockPreferencesManager, studioConnectionsManager}) {
-				const fs = new MemoryStudioFileSystem();
-				let resolveWaitForPermission = () => {};
-				/** @type {Promise<void>} */
-				const waitForPermissionPromise = new Promise(resolve => {
-					resolveWaitForPermission = resolve;
-				});
-				stub(fs, "waitForPermission", () => {
-					return waitForPermissionPromise;
-				});
-				fs.writeJson(LOCAL_PROJECT_PREFERENCES_PATH, {
-					preferences: {
-						"studioConnections.allowInternalIncoming": true,
-						"studioConnections.allowRemoteIncoming": true,
-					},
-				});
-				const entry = createStoredProjectEntry();
-
-				const setDiscoveryEndpointSpy = spy(studioConnectionsManager, "setDiscoveryEndpoint");
-				const setAllowInternalIncomingSpy = spy(studioConnectionsManager, "setAllowInternalIncoming");
-				const sendSetIsStudioHostSpy = spy(studioConnectionsManager, "sendSetIsStudioHost");
-				const setProjectMetaDataSpy = spy(studioConnectionsManager, "setProjectMetaData");
-
-				/**
-				 * @param {string?} endpoint
-				 * @param {boolean} allowInternalIncoming
-				 * @param {boolean} isStudioHost
-				 * @param {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData} projectMetaData
-				 */
-				function testUpdateCall(endpoint, allowInternalIncoming, isStudioHost, projectMetaData) {
-					assertSpyCall(setDiscoveryEndpointSpy, setDiscoveryEndpointSpy.calls.length - 1, {
-						args: [endpoint],
-					});
-					assertSpyCall(setAllowInternalIncomingSpy, setAllowInternalIncomingSpy.calls.length - 1, {
-						args: [allowInternalIncoming],
-					});
-					assertSpyCall(sendSetIsStudioHostSpy, sendSetIsStudioHostSpy.calls.length - 1, {
-						args: [isStudioHost],
-					});
-					assertSpyCall(setProjectMetaDataSpy, setProjectMetaDataSpy.calls.length - 1, {
-						args: [projectMetaData],
-					});
-				}
-
-				const openProjectPromise = manager.openProject(fs, entry, false);
-
-				testUpdateCall(null, false, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: false,
-				});
-
-				resolveWaitForPermission();
-				await waitForMicrotasks();
-				await openProjectPromise;
-
-				testUpdateCall("ws://localhost/defaultEndpoint", true, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: true,
-				});
-
-				mockPreferencesManager.set("studioConnections.allowInternalIncoming", false, {location: "project"});
-				testUpdateCall("ws://localhost/defaultEndpoint", false, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: true,
-				});
-
-				mockPreferencesManager.set("studioConnections.allowRemoteIncoming", false, {location: "project"});
-				testUpdateCall(null, false, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: true,
-				});
-
-				manager.setStudioConnectionsDiscoveryEndpoint("endpoint");
-				mockPreferencesManager.set("studioConnections.allowRemoteIncoming", true, {location: "project"});
-				testUpdateCall("wss://endpoint", false, true, {
-					name: "name",
-					uuid: "uuid",
-					fileSystemHasWritePermissions: true,
-				});
-			},
-		});
-	},
-});
 
 Deno.test({
 	name: "content window preferences are loaded and saved",
@@ -463,6 +390,366 @@ Deno.test({
 				await assertPromiseResolved(promise2, true);
 				const result2 = await promise2;
 				assertStrictEquals(result2, manager.assetManager);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "onProjectOpen is fired when a project is opened",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				const onOpenSpy = spy();
+				manager.onProjectOpen(onOpenSpy);
+
+				const fs1 = new MemoryStudioFileSystem();
+				const entry1 = createStoredProjectEntry();
+				await manager.openProject(fs1, entry1, true);
+
+				assertSpyCalls(onOpenSpy, 1);
+
+				const fs2 = new MemoryStudioFileSystem();
+				const entry2 = createStoredProjectEntry();
+				await manager.openProject(fs2, entry2, true);
+
+				assertSpyCalls(onOpenSpy, 2);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "waitForProjectOpen resolves once the currently loading project is open",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				const promise1 = manager.waitForProjectOpen();
+
+				const fs1 = new MemoryStudioFileSystem();
+				const entry1 = createStoredProjectEntry();
+				await assertPromiseResolved(promise1, false);
+				forcePendingAssetListsPromise(true);
+				const openPromise1 = manager.openProject(fs1, entry1, true);
+
+				await assertPromiseResolved(promise1, false);
+				forcePendingAssetListsPromise(false);
+				await openPromise1;
+				await assertPromiseResolved(promise1, true);
+
+				const promise2 = manager.waitForProjectOpen(true);
+				await assertPromiseResolved(promise2, true);
+
+				const promise3 = manager.waitForProjectOpen(false);
+
+				const fs2 = new MemoryStudioFileSystem();
+				const entry2 = createStoredProjectEntry();
+				forcePendingAssetListsPromise(true);
+				const openPromise2 = manager.openProject(fs2, entry2, true);
+
+				await assertPromiseResolved(promise3, false);
+				forcePendingAssetListsPromise(false);
+				await openPromise2;
+				await assertPromiseResolved(promise3, true);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "fires onProjectOpenEntryChange",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				/** @type {(import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny | null)[]} */
+				const onEntryChangeCalls = [];
+				manager.onProjectOpenEntryChange(entry => {
+					onEntryChangeCalls.push(structuredClone(entry));
+				});
+
+				const fs = new MemoryStudioFileSystem();
+				const entry = createStoredProjectEntry({isWorthSaving: false});
+				await manager.openProject(fs, entry, true);
+
+				assertEquals(onEntryChangeCalls.length, 1);
+				assertEquals(onEntryChangeCalls[0], {
+					fileSystemType: "db",
+					isWorthSaving: false,
+					name: "name",
+					projectUuid: "uuid",
+				});
+
+				fs.setRootName("new root name");
+				assertEquals(onEntryChangeCalls.length, 3);
+				assertEquals(onEntryChangeCalls[1], {
+					fileSystemType: "db",
+					isWorthSaving: false,
+					name: "new root name",
+					projectUuid: "uuid",
+				});
+				assertEquals(onEntryChangeCalls[2], {
+					fileSystemType: "db",
+					isWorthSaving: true,
+					name: "new root name",
+					projectUuid: "uuid",
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "onRootHasWritePermissionsChange is fired",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				const onChangeSpy = spy();
+				manager.onRootHasWritePermissionsChange(onChangeSpy);
+
+				let resolvePermission = () => {};
+				/** @type {Promise<void>} */
+				const permissionPromise = new Promise(resolve => {
+					resolvePermission = resolve;
+				});
+				const fs1 = new MemoryStudioFileSystem();
+				stub(fs1, "waitForPermission", () => {
+					return permissionPromise;
+				});
+				const entry1 = createStoredProjectEntry();
+				await manager.openProject(fs1, entry1, true);
+
+				assertSpyCalls(onChangeSpy, 1);
+
+				resolvePermission();
+				await waitForMicrotasks();
+
+				assertSpyCalls(onChangeSpy, 2);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Current project metadata is updated",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				assertEquals(manager.getCurrentProjectMetadata(), null);
+				const fs1 = new MemoryStudioFileSystem();
+
+				let resolvePermission = () => {};
+				/** @type {Promise<void>} */
+				const permissionPromise = new Promise(resolve => {
+					resolvePermission = resolve;
+				});
+				stub(fs1, "waitForPermission", () => {
+					return permissionPromise;
+				});
+
+				const entry1 = createStoredProjectEntry({isWorthSaving: false});
+				await manager.openProject(fs1, entry1, true);
+
+				assertEquals(manager.getCurrentProjectMetadata(), {
+					fileSystemHasWritePermissions: false,
+					name: "name",
+					uuid: "uuid",
+				});
+
+				resolvePermission();
+				await waitForMicrotasks();
+
+				assertEquals(manager.getCurrentProjectMetadata(), {
+					fileSystemHasWritePermissions: true,
+					name: "name",
+					uuid: "uuid",
+				});
+
+				const fs2 = new MemoryStudioFileSystem();
+				const entry2 = createStoredProjectEntry();
+				entry2.name = "name 2";
+				entry2.projectUuid = "uuid 2";
+				await manager.openProject(fs2, entry2, true);
+
+				assertEquals(manager.getCurrentProjectMetadata(), {
+					fileSystemHasWritePermissions: true,
+					name: "name 2",
+					uuid: "uuid 2",
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Open existing remote project",
+	async fn() {
+		await basicTest({
+			async fn({manager, studio}) {
+				const requestSpecificConnectionSpy = spy(studio.studioConnectionsManager, "requestSpecificConnection");
+
+				await manager.openExistingProject({
+					fileSystemType: "remote",
+					name: "Project",
+					projectUuid: "uuid",
+					remoteProjectUuid: "remote uuid",
+					remoteProjectConnectionType: "renda:internal",
+				}, false);
+
+				assertSpyCalls(requestSpecificConnectionSpy, 1);
+				assertSpyCall(requestSpecificConnectionSpy, 0, {
+					args: [
+						{
+							connectionType: "renda:internal",
+							projectUuid: "remote uuid",
+						},
+					],
+				});
+
+				assertEquals(manager.currentProjectIsRemote, true);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Throws when opening existing remote project with missing parameters",
+	async fn() {
+		await basicTest({
+			async fn({manager, studio}) {
+				await assertRejects(async () => {
+					await manager.openExistingProject({
+						fileSystemType: "remote",
+						name: "Project",
+						projectUuid: "uuid",
+					}, false);
+				}, Error, "Unable to open remote project. Remote project data is corrupt.");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Throws when opening existing project with unknown file system type",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				await assertRejects(async () => {
+					await manager.openExistingProject({
+						fileSystemType: /** @type {"db"} */ (/** @type {unknown} */ ("unknown")),
+						name: "Project",
+						projectUuid: "uuid",
+					}, false);
+				}, Error, 'Unknown file system type: "unknown".');
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Opening remote project",
+	async fn() {
+		await basicTest({
+			async fn({manager, studio}) {
+				const focusOrCreateContentWindowSpy = spy(studio.windowManager, "focusOrCreateContentWindow");
+				await manager.openNewRemoteProject(true);
+
+				assertSpyCalls(focusOrCreateContentWindowSpy, 1);
+				assertEquals(manager.currentProjectIsRemote, true);
+				const metadata = manager.getCurrentProjectMetadata();
+				assertEquals(metadata?.fileSystemHasWritePermissions, true);
+				assertEquals(metadata?.name, "Remote Filesystem");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "assignRemoteConnection throws when no project was opened yet",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				assertThrows(() => {
+					const mockConnection = /** @type {import("../../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>} */ ({});
+					manager.assignRemoteConnection(mockConnection);
+				}, Error, "Assertion failed: An active connection was made before a project entry was created.");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "assignRemoteConnection throws when no project was opened yet",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				const fs = new MemoryStudioFileSystem();
+				const entry = createStoredProjectEntry();
+				await manager.openProject(fs, entry, true);
+				assertThrows(() => {
+					const mockConnection = /** @type {import("../../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>} */ ({});
+					manager.assignRemoteConnection(mockConnection);
+				}, Error, "Assertion failed: Current file system is not a remote file system.");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "assignRemoteConnection throws when connection has no metadata",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				const fs = new RemoteStudioFileSystem();
+				const entry = createStoredProjectEntry({fileSystemType: "remote"});
+				await manager.openProject(fs, entry, true);
+				assertThrows(() => {
+					const mockConnection = /** @type {import("../../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>} */ ({});
+					manager.assignRemoteConnection(mockConnection);
+				}, Error, "Assertion failed: Connection does not have project metadata.");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "assignRemoteConnection assigns the connection and changes current open event",
+	async fn() {
+		await basicTest({
+			async fn({manager}) {
+				const fs = new RemoteStudioFileSystem();
+				const setConnectionSpy = spy(fs, "setConnection");
+				const entry = createStoredProjectEntry({fileSystemType: "remote"});
+				await manager.openProject(fs, entry, true);
+				const mockConnection = /** @type {import("../../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>} */ ({
+					projectMetadata: {
+						fileSystemHasWritePermissions: true,
+						name: "Project name",
+						uuid: "remote project uuid",
+					},
+					connectionType: "renda:internal",
+				});
+				/** @type {(import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny | null)[]} */
+				const onEntryChangeCalls = [];
+				manager.onProjectOpenEntryChange(entry => {
+					onEntryChangeCalls.push(entry);
+				});
+
+				manager.assignRemoteConnection(mockConnection);
+
+				assertSpyCalls(setConnectionSpy, 1);
+				assertStrictEquals(setConnectionSpy.calls[0].args[0], mockConnection);
+				assertEquals(manager.currentProjectIsMarkedAsWorthSaving, true);
+
+				assertEquals(onEntryChangeCalls, [
+					{
+						fileSystemType: "remote",
+						isWorthSaving: true,
+						name: "Project name",
+						projectUuid: "uuid",
+						remoteProjectConnectionType: "renda:internal",
+						remoteProjectUuid: "remote project uuid",
+					},
+				]);
 			},
 		});
 	},
