@@ -1,4 +1,5 @@
 import {AssertionError, assertEquals} from "std/testing/asserts.ts";
+import {MockRTCDataChannel} from "./MockRTCDataChannel.js";
 
 /** @type {Set<MockRTCPeerConnection>} */
 const createdRtcConnections = new Set();
@@ -16,10 +17,6 @@ export function getSingleCreatedRtcConnection() {
 
 export function clearCreatedRtcConnections() {
 	createdRtcConnections.clear();
-}
-
-class MockRTCDataChannel extends EventTarget {
-
 }
 
 export class MockRTCPeerConnection extends EventTarget {
@@ -97,12 +94,33 @@ export class MockRTCPeerConnection extends EventTarget {
 	 * @param {RTCDataChannelInit} options
 	 */
 	createDataChannel(label, options) {
-		return new MockRTCDataChannel();
+		return new MockRTCDataChannel(label);
 	}
 
 	/** @type {RTCPeerConnectionState} */
 	#connectionState = "new";
 	get connectionState() {
 		return this.#connectionState;
+	}
+
+	/**
+	 * @param {RTCPeerConnectionState} state
+	 */
+	setMockConnectionState(state) {
+		this.#connectionState = state;
+		this.dispatchEvent(new Event("connectionstatechange"));
+	}
+
+	/**
+	 * Same as `createDataChannel` except it fires an event.
+	 * This essentially simulates a datachannel being created by the other peer.
+	 * @param {string} label
+	 */
+	addMockDataChannel(label) {
+		const datachannel = new MockRTCDataChannel(label);
+		const mockDataChannelEvent = /** @type {Event & {channel: MockRTCDataChannel}} */ (new Event("datachannel"));
+		mockDataChannelEvent.channel = datachannel;
+		this.dispatchEvent(mockDataChannelEvent);
+		return datachannel;
 	}
 }

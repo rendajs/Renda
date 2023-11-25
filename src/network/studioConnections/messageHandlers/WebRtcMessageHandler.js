@@ -165,7 +165,7 @@ export class WebRtcMessageHandler extends MessageHandler {
 		const channel = this.dataChannels.get("reliable");
 		if (!channel) throw new Error("Assertion failed, reliable channel does not exist.");
 		if (!(data instanceof ArrayBuffer)) {
-			throw new Error("This message handler only supports sending array buffers");
+			throw new Error("This message handler only supports sending array buffers.");
 		}
 		channel.send(data);
 	}

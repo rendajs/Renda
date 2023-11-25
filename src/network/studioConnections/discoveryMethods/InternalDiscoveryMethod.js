@@ -206,7 +206,6 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 	 * @param {import("../DiscoveryManager.js").AvailableConnectionProjectMetadata?} metadata
 	 */
 	async setProjectMetadata(metadata) {
-		console.log("set internal: ", metadata);
 		await this.workerMessenger.send.projectMetadata(metadata);
 	}
 }

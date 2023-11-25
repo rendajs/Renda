@@ -198,8 +198,8 @@ export class DiscoveryMethod {
 
 	/**
 	 * Initiates a connection with another client.
-	 * This should call {@linkcode addActiveConnection} on both this instance,
-	 * and on the instance of the other client for which the connection was requested.
+	 * This should call {@linkcode addActiveConnection} on both this instance and
+	 * on the instance of the other client for which the connection was requested.
 	 *
 	 * @param {import("../../../mod.js").UuidString} otherClientUuid
 	 * @param {unknown} [connectionData] Optional data that can be sent to the client which allows
