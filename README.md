@@ -8,7 +8,6 @@ Renda is a modern rendering engine built with the web in mind. You can use it to
 create games, interactive experiences, or anything that requires 3d graphics. It
 is lightweight, has zero dependencies, and its download size scales with how
 many features you use.
-alsjkdf
 
 Renda comes with an online editor called [Renda Studio](https://renda.studio)
 where you can easily build your scenes and adjust parameters to your liking.
