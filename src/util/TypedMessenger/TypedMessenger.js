@@ -577,7 +577,7 @@ export class TypedMessenger {
 	async handleReceivedMessage(data) {
 		if (data.direction == "request") {
 			if (!this.responseHandlers) {
-				throw new Error("Failed to handle message, no request handlers set. Make sure to call `setRequestHandlers` before handling messages.");
+				throw new Error("Failed to handle message, no request handlers set. Make sure to call `setResponseHandlers` before handling messages.");
 			}
 			if (!this.sendHandler) {
 				throw new Error("Failed to handle message, no send handler set. Make sure to call `setSendHandler` before handling messages.");

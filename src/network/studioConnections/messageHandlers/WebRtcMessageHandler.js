@@ -1,26 +1,31 @@
 import {MessageHandler} from "./MessageHandler.js";
 
-export class MessageHandlerWebRtc extends MessageHandler {
-	/**
-	 * @param {import("../../../../../src/util/mod.js").UuidString} otherClientUuid
-	 * @param {import("../StudioConnectionsManager.js").StudioConnectionsManager} connectionsManager
-	 * @param {boolean} isInitiator
-	 */
-	constructor(otherClientUuid, connectionsManager, isInitiator = false) {
-		super();
-		this.otherClientUuid = otherClientUuid;
-		this.connectionsManager = connectionsManager;
-		this.isInitiator = isInitiator;
+/**
+ * @typedef WebRtcMessageHandlerOptions
+ * @property {(uuid: import("../../../mod.js").UuidString, candidate: RTCIceCandidate) => void} sendRtcIceCandidate
+ * @property {(uuid: import("../../../mod.js").UuidString, offer: RTCSessionDescriptionInit) => void} sendRtcDescription
+ */
 
+export class WebRtcMessageHandler extends MessageHandler {
+	/**
+	 * @param {import("./MessageHandler.js").MessageHandlerOptions} messageHandlerOptions
+	 * @param {WebRtcMessageHandlerOptions} options
+	 */
+	constructor(messageHandlerOptions, {sendRtcIceCandidate, sendRtcDescription}) {
+		super(messageHandlerOptions);
+		/** @private */
+		this.sendRtcDescription = sendRtcDescription;
+
+		/** @private @type {Set<() => void>} */
+		this._waitForConnectedCbs = new Set();
+		/** @private */
 		this.rtcConnection = new RTCPeerConnection();
-		this.localDescription = null;
-		this.remoteDescription = null;
-		/** @type {Map<string, RTCDataChannel>} */
+		/** @private @type {Map<string, RTCDataChannel>} */
 		this.dataChannels = new Map();
 
 		this.rtcConnection.addEventListener("icecandidate", e => {
 			if (e.candidate) {
-				this.connectionsManager.sendRtcIceCandidate(this.otherClientUuid, e.candidate);
+				sendRtcIceCandidate(this.otherClientUuid, e.candidate);
 			}
 		});
 		this.rtcConnection.addEventListener("datachannel", e => {
@@ -28,35 +33,43 @@ export class MessageHandlerWebRtc extends MessageHandler {
 			this.dataChannels.set(e.channel.label, e.channel);
 		});
 		this.rtcConnection.addEventListener("connectionstatechange", e => {
-			this.updateConnectionState();
+			this.updateStatus();
 		});
 		this.rtcConnection.addEventListener("negotiationneeded", e => {
 			this.initWebRtcConnection();
 		});
 
-		if (this.isInitiator) {
+		if (this.initiatedByMe) {
 			this.createDataChannel("reliable");
 			this.createDataChannel("unreliable", {
 				maxRetransmits: 0,
 			});
 		}
+
+		this.updateStatus();
 	}
 
+	/**
+	 * @private
+	 */
 	async initWebRtcConnection() {
-		if (!this.isInitiator) return;
+		if (!this.initiatedByMe) return;
 
 		const localDescription = await this.rtcConnection.createOffer();
 		await this.setAndSendDescription(localDescription);
 	}
 
-	updateConnectionState() {
+	/**
+	 * @private
+	 */
+	updateStatus() {
 		const rtcState = this.rtcConnection.connectionState;
-		/** @type {import("./MessageHandler.js").StudioConnectionState} */
-		let state = "disconnected";
+		/** @type {import("./MessageHandler.js").MessageHandlerStatus} */
+		let newStatus = "disconnected";
 		if (rtcState == "new" || rtcState == "connecting") {
-			state = "connecting";
+			newStatus = "connecting";
 		} else if (rtcState == "connected") {
-			state = "connecting";
+			newStatus = "connecting";
 			if (this.dataChannels.size > 0) {
 				let allConnected = true;
 				for (const channel of this.dataChannels.values()) {
@@ -66,14 +79,19 @@ export class MessageHandlerWebRtc extends MessageHandler {
 					}
 				}
 				if (allConnected) {
-					state = "connected";
+					newStatus = "connected";
 				}
 			}
 		}
-		this.setConnectionState(state);
+		if (newStatus == "connected") {
+			this._waitForConnectedCbs.forEach(cb => cb());
+			this._waitForConnectedCbs.clear();
+		}
+		this.setStatus(newStatus);
 	}
 
 	/**
+	 * @private
 	 * @param {string} label
 	 * @param {RTCDataChannelInit} options
 	 * @returns {RTCDataChannel}
@@ -86,11 +104,12 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	}
 
 	/**
+	 * @private
 	 * @param {RTCDataChannel} channel
 	 */
 	addDataChannelListeners(channel) {
 		channel.addEventListener("open", e => {
-			this.updateConnectionState();
+			this.updateStatus();
 		});
 		channel.addEventListener("message", e => {
 			this.handleMessageReceived(e.data);
@@ -98,19 +117,18 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	}
 
 	/**
+	 * @private
 	 * @param {RTCSessionDescriptionInit} localDescription
 	 */
 	async setAndSendDescription(localDescription) {
-		this.localDescription = localDescription;
 		await this.rtcConnection.setLocalDescription(localDescription);
-		this.connectionsManager.sendRtcOffer(this.otherClientUuid, localDescription);
+		this.sendRtcDescription(this.otherClientUuid, localDescription);
 	}
 
 	/**
 	 * @param {RTCSessionDescriptionInit} rtcDescription
 	 */
-	async handleRtcOffer(rtcDescription) {
-		this.remoteDescription = rtcDescription;
+	async handleRtcDescription(rtcDescription) {
 		await this.rtcConnection.setRemoteDescription(rtcDescription);
 
 		if (rtcDescription.type == "offer") {
@@ -127,12 +145,28 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	}
 
 	/**
-	 * @override
-	 * @param {*} data
+	 * @private
 	 */
-	send(data) {
+	_waitForConnected() {
+		if (this.status == "connected") return;
+		/** @type {Promise<void>} */
+		const promise = new Promise(resolve => {
+			this._waitForConnectedCbs.add(resolve);
+		});
+		return promise;
+	}
+
+	/**
+	 * @override
+	 * @param {unknown} data
+	 */
+	async send(data) {
+		await this._waitForConnected();
 		const channel = this.dataChannels.get("reliable");
 		if (!channel) throw new Error("Assertion failed, reliable channel does not exist.");
+		if (!(data instanceof ArrayBuffer)) {
+			throw new Error("This message handler only supports sending array buffers.");
+		}
 		channel.send(data);
 	}
 }

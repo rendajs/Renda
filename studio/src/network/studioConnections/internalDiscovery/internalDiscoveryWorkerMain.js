@@ -13,22 +13,24 @@ import {InternalDiscoveryWorkerConnection} from "./InternalDiscoveryWorkerConnec
  * @param {InternalDiscoveryWorkerConnection} createdConnection
  */
 function sendAllClientAddedMessages(activeConnections, createdConnection) {
-	for (const [id, activeConnection] of activeConnections) {
+	const availableConnectionDatas = [];
+	for (const activeConnection of activeConnections.values()) {
 		if (activeConnection.port == createdConnection.port) continue;
 
-		createdConnection.parentMessenger.send.availableClientAdded(id, activeConnection.clientType, activeConnection.projectMetaData);
-		activeConnection.parentMessenger.send.availableClientAdded(createdConnection.id, createdConnection.clientType, null);
+		availableConnectionDatas.push(activeConnection.getAvailableConnectionData());
+		activeConnection.parentMessenger.send.addAvailableConnection(createdConnection.getAvailableConnectionData());
 	}
+	createdConnection.parentMessenger.send.setAvailableConnections(availableConnectionDatas);
 }
 
 /**
  * @param {Map<import("../../../../../src/mod.js").UuidString, InternalDiscoveryWorkerConnection>} activeConnections
- * @param {import("../../../../../src/util/mod.js").UuidString} clientId
+ * @param {import("../../../../../src/util/mod.js").UuidString} clientUuid
  */
-async function sendAllClientRemoved(activeConnections, clientId) {
+async function sendAllClientRemoved(activeConnections, clientUuid) {
 	const promises = [];
 	for (const connection of activeConnections.values()) {
-		const promise = connection.parentMessenger.send.availableClientRemoved(clientId);
+		const promise = connection.parentMessenger.send.removeAvailableConnection(clientUuid);
 		promises.push(promise);
 	}
 	await Promise.all(promises);
@@ -38,10 +40,10 @@ async function sendAllClientRemoved(activeConnections, clientId) {
  * @param {Map<import("../../../../../src/mod.js").UuidString, InternalDiscoveryWorkerConnection>} activeConnections
  * @param {InternalDiscoveryWorkerConnection} connection
  */
-function sendAllProjectMetaData(activeConnections, connection) {
+function sendAllProjectMetadata(activeConnections, connection) {
 	for (const otherConnection of activeConnections.values()) {
 		if (connection == otherConnection) continue;
-		otherConnection.parentMessenger.send.projectMetaData(connection.id, connection.projectMetaData);
+		otherConnection.parentMessenger.send.setConnectionProjectMetadata(connection.id, connection.projectMetadata);
 	}
 }
 
@@ -72,7 +74,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 		},
 		parentWindowResponseHandlers: {
 			/**
-			 * @param {import("../StudioConnectionsManager.js").ClientType} clientType
+			 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").ClientType} clientType
 			 */
 			registerClient(clientType) {
 				if (createdConnection) {
@@ -83,31 +85,31 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				activeConnections.set(createdConnection.id, createdConnection);
 				sendAllClientAddedMessages(activeConnections, createdConnection);
 				return {
-					/** The id of the client that was just registered. */
-					clientId: createdConnection.id,
+					/** The uuid of the client that was just registered. */
+					clientUuid: createdConnection.id,
 				};
 			},
 			/**
-			 * @param {import("../StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
+			 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} metadata
 			 */
-			projectMetaData(metaData) {
+			projectMetadata(metadata) {
 				if (!createdConnection) return;
-				createdConnection.setProjectMetaData(metaData);
-				sendAllProjectMetaData(activeConnections, createdConnection);
+				createdConnection.setProjectMetadata(metadata);
+				sendAllProjectMetadata(activeConnections, createdConnection);
 			},
 			/**
-			 * @param {import("../../../../../src/mod.js").UuidString} otherClientId
-			 * @param {import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryRequestConnectionData} [connectionData]
+			 * @param {import("../../../../../src/mod.js").UuidString} otherClientUuid
+			 * @param {import("../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} [connectionData]
 			 */
-			requestConnection(otherClientId, connectionData) {
+			requestConnection(otherClientUuid, connectionData) {
 				if (!createdConnection) return;
 
-				const otherConnection = activeConnections.get(otherClientId);
+				const otherConnection = activeConnections.get(otherClientUuid);
 				if (!otherConnection) return;
 
 				const messageChannel = new MessageChannel();
-				createdConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port1]}, otherClientId, messageChannel.port1, {});
-				otherConnection.parentMessenger.sendWithOptions.connectionCreated({transfer: [messageChannel.port2]}, createdConnection.id, messageChannel.port2, connectionData || {});
+				createdConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port1]}, otherClientUuid, true, messageChannel.port1, {});
+				otherConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port2]}, createdConnection.id, false, messageChannel.port2, connectionData || {});
 			},
 		},
 	};
@@ -115,7 +117,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 /** @typedef {ReturnType<getResponseHandlers>["iframeResponseHandlers"]} InternalDiscoveryWorkerToIframeHandlers */
 /** @typedef {TypedMessenger<InternalDiscoveryWorkerToIframeHandlers, import("./internalDiscoveryIframeMain.js").InternalDiscoveryIframeWorkerHandlers>} WorkerToIframeTypedMessengerType */
 /** @typedef {ReturnType<getResponseHandlers>["parentWindowResponseHandlers"]} InternalDiscoveryWorkerToParentHandlers */
-/** @typedef {TypedMessenger<InternalDiscoveryWorkerToParentHandlers, import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryParentWorkerHandlers>} WorkerToParentTypedMessengerType */
+/** @typedef {TypedMessenger<InternalDiscoveryWorkerToParentHandlers, import("../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryParentWorkerHandlers>} WorkerToParentTypedMessengerType */
 
 /**
  * @param {typeof globalThis} workerGlobal

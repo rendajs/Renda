@@ -1,60 +1,94 @@
 # Studio Connections
 
-Multiple Studio tabs and built/running applications can communicate which each other via various ways.
-This allows us to do mainly do two things:
+Studio connections allow us to link multiple studio instances together and have them communicate with each other.
+Additionally, inspector connections can be made to running applications,
+allowing you to inspect or modify scenes at runtime.
 
-- One Studio tab can connect to another, allowing it to modify project files.
-- A running application can connect to a studio instance, allowing the studio to inspect and modify the assets of a running game.
+Since a lot of functionality needs to also be bundled with applications,
+a large portion of the documentation (and code) can be found [here](../../../../src/network/studioConnections/readme.md).
 
-The [StudioConnectionsManager](./StudioConnectionsManager.js) lists available connections and provides a way to initialize them.
-There are two types of connections:
+# Security
 
-- Internal connections make it possible to communicate between two tabs in the same browser.
-This is mainly useful for inspectors, since applications that the user wishes to inspect are usually running in the same browser.
-- Remote connections use WebRTC to connect two clients from different devices with each other.
+Since Studio Connections could potentially allow anyone to gain access to a project,
+a lot of security implications need to be taken into account.
+`studio-client` connections can read from and even write to a project,
+so we need to make sure connections are only accepted when we know the connection is trusted.
 
-The logic for these two connection types can be found in [MessageHandlerInternal.js](./messageHandlers/MessageHandlerInternal.js) and [MessageHandlerWebRtc.js](./messageHandlers/MessageHandlerWebRtc.js) respectively.
+Apart from that, we also need to take into account the broadcasting of project metadata.
+A user might not expect this data to be available publicly so it could contain sensitive info
+such as project names of unreleased projects.
 
-## Preferences
+## WebRTC Connections
 
-There are two preferences, one for allowing remote connections, and another for internal connections.
-By default both are disabled, since the user might not be aware of this functionality.
-Inspector connections, however, are always allowed. Since they are always initiated from studio.
+WebRTC Connections are disabled by default.
+Only when the `studioConnections.enableRemoteDiscovery` preference is enabled, do we connect to the
+discovery WebSocket. So no project metadata is being broadcast until this preference is explicitly enabled.
 
-When these preferences are disabled, no one can initialize a connection from another studio.
-But when they are enabled, connections are automatically accepted.
-In addition to this, project metadata is broadcast to other clients even before the connection is made.
-This way a user will be able to more easily find the client they wish to connect to.
+When connections are requested, we still don't want to automatically accept them though.
+TODO #812
+Instead, we'll show an indication with UI that an available connection wishes to connect, and the user has to
+explicitly accept the connection.
 
-If internal connections are disabled, a client will still broadcast its existance to other internal clients,
-but project metadata is unavailable.
+## Internal Connections
 
-## Inspector connections
+We will always want to have a listening internal discovery method, because of the reasons described below,
+but we still don't want to expose project metadata.
+Since any site could create an internal discovery manager, any third-party site the user visits could
+try to grab the project metadata from their visitors.
+Therefore, we use `studioConnections.enableInternalDiscovery` to enable or disable broadcasting
+metadata using the internal discovery method.
 
-Inspector connections can be initiated from both the connections window in studio, or by an application itself.
-When the 'internal connections' preference is disabled, we will still list existing inspectors,
-and allow the user to connect to an application from studio.
-But applications cannot connect to a studio instance unless its 'internal connections' preference is enabled.
+We will also block connections except those described below.
+This preference has to be enabled for incoming connections to be accepted.
+Especially since #812 hasn't been implemented yet.
 
-One exception to this is pages that were created from studio it self (via the build view).
-The user expects inspectors to automatically connect when clicking the play button,
-so making the user explicitly click connect somewhere would cause too much friction.
+## Connections That Are Always Accepted
 
-To make this work, an InternalDiscoveryManager requests a token from the parent window.
-This token can then be used to make the connection like usual via the discovery worker.
-Only if a valid token is provided, or the 'internal connections' preference is enabled and the origin allowlisted,
-will the connection be made.
+The UI permission permission prompt (TODO #812) works well as a
+general safety net against malicious actors trying to make connections.
+But there a some scenarios where we can get away with not prompting the user,
+scenarios where these prompts could actually be pretty cumbersome.
 
-These tokens and allowlist are managed from within the studio client, i.e. the `StudioConnectionsManager` class.
-This is to ensure security, should a different/compromised iframe or shared worker be used,
-the studio tab will always guarantee that specific connections are allowed.
+### Opened by the Build View Content Window
 
-TODO: #750
-TODO: #751
+If a page has been opened by the build view, we'll assume the content of the page is always trusted.
+The iframe can postmessage to the studio instance using a `ParentStudioCommunicator` and request a connection token.
+They can then use this token when initiating the connection via the discovery manager.
 
-## Protocol
+### Hosted by the Current Studio Instance
 
-Once a connection is established, several message types are available to be sent.
-The protocol that is used is defined by the [ProtocolManager](./ProtocolManager.js).
-Request handlers can be registered on the ProtocolManager, which contain the logic for how to deal with each message.
-Many of these handlers are defined in the protocolRequestHandlers directory.
+TODO: #810
+If the page is being hosted by the current studio instance, the connection can also be trusted because
+the current studio instance is responsible for hosting the scripts.
+Files hosted by a studio make use of its service worker, causing URLs like
+`/sw/clients/<client-id>/projectFiles/<path-to-project-file>`
+to respond with files from a specific studio instance.
+We can compare the value of `<client-id>` to that of our own to determine whether the page was generated by us.
+We also need to ensure the origin is the same, although the chance of a page guessing our client id is pretty slim.
+
+### Allowlisted Origins for Internal Connections
+
+TODO: #749, #751
+We want to allow the user to specify a list of origins that are always automatically accepted.
+To figure out the origin of a connection, we can take a look at the `document.referrer` value in the
+case of the internal discovery method iframe.
+The WebRTC discovery server can look at the Referrer header.
+
+## Spoofing the Referrer
+One thing to keep in mind is the fact that origins or referrers can be spoofed.
+
+This is not a problem for the referrer of the internal discovery method though.
+This can only be spoofed if the browser or OS is compromised.
+At that point, the attacker already has access to the project files.
+The referrer is useful for making sure other sites that the user visits aren't trying to connect to a project of that user.
+And with a secure browser, third-party sites are not able to spoof the referrer.
+
+The same can't be said for WebRTC connections, unfortunately.
+While we can look at the origin header when a connection is made to the discovery WebSocket,
+an attacker isn't operating from the user's own device in this case.
+Therefore, the allow list shouldn't apply to WebRTC connections.
+Instead, these should always show a permission prompt.
+
+In the future, we might be able to work around this problem by allowing the user to
+provide a room id, which is protected with a password.
+That way any connection in that room can be expected to be trusted as well.
