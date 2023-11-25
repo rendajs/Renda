@@ -35,15 +35,17 @@ This table is not the only thing that determines whether a connection is accepte
 
 The client type also sets expectations for what functionality is supported.
 For instance, a `studio-host` can give information about the file system to `studio-client` connections, which allows it to read or write files.
-But an `inspector` doesn't really have a file system, so these message types are not supported.
+But an `inspector` doesn't have a file system, so these message types are not supported.
+In fact, an `inspector` doesn't even need access to the file system of another connection either. So which message types are available depends on the type of both clients.
 
-In fact, an `inspector` doesn't even really need access to the file system of another connection either. So which message types are available depends on the type of both clients.
+Making certain message types available for only specific client types adds a bit of security.
+An inspector will never get write access to any files in the project for instance.
 
 You can take a look at [handlers.js](../../../studio/src/network/studioConnections/handlers.js) to see which handlers are supported for each combination of client types.
 
 ## Inspector Connections
 
-Inspector connections can be initiated from both the connections window in studio, or by an application itself.
+Inspector connections can be initiated from both the connections window in Renda Studio, or by an application itself.
 When the 'internal connections' preference is disabled, we will still list existing inspectors,
 and allow the user to connect to an application from studio.
 But applications cannot connect to a studio instance unless its 'internal connections' preference is enabled.
