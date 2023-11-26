@@ -8,7 +8,7 @@ import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} fr
 import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
 import {assertPromiseResolved} from "../../../../shared/asserts.js";
 import {clearCreatedMessageHandlers, getCreatedMessageHandlers} from "../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
-import { createMockAssetManager } from "../../../shared/createMockAssetManager.js";
+import {createMockAssetManager} from "../../../shared/createMockAssetManager.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("./shared/MockDiscoveryManager.js");
@@ -707,7 +707,7 @@ Deno.test({
 	name: "Receiving a studio-client connection to a studio-host",
 	async fn() {
 		await basicTest({
-			fn({manager, projectManager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
 				const onConnectionsChangedSpy = spy();
 				manager.onConnectionsChanged(onConnectionsChangedSpy);
 				setHasProjectFileSystem(true);
@@ -729,7 +729,7 @@ Deno.test({
 					args: ["connection id", undefined],
 				});
 
-				discoveryMethod.addActive("connection id", true, 0, "");
+				discoveryMethod.addActive("connection id", false, 0, "");
 				assertSpyCalls(onConnectionsChangedSpy, 2);
 				assertEquals(Array.from(manager.getConnections()), [
 					{
@@ -762,7 +762,7 @@ Deno.test({
 	name: "Throws when a studio-host tries to connect to a studio-client",
 	async fn() {
 		await basicTest({
-			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
 				setHasProjectFileSystem(true);
 				setCurrentProjectIsRemote(true);
 				fireOnProjectOpen();
@@ -787,6 +787,61 @@ Deno.test({
 				} finally {
 					consoleErrorSpy.restore();
 				}
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Receiving an inspector connection",
+	async fn() {
+		await basicTest({
+			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				const onConnectionsChangedSpy = spy();
+				manager.onConnectionsChanged(onConnectionsChangedSpy);
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(false);
+				fireOnProjectOpen();
+
+				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const requestConnectionSpy = spy(discoveryMethod, "requestConnection");
+				discoveryMethod.addOne({
+					clientType: "inspector",
+					id: "connection id",
+					projectMetadata: null,
+				});
+				assertSpyCalls(onConnectionsChangedSpy, 1);
+
+				manager.requestConnection("connection id");
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: ["connection id", undefined],
+				});
+
+				discoveryMethod.addActive("connection id", false, 0, "");
+				assertSpyCalls(onConnectionsChangedSpy, 2);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "inspector",
+						connectionState: "connecting",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
+
+				const messageHandler = assertLastMessageHandler();
+				messageHandler.markAsConnected();
+				assertSpyCalls(onConnectionsChangedSpy, 3);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "inspector",
+						connectionState: "connected",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
 			},
 		});
 	},
