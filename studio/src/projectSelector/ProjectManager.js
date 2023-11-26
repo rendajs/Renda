@@ -433,7 +433,7 @@ export class ProjectManager {
 				throw new Error("Unable to open remote project. Remote project data is corrupt.");
 			}
 			await this.openProject(new RemoteStudioFileSystem(), projectEntry, fromUserGesture);
-			getStudioInstance().studioConnectionsManager.requestSpecificConnection({
+			getStudioInstance().studioConnectionsManager.waitForConnectionAndRequest({
 				connectionType: projectEntry.remoteProjectConnectionType,
 				projectUuid: projectEntry.remoteProjectUuid,
 			});

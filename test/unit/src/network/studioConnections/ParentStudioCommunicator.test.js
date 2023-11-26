@@ -88,6 +88,7 @@ function createMockDiscoveryManager() {
 	class MockDiscoveryManager {
 		addDiscoveryMethod() {}
 		requestConnection() {}
+		waitForConnectionAndRequest() {}
 	}
 
 	const mockDiscoveryManager = new MockDiscoveryManager();
@@ -99,8 +100,8 @@ function createMockDiscoveryManager() {
 	const InternalDiscoveryMethod = /** @type {typeof import("../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryMethod} */ (/** @type {unknown} */ (MockDiscoveryMethod));
 
 	const addDiscoveryMethodSpy = spy(discoveryManager, "addDiscoveryMethod");
-	const requestConnectionSpy = spy(discoveryManager, "requestConnection");
-	return {mockDiscoveryManager, discoveryManager, addDiscoveryMethodSpy, requestConnectionSpy, MockDiscoveryMethod, InternalDiscoveryMethod};
+	const waitForConnectionAndRequestSpy = spy(discoveryManager, "waitForConnectionAndRequest");
+	return {mockDiscoveryManager, discoveryManager, addDiscoveryMethodSpy, waitForConnectionAndRequestSpy, MockDiscoveryMethod, InternalDiscoveryMethod};
 }
 
 Deno.test({
@@ -151,19 +152,21 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const communicator = new ParentStudioCommunicator();
-				const {discoveryManager, InternalDiscoveryMethod, addDiscoveryMethodSpy, requestConnectionSpy} = createMockDiscoveryManager();
+				const {discoveryManager, InternalDiscoveryMethod, addDiscoveryMethodSpy, waitForConnectionAndRequestSpy} = createMockDiscoveryManager();
 
 				await communicator.requestDesiredParentStudioConnection(discoveryManager, [InternalDiscoveryMethod]);
 
 				assertSpyCalls(addDiscoveryMethodSpy, 1);
 				assertStrictEquals(addDiscoveryMethodSpy.calls[0].args[0], InternalDiscoveryMethod);
 				assertEquals(addDiscoveryMethodSpy.calls[0].args[1], "discoveryUrl");
-				assertSpyCalls(requestConnectionSpy, 1);
-				assertSpyCall(requestConnectionSpy, 0, {
+				assertSpyCalls(waitForConnectionAndRequestSpy, 1);
+				assertSpyCall(waitForConnectionAndRequestSpy, 0, {
 					args: [
-						"studio uuid",
 						{
-							token: "token",
+							clientUuid: "studio uuid",
+							connectionData: {
+								token: "token",
+							},
 						},
 					],
 				});

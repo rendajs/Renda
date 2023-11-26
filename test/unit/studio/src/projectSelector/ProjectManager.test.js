@@ -112,7 +112,7 @@ async function basicTest({fn}) {
 			},
 			preferencesManager: /** @type {PreferencesManager<any>} */ (mockPreferencesManager),
 			studioConnectionsManager: {
-				requestSpecificConnection(config) {},
+				waitForConnectionAndRequest(config) {},
 			},
 		});
 		injectMockStudioInstance(mockStudio);
@@ -585,7 +585,7 @@ Deno.test({
 	async fn() {
 		await basicTest({
 			async fn({manager, studio}) {
-				const requestSpecificConnectionSpy = spy(studio.studioConnectionsManager, "requestSpecificConnection");
+				const waitForConnectionAndRequestSpy = spy(studio.studioConnectionsManager, "waitForConnectionAndRequest");
 
 				await manager.openExistingProject({
 					fileSystemType: "remote",
@@ -595,8 +595,8 @@ Deno.test({
 					remoteProjectConnectionType: "renda:internal",
 				}, false);
 
-				assertSpyCalls(requestSpecificConnectionSpy, 1);
-				assertSpyCall(requestSpecificConnectionSpy, 0, {
+				assertSpyCalls(waitForConnectionAndRequestSpy, 1);
+				assertSpyCall(waitForConnectionAndRequestSpy, 0, {
 					args: [
 						{
 							connectionType: "renda:internal",

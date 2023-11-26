@@ -290,57 +290,20 @@ export class StudioConnectionsManager {
 	 */
 	requestConnection(otherClientUuid) {
 		if (!this.#discoveryManager) {
-			throw new Error("Assertion failed, studio connections manager does not exist");
+			throw new Error("Assertion failed, discovery manager does not exist.");
 		}
 		this.#discoveryManager.requestConnection(otherClientUuid);
 	}
 
 	/**
-	 * @typedef FindConnectionConfig
-	 * @property {string} connectionType
-	 * @property {import("../../../../src/mod.js").UuidString} projectUuid
+	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").FindConnectionConfig} config
 	 */
-
-	/**
-	 * Attempts to connect to a specific connection.
-	 * If the connection doesn't exist yet, this will wait for it to become available.
-	 * @param {FindConnectionConfig} config
-	 */
-	async requestSpecificConnection(config) {
+	async waitForConnectionAndRequest(config) {
 		this.#updateStudioConnectionsManager();
-		const connection = this.#findConnection(config);
-		if (connection) {
-			this.requestConnection(connection.id);
-		} else {
-			/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType} */
-			const connection = await new Promise(resolve => {
-				const cb = () => {
-					const connection = this.#findConnection(config);
-					if (connection) {
-						this.removeOnConnectionsChanged(cb);
-						resolve(connection);
-					}
-				};
-				this.onConnectionsChanged(cb);
-			});
-			this.requestConnection(connection.id);
+		if (!this.#discoveryManager) {
+			throw new Error("Assertion failed, discovery manager does not exist.");
 		}
-	}
-
-	/**
-	 * @param {FindConnectionConfig} config
-	 */
-	#findConnection(config) {
-		if (!this.#discoveryManager) return null;
-		for (const connection of this.#discoveryManager.availableConnections()) {
-			if (
-				connection.projectMetadata?.uuid == config.projectUuid &&
-				connection.connectionType == config.connectionType
-			) {
-				return connection;
-			}
-		}
-		return null;
+		await this.#discoveryManager.waitForConnectionAndRequest(config);
 	}
 
 	/**
