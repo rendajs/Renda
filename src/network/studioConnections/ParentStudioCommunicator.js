@@ -66,10 +66,10 @@ export class ParentStudioCommunicator {
 				const connectionData = {
 					token: desiredConnectionData.internalConnectionToken,
 				};
-				await discoveryManager.waitForConnectionAndRequest({
+				const connection = await discoveryManager.waitForConnection({
 					clientUuid: desiredConnectionData.clientUuid,
-					connectionData,
 				});
+				discoveryManager.requestConnection(connection.id, connectionData);
 				foundMethod = true;
 				break;
 			}

@@ -298,12 +298,12 @@ export class StudioConnectionsManager {
 	/**
 	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").FindConnectionConfig} config
 	 */
-	async waitForConnectionAndRequest(config) {
+	async waitForConnection(config) {
 		this.#updateStudioConnectionsManager();
 		if (!this.#discoveryManager) {
 			throw new Error("Assertion failed, discovery manager does not exist.");
 		}
-		await this.#discoveryManager.waitForConnectionAndRequest(config);
+		return await this.#discoveryManager.waitForConnection(config);
 	}
 
 	/**

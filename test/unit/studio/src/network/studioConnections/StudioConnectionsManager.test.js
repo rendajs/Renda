@@ -491,7 +491,7 @@ Deno.test({
 		await basicTest({
 			async fn({manager}) {
 				await assertRejects(async () => {
-					await manager.waitForConnectionAndRequest({
+					await manager.waitForConnection({
 						connectionType: "renda:internal",
 						projectUuid: "project uuid",
 					});

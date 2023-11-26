@@ -88,7 +88,11 @@ function createMockDiscoveryManager() {
 	class MockDiscoveryManager {
 		addDiscoveryMethod() {}
 		requestConnection() {}
-		waitForConnectionAndRequest() {}
+		waitForConnection() {
+			return {
+				id: "connection id",
+			};
+		}
 	}
 
 	const mockDiscoveryManager = new MockDiscoveryManager();
@@ -100,8 +104,9 @@ function createMockDiscoveryManager() {
 	const InternalDiscoveryMethod = /** @type {typeof import("../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryMethod} */ (/** @type {unknown} */ (MockDiscoveryMethod));
 
 	const addDiscoveryMethodSpy = spy(discoveryManager, "addDiscoveryMethod");
-	const waitForConnectionAndRequestSpy = spy(discoveryManager, "waitForConnectionAndRequest");
-	return {mockDiscoveryManager, discoveryManager, addDiscoveryMethodSpy, waitForConnectionAndRequestSpy, MockDiscoveryMethod, InternalDiscoveryMethod};
+	const waitForConnectionSpy = spy(discoveryManager, "waitForConnection");
+	const requestConnectionSpy = spy(discoveryManager, "requestConnection");
+	return {mockDiscoveryManager, discoveryManager, addDiscoveryMethodSpy, waitForConnectionSpy, requestConnectionSpy, MockDiscoveryMethod, InternalDiscoveryMethod};
 }
 
 Deno.test({
@@ -152,22 +157,26 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const communicator = new ParentStudioCommunicator();
-				const {discoveryManager, InternalDiscoveryMethod, addDiscoveryMethodSpy, waitForConnectionAndRequestSpy} = createMockDiscoveryManager();
+				const {discoveryManager, InternalDiscoveryMethod, addDiscoveryMethodSpy, waitForConnectionSpy, requestConnectionSpy} = createMockDiscoveryManager();
 
 				await communicator.requestDesiredParentStudioConnection(discoveryManager, [InternalDiscoveryMethod]);
 
 				assertSpyCalls(addDiscoveryMethodSpy, 1);
 				assertStrictEquals(addDiscoveryMethodSpy.calls[0].args[0], InternalDiscoveryMethod);
 				assertEquals(addDiscoveryMethodSpy.calls[0].args[1], "discoveryUrl");
-				assertSpyCalls(waitForConnectionAndRequestSpy, 1);
-				assertSpyCall(waitForConnectionAndRequestSpy, 0, {
+				assertSpyCalls(waitForConnectionSpy, 1);
+				assertSpyCall(waitForConnectionSpy, 0, {
 					args: [
 						{
 							clientUuid: "studio uuid",
-							connectionData: {
-								token: "token",
-							},
 						},
+					],
+				});
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: [
+						"connection id",
+						{token: "token"},
 					],
 				});
 			},

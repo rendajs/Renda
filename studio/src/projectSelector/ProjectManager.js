@@ -433,10 +433,11 @@ export class ProjectManager {
 				throw new Error("Unable to open remote project. Remote project data is corrupt.");
 			}
 			await this.openProject(new RemoteStudioFileSystem(), projectEntry, fromUserGesture);
-			getStudioInstance().studioConnectionsManager.waitForConnectionAndRequest({
+			const connection = await getStudioInstance().studioConnectionsManager.waitForConnection({
 				connectionType: projectEntry.remoteProjectConnectionType,
 				projectUuid: projectEntry.remoteProjectUuid,
 			});
+			getStudioInstance().studioConnectionsManager.requestConnection(connection.id);
 		} else {
 			const castEntry = /** @type {StoredProjectEntryAny} */ (projectEntry);
 			throw new Error(`Unknown file system type: "${castEntry.fileSystemType}".`);

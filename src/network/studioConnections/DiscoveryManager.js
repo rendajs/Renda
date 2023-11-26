@@ -45,7 +45,6 @@ import {StudioConnection} from "./StudioConnection.js";
  * @property {string} [connectionType]
  * @property {import("../../mod.js").UuidString} [projectUuid]
  * @property {import("../../mod.js").UuidString} [clientUuid]
- * @property {unknown} [connectionData]
  */
 
 /**
@@ -226,14 +225,14 @@ export class DiscoveryManager {
 	}
 
 	/**
-	 * Attempts to connect to a specific connection based on the provided parameters.
+	 * Tries to find a specific connection based on the provided parameters.
 	 * If the connection doesn't exist yet, this will wait for it to become available.
 	 * @param {FindConnectionConfig} config
 	 */
-	async waitForConnectionAndRequest(config) {
+	async waitForConnection(config) {
 		const connection = this.#findConnection(config);
 		if (connection) {
-			this.requestConnection(connection.id, config.connectionData);
+			return connection;
 		} else {
 			/** @type {AvailableConnectionWithType} */
 			const connection = await new Promise(resolve => {
@@ -246,7 +245,7 @@ export class DiscoveryManager {
 				};
 				this.onAvailableConnectionsChanged(cb);
 			});
-			this.requestConnection(connection.id, config.connectionData);
+			return connection;
 		}
 	}
 
