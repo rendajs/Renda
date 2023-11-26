@@ -486,7 +486,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "waitForConnectionAndRequest() throws when called without a project open",
+	name: "waitForConnection() throws when called without a project open",
 	async fn() {
 		await basicTest({
 			async fn({manager}) {
