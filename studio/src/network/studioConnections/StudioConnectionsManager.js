@@ -1,13 +1,11 @@
 import {DiscoveryManager} from "../../../../src/network/studioConnections/DiscoveryManager.js";
 import {InternalDiscoveryMethod} from "../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
 import {WebRtcDiscoveryMethod} from "../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
-import {createStudioHostHandlers} from "./handlers.js";
+import {createStudioHostHandlers, createStudioInspectorHandlers} from "./handlers.js";
 
 /**
  * @typedef {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType & {connectionState: import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus}} StudioConnectionData
  */
-
-/** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<{}, ReturnType<createStudioHostHandlers>>} StudioClientHostConnection */
 
 export class StudioConnectionsManager {
 	#projectManager;
@@ -89,8 +87,9 @@ export class StudioConnectionsManager {
 			this.#lastSentProjectMetadataInternal = null;
 		}
 
-		if (desiredClientType && !this.#discoveryManager && this.#projectManager.currentProjectFileSystem) {
+		if (desiredClientType && !this.#discoveryManager && this.#projectManager.currentProjectFileSystem && this.#projectManager.assetManager) {
 			const certainFileSystem = this.#projectManager.currentProjectFileSystem;
+			const certainAssetManager = this.#projectManager.assetManager;
 			const discoveryManager = new DiscoveryManager(desiredClientType);
 			this.#discoveryManager = discoveryManager;
 			discoveryManager.onAvailableConnectionsChanged(() => {
@@ -105,7 +104,7 @@ export class StudioConnectionsManager {
 				}
 
 				// TODO: Add an allowlist #751
-				// TODO: Automatically accept connections that have been hosted by this studio instance #810
+				// TODO: Automatically accept connections that are hosted by this studio instance #810
 				// TODO: Make inspector connections work: #817
 				// TODO: Add connection prompt #812
 
@@ -113,12 +112,15 @@ export class StudioConnectionsManager {
 					if (!connectionRequest.initiatedByMe) {
 						throw new Error('Assertion failed, a "studio-host" connection cannot connect to a "studio-client"');
 					}
-					/** @type {StudioClientHostConnection} */
+					/** @type {import("./handlers.js").StudioClientHostConnection} */
 					const connection = connectionRequest.accept({});
 					this.#projectManager.assignRemoteConnection(connection);
 					this.#addActiveConnection(connection);
 				} else if (discoveryManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
 					const connection = connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
+					this.#addActiveConnection(connection);
+				} else if (connectionRequest.clientType == "inspector") {
+					const connection = connectionRequest.accept(createStudioInspectorHandlers(certainAssetManager));
 					this.#addActiveConnection(connection);
 				} else {
 					let initiatorType;

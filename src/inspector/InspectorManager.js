@@ -8,20 +8,24 @@ export class InspectorManager {
 	constructor() {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
 
-		/** @private @type {Map<import("../../studio/src/../../src/util/util.js").UuidString, InspectorConnection>} */
+		/** @private @type {Map<import("../../studio/src/../../src/util/util.js").UuidString, import("../../studio/src/network/studioConnections/handlers.js").InspectorStudioConnection>} */
 		this._inspectorConnections = new Map();
 
-		this.internalDiscoveryManager = new InternalDiscoveryManager({fallbackDiscoveryUrl, forceDiscoveryUrl});
-		this.internalDiscoveryManager.onConnectionCreated((otherClientId, port) => {
-			const inspectorConnection = new InspectorConnection(otherClientId, port);
-			this._inspectorConnections.set(otherClientId, inspectorConnection);
 		/** @private */
 		this.parentStudioCommunicator = new ParentStudioCommunicator();
 		/** @private */
 		this.discoveryManager = new DiscoveryManager("inspector");
 
-		this.discoveryManager.onConnectionRequest(connection => {
-			console.log(connection);
+		this.discoveryManager.onConnectionRequest(connectionRequest => {
+			if (connectionRequest.clientType == "inspector") {
+				throw new Error("An inspector is not able to connect to another inspector.");
+			} else if (connectionRequest.clientType == "studio-client" || connectionRequest.clientType == "studio-host") {
+				/** @type {import("../../studio/src/network/studioConnections/handlers.js").InspectorStudioConnection} */
+				const connection = connectionRequest.accept(this.getResponseHandlers());
+				this._inspectorConnections.set(connection.otherClientUuid, connection);
+			} else {
+				throw new Error(`Unexpected client type: "${connectionRequest.clientType}"`);
+			}
 		});
 		this.parentStudioCommunicator.requestDesiredParentStudioConnection(this.discoveryManager, [InternalDiscoveryMethod, WebRtcDiscoveryMethod]);
 	}
@@ -30,9 +34,34 @@ export class InspectorManager {
 	 * @param {import("../util/util.js").UuidString} uuid
 	 */
 	async requestHasAsset(uuid) {
-		for (const _ of this._inspectorConnections.values()) {
-			// TODO: pass request to connection
+		/** @type {Promise<boolean>[]} */
+		const promises = [];
+		for (const connection of this._inspectorConnections.values()) {
+			const promise = connection.messenger.send["assets.hasAsset"](uuid);
+			promises.push(promise);
 		}
-		return false;
+
+		/** @type {Promise<true>} */
+		const anyTruePromise = new Promise(resolve => {
+			for (const promise of promises) {
+				promise.then(result => {
+					if (result) resolve(true);
+				});
+			}
+		});
+		const allPromise = (async () => {
+			await Promise.allSettled(promises);
+			return false;
+		})();
+
+		return await Promise.race([anyTruePromise, allPromise]);
+	}
+
+	/**
+	 * @private
+	 */
+	getResponseHandlers() {
+		return {
+		};
 	}
 }
