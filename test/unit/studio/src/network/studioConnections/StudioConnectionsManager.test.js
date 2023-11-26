@@ -8,6 +8,7 @@ import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} fr
 import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
 import {assertPromiseResolved} from "../../../../shared/asserts.js";
 import {clearCreatedMessageHandlers, getCreatedMessageHandlers} from "../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
+import { createMockAssetManager } from "../../../shared/createMockAssetManager.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("./shared/MockDiscoveryManager.js");
@@ -105,6 +106,12 @@ async function basicTest({
 			},
 			setHasProjectFileSystem(hasFileSystem) {
 				mockProjectManager.currentProjectFileSystem = hasFileSystem ? new MemoryStudioFileSystem() : null;
+				if (hasFileSystem) {
+					const {assetManager} = createMockAssetManager();
+					mockProjectManager.assetManager = assetManager;
+				} else {
+					mockProjectManager.assetManager = null;
+				}
 			},
 			setCurrentProjectIsRemote(newCurrentProjectIsRemote) {
 				currentProjectIsRemote = newCurrentProjectIsRemote;
