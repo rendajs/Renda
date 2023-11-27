@@ -43,6 +43,6 @@ export class InspectorAssetBundle extends AssetBundle {
 	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async getAsset(uuid) {
-		return null;
+		return await this._inspectorManager.requestBundledAssetData(uuid);
 	}
 }
