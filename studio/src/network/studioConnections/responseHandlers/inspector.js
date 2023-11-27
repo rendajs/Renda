@@ -1,4 +1,4 @@
-import {bundledAssetDataToArrayBufferOrString} from "../../../tasks/task/TaskBundleAssets.js";
+import {bundledAssetDataToArrayBufferOrString} from "../../../util/bundledAssetDataToArrayBufferOrString.js";
 
 /**
  * @param {import("../../../assets/AssetManager.js").AssetManager} assetManager

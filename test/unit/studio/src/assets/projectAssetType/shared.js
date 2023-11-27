@@ -2,7 +2,7 @@ import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.
 import {ProjectAsset} from "../../../../../../studio/src/assets/ProjectAsset.js";
 import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
 import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {bundledAssetDataToArrayBufferOrString} from "../../../../../../studio/src/tasks/task/TaskBundleAssets.js";
+import {bundledAssetDataToArrayBufferOrString} from "../../../../../../studio/src/util/bundledAssetDataToArrayBufferOrString.js";
 
 /**
  * @param {object} options
