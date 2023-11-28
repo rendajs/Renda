@@ -18,6 +18,7 @@ class MockGPUBuffer {
  * @typedef WebGpuChunkedBufferTestContext
  * @property {GPUDevice} device
  * @property {WriteBufferSpy} writeBufferSpy
+ * @property {MockGPUBuffer[]} createdBuffers
  */
 
 /**
@@ -31,9 +32,13 @@ function basicTest({fn}) {
 		COPY_DST: 8,
 	});
 
+	/** @type {MockGPUBuffer[]} */
+	const createdBuffers = [];
+
 	const device = /** @type {GPUDevice} */ ({
 		createBuffer(descriptor) {
 			const buffer = new MockGPUBuffer(descriptor);
+			createdBuffers.push(buffer);
 			return /** @type {GPUBuffer} */ (/** @type {unknown} */ (buffer));
 		},
 		queue: {
@@ -47,6 +52,7 @@ function basicTest({fn}) {
 		fn({
 			device,
 			writeBufferSpy,
+			createdBuffers,
 		});
 	} finally {
 		globalThis.GPUBufferUsage = oldGPUBufferUsage;
@@ -354,6 +360,45 @@ Deno.test({
 				assertThrows(() => {
 					chunkedBuffer.getBindGroupEntryLocation(group1, 456);
 				}, Error, "This group has been removed or does not have a location assigned yet. Call `writeAllGroupsToGpu()` first.");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "calling writeAllGroupsToGpu() reuses previous buffers",
+	fn() {
+		basicTest({
+			fn({device, writeBufferSpy, createdBuffers}) {
+				const chunkedBuffer = new WebGpuChunkedBuffer(device, {
+					groupAlignment: 4,
+					minChunkSize: 4,
+				});
+
+				const group1 = chunkedBuffer.createGroup();
+				group1.appendBuffer(new Uint8Array([1, 2, 3, 4]));
+
+				chunkedBuffer.writeAllGroupsToGpu();
+				assertEquals(createdBuffers.length, 1);
+				assertWrittenGpuBuffers(writeBufferSpy, [
+					{
+						label: "ChunkedBuffer-chunk0",
+						bytes: [1, 2, 3, 4],
+					},
+				]);
+
+				chunkedBuffer.writeAllGroupsToGpu();
+				assertEquals(createdBuffers.length, 1);
+				assertWrittenGpuBuffers(writeBufferSpy, [
+					{
+						label: "ChunkedBuffer-chunk0",
+						bytes: [1, 2, 3, 4],
+					},
+					{
+						label: "ChunkedBuffer-chunk0",
+						bytes: [1, 2, 3, 4],
+					},
+				]);
 			},
 		});
 	},

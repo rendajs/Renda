@@ -100,13 +100,13 @@ export class WebGpuChunkedBuffer {
 
 		// But for now, we will simply want to remove all groups and insert them from front to back into the available chunks.
 
-		let chunkIndex = -1;
+		let chunkIndex = 0;
 		let cursorByteIndex = 0;
 		for (const group of this.#groups) {
 			let chunk = this.#chunks[chunkIndex];
 			cursorByteIndex = Math.ceil(cursorByteIndex / this.#groupAlignment) * this.#groupAlignment;
 			if (!chunk || cursorByteIndex + group.byteLengthWithPadding > chunk.size) {
-				chunkIndex++;
+				if (chunk) chunkIndex++;
 				chunk = new WebGpuChunkedBufferChunk(this, Math.max(this.#minChunkSize, group.byteLengthWithPadding), chunkIndex);
 				this.#chunks[chunkIndex] = chunk;
 				cursorByteIndex = 0;
