@@ -44,6 +44,39 @@ export class WebGpuRenderer extends Renderer {
 		heldValue.destructor();
 	});
 
+	/** @type {GPUBindGroupLayout?} */
+	#viewBindGroupLayout = null;
+	get viewBindGroupLayout() {
+		return this.#viewBindGroupLayout;
+	}
+	/** @type {WebGpuChunkedBuffer?} */
+	#viewsChunkedBuffer = null;
+	get viewsChunkedBuffer() {
+		return this.#viewsChunkedBuffer;
+	}
+	/** @type {import("./bufferHelper/WebGpuChunkedBufferGroup.js").WebGpuChunkedBufferGroup?} */
+	#viewsChunkedBufferGroup = null;
+	get viewsChunkedBufferGroup() {
+		return this.#viewsChunkedBufferGroup;
+	}
+
+	/** @type {WebGpuChunkedBuffer?} */
+	#lightsChunkedBuffer = null;
+	get lightsChunkedBuffer() {
+		return this.#lightsChunkedBuffer;
+	}
+	/** @type {import("./bufferHelper/WebGpuChunkedBufferGroup.js").WebGpuChunkedBufferGroup?} */
+	#lightsChunkedBufferGroup = null;
+	get lightsChunkedBufferGroup() {
+		return this.#lightsChunkedBufferGroup;
+	}
+
+	/** @type {WebGpuChunkedBuffer?} */
+	#materialsChunkedBuffer = null;
+
+	/** @type {WebGpuChunkedBuffer?} */
+	#objectsChunkedBuffer = null;
+
 	/**
 	 * @param {import("../../../assets/EngineAssetsManager.js").EngineAssetsManager} engineAssetManager
 	 */
@@ -56,17 +89,12 @@ export class WebGpuRenderer extends Renderer {
 
 		this.adapter = null;
 		this.device = null;
-		this.viewBindGroupLayout = null;
-		this.lightsBuffer = null;
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 			this.computeClusterBoundsBindGroupLayout = null;
 			this.computeClusterLightsBindGroupLayout = null;
 			this.computeClusterBoundsShaderCode = null;
 			this.computeClusterLightsShaderCode = null;
 		}
-		this.viewUniformsBuffer = null;
-		this.materialUniformsBuffer = null;
-		this.objectUniformsBuffer = null;
 
 		this.#placeHolderTextureManager = new PlaceHolderTextureManager(this);
 
@@ -104,7 +132,7 @@ export class WebGpuRenderer extends Renderer {
 		const device = await this.adapter.requestDevice();
 		this.device = device;
 
-		this.viewBindGroupLayout = device.createBindGroupLayout({
+		this.#viewBindGroupLayout = device.createBindGroupLayout({
 			label: "viewBindGroupLayout",
 			entries: [
 				{
@@ -125,13 +153,13 @@ export class WebGpuRenderer extends Renderer {
 			],
 		});
 
-		this.lightsBuffer = new WebGpuChunkedBuffer({
-			device,
+		this.#lightsChunkedBuffer = new WebGpuChunkedBuffer(device, {
 			label: "lights",
-			bindGroupLength: 2048,
-			chunkSize: 2048,
+			minChunkSize: 2048,
+			groupAlignment: device.limits.minStorageBufferOffsetAlignment,
 			usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 		});
+		this.#lightsChunkedBufferGroup = this.#lightsChunkedBuffer.createGroup();
 
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 			this.computeClusterBoundsBindGroupLayout = device.createBindGroupLayout({
@@ -172,15 +200,16 @@ export class WebGpuRenderer extends Renderer {
 			});
 		}
 
-		this.viewUniformsBuffer = new WebGpuChunkedBuffer({
-			device,
+		this.#viewsChunkedBuffer = new WebGpuChunkedBuffer(device, {
 			label: "viewUniforms",
-			bindGroupLayout: this.viewBindGroupLayout,
+			groupAlignment: device.limits.minUniformBufferOffsetAlignment,
 		});
+		this.#viewsChunkedBufferGroup = this.#viewsChunkedBuffer.createGroup();
 
-		this.materialUniformsBuffer = new WebGpuChunkedBuffer({
-			device,
+		this.#materialsChunkedBuffer = new WebGpuChunkedBuffer(device, {
 			label: "materialUniforms",
+			minChunkSize: 65536,
+			groupAlignment: device.limits.minUniformBufferOffsetAlignment,
 		});
 
 		this.objectUniformsBindGroupLayout = device.createBindGroupLayout({
@@ -197,11 +226,10 @@ export class WebGpuRenderer extends Renderer {
 			],
 		});
 
-		this.objectUniformsBuffer = new WebGpuChunkedBuffer({
-			device,
+		this.#objectsChunkedBuffer = new WebGpuChunkedBuffer(device, {
 			label: "objectUniforms",
-			bindGroupLayout: this.objectUniformsBindGroupLayout,
-			chunkSize: 65536,
+			minChunkSize: 65536,
+			groupAlignment: device.limits.minUniformBufferOffsetAlignment,
 		});
 
 		this.placeHolderSampler = device.createSampler({
@@ -246,7 +274,7 @@ export class WebGpuRenderer extends Renderer {
 	render(domTarget, camera) {
 		if (!this.isInit) return;
 		if (!domTarget.ready || !domTarget.swapChainFormat) return;
-		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.objectUniformsBindGroupLayout || !this.placeHolderSampler) {
+		if (!this.device || !this.#viewsChunkedBuffer || !this.#viewsChunkedBufferGroup || !this.#lightsChunkedBuffer || !this.#lightsChunkedBufferGroup || !this.#materialsChunkedBuffer || !this.#objectsChunkedBuffer || !this.objectUniformsBindGroupLayout || !this.placeHolderSampler) {
 			// All these objects should exist when this.isInit is true, which we already checked for above.
 			throw new Error("Assertion failed, some required objects do not exist");
 		}
@@ -294,42 +322,53 @@ export class WebGpuRenderer extends Renderer {
 			label: "default command encoder",
 		});
 
-		this.viewUniformsBuffer.resetEntryLocation();
-		this.lightsBuffer.resetEntryLocation();
-		this.materialUniformsBuffer.resetEntryLocation();
-		this.objectUniformsBuffer.resetEntryLocation();
+		this.#viewsChunkedBufferGroup.clearData();
+		this.#lightsChunkedBufferGroup.clearData();
+		this.#materialsChunkedBuffer.clearGroups();
+		this.#objectsChunkedBuffer.clearGroups();
 
 		const viewMatrix = camera.entity.worldMatrix.inverse();
 		const vpMatrix = Mat4.multiplyMatrices(viewMatrix, camera.projectionMatrix);
 		const inverseProjectionMatrix = camera.projectionMatrix.inverse();
 
 		// todo, only update when something changed
-		this.viewUniformsBuffer.appendData(new Vec4(domTarget.width, domTarget.height, 0, 0));
-		this.viewUniformsBuffer.appendData(camera.entity.pos);
-		this.viewUniformsBuffer.skipBytes(4);
-		this.viewUniformsBuffer.appendData(camera.projectionMatrix);
-		this.viewUniformsBuffer.appendData(inverseProjectionMatrix);
-		this.viewUniformsBuffer.appendData(viewMatrix);
-		this.viewUniformsBuffer.appendData(new Vec4(camera.clipNear, camera.clipFar));
+		this.#viewsChunkedBufferGroup.appendMathType(new Vec4(domTarget.width, domTarget.height, 0, 0));
+		this.#viewsChunkedBufferGroup.appendMathType(camera.entity.pos);
+		this.#viewsChunkedBufferGroup.appendEmptyBytes(4);
+		this.#viewsChunkedBufferGroup.appendMatrix(camera.projectionMatrix);
+		this.#viewsChunkedBufferGroup.appendMatrix(inverseProjectionMatrix);
+		this.#viewsChunkedBufferGroup.appendMatrix(viewMatrix);
+		this.#viewsChunkedBufferGroup.appendMathType(new Vec4(camera.clipNear, camera.clipFar));
 
-		this.viewUniformsBuffer.writeAllChunksToGpu();
+		this.#viewsChunkedBuffer.writeAllGroupsToGpu();
+
+		this.#lightsChunkedBufferGroup.appendScalar(lightComponents.length, "u32");
+		this.#lightsChunkedBufferGroup.appendEmptyBytes(12);
+		for (const light of lightComponents) {
+			if (!light.entity) continue;
+			this.#lightsChunkedBufferGroup.appendMathType(light.entity.worldPos);
+			this.#lightsChunkedBufferGroup.appendEmptyBytes(4);
+			this.#lightsChunkedBufferGroup.appendMathType(light.color.clone().multiplyScalar(light.intensity));
+			this.#lightsChunkedBufferGroup.appendEmptyBytes(4);
+		}
+		// The lights struct is currently hardcoded to support 10 lights.
+		// If we make the group to small, webgpu will complain that the buffer is too small.
+		// So we'll add a bunch of empty bytes to reach 336.
+		// 16 + 32 * 10 = 336
+		// 16 for the initial `lightCount`
+		// 32 * 10 for the 10 light structs.
+		// See lightUniforms.wgsl for the expected structure
+		const requiredEmptyLightBytes = 336 - this.#lightsChunkedBufferGroup.byteLength;
+		if (requiredEmptyLightBytes > 0) {
+			this.#lightsChunkedBufferGroup.appendEmptyBytes(requiredEmptyLightBytes);
+		}
+		this.#lightsChunkedBuffer.writeAllGroupsToGpu();
 
 		const cameraData = this.getCachedCameraData(camera);
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && cameraData.clusterComputeManager) {
 			const success = cameraData.clusterComputeManager.computeLightIndices(commandEncoder);
 			if (!success) return;
 		}
-
-		this.lightsBuffer.appendData(lightComponents.length, "u32");
-		this.lightsBuffer.skipBytes(12);
-		for (const light of lightComponents) {
-			if (!light.entity) continue;
-			this.lightsBuffer.appendData(light.entity.worldPos);
-			this.lightsBuffer.skipBytes(4);
-			this.lightsBuffer.appendData(light.color.clone().multiplyScalar(light.intensity));
-			this.lightsBuffer.skipBytes(4);
-		}
-		this.lightsBuffer.writeAllChunksToGpu();
 
 		const renderPassDescriptor = domTarget.getRenderPassDescriptor();
 		if (!renderPassDescriptor) {
@@ -345,25 +384,37 @@ export class WebGpuRenderer extends Renderer {
 		renderPassEncoder.setBindGroup(0, viewBindGroup);
 
 		/**
+		 * @typedef MaterialRenderData
+		 * @property {MeshRenderData[]} meshes
+		 * @property {GPUBindGroupEntry[]} extraBindGroupEntries Every material has one entry for all the
+		 * material uniforms, and then a list of extra entries for textures and samplers etc.
+		 * @property {import("./bufferHelper/WebGpuChunkedBufferGroup.js").WebGpuChunkedBufferGroup} materialUniformsGroup The
+		 * chunked buffer group for which we need to get the first bind group entry.
+		 * Before we can get the bind group entries, we need to create all chunkGroups of all materials first.
+		 * Because only after each chunkGroup has been created and filled with data, will we know which
+		 * group belongs to which chunk and what its position is.
+		 */
+
+		/**
 		 * @typedef PipelineRenderData
-		 * @property {Map<import("../../Material.js").Material, MeshRenderData[]>} materialRenderDatas
+		 * @property {Map<import("../../Material.js").Material, MaterialRenderData>} materialRenderDatas
 		 * @property {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} forwardPipelineConfig
 		 */
 
 		// Group all meshes by pipeline and material
 		/** @type {Map<GPURenderPipeline, PipelineRenderData>} */
 		const pipelineRenderDatas = new Map();
-		for (const renderData of meshRenderDatas) {
-			if (!renderData.component.mesh || !renderData.component.mesh.vertexState) continue;
-			for (const material of renderData.component.materials) {
+		for (const meshRenderData of meshRenderDatas) {
+			if (!meshRenderData.component.mesh || !meshRenderData.component.mesh.vertexState) continue;
+			for (const material of meshRenderData.component.materials) {
 				if (!material || material.destructed || !material.materialMap) continue; // todo: log a (supressable) warning when the material is destructed
 
-				const materialData = this.getCachedMaterialData(material);
+				const materialData = this.#getCachedMaterialData(material);
 				const forwardPipelineConfig = materialData.getForwardPipelineConfig();
 				if (!forwardPipelineConfig || !forwardPipelineConfig.vertexShader || !forwardPipelineConfig.fragmentShader) continue;
 				const pipelineLayout = materialData.getPipelineLayout();
 				if (!pipelineLayout) continue;
-				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, renderData.component.mesh.vertexState, domTarget.swapChainFormat, outputConfig, camera.clusteredLightsConfig);
+				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, meshRenderData.component.mesh.vertexState, domTarget.swapChainFormat, outputConfig, camera.clusteredLightsConfig);
 
 				let pipelineRenderData = pipelineRenderDatas.get(forwardPipeline);
 				if (!pipelineRenderData) {
@@ -374,16 +425,110 @@ export class WebGpuRenderer extends Renderer {
 					pipelineRenderDatas.set(forwardPipeline, pipelineRenderData);
 				}
 
-				let renderDatas = pipelineRenderData.materialRenderDatas.get(material);
-				if (!renderDatas) {
-					renderDatas = [];
-					pipelineRenderData.materialRenderDatas.set(material, renderDatas);
+				let materialRenderData = pipelineRenderData.materialRenderDatas.get(material);
+				if (!materialRenderData) {
+					const materialUniformsGroup = this.#materialsChunkedBuffer.createGroup();
+					const extraBindGroupEntries = [];
+
+					/**
+					 * We request placeholer textures every frame
+					 * The placeholder manager makes sure to return the same instance when we request the same color twice.
+					 * All placeholder textures need to be explicitly marked as destructed before they are removed from the gpu.
+					 * We store a collection of refs that we created during this frame, these refs will be destructed in the next frame.
+					 * @type {Set<import("./PlaceHolderTextureReference.js").PlaceHolderTextureReference>}
+					 */
+					const placeHolderTextureRefs = new Set();
+
+					for (let {mappedData, value} of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
+						if (mappedData.mappedType == "texture2d") {
+							/** @type {GPUTextureView | null} */
+							let textureView = null;
+							if (value instanceof Texture) {
+								const textureData = this.getCachedTextureData(value);
+								const view = textureData.createView();
+								if (view) textureView = view;
+							}
+							if (!textureView) {
+								/** @type {number[]} */
+								let color;
+								if (Array.isArray(value)) {
+									color = value;
+								} else if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4) {
+									color = value.toArray();
+								} else {
+									color = [0, 0, 0];
+								}
+								const texture = this.#placeHolderTextureManager.getTexture(color);
+								textureView = texture.view;
+								const ref = texture.getReference();
+								placeHolderTextureRefs.add(ref);
+							}
+							extraBindGroupEntries.push({
+								binding: extraBindGroupEntries.length + 1,
+								resource: textureView,
+							});
+						} else if (mappedData.mappedType == "sampler") {
+							if (value != null && !(value instanceof Sampler)) {
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is not a sampler`);
+							}
+							let sampler = this.placeHolderSampler;
+							if (value) {
+								sampler = this.device.createSampler(value.descriptor);
+							}
+							extraBindGroupEntries.push({
+								binding: extraBindGroupEntries.length + 1,
+								resource: sampler,
+							});
+						} else {
+							if (value instanceof Texture) {
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a texture`);
+							}
+							if (value instanceof Sampler) {
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a sampler`);
+							}
+							if (value === null) value = 0;
+							if (typeof value == "number") {
+								materialUniformsGroup.appendScalar(value, "f32");
+							} else if (Array.isArray(value)) {
+								materialUniformsGroup.appendNumericArray(value, "f32");
+							} else {
+								materialUniformsGroup.appendMathType(value, "f32");
+							}
+						}
+					}
+
+					// At this point all the placeholder textures for this material have been created.
+					// We will remove the old references, if the same colors were used during this frame,
+					// The new references should still be pointing to the existing materials.
+					// While any colors that are no longer used will be removed.
+					for (const ref of materialData.placeHolderTextureRefs) {
+						ref.destructor();
+					}
+					materialData.placeHolderTextureRefs = placeHolderTextureRefs;
+
+					// If the uniforms group is empty, ideally we should not bind anything at all.
+					// But for now we'll just bind an empty buffer.
+					// Unfortunately WebGPU doesn't support binding buffers of zero length, so we'll add a single byte.
+					// The ChunkedBuffer will make sure the bindgroup receives the appropriate length based
+					// on the limits of the current gpu device.
+					if (materialUniformsGroup.byteLength == 0) {
+						materialUniformsGroup.appendEmptyBytes(1);
+					}
+
+					materialRenderData = {
+						meshes: [],
+						extraBindGroupEntries,
+						materialUniformsGroup,
+					};
+					pipelineRenderData.materialRenderDatas.set(material, materialRenderData);
 				}
-				renderDatas.push(renderData);
+				materialRenderData.meshes.push(meshRenderData);
 			}
 		}
 
-		// Sort meshes by pipeline
+		this.#materialsChunkedBuffer.writeAllGroupsToGpu();
+
+		// Sort meshes by pipeline render order
 		const sortedPipelineRenderDatas = Array.from(pipelineRenderDatas.entries());
 		sortedPipelineRenderDatas.sort((a, b) => {
 			const aConfig = a[1].forwardPipelineConfig;
@@ -391,98 +536,57 @@ export class WebGpuRenderer extends Renderer {
 			return aConfig.renderOrder - bConfig.renderOrder;
 		});
 
+		/** @type {Map<MeshComponent, import("./bufferHelper/WebGpuChunkedBufferGroup.js").WebGpuChunkedBufferGroup>} */
+		const meshChunkedBufferGroups = new Map();
+		for (const [, pipelineRenderData] of sortedPipelineRenderDatas) {
+			for (const materialRenderData of pipelineRenderData.materialRenderDatas.values()) {
+				for (const {component, worldMatrix} of materialRenderData.meshes) {
+					const group = this.#objectsChunkedBuffer.createGroup();
+					meshChunkedBufferGroups.set(component, group);
+
+					const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
+					group.appendMatrix(mvpMatrix);
+					group.appendMatrix(vpMatrix);
+					group.appendMatrix(worldMatrix);
+				}
+			}
+		}
+
+		this.#objectsChunkedBuffer.writeAllGroupsToGpu();
+
 		for (const [pipeline, pipelineRenderData] of sortedPipelineRenderDatas) {
 			renderPassEncoder.setPipeline(pipeline);
 
-			for (const [material, renderDatas] of pipelineRenderData.materialRenderDatas) {
-				/** @type {GPUBindGroupEntry[]} */
-				const bindGroupEntries = [];
-				bindGroupEntries.push(this.materialUniformsBuffer.getCurrentChunk().createBindGroupEntry({
-					binding: bindGroupEntries.length,
-				}));
-
-				const materialData = this.getCachedMaterialData(material);
-				/** @type {Set<import("./PlaceHolderTextureReference.js").PlaceHolderTextureReference>} */
-				const placeHolderTextureRefs = new Set();
-
-				for (let {mappedData, value} of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
-					if (mappedData.mappedType == "texture2d") {
-						/** @type {GPUTextureView | null} */
-						let textureView = null;
-						if (value instanceof Texture) {
-							const textureData = this.getCachedTextureData(value);
-							const view = textureData.createView();
-							if (view) textureView = view;
-						}
-						if (!textureView) {
-							/** @type {number[]} */
-							let color;
-							if (Array.isArray(value)) {
-								color = value;
-							} else if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4) {
-								color = value.toArray();
-							} else {
-								color = [0, 0, 0];
-							}
-							const texture = this.#placeHolderTextureManager.getTexture(color);
-							textureView = texture.view;
-							const ref = texture.getReference();
-							placeHolderTextureRefs.add(ref);
-						}
-						bindGroupEntries.push({
-							binding: bindGroupEntries.length,
-							resource: textureView,
-						});
-					} else if (mappedData.mappedType == "sampler") {
-						if (value != null && !(value instanceof Sampler)) {
-							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is not a sampler`);
-						}
-						let sampler = this.placeHolderSampler;
-						if (value) {
-							sampler = this.device.createSampler(value.descriptor);
-						}
-						bindGroupEntries.push({
-							binding: bindGroupEntries.length,
-							resource: sampler,
-						});
-					} else {
-						if (value instanceof Texture) {
-							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a texture`);
-						}
-						if (value instanceof Sampler) {
-							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a sampler`);
-						}
-						if (value === null) value = 0;
-						this.materialUniformsBuffer.appendData(value, "f32");
-					}
-				}
-
-				for (const ref of materialData.placeHolderTextureRefs) {
-					ref.destructor();
-				}
-				materialData.placeHolderTextureRefs = placeHolderTextureRefs;
+			for (const [material, materialRenderData] of pipelineRenderData.materialRenderDatas) {
+				const materialData = this.#getCachedMaterialData(material);
 
 				const uniformsBindGroupLayout = materialData.getUniformsBindGroupLayout();
 				if (!uniformsBindGroupLayout) {
 					throw new Error("Assertion failed, material doesn't have a uniformsBindGroupLayout.");
 				}
-				const {label, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
+				const {dynamicOffset, entry} = this.#materialsChunkedBuffer.getBindGroupEntryLocation(materialRenderData.materialUniformsGroup, 0);
 				const bindGroup = this.device.createBindGroup({
-					label,
+					label: "Material uniforms", // TODO use material name as label
 					layout: uniformsBindGroupLayout,
-					entries: bindGroupEntries,
+					entries: [
+						entry,
+						...materialRenderData.extraBindGroupEntries,
+					],
 				});
 				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
 
-				for (const {component: meshComponent, worldMatrix} of renderDatas) {
+				for (const {component: meshComponent} of materialRenderData.meshes) {
 					const mesh = meshComponent.mesh;
 					if (!mesh) continue;
-					const entries = [this.objectUniformsBuffer.getCurrentChunk().createBindGroupEntry({binding: 0})];
-					const {label, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation();
+					const chunkedBufferGroup = meshChunkedBufferGroups.get(meshComponent);
+					if (!chunkedBufferGroup) {
+						throw new Error("Assertion failed, mesh component has no chunked buffer group.");
+					}
+					const {dynamicOffset, entry} = this.#objectsChunkedBuffer.getBindGroupEntryLocation(chunkedBufferGroup, 0);
 					const bindGroup = this.device.createBindGroup({
-						label,
+						label: "Object uniforms", // TODO use object name as label
 						layout: this.objectUniformsBindGroupLayout,
-						entries,
+						entries: [entry],
 					});
 					renderPassEncoder.setBindGroup(2, bindGroup, [dynamicOffset]);
 					const meshData = this.getCachedMeshData(mesh);
@@ -508,18 +612,9 @@ export class WebGpuRenderer extends Renderer {
 					} else {
 						renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);
 					}
-
-					const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
-					this.objectUniformsBuffer.appendMatrix(mvpMatrix);
-					this.objectUniformsBuffer.appendMatrix(vpMatrix);
-					this.objectUniformsBuffer.appendMatrix(worldMatrix);
-					this.objectUniformsBuffer.nextEntryLocation();
 				}
-				this.materialUniformsBuffer.nextEntryLocation();
 			}
 		}
-		this.materialUniformsBuffer.writeAllChunksToGpu();
-		this.objectUniformsBuffer.writeAllChunksToGpu();
 
 		renderPassEncoder.end();
 
@@ -541,7 +636,7 @@ export class WebGpuRenderer extends Renderer {
 	/**
 	 * @param {import("../../Material.js").Material} material
 	 */
-	getCachedMaterialData(material) {
+	#getCachedMaterialData(material) {
 		let data = this.cachedMaterialData.get(material);
 		if (!data) {
 			data = new CachedMaterialData(this, material);

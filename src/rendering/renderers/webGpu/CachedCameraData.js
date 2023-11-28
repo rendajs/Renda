@@ -35,14 +35,16 @@ export class CachedCameraData {
 	getViewBindGroup() {
 		if (!this.renderer.device) return null;
 		if (!this.renderer.viewBindGroupLayout) return null;
-		if (!this.renderer.viewUniformsBuffer) return null;
-		if (!this.renderer.lightsBuffer) return null;
+		if (!this.renderer.viewsChunkedBuffer || !this.renderer.viewsChunkedBufferGroup) return null;
+		if (!this.renderer.lightsChunkedBuffer || !this.renderer.lightsChunkedBufferGroup) return null;
 
 		if (!this.viewBindGroup || this.testViewBindGroupDirty()) {
+			const viewLocation = this.renderer.viewsChunkedBuffer.getBindGroupEntryLocation(this.renderer.viewsChunkedBufferGroup, 0);
+			const lightsLocation = this.renderer.lightsChunkedBuffer.getBindGroupEntryLocation(this.renderer.lightsChunkedBufferGroup, 1);
 			/** @type {GPUBindGroupEntry[]} */
 			const entries = [
-				this.renderer.viewUniformsBuffer.getCurrentChunk().createBindGroupEntry({binding: 0}),
-				this.renderer.lightsBuffer.getCurrentChunk().createBindGroupEntry({binding: 1}),
+				viewLocation.entry,
+				lightsLocation.entry,
 			];
 			if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && this.clusterComputeManager?.lightIndicesBuffer) {
 				entries.push({
