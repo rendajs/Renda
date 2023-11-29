@@ -151,6 +151,11 @@ Deno.test({
 					vec2Test: vec2<f32>,
 					vec3Test :vec3<f32>,
 					vec4Test : vec4<f32>,
+					customTest: CustomStruct,
+				};
+
+				struct CustomStruct {
+					foo: f32,
 				};
 
 				@group(1) @binding(1) var albedoSampler : sampler;
@@ -179,6 +184,10 @@ Deno.test({
 			{
 				name: "vec4Test",
 				type: "vec4",
+			},
+			{
+				name: "customTest",
+				type: "custom",
 			},
 			{
 				name: "albedoSampler",

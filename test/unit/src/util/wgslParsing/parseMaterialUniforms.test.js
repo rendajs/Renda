@@ -51,3 +51,68 @@ struct MaterialUniforms {
 		]);
 	},
 });
+
+Deno.test({
+	name: "MaterialUniforms with some scalars",
+	fn() {
+		const result = parseMaterialUniforms(`
+			struct MaterialUniforms {
+				scalar1: f16,
+				scalar2:f32,
+				scalar3: i32,
+				scalar4:   u32,
+			};
+		`);
+
+		assertEquals(result, [
+			{
+				identifier: "scalar1",
+				type: "number",
+			},
+			{
+				identifier: "scalar2",
+				type: "number",
+			},
+			{
+				identifier: "scalar3",
+				type: "number",
+			},
+			{
+				identifier: "scalar4",
+				type: "number",
+			},
+		]);
+	},
+});
+
+Deno.test({
+	name: "MaterialUniforms with unknown fields",
+	fn() {
+		const result = parseMaterialUniforms(`
+			struct MaterialUniforms {
+				basic1: f32,
+				custom: SomeStruct,
+				basic2: f32,
+			};
+
+			struct SomeStruct {
+				foo: f32,
+			};
+		`);
+
+		assertEquals(result, [
+			{
+				identifier: "basic1",
+				type: "number",
+			},
+			{
+				identifier: "custom",
+				type: "unknown",
+			},
+			{
+				identifier: "basic2",
+				type: "number",
+			},
+		]);
+	},
+});

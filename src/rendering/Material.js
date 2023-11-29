@@ -239,9 +239,9 @@ export class Material {
 	}
 
 	/**
-	 * Returns a list of entries with property data and the current values for
-	 * each property that is needed according to the material map. The order
-	 * is guaranteed to be the same as the order returned by
+	 * Returns a list of entries with property data and the current values for  each property that is needed according to the material map.
+	 * The order is guaranteed to be the same as the order of `mappedValues` passed in the MaterialMap constructor argument.
+	 * In case of material maps bundled by a 'bundle assets' task, the order is the same as what is returned by
 	 * `MaterialMapTypeSerializer.getMappableValues()`.
 	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 * @returns {Generator<MappedPropertyData>}

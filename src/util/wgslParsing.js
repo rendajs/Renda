@@ -22,7 +22,7 @@ function parseStructBlock(shaderSource, structIdentifier) {
 /**
  * @typedef ParsedMaterialUniform
  * @property {string} identifier The name of the uniform as it appears in the shader
- * @property {"number" | "vec2" | "vec3" | "vec4"} type The type of the uniform
+ * @property {"number" | "vec2" | "vec3" | "vec4" | "unknown"} type The type of the uniform
  */
 
 /**
@@ -53,12 +53,15 @@ export function parseMaterialUniforms(shaderSource) {
 		let type = match.groups.type;
 		if (!identifier || !type) continue;
 		const vectorMatch = match[0].match(vectorTypeRegex);
+		let isScalar = false;
 		let isVector = false;
 		let vectorSize = 0;
 		let isMatrix = false;
 		// let matrixRows = 0;
 		// let matrixColumns = 0;
-		if (vectorMatch && vectorMatch.groups) {
+		if (["f16", "f32", "u32", "i32"].includes(type)) {
+			isScalar = true;
+		} else if (vectorMatch && vectorMatch.groups) {
 			isVector = true;
 			vectorSize = Number(vectorMatch.groups.vectorSize);
 			type = vectorMatch.groups.vectorType;
@@ -71,9 +74,11 @@ export function parseMaterialUniforms(shaderSource) {
 				type = matrixMatch.groups.matrixType;
 			}
 		}
-		/** @type {import("../../studio/src/ui/propertiesTreeView/types.ts").GuiTypes} */
-		let mappableValueType = "number";
-		if (isVector) {
+		/** @type {import("../../studio/src/ui/propertiesTreeView/types.ts").GuiTypes | "unknown"} */
+		let mappableValueType = "unknown";
+		if (isScalar) {
+			mappableValueType = "number";
+		} else if (isVector) {
 			if (vectorSize == 2) {
 				mappableValueType = "vec2";
 			} else if (vectorSize == 3) {

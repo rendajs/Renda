@@ -128,6 +128,8 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				extraGuiOpts = {
 					supportedAssetTypes: [Texture],
 				};
+			} else if (valueData.type == "custom") {
+				continue;
 			} else {
 				guiType = valueData.type;
 			}
