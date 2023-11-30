@@ -22,6 +22,7 @@ import {parseVertexInput} from "../../../util/wgslParsing.js";
 import {PlaceHolderTextureManager} from "./PlaceHolderTextureManager.js";
 import {ShaderSource} from "../../ShaderSource.js";
 import {WebGpuRendererError} from "./WebGpuRendererError.js";
+import {CustomMaterialData} from "../../CustomMaterialData.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
@@ -76,6 +77,40 @@ export class WebGpuRenderer extends Renderer {
 
 	/** @type {WebGpuChunkedBuffer?} */
 	#objectsChunkedBuffer = null;
+
+	/**
+	 * This is a helper type for registering callbacks on CustomMaterialData and should not be called on the renderer directly.
+	 * Calling this directly will lead to runtime errors.
+	 *
+	 * ## Usage
+	 * ```js
+	 * const renderer = new WebGpuRenderer(engineAssetsManager);
+	 * const customData = new CustomMaterialData();
+	 * myMaterial.setProperty("customData", customData);
+	 * customData.registerCallback(renderer, (group) => {
+	 * 	// `group` is a WebGpuChunkedBufferGroup, you can use it to write binary data that matches the uniform data in your wgsl code.
+	 * 	// For example:
+	 * 	const mat = new Mat4();
+	 * 	group.appendMatrix(mat);
+	 * });
+	 * ```
+	 *
+	 * Keep in mind that you need to take padding and alignment from other uniforms into account.
+	 * For example, if your struct looks like this:
+	 * ```wgsl
+	 * struct MaterialUniforms {
+	 * 	myScalar: f32,
+	 * 	customData: array<mat4x4<f32>, 20>,
+	 * };
+	 * ```
+	 * Then `myScalar` will already have been assigned by the renderer with
+	 * ```js
+	 * group.appendScalar(materialPropertyValue);
+	 * ```
+	 * In that case your matrices will likely be misaligned, since wgsl expects there to be
+	 * padding after `myScalar`.
+	 */
+	_customMaterialDataSignature = /** @type {(materialUniformsGroup: import("./bufferHelper/WebGpuChunkedBufferGroup.js").WebGpuChunkedBufferGroup) => void} */ (/** @type {unknown} */ (null));
 
 	/**
 	 * @param {import("../../../assets/EngineAssetsManager.js").EngineAssetsManager} engineAssetManager
@@ -479,12 +514,25 @@ export class WebGpuRenderer extends Renderer {
 								binding: extraBindGroupEntries.length + 1,
 								resource: sampler,
 							});
+						} else if (mappedData.mappedType == "custom") {
+							const errorExample = `const customData = new MaterialCustomData();
+Material.setProperty("${mappedData.mappedName}", customData)`;
+							if (!value) {
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" expected custom data but no property was set on the material. Set one with:\n${errorExample}`);
+							}
+							if (!(value instanceof CustomMaterialData)) {
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" expected custom data but the property was a MaterialCustomData instance. Set custom data with:\n${errorExample}`);
+							}
+							value.fireCallback(/** @type {WebGpuRenderer} */ (this), materialUniformsGroup);
 						} else {
 							if (value instanceof Texture) {
-								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a texture`);
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a texture.`);
 							}
 							if (value instanceof Sampler) {
-								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a sampler`);
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a sampler.`);
+							}
+							if (value instanceof CustomMaterialData) {
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is custom data.`);
 							}
 							if (value === null) value = 0;
 							if (typeof value == "number") {

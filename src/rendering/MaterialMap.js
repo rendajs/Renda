@@ -4,11 +4,12 @@ import {Vec4} from "../math/Vec4.js";
 import {Quat} from "../math/Quat.js";
 import {Texture} from "../core/Texture.js";
 import {Sampler} from "./Sampler.js";
+import {CustomMaterialData} from "./CustomMaterialData.js";
 
 /** @typedef {number | number[] | Vec2 | Vec3 | Vec4 | Quat} MappableMaterialUniformTypes */
-/** @typedef {MappableMaterialUniformTypes | Texture | Sampler | null} MappableMaterialTypes */
+/** @typedef {MappableMaterialUniformTypes | Texture | Sampler | CustomMaterialData | null} MappableMaterialTypes */
 
-/** @typedef {"number" | "vec2" | "vec3" | "vec4" | "sampler" | "texture2d" | "custom"} MappableMaterialTypesEnum */
+/** @typedef {"number" | "vec2" | "vec3" | "vec4" | "texture2d" | "sampler" | "custom"} MappableMaterialTypesEnum */
 /**
  * @typedef {object} MaterialMapMappedValue
  * @property {string} mappedName The new property name set by the user. I.e. the
@@ -119,7 +120,7 @@ export class MaterialMap {
 			if (allNumbers) return;
 		}
 
-		if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4 || value instanceof Quat || value instanceof Texture || value instanceof Sampler) return;
+		if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4 || value instanceof Quat || value instanceof Texture || value instanceof Sampler || value instanceof CustomMaterialData) return;
 
 		throw new Error(`Value is not a mappable material type: ${value}`);
 	}
