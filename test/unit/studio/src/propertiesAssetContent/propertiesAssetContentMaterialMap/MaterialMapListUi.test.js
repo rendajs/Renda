@@ -28,7 +28,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Creating with one item",
+	name: "Creating with multiple items",
 	fn() {
 		const mapListUi = new MaterialMapListUi({
 			items: [
@@ -43,6 +43,10 @@ Deno.test({
 				{
 					name: "texture",
 					type: "texture2d",
+				},
+				{
+					name: "custom",
+					type: "custom",
 				},
 			],
 		});
@@ -109,6 +113,20 @@ Deno.test({
 					},
 				},
 			},
+			{
+				mappedName: {
+					type: "string",
+					guiOpts: {
+						defaultValue: "custom",
+					},
+				},
+				visible: {
+					type: "boolean",
+					guiOpts: {
+						defaultValue: true,
+					},
+				},
+			},
 		];
 
 		assertEquals(mapListUi.treeView.children.length, expectedStructures.length);
@@ -147,6 +165,10 @@ Deno.test({
 					name: "texture2",
 					type: "texture2d",
 				},
+				{
+					name: "custom",
+					type: "custom",
+				},
 			],
 		});
 
@@ -171,6 +193,10 @@ Deno.test({
 			texture2: {
 				mappedName: "texture2",
 				defaultValue: "textureAssetHash",
+			},
+			custom: {
+				mappedName: "custom2",
+				visible: false,
 			},
 		});
 
@@ -210,6 +236,17 @@ Deno.test({
 				},
 			],
 		});
+
+		const customSpy = spies[4];
+		assertSpyCalls(customSpy, 1);
+		assertSpyCall(customSpy, 0, {
+			args: [
+				{
+					mappedName: "custom2",
+					visible: false,
+				},
+			],
+		});
 	},
 });
 
@@ -234,6 +271,10 @@ Deno.test({
 					name: "texture2",
 					type: "texture2d",
 				},
+				{
+					name: "custom",
+					type: "custom",
+				},
 			],
 		});
 
@@ -243,7 +284,7 @@ Deno.test({
 			castTreeViews.push(castTreeView(castChild));
 		}
 
-		const [numTreeView, samplerTreeView, texture1TreeView, texture2TreeView] = castTreeViews;
+		const [numTreeView, samplerTreeView, texture1TreeView, texture2TreeView, customTreeView] = castTreeViews;
 		const numSpy = stub(numTreeView, "getSerializableStructureValues", () => {
 			return {
 				defaultValue: 1,
@@ -265,6 +306,11 @@ Deno.test({
 				defaultColor: [0.1, 0.2, 0.3, 0.4],
 			};
 		});
+		const customSpy = stub(customTreeView, "getSerializableStructureValues", () => {
+			return {
+				visible: false,
+			};
+		});
 
 		const result = mapListUi.getModifiedValuesForSave();
 
@@ -272,6 +318,7 @@ Deno.test({
 		assertSpyCalls(samplerSpy, 1);
 		assertSpyCalls(texture1Spy, 1);
 		assertSpyCalls(texture2Spy, 1);
+		assertSpyCalls(customSpy, 1);
 
 		assertEquals(result, {
 			num: {
@@ -285,6 +332,9 @@ Deno.test({
 			},
 			texture2: {
 				defaultValue: [0.1, 0.2, 0.3, 0.4],
+			},
+			custom: {
+				visible: false,
 			},
 		});
 	},
