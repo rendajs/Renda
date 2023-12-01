@@ -8,4 +8,5 @@ export {VertexState} from "./VertexState.js";
 export {VertexStateAttribute} from "./VertexStateAttribute.js";
 export {VertexStateBuffer} from "./VertexStateBuffer.js";
 export {WebGlShader} from "./WebGlShader.js";
+export {CustomMaterialData} from "./CustomMaterialData.js";
 export * from "./renderers/mod.js";

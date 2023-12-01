@@ -1,52 +1,44 @@
 export class WebGpuChunkedBufferChunk {
+	#chunkedBuffer;
+	#size;
+	get size() {
+		return this.#size;
+	}
+	#chunkIndex;
+	#arrayBuffer;
+	#intView;
+
 	/**
 	 * @param {import("./WebGpuChunkedBuffer.js").WebGpuChunkedBuffer} chunkedBuffer
+	 * @param {number} size
 	 * @param {number} chunkIndex
 	 */
-	constructor(chunkedBuffer, chunkIndex) {
-		this.chunkedBuffer = chunkedBuffer;
-		this.chunkIndex = chunkIndex;
-		this.arrayBuffer = new ArrayBuffer(this.chunkedBuffer.chunkSize);
-		this.dataView = new DataView(this.arrayBuffer);
-		this.gpuBuffer = this.chunkedBuffer.device.createBuffer({
+	constructor(chunkedBuffer, size, chunkIndex) {
+		this.#chunkedBuffer = chunkedBuffer;
+		this.#size = size;
+		this.#chunkIndex = chunkIndex;
+		this.#arrayBuffer = new ArrayBuffer(size);
+		this.#intView = new Uint8Array(this.#arrayBuffer);
+		this.gpuBuffer = this.#chunkedBuffer.device.createBuffer({
 			label: this.label,
-			size: this.chunkedBuffer.chunkSize,
-			usage: this.chunkedBuffer.usage,
+			size,
+			usage: this.#chunkedBuffer.usage,
 		});
 	}
 
 	get label() {
-		return this.chunkedBuffer.label + "-chunk" + this.chunkIndex;
+		return this.#chunkedBuffer.label + "-chunk" + this.#chunkIndex;
 	}
 
 	/**
-	 * @param {GPUBindGroupLayout} bindGroupLayout
-	 * @param {Iterable<GPUBindGroupEntry>?} bindGroupEntries
+	 * @param {import("./WebGpuChunkedBufferGroup.js").WebGpuChunkedBufferGroup} group
+	 * @param {number} offset
 	 */
-	getBindGroup(bindGroupLayout, bindGroupEntries = null) {
-		if (!bindGroupEntries) {
-			bindGroupEntries = [this.createBindGroupEntry()];
-		}
-
-		const bindGroup = this.chunkedBuffer.device.createBindGroup({
-			label: this.label,
-			layout: bindGroupLayout,
-			entries: bindGroupEntries,
-		});
-		return bindGroup;
-	}
-
-	createBindGroupEntry({binding = 0} = {}) {
-		return {
-			binding,
-			resource: {
-				buffer: this.gpuBuffer,
-				size: this.chunkedBuffer.bindGroupLength,
-			},
-		};
+	addGroup(group, offset) {
+		this.#intView.set(new Uint8Array(group.getBuffer()), offset);
 	}
 
 	writeToGpu() {
-		this.chunkedBuffer.device.queue.writeBuffer(this.gpuBuffer, 0, this.arrayBuffer);
+		this.#chunkedBuffer.device.queue.writeBuffer(this.gpuBuffer, 0, this.#arrayBuffer);
 	}
 }

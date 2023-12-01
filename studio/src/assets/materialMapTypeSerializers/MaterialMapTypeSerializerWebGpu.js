@@ -60,9 +60,16 @@ export class MaterialMapTypeSerializerWebGpu extends MaterialMapTypeSerializer {
 
 		const materialUniforms = parseMaterialUniforms(shader.source);
 		for (const {identifier, type} of materialUniforms) {
+			/** @type {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum} */
+			let newType;
+			if (type == "unknown") {
+				newType = "custom";
+			} else {
+				newType = type;
+			}
 			mappableValues.set(identifier, {
 				name: identifier,
-				type,
+				type: newType,
 			});
 		}
 

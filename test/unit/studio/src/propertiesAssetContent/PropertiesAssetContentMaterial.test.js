@@ -151,6 +151,10 @@ Deno.test({
 					type: "vec4",
 				},
 				{
+					name: "customDataIsIgnored",
+					type: "custom",
+				},
+				{
 					name: "numWithDefault",
 					type: "number",
 					defaultValue: 1,

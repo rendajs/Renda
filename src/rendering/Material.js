@@ -1,8 +1,9 @@
-import {Texture} from "../core/Texture.js";
 import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 import {Vec4} from "../math/Vec4.js";
 import {Sampler} from "./Sampler.js";
+import {Texture} from "../core/Texture.js";
+import {CustomMaterialData} from "./CustomMaterialData.js";
 
 /**
  * @typedef MappedPropertyData
@@ -105,7 +106,7 @@ export class Material {
 			for (const [mapType, mappedData] of mappedDatas) {
 				const expectedType = this._isExpectedType(value, mappedData.mappedType);
 				if (!expectedType) {
-					this._throwInvalidPropertyType(key, mappedData.defaultValue, value, mapType);
+					this._throwInvalidPropertyType(key, mappedData.mappedType, value, mapType);
 				}
 				foundDefaultValue = mappedData.defaultValue;
 			}
@@ -144,7 +145,7 @@ export class Material {
 	 * @param {import("./MaterialMap.js").MappableMaterialTypesEnum} expectedType
 	 */
 	_isExpectedType(value, expectedType) {
-		if (!value) return true;
+		if (value == null) return true;
 		if (expectedType == "number") {
 			return typeof value == "number";
 		} else if (expectedType == "vec2") {
@@ -157,6 +158,8 @@ export class Material {
 			return value instanceof Texture;
 		} else if (expectedType == "sampler") {
 			return value instanceof Sampler;
+		} else if (expectedType == "custom") {
+			return value instanceof CustomMaterialData;
 		}
 		return false;
 	}
@@ -183,27 +186,26 @@ export class Material {
 
 	/**
 	 * @param {string} key
-	 * @param {import("./MaterialMap.js").MappableMaterialTypes} expectedType
+	 * @param {import("./MaterialMap.js").MappableMaterialTypesEnum} mappedType
 	 * @param {import("./MaterialMap.js").MappableMaterialTypes} receivedType
 	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 * @returns {never}
 	 */
-	_throwInvalidPropertyType(key, expectedType, receivedType, mapType) {
-		const expectedTypeStr = this._mappableMaterialTypeToString(expectedType);
+	_throwInvalidPropertyType(key, mappedType, receivedType, mapType) {
 		const receivedTypeStr = this._mappableMaterialTypeToString(receivedType);
-		throw new TypeError(`Invalid type received for "${key}". Received ${receivedTypeStr} but in the "${mapType.name}" a ${expectedTypeStr} was configured.`);
+		throw new TypeError(`Invalid type received for "${key}". Received ${receivedTypeStr} but in the "${mapType.name}" a "${mappedType}" was configured.`);
 	}
 
 	/**
 	 * @param {import("./MaterialMap.js").MappableMaterialTypes} mappableMaterialType
 	 */
 	_mappableMaterialTypeToString(mappableMaterialType) {
-		if (!mappableMaterialType) {
-			return "null";
-		} else if (typeof mappableMaterialType == "number") {
+		if (typeof mappableMaterialType == "number") {
 			return "number";
-		} else {
+		} else if (mappableMaterialType) {
 			return mappableMaterialType.constructor.name;
+		} else {
+			return "null";
 		}
 	}
 
@@ -239,9 +241,9 @@ export class Material {
 	}
 
 	/**
-	 * Returns a list of entries with property data and the current values for
-	 * each property that is needed according to the material map. The order
-	 * is guaranteed to be the same as the order returned by
+	 * Returns a list of entries with property data and the current values for  each property that is needed according to the material map.
+	 * The order is guaranteed to be the same as the order of `mappedValues` passed in the MaterialMap constructor argument.
+	 * In case of material maps bundled by a 'bundle assets' task, the order is the same as what is returned by
 	 * `MaterialMapTypeSerializer.getMappableValues()`.
 	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 * @returns {Generator<MappedPropertyData>}

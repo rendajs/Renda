@@ -1,168 +1,148 @@
 import {WebGpuChunkedBufferChunk} from "./WebGpuChunkedBufferChunk.js";
-
-/**
- * @typedef {"f32" | "i32" | "u32"} AppendFormat
- */
+import {WebGpuChunkedBufferGroup} from "./WebGpuChunkedBufferGroup.js";
 
 /**
  * Helper class for creating multiple WebGPU buffers (chunks) that share a similar bindgroup layout.
- * This class creates and destroys buffers based on your usage. If your data is to long
+ * This class creates and destroys buffers based on your usage. If your data is too long
  * to fit in a single buffer, a new buffer is created.
  */
 export class WebGpuChunkedBuffer {
+	#device;
+	get device() {
+		return this.#device;
+	}
+	label = "";
+	#minChunkSize;
+	#groupAlignment;
+	#usage;
+	get usage() {
+		return this.#usage;
+	}
+
+	/** @type {WebGpuChunkedBufferGroup[]} */
+	#groups = [];
+	/** @type {WebGpuChunkedBufferChunk[]} */
+	#chunks = [];
+	/** @type {WeakMap<WebGpuChunkedBufferGroup, {chunk: WebGpuChunkedBufferChunk, offset: number}>} */
+	#assignedChunkData = new WeakMap();
+
 	/**
-	 * @param {object} opts
-	 * @param {GPUDevice} opts.device The WebGPU device to create buffers for.
-	 * @param {string} [opts.label] The label to use for debugging.
-	 * @param {GPUBindGroupLayout?} [opts.bindGroupLayout] The bind group layout to use.
-	 * This can be omitted, but you won't be able to create bindGroups. You can
-	 * still manually create bindGroups using `createBindGroupEntry`.
-	 * @param {number} [opts.bindGroupLength] The length of the bind groups in bytes. Only a single portion of the buffer
-	 * will be bound per draw call. So you should set this to the size of all the "uniforms" needed in a single draw call.
-	 * @param {number} [opts.chunkSize] The size of every buffer. That is, how many bytes until a new buffer should be created.
-	 * @param {GPUBufferUsage | number} [opts.usage] The usage of the bindgroups.
+	 * A chunked buffer is a way to store uniform buffer data of arbitrary length on the gpu.
+	 * The way this works is that the data is distributed over multiple WebGPU buffers (chunks) when the data doesn't fit.
+	 *
+	 * There are three concepts:
+	 * - `WebGpuChunkedBuffer` - This class.
+	 * - `WebGpuChunkedBufferChunk` - A single buffer that is passed to the gpu.
+	 * - `WebGpuChunkedBufferGroup` - A group of data that is guaranteed to be placed inside a single chunk.
+	 * A shader can only attach so many buffers, so ideally all its uniform data is only stored in a single buffer.
+	 *
+	 * What we end up with is something like this:
+	 *
+	 * ```
+	 * +-------+--------------+--------------+-------+----------------------+
+	 * | Group |     Group    | Unused space | Group |       Unused space   |
+	 * +-------+--------------+--------------+-------+----------------------+
+	 * |              Chunk                  |              Chunk           |
+	 * +-------------------------------------+------------------------------+
+	 * ```
+	 *
+	 * Chunks are automatically destroyed and created based on the requirements of the groups.
+	 * Existing chunks are reused where possible, but if there is no space left, a new chunk will be created.
+	 *
+	 * @param {GPUDevice} device The WebGPU device to create buffers for.
+	 * @param {object} options
+	 * @param {string} [options.label] The label to use for debugging.
+	 * @param {number} [options.minChunkSize] The mimimum size of every buffer.
+	 * It is suboptimal to put every group in its own chunk, but on the other hand, creating a very large chunk and
+	 * only using a small portion of it isn't great either.
+	 * Ideally a size should be picked that is large enough to fit all groups.
+	 * @param {number} options.groupAlignment The value of `minUniformBufferOffsetAlignment` or
+	 * `minStorageBufferOffsetAlignment` of the `GPUDevice.limits`.
+	 * The limit you pick depends on whether you plan on using this as uniforms buffer or storage buffer.
+	 * @param {GPUBufferUsage | number} [options.usage] The usage of the bindgroups.
 	 */
-	constructor({
-		device,
+	constructor(device, {
 		label = "ChunkedBuffer",
-		bindGroupLayout = null,
-		bindGroupLength = 512,
-		chunkSize = 512,
+		minChunkSize = 512,
+		groupAlignment,
 		usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 	}) {
-		if (bindGroupLength > chunkSize) {
-			throw new Error("bindGroupLength must be smaller than chunkSize");
-		}
-		this.device = device;
+		this.#device = device;
 		this.label = label;
-		this.bindGroupLayout = bindGroupLayout;
-		this.bindGroupLength = bindGroupLength;
-		this.chunkSize = chunkSize;
-		this.usage = /** @type {number} */ (usage);
-
-		/** @type {WebGpuChunkedBufferChunk[]} */
-		this.gpuBufferChunks = [];
-
-		/** The index of the currently active chunk (the active buffer). */
-		this.currentBufferChunkIndex = 0;
-		/** The start byte index of the currently editing entry location. */
-		this.currentEntryLocationBufferOffset = 0;
-		/** The current cursor location used for appending new data to the buffer. */
-		this.currentCursorByteIndex = 0;
-
-		this.createChunk();
+		this.#minChunkSize = minChunkSize;
+		this.#groupAlignment = groupAlignment;
+		this.#usage = /** @type {number} */ (usage);
 	}
 
-	createChunk() {
-		const index = this.gpuBufferChunks.length;
-		const chunk = new WebGpuChunkedBufferChunk(this, index);
-		this.gpuBufferChunks.push(chunk);
-		return chunk;
+	createGroup() {
+		const group = new WebGpuChunkedBufferGroup();
+		this.#groups.push(group);
+		return group;
 	}
 
-	getCurrentChunk() {
-		return this.gpuBufferChunks[this.currentBufferChunkIndex];
+	clearGroups() {
+		this.#groups = [];
 	}
 
 	/**
-	 * Gets the current bind group and offset to be passed along to {@link GPUProgrammablePassEncoder.setBindGroup}.
-	 * @param {GPUBindGroupLayout?} bindGroupLayout
-	 * @param {Iterable<GPUBindGroupEntry>?} bindGroupEntries
+	 * Figures out the best configuration for placing groups in each chunk and then updates all chunks on the GPU.
+	 * Once this is called, any of the current groups may have been moved to a different
+	 * location or even a different chunk. So any bind group entries that were created could now
+	 * be invalid and would have to be requested again.
 	 */
-	getCurrentEntryLocation(bindGroupLayout = this.bindGroupLayout, bindGroupEntries = null) {
-		if (!bindGroupLayout) {
-			throw new Error("Cannot get entry location for Chunked buffers without a bindGroupLayout");
-		}
-		const chunk = this.getCurrentChunk();
-		return {
-			bindGroup: chunk.getBindGroup(bindGroupLayout, bindGroupEntries),
-			dynamicOffset: this.currentEntryLocationBufferOffset,
-		};
-	}
+	writeAllGroupsToGpu() {
+		// There are many ways to solve this problem, (look up 'bin packing' online for info),
+		// but for now we'll keep this relativley simple.
+		// There are many optimizations, especially since some of the groups may not have changed any of their data.
+		// Ideally we would put all the groups that don't change their data frequently into the same chunk,
+		// that way the chunk doesn't need to be uploaded to the gpu so frequently.
+		// We also want to minimize unused space, and on top of that there are many ways to determine the buffer sizes.
 
-	/**
-	 * Updates the cursor to the next entry location.
-	 * Creates a new buffer if the current buffer is full.
-	 */
-	nextEntryLocation() {
-		this.currentEntryLocationBufferOffset += this.bindGroupLength;
-		if (this.currentEntryLocationBufferOffset >= this.chunkSize) {
-			this.currentEntryLocationBufferOffset = 0;
-			this.currentBufferChunkIndex++;
-			if (this.currentBufferChunkIndex >= this.gpuBufferChunks.length) {
-				this.createChunk();
+		// But for now, we will simply want to remove all groups and insert them from front to back into the available chunks.
+
+		let chunkIndex = 0;
+		let cursorByteIndex = 0;
+		for (const group of this.#groups) {
+			let chunk = this.#chunks[chunkIndex];
+			cursorByteIndex = Math.ceil(cursorByteIndex / this.#groupAlignment) * this.#groupAlignment;
+			if (!chunk || cursorByteIndex + group.byteLengthWithPadding > chunk.size) {
+				if (chunk) chunkIndex++;
+				chunk = new WebGpuChunkedBufferChunk(this, Math.max(this.#minChunkSize, group.byteLengthWithPadding), chunkIndex);
+				this.#chunks[chunkIndex] = chunk;
+				cursorByteIndex = 0;
 			}
+
+			chunk.addGroup(group, cursorByteIndex);
+			this.#assignedChunkData.set(group, {
+				chunk,
+				offset: cursorByteIndex,
+			});
+			cursorByteIndex += group.byteLength;
 		}
-		this.currentCursorByteIndex = this.currentEntryLocationBufferOffset;
-	}
 
-	/**
-	 * Resets the entry location back to the start of the first buffer.
-	 */
-	resetEntryLocation() {
-		this.currentBufferChunkIndex = 0;
-		this.currentEntryLocationBufferOffset = 0;
-		this.currentCursorByteIndex = 0;
-	}
-
-	writeAllChunksToGpu() {
-		for (const chunk of this.gpuBufferChunks) {
+		for (const chunk of this.#chunks) {
 			chunk.writeToGpu();
 		}
 	}
 
 	/**
-	 * @param {number} scalar
-	 * @param {AppendFormat} type
+	 * @param {WebGpuChunkedBufferGroup} chunkedBufferGroup
+	 * @param {number} binding
 	 */
-	appendScalar(scalar, type = "f32") {
-		const chunk = this.getCurrentChunk();
-		switch (type) {
-			case "f32":
-			default:
-				chunk.dataView.setFloat32(this.currentCursorByteIndex, scalar, true);
-				break;
-			case "i32":
-				chunk.dataView.setInt32(this.currentCursorByteIndex, scalar, true);
-				break;
-			case "u32":
-				chunk.dataView.setUint32(this.currentCursorByteIndex, scalar, true);
-				break;
+	getBindGroupEntryLocation(chunkedBufferGroup, binding) {
+		const assignedChunk = this.#assignedChunkData.get(chunkedBufferGroup);
+		if (!assignedChunk) {
+			throw new Error("This group has been removed or does not have a location assigned yet. Call `writeAllGroupsToGpu()` first.");
 		}
-		this.currentCursorByteIndex += 4;
-	}
-
-	/**
-	 * @param {import("../../../../math/Mat4.js").Mat4} matrix
-	 * @param {AppendFormat} type
-	 */
-	appendMatrix(matrix, type = "f32") {
-		const buffer = matrix.getFlatArrayBuffer(type);
-		const chunk = this.getCurrentChunk();
-		const view = new Uint8Array(chunk.arrayBuffer);
-		view.set(buffer, this.currentCursorByteIndex);
-		this.currentCursorByteIndex += buffer.byteLength;
-	}
-
-	/**
-	 * @param {import("../../../MaterialMap.js").MappableMaterialUniformTypes | import("../../../../math/Mat4.js").Mat4} data
-	 * @param {AppendFormat} type
-	 */
-	appendData(data, type = "f32") {
-		if (typeof data == "number") {
-			this.appendScalar(data, type);
-		} else {
-			if (!Array.isArray(data)) data = data.toArray();
-			for (const val of data) {
-				this.appendScalar(val, type);
-			}
-		}
-	}
-
-	/**
-	 * @param {number} byteLength
-	 */
-	skipBytes(byteLength) {
-		this.currentCursorByteIndex += byteLength;
+		return {
+			dynamicOffset: assignedChunk.offset,
+			entry: {
+				binding,
+				resource: {
+					buffer: assignedChunk.chunk.gpuBuffer,
+					size: chunkedBufferGroup.byteLengthWithPadding,
+				},
+			},
+		};
 	}
 }

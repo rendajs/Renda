@@ -1,9 +1,10 @@
 import {assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {Texture} from "../../../../src/core/Texture.js";
-import {Vec2, Vec3, Vec4} from "../../../../src/mod.js";
+import {CustomMaterialData, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {Material} from "../../../../src/rendering/Material.js";
 import {MaterialMapType} from "../../../../src/rendering/MaterialMapType.js";
 import {assertVecAlmostEquals} from "../../shared/asserts.js";
+import {Sampler} from "../../../../src/rendering/Sampler.js";
 
 Deno.test("Empty getAllProperties() for new materials", () => {
 	const material = new Material();
@@ -94,6 +95,17 @@ fakeMappedDatas.set("textureMappedName", {
 	mappedType: "texture2d",
 	defaultValue: null,
 });
+fakeMappedDatas.set("samplerMappedName", {
+	mappedName: "samplerOriginalName",
+	mappedType: "sampler",
+	defaultValue: null,
+});
+fakeMappedDatas.set("customDataMappedName", {
+	mappedName: "customDataOriginalName",
+	mappedType: "custom",
+	defaultValue: null,
+});
+const EXPECTED_MAPPED_PROPERTIES_LENGTH = 7;
 const mockMaterialMap = createFakeMaterialMap(fakeMappedDatas);
 
 Deno.test({
@@ -119,7 +131,7 @@ Deno.test({
 		assertEquals(unusedProperty, 5);
 
 		const mappedProperties = Array.from(material.getMappedPropertiesForMapType(FakeMaterialMapType));
-		assertEquals(mappedProperties.length, 5);
+		assertEquals(mappedProperties.length, EXPECTED_MAPPED_PROPERTIES_LENGTH);
 		const colorMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 		assertExists(colorMappedProperty);
 		assertVecAlmostEquals(colorMappedProperty.value, [0, 0.5, 1]);
@@ -155,7 +167,7 @@ Deno.test({
 		assertStrictEquals(textureProperty, texture);
 
 		const mappedProperties = Array.from(material.getMappedPropertiesForMapType(FakeMaterialMapType));
-		assertEquals(mappedProperties.length, 5);
+		assertEquals(mappedProperties.length, EXPECTED_MAPPED_PROPERTIES_LENGTH);
 		const colorMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 		assertExists(colorMappedProperty);
 		assertVecAlmostEquals(colorMappedProperty.value, [0, 0.5, 1]);
@@ -190,7 +202,7 @@ Deno.test({
 		material.setProperty("vec3MappedName", new Vec3(0, 0.5, 1));
 
 		const mappedProperties = Array.from(material.getMappedPropertiesForMapType(FakeMaterialMapType));
-		assertEquals(mappedProperties.length, 5);
+		assertEquals(mappedProperties.length, EXPECTED_MAPPED_PROPERTIES_LENGTH);
 		const colorMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 		assertExists(colorMappedProperty);
 		assertVecAlmostEquals(colorMappedProperty.value, [0, 0.5, 1]);
@@ -227,32 +239,32 @@ Deno.test({
 		// assigning number to vec3
 		assertThrows(() => {
 			material.setProperty("vec3MappedName", 5);
-		});
+		}, Error, 'Invalid type received for "vec3MappedName". Received number but in the "FakeMaterialMapType" a "vec3" was configured.');
 
 		// assigning vec2 to vec3
 		assertThrows(() => {
 			material.setProperty("vec3MappedName", new Vec2(0, 0.5));
-		});
+		}, Error, 'Invalid type received for "vec3MappedName". Received Vec2 but in the "FakeMaterialMapType" a "vec3" was configured.');
 
 		// assigning vec3 to vec2
 		assertThrows(() => {
 			material.setProperty("vec2MappedName", new Vec3(0, 0.5, 1));
-		});
+		}, Error, 'Invalid type received for "vec2MappedName". Received Vec3 but in the "FakeMaterialMapType" a "vec2" was configured.');
 
 		// assigning vec3 to number
 		assertThrows(() => {
 			material.setProperty("floatMappedName", new Vec3(0, 0.5, 1));
-		});
+		}, Error, 'Invalid type received for "floatMappedName". Received Vec3 but in the "FakeMaterialMapType" a "number" was configured.');
 
 		// assigning Texture to number
 		assertThrows(() => {
 			material.setProperty("floatMappedName", new Texture(new Blob()));
-		});
+		}, Error, 'Invalid type received for "floatMappedName". Received Texture but in the "FakeMaterialMapType" a "number" was configured.');
 
 		// assigning array that is too long to vec3
 		assertThrows(() => {
 			material.setProperty("vec3MappedName", [0, 1, 2, 3, 4, 5, 6, 7]);
-		});
+		}, Error, 'Invalid type received for "vec3MappedName". Received Array but in the "FakeMaterialMapType" a "vec3" was configured.');
 	},
 });
 
@@ -286,7 +298,7 @@ Deno.test({
 		assertVecAlmostEquals(floatProperty, [0.5, 0.7, 0.2]);
 
 		const mappedProperties = Array.from(material.getMappedPropertiesForMapType(FakeMaterialMapType));
-		assertEquals(mappedProperties.length, 5);
+		assertEquals(mappedProperties.length, EXPECTED_MAPPED_PROPERTIES_LENGTH);
 		const colorMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 		assertExists(colorMappedProperty);
 		assertVecAlmostEquals(colorMappedProperty.value, [0.5, 0.7, 0.2]);
@@ -492,4 +504,63 @@ Deno.test({
 		assertExists(mappedPropB);
 		assertEquals(mappedPropB.value, 0);
 	},
+});
+
+/**
+ * @param {object} options
+ * @param {string} options.name The name of the test.
+ * @param {string} options.propertyName The name used in material.setProperty().
+ * @param {any} options.propertyValue The instance to use.
+ * @param {string} options.expectedType The expected type in the error message when an invalid type is set.
+ */
+function instancePropertyTest({
+	name,
+	propertyName,
+	propertyValue,
+	expectedType,
+}) {
+	Deno.test({
+		name: `Material with a ${name} property`,
+		fn() {
+			const material = new Material(mockMaterialMap);
+			material.setProperties({
+				[propertyName]: propertyValue,
+			});
+			assertStrictEquals(material.getProperty(propertyName), propertyValue);
+
+			assertThrows(() => {
+				material.setProperty(propertyName, 0);
+			}, Error, `Invalid type received for "${propertyName}". Received number but in the "FakeMaterialMapType" a "${expectedType}" was configured.`);
+
+			const material2 = material.clone();
+			assertStrictEquals(material2.getProperty(propertyName), propertyValue);
+
+			material.setProperty(propertyName, null);
+			assertEquals(material.getProperty(propertyName), null);
+
+			const material3 = material.clone();
+			assertEquals(material3.getProperty(propertyName), null);
+		},
+	});
+}
+
+instancePropertyTest({
+	name: "Texture",
+	propertyName: "textureMappedName",
+	expectedType: "texture2d",
+	propertyValue: new Texture(new Blob([])),
+});
+
+instancePropertyTest({
+	name: "Sampler",
+	propertyName: "samplerMappedName",
+	expectedType: "sampler",
+	propertyValue: new Sampler(),
+});
+
+instancePropertyTest({
+	name: "CustomData",
+	propertyName: "customDataMappedName",
+	expectedType: "custom",
+	propertyValue: new CustomMaterialData(),
 });

@@ -28,8 +28,8 @@ export class MaterialMapListUi {
 		for (const item of items) {
 			const mappableItemTreeView = this.treeView.addCollapsable(item.name);
 			mappableItemTreeView.renderContainer = true;
-			/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
-			let defaultValueTypeOptions;
+			/** @type {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure?} */
+			let defaultValueTypeOptions = null;
 			if (item.type == "sampler") {
 				defaultValueTypeOptions = {
 					defaultValue: {
@@ -51,6 +51,8 @@ export class MaterialMapListUi {
 						type: "vec4",
 					},
 				};
+			} else if (item.type == "custom") {
+				// Custom properties don't have any ui for a default value
 			} else {
 				defaultValueTypeOptions = {
 					defaultValue: {

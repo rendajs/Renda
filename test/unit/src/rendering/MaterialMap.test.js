@@ -1,7 +1,9 @@
 import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Quat, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
+import {CustomMaterialData, Quat, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 import {MaterialMapType} from "../../../../src/rendering/MaterialMapType.js";
+import {Texture} from "../../../../src/core/Texture.js";
+import {Sampler} from "../../../../src/rendering/Sampler.js";
 
 Deno.test({
 	name: "assertIsMappableType(), valid types",
@@ -12,6 +14,9 @@ Deno.test({
 		MaterialMap.assertIsMappableType(new Vec3());
 		MaterialMap.assertIsMappableType(new Vec4());
 		MaterialMap.assertIsMappableType(new Quat());
+		MaterialMap.assertIsMappableType(new Texture(new Blob([])));
+		MaterialMap.assertIsMappableType(new Sampler());
+		MaterialMap.assertIsMappableType(new CustomMaterialData());
 		MaterialMap.assertIsMappableType(null);
 	},
 });
@@ -184,6 +189,37 @@ Deno.test({
 				mappedName: "foo",
 				mappedType: "vec3",
 				defaultValue: new Vec3(1, 2, 3),
+			},
+		]);
+	},
+});
+
+Deno.test({
+	name: "A material map with custom data in its mapped values",
+	fn() {
+		class ExtendedMaterialMapType extends MaterialMapType {}
+		const extendedMaterialMapType = new ExtendedMaterialMapType();
+		const map = new MaterialMap({
+			materialMapTypes: [
+				{
+					mapType: extendedMaterialMapType,
+					mappedValues: {
+						foo: {
+							mappedName: "mappedCustomData",
+							mappedType: "custom",
+							defaultValue: null,
+						},
+					},
+				},
+			],
+		});
+
+		const result = Array.from(map.getMappedDatasForMapType(ExtendedMaterialMapType));
+		assertEquals(result, [
+			{
+				mappedName: "foo",
+				mappedType: "custom",
+				defaultValue: null,
 			},
 		]);
 	},
