@@ -2,6 +2,7 @@ import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {WebGpuChunkedBuffer} from "../../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBuffer.js";
 import {assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {Vec3} from "../../../../../../../src/mod.js";
+import {runWithWebGpuConstants} from "../shared/webGpuConstants.js";
 
 class MockGPUBuffer {
 	/**
@@ -26,12 +27,6 @@ class MockGPUBuffer {
  * @param {(ctx: WebGpuChunkedBufferTestContext) => void} options.fn
  */
 function basicTest({fn}) {
-	const oldGPUBufferUsage = globalThis.GPUBufferUsage;
-	globalThis.GPUBufferUsage = /** @type {typeof GPUBufferUsage} */ ({
-		UNIFORM: 64,
-		COPY_DST: 8,
-	});
-
 	/** @type {MockGPUBuffer[]} */
 	const createdBuffers = [];
 
@@ -48,15 +43,13 @@ function basicTest({fn}) {
 
 	const writeBufferSpy = spy(device.queue, "writeBuffer");
 
-	try {
+	runWithWebGpuConstants(() => {
 		fn({
 			device,
 			writeBufferSpy,
 			createdBuffers,
 		});
-	} finally {
-		globalThis.GPUBufferUsage = oldGPUBufferUsage;
-	}
+	});
 }
 
 /**
