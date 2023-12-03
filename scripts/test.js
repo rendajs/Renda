@@ -53,7 +53,7 @@ const testCommands = [];
 
 // Unit tests
 if (needsUnitTests) {
-	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-net", "--parallel", "--trace-ops"];
+	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-net", "--parallel"];
 	if (needsCoverage) {
 		denoTestArgs.push("--allow-write");
 	}
