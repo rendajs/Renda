@@ -41,6 +41,13 @@ import {StudioConnection} from "./StudioConnection.js";
  */
 
 /**
+ * @typedef FindConnectionConfig
+ * @property {string} [connectionType]
+ * @property {import("../../mod.js").UuidString} [projectUuid]
+ * @property {import("../../mod.js").UuidString} [clientUuid]
+ */
+
+/**
  * The DiscoveryManager allows you to list available connections and connect to them.
  * You can add multiple DiscoveryMethods and observe changes to their available connections.
  */
@@ -215,5 +222,43 @@ export class DiscoveryManager {
 			}
 		}
 		throw new Error(`No connection with id "${otherClientUuid}" was found.`);
+	}
+
+	/**
+	 * Tries to find a specific connection based on the provided parameters.
+	 * If the connection doesn't exist yet, this will wait for it to become available.
+	 * @param {FindConnectionConfig} config
+	 */
+	async waitForConnection(config) {
+		const connection = this.#findConnection(config);
+		if (connection) {
+			return connection;
+		} else {
+			/** @type {AvailableConnectionWithType} */
+			const connection = await new Promise(resolve => {
+				const cb = () => {
+					const connection = this.#findConnection(config);
+					if (connection) {
+						this.removeOnAvailableConnectionsChanged(cb);
+						resolve(connection);
+					}
+				};
+				this.onAvailableConnectionsChanged(cb);
+			});
+			return connection;
+		}
+	}
+
+	/**
+	 * @param {FindConnectionConfig} config
+	 */
+	#findConnection(config) {
+		for (const connection of this.availableConnections()) {
+			if (config.connectionType && connection.connectionType != config.connectionType) continue;
+			if (config.projectUuid && connection.projectMetadata?.uuid != config.projectUuid) continue;
+			if (config.clientUuid && connection.id != config.clientUuid) continue;
+			return connection;
+		}
+		return null;
 	}
 }

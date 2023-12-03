@@ -2,6 +2,7 @@ import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {DiscoveryManager} from "../../../../../src/network/studioConnections/DiscoveryManager.js";
 import {ExtendedDiscoveryMethod} from "./discoveryMethods/shared/ExtendedDiscoveryMethod.js";
 import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertPromiseResolved} from "../../../shared/asserts.js";
 
 Deno.test({
 	name: "Adding a discovery method",
@@ -234,3 +235,173 @@ Deno.test({
 		}, Error, 'No connection with id "non existent id" was found.');
 	},
 });
+
+Deno.test({
+	name: "waitForConnection() returns project by id when it is already available",
+	async fn() {
+		const manager = new DiscoveryManager("studio-host");
+		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
+		discoveryMethod.addOne({
+			clientType: "studio-host",
+			id: "wrong connection id",
+			projectMetadata: {
+				fileSystemHasWritePermissions: true,
+				name: "My Project",
+				uuid: "wrong project uuid",
+			},
+		});
+		discoveryMethod.addOne({
+			clientType: "studio-host",
+			id: "expected connection id",
+			projectMetadata: {
+				fileSystemHasWritePermissions: true,
+				name: "My Project",
+				uuid: "expected project uuid",
+			},
+		});
+
+		const connection = await manager.waitForConnection({
+			projectUuid: "expected project uuid",
+		});
+		assertEquals(connection, {
+			clientType: "studio-host",
+			connectionType: "test:type",
+			id: "expected connection id",
+			projectMetadata: {
+				fileSystemHasWritePermissions: true,
+				name: "My Project",
+				uuid: "expected project uuid",
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "waitForConnection() only returns connections with a matching client type",
+	async fn() {
+		const manager = new DiscoveryManager("studio-host");
+		class UnexpectedDiscoveryMethod extends ExtendedDiscoveryMethod {
+			static type = "test:unexpected";
+		}
+		const unexpectedDiscoveryMethod = manager.addDiscoveryMethod(UnexpectedDiscoveryMethod);
+		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
+		unexpectedDiscoveryMethod.addOne({
+			clientType: "studio-host",
+			id: "unexpected connection id",
+			projectMetadata: null,
+		});
+		discoveryMethod.addOne({
+			clientType: "studio-host",
+			id: "expected connection id",
+			projectMetadata: null,
+		});
+
+		const connection = await manager.waitForConnection({
+			connectionType: "test:type",
+		});
+		assertEquals(connection, {
+			clientType: "studio-host",
+			connectionType: "test:type",
+			id: "expected connection id",
+			projectMetadata: null,
+
+		});
+	},
+});
+
+Deno.test({
+	name: "waitForConnection() returns client by id when it is already available",
+	async fn() {
+		const manager = new DiscoveryManager("studio-host");
+		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
+		discoveryMethod.addOne({
+			clientType: "studio-host",
+			id: "expected connection id",
+			projectMetadata: null,
+		});
+
+		const connection = await manager.waitForConnection({
+			clientUuid: "expected connection id",
+		});
+		assertEquals(connection, {
+			clientType: "studio-host",
+			connectionType: "test:type",
+			id: "expected connection id",
+			projectMetadata: null,
+		});
+	},
+});
+
+Deno.test({
+	name: "waitForConnection() returns project by id once the connection becomes available",
+	async fn() {
+		const manager = new DiscoveryManager("studio-host");
+		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
+
+		const promise = manager.waitForConnection({
+			clientUuid: "expected connection id",
+		});
+		await assertPromiseResolved(promise, false);
+
+		discoveryMethod.addOne({
+			clientType: "studio-host",
+			id: "wrong connection id",
+			projectMetadata: {
+				fileSystemHasWritePermissions: true,
+				name: "My Project",
+				uuid: "wrong project uuid",
+			},
+		});
+		await assertPromiseResolved(promise, false);
+
+		discoveryMethod.addOne({
+			clientType: "studio-host",
+			id: "expected connection id",
+			projectMetadata: {
+				fileSystemHasWritePermissions: true,
+				name: "My Project",
+				uuid: "expected project uuid",
+			},
+		});
+
+		await assertPromiseResolved(promise, true);
+		assertEquals(await promise, {
+			clientType: "studio-host",
+			connectionType: "test:type",
+			id: "expected connection id",
+			projectMetadata: {
+				fileSystemHasWritePermissions: true,
+				name: "My Project",
+				uuid: "expected project uuid",
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "waitForConnection() returns client by id once the connection becomes available",
+	async fn() {
+		const manager = new DiscoveryManager("studio-host");
+		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
+
+		const promise = manager.waitForConnection({
+			clientUuid: "expected connection id",
+		});
+		await assertPromiseResolved(promise, false);
+
+		discoveryMethod.addOne({
+			clientType: "studio-host",
+			id: "expected connection id",
+			projectMetadata: null,
+		});
+
+		await assertPromiseResolved(promise, true);
+		assertEquals(await promise, {
+			clientType: "studio-host",
+			connectionType: "test:type",
+			id: "expected connection id",
+			projectMetadata: null,
+		});
+	},
+});
+

@@ -112,7 +112,12 @@ async function basicTest({fn}) {
 			},
 			preferencesManager: /** @type {PreferencesManager<any>} */ (mockPreferencesManager),
 			studioConnectionsManager: {
-				requestSpecificConnection(config) {},
+				async waitForConnection(config) {
+					return {
+						id: "connection id",
+					};
+				},
+				requestConnection(otherClientUuid) {},
 			},
 		});
 		injectMockStudioInstance(mockStudio);
@@ -585,7 +590,8 @@ Deno.test({
 	async fn() {
 		await basicTest({
 			async fn({manager, studio}) {
-				const requestSpecificConnectionSpy = spy(studio.studioConnectionsManager, "requestSpecificConnection");
+				const waitForConnectionSpy = spy(studio.studioConnectionsManager, "waitForConnection");
+				const requestConnectionSpy = spy(studio.studioConnectionsManager, "requestConnection");
 
 				await manager.openExistingProject({
 					fileSystemType: "remote",
@@ -595,14 +601,19 @@ Deno.test({
 					remoteProjectConnectionType: "renda:internal",
 				}, false);
 
-				assertSpyCalls(requestSpecificConnectionSpy, 1);
-				assertSpyCall(requestSpecificConnectionSpy, 0, {
+				assertSpyCalls(waitForConnectionSpy, 1);
+				assertSpyCall(waitForConnectionSpy, 0, {
 					args: [
 						{
 							connectionType: "renda:internal",
 							projectUuid: "remote uuid",
 						},
 					],
+				});
+
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: ["connection id"],
 				});
 
 				assertEquals(manager.currentProjectIsRemote, true);

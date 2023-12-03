@@ -1,11 +1,12 @@
-export class MockAssetBundle {
+import {AssetBundle} from "../../../../src/mod.js";
+
+export class TestAssetBundle extends AssetBundle {
 	/** @type {Set<import("../../../../src/mod.js").UuidString>} */
 	#availableAssets = new Set();
-	/**
-	 * @param {string} url
-	 */
-	constructor(url) {
-		this.url = url;
+
+	constructor() {
+		super();
+
 		/** @type {Map<import("../../../../src/mod.js").UuidString, Set<(available: boolean) => void>>} */
 		this.onAssetAvailableCbs = new Map();
 		/** @type {Map<import("../../../../src/mod.js").UuidString, import("../../../../src/mod.js").UuidString>} */
@@ -15,6 +16,7 @@ export class MockAssetBundle {
 	}
 
 	/**
+	 * @override
 	 * @param {import("../../../../src/mod.js").UuidString} uuid
 	 */
 	async waitForAssetAvailable(uuid) {
@@ -69,22 +71,13 @@ export class MockAssetBundle {
 	}
 
 	/**
+	 * @override
 	 * @param {import("../../../../src/mod.js").UuidString} uuid
 	 */
-	getAsset(uuid) {
+	async getAsset(uuid) {
 		const type = this.mockAssetTypes.get(uuid);
 		if (!type) return null;
 		const buffer = this.mockAssetBuffers.get(uuid) || new ArrayBuffer(0);
 		return {buffer, type};
 	}
 }
-
-/**
- * @param {import("../../../../src/assets/AssetBundle.js").AssetBundle} assetBundle
- */
-export function castMock(assetBundle) {
-	const cast = /** @type {unknown} */ (assetBundle);
-	return /** @type {MockAssetBundle} */ (cast);
-}
-
-export {MockAssetBundle as AssetBundle};

@@ -2,12 +2,12 @@ import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
 import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {assert, assertEquals, assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
-import {clearCreatedDiscoveryManagers, getCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
+import {assert, assertEquals, assertInstanceOf, assertRejects, assertThrows} from "std/testing/asserts.ts";
+import {assertLastDiscoveryManager, clearCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
 import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} from "./shared/MockWebRtcDiscoveryMethod.js";
 import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
-import {assertPromiseResolved} from "../../../../shared/asserts.js";
 import {clearCreatedMessageHandlers, getCreatedMessageHandlers} from "../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
+import {createMockAssetManager} from "../../../shared/createMockAssetManager.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("./shared/MockDiscoveryManager.js");
@@ -105,6 +105,12 @@ async function basicTest({
 			},
 			setHasProjectFileSystem(hasFileSystem) {
 				mockProjectManager.currentProjectFileSystem = hasFileSystem ? new MemoryStudioFileSystem() : null;
+				if (hasFileSystem) {
+					const {assetManager} = createMockAssetManager();
+					mockProjectManager.assetManager = assetManager;
+				} else {
+					mockProjectManager.assetManager = null;
+				}
 			},
 			setCurrentProjectIsRemote(newCurrentProjectIsRemote) {
 				currentProjectIsRemote = newCurrentProjectIsRemote;
@@ -121,16 +127,6 @@ async function basicTest({
 		clearCreatedInternalDiscoveryMethods();
 		clearCreatedMessageHandlers();
 	}
-}
-
-/**
- * Asserts that the specified amount of discovery managers was created and returns the last one.
- * @param {number} length
- */
-function assertLastDiscoveryManager(length = 1) {
-	const discoveryManagers = Array.from(getCreatedDiscoveryManagers());
-	assertEquals(discoveryManagers.length, length);
-	return discoveryManagers[length - 1];
 }
 
 /**
@@ -167,7 +163,7 @@ Deno.test({
 	name: "Opening a project creates a discovery manager",
 	async fn() {
 		await basicTest({
-			fn({manager, fireOnProjectOpen, setHasProjectFileSystem}) {
+			fn({fireOnProjectOpen, setHasProjectFileSystem}) {
 				setHasProjectFileSystem(true);
 				fireOnProjectOpen();
 
@@ -480,134 +476,16 @@ Deno.test({
 });
 
 Deno.test({
-	name: "requestSpecificConnection() connects when it is already available",
+	name: "waitForConnection() throws when called without a project open",
 	async fn() {
 		await basicTest({
-			async fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
-				setHasProjectFileSystem(true);
-				setCurrentProjectIsRemote(true);
-				fireOnProjectOpen();
-
-				const discoveryManager = assertLastDiscoveryManager();
-				const requestConnectionSpy = spy(discoveryManager, "requestConnection");
-
-				const discoveryMethod = assertLastInternalDiscoveryMethod();
-				discoveryMethod.addOne({
-					clientType: "studio-host",
-					id: "wrong connection id",
-					projectMetadata: {
-						fileSystemHasWritePermissions: true,
-						name: "My Project",
-						uuid: "wrong project uuid",
-					},
-				});
-				discoveryMethod.addOne({
-					clientType: "studio-host",
-					id: "expected connection id",
-					projectMetadata: {
-						fileSystemHasWritePermissions: true,
-						name: "My Project",
-						uuid: "expected project uuid",
-					},
-				});
-
-				const promise = manager.requestSpecificConnection({
-					connectionType: "renda:internal",
-					projectUuid: "expected project uuid",
-				});
-				await assertPromiseResolved(promise, true);
-				assertSpyCalls(requestConnectionSpy, 1);
-				assertSpyCall(requestConnectionSpy, 0, {
-					args: ["expected connection id"],
-				});
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "requestSpecificConnection() connects once the connection becomes available",
-	async fn() {
-		await basicTest({
-			async fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
-				setHasProjectFileSystem(true);
-				setCurrentProjectIsRemote(true);
-				fireOnProjectOpen();
-
-				const discoveryManager = assertLastDiscoveryManager();
-				const requestConnectionSpy = spy(discoveryManager, "requestConnection");
-				const discoveryMethod = assertLastInternalDiscoveryMethod();
-
-				const promise = manager.requestSpecificConnection({
-					connectionType: "renda:internal",
-					projectUuid: "expected project uuid",
-				});
-				await assertPromiseResolved(promise, false);
-
-				discoveryMethod.addOne({
-					clientType: "studio-host",
-					id: "wrong connection id",
-					projectMetadata: {
-						fileSystemHasWritePermissions: true,
-						name: "My Project",
-						uuid: "wrong project uuid",
-					},
-				});
-				await assertPromiseResolved(promise, false);
-				assertSpyCalls(requestConnectionSpy, 0);
-
-				discoveryMethod.addOne({
-					clientType: "studio-host",
-					id: "expected connection id",
-					projectMetadata: {
-						fileSystemHasWritePermissions: true,
-						name: "My Project",
-						uuid: "expected project uuid",
-					},
-				});
-				await assertPromiseResolved(promise, true);
-				assertSpyCalls(requestConnectionSpy, 1);
-				assertSpyCall(requestConnectionSpy, 0, {
-					args: ["expected connection id"],
-				});
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "requestSpecificConnection() can be called even when no project has been opened yet",
-	async fn() {
-		await basicTest({
-			async fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
-				const promise = manager.requestSpecificConnection({
-					connectionType: "renda:internal",
-					projectUuid: "expected project uuid",
-				});
-				await assertPromiseResolved(promise, false);
-
-				setHasProjectFileSystem(true);
-				setCurrentProjectIsRemote(true);
-				fireOnProjectOpen();
-
-				const discoveryManager = assertLastDiscoveryManager();
-				const requestConnectionSpy = spy(discoveryManager, "requestConnection");
-				const discoveryMethod = assertLastInternalDiscoveryMethod();
-
-				discoveryMethod.addOne({
-					clientType: "studio-host",
-					id: "expected connection id",
-					projectMetadata: {
-						fileSystemHasWritePermissions: true,
-						name: "My Project",
-						uuid: "expected project uuid",
-					},
-				});
-				await assertPromiseResolved(promise, true);
-				assertSpyCalls(requestConnectionSpy, 1);
-				assertSpyCall(requestConnectionSpy, 0, {
-					args: ["expected connection id"],
-				});
+			async fn({manager}) {
+				await assertRejects(async () => {
+					await manager.waitForConnection({
+						connectionType: "renda:internal",
+						projectUuid: "project uuid",
+					});
+				}, Error, "Assertion failed, discovery manager does not exist.");
 			},
 		});
 	},
@@ -620,7 +498,7 @@ Deno.test({
 			fn({manager}) {
 				assertThrows(() => {
 					manager.requestConnection("id");
-				}, Error, "studio connections manager does not exist");
+				}, Error, "Assertion failed, discovery manager does not exist.");
 			},
 		});
 	},
@@ -700,7 +578,7 @@ Deno.test({
 	name: "Receiving a studio-client connection to a studio-host",
 	async fn() {
 		await basicTest({
-			fn({manager, projectManager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
 				const onConnectionsChangedSpy = spy();
 				manager.onConnectionsChanged(onConnectionsChangedSpy);
 				setHasProjectFileSystem(true);
@@ -722,7 +600,7 @@ Deno.test({
 					args: ["connection id", undefined],
 				});
 
-				discoveryMethod.addActive("connection id", true, 0, "");
+				discoveryMethod.addActive("connection id", false, 0, "");
 				assertSpyCalls(onConnectionsChangedSpy, 2);
 				assertEquals(Array.from(manager.getConnections()), [
 					{
@@ -755,7 +633,7 @@ Deno.test({
 	name: "Throws when a studio-host tries to connect to a studio-client",
 	async fn() {
 		await basicTest({
-			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
 				setHasProjectFileSystem(true);
 				setCurrentProjectIsRemote(true);
 				fireOnProjectOpen();
@@ -780,6 +658,61 @@ Deno.test({
 				} finally {
 					consoleErrorSpy.restore();
 				}
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Receiving an inspector connection",
+	async fn() {
+		await basicTest({
+			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				const onConnectionsChangedSpy = spy();
+				manager.onConnectionsChanged(onConnectionsChangedSpy);
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(false);
+				fireOnProjectOpen();
+
+				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const requestConnectionSpy = spy(discoveryMethod, "requestConnection");
+				discoveryMethod.addOne({
+					clientType: "inspector",
+					id: "connection id",
+					projectMetadata: null,
+				});
+				assertSpyCalls(onConnectionsChangedSpy, 1);
+
+				manager.requestConnection("connection id");
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: ["connection id", undefined],
+				});
+
+				discoveryMethod.addActive("connection id", false, 0, "");
+				assertSpyCalls(onConnectionsChangedSpy, 2);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "inspector",
+						connectionState: "connecting",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
+
+				const messageHandler = assertLastMessageHandler();
+				messageHandler.markAsConnected();
+				assertSpyCalls(onConnectionsChangedSpy, 3);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "inspector",
+						connectionState: "connected",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
 			},
 		});
 	},

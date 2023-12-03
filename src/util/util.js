@@ -75,7 +75,9 @@ export function mapValue(value, fromMin, fromMax, toMin, toMax, performClamp = t
 }
 
 /**
- * @param {ReadableStream} stream
+ * @template T
+ * @param {ReadableStream<T>} stream
+ * @returns {AsyncGenerator<T>}
  */
 export async function *streamAsyncIterator(stream) {
 	const reader = stream.getReader();

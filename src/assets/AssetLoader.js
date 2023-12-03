@@ -1,4 +1,3 @@
-import {AssetBundle} from "./AssetBundle.js";
 import {AssetLoaderType} from "./assetLoaderTypes/AssetLoaderType.js";
 import {isUuid} from "../util/util.js";
 import {RecursionTracker} from "./RecursionTracker.js";
@@ -35,9 +34,15 @@ import {RecursionTracker} from "./RecursionTracker.js";
  * unknown} AssetLoaderAssertionOptionsToReturnType
  */
 
+/**
+ * The AssetLoader is the main way to get assets from a Renda project inside a running application.
+ * Typically you instantiate a single AssetLoader, which you can then add asset bundles to.
+ * When requesting an asset, it will check all bundles to see if it contains the requested asset.
+ * Once it finds it, it will load the asset using one of the provided loader types.
+ */
 export class AssetLoader {
 	constructor() {
-		/** @type {Set<AssetBundle>} */
+		/** @type {Set<import("./assetBundles/AssetBundle.js").AssetBundle>} */
 		this.bundles = new Set();
 
 		/** @type {Map<string, AssetLoaderType<unknown, unknown>>} */
@@ -48,10 +53,11 @@ export class AssetLoader {
 	}
 
 	/**
-	 * @param {string} url
+	 * Adds a new AssetBundle to the AssetLoader, allowing you to query its assets via {@linkcode getAsset}.
+	 * @template {import("./assetBundles/AssetBundle.js").AssetBundle} T
+	 * @param {T} bundle
 	 */
-	addBundle(url) {
-		const bundle = new AssetBundle(url);
+	addBundle(bundle) {
 		this.bundles.add(bundle);
 		return bundle;
 	}
@@ -106,7 +112,7 @@ export class AssetLoader {
 			recursionTracker = new RecursionTracker(this, uuid);
 		}
 
-		/** @type {AssetBundle?} */
+		/** @type {import("./assetBundles/AssetBundle.js").AssetBundle?} */
 		const bundleWithAsset = await new Promise((resolve, reject) => {
 			if (this.bundles.size == 0) {
 				resolve(null);

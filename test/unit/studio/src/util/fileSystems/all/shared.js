@@ -83,7 +83,7 @@ const fileSystems = [
 				hostMessenger.handleReceivedMessage(data.sendData);
 			});
 
-			const clientConnection = /** @type {import("../../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioClientHostConnection} */ (/** @type {unknown} */ ({
+			const clientConnection = /** @type {import("../../../../../../../studio/src/network/studioConnections/handlers.js").StudioClientHostConnection} */ (/** @type {unknown} */ ({
 				messenger: clientMessenger,
 			}));
 			const remoteFs = new RemoteStudioFileSystem();

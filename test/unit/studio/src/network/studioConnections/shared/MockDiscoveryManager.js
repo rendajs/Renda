@@ -1,3 +1,4 @@
+import {assertEquals} from "std/testing/asserts.ts";
 import {DiscoveryManager as RealDiscoveryManager} from "../../../../../../../src/network/studioConnections/DiscoveryManager.js";
 
 /** @type {Set<DiscoveryManager>} */
@@ -9,6 +10,16 @@ export function *getCreatedDiscoveryManagers() {
 
 export function clearCreatedDiscoveryManagers() {
 	createdDiscoveryManagers.clear();
+}
+
+/**
+ * Asserts that the specified amount of discovery managers was created and returns the last one.
+ * @param {number} length
+ */
+export function assertLastDiscoveryManager(length = 1) {
+	const discoveryManagers = Array.from(getCreatedDiscoveryManagers());
+	assertEquals(discoveryManagers.length, length);
+	return discoveryManagers[length - 1];
 }
 
 /**

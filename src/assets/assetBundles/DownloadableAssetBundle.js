@@ -1,22 +1,37 @@
-import {AssetBundleRange} from "./AssetBundleRange.js";
-import {SingleInstancePromise} from "../util/SingleInstancePromise.js";
-import {PromiseWaitHelper} from "../util/PromiseWaitHelper.js";
-import {streamAsyncIterator} from "../util/util.js";
-import {binaryToUuid} from "../util/binarySerialization.js";
+import {AssetBundleRange} from "./DownloadableAssetBundleRange.js";
+import {SingleInstancePromise} from "../../util/SingleInstancePromise.js";
+import {PromiseWaitHelper} from "../../util/PromiseWaitHelper.js";
+import {streamAsyncIterator} from "../../util/util.js";
+import {binaryToUuid} from "../../util/binarySerialization.js";
+import {AssetBundle} from "./AssetBundle.js";
 
 /** @typedef {(progress: number) => void} OnProgressCallback */
 
-export class AssetBundle {
+/**
+ * A DownloadableAssetBundle fetches a single bundle from a url, providing an AssetLoader with the assets from the url.
+ * An asset bundle file is typically generated using a 'bundle assets' task in Renda Studio.
+ */
+export class DownloadableAssetBundle extends AssetBundle {
 	/**
+	 * Creates a new DownloadableAssetBundle.
+	 *
+	 * @example
+	 * ```js
+	 * const loader = new AssetLoader();
+	 * const bundle = loader.addBundle(new DownloadableAssetBundle());
+	 * await bundle.startDownload();
+	 * const asset = loader.getAsset(assetUuid);
+	 * ```
 	 * @param {string} url
 	 */
 	constructor(url) {
+		super();
 		this.url = url;
 
-		/** @type {Map<import("../mod.js").UuidString, AssetBundleRange>} */
+		/** @private @type {Map<import("../../mod.js").UuidString, AssetBundleRange>} */
 		this.assetRanges = new Map();
 		this.progress = 0;
-		/** @type {Set<OnProgressCallback>} */
+		/** @private @type {Set<OnProgressCallback>} */
 		this.onProgressCbs = new Set();
 
 		this.downloadInstance = new SingleInstancePromise(async () => await this.downloadLogic(), {once: true});
@@ -33,8 +48,12 @@ export class AssetBundle {
 		await this.downloadInstance.waitForFinishOnce();
 	}
 
+	/**
+	 * @private
+	 */
 	async downloadLogic() {
 		const response = await fetch(this.url);
+		// TODO: #746 don't use content-length header
 		const contentLength = Number(response.headers.get("Content-Length"));
 		let receivedLength = 0;
 		const allChunks = new Uint8Array(contentLength);
@@ -108,12 +127,16 @@ export class AssetBundle {
 		this.onProgressCbs.add(cb);
 	}
 
+	/**
+	 * @private
+	 */
 	async waitForHeader() {
 		await this.headerWait.wait();
 	}
 
 	/**
-	 * @param {import("../util/util.js").UuidString} uuid
+	 * @override
+	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async hasAsset(uuid) {
 		await this.waitForHeader();
@@ -122,7 +145,8 @@ export class AssetBundle {
 	}
 
 	/**
-	 * @param {import("../util/util.js").UuidString} uuid
+	 * @override
+	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async waitForAssetAvailable(uuid) {
 		await this.waitForHeader();
@@ -134,15 +158,15 @@ export class AssetBundle {
 	}
 
 	/**
-	 * @param {import("../util/util.js").UuidString} uuid
+	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async getAsset(uuid) {
-		if (!this.downloadBuffer) return null;
-		const exists = await this.hasAsset(uuid);
+		const exists = await this.waitForAssetAvailable(uuid);
 		if (!exists) return null;
 
 		const range = this.assetRanges.get(uuid);
 		if (!range) throw new Error("Assertion failed, asset range does not exist");
+		if (!this.downloadBuffer) throw new Error("Assertion failed, downloadbuffer is null");
 		const buffer = this.downloadBuffer.slice(range.byteStart, range.byteEnd);
 		const type = range.typeUuid;
 		return {buffer, type};
