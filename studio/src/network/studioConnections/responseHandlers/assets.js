@@ -3,7 +3,7 @@ import {bundledAssetDataToArrayBufferOrString} from "../../../util/bundledAssetD
 /**
  * @param {import("../../../assets/AssetManager.js").AssetManager} assetManager
  */
-export function createInspectorHandlers(assetManager) {
+export function createAssetsHandlers(assetManager) {
 	return {
 		/**
 		 * @param {import("../../../../../src/mod.js").UuidString} uuid

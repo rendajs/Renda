@@ -28,7 +28,14 @@ export class InspectorAssetBundle extends AssetBundle {
 	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	hasAsset(uuid) {
-		return this._inspectorManager.requestHasAsset(uuid);
+		return this._inspectorManager.raceAllConnections({
+			async cb(connection) {
+				const result = await connection.messenger.send["assets.hasAsset"](uuid);
+				if (!result) return undefined;
+				return true;
+			},
+			defaultReturnValue: false,
+		});
 	}
 
 	/**
@@ -43,6 +50,13 @@ export class InspectorAssetBundle extends AssetBundle {
 	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async getAsset(uuid) {
-		return await this._inspectorManager.requestBundledAssetData(uuid);
+		return this._inspectorManager.raceAllConnections({
+			async cb(connection) {
+				const result = await connection.messenger.send["assets.getBundledAssetData"](uuid);
+				if (!result) return undefined;
+				return result;
+			},
+			defaultReturnValue: null,
+		});
 	}
 }

@@ -3,7 +3,7 @@ import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
 import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {assert, assertEquals, assertInstanceOf, assertRejects, assertThrows} from "std/testing/asserts.ts";
-import {clearCreatedDiscoveryManagers, getCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
+import {assertLastDiscoveryManager, clearCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
 import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} from "./shared/MockWebRtcDiscoveryMethod.js";
 import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
 import {clearCreatedMessageHandlers, getCreatedMessageHandlers} from "../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
@@ -127,16 +127,6 @@ async function basicTest({
 		clearCreatedInternalDiscoveryMethods();
 		clearCreatedMessageHandlers();
 	}
-}
-
-/**
- * Asserts that the specified amount of discovery managers was created and returns the last one.
- * @param {number} length
- */
-function assertLastDiscoveryManager(length = 1) {
-	const discoveryManagers = Array.from(getCreatedDiscoveryManagers());
-	assertEquals(discoveryManagers.length, length);
-	return discoveryManagers[length - 1];
 }
 
 /**

@@ -39,7 +39,7 @@ export class InspectorManager {
 				this._inspectorConnections.set(connection.otherClientUuid, connection);
 				resolveInitialConnectionPromise();
 			} else {
-				throw new Error(`Unexpected client type: "${connectionRequest.clientType}"`);
+				throw new Error(`Unexpected client type: "${connectionRequest.clientType}".`);
 			}
 		});
 		this.parentStudioCommunicator.requestDesiredParentStudioConnection(this.discoveryManager, [InternalDiscoveryMethod, WebRtcDiscoveryMethod]);
@@ -47,7 +47,7 @@ export class InspectorManager {
 
 	/**
 	 * Iterates over all current connections and sends a request as provided in the callback to each one.
-	 * @private
+	 * The first response will be returned.
 	 * @template TCallbackReturn
 	 * @template TDefaultReturn
 	 * @param {object} options
@@ -60,7 +60,7 @@ export class InspectorManager {
 	 * @param {TDefaultReturn} options.defaultReturnValue In case all of the callbacks return `undefined`,
 	 * or if there are no active connections, this value will be returned instead.
 	 */
-	async _requestAllConnections({cb, waitForInitialConnection = true, defaultReturnValue}) {
+	async raceAllConnections({cb, waitForInitialConnection = true, defaultReturnValue}) {
 		if (!ENABLE_INSPECTOR_SUPPORT) return defaultReturnValue;
 
 		if (waitForInitialConnection) {
@@ -72,8 +72,6 @@ export class InspectorManager {
 			const promise = cb(connection);
 			promises.push(promise);
 		}
-
-		// TODO, what if promises is an empty array?
 
 		/** @type {Promise<TCallbackReturn & ({} | null)>} */
 		const anyTruePromise = new Promise(resolve => {
@@ -89,34 +87,6 @@ export class InspectorManager {
 		})();
 
 		return await Promise.race([anyTruePromise, allPromise]);
-	}
-
-	/**
-	 * @param {import("../util/util.js").UuidString} uuid
-	 */
-	async requestHasAsset(uuid) {
-		return await this._requestAllConnections({
-			async cb(connection) {
-				const result = await connection.messenger.send["assets.hasAsset"](uuid);
-				if (!result) return undefined;
-				return true;
-			},
-			defaultReturnValue: false,
-		});
-	}
-
-	/**
-	 * @param {import("../util/util.js").UuidString} uuid
-	 */
-	async requestBundledAssetData(uuid) {
-		return await this._requestAllConnections({
-			async cb(connection) {
-				const result = await connection.messenger.send["assets.getBundledAssetData"](uuid);
-				if (!result) return undefined;
-				return result;
-			},
-			defaultReturnValue: null,
-		});
 	}
 
 	/**

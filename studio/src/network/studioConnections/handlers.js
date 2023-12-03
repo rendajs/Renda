@@ -1,5 +1,5 @@
 import {createFileSystemHandlers} from "./responseHandlers/fileSystem.js";
-import {createInspectorHandlers} from "./responseHandlers/inspector.js";
+import {createAssetsHandlers} from "./responseHandlers/assets.js";
 
 /** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<{}, ReturnType<typeof createStudioHostHandlers>>} StudioClientHostConnection */
 
@@ -17,5 +17,5 @@ export function createStudioHostHandlers(fileSystem) {
  * @param {import("../../assets/AssetManager.js").AssetManager} assetManager
  */
 export function createStudioInspectorHandlers(assetManager) {
-	return createInspectorHandlers(assetManager);
+	return createAssetsHandlers(assetManager);
 }
