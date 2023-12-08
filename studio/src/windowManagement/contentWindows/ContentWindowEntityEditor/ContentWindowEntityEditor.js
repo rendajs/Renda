@@ -1,6 +1,6 @@
 import {ContentWindow} from "../ContentWindow.js";
 import {Button} from "../../../ui/Button.js";
-import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, Material, MeshComponent, OrbitControls, TranslationGizmo, Vec3, VertexState, createPlane} from "../../../../../src/mod.js";
+import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, Material, MeshComponent, OrbitControls, Quat, TranslationGizmo, Vec3, VertexState, createPlane} from "../../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeGltf} from "../../../assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {RotationGizmo} from "../../../../../src/gizmos/gizmos/RotationGizmo.js";
@@ -220,14 +220,12 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookPos", this.uuid, e => {
 			if (e.trigger == "application") return;
 			if (!Array.isArray(e.value)) return;
-			// @ts-ignore
-			this.orbitControls.lookPos = e.value;
+			this.orbitControls.lookPos = new Vec3(/** @type {[number, number, number]} */ (e.value));
 		});
 		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookRot", this.uuid, e => {
 			if (e.trigger == "application") return;
 			if (!Array.isArray(e.value)) return;
-			// @ts-ignore
-			this.orbitControls.lookRot = e.value;
+			this.orbitControls.lookRot = new Quat(/** @type {[number, number, number, number]} */ (e.value));
 		});
 		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookDist", this.uuid, e => {
 			if (e.trigger == "application") return;
@@ -436,6 +434,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			// We only want to save the orbit state when a project entity is loaded.
 			// Otherwise, empty projects will be marked as worth saving even though nothing was changed.
 			if (this.isEditingProjectEntity) {
+				console.log(this.orbitControls.lookRot);
 				this.#setOrbitPreference("entityEditor.orbitLookPos", this.orbitControls.lookPos.toArray());
 				this.#setOrbitPreference("entityEditor.orbitLookRot", this.orbitControls.lookRot.toArray());
 

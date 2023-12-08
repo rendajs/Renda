@@ -29,7 +29,7 @@ const autoRegisterPreferences = /** @type {const} */ ({
 	}),
 	"entityEditor.orbitLookRot": pref({
 		type: "unknown",
-		default: [0.13806283196906857, 0.37838630992789435, -0.057187497461225936, 0.9135053612442318],
+		default: [-0.31679626605108757, 0.35948237402254085, 0.1312213099075158, 0.8678672227992956],
 	}),
 	"entityEditor.orbitLookDist": pref({
 		type: "number",
