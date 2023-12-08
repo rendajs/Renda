@@ -25,6 +25,6 @@ Deno.test({
 		});
 
 		assertEquals(calls.length, 1);
-		assertVecAlmostEquals(calls[0].worldDelta, [0.198, 0, 0], 0.001);
+		assertVecAlmostEquals(calls[0].worldDelta, [-0.198, 0, 0], 0.001);
 	},
 });

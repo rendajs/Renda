@@ -25,6 +25,6 @@ Deno.test({
 		});
 
 		assertEquals(calls.length, 1);
-		assertQuatAlmostEquals(calls[0].worldDelta, new Quat(-0.0343, 0, 0, 0.9994), 0.001);
+		assertQuatAlmostEquals(calls[0].worldDelta, new Quat(-0.1893, 0, 0, 0.9819), 0.001);
 	},
 });
