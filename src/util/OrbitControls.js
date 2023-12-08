@@ -95,10 +95,10 @@ export class OrbitControls {
 	 */
 	_inputOffset(deltaX, deltaY, event) {
 		if (event.ctrlKey) {
-			this.lookDist -= deltaY * 0.01;
+			this.lookDist += deltaY * 0.01;
 		} else if (event.shiftKey) {
-			const xDir = Vec3.right.rotate(this.lookRot).multiply(-deltaX * 0.01);
-			const yDir = Vec3.up.rotate(this.lookRot).multiply(deltaY * 0.01);
+			const xDir = Vec3.right.rotate(this.lookRot).multiply(deltaX * 0.01);
+			const yDir = Vec3.up.rotate(this.lookRot).multiply(-deltaY * 0.01);
 			this.lookPos.add(xDir).add(yDir);
 		} else {
 			this.lookRot.rotateAxisAngle(new Vec3(0, 1, 0), deltaX * 0.01);
@@ -113,8 +113,8 @@ export class OrbitControls {
 	 */
 	_onWheel(e) {
 		e.preventDefault();
-		const dx = this.invertScrollX ? e.deltaX : -e.deltaX;
-		const dy = this.invertScrollY ? e.deltaY : -e.deltaY;
+		const dx = this.invertScrollX ? -e.deltaX : e.deltaX;
+		const dy = this.invertScrollY ? -e.deltaY : e.deltaY;
 		this._inputOffset(dx, dy, e);
 	}
 
@@ -159,7 +159,7 @@ export class OrbitControls {
 		const newPos = new Vec2(e.clientX, e.clientY);
 		const delta = newPos.clone().sub(this._lastPointerPos);
 		this._lastPointerPos.set(newPos);
-		this._inputOffset(delta.x, delta.y, e);
+		this._inputOffset(-delta.x, -delta.y, e);
 	}
 
 	loop() {
@@ -172,7 +172,7 @@ export class OrbitControls {
 	}
 
 	updateCamPos() {
-		const lookDir = Vec3.back.rotate(this.lookRot);
+		const lookDir = Vec3.forward.rotate(this.lookRot);
 		this.camera.pos = lookDir.clone().multiply(2 ** this.lookDist).add(this.lookPos);
 		this.camera.rot = this.lookRot.clone();
 	}

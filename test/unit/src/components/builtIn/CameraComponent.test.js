@@ -48,7 +48,7 @@ Deno.test({
 
 		const pos = cam.worldToScreenPos(new Vec3(0, 1, 1));
 
-		assertVecAlmostEquals(pos, [0.5, 0.5, 1]);
+		assertVecAlmostEquals(pos, [0.5, 0.5, -1]);
 	},
 });
 
@@ -59,7 +59,7 @@ Deno.test({
 
 		const pos = cam.worldToScreenPos(new Vec3(0, 0, 1));
 
-		assertVecAlmostEquals(pos, [0.5, 0.5, 1]);
+		assertVecAlmostEquals(pos, [0.5, 0.5, -1]);
 	},
 });
 
@@ -70,7 +70,7 @@ Deno.test({
 
 		const pos = cam.worldToScreenPos(new Vec3(0, 0.1, 1));
 
-		assertVecAlmostEquals(pos, [0.5, 0.45, 1], 0.01);
+		assertVecAlmostEquals(pos, [0.5, 0.55, -1], 0.01);
 	},
 });
 
@@ -96,7 +96,7 @@ Deno.test({
 
 		const pos = cam.screenToWorldPos(new Vec3(0.5, 0.5, 1));
 
-		assertVecAlmostEquals(pos, [0, 1, 1]);
+		assertVecAlmostEquals(pos, [0, 1, -1]);
 	},
 });
 
@@ -107,7 +107,7 @@ Deno.test({
 
 		const pos = cam.screenToWorldPos(new Vec3(0.5, 0.5, 1));
 
-		assertVecAlmostEquals(pos, [0, 0, 1]);
+		assertVecAlmostEquals(pos, [0, 0, -1]);
 	},
 });
 
@@ -118,7 +118,7 @@ Deno.test({
 
 		const pos = cam.screenToWorldPos(new Vec3(0.5, 0.45, 1));
 
-		assertVecAlmostEquals(pos, [0, 0.1, 1], 0.01);
+		assertVecAlmostEquals(pos, [0, 0.1, -1], 0.01);
 	},
 });
 
@@ -147,9 +147,9 @@ Deno.test({
 
 		const {start, dir} = cam.getRaycastRayFromScreenPos(new Vec2(0.75, 0.75));
 
-		assertVecAlmostEquals(start, [0.5, 1.5, 1]);
+		assertVecAlmostEquals(start, [0.5, 1.5, -1]);
 		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir is not normalized");
-		assertVecAlmostEquals(dir, [0.4, -0.4, 0.8], 0.1);
+		assertVecAlmostEquals(dir, [0.4, -0.4, -0.8], 0.1);
 	},
 });
 
@@ -163,8 +163,8 @@ Deno.test({
 
 		const {start, dir} = cam.getRaycastRayFromScreenPos(new Vec2(0.75, 0.75));
 
-		assertVecAlmostEquals(start, [0.5, 0.5, 1], 0.0001);
+		assertVecAlmostEquals(start, [0.5, 0.5, -1], 0.0001);
 		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir is not normalized");
-		assertVecAlmostEquals(dir, [0.4, -0.4, 0.8], 0.1);
+		assertVecAlmostEquals(dir, [0.4, -0.4, -0.8], 0.1);
 	},
 });

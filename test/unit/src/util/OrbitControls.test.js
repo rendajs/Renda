@@ -126,7 +126,7 @@ Deno.test({
 				deltaY: 1,
 			}));
 			assertLoopCall(controls);
-			assertQuatAlmostEquals(controls.lookRot, Quat.fromAxisAngle(1, 0, 0, -0.01));
+			assertQuatAlmostEquals(controls.lookRot, Quat.fromAxisAngle(1, 0, 0, 0.01));
 
 			controls.invertScrollY = true;
 			el.dispatchEvent(new WheelEvent("wheel", {
@@ -139,7 +139,7 @@ Deno.test({
 				deltaX: 1,
 			}));
 			assertLoopCall(controls);
-			assertQuatAlmostEquals(controls.lookRot, Quat.fromAxisAngle(0, 1, 0, -0.01));
+			assertQuatAlmostEquals(controls.lookRot, Quat.fromAxisAngle(0, 1, 0, 0.01));
 
 			controls.invertScrollX = true;
 			el.dispatchEvent(new WheelEvent("wheel", {

@@ -11,7 +11,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, 1, 1000), projectionMatrix, worldMatrix);
 
-		assertVecAlmostEquals(pos, [0.5, 0.5, 1000]);
+		assertVecAlmostEquals(pos, [0.5, 0.5, -1000]);
 	},
 });
 
@@ -22,7 +22,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, 0, 1000), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.5, 0.5, 1000]);
+		assertVecAlmostEquals(pos, [0.5, 0.5, -1000]);
 	},
 });
 
@@ -33,7 +33,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, 0, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.5, 0.5, 1]);
+		assertVecAlmostEquals(pos, [0.5, 0.5, -1]);
 	},
 });
 
@@ -44,7 +44,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, 0, 500), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.5, 0.5, 500]);
+		assertVecAlmostEquals(pos, [0.5, 0.5, -500]);
 	},
 });
 
@@ -55,7 +55,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, 0.5, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.5, 0.25, 1]);
+		assertVecAlmostEquals(pos, [0.5, 0.75, -1]);
 	},
 });
 
@@ -66,7 +66,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, -0.5, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.5, 0.75, 1]);
+		assertVecAlmostEquals(pos, [0.5, 0.25, -1]);
 	},
 });
 
@@ -77,7 +77,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(-0.5, 0, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.25, 0.5, 1]);
+		assertVecAlmostEquals(pos, [0.75, 0.5, -1]);
 	},
 });
 
@@ -88,7 +88,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0.5, 0, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.75, 0.5, 1]);
+		assertVecAlmostEquals(pos, [0.25, 0.5, -1]);
 	},
 });
 
@@ -100,7 +100,7 @@ Deno.test({
 
 		const pos = screenToWorldPos(new Vec3(0.5, 0.5, 1000), projectionMatrix, worldMatrix);
 
-		assertVecAlmostEquals(pos, [0, 1, 1000]);
+		assertVecAlmostEquals(pos, [0, 1, -1000]);
 	},
 });
 
@@ -111,7 +111,7 @@ Deno.test({
 
 		const pos = screenToWorldPos(new Vec3(0.5, 0.5, 1000), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0, 0, 1000]);
+		assertVecAlmostEquals(pos, [0, 0, -1000]);
 	},
 });
 
@@ -122,7 +122,7 @@ Deno.test({
 
 		const pos = screenToWorldPos(new Vec3(0.5, 0.5, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0, 0, 1]);
+		assertVecAlmostEquals(pos, [0, 0, -1]);
 	},
 });
 
@@ -133,7 +133,7 @@ Deno.test({
 
 		const pos = screenToWorldPos(new Vec3(0.5, 0.5, 500), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0, 0, 500]);
+		assertVecAlmostEquals(pos, [0, 0, -500]);
 	},
 });
 
@@ -144,7 +144,7 @@ Deno.test({
 
 		const pos = screenToWorldPos(new Vec3(0.5, 0.25, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0, 0.5, 1]);
+		assertVecAlmostEquals(pos, [0, 0.5, -1]);
 	},
 });
 
@@ -155,7 +155,7 @@ Deno.test({
 
 		const pos = screenToWorldPos(new Vec3(0.5, 0.75, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0, -0.5, 1]);
+		assertVecAlmostEquals(pos, [0, -0.5, -1]);
 	},
 });
 
@@ -166,7 +166,7 @@ Deno.test({
 
 		const pos = screenToWorldPos(new Vec3(0.25, 0.5, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [-0.5, 0, 1]);
+		assertVecAlmostEquals(pos, [-0.5, 0, -1]);
 	},
 });
 
@@ -177,7 +177,7 @@ Deno.test({
 
 		const pos = screenToWorldPos(new Vec3(0.75, 0.5, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.5, 0, 1]);
+		assertVecAlmostEquals(pos, [0.5, 0, -1]);
 	},
 });
 
@@ -218,9 +218,9 @@ Deno.test({
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
 		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix, worldMatrix);
 
-		assertVecAlmostEquals(start, [0.5, 1.5, 1]);
+		assertVecAlmostEquals(start, [0.5, 1.5, -1]);
 		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir.magnitude is not normalized");
-		assertVecAlmostEquals(dir, [0.4, -0.5, 0.8], 0.1);
+		assertVecAlmostEquals(dir, [0.4, -0.5, -0.8], 0.1);
 	},
 });
 
@@ -230,9 +230,9 @@ Deno.test({
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
 		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix);
 
-		assertVecAlmostEquals(start, [0.5, 0.5, 1]);
+		assertVecAlmostEquals(start, [0.5, 0.5, -1]);
 		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir.magnitude is not normalized");
-		assertVecAlmostEquals(dir, [0.4, -0.4, 0.8], 0.1);
+		assertVecAlmostEquals(dir, [0.4, -0.4, -0.8], 0.1);
 	},
 });
 

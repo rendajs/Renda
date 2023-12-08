@@ -1,6 +1,6 @@
 import {assert, assertEquals, assertThrows} from "std/testing/asserts.ts";
 import {Mat4, Quat, Vec3} from "../../../../src/mod.js";
-import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
+import {assertMatAlmostEquals, assertQuatAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
 
 const oneTo16Array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
@@ -180,5 +180,80 @@ Deno.test({
 
 		mat.set(oneTo16Array);
 		assertSpyCalls(changeSpy, 2);
+	},
+});
+
+Deno.test({
+	name: "createPerspective() without aspect",
+	fn() {
+		const mat = Mat4.createPerspective(90, 1, 10000);
+		assertMatAlmostEquals(mat, [
+			1,
+			0,
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			0,
+			0,
+			-1.0001,
+			-1,
+			0,
+			0,
+			-1.0001,
+			0,
+		]);
+	},
+});
+
+Deno.test({
+	name: "createPerspective() with uw multiplier",
+	fn() {
+		const mat = Mat4.createPerspective(90, 1, 10000, 1.5);
+		assertMatAlmostEquals(mat, [
+			1.5,
+			0,
+			0,
+			0,
+			0,
+			1,
+			0,
+			0,
+			0,
+			0,
+			-1.0001,
+			-1,
+			0,
+			0,
+			-1.0001,
+			0,
+		]);
+	},
+});
+
+Deno.test({
+	name: "createPerspective() with uh multiplier",
+	fn() {
+		const mat = Mat4.createPerspective(90, 1, 10000, 1, 1.5);
+		assertMatAlmostEquals(mat, [
+			1,
+			0,
+			0,
+			0,
+			0,
+			1.5,
+			0,
+			0,
+			0,
+			0,
+			-1.0001,
+			-1,
+			0,
+			0,
+			-1.0001,
+			0,
+		]);
 	},
 });

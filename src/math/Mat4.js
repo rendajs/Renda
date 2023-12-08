@@ -376,13 +376,13 @@ export class Mat4 {
 		let uh = uw;
 		uw *= uwMultiplier;
 		uh *= uhMultiplier;
-		const deltaDepth = far - near;
+		const deltaDepth = near - far;
 		const depth = 1 / deltaDepth;
 		mat.values[0][0] = uw;
 		mat.values[1][1] = uh;
 		mat.values[2][2] = far * depth;
-		mat.values[3][2] = (-far * near) * depth;
-		mat.values[2][3] = 1;
+		mat.values[3][2] = far * near * depth;
+		mat.values[2][3] = -1;
 		mat.values[3][3] = 0;
 		return mat;
 	}

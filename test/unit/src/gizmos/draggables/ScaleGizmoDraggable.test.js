@@ -33,20 +33,20 @@ function movementTest(screenPosFrom, screenPosTo, expectedDelta) {
 Deno.test({
 	name: `scale up`,
 	fn() {
-		movementTest(new Vec2(0.6, 0.5), new Vec2(0.65, 0.5), 1.33296188);
+		movementTest(new Vec2(0.6, 0.5), new Vec2(0.65, 0.5), 2.00335795);
 	},
 });
 
 Deno.test({
 	name: "scale down",
 	fn() {
-		movementTest(new Vec2(0.65, 0.5), new Vec2(0.6, 0.5), 0.75020899);
+		movementTest(new Vec2(0.65, 0.5), new Vec2(0.6, 0.5), 0.499161917);
 	},
 });
 
 Deno.test({
 	name: "Move to the exact opposite position of the center",
 	fn() {
-		movementTest(new Vec2(0.5, 0.65), new Vec2(0.5, 0.35), 1);
+		movementTest(new Vec2(0.5, 0.35), new Vec2(0.5, 0.65), 1);
 	},
 });
