@@ -113,8 +113,8 @@ export class OrbitControls {
 	 */
 	_onWheel(e) {
 		e.preventDefault();
-		const dx = this.invertScrollX ? e.deltaX : -e.deltaX;
-		const dy = this.invertScrollY ? e.deltaY : -e.deltaY;
+		const dx = this.invertScrollX ? -e.deltaX : e.deltaX;
+		const dy = this.invertScrollY ? -e.deltaY : e.deltaY;
 		this._inputOffset(dx, dy, e);
 	}
 
@@ -172,7 +172,7 @@ export class OrbitControls {
 	}
 
 	updateCamPos() {
-		const lookDir = Vec3.back.rotate(this.lookRot);
+		const lookDir = Vec3.forward.rotate(this.lookRot);
 		this.camera.pos = lookDir.clone().multiply(2 ** this.lookDist).add(this.lookPos);
 		this.camera.rot = this.lookRot.clone();
 	}
