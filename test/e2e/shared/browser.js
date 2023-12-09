@@ -1,5 +1,4 @@
 import puppeteer from "puppeteer";
-import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
 import {parseArgs} from "../../shared/testArgs.js";
 
 let mainPageUrl = "";
@@ -26,7 +25,10 @@ export async function installIfNotInstalled() {
 	const fetcher = puppeteer.createBrowserFetcher({
 		product: "chrome",
 	});
-	const revision = PUPPETEER_REVISIONS.chromium;
+	// Ideally we would use the revision bundled with puppeteer,
+	// but unfortunately some tests seem to be failing when we do this.
+	// This version seems to work though, so we'll roll with it.
+	const revision = "1235267";
 	let revisionInfo = fetcher.revisionInfo(revision);
 	if (!revisionInfo.local) {
 		console.log(`Downloading chromium ${revision}...`);
