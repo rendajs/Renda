@@ -46,6 +46,9 @@ export async function getContentWindowElement(page, contentWindowType, {
 
 /**
  * Waits until the element of a content window type exists on the page.
+ * This returns the full contentWindow element, including the top button bar.
+ * I.e. the element with the "studio-content-window" class.
+ *
  * @param {import("puppeteer").Page} page
  * @param {string} contentWindowType The static `contentWindowTypeId` property of the content window. See {@linkcode ContentWindow.contentWindowTypeId}.
  */
@@ -59,7 +62,7 @@ export async function waitForContentWindowElement(page, contentWindowType) {
 		return el;
 	}, {}, contentWindowType);
 
-	return result;
+	return /** @type {ElementHandle<HTMLDivElement>} */ (result);
 }
 
 /**

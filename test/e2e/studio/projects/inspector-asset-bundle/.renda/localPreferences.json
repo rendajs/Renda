@@ -1,0 +1,21 @@
+{
+	"contentWindowPreferences": [
+		{
+			"id": "c32f1b01-a76e-4124-adcb-e972a9ace63f",
+			"type": "renda:entityEditor",
+			"data": {
+				"entityEditor.loadedEntityPath": [
+					"Entity.json"
+				]
+			}
+		},
+		{
+			"id": "06b33121-13c9-42e2-82c9-82796f448c30",
+			"type": "renda:buildView",
+			"data": {
+				"buildView.selectedScriptEntryPoint": "7e68ce56-d3f3-4981-af58-19b4378ba18d",
+				"buildView.selectedEntityEntryPoint": "9b690ffe-9a82-43a6-af3c-dfd0bc8fa3ca"
+			}
+		}
+	]
+}

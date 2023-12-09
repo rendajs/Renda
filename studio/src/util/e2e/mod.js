@@ -7,3 +7,4 @@
 
 export * from "./treeView.js";
 export * from "./indexedDb.js";
+export * from "./injectProject.js";
