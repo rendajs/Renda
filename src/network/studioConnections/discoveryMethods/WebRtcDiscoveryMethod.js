@@ -56,7 +56,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			this._setStatus("connected");
 		});
 
-		/** @private @type {TypedMessenger<ExternalDiscoveryMethodResponseHandlers, import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/WebSocketConnection.js").StudioDescoveryResponseHandlers>} */
+		/** @private @type {TypedMessenger<ExternalDiscoveryMethodResponseHandlers, import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/f11212158ce959f55713888eb7fb03679c186ef5/src/WebSocketConnection.js").StudioDescoveryResponseHandlers>} */
 		this.webSocketMessenger = new TypedMessenger({globalTimeout: 20_000});
 		this.webSocketMessenger.initializeWebSocket(this.ws, this.getResponseHandlers());
 		this.webSocketMessenger.configureSendOptions({

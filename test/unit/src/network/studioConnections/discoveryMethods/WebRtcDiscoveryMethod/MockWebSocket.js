@@ -29,7 +29,7 @@ export class MockWebSocket extends EventTarget {
 		return this.#endpoint;
 	}
 
-	/** @type {TypedMessenger<import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/WebSocketConnection.js").StudioDescoveryResponseHandlers, import("../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").ExternalDiscoveryMethodResponseHandlers>} */
+	/** @type {TypedMessenger<import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/f11212158ce959f55713888eb7fb03679c186ef5/src/WebSocketConnection.js").StudioDescoveryResponseHandlers, import("../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").ExternalDiscoveryMethodResponseHandlers>} */
 	#messenger = new TypedMessenger();
 	get messenger() {
 		return this.#messenger;
@@ -93,7 +93,7 @@ export class MockWebSocket extends EventTarget {
 	 * @param {string} data
 	 */
 	send(data) {
-		/** @type {import("../../../../../../../src/mod.js").TypedMessengerMessageSendData<import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/WebSocketConnection.js").StudioDescoveryResponseHandlers, import("../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").ExternalDiscoveryMethodResponseHandlers>} */
+		/** @type {import("../../../../../../../src/mod.js").TypedMessengerMessageSendData<import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/f11212158ce959f55713888eb7fb03679c186ef5/src/WebSocketConnection.js").StudioDescoveryResponseHandlers, import("../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").ExternalDiscoveryMethodResponseHandlers>} */
 		const parsed = JSON.parse(data);
 		this.#messenger.handleReceivedMessage(parsed);
 	}
