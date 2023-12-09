@@ -26,6 +26,9 @@
 		"test/**/*.js",
 		"test/**/*.ts",
 	],
+	"exclude": [
+		"test/e2e/studio/projects/"
+	],
 	"files": [
 		"src/mod.js",
 		"studio/src/main.js",

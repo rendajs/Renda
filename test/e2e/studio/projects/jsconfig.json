@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"lib": ["dom", "dom.iterable", "esnext", "WebWorker"],
+		"target": "esnext",
+		"checkJs": true,
+		"module": "esnext",
+		"useDefineForClassFields": true,
+		"strict": true,
+		"typeRoots": [".denoTypes/@types"],
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"paths": {
+			"renda:services": [
+				"./services.d.ts"
+			],
+			"renda": [
+				"../../../../mod.js"
+			]
+		}
+	},
+	"include": [
+		"**/*.js",
+		"types.d.ts"
+	]
+}
