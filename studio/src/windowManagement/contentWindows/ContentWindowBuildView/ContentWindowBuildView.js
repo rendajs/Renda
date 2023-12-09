@@ -59,6 +59,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.playButton = new Button({
 			icon: "static/icons/buildView/play.svg",
 			colorizerFilterManager,
+			tooltip: "Run Application",
 			onClick: () => {
 				this.setIsRunning(true);
 			},

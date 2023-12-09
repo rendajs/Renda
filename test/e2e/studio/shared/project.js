@@ -1,3 +1,5 @@
+import * as fs from "std/fs/mod.ts";
+import * as path from "std/path/mod.ts";
 import {log} from "../../shared/log.js";
 import {click, waitFor} from "../../shared/util.js";
 import {getContentWindowElement} from "./contentWindows.js";
@@ -53,6 +55,37 @@ export async function waitForProjectSelector(page) {
 export async function setupNewProject(page) {
 	log("Create a new project");
 	await click(page, ".project-selector-actions-list-container > .project-selector-list > li:nth-child(1) > button");
+
+	await waitForProjectOpen(page);
+}
+
+/**
+ * Creates a new `IndexedDbStudioFileSystem` and injects all files before opening the project.
+ * @param {import("puppeteer").Page} page
+ * @param {string} projectName The name of the directory located at /test/e2e/studio/projects/
+ */
+export async function loadE2eProject(page, projectName) {
+	// The page creates an empty project on page load,
+	// we wait for this empty project to exist to reduce the likelyhood of race conditions.
+	await waitForProjectOpen(page);
+
+	log(`Loading project "${projectName}"`);
+
+	const filePaths = [];
+	const projectDir = path.resolve(path.dirname(path.fromFileUrl(import.meta.url)), "../projects", projectName);
+	for await (const entry of fs.walk(projectDir)) {
+		if (entry.isFile) {
+			filePaths.push(path.relative(projectDir, entry.path));
+		}
+	}
+
+	await page.waitForFunction(() => globalThis.e2e);
+	await page.evaluate((projectName, filePaths) => {
+		if (!globalThis.e2e) {
+			throw new Error("e2e module not initialized");
+		}
+		return globalThis.e2e.injectProject(projectName, filePaths);
+	}, projectName, filePaths);
 
 	await waitForProjectOpen(page);
 }

@@ -16,6 +16,10 @@ export class StudioConnectionsManager {
 	#internalDiscoveryMethod = null;
 	/** @type {WebRtcDiscoveryMethod?} */
 	#webRtcDiscoveryMethod = null;
+	/** @type {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} */
+	#lastFileSystem = null;
+	/** @type {import("../../assets/AssetManager.js").AssetManager?} */
+	#lastAssetManager = null;
 
 	/** @type {string?} */
 	#webRtcDiscoveryEndpoint = null;
@@ -78,16 +82,27 @@ export class StudioConnectionsManager {
 		/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType?} */
 		const desiredClientType = this.#projectManager.currentProjectIsRemote ? "studio-client" : "studio-host";
 
-		if (this.#discoveryManager && (desiredClientType != this.#discoveryManager.clientType)) {
+		if (
+			this.#discoveryManager &&
+			(
+				desiredClientType != this.#discoveryManager.clientType ||
+				this.#lastFileSystem != this.#projectManager.currentProjectFileSystem ||
+				this.#lastAssetManager != this.#projectManager.assetManager
+			)
+		) {
 			this.#discoveryManager.destructor();
 			this.#discoveryManager = null;
 			this.#webRtcDiscoveryMethod = null;
 			this.#internalDiscoveryMethod = null;
+			this.#lastFileSystem = null;
+			this.#lastAssetManager = null;
 			this.#lastSentProjectMetadataWebRtc = null;
 			this.#lastSentProjectMetadataInternal = null;
 		}
 
 		if (desiredClientType && !this.#discoveryManager && this.#projectManager.currentProjectFileSystem && this.#projectManager.assetManager) {
+			this.#lastFileSystem = this.#projectManager.currentProjectFileSystem;
+			this.#lastAssetManager = this.#projectManager.assetManager;
 			const certainFileSystem = this.#projectManager.currentProjectFileSystem;
 			const certainAssetManager = this.#projectManager.assetManager;
 			const discoveryManager = new DiscoveryManager(desiredClientType);

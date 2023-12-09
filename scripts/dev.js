@@ -42,7 +42,11 @@ export async function dev({
 			importMap: "importmap.json",
 			include: [
 				"scripts",
-				"test",
+				"test/shared/",
+				"test/unit/",
+				"test/e2e/shared/",
+				"test/e2e/studio/shared/",
+				"test/e2e/studio/src/",
 				"studio/devSocket",
 			],
 			excludeUrls: [

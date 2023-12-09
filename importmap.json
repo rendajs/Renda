@@ -6,7 +6,6 @@
 		"fake-imports": "https://deno.land/x/fake_imports@v0.10.0/mod.js",
 		"fake-dom/": "https://deno.land/x/fake_dom@v0.11.0/src/",
 		"puppeteer": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/7c5ed2e6e9f43d7fc27d4fa49f17db36be220956/mod.ts",
-		"puppeteer/": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/7c5ed2e6e9f43d7fc27d4fa49f17db36be220956/",
 		"rollup": "npm:rollup@2.79.1",
 		"rollup-plugin-jscc": "npm:rollup-plugin-jscc@2.0.0",
 		"rollup-plugin-cleanup": "npm:rollup-plugin-cleanup@3.2.1",
