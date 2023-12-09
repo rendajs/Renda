@@ -51,9 +51,13 @@ export async function dev({
 				"npm:rollup-plugin-resolve-url-objects@0.0.4",
 				"npm:eslint-plugin-jsdoc@39.8.0",
 				"npm:jszip@3.5.0",
-				// Remove these once https://github.com/rendajs/studio-discovery-server/issues/2 is fixed.
-				"https://raw.githubusercontent.com/rendajs/Renda/015df2634a012df1fdd144f059dcdcb17d3aa51e/src/network/studioConnections/DiscoveryManager.js",
-				"https://raw.githubusercontent.com/rendajs/Renda/015df2634a012df1fdd144f059dcdcb17d3aa51e/src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js",
+
+				// The StudioDiscovery references some types from the main Renda repository,
+				// but some of these files have css import assertions, causing deno vendor to fail
+				"https://raw.githubusercontent.com/rendajs/Renda/3570dc24d41ef1522a97371ebdc2e7b88d15317d/src/util/util.js",
+				"https://raw.githubusercontent.com/rendajs/Renda/3570dc24d41ef1522a97371ebdc2e7b88d15317d/src/util/TypedMessenger/TypedMessenger.js",
+				"https://raw.githubusercontent.com/rendajs/Renda/3570dc24d41ef1522a97371ebdc2e7b88d15317d/src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js",
+				"https://raw.githubusercontent.com/rendajs/Renda/3570dc24d41ef1522a97371ebdc2e7b88d15317d/src/network/studioConnections/DiscoveryManager.js",
 			],
 			extraTypeRoots: {
 				// We prefix webgpu with aa to ensure it is placed above deno-types.
@@ -74,7 +78,7 @@ export async function dev({
 		// eslint-disable-next-line no-constant-condition
 		if (false) {
 			// This import exists just to make deno_tsc_helper add this path to the generated tsconfig.js
-			await import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/423fa5d224dae56571a61bfd8d850b76fcdcc6fa/src/WebSocketConnection.js");
+			await import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/f11212158ce959f55713888eb7fb03679c186ef5/src/WebSocketConnection.js");
 		}
 		if (needsTypesSync) {
 			await promise;
