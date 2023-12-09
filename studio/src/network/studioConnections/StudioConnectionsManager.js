@@ -121,7 +121,6 @@ export class StudioConnectionsManager {
 				// TODO: Add an allowlist #751
 				// TODO: Automatically accept connections that are hosted by this studio instance #810
 				// TODO: Make inspector connections work: #817
-				// TODO: Add connection prompt #812
 
 				if (discoveryManager.clientType == "studio-client" && connectionRequest.clientType == "studio-host") {
 					if (!connectionRequest.initiatedByMe) {
