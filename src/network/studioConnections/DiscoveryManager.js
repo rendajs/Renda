@@ -107,25 +107,25 @@ export class DiscoveryManager {
 			this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
 		});
 		discoveryMethod.onConnectionRequest(messageHandler => {
-			let connectionCreated = false;
+			let anySuccess = false;
 			for (const cb of this.onConnectionRequestCbs) {
 				/** @type {OnConnectionCreatedRequest} */
 				const request = {
 					clientType: messageHandler.clientType,
 					initiatedByMe: messageHandler.initiatedByMe,
 					accept: reliableResponseHandlers => {
-						connectionCreated = true;
 						return new StudioConnection(messageHandler, reliableResponseHandlers);
 					},
 				};
 				try {
 					cb(request);
+					anySuccess = true;
 				} catch (e) {
 					console.error(e);
 				}
-				if (connectionCreated) break;
+				if (anySuccess) break;
 			}
-			if (!connectionCreated) {
+			if (!anySuccess) {
 				messageHandler.close();
 			}
 		});

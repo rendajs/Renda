@@ -89,7 +89,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "new active connection fires callbacks and is closed when no callback accepts",
+	name: "new active connection fires callbacks and is not closed when no callback accepts",
 	fn() {
 		const manager = new DiscoveryManager("studio-host");
 		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
@@ -105,7 +105,7 @@ Deno.test({
 		manager.onConnectionRequest(onConnectionRequestSpy);
 
 		const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
-		assertSpyCalls(messageHandler.closeSpy, 1);
+		assertSpyCalls(messageHandler.closeSpy, 0);
 	},
 });
 
@@ -120,12 +120,8 @@ Deno.test({
 			projectMetadata: null,
 		});
 
-		let firstCallCount = 0;
 		manager.onConnectionRequest(request => {
-			firstCallCount++;
-			if (firstCallCount > 1) {
-				request.accept({});
-			}
+			// Accept the connection (by not throwing)
 		});
 
 		/** @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest} request */
@@ -133,12 +129,41 @@ Deno.test({
 		const onConnectionRequest2Spy = spy(onConnectionRequest2);
 		manager.onConnectionRequest(onConnectionRequest2Spy);
 
-		discoveryMethod.addActive("id1", false, 42, "str");
-		assertSpyCalls(onConnectionRequest2Spy, 1);
+		const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
+		assertSpyCalls(onConnectionRequest2Spy, 0);
+		assertSpyCalls(messageHandler.closeSpy, 0);
+	},
+});
 
-		const messageHandler2 = discoveryMethod.addActive("id1", false, 42, "str");
-		assertSpyCalls(onConnectionRequest2Spy, 1);
-		assertSpyCalls(messageHandler2.closeSpy, 0);
+Deno.test({
+	name: "connection is closed when all onConnectionRequest callbacks throw",
+	fn() {
+		const manager = new DiscoveryManager("studio-host");
+		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
+		discoveryMethod.addOne({
+			clientType: "inspector",
+			id: "id1",
+			projectMetadata: null,
+		});
+
+		const consoleErrorSpy = stub(console, "error");
+		try {
+			const error = new Error("oh no");
+			manager.onConnectionRequest(request => {
+				throw error;
+			});
+			manager.onConnectionRequest(request => {
+				throw error;
+			});
+
+			const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
+			assertSpyCalls(consoleErrorSpy, 2);
+			assertStrictEquals(consoleErrorSpy.calls[0].args[0], error);
+			assertStrictEquals(consoleErrorSpy.calls[1].args[0], error);
+			assertSpyCalls(messageHandler.closeSpy, 1);
+		} finally {
+			consoleErrorSpy.restore();
+		}
 	},
 });
 
