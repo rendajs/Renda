@@ -81,8 +81,6 @@ export class ContentWindowConnections extends ContentWindow {
 		const studioClientConnectionTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(studioClientConnectionTreeView.el);
 
-		// todo: add status label for client connection
-
 		const studioConnectionsList = studioClientConnectionTreeView.addCollapsable("Studios");
 		return {studioClientConnectionTreeView, studioConnectionsList};
 	}
@@ -90,15 +88,6 @@ export class ContentWindowConnections extends ContentWindow {
 	createInspectorConnectionsUi() {
 		const inspectorConnectionsTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(inspectorConnectionsTreeView.el);
-
-		// todo: make this work
-		// this.autoConnectInspectorsCheckbox = inspectorConnectionsTreeView.addItem({
-		// 	type: "boolean",
-		// 	/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
-		// 	guiOpts: {
-		// 		label: "Auto Connect Inspectors",
-		// 	},
-		// });
 
 		const inspectorConnectionsList = inspectorConnectionsTreeView.addCollapsable("Inspectors");
 		return {inspectorConnectionsList};
@@ -197,6 +186,9 @@ export class ContentWindowConnections extends ContentWindow {
 			let buttonDisabled = false;
 			if (connection.connectionState == "connecting") {
 				status = "Connecting";
+				buttonDisabled = true;
+			} else if (connection.connectionState == "outgoing-permission-pending") {
+				status = "Waiting for Permission";
 				buttonDisabled = true;
 			} else if (connection.connectionState == "connected") {
 				status = "Connected";

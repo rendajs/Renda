@@ -1,7 +1,7 @@
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {DiscoveryManager} from "../../../../../src/network/studioConnections/DiscoveryManager.js";
 import {ExtendedDiscoveryMethod} from "./discoveryMethods/shared/ExtendedDiscoveryMethod.js";
-import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
 
 Deno.test({
@@ -105,12 +105,16 @@ Deno.test({
 		manager.onConnectionRequest(onConnectionRequestSpy);
 
 		const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
+		assertSpyCalls(onConnectionRequestSpy, 1);
+		assertEquals(onConnectionRequestSpy.calls[0].args[0].otherClientUuid, "id1");
+		assertEquals(onConnectionRequestSpy.calls[0].args[0].clientType, "inspector");
+		assertEquals(onConnectionRequestSpy.calls[0].args[0].initiatedByMe, false);
 		assertSpyCalls(messageHandler.closeSpy, 0);
 	},
 });
 
 Deno.test({
-	name: "accepting a connection stops other events from firing, and connection is not closed",
+	name: "onConnectionRequest callback that doesn't throw, stops other events from firing and connection is not closed",
 	fn() {
 		const manager = new DiscoveryManager("studio-host");
 		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
@@ -121,7 +125,7 @@ Deno.test({
 		});
 
 		manager.onConnectionRequest(request => {
-			// Accept the connection (by not throwing)
+			// An implementation could store the request and accept it later
 		});
 
 		/** @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest} request */
@@ -192,11 +196,76 @@ Deno.test({
 
 			discoveryMethod.addActive("id1", false, 42, "str");
 			assertSpyCalls(onConnectionRequest2Spy, 1);
+			assertEquals(onConnectionRequest2Spy.calls[0].args[0].otherClientUuid, "id1");
+			assertEquals(onConnectionRequest2Spy.calls[0].args[0].clientType, "inspector");
+			assertEquals(onConnectionRequest2Spy.calls[0].args[0].initiatedByMe, false);
 			assertSpyCalls(consoleErrorSpy, 1);
 			assertStrictEquals(consoleErrorSpy.calls[0].args[0], error);
 		} finally {
 			consoleErrorSpy.restore();
 		}
+	},
+});
+
+Deno.test({
+	name: "Accepting a connection creates a StudioConnection",
+	fn() {
+		const manager = new DiscoveryManager("studio-client");
+		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
+		let connectionRequest = /** @type {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest?} */ (null);
+		manager.onConnectionRequest(request => {
+			connectionRequest = request;
+		});
+
+		discoveryMethod.addOne({
+			clientType: "inspector",
+			id: "id1",
+			projectMetadata: null,
+		});
+		discoveryMethod.addActive("id1", false, 42, "str");
+
+		assertExists(connectionRequest);
+		const studioConnection = connectionRequest.accept({});
+		assertEquals(studioConnection.otherClientUuid, "id1");
+		assertEquals(studioConnection.clientType, "inspector");
+		assertEquals(studioConnection.initiatedByMe, false);
+
+		assertThrows(() => {
+			connectionRequest?.accept({});
+		}, Error, "The connection request has already been accepted.");
+		assertThrows(() => {
+			connectionRequest?.reject();
+		}, Error, "The connection request has already been accepted.");
+	},
+});
+Deno.test({
+	name: "Rejection a connection closes the connection",
+	fn() {
+		const manager = new DiscoveryManager("studio-client");
+		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
+		let connectionRequest = /** @type {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest?} */ (null);
+		manager.onConnectionRequest(request => {
+			connectionRequest = request;
+		});
+
+		discoveryMethod.addOne({
+			clientType: "inspector",
+			id: "id1",
+			projectMetadata: null,
+		});
+		const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
+
+		assertExists(connectionRequest);
+		connectionRequest.reject();
+
+		assertSpyCalls(messageHandler.closeSpy, 1);
+
+		assertThrows(() => {
+			connectionRequest?.accept({});
+		}, Error, "The connection request has already been rejected.");
+		assertThrows(() => {
+			connectionRequest?.reject();
+		}, Error, "The connection request has already been rejected.");
 	},
 });
 
