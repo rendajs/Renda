@@ -497,7 +497,7 @@ export class TreeView {
 	}
 
 	/**
-	 * @param {this} child
+	 * @param {TreeView} child
 	 */
 	removeChild(child, destructChild = true) {
 		for (const [i, c] of this.children.entries()) {

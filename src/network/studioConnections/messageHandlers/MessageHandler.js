@@ -1,4 +1,4 @@
-/** @typedef {"disconnected" | "connecting" | "connected" | "outgoing-permission-pending" | "incoming-permission-pending" | "outgoing-permission-denied"} MessageHandlerStatus */
+/** @typedef {"disconnected" | "connecting" | "connected" | "outgoing-permission-pending" | "incoming-permission-pending" | "outgoing-permission-rejected"} MessageHandlerStatus */
 
 /** @typedef {(state: MessageHandlerStatus) => void} OnStatusChangeCallback */
 
