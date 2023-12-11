@@ -17,6 +17,7 @@ import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
  * @property {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
  * @property {LabelGui} webRtcStatusLabel
  * @property {import("../../../../../../studio/src/ui/TreeView.js").TreeView} studiosListTreeView
+ * @property {import("../../../../../../studio/src/ui/TreeView.js").TreeView} inspectorsListTreeView
  * @property {() => void} fireOnAvailableConnectionsChanged
  * @property {(status: import("../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").DiscoveryServerStatusType) => void} fireOnWebRtcDiscoveryserverStatusChange
  */
@@ -74,7 +75,7 @@ async function basicTest({
 		});
 		const contentWindow = new ContentWindowConnections(mockStudioInstance, getMockWindowManager(), "uuid");
 
-		assertTreeViewStructureEquals(contentWindow.studioClientConnectionTreeView, {
+		assertTreeViewStructureEquals(contentWindow.studioClientConnectionsTreeView, {
 			children: [
 				{
 					name: "Studios",
@@ -83,13 +84,24 @@ async function basicTest({
 		}, {
 			checkAllChildren: false,
 		});
-		const studiosListTreeView = getChildTreeViewFromIndices(contentWindow.studioClientConnectionTreeView, 0);
+		assertTreeViewStructureEquals(contentWindow.inspectorConnectionsTreeView, {
+			children: [
+				{
+					name: "Inspectors",
+				},
+			],
+		}, {
+			checkAllChildren: false,
+		});
+		const studiosListTreeView = getChildTreeViewFromIndices(contentWindow.studioClientConnectionsTreeView, 0);
+		const inspectorsListTreeView = getChildTreeViewFromIndices(contentWindow.inspectorConnectionsTreeView, 0);
 		const webRtcStatusLabel = contentWindow.discoveryServerStatusLabel.gui;
 
 		/** @type {ContentWindowConnectionsTestContext} */
 		const testContext = {
 			contentWindow,
 			studiosListTreeView,
+			inspectorsListTreeView,
 			webRtcStatusLabel,
 			studioConnectionsManager: mockStudioInstance.studioConnectionsManager,
 			fireOnAvailableConnectionsChanged() {
@@ -472,13 +484,51 @@ Deno.test({
 					args: ["uuid1"],
 				});
 
-				connection.connectionState = "outgoing-permission-pending";
-				fireOnAvailableConnectionsChanged();
-				assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Waiting for Permission", "Waiting for the receiving end to allow the request.", true, false, false);
-
 				connection.connectionState = "connected";
 				fireOnAvailableConnectionsChanged();
 				assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Connected", "", false, false, false);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Incoming inspector connection prompt",
+	async fn() {
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionData} */
+		const connection = {
+			id: "uuid1",
+			clientType: "inspector",
+			connectionState: "disconnected",
+			connectionType: "renda:internal",
+			projectMetadata: null,
+		};
+		await basicTest({
+			connections: [connection],
+			fn({inspectorsListTreeView, studioConnectionsManager, fireOnAvailableConnectionsChanged}) {
+				const studioTreeView = getChildTreeViewFromIndices(inspectorsListTreeView, 0);
+				assertConnectionTreeView(studioTreeView, "Inspector", "Internal", "Available", "", true, true, false);
+
+				connection.connectionState = "connecting";
+				fireOnAvailableConnectionsChanged();
+				assertConnectionTreeView(studioTreeView, "Inspector", "Internal", "Connecting", "", true, false, false);
+
+				connection.connectionState = "incoming-permission-pending";
+				fireOnAvailableConnectionsChanged();
+				const {allowButtonGui} = assertConnectionTreeView(studioTreeView, "Inspector", "Internal", "Waiting for Permission", "", false, false, true);
+
+				const acceptIncomingConnectionSpy = stub(studioConnectionsManager, "acceptIncomingConnection");
+
+				assertExists(allowButtonGui);
+				allowButtonGui.click();
+				assertSpyCalls(acceptIncomingConnectionSpy, 1);
+				assertSpyCall(acceptIncomingConnectionSpy, 0, {
+					args: ["uuid1"],
+				});
+
+				connection.connectionState = "connected";
+				fireOnAvailableConnectionsChanged();
+				assertConnectionTreeView(studioTreeView, "Inspector", "Internal", "Connected", "", false, false, false);
 			},
 		});
 	},

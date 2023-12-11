@@ -36,10 +36,11 @@ export class ContentWindowConnections extends ContentWindow {
 		this.discoveryServerStatusLabel = discoveryServerStatusLabel;
 
 		const {studioClientConnectionTreeView, studioConnectionsList} = this.createClientConnectionUi();
-		this.studioClientConnectionTreeView = studioClientConnectionTreeView;
+		this.studioClientConnectionsTreeView = studioClientConnectionTreeView;
 		this.studioConnectionsList = studioConnectionsList;
 
-		const {inspectorConnectionsList} = this.createInspectorConnectionsUi();
+		const {inspectorConnectionsList, inspectorConnectionsTreeView} = this.createInspectorConnectionsUi();
+		this.inspectorConnectionsTreeView = inspectorConnectionsTreeView;
 		this.inspectorConnectionsList = inspectorConnectionsList;
 
 		const connectionsManager = this.studioInstance.studioConnectionsManager;
@@ -92,7 +93,7 @@ export class ContentWindowConnections extends ContentWindow {
 		this.contentEl.appendChild(inspectorConnectionsTreeView.el);
 
 		const inspectorConnectionsList = inspectorConnectionsTreeView.addCollapsable("Inspectors");
-		return {inspectorConnectionsList};
+		return {inspectorConnectionsList, inspectorConnectionsTreeView};
 	}
 
 	/**
@@ -158,6 +159,10 @@ export class ContentWindowConnections extends ContentWindow {
 			if (connection.clientType == "studio-client") {
 				tooltip = "This connection is a studio instance without an open project. Connections can only be initiated from the other end.";
 				gui.treeView.name = "Studio Client";
+			} else if (connection.clientType == "inspector") {
+				available = true;
+				gui.treeView.name = "Inspector";
+				status = "Available";
 			} else if (projectMetadata) {
 				gui.treeView.name = projectMetadata.name || "Untitled Project";
 				if (projectMetadata.fileSystemHasWritePermissions) {
