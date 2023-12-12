@@ -6,17 +6,17 @@ import {ExtendedDiscoveryMethod, ExtendedMessageHandler} from "./shared/Extended
 Deno.test({
 	name: "Adding and removing connections",
 	fn() {
-		const manager = new ExtendedDiscoveryMethod();
+		const method = new ExtendedDiscoveryMethod();
 		const onChangeSpy = spy();
-		manager.onAvailableConnectionsChanged(onChangeSpy);
+		method.onAvailableConnectionsChanged(onChangeSpy);
 
-		manager.addOne({
+		method.addOne({
 			id: "id",
 			clientType: "studio-host",
 			projectMetadata: null,
 		});
 		assertSpyCalls(onChangeSpy, 1);
-		assertEquals(Array.from(manager.availableConnections()), [
+		assertEquals(Array.from(method.availableConnections()), [
 			{
 				clientType: "studio-host",
 				id: "id",
@@ -24,20 +24,20 @@ Deno.test({
 			},
 		]);
 
-		assertEquals(manager.hasAvailableConnection("id"), true);
+		assertEquals(method.hasAvailableConnection("id"), true);
 
-		manager.removeOne("id");
+		method.removeOne("id");
 		assertSpyCalls(onChangeSpy, 2);
-		assertEquals(Array.from(manager.availableConnections()), []);
+		assertEquals(Array.from(method.availableConnections()), []);
 
-		assertEquals(manager.hasAvailableConnection("id"), false);
+		assertEquals(method.hasAvailableConnection("id"), false);
 	},
 });
 
 Deno.test({
 	name: "addAvailableConnection() clones the connection data.",
 	fn() {
-		const manager = new ExtendedDiscoveryMethod();
+		const method = new ExtendedDiscoveryMethod();
 
 		/**
 		 * @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection}
@@ -51,14 +51,14 @@ Deno.test({
 				uuid: "uuid",
 			},
 		};
-		manager.addOne(connection);
+		method.addOne(connection);
 		connection.clientType = "studio-client";
 		if (connection.projectMetadata) {
 			connection.projectMetadata.name = "new project name";
 			connection.projectMetadata.fileSystemHasWritePermissions = true;
 		}
 
-		assertEquals(Array.from(manager.availableConnections()), [
+		assertEquals(Array.from(method.availableConnections()), [
 			{
 				id: "id",
 				clientType: "studio-host",
@@ -75,16 +75,16 @@ Deno.test({
 Deno.test({
 	name: "Clear available connections",
 	fn() {
-		const manager = new ExtendedDiscoveryMethod();
+		const method = new ExtendedDiscoveryMethod();
 		const onChangeSpy = spy();
-		manager.onAvailableConnectionsChanged(onChangeSpy);
+		method.onAvailableConnectionsChanged(onChangeSpy);
 
-		manager.addOne({
+		method.addOne({
 			id: "1",
 			clientType: "studio-host",
 			projectMetadata: null,
 		});
-		manager.addOne({
+		method.addOne({
 			id: "2",
 			clientType: "inspector",
 			projectMetadata: {
@@ -95,34 +95,34 @@ Deno.test({
 		});
 		assertSpyCalls(onChangeSpy, 2);
 
-		manager.clearAll();
+		method.clearAll();
 		assertSpyCalls(onChangeSpy, 3);
-		assertEquals(Array.from(manager.availableConnections()), []);
+		assertEquals(Array.from(method.availableConnections()), []);
 	},
 });
 
 Deno.test({
 	name: "setAvailableConnections()",
 	fn() {
-		const manager = new ExtendedDiscoveryMethod();
+		const method = new ExtendedDiscoveryMethod();
 
 		const onChangeSpy = spy();
 		let spyCallCount = 0;
-		manager.onAvailableConnectionsChanged(onChangeSpy);
+		method.onAvailableConnectionsChanged(onChangeSpy);
 
 		// Setting an empty array while the array is already empty shouldn't fire the callback
-		manager.setMultiple([]);
+		method.setMultiple([]);
 		assertSpyCalls(onChangeSpy, spyCallCount);
 
 		// This connection should be removed once we call setAvailableConnections()
-		manager.addOne({
+		method.addOne({
 			id: "shouldnotexist",
 			clientType: "inspector",
 			projectMetadata: null,
 		});
 		assertSpyCalls(onChangeSpy, ++spyCallCount);
 
-		manager.setMultiple([
+		method.setMultiple([
 			{
 				id: "1",
 				clientType: "studio-client",
@@ -135,7 +135,7 @@ Deno.test({
 			},
 		]);
 		assertSpyCalls(onChangeSpy, ++spyCallCount);
-		assertEquals(Array.from(manager.availableConnections()), [
+		assertEquals(Array.from(method.availableConnections()), [
 			{
 				id: "1",
 				clientType: "studio-client",
@@ -153,19 +153,19 @@ Deno.test({
 Deno.test({
 	name: "onAvailableConnectionsChanged callbacks stop firing when removed",
 	fn() {
-		const manager = new ExtendedDiscoveryMethod();
+		const method = new ExtendedDiscoveryMethod();
 		const onChangeSpy = spy();
-		manager.onAvailableConnectionsChanged(onChangeSpy);
+		method.onAvailableConnectionsChanged(onChangeSpy);
 
-		manager.addOne({
+		method.addOne({
 			id: "id",
 			clientType: "studio-host",
 			projectMetadata: null,
 		});
 		assertSpyCalls(onChangeSpy, 1);
 
-		manager.removeOnAvailableConnectionsChanged(onChangeSpy);
-		manager.addOne({
+		method.removeOnAvailableConnectionsChanged(onChangeSpy);
+		method.addOne({
 			id: "id2",
 			clientType: "inspector",
 			projectMetadata: null,
@@ -178,9 +178,9 @@ Deno.test({
 Deno.test({
 	name: "registerClient() throws",
 	fn() {
-		const manager = new DiscoveryMethod(ExtendedMessageHandler);
+		const method = new DiscoveryMethod(ExtendedMessageHandler);
 		assertThrows(() => {
-			manager.registerClient("studio-client");
+			method.registerClient("studio-client");
 		}, Error, "base class");
 	},
 });
@@ -188,9 +188,9 @@ Deno.test({
 Deno.test({
 	name: "setProjectMetaData() throws",
 	fn() {
-		const manager = new DiscoveryMethod(ExtendedMessageHandler);
+		const method = new DiscoveryMethod(ExtendedMessageHandler);
 		assertThrows(() => {
-			manager.setProjectMetadata(null);
+			method.setProjectMetadata(null);
 		}, Error, "base class");
 	},
 });
@@ -198,9 +198,9 @@ Deno.test({
 Deno.test({
 	name: "requestConnection() throws",
 	fn() {
-		const manager = new DiscoveryMethod(ExtendedMessageHandler);
+		const method = new DiscoveryMethod(ExtendedMessageHandler);
 		assertThrows(() => {
-			manager.requestConnection("id");
+			method.requestConnection("id");
 		}, Error, "base class");
 	},
 });
@@ -208,24 +208,24 @@ Deno.test({
 Deno.test({
 	name: "setConnectionProjectMetaData()",
 	fn() {
-		const manager = new ExtendedDiscoveryMethod();
-		manager.addOne({
+		const method = new ExtendedDiscoveryMethod();
+		method.addOne({
 			id: "A",
 			clientType: "studio-host",
 			projectMetadata: null,
 		});
 
 		const onChangeSpy = spy();
-		manager.onAvailableConnectionsChanged(onChangeSpy);
+		method.onAvailableConnectionsChanged(onChangeSpy);
 
-		manager.modifyOne("A", {
+		method.modifyOne("A", {
 			fileSystemHasWritePermissions: false,
 			name: "project",
 			uuid: "id",
 		});
 		assertSpyCalls(onChangeSpy, 1);
 
-		manager.modifyOne("B", {
+		method.modifyOne("B", {
 			fileSystemHasWritePermissions: false,
 			name: "project",
 			uuid: "id",
@@ -237,10 +237,10 @@ Deno.test({
 Deno.test({
 	name: "addActiveConnection() throws when the otherClientUuid doesn't exist",
 	fn() {
-		const manager = new ExtendedDiscoveryMethod();
+		const method = new ExtendedDiscoveryMethod();
 
 		assertThrows(() => {
-			manager.addActive("non existent", true, 0, "");
+			method.addActive("non existent", true, 0, "");
 		});
 	},
 });
@@ -248,43 +248,49 @@ Deno.test({
 Deno.test({
 	name: "addActiveConnections() adds connections",
 	fn() {
-		const manager = new ExtendedDiscoveryMethod();
+		class ExtendedDiscoveryMethod2 extends ExtendedDiscoveryMethod {
+			getActiveConnections() {
+				return this.activeConnections;
+			}
+		}
+		const method = new ExtendedDiscoveryMethod2();
 
 		const spyFn = spy();
-		manager.onConnectionRequest(spyFn);
+		method.onConnectionRequest(spyFn);
 
-		manager.addOne({
+		method.addOne({
 			id: "id",
 			clientType: "studio-client",
 			projectMetadata: null,
 		});
-		const messageHandler = manager.addActive("id", true, 42, "foo");
+		const messageHandler = method.addActive("id", true, 42, "foo");
 
 		assertSpyCalls(spyFn, 1);
 		assertStrictEquals(spyFn.calls[0].args[0], messageHandler);
 		assertEquals(messageHandler.initiatedByMe, true);
 		assertEquals(messageHandler.param1, 42);
 		assertEquals(messageHandler.param2, "foo");
+		assertEquals(method.getActiveConnections().size, 1);
 	},
 });
 
 Deno.test({
 	name: "addActiveConnection() clones connectionData",
 	fn() {
-		const manager = new ExtendedDiscoveryMethod();
+		const method = new ExtendedDiscoveryMethod();
 		/** @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata} */
 		const projectMetaData = {
 			fileSystemHasWritePermissions: true,
 			name: "old name",
 			uuid: "project id",
 		};
-		manager.addOne({
+		method.addOne({
 			id: "id",
 			clientType: "studio-client",
 			projectMetadata: projectMetaData,
 		});
 
-		const messageHandler = manager.addActive("id", true, 0, "");
+		const messageHandler = method.addActive("id", true, 0, "");
 
 		projectMetaData.name = "new name";
 

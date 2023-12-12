@@ -13,19 +13,29 @@ export function clearCreatedMessageHandlers() {
 	createdMessageHandlers.clear();
 }
 
+/**
+ * @typedef ExtendedMessageHandlerOptions
+ * @property {import("../../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus} [initialStatus]
+ */
+
 export class ExtendedMessageHandler extends MessageHandler {
 	/**
 	 * @param {import("../../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerOptions} options
 	 * @param {number} param1
 	 * @param {string} param2
+	 * @param {ExtendedMessageHandlerOptions} [extendedOptions]
 	 */
-	constructor(options, param1, param2) {
+	constructor(options, param1, param2, {
+		initialStatus = "connecting",
+	} = {}) {
 		super(options);
 		this.param1 = param1;
 		this.param2 = param2;
 
 		this.closeSpy = spy(this, "close");
-		this.setStatus("connecting");
+		this.requestAcceptedSpy = spy(this, "requestAccepted");
+		this.requestRejectedSpy = spy(this, "requestRejected");
+		this.setStatus(initialStatus);
 		createdMessageHandlers.add(this);
 	}
 
@@ -91,9 +101,10 @@ export class ExtendedDiscoveryMethod extends DiscoveryMethod {
 	 * @param {boolean} initiatedByMe
 	 * @param {number} param1
 	 * @param {string} param2
+	 * @param {ExtendedMessageHandlerOptions} [options]
 	 */
-	addActive(otherClientUuid, initiatedByMe, param1, param2) {
-		return this.addActiveConnection(otherClientUuid, initiatedByMe, param1, param2);
+	addActive(otherClientUuid, initiatedByMe, param1, param2, options) {
+		return this.addActiveConnection(otherClientUuid, initiatedByMe, param1, param2, options);
 	}
 
 	/**

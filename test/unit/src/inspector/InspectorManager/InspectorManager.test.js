@@ -52,10 +52,12 @@ async function basicTest({fn}) {
  * @param {object} options
  * @param {import("../../../../../src/mod.js").UuidString} [options.connectionId]
  * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").ClientType} [options.clientType]
+ * @param {import("../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus} [options.initialStatus]
  */
 function createConnection({
 	connectionId = "uuid",
 	clientType = "studio-host",
+	initialStatus = "connecting",
 } = {}) {
 	const discoveryManager = assertLastDiscoveryManager();
 	const method = discoveryManager.addDiscoveryMethod(ExtendedDiscoveryMethod);
@@ -64,7 +66,7 @@ function createConnection({
 		id: connectionId,
 		projectMetadata: null,
 	});
-	method.addActive(connectionId, true, 42, "");
+	return method.addActive(connectionId, true, 42, "", {initialStatus});
 }
 
 Deno.test({
@@ -160,7 +162,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Requests are passed to a connection once it connects",
+	name: "Requests are passed to a connection once it connects, status is 'connected' from the start",
 	async fn() {
 		await basicTest({
 			async fn({fakeTime}) {
@@ -175,11 +177,45 @@ Deno.test({
 				await fakeTime.nextAsync();
 				await assertResolvedPromise1;
 
-				createConnection();
+				createConnection({initialStatus: "connected"});
 
 				const assertResolvedPromise2 = assertPromiseResolved(promise, true);
 				await fakeTime.nextAsync();
 				await assertResolvedPromise2;
+
+				assertEquals(await promise, "not the default");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Requests are passed to a connection once status becomes connected",
+	async fn() {
+		await basicTest({
+			async fn({fakeTime}) {
+				const manager = new InspectorManager();
+				const promise = manager.raceAllConnections({
+					defaultReturnValue: "default",
+					async cb() {
+						return "not the default";
+					},
+				});
+				const assertResolvedPromise1 = assertPromiseResolved(promise, false);
+				await fakeTime.nextAsync();
+				await assertResolvedPromise1;
+
+				const messageHandler = createConnection();
+
+				const assertResolvedPromise2 = assertPromiseResolved(promise, false);
+				await fakeTime.nextAsync();
+				await assertResolvedPromise2;
+
+				messageHandler.markAsConnected();
+
+				const assertResolvedPromise3 = assertPromiseResolved(promise, true);
+				await fakeTime.nextAsync();
+				await assertResolvedPromise3;
 
 				assertEquals(await promise, "not the default");
 			},
@@ -194,9 +230,9 @@ Deno.test({
 			async fn() {
 				const manager = new InspectorManager();
 
-				createConnection({connectionId: "1"});
-				createConnection({connectionId: "2"});
-				createConnection({connectionId: "3"});
+				createConnection({initialStatus: "connected", connectionId: "1"});
+				createConnection({initialStatus: "connected", connectionId: "2"});
+				createConnection({initialStatus: "connected", connectionId: "3"});
 
 				let callId = 0;
 				const result = await manager.raceAllConnections({
@@ -216,15 +252,41 @@ Deno.test({
 });
 
 Deno.test({
-	name: "raceAllConnections() returns the result that finishes firs",
+	name: "raceAllConnections() ommits connections that are not connected yet",
+	async fn() {
+		await basicTest({
+			async fn() {
+				const manager = new InspectorManager();
+
+				createConnection({connectionId: "1", initialStatus: "connected"});
+				createConnection({connectionId: "2", initialStatus: "outgoing-permission-pending"});
+				createConnection({connectionId: "3", initialStatus: "connected"});
+
+				/** @type {string[]} */
+				const callConnectionIds = [];
+				await manager.raceAllConnections({
+					defaultReturnValue: "default",
+					async cb(studioConnection) {
+						callConnectionIds.push(studioConnection.otherClientUuid);
+					},
+				});
+
+				assertEquals(callConnectionIds, ["1", "3"]);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "raceAllConnections() returns the result that finishes first",
 	async fn() {
 		await basicTest({
 			async fn({fakeTime}) {
 				const manager = new InspectorManager();
 
-				createConnection({connectionId: "1"});
-				createConnection({connectionId: "2"});
-				createConnection({connectionId: "3"});
+				createConnection({initialStatus: "connected", connectionId: "1"});
+				createConnection({initialStatus: "connected", connectionId: "2"});
+				createConnection({initialStatus: "connected", connectionId: "3"});
 
 				/** @type {(value: string) => void} */
 				let resolvecCall2 = () => {};

@@ -33,11 +33,13 @@ import {StudioConnection} from "./StudioConnection.js";
  */
 /**
  * @typedef OnConnectionCreatedRequest
+ * @property {import("../../mod.js").UuidString} otherClientUuid
  * @property {boolean} initiatedByMe
  * @property {ClientType} clientType
  * @property {<T extends import("../../mod.js").TypedMessengerSignatures>(reliableResponseHandlers: T) => StudioConnection<T, any>} accept Accepts the connection and
  * returns a StudioConnection with the provided response handlers.
  * If none of the registered callbacks call `accept()` (synchronously), the connection will be closed immediately.
+ * @property {() => void} reject Closes the connection and notifies the other end that the connection was not accepted.
  */
 
 /**
@@ -107,25 +109,46 @@ export class DiscoveryManager {
 			this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
 		});
 		discoveryMethod.onConnectionRequest(messageHandler => {
-			let connectionCreated = false;
+			let anySuccess = false;
+			let accepted = false;
+			let rejected = false;
+			function assertFirstCall() {
+				if (accepted) {
+					throw new Error("The connection request has already been accepted.");
+				}
+				if (rejected) {
+					throw new Error("The connection request has already been rejected.");
+				}
+			}
+
 			for (const cb of this.onConnectionRequestCbs) {
 				/** @type {OnConnectionCreatedRequest} */
 				const request = {
+					otherClientUuid: messageHandler.otherClientUuid,
 					clientType: messageHandler.clientType,
 					initiatedByMe: messageHandler.initiatedByMe,
 					accept: reliableResponseHandlers => {
-						connectionCreated = true;
+						assertFirstCall();
+						accepted = true;
+						messageHandler.requestAccepted();
 						return new StudioConnection(messageHandler, reliableResponseHandlers);
+					},
+					reject() {
+						assertFirstCall();
+						rejected = true;
+						messageHandler.requestRejected();
+						messageHandler.close();
 					},
 				};
 				try {
 					cb(request);
+					anySuccess = true;
 				} catch (e) {
 					console.error(e);
 				}
-				if (connectionCreated) break;
+				if (anySuccess) break;
 			}
-			if (!connectionCreated) {
+			if (!anySuccess) {
 				messageHandler.close();
 			}
 		});

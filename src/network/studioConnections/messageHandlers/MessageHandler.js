@@ -1,4 +1,4 @@
-/** @typedef {"disconnected" | "connecting" | "connected"} MessageHandlerStatus */
+/** @typedef {"disconnected" | "connecting" | "connected" | "outgoing-permission-pending" | "incoming-permission-pending" | "outgoing-permission-rejected"} MessageHandlerStatus */
 
 /** @typedef {(state: MessageHandlerStatus) => void} OnStatusChangeCallback */
 
@@ -68,6 +68,23 @@ export class MessageHandler {
 	 * @param {Transferable[]} [sendOptions.transfer]
 	 */
 	send(data, sendOptions) {}
+
+	/**
+	 * Fired by the DiscoveryManager when the connection request was accepted.
+	 * An implementation will pass this information on to the other MessageHandler that this is connected to.
+	 * It will call `setStatus` on the other MessageHandler and setting its status to `connected`
+	 * (or possibly `connecting` first).
+	 * @abstract
+	 */
+	requestAccepted() {}
+
+	/**
+	 * Fired by the DiscoveryManager when the connection request was accepted.
+	 * An implementation will pass this information on to the other MessageHandler that this is connected to.
+	 * It will call `setStatus` on the other MessageHandler and setting its status to `outgoing-permission-rejected`.
+	 * @abstract
+	 */
+	requestRejected() {}
 
 	close() {}
 

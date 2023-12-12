@@ -505,7 +505,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Connecting to a studio-host from a studio-client",
+	name: "Connecting to a studio-host from a studio-client, automatically accepted since we initiated it",
 	async fn() {
 		await basicTest({
 			fn({manager, projectManager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
@@ -575,7 +575,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Receiving a studio-client connection to a studio-host",
+	name: "Receiving a studio-client connection to a studio-host, accepting it",
 	async fn() {
 		await basicTest({
 			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
@@ -605,6 +605,18 @@ Deno.test({
 				assertEquals(Array.from(manager.getConnections()), [
 					{
 						clientType: "studio-client",
+						connectionState: "incoming-permission-pending",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
+
+				manager.acceptIncomingConnection("connection id");
+				assertSpyCalls(onConnectionsChangedSpy, 3);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "studio-client",
 						connectionState: "connecting",
 						connectionType: "renda:internal",
 						id: "connection id",
@@ -614,7 +626,7 @@ Deno.test({
 
 				const messageHandler = assertLastMessageHandler();
 				messageHandler.markAsConnected();
-				assertSpyCalls(onConnectionsChangedSpy, 3);
+				assertSpyCalls(onConnectionsChangedSpy, 4);
 				assertEquals(Array.from(manager.getConnections()), [
 					{
 						clientType: "studio-client",
@@ -664,7 +676,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Receiving an inspector connection",
+	name: "Receiving an inspector connection, accepting it",
 	async fn() {
 		await basicTest({
 			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
@@ -694,6 +706,18 @@ Deno.test({
 				assertEquals(Array.from(manager.getConnections()), [
 					{
 						clientType: "inspector",
+						connectionState: "incoming-permission-pending",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
+
+				manager.acceptIncomingConnection("connection id");
+				assertSpyCalls(onConnectionsChangedSpy, 3);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "inspector",
 						connectionState: "connecting",
 						connectionType: "renda:internal",
 						id: "connection id",
@@ -703,7 +727,7 @@ Deno.test({
 
 				const messageHandler = assertLastMessageHandler();
 				messageHandler.markAsConnected();
-				assertSpyCalls(onConnectionsChangedSpy, 3);
+				assertSpyCalls(onConnectionsChangedSpy, 4);
 				assertEquals(Array.from(manager.getConnections()), [
 					{
 						clientType: "inspector",

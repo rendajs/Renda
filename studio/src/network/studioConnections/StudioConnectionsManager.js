@@ -34,6 +34,9 @@ export class StudioConnectionsManager {
 	/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata?} */
 	#lastSentProjectMetadataWebRtc = null;
 
+	/** @type {Map<import("../../../../src/mod.js").UuidString, {acceptHandler: () => void, rejectHandler: () => void}>} */
+	#pendingIncomingConnections = new Map();
+
 	/** @type {Map<import("../../../../src/mod.js").UuidString, import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>>} */
 	#activeConnections = new Map();
 
@@ -121,22 +124,32 @@ export class StudioConnectionsManager {
 				// TODO: Add an allowlist #751
 				// TODO: Automatically accept connections that are hosted by this studio instance #810
 				// TODO: Make inspector connections work: #817
-				// TODO: Add connection prompt #812
+				let autoAccept = false;
+				if (connectionRequest.initiatedByMe) {
+					autoAccept = true;
+				}
 
+				let acceptHandler;
 				if (discoveryManager.clientType == "studio-client" && connectionRequest.clientType == "studio-host") {
 					if (!connectionRequest.initiatedByMe) {
 						throw new Error('Assertion failed, a "studio-host" connection cannot connect to a "studio-client"');
 					}
-					/** @type {import("./handlers.js").StudioClientHostConnection} */
-					const connection = connectionRequest.accept({});
-					this.#projectManager.assignRemoteConnection(connection);
-					this.#addActiveConnection(connection);
+					acceptHandler = () => {
+						/** @type {import("./handlers.js").StudioClientHostConnection} */
+						const connection = connectionRequest.accept({});
+						this.#projectManager.assignRemoteConnection(connection);
+						this.#addActiveConnection(connection);
+					};
 				} else if (discoveryManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
-					const connection = connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
-					this.#addActiveConnection(connection);
+					acceptHandler = () => {
+						const connection = connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
+						this.#addActiveConnection(connection);
+					};
 				} else if (connectionRequest.clientType == "inspector") {
-					const connection = connectionRequest.accept(createStudioInspectorHandlers(certainAssetManager));
-					this.#addActiveConnection(connection);
+					acceptHandler = () => {
+						const connection = connectionRequest.accept(createStudioInspectorHandlers(certainAssetManager));
+						this.#addActiveConnection(connection);
+					};
 				} else {
 					let initiatorType;
 					let receiverType;
@@ -149,6 +162,14 @@ export class StudioConnectionsManager {
 					}
 
 					throw new Error(`Assertion failed, tried to connect two connections that are incompatible: "${initiatorType}" tried to connect to "${receiverType}"`);
+				}
+
+				if (autoAccept) {
+					acceptHandler();
+				} else {
+					this.#addPendingIncomingConnection(connectionRequest.otherClientUuid, acceptHandler, () => {
+						connectionRequest.reject();
+					});
 				}
 			});
 		}
@@ -180,6 +201,53 @@ export class StudioConnectionsManager {
 	};
 
 	/**
+	 * Adds a connection request to the list of pending incoming connections.
+	 * This allows permission prompt UI to be shown, which can then accept or reject the
+	 * connection via {@linkcode acceptIncomingConnection} or {@linkcode rejectIncomingConnection}.
+	 * @param {import("../../../../src/mod.js").UuidString} connectionId
+	 * @param {() => void} acceptHandler
+	 * @param {() => void} rejectHandler
+	 */
+	#addPendingIncomingConnection(connectionId, acceptHandler, rejectHandler) {
+		if (this.#pendingIncomingConnections.has(connectionId)) {
+			this.rejectIncomingConnection(connectionId);
+		}
+		this.#pendingIncomingConnections.set(connectionId, {acceptHandler, rejectHandler});
+		this.#fireOnConnectionsChanged();
+	}
+
+	/**
+	 * @param {import("../../../../src/mod.js").UuidString} connectionId
+	 */
+	#getPendingIncomingConnection(connectionId) {
+		const connectionData = this.#pendingIncomingConnections.get(connectionId);
+		if (!connectionData) {
+			throw new Error(`No pending connection request exists for connection "${connectionId}".`);
+		}
+		return connectionData;
+	}
+
+	/**
+	 * Accepts a connection that currently has its connection state set to "incoming-permission-pending".
+	 * @param {import("../../../../src/mod.js").UuidString} connectionId
+	 */
+	acceptIncomingConnection(connectionId) {
+		const connectionData = this.#getPendingIncomingConnection(connectionId);
+		connectionData.acceptHandler();
+		this.#pendingIncomingConnections.delete(connectionId);
+	}
+
+	/**
+	 * Rejects a connection that currently has its connection state set to "incoming-permission-pending".
+	 * @param {import("../../../../src/mod.js").UuidString} connectionId
+	 */
+	rejectIncomingConnection(connectionId) {
+		const connectionData = this.#getPendingIncomingConnection(connectionId);
+		connectionData.rejectHandler();
+		this.#pendingIncomingConnections.delete(connectionId);
+	}
+
+	/**
 	 * Adds the connection to the list of active connections and listens for status changes.
 	 * @param {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>} connection
 	 */
@@ -199,6 +267,10 @@ export class StudioConnectionsManager {
 		for (const connection of this.#discoveryManager.availableConnections()) {
 			/** @type {import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus} */
 			let connectionState = "disconnected";
+			const pendingConnection = this.#pendingIncomingConnections.get(connection.id);
+			if (pendingConnection) {
+				connectionState = "incoming-permission-pending";
+			}
 			const activeConnection = this.#activeConnections.get(connection.id);
 			if (activeConnection) {
 				connectionState = activeConnection.status;

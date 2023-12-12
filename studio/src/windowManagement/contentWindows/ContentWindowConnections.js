@@ -5,7 +5,9 @@ import {ContentWindow} from "./ContentWindow.js";
  * @typedef {object} ConectionGui
  * @property {PropertiesTreeView<any>} treeView
  * @property {import("../../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/LabelGui.js").LabelGui>} statusLabel
- * @property {import("../../ui/Button.js").Button} connectButton
+ * @property {import("../../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/Button.js").Button>?} connectButton
+ * @property {import("../../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/Button.js").Button>?} allowButton
+ * @property {import("../../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/Button.js").Button>?} blockButton
  */
 
 export class ContentWindowConnections extends ContentWindow {
@@ -34,10 +36,11 @@ export class ContentWindowConnections extends ContentWindow {
 		this.discoveryServerStatusLabel = discoveryServerStatusLabel;
 
 		const {studioClientConnectionTreeView, studioConnectionsList} = this.createClientConnectionUi();
-		this.studioClientConnectionTreeView = studioClientConnectionTreeView;
+		this.studioClientConnectionsTreeView = studioClientConnectionTreeView;
 		this.studioConnectionsList = studioConnectionsList;
 
-		const {inspectorConnectionsList} = this.createInspectorConnectionsUi();
+		const {inspectorConnectionsList, inspectorConnectionsTreeView} = this.createInspectorConnectionsUi();
+		this.inspectorConnectionsTreeView = inspectorConnectionsTreeView;
 		this.inspectorConnectionsList = inspectorConnectionsList;
 
 		const connectionsManager = this.studioInstance.studioConnectionsManager;
@@ -81,8 +84,6 @@ export class ContentWindowConnections extends ContentWindow {
 		const studioClientConnectionTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(studioClientConnectionTreeView.el);
 
-		// todo: add status label for client connection
-
 		const studioConnectionsList = studioClientConnectionTreeView.addCollapsable("Studios");
 		return {studioClientConnectionTreeView, studioConnectionsList};
 	}
@@ -91,17 +92,8 @@ export class ContentWindowConnections extends ContentWindow {
 		const inspectorConnectionsTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(inspectorConnectionsTreeView.el);
 
-		// todo: make this work
-		// this.autoConnectInspectorsCheckbox = inspectorConnectionsTreeView.addItem({
-		// 	type: "boolean",
-		// 	/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
-		// 	guiOpts: {
-		// 		label: "Auto Connect Inspectors",
-		// 	},
-		// });
-
 		const inspectorConnectionsList = inspectorConnectionsTreeView.addCollapsable("Inspectors");
-		return {inspectorConnectionsList};
+		return {inspectorConnectionsList, inspectorConnectionsTreeView};
 	}
 
 	/**
@@ -153,19 +145,7 @@ export class ContentWindowConnections extends ContentWindow {
 					},
 				});
 
-				const buttonTreeView = treeView.addItem({
-					type: "button",
-					guiOpts: {
-						label: "Connect",
-						text: "Connect",
-						onClick: () => {
-							this.studioInstance.studioConnectionsManager.requestConnection(connection.id);
-						},
-					},
-				});
-				const connectButton = buttonTreeView.gui;
-
-				gui = {treeView, statusLabel, connectButton};
+				gui = {treeView, statusLabel, connectButton: null, blockButton: null, allowButton: null};
 				guisList.set(connection.id, gui);
 			}
 
@@ -177,9 +157,12 @@ export class ContentWindowConnections extends ContentWindow {
 			let status = "Unavailable";
 			let tooltip = "";
 			if (connection.clientType == "studio-client") {
-				available = false;
 				tooltip = "This connection is a studio instance without an open project. Connections can only be initiated from the other end.";
 				gui.treeView.name = "Studio Client";
+			} else if (connection.clientType == "inspector") {
+				available = true;
+				gui.treeView.name = "Inspector";
+				status = "Available";
 			} else if (projectMetadata) {
 				gui.treeView.name = projectMetadata.name || "Untitled Project";
 				if (projectMetadata.fileSystemHasWritePermissions) {
@@ -194,17 +177,92 @@ export class ContentWindowConnections extends ContentWindow {
 				tooltip = "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.";
 			}
 
-			let buttonDisabled = false;
+			let connectButtonVisible = false;
+			let connectButtonEnabled = false;
+			let permissionButtonsVisible = false;
 			if (connection.connectionState == "connecting") {
 				status = "Connecting";
-				buttonDisabled = true;
+				connectButtonVisible = true;
+				connectButtonEnabled = false;
+			} else if (connection.connectionState == "outgoing-permission-pending") {
+				status = "Waiting for Permission";
+				connectButtonVisible = true;
+				connectButtonEnabled = false;
+				tooltip = "Waiting for the receiving end to allow the request.";
+			} else if (connection.connectionState == "incoming-permission-pending") {
+				status = "Waiting for Permission";
+				permissionButtonsVisible = true;
 			} else if (connection.connectionState == "connected") {
 				status = "Connected";
-				buttonDisabled = true;
+			} else if (available) {
+				if (connection.connectionState == "outgoing-permission-rejected") {
+					status = "Permission Denied";
+					tooltip = "The receiving end blocked the request, but you may try again.";
+				}
+				connectButtonVisible = true;
+				connectButtonEnabled = true;
 			}
-			gui.connectButton.setDisabled(!available || buttonDisabled);
 			gui.statusLabel.setValue(status);
 			gui.statusLabel.gui.tooltip = tooltip;
+
+			if (connectButtonVisible) {
+				if (!gui.connectButton) {
+					gui.connectButton = gui.treeView.addItem({
+						type: "button",
+						guiOpts: {
+							label: "Connect",
+							text: "Connect",
+							onClick: () => {
+								this.studioInstance.studioConnectionsManager.requestConnection(connection.id);
+							},
+						},
+					});
+				}
+			} else {
+				if (gui.connectButton) {
+					gui.treeView.removeChild(gui.connectButton);
+					gui.connectButton = null;
+				}
+			}
+			if (gui.connectButton) {
+				gui.connectButton.setDisabled(!connectButtonEnabled);
+			}
+
+			if (permissionButtonsVisible) {
+				if (!gui.blockButton) {
+					gui.blockButton = gui.treeView.addItem({
+						type: "button",
+						guiOpts: {
+							hideLabel: true,
+							text: "Block",
+							onClick: () => {
+								this.studioInstance.studioConnectionsManager.rejectIncomingConnection(connection.id);
+							},
+						},
+					});
+				}
+				if (!gui.allowButton) {
+					gui.allowButton = gui.treeView.addItem({
+						type: "button",
+						guiOpts: {
+							hideLabel: true,
+							text: "Allow",
+							onClick: () => {
+								this.studioInstance.studioConnectionsManager.acceptIncomingConnection(connection.id);
+							},
+						},
+					});
+				}
+			} else {
+				if (gui.blockButton) {
+					gui.treeView.removeChild(gui.blockButton);
+					gui.blockButton = null;
+				}
+				if (gui.allowButton) {
+					gui.treeView.removeChild(gui.allowButton);
+					gui.allowButton = null;
+				}
+			}
 		}
 
 		for (const removeGuiId of removeGuiIds) {

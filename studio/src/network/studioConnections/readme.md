@@ -25,7 +25,6 @@ Only when the `studioConnections.enableRemoteDiscovery` preference is enabled, d
 discovery WebSocket. So no project metadata is being broadcast until this preference is explicitly enabled.
 
 When connections are requested, we still don't want to automatically accept them though.
-TODO #812
 Instead, we'll show an indication with UI that an available connection wishes to connect, and the user has to
 explicitly accept the connection.
 
@@ -38,13 +37,12 @@ try to grab the project metadata from their visitors.
 Therefore, we use `studioConnections.enableInternalDiscovery` to enable or disable broadcasting
 metadata using the internal discovery method.
 
-We will also block connections except those described below.
-This preference has to be enabled for incoming connections to be accepted.
-Especially since #812 hasn't been implemented yet.
+When the preference is disabled, we will immediately block connections except those described below.
+When the preference is enabled, a prompt is shown to the user before the connection is made.
 
 ## Connections That Are Always Accepted
 
-The UI permission permission prompt (TODO #812) works well as a
+The UI permission permission prompt works well as a
 general safety net against malicious actors trying to make connections.
 But there a some scenarios where we can get away with not prompting the user,
 scenarios where these prompts could actually be pretty cumbersome.
