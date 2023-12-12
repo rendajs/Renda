@@ -127,7 +127,9 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 			 * @param {InternalDiscoveryRequestConnectionData} connectionData
 			 */
 			addActiveConnection: (otherClientUuid, initiatedByMe, port, connectionData) => {
-				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionData, port);
+				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionData, port, accepted => {
+					this.workerMessenger.send.connectionRequestPermissionResult(otherClientUuid, accepted);
+				});
 			},
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableConnection[]} connections
@@ -153,6 +155,15 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 			 */
 			setConnectionProjectMetadata: (clientUuid, metadata) => {
 				this.setConnectionProjectMetadata(clientUuid, metadata);
+			},
+			/**
+			 * @param {import("../../../mod.js").UuidString} otherClientUuid
+			 * @param {boolean} accepted
+			 */
+			connectionRequestPermissionResult: (otherClientUuid, accepted) => {
+				const connection = this.activeConnections.get(otherClientUuid);
+				if (!connection) return;
+				connection.permissionResult(accepted);
 			},
 		};
 	}

@@ -25,6 +25,8 @@ export class ExtendedMessageHandler extends MessageHandler {
 		this.param2 = param2;
 
 		this.closeSpy = spy(this, "close");
+		this.requestAcceptedSpy = spy(this, "requestAccepted");
+		this.requestRejectedSpy = spy(this, "requestRejected");
 		this.setStatus("connecting");
 		createdMessageHandlers.add(this);
 	}

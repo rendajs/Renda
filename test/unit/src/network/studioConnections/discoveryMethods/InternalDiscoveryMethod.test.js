@@ -65,7 +65,7 @@ async function basicSetup({
 			});
 
 			// make sure the iframe is loaded in the next event loop to give the
-			// parent window a chance to setup the InternalDiscoveryManager class
+			// parent window a chance to setup the InternalDiscoveryMethod class
 			setTimeout(() => {
 				initializeIframe(mockWindow);
 				initializedIframeWindows.push(mockWindow);
@@ -196,11 +196,11 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager = new InternalDiscoveryMethod("endpoint");
-				await manager.registerClient("studio-host");
+				const method = new InternalDiscoveryMethod("endpoint");
+				await method.registerClient("studio-host");
 
 				await assertRejects(async () => {
-					await manager.registerClient("inspector");
+					await method.registerClient("inspector");
 				}, Error, "A client has already been registered.");
 			},
 		});
@@ -212,31 +212,31 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new InternalDiscoveryMethod("endpoint");
+				const method1 = new InternalDiscoveryMethod("endpoint");
 
-				const promise1 = manager1.getClientUuid();
+				const promise1 = method1.getClientUuid();
 				await assertPromiseResolved(promise1, false);
 
-				await manager1.registerClient("studio-host");
+				await method1.registerClient("studio-host");
 
 				await assertPromiseResolved(promise1, true);
 
-				const promise2 = manager1.getClientUuid();
+				const promise2 = method1.getClientUuid();
 				await assertPromiseResolved(promise2, true);
 
-				const manager2 = new InternalDiscoveryMethod("endpoint");
+				const method2 = new InternalDiscoveryMethod("endpoint");
 				/** @type {(clientId: string) => void} */
 				let resolveStudioClientId = () => {};
 				/** @type {Promise<string>} */
 				const studioClientId = new Promise(resolve => {
 					resolveStudioClientId = resolve;
 				});
-				manager2.onAvailableConnectionsChanged(() => {
-					const connections = Array.from(manager2.availableConnections());
+				method2.onAvailableConnectionsChanged(() => {
+					const connections = Array.from(method2.availableConnections());
 					assertEquals(connections.length, 1);
 					resolveStudioClientId(connections[0].id);
 				});
-				await manager2.registerClient("inspector");
+				await method2.registerClient("inspector");
 
 				assertEquals(await promise1, await studioClientId);
 				assertEquals(await promise2, await studioClientId);
@@ -250,35 +250,35 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new InternalDiscoveryMethod("url");
+				const method1 = new InternalDiscoveryMethod("url");
 				const availableChangedSpy1 = spy();
 				let spyCall = 0;
-				manager1.onAvailableConnectionsChanged(availableChangedSpy1);
-				await manager1.registerClient("inspector");
+				method1.onAvailableConnectionsChanged(availableChangedSpy1);
+				await method1.registerClient("inspector");
 
-				const manager2 = new InternalDiscoveryMethod("url");
-				await manager2.registerClient("studio-host");
+				const method2 = new InternalDiscoveryMethod("url");
+				await method2.registerClient("studio-host");
 
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
-				const availableConnections1 = Array.from(manager1.availableConnections());
+				const availableConnections1 = Array.from(method1.availableConnections());
 				assertEquals(availableConnections1.length, 1);
-				const manager2ClientId = availableConnections1[0].id;
+				const method2ClientId = availableConnections1[0].id;
 				assertEquals(availableConnections1[0], {
-					id: manager2ClientId,
+					id: method2ClientId,
 					clientType: "studio-host",
 					projectMetadata: null,
 				});
 
-				await manager2.setProjectMetadata({
+				await method2.setProjectMetadata({
 					name: "project name 1",
 					uuid: "project uuid 1",
 					fileSystemHasWritePermissions: false,
 				});
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
-				assertEquals(Array.from(manager1.availableConnections()), [
+				assertEquals(Array.from(method1.availableConnections()), [
 					{
 						clientType: "studio-host",
-						id: manager2ClientId,
+						id: method2ClientId,
 						projectMetadata: {
 							name: "project name 1",
 							uuid: "project uuid 1",
@@ -287,16 +287,16 @@ Deno.test({
 					},
 				]);
 
-				await manager2.setProjectMetadata({
+				await method2.setProjectMetadata({
 					name: "project name 1",
 					uuid: "project uuid 1",
 					fileSystemHasWritePermissions: true,
 				});
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
-				assertEquals(Array.from(manager1.availableConnections()), [
+				assertEquals(Array.from(method1.availableConnections()), [
 					{
 						clientType: "studio-host",
-						id: manager2ClientId,
+						id: method2ClientId,
 						projectMetadata: {
 							name: "project name 1",
 							uuid: "project uuid 1",
@@ -305,76 +305,76 @@ Deno.test({
 					},
 				]);
 
-				await manager2.setProjectMetadata(null);
+				await method2.setProjectMetadata(null);
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
-				assertEquals(Array.from(manager1.availableConnections()), [
+				assertEquals(Array.from(method1.availableConnections()), [
 					{
 						clientType: "studio-host",
-						id: manager2ClientId,
+						id: method2ClientId,
 						projectMetadata: null,
 					},
 				]);
 
-				const manager3 = new InternalDiscoveryMethod("url");
+				const method3 = new InternalDiscoveryMethod("url");
 				const availableChangedSpy3 = spy();
-				manager3.onAvailableConnectionsChanged(availableChangedSpy3);
-				await manager3.registerClient("inspector");
+				method3.onAvailableConnectionsChanged(availableChangedSpy3);
+				await method3.registerClient("inspector");
 
 				assertSpyCalls(availableChangedSpy3, 1);
-				const availableConnections2 = Array.from(manager3.availableConnections());
+				const availableConnections2 = Array.from(method3.availableConnections());
 				assertEquals(availableConnections2.length, 2);
-				const manager1ClientId = availableConnections2[0].id;
+				const method1ClientId = availableConnections2[0].id;
 				assertEquals(availableConnections2, [
 					{
-						id: manager1ClientId,
+						id: method1ClientId,
 						clientType: "inspector",
 						projectMetadata: null,
 					},
 					{
-						id: manager2ClientId,
+						id: method2ClientId,
 						clientType: "studio-host",
 						projectMetadata: null,
 					},
 				]);
 
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
-				const availableConnections3 = Array.from(manager1.availableConnections());
-				const manager3ClientId = availableConnections3[1].id;
+				const availableConnections3 = Array.from(method1.availableConnections());
+				const method3ClientId = availableConnections3[1].id;
 				assertEquals(availableConnections3, [
 					{
-						id: manager2ClientId,
+						id: method2ClientId,
 						clientType: "studio-host",
 						projectMetadata: null,
 					},
 					{
-						id: manager3ClientId,
+						id: method3ClientId,
 						clientType: "inspector",
 						projectMetadata: null,
 					},
 				]);
 
-				await manager2.destructor();
+				await method2.destructor();
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
-				assertEquals(Array.from(manager1.availableConnections()), [
+				assertEquals(Array.from(method1.availableConnections()), [
 					{
-						id: manager3ClientId,
+						id: method3ClientId,
 						clientType: "inspector",
 						projectMetadata: null,
 					},
 				]);
 
 				assertSpyCalls(availableChangedSpy3, 2);
-				assertEquals(Array.from(manager1.availableConnections()), [
+				assertEquals(Array.from(method1.availableConnections()), [
 					{
-						id: manager3ClientId,
+						id: method3ClientId,
 						clientType: "inspector",
 						projectMetadata: null,
 					},
 				]);
 
-				await manager3.destructor();
+				await method3.destructor();
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
-				assertEquals(Array.from(manager1.availableConnections()), []);
+				assertEquals(Array.from(method1.availableConnections()), []);
 			},
 		});
 	},
@@ -384,60 +384,91 @@ Deno.test({
 const onCreatedSpySignature = () => {};
 
 Deno.test({
-	name: "connecting two clients",
+	name: "connecting two clients, other end accepts",
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new InternalDiscoveryMethod("url");
-				const manager1RequestSpy = spy(onCreatedSpySignature);
-				manager1.onConnectionRequest(manager1RequestSpy);
-				const manager1AvailableSpy = spy();
-				manager1.onAvailableConnectionsChanged(manager1AvailableSpy);
-				await manager1.registerClient("studio-host");
-				await manager1.setProjectMetadata({
+				const method1 = new InternalDiscoveryMethod("url");
+				const method1RequestSpy = spy(onCreatedSpySignature);
+				method1.onConnectionRequest(method1RequestSpy);
+				const method1AvailableSpy = spy();
+				method1.onAvailableConnectionsChanged(method1AvailableSpy);
+				await method1.registerClient("studio-host");
+				await method1.setProjectMetadata({
 					fileSystemHasWritePermissions: true,
 					name: "project name",
 					uuid: "project uuid",
 				});
 
-				const manager2 = new InternalDiscoveryMethod("url");
-				const manager2RequestSpy = spy(onCreatedSpySignature);
-				manager2.onConnectionRequest(manager2RequestSpy);
-				const manager2AvailableSpy = spy();
-				manager2.onAvailableConnectionsChanged(manager2AvailableSpy);
-				await manager2.registerClient("inspector");
+				const method2 = new InternalDiscoveryMethod("url");
+				const method2RequestSpy = spy(onCreatedSpySignature);
+				method2.onConnectionRequest(method2RequestSpy);
+				const method2AvailableSpy = spy();
+				method2.onAvailableConnectionsChanged(method2AvailableSpy);
+				await method2.registerClient("inspector");
 
-				assertSpyCalls(manager1AvailableSpy, 1);
-				const availableConnections1 = Array.from(manager1.availableConnections());
+				assertSpyCalls(method1AvailableSpy, 1);
+				const availableConnections1 = Array.from(method1.availableConnections());
 				assertEquals(availableConnections1.length, 1);
-				const manager2ClientId = availableConnections1[0].id;
-				assertSpyCalls(manager2AvailableSpy, 1);
-				const availableConnections2 = Array.from(manager2.availableConnections());
+				const method2ClientId = availableConnections1[0].id;
+				assertSpyCalls(method2AvailableSpy, 1);
+				const availableConnections2 = Array.from(method2.availableConnections());
 				assertEquals(availableConnections2.length, 1);
-				const manager1ClientId = availableConnections2[0].id;
-				await manager1.requestConnection(manager2ClientId, {
+				const method1ClientId = availableConnections2[0].id;
+				await method1.requestConnection(method2ClientId, {
 					token: "token",
 				});
 
-				assertSpyCalls(manager1RequestSpy, 1);
-				const handler1 = manager1RequestSpy.calls[0].args[0];
-				assertEquals(handler1.otherClientUuid, manager2ClientId);
+				assertSpyCalls(method1RequestSpy, 1);
+				const handler1 = method1RequestSpy.calls[0].args[0];
+				assertEquals(handler1.otherClientUuid, method2ClientId);
 				assertEquals(handler1.clientType, "inspector");
 				assertEquals(handler1.initiatedByMe, true);
-				assertEquals(handler1.interlnalConnectionData, {});
+				assertEquals(handler1.internalConnectionData, {});
 				assertEquals(handler1.projectMetadata, null);
 
-				assertSpyCalls(manager2RequestSpy, 1);
-				const handler2 = manager2RequestSpy.calls[0].args[0];
-				assertEquals(handler2.otherClientUuid, manager1ClientId);
+				assertSpyCalls(method2RequestSpy, 1);
+				const handler2 = method2RequestSpy.calls[0].args[0];
+				assertEquals(handler2.otherClientUuid, method1ClientId);
 				assertEquals(handler2.clientType, "studio-host");
 				assertEquals(handler2.initiatedByMe, false);
-				assertEquals(handler2.interlnalConnectionData, {token: "token"});
+				assertEquals(handler2.internalConnectionData, {token: "token"});
 				assertEquals(handler2.projectMetadata, {
 					fileSystemHasWritePermissions: true,
 					name: "project name",
 					uuid: "project uuid",
 				});
+
+				assertEquals(handler1.status, "outgoing-permission-pending");
+				assertEquals(handler2.status, "incoming-permission-pending");
+
+				handler1.requestAccepted();
+				handler2.requestAccepted();
+
+				// We wait for the status to change to connected.
+				// Ideally we'd use waitForMicrotasks, but since messages are being sent via a MessagePort,
+				// waiting for microtasks doesn't necessarily guarantee that all messages have been sent.
+				/** @type {Promise<void>} */
+				const connectedPromise1 = new Promise(resolve => {
+					handler1.onStatusChange(status => {
+						if (status == "connected") {
+							resolve();
+						}
+					});
+				});
+				/** @type {Promise<void>} */
+				const connectedPromise2 = new Promise(resolve => {
+					handler2.onStatusChange(status => {
+						if (status == "connected") {
+							resolve();
+						}
+					});
+				});
+				await connectedPromise1;
+				await connectedPromise2;
+
+				assertEquals(handler1.status, "connected");
+				assertEquals(handler2.status, "connected");
 
 				// Check if the two ports are connected
 				/** @type {(data: unknown) => void} */
@@ -464,13 +495,80 @@ Deno.test({
 });
 
 Deno.test({
+	name: "connecting two clients, other end rejects",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const method1 = new InternalDiscoveryMethod("url");
+				const method1RequestSpy = spy(onCreatedSpySignature);
+				method1.onConnectionRequest(method1RequestSpy);
+				await method1.registerClient("studio-host");
+				await method1.setProjectMetadata({
+					fileSystemHasWritePermissions: true,
+					name: "project name",
+					uuid: "project uuid",
+				});
+
+				const method2 = new InternalDiscoveryMethod("url");
+				const method2RequestSpy = spy(onCreatedSpySignature);
+				method2.onConnectionRequest(method2RequestSpy);
+				await method2.registerClient("inspector");
+
+				const availableConnections1 = Array.from(method1.availableConnections());
+				const method2ClientId = availableConnections1[0].id;
+				await method1.requestConnection(method2ClientId, {
+					token: "token",
+				});
+
+				const handler1 = method1RequestSpy.calls[0].args[0];
+				const handler2 = method2RequestSpy.calls[0].args[0];
+
+				assertEquals(handler1.status, "outgoing-permission-pending");
+				assertEquals(handler2.status, "incoming-permission-pending");
+
+				handler1.requestAccepted();
+				handler2.requestRejected();
+
+				// We wait for the status to change to connected.
+				// Ideally we'd use waitForMicrotasks, but since messages are being sent via a MessagePort,
+				// waiting for microtasks doesn't necessarily guarantee that all messages have been sent.
+				/** @type {Promise<void>} */
+				const connectedPromise1 = new Promise(resolve => {
+					handler1.onStatusChange(status => {
+						if (status == "outgoing-permission-rejected") {
+							resolve();
+						}
+					});
+				});
+				/** @type {Promise<void>} */
+				const connectedPromise2 = new Promise(resolve => {
+					handler2.onStatusChange(status => {
+						if (status == "connected") {
+							resolve();
+						}
+					});
+				});
+				await connectedPromise1;
+				await connectedPromise2;
+
+				assertEquals(handler1.status, "outgoing-permission-rejected");
+				assertEquals(handler2.status, "connected");
+
+				handler1.close();
+				handler2.close();
+			},
+		});
+	},
+});
+
+Deno.test({
 	name: "The provided discovery url is used for the iframe",
 	async fn() {
 		await basicSetup({
 			assertIframeSrc: "discovery_url",
 			async fn() {
-				const manager = new InternalDiscoveryMethod("discovery_url");
-				await manager.registerClient("studio-host");
+				const method = new InternalDiscoveryMethod("discovery_url");
+				await method.registerClient("studio-host");
 			},
 		});
 	},

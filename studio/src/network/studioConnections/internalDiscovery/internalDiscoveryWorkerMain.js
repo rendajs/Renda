@@ -111,6 +111,18 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				createdConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port1]}, otherClientUuid, true, messageChannel.port1, {});
 				otherConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port2]}, createdConnection.id, false, messageChannel.port2, connectionData || {});
 			},
+			/**
+			 * @param {import("../../../../../src/mod.js").UuidString} otherClientUuid
+			 * @param {boolean} accepted
+			 */
+			connectionRequestPermissionResult(otherClientUuid, accepted) {
+				if (!createdConnection) return;
+
+				const otherConnection = activeConnections.get(otherClientUuid);
+				if (!otherConnection) return;
+
+				otherConnection.parentMessenger.send.connectionRequestPermissionResult(createdConnection.id, accepted);
+			},
 		},
 	};
 }

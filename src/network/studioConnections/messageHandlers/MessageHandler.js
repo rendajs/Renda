@@ -69,6 +69,23 @@ export class MessageHandler {
 	 */
 	send(data, sendOptions) {}
 
+	/**
+	 * Fired by the DiscoveryManager when the connection request was accepted.
+	 * An implementation will pass this information on to the other MessageHandler that this is connected to.
+	 * It will call `setStatus` on the other MessageHandler and setting its status to `connected`
+	 * (or possibly `connecting` first).
+	 * @abstract
+	 */
+	requestAccepted() {}
+
+	/**
+	 * Fired by the DiscoveryManager when the connection request was accepted.
+	 * An implementation will pass this information on to the other MessageHandler that this is connected to.
+	 * It will call `setStatus` on the other MessageHandler and setting its status to `outgoing-permission-rejected`.
+	 * @abstract
+	 */
+	requestRejected() {}
+
 	close() {}
 
 	/**

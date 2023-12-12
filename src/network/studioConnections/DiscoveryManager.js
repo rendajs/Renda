@@ -130,11 +130,13 @@ export class DiscoveryManager {
 					accept: reliableResponseHandlers => {
 						assertFirstCall();
 						accepted = true;
+						messageHandler.requestAccepted();
 						return new StudioConnection(messageHandler, reliableResponseHandlers);
 					},
 					reject() {
 						assertFirstCall();
 						rejected = true;
+						messageHandler.requestRejected();
 						messageHandler.close();
 					},
 				};

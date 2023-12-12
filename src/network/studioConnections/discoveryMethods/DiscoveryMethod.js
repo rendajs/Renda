@@ -18,6 +18,8 @@ export class DiscoveryMethod {
 		this.MessageHandlerConstructor = messageHandlerConstructor;
 		/** @private @type {Map<import("../../../mod.js").UuidString, import("../DiscoveryManager.js").AvailableConnection>} */
 		this._availableConnections = new Map();
+		/** @protected @type {Map<import("../../../mod.js").UuidString, InstanceType<TMessageHandler>>} */
+		this.activeConnections = new Map();
 		/** @private @type {Set<() => void>} */
 		this.onAvailableConnectionsChangedCbs = new Set();
 
@@ -161,6 +163,7 @@ export class DiscoveryMethod {
 		}, ...args);
 		const castInstance = /** @type {InstanceType<TMessageHandler>} */ (instance);
 		this.onConnectionRequestCbs.forEach(cb => cb(castInstance));
+		this.activeConnections.set(otherClientUuid, castInstance);
 		return castInstance;
 	}
 

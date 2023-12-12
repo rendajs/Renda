@@ -44,9 +44,6 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		/** @private @type {Set<OnDiscoveryManagerWebRtcStatusChangeCallback>} */
 		this.onStatusChangeCbs = new Set();
 
-		/** @private @type {Map<import("../../../mod.js").UuidString, WebRtcMessageHandler>} */
-		this.activeConnections = new Map();
-
 		/** @private */
 		this._endpoint = endpoint;
 
@@ -214,8 +211,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		if (this.activeConnections.has(otherClientUuid)) {
 			throw new Error("A connection with this client has already been created");
 		}
-		const connection = this.addActiveConnection(otherClientUuid, true, this._createConnectionOptions());
-		this.activeConnections.set(otherClientUuid, connection);
+		this.addActiveConnection(otherClientUuid, true, this._createConnectionOptions());
 	}
 
 	/**
@@ -227,7 +223,6 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		let connection = this.activeConnections.get(otherClientUuid);
 		if (!connection) {
 			connection = this.addActiveConnection(otherClientUuid, false, this._createConnectionOptions());
-			this.activeConnections.set(otherClientUuid, connection);
 		}
 		connection.handleRtcDescription(rtcDescription);
 	}

@@ -222,10 +222,12 @@ Deno.test({
 			id: "id1",
 			projectMetadata: null,
 		});
-		discoveryMethod.addActive("id1", false, 42, "str");
+		const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
 
 		assertExists(connectionRequest);
 		const studioConnection = connectionRequest.accept({});
+		assertSpyCalls(messageHandler.requestAcceptedSpy, 1);
+		assertSpyCalls(messageHandler.requestRejectedSpy, 0);
 		assertEquals(studioConnection.otherClientUuid, "id1");
 		assertEquals(studioConnection.clientType, "inspector");
 		assertEquals(studioConnection.initiatedByMe, false);
@@ -258,6 +260,8 @@ Deno.test({
 		assertExists(connectionRequest);
 		connectionRequest.reject();
 
+		assertSpyCalls(messageHandler.requestAcceptedSpy, 0);
+		assertSpyCalls(messageHandler.requestRejectedSpy, 1);
 		assertSpyCalls(messageHandler.closeSpy, 1);
 
 		assertThrows(() => {
