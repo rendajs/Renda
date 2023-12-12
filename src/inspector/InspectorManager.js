@@ -37,7 +37,15 @@ export class InspectorManager {
 				/** @type {import("../../studio/src/network/studioConnections/handlers.js").InspectorStudioConnection} */
 				const connection = connectionRequest.accept(this.getResponseHandlers());
 				this._inspectorConnections.set(connection.otherClientUuid, connection);
-				resolveInitialConnectionPromise();
+				if (connection.status == "connected") {
+					resolveInitialConnectionPromise();
+				} else {
+					connection.onStatusChange(status => {
+						if (status == "connected") {
+							resolveInitialConnectionPromise();
+						}
+					});
+				}
 			} else {
 				throw new Error(`Unexpected client type: "${connectionRequest.clientType}".`);
 			}
@@ -69,6 +77,7 @@ export class InspectorManager {
 		/** @type {Promise<TCallbackReturn>[]} */
 		const promises = [];
 		for (const connection of this._inspectorConnections.values()) {
+			if (connection.status != "connected") continue;
 			const promise = cb(connection);
 			promises.push(promise);
 		}
