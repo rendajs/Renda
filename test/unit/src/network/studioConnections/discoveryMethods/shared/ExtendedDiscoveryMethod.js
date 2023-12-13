@@ -64,10 +64,10 @@ export class ExtendedDiscoveryMethod extends DiscoveryMethod {
 	}
 
 	/**
-	 * @param {import("../../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection} connectionData
+	 * @param {import("../../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnection} availableConnectionData
 	 */
-	addOne(connectionData) {
-		this.addAvailableConnection(connectionData);
+	addOne(availableConnectionData) {
+		this.addAvailableConnection(availableConnectionData);
 	}
 
 	/**
@@ -123,7 +123,7 @@ export class ExtendedDiscoveryMethod extends DiscoveryMethod {
 	/**
 	 * @override
 	 * @param {string} otherClientUuid
-	 * @param {unknown} connectionData
+	 * @param {import("../../../../../../../src/network/studioConnections/DiscoveryManager.js").ConnectionRequestData} [connectionRequestData]
 	 */
-	requestConnection(otherClientUuid, connectionData) {}
+	requestConnection(otherClientUuid, connectionRequestData) {}
 }

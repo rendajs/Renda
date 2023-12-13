@@ -154,12 +154,12 @@ export class DiscoveryMethod {
 		if (!availableConnection) {
 			throw new Error(`Assertion failed, a new connection was created but "${otherClientUuid}" is not listed as an available connection.`);
 		}
-		const connectionData = /** @type {import("../DiscoveryManager.js").AvailableConnection} */ (structuredClone(availableConnection));
+		const availableConnectionData = /** @type {import("../DiscoveryManager.js").AvailableConnection} */ (structuredClone(availableConnection));
 		const castManager = /** @type {typeof DiscoveryMethod} */ (this.constructor);
 		const instance = new this.MessageHandlerConstructor({
 			otherClientUuid,
 			initiatedByMe,
-			connectionData,
+			availableConnectionData,
 			connectionRequestData: /** @type {import("../DiscoveryManager.js").ConnectionRequestData} */ (structuredClone(connectionRequestData)),
 			connectionType: castManager.type,
 		}, ...args);

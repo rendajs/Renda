@@ -128,10 +128,10 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 				this.setAvailableConnections(connections);
 			},
 			/**
-			 * @param {import("../DiscoveryManager.js").AvailableConnection} connectionData
+			 * @param {import("../DiscoveryManager.js").AvailableConnection} availableConnectionData
 			 */
-			addAvailableConnection: connectionData => {
-				this.addAvailableConnection(connectionData);
+			addAvailableConnection: availableConnectionData => {
+				this.addAvailableConnection(availableConnectionData);
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} clientUuid
