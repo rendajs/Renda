@@ -187,7 +187,7 @@ export class ContentWindowBuildView extends ContentWindow {
 			requestDesiredStudioConnectionMethod: async () => {
 				const clientUuid = await this.studioInstance.studioConnectionsManager.getInternalClientUuid();
 				if (!clientUuid) throw new Error("Failed to get internal client id");
-				const internalConnectionToken = this.studioInstance.studioConnectionsManager.createInternalConnectionToken();
+				const internalConnectionToken = this.studioInstance.studioConnectionsManager.createConnectionToken();
 
 				const url = new URL("internalDiscovery", window.location.href);
 				// TODO: #803 Support for providing a webrtc connection type

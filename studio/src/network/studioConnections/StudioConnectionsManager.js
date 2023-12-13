@@ -48,7 +48,7 @@ export class StudioConnectionsManager {
 	 * Inspectors can provide these tokens when connecting, and we'll always allow the connection when the token is valid.
 	 * @type {Set<string>}
 	 */
-	#internalConnectionTokens = new Set();
+	#connectionTokens = new Set();
 
 	/**
 	 * @param {import("../../projectSelector/ProjectManager.js").ProjectManager} projectManager
@@ -145,6 +145,11 @@ export class StudioConnectionsManager {
 						this.#addActiveConnection(connection);
 					};
 				} else if (connectionRequest.clientType == "inspector") {
+					const {token} = connectionRequest.connectionRequestData;
+					if (token && this.#connectionTokens.has(token)) {
+						this.#connectionTokens.delete(token);
+						autoAccept = true;
+					}
 					acceptHandler = () => {
 						const connection = connectionRequest.accept(createStudioInspectorHandlers(certainAssetManager));
 						this.#addActiveConnection(connection);
@@ -406,18 +411,9 @@ export class StudioConnectionsManager {
 	 * Any new connections can use this token and their connection will automatically be allowed,
 	 * regardless of its origin, the connection type, or whether internal connections are enabled.
 	 */
-	createInternalConnectionToken() {
+	createConnectionToken() {
 		const token = crypto.randomUUID();
-		this.#internalConnectionTokens.add(token);
+		this.#connectionTokens.add(token);
 		return token;
-	}
-
-	/**
-	 * Prevents any new connections from being made using this token.
-	 * This doesn't close existing connections that were made using the token.
-	 * @param {string} token
-	 */
-	deleteConnectionToken(token) {
-		this.#internalConnectionTokens.delete(token);
 	}
 }

@@ -54,7 +54,7 @@ Deno.test({
 					getInternalClientUuid() {
 						return Promise.resolve("the_client_id");
 					},
-					createInternalConnectionToken() {
+					createConnectionToken() {
 						return "the_token";
 					},
 				});
