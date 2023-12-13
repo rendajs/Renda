@@ -63,13 +63,13 @@ export class ParentStudioCommunicator {
 			if (DiscoveryMethod.type == "renda:internal" && desiredConnectionData.type == "renda:internal") {
 				discoveryManager.addDiscoveryMethod(DiscoveryMethod, desiredConnectionData.discoveryUrl);
 				/** @type {import("./DiscoveryManager.js").ConnectionRequestData} */
-				const connectionData = {
+				const connectionRequestData = {
 					token: desiredConnectionData.internalConnectionToken,
 				};
 				const connection = await discoveryManager.waitForConnection({
 					clientUuid: desiredConnectionData.clientUuid,
 				});
-				discoveryManager.requestConnection(connection.id, connectionData);
+				discoveryManager.requestConnection(connection.id, connectionRequestData);
 				foundMethod = true;
 				break;
 			}
