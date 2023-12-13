@@ -292,8 +292,8 @@ Deno.test({
 		});
 		/** @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").ConnectionRequestData} */
 		const connectionRequestData = {
-			token: "token"
-		}
+			token: "token",
+		};
 
 		const messageHandler = method.addActive("id", true, connectionRequestData, 0, "");
 
