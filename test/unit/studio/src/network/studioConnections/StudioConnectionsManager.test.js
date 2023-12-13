@@ -536,7 +536,7 @@ Deno.test({
 
 				const assignRemoteConnectionSpy = spy(projectManager, "assignRemoteConnection");
 
-				discoveryMethod.addActive("connection id", true, 0, "");
+				discoveryMethod.addActive("connection id", true, {}, 0, "");
 				assertSpyCalls(assignRemoteConnectionSpy, 1);
 				assertSpyCalls(onConnectionsChangedSpy, 2);
 				assertEquals(Array.from(manager.getConnections()), [
@@ -600,7 +600,7 @@ Deno.test({
 					args: ["connection id", undefined],
 				});
 
-				discoveryMethod.addActive("connection id", false, 0, "");
+				discoveryMethod.addActive("connection id", false, {}, 0, "");
 				assertSpyCalls(onConnectionsChangedSpy, 2);
 				assertEquals(Array.from(manager.getConnections()), [
 					{
@@ -660,7 +660,7 @@ Deno.test({
 						id: "connection id",
 						projectMetadata: null,
 					});
-					discoveryMethod.addActive("connection id", false, 0, "");
+					discoveryMethod.addActive("connection id", false, {}, 0, "");
 
 					assertSpyCalls(consoleErrorSpy, 1);
 					const error = consoleErrorSpy.calls[0].args[0];
@@ -701,7 +701,7 @@ Deno.test({
 					args: ["connection id", undefined],
 				});
 
-				discoveryMethod.addActive("connection id", false, 0, "");
+				discoveryMethod.addActive("connection id", false, {}, 0, "");
 				assertSpyCalls(onConnectionsChangedSpy, 2);
 				assertEquals(Array.from(manager.getConnections()), [
 					{
@@ -761,7 +761,7 @@ Deno.test({
 						id: "host id",
 						projectMetadata: null,
 					});
-					discoveryMethod.addActive("host id", false, 0, "");
+					discoveryMethod.addActive("host id", false, {}, 0, "");
 
 					assertSpyCalls(consoleErrorSpy, 1);
 					const error = consoleErrorSpy.calls[0].args[0];

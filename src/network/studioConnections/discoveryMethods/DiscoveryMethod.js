@@ -160,7 +160,7 @@ export class DiscoveryMethod {
 			otherClientUuid,
 			initiatedByMe,
 			connectionData,
-			connectionRequestData: /** @type {import("../DiscoveryManager.js").AvailableConnection} */ (structuredClone(connectionRequestData)),
+			connectionRequestData: /** @type {import("../DiscoveryManager.js").ConnectionRequestData} */ (structuredClone(connectionRequestData)),
 			connectionType: castManager.type,
 		}, ...args);
 		const castInstance = /** @type {InstanceType<TMessageHandler>} */ (instance);
