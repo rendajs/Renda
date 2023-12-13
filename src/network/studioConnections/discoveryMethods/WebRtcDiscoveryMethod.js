@@ -206,12 +206,13 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	/**
 	 * @override
 	 * @param {import("../../../mod.js").UuidString} otherClientUuid
+	 * @param {import("../DiscoveryManager.js").ConnectionRequestData} connectionRequestData
 	 */
-	requestConnection(otherClientUuid) {
+	requestConnection(otherClientUuid, connectionRequestData) {
 		if (this.activeConnections.has(otherClientUuid)) {
 			throw new Error("A connection with this client has already been created");
 		}
-		this.addActiveConnection(otherClientUuid, true, this._createConnectionOptions());
+		this.addActiveConnection(otherClientUuid, true, connectionRequestData, this._createConnectionOptions());
 	}
 
 	/**

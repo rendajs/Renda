@@ -7,8 +7,6 @@ import {waitForContentWindowElement} from "../../shared/contentWindows.js";
 
 await runE2eTest({
 	name: "Assets are loaded via the InspectorAssetBundle",
-	// TODO: Enable when #817 is fixed
-	ignore: true,
 	async fn() {
 		const {page} = await getPage();
 		await loadE2eProject(page, "inspector-asset-bundle");

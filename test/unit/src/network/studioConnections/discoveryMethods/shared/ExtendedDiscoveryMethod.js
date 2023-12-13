@@ -99,12 +99,13 @@ export class ExtendedDiscoveryMethod extends DiscoveryMethod {
 	/**
 	 * @param {import("../../../../../../../src/mod.js").UuidString} otherClientUuid
 	 * @param {boolean} initiatedByMe
+	 * @param {import("../../../../../../../src/network/studioConnections/DiscoveryManager.js").ConnectionRequestData} connectionRequestData
 	 * @param {number} param1
 	 * @param {string} param2
 	 * @param {ExtendedMessageHandlerOptions} [options]
 	 */
-	addActive(otherClientUuid, initiatedByMe, param1, param2, options) {
-		return this.addActiveConnection(otherClientUuid, initiatedByMe, param1, param2, options);
+	addActive(otherClientUuid, initiatedByMe, connectionRequestData, param1, param2, options) {
+		return this.addActiveConnection(otherClientUuid, initiatedByMe, connectionRequestData, param1, param2, options);
 	}
 
 	/**

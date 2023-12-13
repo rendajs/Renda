@@ -11,16 +11,6 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
 /** @typedef {ReturnType<InternalDiscoveryMethod["_getWorkerResponseHandlers"]>} InternalDiscoveryParentWorkerHandlers */
 
 /**
- * Custom data that can be send when initiating a new connection with another client.
- * The other client can use this data to choose to accept or deny a new connection.
- * @typedef InternalDiscoveryRequestConnectionData
- * @property {string} [token] This token is used to verify if this client is allowed to connect to a studio instance.
- * New connections are usually ignored depending on their origin and whether a studio instance is allowing certain kinds of connections.
- * But a token is generated for each application opened by a build view.
- * When a correct token is provided, the connection is accepted regardless of any origin allow lists or preferences.
- */
-
-/**
  * This class allows you to discover other tabs within the same browser instance and open connections with them, this even works while offline.
  * In order for this to work, the other tab has to also create an InternalDiscoveryMethod and use the same discovery url.
  * This creates an iframe with a shared worker which all discovery communication passes through.
@@ -124,10 +114,10 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 			 * @param {import("../../../mod.js").UuidString} otherClientUuid
 			 * @param {boolean} initiatedByMe
 			 * @param {MessagePort} port
-			 * @param {InternalDiscoveryRequestConnectionData} connectionData
+			 * @param {import("../DiscoveryManager.js").ConnectionRequestData} connectionRequestData
 			 */
-			addActiveConnection: (otherClientUuid, initiatedByMe, port, connectionData) => {
-				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionData, port, accepted => {
+			addActiveConnection: (otherClientUuid, initiatedByMe, port, connectionRequestData) => {
+				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionRequestData, port, accepted => {
 					this.workerMessenger.send.connectionRequestPermissionResult(otherClientUuid, accepted);
 				});
 			},
@@ -206,10 +196,10 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 	/**
 	 * @override
 	 * @param {import("../../../mod.js").UuidString} otherClientUuid
-	 * @param {InternalDiscoveryRequestConnectionData} [connectionData]
+	 * @param {import("../DiscoveryManager.js").ConnectionRequestData} [connectionRequestData]
 	 */
-	async requestConnection(otherClientUuid, connectionData) {
-		await this.workerMessenger.send.requestConnection(otherClientUuid, connectionData);
+	async requestConnection(otherClientUuid, connectionRequestData) {
+		await this.workerMessenger.send.requestConnection(otherClientUuid, connectionRequestData);
 	}
 
 	/**

@@ -8,6 +8,7 @@
  * @property {boolean} initiatedByMe True when the connection was initiated by our client (i.e. the client which you are currently instantiating a class for).
  * @property {string} connectionType The type of the DiscoveryManager that created this connection.
  * @property {import("../DiscoveryManager.js").AvailableConnection} connectionData
+ * @property {import("../DiscoveryManager.js").ConnectionRequestData} connectionRequestData
  */
 
 export class MessageHandler {
@@ -21,6 +22,8 @@ export class MessageHandler {
 		this._otherClientUuid = options.otherClientUuid;
 		/** @private */
 		this._initiatedByMe = options.initiatedByMe;
+		/** @private */
+		this._connectionRequestData = options.connectionRequestData;
 		/** @private */
 		this._connectionType = options.connectionType;
 		/** @private */
@@ -44,6 +47,13 @@ export class MessageHandler {
 	 */
 	get initiatedByMe() {
 		return this._initiatedByMe;
+	}
+
+	/**
+	 * Data that was sent by the other end when the connection was requested.
+	 */
+	get connectionRequestData() {
+		return this._connectionRequestData;
 	}
 
 	/**

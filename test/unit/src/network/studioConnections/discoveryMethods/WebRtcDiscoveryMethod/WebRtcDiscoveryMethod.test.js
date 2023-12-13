@@ -368,7 +368,7 @@ function createAndConnectSingleAvailableConnection(discoveryMethod) {
 		projectMetadata: null,
 	});
 
-	discoveryMethod.requestConnection("otherUuid");
+	discoveryMethod.requestConnection("otherUuid", {token: "the_token"});
 	return {socket};
 }
 

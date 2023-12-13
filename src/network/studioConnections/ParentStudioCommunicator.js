@@ -62,7 +62,7 @@ export class ParentStudioCommunicator {
 		for (const DiscoveryMethod of supportedDiscoveryMethods) {
 			if (DiscoveryMethod.type == "renda:internal" && desiredConnectionData.type == "renda:internal") {
 				discoveryManager.addDiscoveryMethod(DiscoveryMethod, desiredConnectionData.discoveryUrl);
-				/** @type {import("./discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} */
+				/** @type {import("./DiscoveryManager.js").ConnectionRequestData} */
 				const connectionData = {
 					token: desiredConnectionData.internalConnectionToken,
 				};

@@ -123,7 +123,6 @@ export class StudioConnectionsManager {
 
 				// TODO: Add an allowlist #751
 				// TODO: Automatically accept connections that are hosted by this studio instance #810
-				// TODO: Make inspector connections work: #817
 				let autoAccept = false;
 				if (connectionRequest.initiatedByMe) {
 					autoAccept = true;

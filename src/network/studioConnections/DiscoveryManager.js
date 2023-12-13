@@ -31,10 +31,22 @@ import {StudioConnection} from "./StudioConnection.js";
  * @property {boolean} fileSystemHasWritePermissions
  * @property {import("../../util/util.js").UuidString} uuid
  */
+
+/**
+ * Custom data that can be send when initiating a new connection with another client.
+ * The other client can use this data to choose to accept or deny a new connection.
+ * @typedef ConnectionRequestData
+ * @property {string} [token] This token is used to verify if this client is allowed to connect to a studio instance.
+ * New connections are usually ignored depending on their origin and whether a studio instance is allowing certain kinds of connections.
+ * But a token is generated for each application opened by a build view.
+ * When a correct token is provided, the connection is accepted regardless of any origin allow lists or preferences.
+ */
+
 /**
  * @typedef OnConnectionCreatedRequest
  * @property {import("../../mod.js").UuidString} otherClientUuid
  * @property {boolean} initiatedByMe
+ * @property {ConnectionRequestData} connectionRequestData
  * @property {ClientType} clientType
  * @property {<T extends import("../../mod.js").TypedMessengerSignatures>(reliableResponseHandlers: T) => StudioConnection<T, any>} accept Accepts the connection and
  * returns a StudioConnection with the provided response handlers.
@@ -127,6 +139,7 @@ export class DiscoveryManager {
 					otherClientUuid: messageHandler.otherClientUuid,
 					clientType: messageHandler.clientType,
 					initiatedByMe: messageHandler.initiatedByMe,
+					connectionRequestData: messageHandler.connectionRequestData,
 					accept: reliableResponseHandlers => {
 						assertFirstCall();
 						accepted = true;
@@ -234,13 +247,13 @@ export class DiscoveryManager {
 	 * If the connection succeeds, the {@linkcode onConnectionRequest} callback is fired.
 	 *
 	 * @param {import("../../mod.js").UuidString} otherClientUuid
-	 * @param {unknown} [connectionData] Optional data that can be sent to the client which allows
+	 * @param {ConnectionRequestData} [connectionRequestData] Optional data that can be sent to the client which allows
 	 * it to determine whether the connection should be accepted or not.
 	 */
-	requestConnection(otherClientUuid, connectionData) {
+	requestConnection(otherClientUuid, connectionRequestData) {
 		for (const discoveryMethod of this.discoveryMethods.values()) {
 			if (discoveryMethod.hasAvailableConnection(otherClientUuid)) {
-				discoveryMethod.requestConnection(otherClientUuid, connectionData);
+				discoveryMethod.requestConnection(otherClientUuid, connectionRequestData);
 				return;
 			}
 		}

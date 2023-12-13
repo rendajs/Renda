@@ -23,7 +23,7 @@ export class DiscoveryMethod {
 		/** @private @type {Set<() => void>} */
 		this.onAvailableConnectionsChangedCbs = new Set();
 
-		/** @private @type {Set<OnConnectionCreatedCallback>} */
+		/** @private @type {Set<OnConnectionRequestCallback>} */
 		this.onConnectionRequestCbs = new Set();
 	}
 
@@ -146,9 +146,10 @@ export class DiscoveryMethod {
 	 * @protected
 	 * @param {import("../../../mod.js").UuidString} otherClientUuid
 	 * @param {boolean} initiatedByMe True when the connection was initiated by our client (i.e. the client which you are currently instantiating a MessageHandler for).
+	 * @param {import("../DiscoveryManager.js").ConnectionRequestData} connectionRequestData Extra data passed on by the other client when they requested a connection with us.
 	 * @param {MessageHandlerRestParameters<ConstructorParameters<TMessageHandler>>} args
 	 */
-	addActiveConnection(otherClientUuid, initiatedByMe, ...args) {
+	addActiveConnection(otherClientUuid, initiatedByMe, connectionRequestData, ...args) {
 		const availableConnection = this._availableConnections.get(otherClientUuid);
 		if (!availableConnection) {
 			throw new Error(`Assertion failed, a new connection was created but "${otherClientUuid}" is not listed as an available connection.`);
@@ -159,6 +160,7 @@ export class DiscoveryMethod {
 			otherClientUuid,
 			initiatedByMe,
 			connectionData,
+			connectionRequestData: /** @type {import("../DiscoveryManager.js").AvailableConnection} */ (structuredClone(connectionRequestData)),
 			connectionType: castManager.type,
 		}, ...args);
 		const castInstance = /** @type {InstanceType<TMessageHandler>} */ (instance);
@@ -167,12 +169,12 @@ export class DiscoveryMethod {
 		return castInstance;
 	}
 
-	/** @typedef {(connection: InstanceType<TMessageHandler>) => void} OnConnectionCreatedCallback */
+	/** @typedef {(connection: InstanceType<TMessageHandler>) => void} OnConnectionRequestCallback */
 
 	/**
 	 * Registers a callback that is fired when a new connection is initiated with this DiscoveryMethod,
 	 * either because `requestConnection` was called from this DiscoveryMethod or from another DiscoveryMethod which wants to connect to us.
-	 * @param {OnConnectionCreatedCallback} cb
+	 * @param {OnConnectionRequestCallback} cb
 	 */
 	onConnectionRequest(cb) {
 		this.onConnectionRequestCbs.add(cb);
@@ -205,10 +207,10 @@ export class DiscoveryMethod {
 	 * on the instance of the other client for which the connection was requested.
 	 *
 	 * @param {import("../../../mod.js").UuidString} otherClientUuid
-	 * @param {unknown} [connectionData] Optional data that can be sent to the client which allows
+	 * @param {import("../DiscoveryManager.js").ConnectionRequestData} [connectionRequestData] Optional data that can be sent to the client which allows
 	 * it to determine whether the connection should be accepted or not.
 	 */
-	requestConnection(otherClientUuid, connectionData) {
+	requestConnection(otherClientUuid, connectionRequestData) {
 		throw new Error("base class");
 	}
 }
