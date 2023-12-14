@@ -424,7 +424,7 @@ Deno.test({
 				assertEquals(handler1.otherClientUuid, method2ClientId);
 				assertEquals(handler1.clientType, "inspector");
 				assertEquals(handler1.initiatedByMe, true);
-				assertEquals(handler1.internalConnectionData, {});
+				assertEquals(handler1.connectionRequestData, {});
 				assertEquals(handler1.projectMetadata, null);
 
 				assertSpyCalls(method2RequestSpy, 1);
@@ -432,7 +432,7 @@ Deno.test({
 				assertEquals(handler2.otherClientUuid, method1ClientId);
 				assertEquals(handler2.clientType, "studio-host");
 				assertEquals(handler2.initiatedByMe, false);
-				assertEquals(handler2.internalConnectionData, {token: "token"});
+				assertEquals(handler2.connectionRequestData, {token: "token"});
 				assertEquals(handler2.projectMetadata, {
 					fileSystemHasWritePermissions: true,
 					name: "project name",

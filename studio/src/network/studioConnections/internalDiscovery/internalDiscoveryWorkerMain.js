@@ -99,9 +99,9 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 			},
 			/**
 			 * @param {import("../../../../../src/mod.js").UuidString} otherClientUuid
-			 * @param {import("../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} [connectionData]
+			 * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").ConnectionRequestData} [connectionRequestData]
 			 */
-			requestConnection(otherClientUuid, connectionData) {
+			requestConnection(otherClientUuid, connectionRequestData) {
 				if (!createdConnection) return;
 
 				const otherConnection = activeConnections.get(otherClientUuid);
@@ -109,7 +109,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 
 				const messageChannel = new MessageChannel();
 				createdConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port1]}, otherClientUuid, true, messageChannel.port1, {});
-				otherConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port2]}, createdConnection.id, false, messageChannel.port2, connectionData || {});
+				otherConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port2]}, createdConnection.id, false, messageChannel.port2, connectionRequestData || {});
 			},
 			/**
 			 * @param {import("../../../../../src/mod.js").UuidString} otherClientUuid

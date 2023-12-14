@@ -104,11 +104,12 @@ Deno.test({
 		const onConnectionRequestSpy = spy(onConnectionRequest);
 		manager.onConnectionRequest(onConnectionRequestSpy);
 
-		const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
+		const messageHandler = discoveryMethod.addActive("id1", false, {token: "the_token"}, 42, "str");
 		assertSpyCalls(onConnectionRequestSpy, 1);
 		assertEquals(onConnectionRequestSpy.calls[0].args[0].otherClientUuid, "id1");
 		assertEquals(onConnectionRequestSpy.calls[0].args[0].clientType, "inspector");
 		assertEquals(onConnectionRequestSpy.calls[0].args[0].initiatedByMe, false);
+		assertEquals(onConnectionRequestSpy.calls[0].args[0].connectionRequestData, {token: "the_token"});
 		assertSpyCalls(messageHandler.closeSpy, 0);
 	},
 });
@@ -133,7 +134,7 @@ Deno.test({
 		const onConnectionRequest2Spy = spy(onConnectionRequest2);
 		manager.onConnectionRequest(onConnectionRequest2Spy);
 
-		const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
+		const messageHandler = discoveryMethod.addActive("id1", false, {}, 42, "str");
 		assertSpyCalls(onConnectionRequest2Spy, 0);
 		assertSpyCalls(messageHandler.closeSpy, 0);
 	},
@@ -160,7 +161,7 @@ Deno.test({
 				throw error;
 			});
 
-			const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
+			const messageHandler = discoveryMethod.addActive("id1", false, {}, 42, "str");
 			assertSpyCalls(consoleErrorSpy, 2);
 			assertStrictEquals(consoleErrorSpy.calls[0].args[0], error);
 			assertStrictEquals(consoleErrorSpy.calls[1].args[0], error);
@@ -194,7 +195,7 @@ Deno.test({
 			const onConnectionRequest2Spy = spy(onConnectionRequest2);
 			manager.onConnectionRequest(onConnectionRequest2Spy);
 
-			discoveryMethod.addActive("id1", false, 42, "str");
+			discoveryMethod.addActive("id1", false, {}, 42, "str");
 			assertSpyCalls(onConnectionRequest2Spy, 1);
 			assertEquals(onConnectionRequest2Spy.calls[0].args[0].otherClientUuid, "id1");
 			assertEquals(onConnectionRequest2Spy.calls[0].args[0].clientType, "inspector");
@@ -222,7 +223,7 @@ Deno.test({
 			id: "id1",
 			projectMetadata: null,
 		});
-		const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
+		const messageHandler = discoveryMethod.addActive("id1", false, {}, 42, "str");
 
 		assertExists(connectionRequest);
 		const studioConnection = connectionRequest.accept({});
@@ -255,7 +256,7 @@ Deno.test({
 			id: "id1",
 			projectMetadata: null,
 		});
-		const messageHandler = discoveryMethod.addActive("id1", false, 42, "str");
+		const messageHandler = discoveryMethod.addActive("id1", false, {}, 42, "str");
 
 		assertExists(connectionRequest);
 		connectionRequest.reject();
@@ -289,11 +290,11 @@ Deno.test({
 		const onConnectionRequest2Spy = spy(onConnectionRequest2);
 		manager.onConnectionRequest(onConnectionRequest2Spy);
 
-		discoveryMethod.addActive("id1", false, 42, "str");
+		discoveryMethod.addActive("id1", false, {}, 42, "str");
 		assertSpyCalls(onConnectionRequest2Spy, 1);
 
 		manager.removeOnConnectionRequest(onConnectionRequest2Spy);
-		discoveryMethod.addActive("id1", false, 42, "str");
+		discoveryMethod.addActive("id1", false, {}, 42, "str");
 		assertSpyCalls(onConnectionRequest2Spy, 1);
 	},
 });
@@ -318,13 +319,13 @@ Deno.test({
 			projectMetadata: null,
 		});
 
-		manager.requestConnection("id2", "extra data");
+		manager.requestConnection("id2", {token: "the_token"});
 		assertSpyCalls(spy1, 0);
 		assertSpyCalls(spy2, 1);
 		assertSpyCall(spy2, 0, {
 			args: [
 				"id2",
-				"extra data",
+				{token: "the_token"},
 			],
 		});
 

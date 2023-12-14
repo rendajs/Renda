@@ -304,6 +304,12 @@ Deno.test({
 					projectMetadata: null,
 				});
 				socket.messenger.send.relayMessage("otherUuid", {
+					type: "connectionRequest",
+					connectionRequestData: {
+						token: "token",
+					},
+				});
+				socket.messenger.send.relayMessage("otherUuid", {
 					type: "rtcDescription",
 					description: {
 						type: "offer",
@@ -319,6 +325,7 @@ Deno.test({
 
 				const handler = getMessageHandler();
 				assertEquals(handler.status, "connecting");
+				assertEquals(handler.connectionRequestData, {token: "token"});
 
 				const rtcConnection = getSingleCreatedRtcConnection();
 				rtcConnection.dispatchEvent(new Event("negotiationneeded"));
@@ -368,7 +375,7 @@ function createAndConnectSingleAvailableConnection(discoveryMethod) {
 		projectMetadata: null,
 	});
 
-	discoveryMethod.requestConnection("otherUuid");
+	discoveryMethod.requestConnection("otherUuid", {token: "the_token"});
 	return {socket};
 }
 
@@ -393,8 +400,19 @@ Deno.test({
 					type: "offer",
 					sdp: "",
 				}));
-				assertSpyCalls(socket.relayMessageSpy, 1);
+				assertSpyCalls(socket.relayMessageSpy, 2);
 				assertSpyCall(socket.relayMessageSpy, 0, {
+					args: [
+						"otherUuid",
+						{
+							type: "connectionRequest",
+							connectionRequestData: {
+								token: "the_token",
+							},
+						},
+					],
+				});
+				assertSpyCall(socket.relayMessageSpy, 1, {
 					args: [
 						"otherUuid",
 						{
@@ -414,8 +432,8 @@ Deno.test({
 				rtcConnection.dispatchEvent(candidateEvent);
 				await waitForMicrotasks();
 
-				assertSpyCalls(socket.relayMessageSpy, 2);
-				assertSpyCall(socket.relayMessageSpy, 1, {
+				assertSpyCalls(socket.relayMessageSpy, 3);
+				assertSpyCall(socket.relayMessageSpy, 2, {
 					args: [
 						"otherUuid",
 						{

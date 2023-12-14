@@ -3,13 +3,11 @@ import {MessageHandler} from "./MessageHandler.js";
 export class InternalMessageHandler extends MessageHandler {
 	/**
 	 * @param {import("./MessageHandler.js").MessageHandlerOptions} options
-	 * @param {import("../discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} internalConnectionData
 	 * @param {MessagePort} messagePort
 	 * @param {(accepted: boolean) => void} onPermissionResult
 	 */
-	constructor(options, internalConnectionData, messagePort, onPermissionResult) {
+	constructor(options, messagePort, onPermissionResult) {
 		super(options);
-		this.internalConnectionData = internalConnectionData;
 		/** @private */
 		this.messagePort = messagePort;
 		/** @private */

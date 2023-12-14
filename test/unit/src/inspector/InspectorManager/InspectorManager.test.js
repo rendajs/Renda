@@ -66,7 +66,7 @@ function createConnection({
 		id: connectionId,
 		projectMetadata: null,
 	});
-	return method.addActive(connectionId, true, 42, "", {initialStatus});
+	return method.addActive(connectionId, true, {}, 42, "", {initialStatus});
 }
 
 Deno.test({

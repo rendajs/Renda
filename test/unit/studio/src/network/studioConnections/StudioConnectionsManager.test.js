@@ -536,7 +536,7 @@ Deno.test({
 
 				const assignRemoteConnectionSpy = spy(projectManager, "assignRemoteConnection");
 
-				discoveryMethod.addActive("connection id", true, 0, "");
+				discoveryMethod.addActive("connection id", true, {}, 0, "");
 				assertSpyCalls(assignRemoteConnectionSpy, 1);
 				assertSpyCalls(onConnectionsChangedSpy, 2);
 				assertEquals(Array.from(manager.getConnections()), [
@@ -600,7 +600,7 @@ Deno.test({
 					args: ["connection id", undefined],
 				});
 
-				discoveryMethod.addActive("connection id", false, 0, "");
+				discoveryMethod.addActive("connection id", false, {}, 0, "");
 				assertSpyCalls(onConnectionsChangedSpy, 2);
 				assertEquals(Array.from(manager.getConnections()), [
 					{
@@ -660,7 +660,7 @@ Deno.test({
 						id: "connection id",
 						projectMetadata: null,
 					});
-					discoveryMethod.addActive("connection id", false, 0, "");
+					discoveryMethod.addActive("connection id", false, {}, 0, "");
 
 					assertSpyCalls(consoleErrorSpy, 1);
 					const error = consoleErrorSpy.calls[0].args[0];
@@ -701,7 +701,7 @@ Deno.test({
 					args: ["connection id", undefined],
 				});
 
-				discoveryMethod.addActive("connection id", false, 0, "");
+				discoveryMethod.addActive("connection id", false, {}, 0, "");
 				assertSpyCalls(onConnectionsChangedSpy, 2);
 				assertEquals(Array.from(manager.getConnections()), [
 					{
@@ -743,6 +743,63 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Inspector connections with a connection token are automatically accepted",
+	async fn() {
+		await basicTest({
+			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+				const onConnectionsChangedSpy = spy();
+				manager.onConnectionsChanged(onConnectionsChangedSpy);
+				setHasProjectFileSystem(true);
+				setCurrentProjectIsRemote(false);
+				fireOnProjectOpen();
+
+				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const requestConnectionSpy = spy(discoveryMethod, "requestConnection");
+				discoveryMethod.addOne({
+					clientType: "inspector",
+					id: "connection id",
+					projectMetadata: null,
+				});
+				assertSpyCalls(onConnectionsChangedSpy, 1);
+
+				manager.requestConnection("connection id");
+				assertSpyCalls(requestConnectionSpy, 1);
+				assertSpyCall(requestConnectionSpy, 0, {
+					args: ["connection id", undefined],
+				});
+
+				const token = manager.createConnectionToken();
+
+				discoveryMethod.addActive("connection id", false, {token}, 0, "");
+				assertSpyCalls(onConnectionsChangedSpy, 2);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "inspector",
+						connectionState: "connecting",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
+
+				const messageHandler = assertLastMessageHandler();
+				messageHandler.markAsConnected();
+				assertSpyCalls(onConnectionsChangedSpy, 3);
+				assertEquals(Array.from(manager.getConnections()), [
+					{
+						clientType: "inspector",
+						connectionState: "connected",
+						connectionType: "renda:internal",
+						id: "connection id",
+						projectMetadata: null,
+					},
+				]);
+			},
+		});
+	},
+});
+
+Deno.test({
 	name: "Throws when an invalid configuration tries to connect",
 	async fn() {
 		await basicTest({
@@ -761,7 +818,7 @@ Deno.test({
 						id: "host id",
 						projectMetadata: null,
 					});
-					discoveryMethod.addActive("host id", false, 0, "");
+					discoveryMethod.addActive("host id", false, {}, 0, "");
 
 					assertSpyCalls(consoleErrorSpy, 1);
 					const error = consoleErrorSpy.calls[0].args[0];

@@ -7,7 +7,8 @@
  * @property {import("../../../mod.js").UuidString} otherClientUuid
  * @property {boolean} initiatedByMe True when the connection was initiated by our client (i.e. the client which you are currently instantiating a class for).
  * @property {string} connectionType The type of the DiscoveryManager that created this connection.
- * @property {import("../DiscoveryManager.js").AvailableConnection} connectionData
+ * @property {import("../DiscoveryManager.js").AvailableConnection} availableConnectionData
+ * @property {import("../DiscoveryManager.js").ConnectionRequestData} connectionRequestData
  */
 
 export class MessageHandler {
@@ -22,9 +23,11 @@ export class MessageHandler {
 		/** @private */
 		this._initiatedByMe = options.initiatedByMe;
 		/** @private */
+		this._connectionRequestData = options.connectionRequestData;
+		/** @private */
 		this._connectionType = options.connectionType;
 		/** @private */
-		this._connectionData = options.connectionData;
+		this._availableConnectionData = options.availableConnectionData;
 
 		/** @private @type {Set<OnMessageCallback>} */
 		this.onMessageCbs = new Set();
@@ -47,6 +50,13 @@ export class MessageHandler {
 	}
 
 	/**
+	 * Data that was sent by the other end when the connection was requested.
+	 */
+	get connectionRequestData() {
+		return this._connectionRequestData;
+	}
+
+	/**
 	 * The type of the DiscoveryManager that created this connection.
 	 */
 	get connectionType() {
@@ -54,11 +64,11 @@ export class MessageHandler {
 	}
 
 	get clientType() {
-		return this._connectionData.clientType;
+		return this._availableConnectionData.clientType;
 	}
 
 	get projectMetadata() {
-		return this._connectionData.projectMetadata;
+		return this._availableConnectionData.projectMetadata;
 	}
 
 	/**

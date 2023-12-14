@@ -62,14 +62,14 @@ export class ParentStudioCommunicator {
 		for (const DiscoveryMethod of supportedDiscoveryMethods) {
 			if (DiscoveryMethod.type == "renda:internal" && desiredConnectionData.type == "renda:internal") {
 				discoveryManager.addDiscoveryMethod(DiscoveryMethod, desiredConnectionData.discoveryUrl);
-				/** @type {import("./discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryRequestConnectionData} */
-				const connectionData = {
+				/** @type {import("./DiscoveryManager.js").ConnectionRequestData} */
+				const connectionRequestData = {
 					token: desiredConnectionData.internalConnectionToken,
 				};
 				const connection = await discoveryManager.waitForConnection({
 					clientUuid: desiredConnectionData.clientUuid,
 				});
-				discoveryManager.requestConnection(connection.id, connectionData);
+				discoveryManager.requestConnection(connection.id, connectionRequestData);
 				foundMethod = true;
 				break;
 			}

@@ -240,7 +240,7 @@ Deno.test({
 		const method = new ExtendedDiscoveryMethod();
 
 		assertThrows(() => {
-			method.addActive("non existent", true, 0, "");
+			method.addActive("non existent", true, {}, 0, "");
 		});
 	},
 });
@@ -263,11 +263,12 @@ Deno.test({
 			clientType: "studio-client",
 			projectMetadata: null,
 		});
-		const messageHandler = method.addActive("id", true, 42, "foo");
+		const messageHandler = method.addActive("id", true, {token: "the_token"}, 42, "foo");
 
 		assertSpyCalls(spyFn, 1);
 		assertStrictEquals(spyFn.calls[0].args[0], messageHandler);
 		assertEquals(messageHandler.initiatedByMe, true);
+		assertEquals(messageHandler.connectionRequestData, {token: "the_token"});
 		assertEquals(messageHandler.param1, 42);
 		assertEquals(messageHandler.param2, "foo");
 		assertEquals(method.getActiveConnections().size, 1);
@@ -289,11 +290,17 @@ Deno.test({
 			clientType: "studio-client",
 			projectMetadata: projectMetaData,
 		});
+		/** @type {import("../../../../../../src/network/studioConnections/DiscoveryManager.js").ConnectionRequestData} */
+		const connectionRequestData = {
+			token: "token",
+		};
 
-		const messageHandler = method.addActive("id", true, 0, "");
+		const messageHandler = method.addActive("id", true, connectionRequestData, 0, "");
 
 		projectMetaData.name = "new name";
+		connectionRequestData.token = "new token";
 
 		assertEquals(messageHandler.projectMetadata?.name, "old name");
+		assertEquals(messageHandler.connectionRequestData, {token: "token"});
 	},
 });
