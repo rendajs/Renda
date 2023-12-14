@@ -12,6 +12,11 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
 /** @typedef {ReturnType<WebRtcDiscoveryMethod["getResponseHandlers"]>} ExternalDiscoveryMethodResponseHandlers */
 
 /**
+ * @typedef ExternalDiscoveryRelayConnectionRequestData
+ * @property {"connectionRequest"} type
+ * @property {import("../DiscoveryManager.js").ConnectionRequestData} connectionRequestData
+ */
+/**
  * @typedef ExternalDiscoveryRelayOfferData
  * @property {"rtcDescription"} type
  * @property {RTCSessionDescriptionInit} description
@@ -21,7 +26,7 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
  * @property {"rtcIceCandidate"} type
  * @property {RTCIceCandidate} candidate
  */
-/** @typedef {ExternalDiscoveryRelayOfferData | ExternalDiscoveryRelayCandidateData} ExternalDiscoveryRelayData */
+/** @typedef {ExternalDiscoveryRelayConnectionRequestData | ExternalDiscoveryRelayOfferData | ExternalDiscoveryRelayCandidateData} ExternalDiscoveryRelayData */
 
 /** @typedef {(status: DiscoveryServerStatusType) => void} OnDiscoveryManagerWebRtcStatusChangeCallback */
 
@@ -140,7 +145,9 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			 * @param {ExternalDiscoveryRelayData} relayData
 			 */
 			relayMessage: (fromUuid, relayData) => {
-				if (relayData.type == "rtcDescription") {
+				if (relayData.type == "connectionRequest") {
+					this._handleConnectionRequest(fromUuid, relayData.connectionRequestData);
+				} else if (relayData.type == "rtcDescription") {
 					this._handleRtcDescription(fromUuid, relayData.description);
 				} else if (relayData.type == "rtcIceCandidate") {
 					this._handleRtcIceCandidate(fromUuid, relayData.candidate);
@@ -212,7 +219,23 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		if (this.activeConnections.has(otherClientUuid)) {
 			throw new Error("A connection with this client has already been created");
 		}
+		this.webSocketMessenger.send.relayMessage(otherClientUuid, {
+			type: "connectionRequest",
+			connectionRequestData,
+		});
 		this.addActiveConnection(otherClientUuid, true, connectionRequestData, this._createConnectionOptions());
+	}
+
+	/**
+	 * @private
+	 * @param {import("../../../mod.js").UuidString} otherClientUuid
+	 * @param {import("../DiscoveryManager.js").ConnectionRequestData} connectionRequestData
+	 */
+	_handleConnectionRequest(otherClientUuid, connectionRequestData) {
+		if (this.activeConnections.get(otherClientUuid)) {
+			throw new Error("There's already an active connection with this client.");
+		}
+		this.addActiveConnection(otherClientUuid, false, connectionRequestData, this._createConnectionOptions());
 	}
 
 	/**
@@ -221,9 +244,9 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	 * @param {RTCSessionDescriptionInit} rtcDescription
 	 */
 	_handleRtcDescription(otherClientUuid, rtcDescription) {
-		let connection = this.activeConnections.get(otherClientUuid);
+		const connection = this.activeConnections.get(otherClientUuid);
 		if (!connection) {
-			connection = this.addActiveConnection(otherClientUuid, false, this._createConnectionOptions());
+			throw new Error("There is no active connection with this client.");
 		}
 		connection.handleRtcDescription(rtcDescription);
 	}
