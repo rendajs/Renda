@@ -68,6 +68,8 @@ import {StudioConnection} from "./StudioConnection.js";
 export class DiscoveryManager {
 	/** @typedef {(connectionRequest: OnConnectionCreatedRequest) => void} OnConnectionRequestCallback */
 
+	#destructed = false;
+
 	/**
 	 * The DiscoveryManager allows you to list available connections and connect to them.
 	 * You can add multiple DiscoveryMethods and observe changes to their available connections.
@@ -102,6 +104,7 @@ export class DiscoveryManager {
 	}
 
 	destructor() {
+		this.#destructed = true;
 		for (const discoveryMethod of this.discoveryMethods) {
 			discoveryMethod.destructor();
 		}
@@ -118,9 +121,11 @@ export class DiscoveryManager {
 		const discoveryMethod = new constructor(...args);
 		this.discoveryMethods.add(discoveryMethod);
 		discoveryMethod.onAvailableConnectionsChanged(() => {
+			if (this.#destructed) return;
 			this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
 		});
 		discoveryMethod.onConnectionRequest(messageHandler => {
+			if (this.#destructed) return;
 			let anySuccess = false;
 			let accepted = false;
 			let rejected = false;

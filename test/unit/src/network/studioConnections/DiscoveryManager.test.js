@@ -300,6 +300,40 @@ Deno.test({
 });
 
 Deno.test({
+	name: "No callbacks fire after destructing the manager",
+	fn() {
+		const manager = new DiscoveryManager("studio-host");
+		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
+
+		const onAvailableConnectionsChangedSpy = spy();
+		manager.onAvailableConnectionsChanged(onAvailableConnectionsChangedSpy);
+		const onConnectionRequestSpy = spy();
+		manager.onConnectionRequest(onConnectionRequestSpy);
+
+		discoveryMethod.addOne({
+			clientType: "inspector",
+			id: "id1",
+			projectMetadata: null
+		})
+		assertSpyCalls(onAvailableConnectionsChangedSpy, 1);
+
+		discoveryMethod.addActive("id1", false, {}, 0, "");
+		assertSpyCalls(onConnectionRequestSpy, 1);
+
+		manager.destructor();
+		discoveryMethod.addOne({
+			clientType: "inspector",
+			id: "id2",
+			projectMetadata: null,
+		})
+		discoveryMethod.addActive("id2", false, {}, 0, "");
+
+		assertSpyCalls(onAvailableConnectionsChangedSpy, 1);
+		assertSpyCalls(onConnectionRequestSpy, 1);
+	}
+})
+
+Deno.test({
 	name: "requestConnection()",
 	fn() {
 		const manager = new DiscoveryManager("studio-host");
