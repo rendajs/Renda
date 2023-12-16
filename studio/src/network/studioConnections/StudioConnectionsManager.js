@@ -111,16 +111,9 @@ export class StudioConnectionsManager {
 			const discoveryManager = new DiscoveryManager(desiredClientType);
 			this.#discoveryManager = discoveryManager;
 			discoveryManager.onAvailableConnectionsChanged(() => {
-				if (discoveryManager != this.#discoveryManager) {
-					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
-				}
 				this.#fireOnConnectionsChanged();
 			});
 			discoveryManager.onConnectionRequest(connectionRequest => {
-				if (discoveryManager != this.#discoveryManager) {
-					throw new Error("Assertion failed, studio connections manager callback fired after it has been destructed.");
-				}
-
 				// TODO: Add an allowlist #751
 				// TODO: Automatically accept connections that are hosted by this studio instance #810
 				let autoAccept = false;
