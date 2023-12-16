@@ -16,10 +16,6 @@ export class StudioConnectionsManager {
 	#internalDiscoveryMethod = null;
 	/** @type {WebRtcDiscoveryMethod?} */
 	#webRtcDiscoveryMethod = null;
-	/** @type {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} */
-	#lastFileSystem = null;
-	/** @type {import("../../assets/AssetManager.js").AssetManager?} */
-	#lastAssetManager = null;
 
 	/** @type {string?} */
 	#webRtcDiscoveryEndpoint = null;
@@ -85,29 +81,16 @@ export class StudioConnectionsManager {
 		/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType?} */
 		const desiredClientType = this.#projectManager.currentProjectIsRemote ? "studio-client" : "studio-host";
 
-		if (
-			this.#discoveryManager &&
-			(
-				desiredClientType != this.#discoveryManager.clientType ||
-				this.#lastFileSystem != this.#projectManager.currentProjectFileSystem ||
-				this.#lastAssetManager != this.#projectManager.assetManager
-			)
-		) {
+		if (this.#discoveryManager && desiredClientType != this.#discoveryManager.clientType) {
 			this.#discoveryManager.destructor();
 			this.#discoveryManager = null;
 			this.#webRtcDiscoveryMethod = null;
 			this.#internalDiscoveryMethod = null;
-			this.#lastFileSystem = null;
-			this.#lastAssetManager = null;
 			this.#lastSentProjectMetadataWebRtc = null;
 			this.#lastSentProjectMetadataInternal = null;
 		}
 
-		if (desiredClientType && !this.#discoveryManager && this.#projectManager.currentProjectFileSystem && this.#projectManager.assetManager) {
-			this.#lastFileSystem = this.#projectManager.currentProjectFileSystem;
-			this.#lastAssetManager = this.#projectManager.assetManager;
-			const certainFileSystem = this.#projectManager.currentProjectFileSystem;
-			const certainAssetManager = this.#projectManager.assetManager;
+		if (desiredClientType && !this.#discoveryManager) {
 			const discoveryManager = new DiscoveryManager(desiredClientType);
 			this.#discoveryManager = discoveryManager;
 			discoveryManager.onAvailableConnectionsChanged(() => {
@@ -133,8 +116,12 @@ export class StudioConnectionsManager {
 						this.#addActiveConnection(connection);
 					};
 				} else if (discoveryManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
+					const fileSystem = this.#projectManager.currentProjectFileSystem;
+					if (!fileSystem) {
+						throw new Error("Failed to accept incoming connection, no active file system.");
+					}
 					acceptHandler = () => {
-						const connection = connectionRequest.accept(createStudioHostHandlers(certainFileSystem));
+						const connection = connectionRequest.accept(createStudioHostHandlers(fileSystem));
 						this.#addActiveConnection(connection);
 					};
 				} else if (connectionRequest.clientType == "inspector") {
@@ -143,8 +130,12 @@ export class StudioConnectionsManager {
 						this.#connectionTokens.delete(token);
 						autoAccept = true;
 					}
+					const assetManager = this.#projectManager.assetManager;
+					if (!assetManager) {
+						throw new Error("Failed to accept incoming connection, no active asset manager.");
+					}
 					acceptHandler = () => {
-						const connection = connectionRequest.accept(createStudioInspectorHandlers(certainAssetManager));
+						const connection = connectionRequest.accept(createStudioInspectorHandlers(assetManager));
 						this.#addActiveConnection(connection);
 					};
 				} else {
