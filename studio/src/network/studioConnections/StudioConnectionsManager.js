@@ -10,10 +10,10 @@ import {createStudioHostHandlers, createStudioInspectorHandlers} from "./handler
 export class StudioConnectionsManager {
 	#projectManager;
 	#preferencesManager;
-	/** @type {DiscoveryManager?} */
-	#discoveryManager = null;
-	/** @type {InternalDiscoveryMethod?} */
-	#internalDiscoveryMethod = null;
+	/** @type {DiscoveryManager} */
+	#discoveryManager;
+	/** @type {InternalDiscoveryMethod} */
+	#internalDiscoveryMethod;
 	/** @type {WebRtcDiscoveryMethod?} */
 	#webRtcDiscoveryMethod = null;
 
@@ -54,12 +54,16 @@ export class StudioConnectionsManager {
 		this.#projectManager = projectManager;
 		this.#preferencesManager = preferencesManager;
 
-		projectManager.onProjectOpen(this.#updateStudioConnectionsManager);
-		projectManager.onRootHasWritePermissionsChange(this.#updateStudioConnectionsManager);
-		projectManager.onProjectOpenEntryChange(this.#updateStudioConnectionsManager);
+		const {discoveryManager, internalDiscoveryMethod} = this.#createDiscoveryManager(this.#getDesiredClientType());
+		this.#discoveryManager = discoveryManager;
+		this.#internalDiscoveryMethod = internalDiscoveryMethod;
 
-		preferencesManager.onChange("studioConnections.enableRemoteDiscovery", null, this.#updateStudioConnectionsManager);
-		preferencesManager.onChange("studioConnections.enableInternalDiscovery", null, this.#updateStudioConnectionsManager);
+		projectManager.onProjectOpen(this.#updateDiscoveryManager);
+		projectManager.onRootHasWritePermissionsChange(this.#updateDiscoveryManager);
+		projectManager.onProjectOpenEntryChange(this.#updateDiscoveryManager);
+
+		preferencesManager.onChange("studioConnections.enableRemoteDiscovery", null, this.#updateDiscoveryManager);
+		preferencesManager.onChange("studioConnections.enableInternalDiscovery", null, this.#updateDiscoveryManager);
 	}
 
 	#getDefaultInternalDiscoveryUrl() {
@@ -75,114 +79,118 @@ export class StudioConnectionsManager {
 		}
 	}
 
-	#updateStudioConnectionsManager = () => {
-		const enableRemoteDiscovery = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
+	#getDesiredClientType() {
+		return this.#projectManager.currentProjectIsRemote ? "studio-client" : "studio-host";
+	}
 
-		/** @type {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType?} */
-		const desiredClientType = this.#projectManager.currentProjectIsRemote ? "studio-client" : "studio-host";
+	/**
+	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").ClientType} desiredClientType
+	 */
+	#createDiscoveryManager(desiredClientType) {
+		const discoveryManager = new DiscoveryManager(desiredClientType);
+		discoveryManager.onAvailableConnectionsChanged(() => {
+			this.#fireOnConnectionsChanged();
+		});
+		discoveryManager.onConnectionRequest(connectionRequest => {
+			// TODO: Add an allowlist #751
+			// TODO: Automatically accept connections that are hosted by this studio instance #810
+			let autoAccept = false;
+			if (connectionRequest.initiatedByMe) {
+				autoAccept = true;
+			}
 
-		if (this.#discoveryManager && desiredClientType != this.#discoveryManager.clientType) {
-			this.#discoveryManager.destructor();
-			this.#discoveryManager = null;
-			this.#webRtcDiscoveryMethod = null;
-			this.#internalDiscoveryMethod = null;
-			this.#lastSentProjectMetadataWebRtc = null;
-			this.#lastSentProjectMetadataInternal = null;
-		}
-
-		if (desiredClientType && !this.#discoveryManager) {
-			const discoveryManager = new DiscoveryManager(desiredClientType);
-			this.#discoveryManager = discoveryManager;
-			discoveryManager.onAvailableConnectionsChanged(() => {
-				this.#fireOnConnectionsChanged();
-			});
-			discoveryManager.onConnectionRequest(connectionRequest => {
-				// TODO: Add an allowlist #751
-				// TODO: Automatically accept connections that are hosted by this studio instance #810
-				let autoAccept = false;
-				if (connectionRequest.initiatedByMe) {
+			let acceptHandler;
+			if (discoveryManager.clientType == "studio-client" && connectionRequest.clientType == "studio-host") {
+				if (!connectionRequest.initiatedByMe) {
+					throw new Error('Assertion failed, a "studio-host" connection cannot connect to a "studio-client"');
+				}
+				acceptHandler = () => {
+					/** @type {import("./handlers.js").StudioClientHostConnection} */
+					const connection = connectionRequest.accept({});
+					this.#projectManager.assignRemoteConnection(connection);
+					this.#addActiveConnection(connection);
+				};
+			} else if (discoveryManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
+				const fileSystem = this.#projectManager.currentProjectFileSystem;
+				if (!fileSystem) {
+					throw new Error("Failed to accept incoming connection, no active file system.");
+				}
+				acceptHandler = () => {
+					const connection = connectionRequest.accept(createStudioHostHandlers(fileSystem));
+					this.#addActiveConnection(connection);
+				};
+			} else if (connectionRequest.clientType == "inspector") {
+				const {token} = connectionRequest.connectionRequestData;
+				if (token && this.#connectionTokens.has(token)) {
+					this.#connectionTokens.delete(token);
 					autoAccept = true;
 				}
-
-				let acceptHandler;
-				if (discoveryManager.clientType == "studio-client" && connectionRequest.clientType == "studio-host") {
-					if (!connectionRequest.initiatedByMe) {
-						throw new Error('Assertion failed, a "studio-host" connection cannot connect to a "studio-client"');
-					}
-					acceptHandler = () => {
-						/** @type {import("./handlers.js").StudioClientHostConnection} */
-						const connection = connectionRequest.accept({});
-						this.#projectManager.assignRemoteConnection(connection);
-						this.#addActiveConnection(connection);
-					};
-				} else if (discoveryManager.clientType == "studio-host" && connectionRequest.clientType == "studio-client") {
-					const fileSystem = this.#projectManager.currentProjectFileSystem;
-					if (!fileSystem) {
-						throw new Error("Failed to accept incoming connection, no active file system.");
-					}
-					acceptHandler = () => {
-						const connection = connectionRequest.accept(createStudioHostHandlers(fileSystem));
-						this.#addActiveConnection(connection);
-					};
-				} else if (connectionRequest.clientType == "inspector") {
-					const {token} = connectionRequest.connectionRequestData;
-					if (token && this.#connectionTokens.has(token)) {
-						this.#connectionTokens.delete(token);
-						autoAccept = true;
-					}
-					const assetManager = this.#projectManager.assetManager;
-					if (!assetManager) {
-						throw new Error("Failed to accept incoming connection, no active asset manager.");
-					}
-					acceptHandler = () => {
-						const connection = connectionRequest.accept(createStudioInspectorHandlers(assetManager));
-						this.#addActiveConnection(connection);
-					};
+				const assetManager = this.#projectManager.assetManager;
+				if (!assetManager) {
+					throw new Error("Failed to accept incoming connection, no active asset manager.");
+				}
+				acceptHandler = () => {
+					const connection = connectionRequest.accept(createStudioInspectorHandlers(assetManager));
+					this.#addActiveConnection(connection);
+				};
+			} else {
+				let initiatorType;
+				let receiverType;
+				if (connectionRequest.initiatedByMe) {
+					initiatorType = discoveryManager.clientType;
+					receiverType = connectionRequest.clientType;
 				} else {
-					let initiatorType;
-					let receiverType;
-					if (connectionRequest.initiatedByMe) {
-						initiatorType = discoveryManager.clientType;
-						receiverType = connectionRequest.clientType;
-					} else {
-						initiatorType = connectionRequest.clientType;
-						receiverType = discoveryManager.clientType;
-					}
-
-					throw new Error(`Assertion failed, tried to connect two connections that are incompatible: "${initiatorType}" tried to connect to "${receiverType}"`);
+					initiatorType = connectionRequest.clientType;
+					receiverType = discoveryManager.clientType;
 				}
 
-				if (autoAccept) {
-					acceptHandler();
-				} else {
-					this.#addPendingIncomingConnection(connectionRequest.otherClientUuid, acceptHandler, () => {
-						connectionRequest.reject();
-					});
-				}
-			});
-		}
-		if (this.#discoveryManager) {
-			// An internal discovery method is always needed
-			if (!this.#internalDiscoveryMethod) {
-				this.#internalDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(InternalDiscoveryMethod, this.#getDefaultInternalDiscoveryUrl());
+				throw new Error(`Assertion failed, tried to connect two connections that are incompatible: "${initiatorType}" tried to connect to "${receiverType}"`);
 			}
 
-			// Create/destroy webrtc discovery method when needed
-			const needsWebRtcDiscovery = enableRemoteDiscovery || this.#projectManager.currentProjectIsRemote;
-			const desiredWebRtcEndpoint = this.#webRtcDiscoveryEndpoint || this.getDefaultWebRtcDiscoveryEndpoint();
-			if (this.#webRtcDiscoveryMethod && (!needsWebRtcDiscovery || this.#webRtcDiscoveryMethod.endpoint != desiredWebRtcEndpoint)) {
-				this.#discoveryManager.removeDiscoveryMethod(this.#webRtcDiscoveryMethod);
-				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb("disconnected"));
-				this.#webRtcDiscoveryMethod = null;
-			}
-			if (!this.#webRtcDiscoveryMethod && needsWebRtcDiscovery) {
-				this.#webRtcDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(WebRtcDiscoveryMethod, desiredWebRtcEndpoint);
-				this.#webRtcDiscoveryMethod.onStatusChange(status => {
-					this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
+			if (autoAccept) {
+				acceptHandler();
+			} else {
+				this.#addPendingIncomingConnection(connectionRequest.otherClientUuid, acceptHandler, () => {
+					connectionRequest.reject();
 				});
-				const status = this.#webRtcDiscoveryMethod.status;
-				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
 			}
+		});
+
+		const internalDiscoveryMethod = discoveryManager.addDiscoveryMethod(InternalDiscoveryMethod, this.#getDefaultInternalDiscoveryUrl());
+
+		return {discoveryManager, internalDiscoveryMethod};
+	}
+
+	#updateDiscoveryManager = () => {
+		const enableRemoteDiscovery = this.#preferencesManager.get("studioConnections.enableRemoteDiscovery", null);
+
+		// Recreate the DiscoveryManager and InternalDiscoveryMethod when needed.
+		const desiredClientType = this.#getDesiredClientType();
+		if (desiredClientType != this.#discoveryManager.clientType) {
+			this.#discoveryManager.destructor();
+			this.#webRtcDiscoveryMethod = null;
+			this.#lastSentProjectMetadataWebRtc = null;
+			this.#lastSentProjectMetadataInternal = null;
+			const {discoveryManager, internalDiscoveryMethod} = this.#createDiscoveryManager(desiredClientType);
+			this.#discoveryManager = discoveryManager;
+			this.#internalDiscoveryMethod = internalDiscoveryMethod;
+		}
+
+		// Create/destroy webrtc discovery method when needed
+		const needsWebRtcDiscovery = enableRemoteDiscovery || this.#projectManager.currentProjectIsRemote;
+		const desiredWebRtcEndpoint = this.#webRtcDiscoveryEndpoint || this.getDefaultWebRtcDiscoveryEndpoint();
+		if (this.#webRtcDiscoveryMethod && (!needsWebRtcDiscovery || this.#webRtcDiscoveryMethod.endpoint != desiredWebRtcEndpoint)) {
+			this.#discoveryManager.removeDiscoveryMethod(this.#webRtcDiscoveryMethod);
+			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb("disconnected"));
+			this.#webRtcDiscoveryMethod = null;
+		}
+		if (!this.#webRtcDiscoveryMethod && needsWebRtcDiscovery) {
+			this.#webRtcDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(WebRtcDiscoveryMethod, desiredWebRtcEndpoint);
+			this.#webRtcDiscoveryMethod.onStatusChange(status => {
+				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
+			});
+			const status = this.#webRtcDiscoveryMethod.status;
+			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
 		}
 
 		this.#updateProjectMetadata();
@@ -251,7 +259,6 @@ export class StudioConnectionsManager {
 	 * @returns {Generator<StudioConnectionData>}
 	 */
 	*getConnections() {
-		if (!this.#discoveryManager) return;
 		for (const connection of this.#discoveryManager.availableConnections()) {
 			/** @type {import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus} */
 			let connectionState = "disconnected";
@@ -308,7 +315,6 @@ export class StudioConnectionsManager {
 	 * Sends the current state of project metadata to remote and internal studio connections.
 	 */
 	#updateProjectMetadata() {
-		if (!this.#discoveryManager) return;
 		const metadata = this.#projectManager.getCurrentProjectMetadata();
 
 		if (this.#webRtcDiscoveryMethod) {
@@ -320,13 +326,11 @@ export class StudioConnectionsManager {
 			}
 		}
 
-		if (this.#internalDiscoveryMethod) {
-			const enableInternalDiscovery = this.#preferencesManager.get("studioConnections.enableInternalDiscovery", null);
-			const internalMetadata = enableInternalDiscovery ? metadata : null;
-			if (!this.#metadataEquals(internalMetadata, this.#lastSentProjectMetadataInternal)) {
-				this.#internalDiscoveryMethod.setProjectMetadata(internalMetadata);
-				this.#lastSentProjectMetadataInternal = internalMetadata;
-			}
+		const enableInternalDiscovery = this.#preferencesManager.get("studioConnections.enableInternalDiscovery", null);
+		const internalMetadata = enableInternalDiscovery ? metadata : null;
+		if (!this.#metadataEquals(internalMetadata, this.#lastSentProjectMetadataInternal)) {
+			this.#internalDiscoveryMethod.setProjectMetadata(internalMetadata);
+			this.#lastSentProjectMetadataInternal = internalMetadata;
 		}
 	}
 
@@ -335,7 +339,7 @@ export class StudioConnectionsManager {
 	 */
 	setWebRtcDiscoveryEndpoint(endpoint) {
 		this.#webRtcDiscoveryEndpoint = endpoint;
-		this.#updateStudioConnectionsManager();
+		this.#updateDiscoveryManager();
 	}
 
 	/** @type {import("../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").DiscoveryServerStatusType} */
@@ -364,9 +368,6 @@ export class StudioConnectionsManager {
 	 * @param {import("../../../../src/mod.js").UuidString} otherClientUuid
 	 */
 	requestConnection(otherClientUuid) {
-		if (!this.#discoveryManager) {
-			throw new Error("Assertion failed, discovery manager does not exist.");
-		}
 		this.#discoveryManager.requestConnection(otherClientUuid);
 	}
 
@@ -374,10 +375,7 @@ export class StudioConnectionsManager {
 	 * @param {import("../../../../src/network/studioConnections/DiscoveryManager.js").FindConnectionConfig} config
 	 */
 	async waitForConnection(config) {
-		this.#updateStudioConnectionsManager();
-		if (!this.#discoveryManager) {
-			throw new Error("Assertion failed, discovery manager does not exist.");
-		}
+		this.#updateDiscoveryManager();
 		return await this.#discoveryManager.waitForConnection(config);
 	}
 
@@ -385,10 +383,7 @@ export class StudioConnectionsManager {
 	 * Returns the client uuid of the InternalDiscoveryMethod.
 	 */
 	async getInternalClientUuid() {
-		if (this.#discoveryManager && this.#internalDiscoveryMethod) {
-			return await this.#internalDiscoveryMethod.getClientUuid();
-		}
-		return null;
+		return await this.#internalDiscoveryMethod.getClientUuid();
 	}
 
 	/**

@@ -2,7 +2,7 @@ import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
 import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {assert, assertEquals, assertInstanceOf, assertRejects, assertThrows} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {assertLastDiscoveryManager, clearCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
 import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} from "./shared/MockWebRtcDiscoveryMethod.js";
 import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
@@ -466,37 +466,6 @@ Deno.test({
 		await basicTest({
 			async fn({manager}) {
 				assertEquals(await manager.getInternalClientUuid(), "client uuid");
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "waitForConnection() throws when called without a project open",
-	ignore: true,
-	async fn() {
-		await basicTest({
-			async fn({manager}) {
-				await assertRejects(async () => {
-					await manager.waitForConnection({
-						connectionType: "renda:internal",
-						projectUuid: "project uuid",
-					});
-				}, Error, "Assertion failed, discovery manager does not exist.");
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "requestConnection throws when called without a project open",
-	ignore: true,
-	async fn() {
-		await basicTest({
-			fn({manager}) {
-				assertThrows(() => {
-					manager.requestConnection("id");
-				}, Error, "Assertion failed, discovery manager does not exist.");
 			},
 		});
 	},
