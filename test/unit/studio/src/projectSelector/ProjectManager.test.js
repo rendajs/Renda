@@ -590,16 +590,37 @@ Deno.test({
 	async fn() {
 		await basicTest({
 			async fn({manager, studio}) {
-				const waitForConnectionSpy = spy(studio.studioConnectionsManager, "waitForConnection");
+				/** @type {(connection: import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType) => void} */
+				let resolveConnectionSpy = () => {};
+				const waitForConnectionSpy = stub(studio.studioConnectionsManager, "waitForConnection", async config => {
+					/** @type {Promise<import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType>} */
+					const promise = new Promise(r => {
+						resolveConnectionSpy = r;
+					});
+					return promise;
+				});
 				const requestConnectionSpy = spy(studio.studioConnectionsManager, "requestConnection");
 
-				await manager.openExistingProject({
+				forcePendingAssetListsPromise(true);
+
+				const openPromise = manager.openExistingProject({
 					fileSystemType: "remote",
 					name: "Project",
 					projectUuid: "uuid",
 					remoteProjectUuid: "remote uuid",
 					remoteProjectConnectionType: "renda:internal",
 				}, false);
+
+				await assertPromiseResolved(openPromise, false);
+
+				resolveConnectionSpy({
+					id: "connection id",
+					clientType: "studio-host",
+					connectionType: "renda:internal",
+					projectMetadata: null,
+				});
+
+				await assertPromiseResolved(openPromise, false);
 
 				assertSpyCalls(waitForConnectionSpy, 1);
 				assertSpyCall(waitForConnectionSpy, 0, {
@@ -617,6 +638,10 @@ Deno.test({
 				});
 
 				assertEquals(manager.currentProjectIsRemote, true);
+
+				forcePendingAssetListsPromise(false);
+
+				await assertPromiseResolved(openPromise, true);
 			},
 		});
 	},

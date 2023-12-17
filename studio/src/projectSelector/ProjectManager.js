@@ -122,8 +122,10 @@ export class ProjectManager {
 	 * @param {boolean} fromUserGesture Whether the call is made as a result from the user clicking something.
 	 * If this is false, things like preferences will quietly wait for user permission without any prompts.
 	 * But if this is true, an attempt will be made to read files immediately, likely triggering a permission prompt.
+	 * @param {object} hooks
+	 * @param {() => Promise<void>} [hooks.beforeAssetManagerReload]
 	 */
-	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture) {
+	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture, hooks = {}) {
 		// todo: handle multiple calls to openProject by cancelling any current running calls.
 		if (this.currentProjectFileSystem) {
 			this.currentProjectFileSystem.removeOnChange(this.#onFileSystemChange);
@@ -169,6 +171,8 @@ export class ProjectManager {
 		studio.windowManager.removeOnContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
 		await studio.windowManager.reloadWorkspaceInstance.run();
 		studio.windowManager.onContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
+
+		if (hooks.beforeAssetManagerReload) await hooks.beforeAssetManagerReload();
 
 		await this.reloadAssetManager();
 		await this.waitForAssetListsLoad();
@@ -432,12 +436,15 @@ export class ProjectManager {
 			if (!projectEntry.remoteProjectUuid || !projectEntry.remoteProjectConnectionType) {
 				throw new Error("Unable to open remote project. Remote project data is corrupt.");
 			}
-			await this.openProject(new RemoteStudioFileSystem(), projectEntry, fromUserGesture);
-			const connection = await getStudioInstance().studioConnectionsManager.waitForConnection({
-				connectionType: projectEntry.remoteProjectConnectionType,
-				projectUuid: projectEntry.remoteProjectUuid,
+			await this.openProject(new RemoteStudioFileSystem(), projectEntry, fromUserGesture, {
+				async beforeAssetManagerReload() {
+					const connection = await getStudioInstance().studioConnectionsManager.waitForConnection({
+						connectionType: projectEntry.remoteProjectConnectionType,
+						projectUuid: projectEntry.remoteProjectUuid,
+					});
+					getStudioInstance().studioConnectionsManager.requestConnection(connection.id);
+				},
 			});
-			getStudioInstance().studioConnectionsManager.requestConnection(connection.id);
 		} else {
 			const castEntry = /** @type {StoredProjectEntryAny} */ (projectEntry);
 			throw new Error(`Unknown file system type: "${castEntry.fileSystemType}".`);
