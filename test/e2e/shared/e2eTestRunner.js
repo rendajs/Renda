@@ -2,9 +2,10 @@ import * as path from "std/path/mod.ts";
 import * as fs from "std/fs/mod.ts";
 import {DevServer} from "../../../scripts/DevServer.js";
 import {installIfNotInstalled, setMainPageUrl} from "./browser.js";
-import {popFailedTests, setPath} from "./runE2eTest.js";
+import {popFailedTests, setDevelopmentModeEnabled, setPath} from "./runE2eTest.js";
 import {gray, red} from "std/fmt/colors.ts";
 import {setCwd} from "chdir-anywhere";
+import {parseArgs} from "../../shared/testArgs.js";
 setCwd();
 Deno.chdir("../../..");
 
@@ -31,6 +32,9 @@ if (testServerAddrs.length <= 0) {
 // Otherwise it will get downloaded within the first test,
 // potentially causing it to time out.
 await installIfNotInstalled();
+
+const {inspect} = parseArgs();
+setDevelopmentModeEnabled(inspect);
 
 setMainPageUrl(testServerAddrs[0]);
 
