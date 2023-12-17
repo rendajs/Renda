@@ -83,9 +83,11 @@ const fileSystems = [
 				hostMessenger.handleReceivedMessage(data.sendData);
 			});
 
-			const clientConnection = /** @type {import("../../../../../../../studio/src/network/studioConnections/handlers.js").StudioClientHostConnection} */ (/** @type {unknown} */ ({
-				messenger: clientMessenger,
-			}));
+			const clientConnection = /** @type {import("../../../../../../../studio/src/network/studioConnections/handlers.js").StudioClientHostConnection} */ ({
+				messenger: /** @type {any} */ (clientMessenger),
+				onStatusChange(cb) {},
+				status: "connected",
+			});
 			const remoteFs = new RemoteStudioFileSystem();
 			remoteFs.setConnection(clientConnection);
 			return remoteFs;
