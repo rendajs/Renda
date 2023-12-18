@@ -2,7 +2,7 @@ import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {log} from "../../../shared/log.js";
 import {runE2eTest} from "../../../shared/runE2eTest.js";
 import {click} from "../../../shared/util.js";
-import {clickAsset, createAsset} from "../../shared/assets.js";
+import {clickAsset, createAsset} from "../../shared/contentWindows/project.js";
 import {getPropertiesAssetContentReference, getPropertiesWindowContentAsset} from "../../shared/contentWindows/properties.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../shared/droppableGui.js";

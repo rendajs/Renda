@@ -4,7 +4,7 @@ import {getPage} from "../../../shared/browser.js";
 import {waitForStudioLoad} from "../../shared/studio.js";
 import {acceptFirstIncomingConnection, clickSingleAvailableConnectButton} from "../../shared/contentWindows/connections.js";
 import {openContentWindow} from "../../shared/windowManagement.js";
-import {waitForAssetExists} from "../../shared/assets.js";
+import {waitForAssetExists} from "../../shared/contentWindows/project.js";
 
 await runE2eTest({
 	name: "Assets are loaded via the InspectorAssetBundle",

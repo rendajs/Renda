@@ -2,7 +2,7 @@ import {assertEquals} from "std/testing/asserts.ts";
 import {log} from "../../../../shared/log.js";
 import {runE2eTest} from "../../../../shared/runE2eTest.js";
 import {click, drag, waitFor} from "../../../../shared/util.js";
-import {clickAsset, createAsset} from "../../../shared/assets.js";
+import {clickAsset, createAsset} from "../../../shared/contentWindows/project.js";
 import {clickCreateEmptyButton, getOutlinerRootEntityTreeView} from "../../../shared/contentWindows/outliner.js";
 import {setupNewProject} from "../../../shared/project.js";
 import {getPage} from "../../../../shared/browser.js";
