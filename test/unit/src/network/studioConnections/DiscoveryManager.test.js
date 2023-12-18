@@ -313,8 +313,8 @@ Deno.test({
 		discoveryMethod.addOne({
 			clientType: "inspector",
 			id: "id1",
-			projectMetadata: null
-		})
+			projectMetadata: null,
+		});
 		assertSpyCalls(onAvailableConnectionsChangedSpy, 1);
 
 		discoveryMethod.addActive("id1", false, {}, 0, "");
@@ -325,13 +325,13 @@ Deno.test({
 			clientType: "inspector",
 			id: "id2",
 			projectMetadata: null,
-		})
+		});
 		discoveryMethod.addActive("id2", false, {}, 0, "");
 
 		assertSpyCalls(onAvailableConnectionsChangedSpy, 1);
 		assertSpyCalls(onConnectionRequestSpy, 1);
-	}
-})
+	},
+});
 
 Deno.test({
 	name: "requestConnection()",
