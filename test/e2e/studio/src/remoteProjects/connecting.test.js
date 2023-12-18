@@ -8,7 +8,6 @@ import {waitForAssetExists} from "../../shared/contentWindows/project.js";
 
 await runE2eTest({
 	name: "Assets are loaded via the InspectorAssetBundle",
-	forceRunCount: 100,
 	async fn() {
 		const {page: page1, createPage} = await getPage();
 
