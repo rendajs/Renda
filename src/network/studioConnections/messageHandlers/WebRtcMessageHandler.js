@@ -2,8 +2,9 @@ import {MessageHandler} from "./MessageHandler.js";
 
 /**
  * @typedef WebRtcMessageHandlerOptions
- * @property {(uuid: import("../../../mod.js").UuidString, candidate: RTCIceCandidate) => void} sendRtcIceCandidate
- * @property {(uuid: import("../../../mod.js").UuidString, offer: RTCSessionDescriptionInit) => void} sendRtcDescription
+ * @property {(candidate: RTCIceCandidate) => void} sendRtcIceCandidate
+ * @property {(offer: RTCSessionDescriptionInit) => void} sendRtcDescription
+ * @property {(accepted: boolean) => void} onPermissionResult
  */
 
 export class WebRtcMessageHandler extends MessageHandler {
@@ -11,10 +12,14 @@ export class WebRtcMessageHandler extends MessageHandler {
 	 * @param {import("./MessageHandler.js").MessageHandlerOptions} messageHandlerOptions
 	 * @param {WebRtcMessageHandlerOptions} options
 	 */
-	constructor(messageHandlerOptions, {sendRtcIceCandidate, sendRtcDescription}) {
+	constructor(messageHandlerOptions, {sendRtcIceCandidate, sendRtcDescription, onPermissionResult}) {
 		super(messageHandlerOptions);
 		/** @private */
 		this.sendRtcDescription = sendRtcDescription;
+		/** @private */
+		this.onPermissionResult = onPermissionResult;
+		/** @private @type {boolean?} */
+		this.permissionResult = null;
 
 		/** @private @type {Set<() => void>} */
 		this._waitForConnectedCbs = new Set();
@@ -25,7 +30,7 @@ export class WebRtcMessageHandler extends MessageHandler {
 
 		this.rtcConnection.addEventListener("icecandidate", e => {
 			if (e.candidate) {
-				sendRtcIceCandidate(this.otherClientUuid, e.candidate);
+				sendRtcIceCandidate(e.candidate);
 			}
 		});
 		this.rtcConnection.addEventListener("datachannel", e => {
@@ -46,6 +51,28 @@ export class WebRtcMessageHandler extends MessageHandler {
 			});
 		}
 
+		this.updateStatus();
+	}
+
+	/**
+	 * @override
+	 */
+	requestAccepted() {
+		this.onPermissionResult(true);
+	}
+
+	/**
+	 * @abstract
+	 */
+	requestRejected() {
+		this.onPermissionResult(false);
+	}
+
+	/**
+	 * @param {boolean} accepted
+	 */
+	handlePermissionResult(accepted) {
+		this.permissionResult = accepted;
 		this.updateStatus();
 	}
 
@@ -79,7 +106,13 @@ export class WebRtcMessageHandler extends MessageHandler {
 					}
 				}
 				if (allConnected) {
-					newStatus = "connected";
+					if (this.permissionResult == null) {
+						newStatus = "outgoing-permission-pending";
+					} else if (this.permissionResult) {
+						newStatus = "connected";
+					} else {
+						newStatus = "outgoing-permission-rejected";
+					}
 				}
 			}
 		}
@@ -122,7 +155,7 @@ export class WebRtcMessageHandler extends MessageHandler {
 	 */
 	async setAndSendDescription(localDescription) {
 		await this.rtcConnection.setLocalDescription(localDescription);
-		this.sendRtcDescription(this.otherClientUuid, localDescription);
+		this.sendRtcDescription(localDescription);
 	}
 
 	/**

@@ -450,6 +450,113 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Accepting a connection request",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
+				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+
+				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+
+				const handler = getMessageHandler();
+
+				assertSpyCalls(socket.relayMessageSpy, 1);
+				assertSpyCall(socket.relayMessageSpy, 0, {
+					args: [
+						"otherUuid",
+						{
+							type: "connectionRequest",
+							connectionRequestData: {
+								token: "the_token",
+							},
+						},
+					],
+				});
+
+				handler.requestAccepted();
+
+				assertSpyCalls(socket.relayMessageSpy, 2);
+				assertSpyCall(socket.relayMessageSpy, 1, {
+					args: [
+						"otherUuid",
+						{
+							type: "permissionResult",
+							accepted: true,
+						},
+					],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Rejecting a connection request",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
+				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+
+				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+
+				const handler = getMessageHandler();
+
+				assertSpyCalls(socket.relayMessageSpy, 1);
+				assertSpyCall(socket.relayMessageSpy, 0, {
+					args: [
+						"otherUuid",
+						{
+							type: "connectionRequest",
+							connectionRequestData: {
+								token: "the_token",
+							},
+						},
+					],
+				});
+
+				handler.requestRejected();
+
+				assertSpyCalls(socket.relayMessageSpy, 2);
+				assertSpyCall(socket.relayMessageSpy, 1, {
+					args: [
+						"otherUuid",
+						{
+							type: "permissionResult",
+							accepted: false,
+						},
+					],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Receiving permission result for nonexistent connection throws",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				new WebRtcDiscoveryMethod("endpoint");
+
+				const socket = getSingleCreatedWebSocket();
+
+				// The TypedMessenger doesn't serialize the error that is thrown.
+				// So unfortunately we can't verify if the error message is correct.
+				// We'll just make a generic assertion instead.
+				await assertRejects(async () => {
+					await socket.messenger.send.relayMessage("otherUuid", {
+						type: "permissionResult",
+						accepted: false,
+					});
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
 	name: "Message handler status is updated",
 	async fn() {
 		await basicSetup({
@@ -457,7 +564,7 @@ Deno.test({
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
 				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
 
-				createAndConnectSingleAvailableConnection(discoveryMethod);
+				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
 
 				const handler = getMessageHandler();
 				assertEquals(handler.status, "connecting");
@@ -477,7 +584,46 @@ Deno.test({
 				assertEquals(handler.status, "connecting");
 
 				unreliableChannel.setMockReadyState("open");
+				assertEquals(handler.status, "outgoing-permission-pending");
+
+				socket.messenger.send.relayMessage("otherUuid", {
+					type: "permissionResult",
+					accepted: true,
+				});
+
 				assertEquals(handler.status, "connected");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Message handler status when connection is rejected",
+	async fn() {
+		await basicSetup({
+			async fn() {
+				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
+				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+
+				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+
+				const handler = getMessageHandler();
+
+				const rtcConnection = getSingleCreatedRtcConnection();
+				rtcConnection.setMockConnectionState("connected");
+				const reliableChannel = rtcConnection.addMockDataChannel("reliable");
+				const unreliableChannel = rtcConnection.addMockDataChannel("unreliable");
+				reliableChannel.setMockReadyState("open");
+				unreliableChannel.setMockReadyState("open");
+
+				assertEquals(handler.status, "outgoing-permission-pending");
+
+				socket.messenger.send.relayMessage("otherUuid", {
+					type: "permissionResult",
+					accepted: false,
+				});
+
+				assertEquals(handler.status, "outgoing-permission-rejected");
 			},
 		});
 	},
@@ -491,7 +637,7 @@ Deno.test({
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
 				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
 
-				createAndConnectSingleAvailableConnection(discoveryMethod);
+				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
 
 				const handler = getMessageHandler();
 
@@ -510,6 +656,13 @@ Deno.test({
 				const unreliableChannel = rtcConnection.addMockDataChannel("unreliable");
 				unreliableChannel.setMockReadyState("open");
 
+				await assertPromiseResolved(sendPromise, false);
+
+				socket.messenger.send.relayMessage("otherUuid", {
+					type: "permissionResult",
+					accepted: true,
+				});
+
 				await assertPromiseResolved(sendPromise, true);
 				assertSpyCalls(sendSpy, 1);
 			},
@@ -524,13 +677,17 @@ Deno.test({
 			async fn() {
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
 				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
-				createAndConnectSingleAvailableConnection(discoveryMethod);
+				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
 				const rtcConnection = getSingleCreatedRtcConnection();
 				rtcConnection.setMockConnectionState("connected");
 				const reliableChannel = rtcConnection.addMockDataChannel("reliable");
 				reliableChannel.setMockReadyState("open");
 				const unreliableChannel = rtcConnection.addMockDataChannel("unreliable");
 				unreliableChannel.setMockReadyState("open");
+				socket.messenger.send.relayMessage("otherUuid", {
+					type: "permissionResult",
+					accepted: true,
+				});
 
 				const handler = getMessageHandler();
 				await assertRejects(async () => {
