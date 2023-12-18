@@ -2,7 +2,7 @@ import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
 import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {assert, assertEquals, assertInstanceOf, assertRejects, assertThrows} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {assertLastDiscoveryManager, clearCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
 import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} from "./shared/MockWebRtcDiscoveryMethod.js";
 import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
@@ -143,7 +143,7 @@ function assertLastWebRtcDiscoveryMethod(length = 1) {
  * Asserts that the specified amount of internal discovery methods was created and returns the last one.
  * @param {number} length
  */
-function assertLastInternalDiscoveryMethod(length = 1) {
+function assertLastInternalDiscoveryManager(length = 1) {
 	const discoveryManagers = Array.from(getCreatedInternalDiscoveryMethods());
 	assertEquals(discoveryManagers.length, length);
 	return discoveryManagers[length - 1];
@@ -365,7 +365,7 @@ Deno.test({
 				const onConnectionsChangedSpy = spy();
 				manager.onConnectionsChanged(onConnectionsChangedSpy);
 
-				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const discoveryMethod = assertLastInternalDiscoveryManager();
 				discoveryMethod.addOne({
 					clientType: "inspector",
 					id: "id",
@@ -409,7 +409,7 @@ Deno.test({
 				});
 				fireOnProjectOpen();
 
-				const method = assertLastInternalDiscoveryMethod();
+				const method = assertLastInternalDiscoveryManager();
 				assertSpyCalls(method.setProjectMetadataSpy, 0);
 
 				preferencesManager.set("studioConnections.enableInternalDiscovery", true);
@@ -464,41 +464,8 @@ Deno.test({
 	name: "getInternalClientUuid",
 	async fn() {
 		await basicTest({
-			async fn({manager, fireOnProjectOpen, setHasProjectFileSystem}) {
-				assertEquals(await manager.getInternalClientUuid(), null);
-				setHasProjectFileSystem(true);
-				fireOnProjectOpen();
-
-				assertEquals(await manager.getInternalClientUuid(), "client uuid");
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "waitForConnection() throws when called without a project open",
-	async fn() {
-		await basicTest({
 			async fn({manager}) {
-				await assertRejects(async () => {
-					await manager.waitForConnection({
-						connectionType: "renda:internal",
-						projectUuid: "project uuid",
-					});
-				}, Error, "Assertion failed, discovery manager does not exist.");
-			},
-		});
-	},
-});
-
-Deno.test({
-	name: "requestConnection throws when called without a project open",
-	async fn() {
-		await basicTest({
-			fn({manager}) {
-				assertThrows(() => {
-					manager.requestConnection("id");
-				}, Error, "Assertion failed, discovery manager does not exist.");
+				assertEquals(await manager.getInternalClientUuid(), "client uuid");
 			},
 		});
 	},
@@ -515,7 +482,7 @@ Deno.test({
 				setCurrentProjectIsRemote(true);
 				fireOnProjectOpen();
 
-				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const discoveryMethod = assertLastInternalDiscoveryManager(2);
 				const requestConnectionSpy = spy(discoveryMethod, "requestConnection");
 				discoveryMethod.addOne({
 					clientType: "studio-host",
@@ -585,7 +552,7 @@ Deno.test({
 				setCurrentProjectIsRemote(false);
 				fireOnProjectOpen();
 
-				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const discoveryMethod = assertLastInternalDiscoveryManager();
 				const requestConnectionSpy = spy(discoveryMethod, "requestConnection");
 				discoveryMethod.addOne({
 					clientType: "studio-client",
@@ -642,6 +609,36 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Receiving studio-client connection throws when there is no file system",
+	async fn() {
+		await basicTest({
+			fn() {
+				// DiscoveryManager callback errors are printed to the console instead of thrown
+				const consoleErrorSpy = stub(console, "error");
+
+				try {
+					const discoveryMethod = assertLastInternalDiscoveryManager();
+					discoveryMethod.addOne({
+						clientType: "studio-client",
+						id: "connection id",
+						projectMetadata: null,
+					});
+					discoveryMethod.addActive("connection id", false, {}, 0, "");
+
+					assertSpyCalls(consoleErrorSpy, 1);
+					const error = consoleErrorSpy.calls[0].args[0];
+					assertInstanceOf(error, Error);
+					const expectedText = "Failed to accept incoming connection, no active file system.";
+					assert(error.message.includes(expectedText), `Expected error message to contain "${expectedText}"`);
+				} finally {
+					consoleErrorSpy.restore();
+				}
+			},
+		});
+	},
+});
+
+Deno.test({
 	name: "Throws when a studio-host tries to connect to a studio-client",
 	async fn() {
 		await basicTest({
@@ -654,7 +651,7 @@ Deno.test({
 				const consoleErrorSpy = stub(console, "error");
 
 				try {
-					const discoveryMethod = assertLastInternalDiscoveryMethod();
+					const discoveryMethod = assertLastInternalDiscoveryManager(2);
 					discoveryMethod.addOne({
 						clientType: "studio-host",
 						id: "connection id",
@@ -686,7 +683,7 @@ Deno.test({
 				setCurrentProjectIsRemote(false);
 				fireOnProjectOpen();
 
-				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const discoveryMethod = assertLastInternalDiscoveryManager();
 				const requestConnectionSpy = spy(discoveryMethod, "requestConnection");
 				discoveryMethod.addOne({
 					clientType: "inspector",
@@ -743,6 +740,36 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Receiving inspector connection throws when there is no asset manager",
+	async fn() {
+		await basicTest({
+			fn() {
+				// DiscoveryManager callback errors are printed to the console instead of thrown
+				const consoleErrorSpy = stub(console, "error");
+
+				try {
+					const discoveryMethod = assertLastInternalDiscoveryManager();
+					discoveryMethod.addOne({
+						clientType: "inspector",
+						id: "connection id",
+						projectMetadata: null,
+					});
+					discoveryMethod.addActive("connection id", false, {}, 0, "");
+
+					assertSpyCalls(consoleErrorSpy, 1);
+					const error = consoleErrorSpy.calls[0].args[0];
+					assertInstanceOf(error, Error);
+					const expectedText = "Failed to accept incoming connection, no active asset manager.";
+					assert(error.message.includes(expectedText), `Expected error message to contain "${expectedText}"`);
+				} finally {
+					consoleErrorSpy.restore();
+				}
+			},
+		});
+	},
+});
+
+Deno.test({
 	name: "Inspector connections with a connection token are automatically accepted",
 	async fn() {
 		await basicTest({
@@ -753,7 +780,7 @@ Deno.test({
 				setCurrentProjectIsRemote(false);
 				fireOnProjectOpen();
 
-				const discoveryMethod = assertLastInternalDiscoveryMethod();
+				const discoveryMethod = assertLastInternalDiscoveryManager();
 				const requestConnectionSpy = spy(discoveryMethod, "requestConnection");
 				discoveryMethod.addOne({
 					clientType: "inspector",
@@ -812,7 +839,7 @@ Deno.test({
 				const consoleErrorSpy = stub(console, "error");
 
 				try {
-					const discoveryMethod = assertLastInternalDiscoveryMethod();
+					const discoveryMethod = assertLastInternalDiscoveryManager();
 					discoveryMethod.addOne({
 						clientType: "studio-host",
 						id: "host id",

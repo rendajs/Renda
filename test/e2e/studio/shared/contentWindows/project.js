@@ -1,8 +1,8 @@
-import {log} from "../../shared/log.js";
-import {click} from "../../shared/util.js";
-import {getContentWindowElement} from "./contentWindows.js";
-import {clickContextMenuItem} from "./contextMenu.js";
-import {getTreeViewItemElement, waitForTreeViewDisappear} from "./treeView.js";
+import {log} from "../../../shared/log.js";
+import {click} from "../../../shared/util.js";
+import {getContentWindowElement} from "../contentWindows.js";
+import {clickContextMenuItem} from "../contextMenu.js";
+import {getTreeViewItemElement, waitForTreeViewExists} from "../treeView.js";
 
 /**
  * Clicks the create asset button in the project window and clicks the specified
@@ -51,15 +51,21 @@ export async function getAssetTreeView(page, assetPath) {
 }
 
 /**
- * Finds the project window and waits for an asset treeview to disappear.
+ * Finds the project window and waits until an asset treeview exists or not.
  * @param {import("puppeteer").Page} page
+ * @param {boolean} exists
  * @param {string[]} assetPath
  */
-export async function waitForAssetDissappear(page, assetPath) {
-	log(`Wait for asset to disappear: ${assetPath.join(" > ")}`);
+export async function waitForAssetExists(page, exists, assetPath) {
+	const existsStr = exists ? "exist" : "not exist";
+	log(`Wait for asset to ${existsStr}: ${assetPath.join(" > ")}`);
 	const projectRootTreeViewEl = await getProjectRootTreeViewEl(page);
-	await waitForTreeViewDisappear(page, projectRootTreeViewEl, assetPath);
-	log("Asset disappeared");
+	await waitForTreeViewExists(page, projectRootTreeViewEl, exists, assetPath);
+	if (exists) {
+		log("Asset exists");
+	} else {
+		log("Asset doesn't exist");
+	}
 }
 
 /**

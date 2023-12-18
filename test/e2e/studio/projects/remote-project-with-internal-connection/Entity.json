@@ -1,0 +1,9 @@
+{
+	"assetType": "renda:entity",
+	"asset": {
+		"name": "Entity",
+		"children": [
+			{"name": "child"}
+		]
+	}
+}

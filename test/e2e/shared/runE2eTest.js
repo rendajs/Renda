@@ -17,10 +17,21 @@ import {discardCurrentContexts} from "./browser.js";
 
 let currentPath = "";
 /**
+ * Sets the path that is logged for each test that is run.
  * @param {string} path
  */
 export function setPath(path) {
 	currentPath = path;
+}
+
+let developmentModeEnabled = true;
+/**
+ * When development mode is enabled, certain checks are disabled to make developing tests easier.
+ * For instance, test timeouts are disabled, and tests are only attempted a single time.
+ * @param {boolean} enabled
+ */
+export function setDevelopmentModeEnabled(enabled) {
+	developmentModeEnabled = enabled;
 }
 
 /** @type {string[]} */
@@ -75,18 +86,22 @@ export async function runE2eTest(config) {
 				}
 				testFinished = true;
 			})();
-			let createdTimeout;
-			const timeoutPromise = (async () => {
-				await new Promise(resolve => {
-					createdTimeout = setTimeout(resolve, 30_000);
-				});
-				if (testFinished) return;
-				testFinished = true;
-				ok = false;
-				lastError = new Error("Test timed out");
-			})();
-			await Promise.race([testPromise, timeoutPromise]);
-			clearTimeout(createdTimeout);
+			if (!developmentModeEnabled) {
+				let createdTimeout;
+				const timeoutPromise = (async () => {
+					await new Promise(resolve => {
+						createdTimeout = setTimeout(resolve, 30_000);
+					});
+					if (testFinished) return;
+					testFinished = true;
+					ok = false;
+					lastError = new Error("Test timed out");
+				})();
+				await Promise.race([testPromise, timeoutPromise]);
+				clearTimeout(createdTimeout);
+			} else {
+				await testPromise;
+			}
 			await discardCurrentContexts();
 			if (ok) successCount++;
 			attempts++;
@@ -97,8 +112,14 @@ export async function runE2eTest(config) {
 
 			if (!ok && config.failFast) break;
 
-			if (config.forceRunCount) {
-				if (attempts >= config.forceRunCount) {
+			let forceRunCount;
+			if (developmentModeEnabled) {
+				forceRunCount = 1;
+			} else {
+				forceRunCount = config.forceRunCount;
+			}
+			if (forceRunCount) {
+				if (attempts >= forceRunCount) {
 					success = wasSuccessful(successCount, attempts);
 					break;
 				}

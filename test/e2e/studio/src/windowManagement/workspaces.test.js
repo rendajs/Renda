@@ -1,20 +1,9 @@
-import {click} from "../../../shared/util.js";
 import {setupNewProject} from "../../shared/project.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {assertEquals} from "std/testing/asserts.ts";
 import {runE2eTest} from "../../../shared/runE2eTest.js";
 import {getPage} from "../../../shared/browser.js";
-
-/**
- * Right clicks the first found tab element of a content window.
- * @param {import("puppeteer").Page} page
- */
-async function rightClickTabButton(page) {
-	console.log("Right click content window tab buttons");
-	await click(page, ".studio-window-tab-button-group > .button", {
-		button: "right",
-	});
-}
+import {rightClickFirstContentWindowTabButton} from "../../shared/windowManagement.js";
 
 /**
  * @param {import("puppeteer").Page} page
@@ -58,20 +47,20 @@ await runE2eTest({
 		const result1 = await getFirstTabGroupTypes(page);
 		assertEquals(result1, [FIRST_TAB_TYPE, SECOND_TAB_TYPE]);
 
-		await rightClickTabButton(page);
+		await rightClickFirstContentWindowTabButton(page);
 
 		console.log("Add new workspace");
 		await clickContextMenuItem(page, ["Workspaces", "Add New Workspace"]);
 		await waitForWorkspaceLoad(page);
 
-		await rightClickTabButton(page);
+		await rightClickFirstContentWindowTabButton(page);
 		await clickContextMenuItem(page, ["Close Tab"]);
 
 		const result2 = await getFirstTabGroupTypes(page);
 		assertEquals(result2, [SECOND_TAB_TYPE]);
 
 		console.log("Activate default workspace");
-		await rightClickTabButton(page);
+		await rightClickFirstContentWindowTabButton(page);
 		await clickContextMenuItem(page, ["Workspaces", "Default", "Activate"]);
 		await waitForWorkspaceLoad(page);
 
@@ -79,7 +68,7 @@ await runE2eTest({
 		assertEquals(result3, [FIRST_TAB_TYPE, SECOND_TAB_TYPE]);
 
 		console.log("Activate the new workspace again");
-		await rightClickTabButton(page);
+		await rightClickFirstContentWindowTabButton(page);
 		await clickContextMenuItem(page, ["Workspaces", "workspace1", "Activate"]);
 		await waitForWorkspaceLoad(page);
 

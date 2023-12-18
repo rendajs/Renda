@@ -89,38 +89,51 @@ export async function getPage(url = getMainPageUrl() + "/studio/") {
 
 	const context = await browser.createIncognitoBrowserContext();
 	contexts.add(context);
-	const page = await context.newPage();
-	pages.add(page);
-	await updateDefaultPageVisibility();
 
-	page.on("console", async message => {
-		// We need to request `jsonValue` right away, if we only add the message
-		// to the queue and request it later the browser context might already be lost.
-		const args = message.args();
-		let argsPromises;
-		if (args.length > 0) {
-			argsPromises = message.args().map(arg => arg.jsonValue());
-		} else {
-			argsPromises = [Promise.resolve(message.text())];
-		}
-		consoleQueue.push({
-			location: message.location(),
-			argsPromise: Promise.all(argsPromises),
+	/** @type {Set<import("puppeteer").Page>} */
+	const createdPages = new Set();
+	async function createPage(url = getMainPageUrl() + "/studio/") {
+		const page = await context.newPage();
+		pages.add(page);
+		createdPages.add(page);
+		await updateDefaultPageVisibility();
+
+		page.on("console", async message => {
+			// We need to request `jsonValue` right away, if we only add the message
+			// to the queue and request it later the browser context might already be lost.
+			const args = message.args();
+			let argsPromises;
+			if (args.length > 0) {
+				argsPromises = message.args().map(arg => arg.jsonValue());
+			} else {
+				argsPromises = [Promise.resolve(message.text())];
+			}
+			consoleQueue.push({
+				location: message.location(),
+				argsPromise: Promise.all(argsPromises),
+			});
+			drainConsoleQueue();
 		});
-		drainConsoleQueue();
-	});
-	page.on("pageerror", error => {
-		console.log("-- Browser console error");
-		console.log(error);
-		console.log("--");
-	});
+		page.on("pageerror", error => {
+			console.log("-- Browser console error");
+			console.log(error);
+			console.log("--");
+		});
 
-	await page.goto(url);
+		await page.goto(url);
+
+		return page;
+	}
+
+	const page = await createPage(url);
 	return {
 		context,
 		page,
+		createPage,
 		async discard() {
-			pages.delete(page);
+			for (const page of createdPages) {
+				pages.delete(page);
+			}
 			contexts.delete(context);
 			await updateDefaultPageVisibility();
 			await context.close();

@@ -15,11 +15,14 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 			throw new Error("A connection has already been assigned to this file system.");
 		}
 		this.#connection = connection;
+		connection.onStatusChange(() => {
+			this.#updateConnected();
+		});
 		this.#updateConnected();
 	}
 
 	#updateConnected() {
-		const connected = Boolean(this.#connection);
+		const connected = Boolean(this.#connection && this.#connection.status == "connected");
 		if (connected != this.#connected) {
 			this.#connected = connected;
 			if (connected) {
