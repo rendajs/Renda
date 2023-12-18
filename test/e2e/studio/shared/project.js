@@ -60,6 +60,17 @@ export async function setupNewProject(page) {
 }
 
 /**
+ * Clicks the 'Connect Remote Project' button in the project selector.
+ * This does not wait for the project is open since technically the project doesn't open until a connection is made.
+ *
+ * @param {import("puppeteer").Page} page
+ */
+export async function openRemoteProject(page, connectToSingleAvailableConnection = true) {
+	log("Open remote project");
+	await click(page, ".project-selector-actions-list-container > .project-selector-list > li:nth-child(3) > button");
+}
+
+/**
  * Creates a new `IndexedDbStudioFileSystem` and injects all files before opening the project.
  * @param {import("puppeteer").Page} page
  * @param {string} projectName The name of the directory located at /test/e2e/studio/projects/

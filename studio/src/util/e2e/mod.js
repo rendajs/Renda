@@ -8,3 +8,5 @@
 export * from "./treeView.js";
 export * from "./indexedDb.js";
 export * from "./injectProject.js";
+export * from "./contentWindows.js";
+export * from "./connections.js";

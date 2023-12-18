@@ -26,15 +26,16 @@ export async function getTreeViewItemElement(page, treeViewElementHandle, itemsP
  * For more info see {@linkcode getTreeViewItemElement}.
  * @param {import("puppeteer").Page} page
  * @param {import("puppeteer").ElementHandle} treeViewElementHandle
+ * @param {boolean} exists
  * @param {(string | number)[]} itemsPath An array where each item represents the textContent of a treeViewRow element,
  * textContent of a propertiesTreeViewEntry, or index of a child.
  */
-export async function waitForTreeViewDisappear(page, treeViewElementHandle, itemsPath) {
-	await page.waitForFunction((treeViewElement, itemsPath) => {
+export async function waitForTreeViewExists(page, treeViewElementHandle, exists, itemsPath) {
+	await page.waitForFunction((treeViewElement, exists, itemsPath) => {
 		if (!globalThis.e2e) return false;
 		const el = globalThis.e2e.getTreeViewPathElement(treeViewElement, itemsPath);
-		return !el;
-	}, {}, treeViewElementHandle, itemsPath);
+		return Boolean(el) == exists;
+	}, {}, treeViewElementHandle, exists, itemsPath);
 }
 
 /**

@@ -23,21 +23,12 @@ export async function getContentWindowElement(page, contentWindowType, {
 	assertExists = /** @type {TAssertExists} */ (true),
 } = {}) {
 	const result = await page.evaluateHandle(async (contentWindowType, assertExists) => {
-		if (!globalThis.studio) throw new Error("Studio instance does not exist");
-		const array = Array.from(globalThis.studio.windowManager.getContentWindows(contentWindowType));
-		if (array.length <= 0) {
-			if (assertExists) {
-				throw new Error(`Failed to get '${contentWindowType}' content window element because it wasn't found.`);
-			} else {
-				return null;
-			}
-		}
-		const el = array[0].el;
-		return el;
+		if (!globalThis.e2e) throw new Error("e2e module not initialized");
+		return globalThis.e2e.getContentWindowElement(contentWindowType, assertExists);
 	}, contentWindowType, assertExists);
 	/** @typedef {TAssertExists extends true ? ElementHandle<HTMLDivElement> : ElementHandle<HTMLDivElement>?} ReturnType */
 	if (result instanceof ElementHandle) {
-		return /** @type {ReturnType} */ (result);
+		return /** @type {ReturnType} */ (/** @type {unknown} */ (result));
 	} else {
 		const jsonValue = await result.jsonValue();
 		return /** @type {ReturnType} */ (jsonValue);
@@ -55,11 +46,8 @@ export async function getContentWindowElement(page, contentWindowType, {
 export async function waitForContentWindowElement(page, contentWindowType) {
 	log(`Wait for '${contentWindowType}' content window`);
 	const result = await page.waitForFunction(async contentWindowType => {
-		if (!globalThis.studio) throw new Error("Studio instance does not exist");
-		const array = Array.from(globalThis.studio.windowManager.getContentWindows(contentWindowType));
-		if (array.length <= 0) return null;
-		const el = array[0].el;
-		return el;
+		if (!globalThis.e2e) throw new Error("e2e module not initialized");
+		return globalThis.e2e.getContentWindowElement(contentWindowType, false);
 	}, {}, contentWindowType);
 
 	return /** @type {ElementHandle<HTMLDivElement>} */ (result);
@@ -71,13 +59,12 @@ export async function waitForContentWindowElement(page, contentWindowType) {
  * @param {string} contentWindowType The static `contentWindowTypeId` property of the content window. See {@linkcode ContentWindow.contentWindowTypeId}.
  */
 export async function getContentWindowReference(page, contentWindowType) {
-	const el = await getContentWindowElement(page, contentWindowType);
-	const reference = await page.evaluateHandle(el => {
-		if (!globalThis.studio) throw new Error("Studio instance does not exist");
-		if (!(el instanceof HTMLElement)) throw new Error("Assertion failed, el is not a HTMLElement.");
-		const contentWindowReference = globalThis.studio.windowManager.getWindowByElement(el);
+	const reference = await page.evaluateHandle(contentWindowType => {
+		if (!globalThis.e2e) throw new Error("e2e module not initialized");
+		const el = globalThis.e2e.getContentWindowElement(contentWindowType);
+		const contentWindowReference = globalThis.e2e.getContentWindowReference(el);
 		if (!contentWindowReference) throw new Error(`Failed to get content window reference for "${contentWindowType}".`);
 		return contentWindowReference;
-	}, el);
+	}, contentWindowType);
 	return reference;
 }
