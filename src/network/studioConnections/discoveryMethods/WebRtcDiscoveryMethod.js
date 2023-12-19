@@ -17,6 +17,11 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
  * @property {import("../DiscoveryManager.js").ConnectionRequestData} connectionRequestData
  */
 /**
+ * @typedef ExternalDiscoveryRelayPermissionResultData
+ * @property {"permissionResult"} type
+ * @property {boolean} accepted
+ */
+/**
  * @typedef ExternalDiscoveryRelayOfferData
  * @property {"rtcDescription"} type
  * @property {RTCSessionDescriptionInit} description
@@ -26,7 +31,7 @@ import {DiscoveryMethod} from "./DiscoveryMethod.js";
  * @property {"rtcIceCandidate"} type
  * @property {RTCIceCandidate} candidate
  */
-/** @typedef {ExternalDiscoveryRelayConnectionRequestData | ExternalDiscoveryRelayOfferData | ExternalDiscoveryRelayCandidateData} ExternalDiscoveryRelayData */
+/** @typedef {ExternalDiscoveryRelayConnectionRequestData | ExternalDiscoveryRelayPermissionResultData | ExternalDiscoveryRelayOfferData | ExternalDiscoveryRelayCandidateData} ExternalDiscoveryRelayData */
 
 /** @typedef {(status: DiscoveryServerStatusType) => void} OnDiscoveryManagerWebRtcStatusChangeCallback */
 
@@ -147,6 +152,8 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			relayMessage: (fromUuid, relayData) => {
 				if (relayData.type == "connectionRequest") {
 					this._handleConnectionRequest(fromUuid, relayData.connectionRequestData);
+				} else if (relayData.type == "permissionResult") {
+					this._handlePermissionResult(fromUuid, relayData.accepted);
 				} else if (relayData.type == "rtcDescription") {
 					this._handleRtcDescription(fromUuid, relayData.description);
 				} else if (relayData.type == "rtcIceCandidate") {
@@ -191,20 +198,27 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 
 	/**
 	 * @private
+	 * @param {import("../../../mod.js").UuidString} otherClientUuid
 	 * @returns {import("../messageHandlers/WebRtcMessageHandler.js").WebRtcMessageHandlerOptions}
 	 */
-	_createConnectionOptions() {
+	_createConnectionOptions(otherClientUuid) {
 		return {
-			sendRtcIceCandidate: (uuid, candidate) => {
-				this.webSocketMessenger.send.relayMessage(uuid, {
+			sendRtcIceCandidate: candidate => {
+				this.webSocketMessenger.send.relayMessage(otherClientUuid, {
 					type: "rtcIceCandidate",
 					candidate,
 				});
 			},
-			sendRtcDescription: (uuid, description) => {
-				this.webSocketMessenger.send.relayMessage(uuid, {
+			sendRtcDescription: description => {
+				this.webSocketMessenger.send.relayMessage(otherClientUuid, {
 					type: "rtcDescription",
 					description,
+				});
+			},
+			onPermissionResult: accepted => {
+				this.webSocketMessenger.send.relayMessage(otherClientUuid, {
+					type: "permissionResult",
+					accepted,
 				});
 			},
 		};
@@ -223,7 +237,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			type: "connectionRequest",
 			connectionRequestData,
 		});
-		this.addActiveConnection(otherClientUuid, true, connectionRequestData, this._createConnectionOptions());
+		this.addActiveConnection(otherClientUuid, true, connectionRequestData, this._createConnectionOptions(otherClientUuid));
 	}
 
 	/**
@@ -235,7 +249,20 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		if (this.activeConnections.get(otherClientUuid)) {
 			throw new Error("There's already an active connection with this client.");
 		}
-		this.addActiveConnection(otherClientUuid, false, connectionRequestData, this._createConnectionOptions());
+		this.addActiveConnection(otherClientUuid, false, connectionRequestData, this._createConnectionOptions(otherClientUuid));
+	}
+
+	/**
+	 * @private
+	 * @param {import("../../../mod.js").UuidString} otherClientUuid
+	 * @param {boolean} accepted
+	 */
+	_handlePermissionResult(otherClientUuid, accepted) {
+		const connection = this.activeConnections.get(otherClientUuid);
+		if (!connection) {
+			throw new Error("There is no active connection with this client.");
+		}
+		connection.handlePermissionResult(accepted);
 	}
 
 	/**
