@@ -13,3 +13,4 @@ export * from "./meshShapeGeneration/mod.js";
 export * from "./TypedMessenger/TypedMessenger.js";
 export * as ErrorSerialization from "./TypedMessenger/errorSerialization.js";
 export * from "./WeakValueMap.js";
+export * from "./gltf/mod.js";

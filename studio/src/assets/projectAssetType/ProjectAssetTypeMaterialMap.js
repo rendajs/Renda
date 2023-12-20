@@ -25,8 +25,8 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		identifier: "AssetLoaderTypeMaterialMap",
 		instanceIdentifier: "materialMapLoader",
 		extra(ctx) {
-			ctx.addImport("MaterialMapTypeLoaderWebGpuRenderer", "renda");
-			return `materialMapLoader.registerMaterialMapTypeLoader(MaterialMapTypeLoaderWebGpuRenderer);`;
+			ctx.addImport("WebGpuMaterialMapTypeLoader", "renda");
+			return `materialMapLoader.registerMaterialMapTypeLoader(WebGpuMaterialMapTypeLoader);`;
 		},
 	};
 
