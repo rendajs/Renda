@@ -31,7 +31,7 @@ export class CameraComponent extends Component {
 				type: "number",
 				guiOpts: {
 					min: 0,
-					defaultValue: 0.01,
+					defaultValue: 0.1,
 				},
 			},
 			clipFar: {
@@ -128,7 +128,7 @@ export class CameraComponent extends Component {
 		/** @private */
 		this._fov = 90;
 		/** @private */
-		this._clipNear = 0.01;
+		this._clipNear = 0.1;
 		/** @private */
 		this._clipFar = 1000;
 		/** @private */
