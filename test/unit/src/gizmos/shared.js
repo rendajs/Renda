@@ -38,7 +38,7 @@ export {Gizmo};
 
 export function initBasicSetup() {
 	const cameraObject = new Entity();
-	cameraObject.pos.set(-2, 0.7, 2);
+	cameraObject.pos.set(-2, 0.7, 10);
 	cameraObject.rot.setFromAxisAngle(0.2, 0.7, -0.1);
 	const cam = cameraObject.addComponent(CameraComponent);
 
