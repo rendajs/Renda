@@ -1,6 +1,6 @@
 export {ClusteredLightsConfig} from "./ClusteredLightsConfig.js";
 export {Material} from "./Material.js";
-export {MaterialMap} from "./MaterialMap.js";
+export * from "./MaterialMap.js";
 export {MaterialMapType} from "./MaterialMapType.js";
 export {RendererDomTarget} from "./RendererDomTarget.js";
 export {RenderOutputConfig} from "./RenderOutputConfig.js";
