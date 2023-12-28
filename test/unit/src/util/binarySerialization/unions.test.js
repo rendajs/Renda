@@ -342,3 +342,37 @@ Deno.test({
 		}, opts);
 	},
 });
+
+Deno.test({
+	name: "Union of an object and null",
+	fn() {
+		const opts = createObjectToBinaryOptions({
+			structure: {
+				union: [
+					StorageType.UNION_ARRAY,
+					StorageType.NULL,
+					{
+						foo: StorageType.UINT8,
+						bar: StorageType.UINT8,
+					},
+				],
+			},
+			nameIds: {
+				union: 1,
+				foo: 2,
+				bar: 3,
+			},
+		});
+
+		basicObjectToBinaryToObjectTest({
+			union: null,
+		}, opts);
+
+		basicObjectToBinaryToObjectTest({
+			union: {
+				foo: 42,
+				bar: 123,
+			},
+		}, opts);
+	},
+});
