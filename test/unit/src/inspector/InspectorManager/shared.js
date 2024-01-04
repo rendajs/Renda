@@ -13,7 +13,7 @@ export function createMockInspectorManager({
 	const mockAssetManager = /** @type {import("../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({});
 	const handlers = createStudioInspectorHandlers(mockAssetManager);
 	const studioHostMessenger = new TypedMessenger();
-	studioHostMessenger.setResponseHandlers(handlers);
+	studioHostMessenger.setResponseHandlers(handlers.reliableResponseHandlers);
 	const inspectorMessenger = new TypedMessenger();
 
 	// Link the two messengers to each other

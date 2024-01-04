@@ -12,7 +12,7 @@ export class MemoryFileSystemWritableFileStream extends WritableStream {
 	}
 
 	/**
-	 * @param  {FileSystemWriteChunkType} data
+	 * @param {FileSystemWriteChunkType} data
 	 */
 	async write(data) {
 		if (data instanceof ArrayBuffer || ArrayBuffer.isView(data) || data instanceof Blob || typeof data == "string") {

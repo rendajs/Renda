@@ -116,11 +116,12 @@ import {TimeoutError} from "../TimeoutError.js";
  */
 
 /**
+ * @template {any} [TReturn = any]
  * @typedef TypedMessengerRespondOptions
  * @property {Transferable[]} [transfer] An array of objects that should be transferred.
  * For this to work, the `TypedMessenger.setSendHandler()` callback should pass the `transfer` data to the correct `postMessage()` argument.
  * For more info see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
- * @property {any} [returnValue] The value that should be sent to the requester.
+ * @property {TReturn} [returnValue] The value that should be sent to the requester.
  * @property {boolean} [respond] Defaults to true, set to false to not send any response at all.
  *
  * **Warning:** Make sure to also set `expectResponse` to `false` on the sending end to avoid memory leaks.
@@ -129,7 +130,10 @@ import {TimeoutError} from "../TimeoutError.js";
  * Alternatively you could set a `timeout` or `globalTimeout`, causing the promise to reject once the timeout is reached.
  */
 
-/** @typedef {{"$respondOptions"?: TypedMessengerRespondOptions}} TypedMessengerRequestHandlerReturn */
+/**
+ * @template {any} [TReturn = any]
+ * @typedef {{"$respondOptions"?: TypedMessengerRespondOptions<TReturn>}} TypedMessengerRequestHandlerReturn
+ */
 
 /**
  * @template {TypedMessengerSignatures} TReq

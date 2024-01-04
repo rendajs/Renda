@@ -1,3 +1,5 @@
+import {StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary} from "../../../../../src/util/binarySerialization.js";
+
 /**
  * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem
  */
@@ -45,6 +47,78 @@ export function createFileSystemHandlers(fileSystem) {
 		 */
 		"fileSystem.exists": async path => {
 			return await fileSystem.exists(path);
+		},
+	};
+}
+
+const serializeFileBinaryOpts = createObjectToBinaryOptions({
+	structure: {
+		buffer: StorageType.ARRAY_BUFFER,
+		name: StorageType.STRING,
+		type: StorageType.STRING,
+		lastModified: StorageType.FLOAT64,
+	},
+	nameIds: {
+		buffer: 0,
+		name: 1,
+		type: 2,
+		lastModified: 3,
+	},
+});
+
+/**
+ * @param {File} file
+ */
+async function serializeFile(file) {
+	return objectToBinary({
+		buffer: await file.arrayBuffer(),
+		name: file.name,
+		type: file.type,
+		lastModified: file.lastModified,
+	}, serializeFileBinaryOpts);
+}
+
+/**
+ * @param {ArrayBuffer} buffer
+ */
+function deserializeFile(buffer) {
+	const fileData = binaryToObject(buffer, serializeFileBinaryOpts);
+	return new File([fileData.buffer], fileData.name, {
+		type: fileData.type,
+		lastModified: fileData.lastModified,
+	});
+}
+
+export function createFileSystemRequestSerializers() {
+	return {
+
+	};
+}
+
+export function createFileSystemRequestDeserializers() {
+	return {
+
+	};
+}
+
+export function createFileSystemResponseSerializers() {
+	return {
+		/**
+		 * @param {File} file
+		 */
+		"fileSystem.readFile": async file => {
+			return await serializeFile(file);
+		},
+	};
+}
+
+export function createFileSystemResponseDeserializers() {
+	return {
+		/**
+		 * @param {ArrayBuffer} buffer
+		 */
+		"fileSystem.readFile": buffer => {
+			return deserializeFile(buffer);
 		},
 	};
 }

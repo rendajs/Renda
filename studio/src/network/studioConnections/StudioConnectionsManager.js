@@ -1,7 +1,7 @@
 import {DiscoveryManager} from "../../../../src/network/studioConnections/DiscoveryManager.js";
 import {InternalDiscoveryMethod} from "../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
 import {WebRtcDiscoveryMethod} from "../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
-import {createStudioHostHandlers, createStudioInspectorHandlers} from "./handlers.js";
+import {createStudioClientHandlers, createStudioHostHandlers, createStudioInspectorHandlers} from "./handlers.js";
 
 /**
  * @typedef {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType & {connectionState: import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus}} StudioConnectionData
@@ -106,7 +106,7 @@ export class StudioConnectionsManager {
 				}
 				acceptHandler = () => {
 					/** @type {import("./handlers.js").StudioClientHostConnection} */
-					const connection = connectionRequest.accept({});
+					const connection = connectionRequest.accept(createStudioClientHandlers());
 					this.#projectManager.assignRemoteConnection(connection);
 					this.#addActiveConnection(connection);
 				};
