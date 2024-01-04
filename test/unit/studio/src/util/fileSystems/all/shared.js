@@ -12,16 +12,15 @@ importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../..
 /** @type {import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js")} */
 const IndexedDbStudioFileSystemMod = await importer.import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js");
 const {IndexedDbStudioFileSystem} = IndexedDbStudioFileSystemMod;
-export {IndexedDbStudioFileSystem};
 
 const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
 const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../shared/MockIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
-/** @typedef {typeof FsaStudioFileSystem | typeof IndexedDbStudioFileSystem | typeof MemoryStudioFileSystem | typeof RemoteStudioFileSystem} FileSystemTypes */
+/** @typedef {"fsa" | "indexedDb" | "memory" | "remote" | "serialized-remote"} FileSystemTestTypes */
 
 /**
  * @typedef FileSystemTestConfig
- * @property {FileSystemTypes} ctor
+ * @property {FileSystemTestTypes} type
  * @property {(options?: CreateFsOptions) => import("../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} create Should
  * create a new instance of the file system.
  * @property {(pending: boolean) => void} forcePendingOperations Should force all read and write promises to stay pending for this
@@ -31,7 +30,7 @@ const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../sh
 /** @type {FileSystemTestConfig[]} */
 const fileSystems = [
 	{
-		ctor: FsaStudioFileSystem,
+		type: "fsa",
 		create() {
 			const rootHandle = new FakeHandle("directory", "actualRoot");
 			return new FsaStudioFileSystem(/** @type {any} */ (rootHandle));
@@ -41,7 +40,7 @@ const fileSystems = [
 		},
 	},
 	{
-		ctor: IndexedDbStudioFileSystem,
+		type: "indexedDb",
 		create({
 			disableStructuredClone = false,
 		} = {}) {
@@ -58,7 +57,7 @@ const fileSystems = [
 		},
 	},
 	{
-		ctor: MemoryStudioFileSystem,
+		type: "memory",
 		create() {
 			return new MemoryStudioFileSystem();
 		},
@@ -67,7 +66,7 @@ const fileSystems = [
 		},
 	},
 	{
-		ctor: RemoteStudioFileSystem,
+		type: "remote",
 		create() {
 			const memoryFs = new MemoryStudioFileSystem();
 			const handlers = createFileSystemHandlers(memoryFs);
@@ -109,8 +108,8 @@ const fileSystems = [
  * @typedef FileSystemTest
  * @property {string} name
  * @property {(ctx: FileSystemTestContext) => (void | Promise<void>)} fn
- * @property {FileSystemTypes[] | boolean} [ignore] The file system types to ignore this test for.
- * @property {FileSystemTypes[]} [exclude] The file system types to exclude, unlike `ignore` this does not
+ * @property {FileSystemTestTypes[] | boolean} [ignore] The file system types to ignore this test for.
+ * @property {FileSystemTestTypes[]} [exclude] The file system types to exclude, unlike `ignore` this does not
  * count against the ignored tests in the results, and instead this test is just completely omitted from the results.
  * @property {boolean} [only] Runs only this test and no others.
  */
@@ -129,18 +128,18 @@ const fileSystems = [
  * @param {FileSystemTest} test
  */
 export function testAll(test) {
-	for (const {ctor, create, forcePendingOperations} of fileSystems) {
-		if (test.exclude && test.exclude.includes(ctor)) continue;
+	for (const {type, create, forcePendingOperations} of fileSystems) {
+		if (test.exclude && test.exclude.includes(type)) continue;
 		let ignore = false;
 		if (test.ignore != undefined) {
 			if (typeof test.ignore == "boolean") {
 				ignore = test.ignore;
 			} else {
-				ignore = test.ignore.includes(ctor);
+				ignore = test.ignore.includes(type);
 			}
 		}
 
-		const name = `${ctor.name}: ${test.name}`;
+		const name = `${type}: ${test.name}`;
 		/**
 		 * @param {CreateFsOptions} [options]
 		 */

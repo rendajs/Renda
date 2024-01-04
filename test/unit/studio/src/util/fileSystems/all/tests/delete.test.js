@@ -1,16 +1,13 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
-import {MemoryStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {assertPromiseResolved} from "../../../../../../shared/asserts.js";
 import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
 import {registerOnChangeSpy} from "../../shared.js";
 import {testAll} from "../shared.js";
-import {RemoteStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
 
 testAll({
 	name: "delete() should delete files and fire onChange",
-	ignore: [RemoteStudioFileSystem],
+	ignore: ["remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -50,7 +47,7 @@ testAll({
 
 testAll({
 	name: "delete() should throw when deleting a non-existent file",
-	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["fsa", "memory", "remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 
@@ -62,7 +59,7 @@ testAll({
 
 testAll({
 	name: "delete() should throw when deleting a file with non-existent parent",
-	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["fsa", "memory", "remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 
@@ -74,7 +71,7 @@ testAll({
 
 testAll({
 	name: "delete() should throw when deleting a non-empty directory with recursive=false",
-	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["fsa", "memory", "remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -86,7 +83,7 @@ testAll({
 
 testAll({
 	name: "delete() a directory with recursive = true",
-	ignore: [RemoteStudioFileSystem],
+	ignore: ["remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -104,7 +101,7 @@ testAll({
 
 testAll({
 	name: "delete() causes waitForWritesFinish to stay pending until done",
-	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["fsa", "memory", "remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

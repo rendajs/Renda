@@ -2,14 +2,11 @@ import {assertEquals} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {testAll} from "../shared.js";
 import {registerOnChangeSpy} from "../../shared.js";
-import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
-import {MemoryStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {RemoteStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
 
 testAll({
 	name: "getRootName() should return the value passed in setRootName()",
-	exclude: [FsaStudioFileSystem],
-	ignore: [MemoryStudioFileSystem, RemoteStudioFileSystem],
+	exclude: ["fsa"],
+	ignore: ["memory", "remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 		await fs.setRootName("theRootName");
@@ -22,7 +19,7 @@ testAll({
 
 testAll({
 	name: "setRootName() should fire onChange event",
-	exclude: [FsaStudioFileSystem],
+	exclude: ["fsa"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 		const onChangeSpy = registerOnChangeSpy(fs);

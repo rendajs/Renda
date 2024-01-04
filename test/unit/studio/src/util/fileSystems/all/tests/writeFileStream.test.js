@@ -1,11 +1,9 @@
 import {assert, assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
-import {IndexedDbStudioFileSystem, testAll} from "../shared.js";
-import {RemoteStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
+import {testAll} from "../shared.js";
 
 testAll({
 	name: "writeFileStream()",
-	ignore: [IndexedDbStudioFileSystem, FsaStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["indexedDb", "fsa", "remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 
@@ -32,7 +30,7 @@ testAll({
 
 testAll({
 	name: "writeFileStream should error when the target is a directory",
-	ignore: [IndexedDbStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["indexedDb", "remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -44,7 +42,7 @@ testAll({
 
 testAll({
 	name: "writeFileStream should error when a parent is a file",
-	ignore: [IndexedDbStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["indexedDb", "remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
