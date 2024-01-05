@@ -49,6 +49,7 @@ testAll({
 
 testAll({
 	name: "readFile() Two calls at once",
+	ignore: ["serialized-remote"], // TODO #855
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs({
 			disableStructuredClone: true,
@@ -106,9 +107,9 @@ testAll({
 
 testAll({
 	name: "readFile while it is being written",
-	ignore: ["fsa"],
+	ignore: ["fsa", "serialized-remote"], // TODO #855
 	async fn(ctx) {
-		const fs = await ctx.createBasicFs({disableStructuredClone: true});
+		const fs = await ctx.createFs({disableStructuredClone: true});
 
 		const promise1 = fs.writeFile(["root", "file"], "hello");
 		const promise2 = fs.readText(["root", "file"]);

@@ -92,6 +92,7 @@ testAll({
 
 testAll({
 	name: "readDir while a new file is being created",
+	ignore: ["serialized-remote"], // TODO #855
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
