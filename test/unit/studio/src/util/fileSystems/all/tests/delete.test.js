@@ -7,7 +7,7 @@ import {testAll} from "../shared.js";
 
 testAll({
 	name: "delete() should delete files and fire onChange",
-	ignore: ["remote"],
+	ignore: ["remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -47,7 +47,7 @@ testAll({
 
 testAll({
 	name: "delete() should throw when deleting a non-existent file",
-	ignore: ["fsa", "memory", "remote"],
+	ignore: ["fsa", "memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 
@@ -59,7 +59,7 @@ testAll({
 
 testAll({
 	name: "delete() should throw when deleting a file with non-existent parent",
-	ignore: ["fsa", "memory", "remote"],
+	ignore: ["fsa", "memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 
@@ -71,7 +71,7 @@ testAll({
 
 testAll({
 	name: "delete() should throw when deleting a non-empty directory with recursive=false",
-	ignore: ["fsa", "memory", "remote"],
+	ignore: ["fsa", "memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -83,7 +83,7 @@ testAll({
 
 testAll({
 	name: "delete() a directory with recursive = true",
-	ignore: ["remote"],
+	ignore: ["remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -101,7 +101,7 @@ testAll({
 
 testAll({
 	name: "delete() causes waitForWritesFinish to stay pending until done",
-	ignore: ["fsa", "memory", "remote"],
+	ignore: ["fsa", "memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

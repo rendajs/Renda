@@ -6,7 +6,7 @@ import {registerOnChangeSpy} from "../../shared.js";
 testAll({
 	name: "getRootName() should return the value passed in setRootName()",
 	exclude: ["fsa"],
-	ignore: ["memory", "remote"],
+	ignore: ["memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 		await fs.setRootName("theRootName");

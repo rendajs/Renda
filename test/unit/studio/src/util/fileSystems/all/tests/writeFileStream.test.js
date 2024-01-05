@@ -3,7 +3,7 @@ import {testAll} from "../shared.js";
 
 testAll({
 	name: "writeFileStream()",
-	ignore: ["indexedDb", "fsa", "remote"],
+	ignore: ["indexedDb", "fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 
@@ -30,7 +30,7 @@ testAll({
 
 testAll({
 	name: "writeFileStream should error when the target is a directory",
-	ignore: ["indexedDb", "remote"],
+	ignore: ["indexedDb", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -42,7 +42,7 @@ testAll({
 
 testAll({
 	name: "writeFileStream should error when a parent is a file",
-	ignore: ["indexedDb", "remote"],
+	ignore: ["indexedDb", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

@@ -6,7 +6,7 @@ import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
 
 testAll({
 	name: "createDir() should create a directory and fire onchange",
-	ignore: ["remote"],
+	ignore: ["remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -68,7 +68,7 @@ testAll({
 
 testAll({
 	name: "createDir() causes waitForWritesFinish to stay pending until done",
-	ignore: ["fsa", "memory", "remote"],
+	ignore: ["fsa", "memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 
