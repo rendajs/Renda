@@ -89,15 +89,44 @@ function deserializeFile(buffer) {
 	});
 }
 
+const serializeWriteFileBinaryOpts = createObjectToBinaryOptions({
+	structure: {
+		path: [StorageType.STRING],
+		file: StorageType.ARRAY_BUFFER,
+	},
+	nameIds: {
+		path: 1,
+		file: 2,
+	},
+});
+
 export function createFileSystemRequestSerializers() {
 	return {
-
+		/**
+		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
+		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").AllowedWriteFileTypes} file
+		 */
+		"fileSystem.writeFile": async (path, file) => {
+			const fileObject = new File([file], "");
+			const serializedFile = await serializeFile(fileObject);
+			return objectToBinary({
+				path,
+				file: serializedFile,
+			}, serializeWriteFileBinaryOpts);
+		},
 	};
 }
 
 export function createFileSystemRequestDeserializers() {
 	return {
-
+		/**
+		 * @param {ArrayBuffer} buffer
+		 */
+		"fileSystem.writeFile": buffer => {
+			const deserialized = binaryToObject(buffer, serializeWriteFileBinaryOpts);
+			const deserializedFile = deserializeFile(deserialized.file);
+			return [deserialized.path, deserializedFile];
+		},
 	};
 }
 

@@ -5,6 +5,79 @@ import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
 import {registerOnChangeSpy} from "../../shared.js";
 import {testAll} from "../shared.js";
 
+/**
+ * Used for tests that write a single file to root/newfile.
+ * @param {import("../../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} fs
+ * @param {import("../../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").AllowedWriteFileTypes} fileParam
+ * @param {number[]} expectedBytes
+ */
+async function basicWriteFileTest(fs, fileParam, expectedBytes) {
+	const path = ["root", "newfile"];
+	const writeFilePromise = fs.writeFile(path, fileParam);
+
+	// Change the path to verify that the initial array is used
+	path.push("extra");
+
+	await writeFilePromise;
+
+	const {files} = await fs.readDir(["root"]);
+	assert(files.includes("newfile"), "'newfile' was not created");
+
+	const file = await fs.readFile(["root", "newfile"]);
+	const buffer = await file.arrayBuffer();
+	const view = new Uint8Array(buffer);
+	assertEquals(Array.from(view), expectedBytes);
+}
+
+testAll({
+	name: "writing a File object",
+	ignore: ["indexedDb"],
+	async fn(ctx) {
+		const fs = await ctx.createFs();
+		const file = new File([new Uint8Array([1, 2, 3, 4])], "newfile");
+		await basicWriteFileTest(fs, file, [1, 2, 3, 4]);
+	},
+});
+
+testAll({
+	name: "writing an ArrayBuffer",
+	ignore: ["indexedDb"],
+	async fn(ctx) {
+		const fs = await ctx.createFs();
+		const buffer = new Uint8Array([1, 2, 3, 4]).buffer;
+		await basicWriteFileTest(fs, buffer, [1, 2, 3, 4]);
+	},
+});
+
+testAll({
+	name: "writing an Uint8Array",
+	ignore: ["indexedDb", "fsa"],
+	async fn(ctx) {
+		const fs = await ctx.createFs();
+		const uint8Array = new Uint8Array([1, 2, 3, 4]);
+		await basicWriteFileTest(fs, uint8Array, [1, 2, 3, 4]);
+	},
+});
+
+testAll({
+	name: "writing a Blob",
+	ignore: ["indexedDb"],
+	async fn(ctx) {
+		const fs = await ctx.createFs();
+		const file = new Blob([new Uint8Array([1, 2, 3, 4])]);
+		await basicWriteFileTest(fs, file, [1, 2, 3, 4]);
+	},
+});
+
+testAll({
+	name: "writing a string",
+	ignore: ["indexedDb"],
+	async fn(ctx) {
+		const fs = await ctx.createFs();
+		await basicWriteFileTest(fs, "hello", [104, 101, 108, 108, 111]);
+	},
+});
+
 testAll({
 	name: "writeFile should create the file and fire onChange",
 	ignore: ["remote", "serialized-remote"],
