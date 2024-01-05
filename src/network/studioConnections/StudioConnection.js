@@ -1,4 +1,5 @@
 import {StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary} from "../../util/binarySerialization.js";
+import {deserializeErrorHook, serializeErrorHook} from "../../util/TypedMessenger/errorSerialization.js";
 import {TypedMessenger} from "../../util/TypedMessenger/TypedMessenger.js";
 
 const typedMessengerSendDataBinaryOpts = createObjectToBinaryOptions({
@@ -44,7 +45,10 @@ export class StudioConnection {
 		this.#messageHandler = messageHandler;
 
 		/** @type {TypedMessenger<TReliableRespondHandlers, TReliableRequestHandlers>} */
-		this.messenger = new TypedMessenger();
+		this.messenger = new TypedMessenger({
+			deserializeErrorHook,
+			serializeErrorHook,
+		});
 		this.messenger.setResponseHandlers(options.reliableResponseHandlers || /** @type {TReliableRespondHandlers} */ ({}));
 		this.messenger.setSendHandler(async data => {
 			if (messageHandler.supportsSerialization) {
@@ -60,7 +64,7 @@ export class StudioConnection {
 						type: castType,
 						args: serializedArguments,
 					}, typedMessengerSendDataBinaryOpts);
-				} else if (data.sendData.direction == "response" && options.responseSerializers && options.responseSerializers[castType]) {
+				} else if (data.sendData.direction == "response" && options.responseSerializers && options.responseSerializers[castType] && !data.sendData.didThrow) {
 					const serializedReturnType = await options.responseSerializers[castType](data.sendData.returnValue);
 					buffer = objectToBinary({
 						id: data.sendData.id,
