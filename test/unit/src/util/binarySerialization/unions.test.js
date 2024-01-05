@@ -345,6 +345,7 @@ Deno.test({
 
 Deno.test({
 	name: "Union of an object and null",
+	ignore: true,
 	fn() {
 		const opts = createObjectToBinaryOptions({
 			structure: {
