@@ -83,7 +83,7 @@ export class OrbitControls {
 	 */
 	addEventElement(elem) {
 		this._addedEventElements.push(elem);
-		elem.addEventListener("wheel", this._boundOnWheel);
+		elem.addEventListener("wheel", this._boundOnWheel, {passive: false});
 		elem.addEventListener("pointerdown", this._boundOnPointerDown);
 	}
 
