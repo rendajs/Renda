@@ -241,6 +241,7 @@ Deno.test({
 		}, Error, "The connection request has already been accepted.");
 	},
 });
+
 Deno.test({
 	name: "Rejection a connection closes the connection",
 	fn() {

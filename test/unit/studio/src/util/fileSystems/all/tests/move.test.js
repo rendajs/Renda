@@ -1,14 +1,11 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
-import {MemoryStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {registerOnChangeSpy} from "../../shared.js";
 import {testAll} from "../shared.js";
-import {RemoteStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
 
 testAll({
 	name: "move() rename a file",
-	ignore: [MemoryStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -55,7 +52,7 @@ testAll({
 
 testAll({
 	name: "move() a file",
-	ignore: [MemoryStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -106,7 +103,7 @@ testAll({
 
 testAll({
 	name: "move() rename a directory with files",
-	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -146,7 +143,7 @@ testAll({
 
 testAll({
 	name: "move() rename a directory with dirs",
-	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -163,7 +160,7 @@ testAll({
 
 testAll({
 	name: "move() a directory with files",
-	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -180,7 +177,7 @@ testAll({
 
 testAll({
 	name: "move() a directory with dirs",
-	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -197,7 +194,7 @@ testAll({
 
 testAll({
 	name: "move() should throw when the from path doesn't exist",
-	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -215,7 +212,7 @@ testAll({
 
 testAll({
 	name: "move() should throw when overwriting an existing file",
-	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -227,7 +224,7 @@ testAll({
 
 testAll({
 	name: "move() should throw when overwriting an existing directory",
-	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -242,7 +239,7 @@ testAll({
 
 testAll({
 	name: "move() should not throw when overwriting an existing directory if it's empty",
-	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["memory", "fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

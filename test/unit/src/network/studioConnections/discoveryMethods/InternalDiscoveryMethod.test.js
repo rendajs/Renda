@@ -471,8 +471,8 @@ Deno.test({
 				assertEquals(handler2.status, "connected");
 
 				// Check if the two ports are connected
-				/** @type {(data: unknown) => void} */
-				const messageSpyFn = () => {};
+				/** @type {(data: unknown) => Promise<void>} */
+				const messageSpyFn = async () => {};
 				const messageSpy1 = spy(messageSpyFn);
 				const messageSpy2 = spy(messageSpyFn);
 				handler1.onMessage(messageSpy1);

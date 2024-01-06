@@ -47,6 +47,7 @@ testAll({
 
 testAll({
 	name: "isFile while it is being created",
+	ignore: ["serialized-remote"], // TODO #855
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

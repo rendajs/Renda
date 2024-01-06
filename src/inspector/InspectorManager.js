@@ -102,7 +102,10 @@ export class InspectorManager {
 	 * @private
 	 */
 	getResponseHandlers() {
-		return {
+		/** @satisfies {import("../network/studioConnections/DiscoveryManager.js").ConnectionRequestAcceptOptions<any>} */
+		const handlers = {
+			reliableResponseHandlers: {},
 		};
+		return handlers;
 	}
 }

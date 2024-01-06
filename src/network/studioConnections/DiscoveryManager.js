@@ -43,12 +43,22 @@ import {StudioConnection} from "./StudioConnection.js";
  */
 
 /**
+ * @template {import("../../mod.js").TypedMessengerSignatures} TReliableResponseHandlers
+ * @typedef ConnectionRequestAcceptOptions
+ * @property {TReliableResponseHandlers} [reliableResponseHandlers]
+ * @property {Object<string, (...args: any[]) => ArrayBuffer | Promise<ArrayBuffer>>} [requestSerializers]
+ * @property {Object<string, (buffer: ArrayBuffer) => unknown[] | Promise<unknown[]>>} [requestDeserializers]
+ * @property {Object<string, (...args: any[]) => ArrayBuffer | Promise<ArrayBuffer>>} [responseSerializers]
+ * @property {Object<string, (buffer: ArrayBuffer) => unknown | Promise<unknown>>} [responseDeserializers]
+ */
+
+/**
  * @typedef OnConnectionCreatedRequest
  * @property {import("../../mod.js").UuidString} otherClientUuid
  * @property {boolean} initiatedByMe
  * @property {ConnectionRequestData} connectionRequestData
  * @property {ClientType} clientType
- * @property {<T extends import("../../mod.js").TypedMessengerSignatures>(reliableResponseHandlers: T) => StudioConnection<T, any>} accept Accepts the connection and
+ * @property {<T extends import("../../mod.js").TypedMessengerSignatures>(options: ConnectionRequestAcceptOptions<T>) => StudioConnection<T, any>} accept Accepts the connection and
  * returns a StudioConnection with the provided response handlers.
  * If none of the registered callbacks call `accept()` (synchronously), the connection will be closed immediately.
  * @property {() => void} reject Closes the connection and notifies the other end that the connection was not accepted.
@@ -145,11 +155,11 @@ export class DiscoveryManager {
 					clientType: messageHandler.clientType,
 					initiatedByMe: messageHandler.initiatedByMe,
 					connectionRequestData: messageHandler.connectionRequestData,
-					accept: reliableResponseHandlers => {
+					accept: options => {
 						assertFirstCall();
 						accepted = true;
 						messageHandler.requestAccepted();
-						return new StudioConnection(messageHandler, reliableResponseHandlers);
+						return new StudioConnection(messageHandler, options);
 					},
 					reject() {
 						assertFirstCall();

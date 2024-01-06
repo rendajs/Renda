@@ -8,6 +8,9 @@ export class InternalMessageHandler extends MessageHandler {
 	 */
 	constructor(options, messagePort, onPermissionResult) {
 		super(options);
+
+		this.supportsSerialization = true;
+
 		/** @private */
 		this.messagePort = messagePort;
 		/** @private */

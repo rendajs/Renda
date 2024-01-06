@@ -1,5 +1,4 @@
 import {assert, assertEquals, assertIsError, assertNotEquals, assertRejects} from "std/testing/asserts.ts";
-import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
 import {testAll} from "../shared.js";
 
 testAll({
@@ -50,6 +49,7 @@ testAll({
 
 testAll({
 	name: "readFile() Two calls at once",
+	ignore: ["serialized-remote"], // TODO #855
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs({
 			disableStructuredClone: true,
@@ -107,9 +107,9 @@ testAll({
 
 testAll({
 	name: "readFile while it is being written",
-	ignore: [FsaStudioFileSystem],
+	ignore: ["fsa", "serialized-remote"], // TODO #855
 	async fn(ctx) {
-		const fs = await ctx.createBasicFs({disableStructuredClone: true});
+		const fs = await ctx.createFs({disableStructuredClone: true});
 
 		const promise1 = fs.writeFile(["root", "file"], "hello");
 		const promise2 = fs.readText(["root", "file"]);

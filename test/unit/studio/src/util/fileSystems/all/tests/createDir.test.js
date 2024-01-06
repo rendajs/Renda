@@ -3,13 +3,10 @@ import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {testAll} from "../shared.js";
 import {registerOnChangeSpy} from "../../shared.js";
 import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
-import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
-import {MemoryStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {RemoteStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
 
 testAll({
 	name: "createDir() should create a directory and fire onchange",
-	ignore: [RemoteStudioFileSystem],
+	ignore: ["remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -71,7 +68,7 @@ testAll({
 
 testAll({
 	name: "createDir() causes waitForWritesFinish to stay pending until done",
-	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem, RemoteStudioFileSystem],
+	ignore: ["fsa", "memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createFs();
 

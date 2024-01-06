@@ -12,7 +12,7 @@
  */
 
 export class MessageHandler {
-	/** @typedef {(data: unknown) => void} OnMessageCallback */
+	/** @typedef {(data: unknown) => Promise<void>} OnMessageCallback */
 
 	/**
 	 * @param {MessageHandlerOptions} options
@@ -33,6 +33,13 @@ export class MessageHandler {
 		this.onMessageCbs = new Set();
 		/** @type {MessageHandlerStatus} */
 		this.status = "disconnected";
+		/**
+		 * Set this to true when the message handler supports serializing arbitrary data.
+		 * This is generally only supported with messaging mechanisms that use `postMessage` like functions.
+		 * When this is false, {@linkcode send} will only receive `ArrayBuffer`s which will be serialized
+		 * and deserialized by the `StudioConnection` class.
+		 */
+		this.supportsSerialization = false;
 
 		/** @private @type {Set<OnStatusChangeCallback>} */
 		this.onStatusChangeCbs = new Set();
@@ -76,6 +83,7 @@ export class MessageHandler {
 	 * @param {unknown} data
 	 * @param {object} [sendOptions]
 	 * @param {Transferable[]} [sendOptions.transfer]
+	 * @returns {void | Promise<void>}
 	 */
 	send(data, sendOptions) {}
 
@@ -102,8 +110,10 @@ export class MessageHandler {
 	 * @protected
 	 * @param {unknown} data
 	 */
-	handleMessageReceived(data) {
-		this.onMessageCbs.forEach(cb => cb(data));
+	async handleMessageReceived(data) {
+		for (const cb of this.onMessageCbs) {
+			await cb(data);
+		}
 	}
 
 	/**

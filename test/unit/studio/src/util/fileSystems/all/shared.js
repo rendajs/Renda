@@ -2,9 +2,10 @@ import {FsaStudioFileSystem} from "../../../../../../../studio/src/util/fileSyst
 import {MemoryStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {FakeHandle} from "../FsaStudioFileSystem/shared.js";
 import {Importer} from "fake-imports";
-import {TypedMessenger, generateUuid} from "../../../../../../../src/mod.js";
+import {generateUuid} from "../../../../../../../src/mod.js";
 import {RemoteStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
-import {createFileSystemHandlers} from "../../../../../../../studio/src/network/studioConnections/responseHandlers/fileSystem.js";
+import {createFileSystemHandlers, createFileSystemRequestDeserializers, createFileSystemRequestSerializers, createFileSystemResponseDeserializers, createFileSystemResponseSerializers} from "../../../../../../../studio/src/network/studioConnections/responseHandlers/fileSystem.js";
+import {createLinkedStudioConnections} from "../../../../../src/network/studioConnections/shared.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../../../../shared/MockIndexedDbUtil.js");
@@ -12,26 +13,65 @@ importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../..
 /** @type {import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js")} */
 const IndexedDbStudioFileSystemMod = await importer.import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js");
 const {IndexedDbStudioFileSystem} = IndexedDbStudioFileSystemMod;
-export {IndexedDbStudioFileSystem};
 
 const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
 const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../shared/MockIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
-/** @typedef {typeof FsaStudioFileSystem | typeof IndexedDbStudioFileSystem | typeof MemoryStudioFileSystem | typeof RemoteStudioFileSystem} FileSystemTypes */
+/** @typedef {"fsa" | "indexedDb" | "memory" | "remote" | "serialized-remote"} FileSystemTestTypes */
 
 /**
  * @typedef FileSystemTestConfig
- * @property {FileSystemTypes} ctor
+ * @property {FileSystemTestTypes} type
  * @property {(options?: CreateFsOptions) => import("../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} create Should
  * create a new instance of the file system.
  * @property {(pending: boolean) => void} forcePendingOperations Should force all read and write promises to stay pending for this
  * file system type.
  */
 
+/**
+ * @param {FileSystemTestTypes} type
+ * @param {boolean} supportsSerialization
+ * @returns {FileSystemTestConfig}
+ */
+function createRemoteFileSystemTestConfig(type, supportsSerialization) {
+	return {
+		type,
+		create() {
+			const memoryFs = new MemoryStudioFileSystem();
+			const {connectionB} = createLinkedStudioConnections({
+				reliableResponseHandlers: {
+					...createFileSystemHandlers(memoryFs),
+				},
+				requestDeserializers: {
+					...createFileSystemRequestDeserializers(),
+				},
+				responseSerializers: {
+					...createFileSystemResponseSerializers(),
+				},
+			}, {
+				requestSerializers: {
+					...createFileSystemRequestSerializers(),
+				},
+				responseDeserializers: {
+					...createFileSystemResponseDeserializers(),
+				},
+			}, {
+				supportsSerialization,
+			});
+			const remoteFs = new RemoteStudioFileSystem();
+			remoteFs.setConnection(connectionB);
+			return remoteFs;
+		},
+		forcePendingOperations(pending) {
+			throw new Error("Not yet implemented");
+		},
+	};
+}
+
 /** @type {FileSystemTestConfig[]} */
 const fileSystems = [
 	{
-		ctor: FsaStudioFileSystem,
+		type: "fsa",
 		create() {
 			const rootHandle = new FakeHandle("directory", "actualRoot");
 			return new FsaStudioFileSystem(/** @type {any} */ (rootHandle));
@@ -41,7 +81,7 @@ const fileSystems = [
 		},
 	},
 	{
-		ctor: IndexedDbStudioFileSystem,
+		type: "indexedDb",
 		create({
 			disableStructuredClone = false,
 		} = {}) {
@@ -58,7 +98,7 @@ const fileSystems = [
 		},
 	},
 	{
-		ctor: MemoryStudioFileSystem,
+		type: "memory",
 		create() {
 			return new MemoryStudioFileSystem();
 		},
@@ -66,36 +106,8 @@ const fileSystems = [
 			throw new Error("Not yet implemented");
 		},
 	},
-	{
-		ctor: RemoteStudioFileSystem,
-		create() {
-			const memoryFs = new MemoryStudioFileSystem();
-			const handlers = createFileSystemHandlers(memoryFs);
-			const hostMessenger = new TypedMessenger();
-			hostMessenger.setResponseHandlers(handlers);
-			const clientMessenger = new TypedMessenger();
-
-			// Link the two messengers to each other
-			hostMessenger.setSendHandler(data => {
-				clientMessenger.handleReceivedMessage(data.sendData);
-			});
-			clientMessenger.setSendHandler(data => {
-				hostMessenger.handleReceivedMessage(data.sendData);
-			});
-
-			const clientConnection = /** @type {import("../../../../../../../studio/src/network/studioConnections/handlers.js").StudioClientHostConnection} */ ({
-				messenger: /** @type {any} */ (clientMessenger),
-				onStatusChange(cb) {},
-				status: "connected",
-			});
-			const remoteFs = new RemoteStudioFileSystem();
-			remoteFs.setConnection(clientConnection);
-			return remoteFs;
-		},
-		forcePendingOperations(pending) {
-			throw new Error("Not yet implemented");
-		},
-	},
+	createRemoteFileSystemTestConfig("remote", true),
+	createRemoteFileSystemTestConfig("serialized-remote", false),
 ];
 
 /**
@@ -109,10 +121,10 @@ const fileSystems = [
  * @typedef FileSystemTest
  * @property {string} name
  * @property {(ctx: FileSystemTestContext) => (void | Promise<void>)} fn
- * @property {FileSystemTypes[] | boolean} [ignore] The file system types to ignore this test for.
- * @property {FileSystemTypes[]} [exclude] The file system types to exclude, unlike `ignore` this does not
+ * @property {FileSystemTestTypes[] | boolean} [ignore] The file system types to ignore this test for.
+ * @property {FileSystemTestTypes[]} [exclude] The file system types to exclude, unlike `ignore` this does not
  * count against the ignored tests in the results, and instead this test is just completely omitted from the results.
- * @property {boolean} [only] Runs only this test and no others.
+ * @property {boolean | FileSystemTestTypes} [only] Runs only this test and no others.
  */
 
 /**
@@ -129,18 +141,18 @@ const fileSystems = [
  * @param {FileSystemTest} test
  */
 export function testAll(test) {
-	for (const {ctor, create, forcePendingOperations} of fileSystems) {
-		if (test.exclude && test.exclude.includes(ctor)) continue;
+	for (const {type, create, forcePendingOperations} of fileSystems) {
+		if (test.exclude && test.exclude.includes(type)) continue;
 		let ignore = false;
 		if (test.ignore != undefined) {
 			if (typeof test.ignore == "boolean") {
 				ignore = test.ignore;
 			} else {
-				ignore = test.ignore.includes(ctor);
+				ignore = test.ignore.includes(type);
 			}
 		}
 
-		const name = `${ctor.name}: ${test.name}`;
+		const name = `${type}: ${test.name}`;
 		/**
 		 * @param {CreateFsOptions} [options]
 		 */
@@ -175,7 +187,7 @@ export function testAll(test) {
 		Deno.test({
 			name,
 			ignore,
-			only: test.only,
+			only: test.only === true || test.only == type,
 			async fn() {
 				await test.fn(ctx);
 			},
