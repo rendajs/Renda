@@ -434,7 +434,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			// We only want to save the orbit state when a project entity is loaded.
 			// Otherwise, empty projects will be marked as worth saving even though nothing was changed.
 			if (this.isEditingProjectEntity) {
-				console.log(this.orbitControls.lookRot);
 				this.#setOrbitPreference("entityEditor.orbitLookPos", this.orbitControls.lookPos.toArray());
 				this.#setOrbitPreference("entityEditor.orbitLookRot", this.orbitControls.lookRot.toArray());
 

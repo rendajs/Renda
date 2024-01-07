@@ -129,7 +129,7 @@ export class NumericGui {
 		this.el.addEventListener("focus", this.boundOnFocus);
 		this.el.addEventListener("blur", this.boundOnBlur);
 		this.el.addEventListener("mousedown", this.boundOnMouseDown);
-		this.el.addEventListener("wheel", this.boundOnWheel);
+		this.el.addEventListener("wheel", this.boundOnWheel, {passive: false});
 		this.el.addEventListener("input", this.#onInput);
 
 		const studio = getMaybeStudioInstance();
