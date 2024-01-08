@@ -16,6 +16,7 @@ export class CachedMeshData {
 			this.buffers.push(bufferData);
 		}
 
+		/** @private */
 		this.indexBuffer = null;
 		this.createIndexGpuBuffer();
 
@@ -39,9 +40,10 @@ export class CachedMeshData {
 			throw new Error("Failed to create gpu buffer: renderer not initialized");
 		}
 		if (this.mesh.indexBuffer) {
+			const size = Math.ceil(this.mesh.indexBuffer.byteLength / 4) * 4;
 			const indexBuffer = this.renderer.device.createBuffer({
 				label: "CachedMeshDataIndexBuffer",
-				size: this.mesh.indexBuffer.byteLength,
+				size,
 				usage: GPUBufferUsage.INDEX,
 				mappedAtCreation: true,
 			});
