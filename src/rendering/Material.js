@@ -154,6 +154,8 @@ export class Material {
 			return value instanceof Vec3 || (value instanceof Array && value.length == 3);
 		} else if (expectedType == "vec4") {
 			return value instanceof Vec4 || (value instanceof Array && value.length == 4);
+		} else if (expectedType == "enum") {
+			return typeof value == "string";
 		} else if (expectedType == "texture2d") {
 			return value instanceof Texture;
 		} else if (expectedType == "sampler") {

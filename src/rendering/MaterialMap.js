@@ -108,6 +108,7 @@ export class MaterialMap {
 	static assertIsMappableType(value) {
 		if (value === null) return;
 		if (typeof value == "number") return;
+		if (typeof value == "string") return;
 
 		if (value instanceof Array) {
 			let allNumbers = true;

@@ -441,6 +441,9 @@ export class WebGpuRenderer extends Renderer {
 			for (const material of meshRenderData.component.materials) {
 				if (!material || material.destructed || !material.materialMap) continue; // todo: log a (supressable) warning when the material is destructed
 
+				const cullModeData = material.getMappedPropertyForMapType(WebGpuMaterialMapType, "cullMode");
+				const cullMode = cullModeData?.value || "back";
+				console.log(cullMode);
 				const materialData = this.#getCachedMaterialData(material);
 				const forwardPipelineConfig = materialData.getForwardPipelineConfig();
 				if (!forwardPipelineConfig || !forwardPipelineConfig.vertexShader || !forwardPipelineConfig.fragmentShader) continue;

@@ -29,7 +29,6 @@ Deno.test({
 		assertThrows(() => MaterialMap.assertIsMappableType(false));
 		assertThrows(() => MaterialMap.assertIsMappableType(() => {}));
 		assertThrows(() => MaterialMap.assertIsMappableType({}));
-		assertThrows(() => MaterialMap.assertIsMappableType(""));
 		assertThrows(() => MaterialMap.assertIsMappableType(new Uint8Array()));
 		class Foo {}
 		assertThrows(() => MaterialMap.assertIsMappableType(new Foo()));
