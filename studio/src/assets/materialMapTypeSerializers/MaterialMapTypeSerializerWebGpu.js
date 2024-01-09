@@ -53,7 +53,7 @@ export class MaterialMapTypeSerializerWebGpu extends MaterialMapTypeSerializer {
 			type: "enum",
 			enumOptions: ["back", "front", "none"],
 			defaultValue: "back",
-		})
+		});
 		return Array.from(mappableValues.values());
 	}
 

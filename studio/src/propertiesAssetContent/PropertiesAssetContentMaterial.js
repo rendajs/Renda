@@ -132,7 +132,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				guiType = "dropdown";
 				extraGuiOpts = {
 					items: valueData.enumOptions,
-				}
+				};
 			} else if (valueData.type == "custom") {
 				continue;
 			} else {

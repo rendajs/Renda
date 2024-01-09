@@ -64,9 +64,9 @@ export class MaterialMapListUi {
 						guiOpts: {
 							items: item.enumOptions,
 							defaultValue,
-						}
-					}
-				}
+						},
+					},
+				};
 			} else {
 				defaultValueTypeOptions = {
 					defaultValue: {
@@ -134,6 +134,10 @@ export class MaterialMapListUi {
 		this.treeView.onChildValueChange(cb);
 	}
 
+	/**
+	 * Returns the data that should be written to disk when saving the material map.
+	 * The returned object only contains the modified values, properties that still have the default values are omitted.
+	 */
 	getModifiedValuesForSave() {
 		/** @type {import("../../assets/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} */
 		const datas = {};

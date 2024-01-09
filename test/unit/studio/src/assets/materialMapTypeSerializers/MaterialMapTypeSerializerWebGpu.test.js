@@ -202,7 +202,7 @@ Deno.test({
 				type: "enum",
 				enumOptions: ["back", "front", "none"],
 				defaultValue: "back",
-			}
+			},
 		]);
 	},
 });

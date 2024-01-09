@@ -538,7 +538,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 							} else if (Array.isArray(value)) {
 								materialUniformsGroup.appendNumericArray(value, "f32");
 							} else if (typeof value == "string") {
-								throw new Error("Assertion failed, enum cannot be used as uniform.")
+								throw new Error("Assertion failed, enum cannot be used as uniform.");
 							} else {
 								materialUniformsGroup.appendMathType(value, "f32");
 							}
