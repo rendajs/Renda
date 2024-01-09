@@ -58,6 +58,12 @@ function basicSetup({
 			name: "tex",
 			type: "texture2d",
 		},
+		{
+			name: "enum",
+			type: "enum",
+			enumOptions: ["option1", "option2", "option3"],
+			defaultValue: "option2",
+		},
 	],
 	extraMappableValues = [],
 	readAssetDataReturnValue = {},
@@ -261,6 +267,7 @@ Deno.test({
 				{name: "vec2AllDefaultWithDefaultDefault", type: "vec2", defaultValue: new Vec2(1, 2)},
 				{name: "texture2d", type: "texture2d"},
 				{name: "sampler", type: "sampler"},
+				{name: "enum", type: "enum", enumOptions: ["option1", "option2", "option3"], defaultValue: "option2"},
 			];
 			return values;
 		});
@@ -330,6 +337,9 @@ Deno.test({
 						},
 						sampler: {
 							defaultValue: BASIC_SAMPLER_UUID,
+						},
+						enum: {
+							defaultValue: "option2",
 						},
 					},
 				},
@@ -426,6 +436,11 @@ Deno.test({
 				mappedName: "sampler",
 				mappedType: "sampler",
 				defaultValue: samplerLiveAsset,
+			},
+			{
+				mappedName: "enum",
+				mappedType: "enum",
+				defaultValue: "option2",
 			},
 		]);
 		const textureMappedDatas = Array.from(liveAsset.mapProperty("texture2d"));
@@ -532,6 +547,10 @@ Deno.test({
 							samp: {
 								mappedName: "mappedSamp",
 							},
+							enum: {
+								mappedName: "mappedEnum",
+								defaultValue: "option3",
+							},
 						},
 					},
 				],
@@ -594,6 +613,11 @@ Deno.test({
 				mappedType: "texture2d",
 				defaultValue: null,
 			},
+			{
+				mappedName: "enum",
+				mappedType: "enum",
+				defaultValue: "option3",
+			},
 		]);
 
 		const mappedNumProperty = Array.from(materialMap.mapProperty("mappedNum"));
@@ -603,11 +627,20 @@ Deno.test({
 				{mappedName: "num", defaultValue: 42, mappedType: "number"},
 			],
 		]);
+
 		const mappedV4Property = Array.from(materialMap.mapProperty("mappedV4"));
 		assertEquals(mappedV4Property, [
 			[
 				MapType,
 				{mappedName: "v4", defaultValue: new Vec4(1, 2, 3, 4), mappedType: "vec4"},
+			],
+		]);
+
+		const mappedEnumProperty = Array.from(materialMap.mapProperty("mappedEnum"));
+		assertEquals(mappedEnumProperty, [
+			[
+				MapType,
+				{mappedName: "enum", defaultValue: "option3", mappedType: "enum"},
 			],
 		]);
 	},

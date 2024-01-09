@@ -108,7 +108,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 						const mappedValue = mappedValues[key];
 						if (!mappedValue) continue;
 						const defaultValue = mappedValue.defaultValue;
-						if (mappedValue.mappedType == "number") {
+						if (mappedValue.mappedType == "number" || mappedValue.mappedType == "enum") {
 							mappedValue.defaultValue = mappedValueDiskData.defaultValue;
 						} else if (mappedValue.mappedType == "vec2" || mappedValue.mappedType == "vec3" || mappedValue.mappedType == "vec4") {
 							if (!(defaultValue instanceof Vec2 || defaultValue instanceof Vec3 || defaultValue instanceof Vec4)) {
@@ -277,6 +277,14 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 								typeUnion = {
 									isVec4: true,
 									defaultValue: mappedValue.defaultValue.toArray(),
+								};
+							} else if (mappedValue.mappedType == "enum") {
+								if (typeof mappedValue.defaultValue != "string") {
+									throw new Error("Assertion failed, expected a string a sdefault value");
+								}
+								typeUnion = {
+									isEnum: true,
+									defaultValue: mappedValue.defaultValue,
 								};
 							} else if (mappedValue.mappedType == "sampler") {
 								if (!mappedValue.defaultValue) {
