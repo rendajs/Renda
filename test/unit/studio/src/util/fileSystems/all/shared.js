@@ -4,7 +4,7 @@ import {FakeHandle} from "../FsaStudioFileSystem/shared.js";
 import {Importer} from "fake-imports";
 import {generateUuid} from "../../../../../../../src/mod.js";
 import {RemoteStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
-import {createFileSystemHandlers, createFileSystemRequestDeserializers, createFileSystemRequestSerializers, createFileSystemResponseDeserializers, createFileSystemResponseSerializers} from "../../../../../../../studio/src/network/studioConnections/responseHandlers/fileSystem.js";
+import {createFileSystemClientHandlers, createFileSystemHostHandlers, createFileSystemRequestDeserializers, createFileSystemRequestSerializers, createFileSystemResponseDeserializers, createFileSystemResponseSerializers} from "../../../../../../../studio/src/network/studioConnections/responseHandlers/fileSystem.js";
 import {createLinkedStudioConnections} from "../../../../../src/network/studioConnections/shared.js";
 
 const importer = new Importer(import.meta.url);
@@ -38,9 +38,10 @@ function createRemoteFileSystemTestConfig(type, supportsSerialization) {
 		type,
 		create() {
 			const memoryFs = new MemoryStudioFileSystem();
-			const {connectionB} = createLinkedStudioConnections({
+			const remoteFs = new RemoteStudioFileSystem();
+			const {connectionA, connectionB} = createLinkedStudioConnections({
 				reliableResponseHandlers: {
-					...createFileSystemHandlers(memoryFs),
+					...createFileSystemHostHandlers(memoryFs),
 				},
 				requestDeserializers: {
 					...createFileSystemRequestDeserializers(),
@@ -49,6 +50,9 @@ function createRemoteFileSystemTestConfig(type, supportsSerialization) {
 					...createFileSystemResponseSerializers(),
 				},
 			}, {
+				reliableResponseHandlers: {
+					...createFileSystemClientHandlers(remoteFs),
+				},
 				requestSerializers: {
 					...createFileSystemRequestSerializers(),
 				},
@@ -58,8 +62,10 @@ function createRemoteFileSystemTestConfig(type, supportsSerialization) {
 			}, {
 				supportsSerialization,
 			});
-			const remoteFs = new RemoteStudioFileSystem();
 			remoteFs.setConnection(connectionB);
+			memoryFs.onChange(e => {
+				connectionA.messenger.send["fileSystem.changeEvent"](e);
+			});
 			return remoteFs;
 		},
 		forcePendingOperations(pending) {

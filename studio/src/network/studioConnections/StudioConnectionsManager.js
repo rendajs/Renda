@@ -105,8 +105,9 @@ export class StudioConnectionsManager {
 					throw new Error('Assertion failed, a "studio-host" connection cannot connect to a "studio-client"');
 				}
 				acceptHandler = () => {
+					const fileSystem = this.#projectManager.getRemoteFileSystem();
 					/** @type {import("./handlers.js").StudioClientHostConnection} */
-					const connection = connectionRequest.accept(createStudioClientHandlers());
+					const connection = connectionRequest.accept(createStudioClientHandlers(fileSystem));
 					this.#projectManager.assignRemoteConnection(connection);
 					this.#addActiveConnection(connection);
 				};
@@ -116,7 +117,12 @@ export class StudioConnectionsManager {
 					throw new Error("Failed to accept incoming connection, no active file system.");
 				}
 				acceptHandler = () => {
+					/** @type {import("./handlers.js").StudioHostClientConnection} */
 					const connection = connectionRequest.accept(createStudioHostHandlers(fileSystem));
+					// TODO #857 Clean this up when the connection closes
+					fileSystem.onChange(e => {
+						connection.messenger.send["fileSystem.changeEvent"](e);
+					});
 					this.#addActiveConnection(connection);
 				};
 			} else if (connectionRequest.clientType == "inspector") {
