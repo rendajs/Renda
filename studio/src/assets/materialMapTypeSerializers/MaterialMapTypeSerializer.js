@@ -8,6 +8,7 @@ import {StorageType, objectToBinary} from "../../../../src/util/binarySerializat
  * @typedef {object} MaterialMapTypeMappableValue
  * @property {string} name
  * @property {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum} type
+ * @property {string[]} [enumOptions]
  * @property {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypes} [defaultValue]
  */
 
@@ -226,14 +227,19 @@ export class MaterialMapTypeSerializer {
 		/** @type {MaterialMapTypeMappableValue[]} */
 		const mappedValues = [];
 		const mappableValues = await this.getMappableValues(context, customData);
-		for (const {name, type, defaultValue} of mappableValues) {
+		for (const {name, type, defaultValue, enumOptions} of mappableValues) {
 			const mappedValueData = mappedValuesData?.[name];
 			if (mappedValueData?.visible ?? true) {
-				mappedValues.push({
+				/** @type {MaterialMapTypeMappableValue} */
+				const mappedValue = {
 					name: mappedValueData?.mappedName ?? name,
 					defaultValue: mappedValueData?.defaultValue ?? defaultValue,
 					type,
-				});
+				};
+				if (enumOptions) {
+					mappedValue.enumOptions = enumOptions;
+				}
+				mappedValues.push(mappedValue);
 			}
 		}
 		return mappedValues;

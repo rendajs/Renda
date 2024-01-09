@@ -472,6 +472,7 @@ export class WebGpuRenderer extends Renderer {
 					const placeHolderTextureRefs = new Set();
 
 					for (let {mappedData, value} of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
+						if (mappedData.mappedName == "cullMode") continue;
 						if (mappedData.mappedType == "texture2d") {
 							/** @type {GPUTextureView | null} */
 							let textureView = null;
@@ -536,6 +537,8 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 								materialUniformsGroup.appendScalar(value, "f32");
 							} else if (Array.isArray(value)) {
 								materialUniformsGroup.appendNumericArray(value, "f32");
+							} else if (typeof value == "string") {
+								throw new Error("Assertion failed, enum cannot be used as uniform.")
 							} else {
 								materialUniformsGroup.appendMathType(value, "f32");
 							}

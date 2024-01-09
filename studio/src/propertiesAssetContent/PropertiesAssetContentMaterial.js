@@ -128,6 +128,11 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				extraGuiOpts = {
 					supportedAssetTypes: [Texture],
 				};
+			} else if (valueData.type == "enum") {
+				guiType = "dropdown";
+				extraGuiOpts = {
+					items: valueData.enumOptions,
+				}
 			} else if (valueData.type == "custom") {
 				continue;
 			} else {

@@ -7,9 +7,9 @@ import {Sampler} from "./Sampler.js";
 import {CustomMaterialData} from "./CustomMaterialData.js";
 
 /** @typedef {number | number[] | Vec2 | Vec3 | Vec4 | Quat} MappableMaterialUniformTypes */
-/** @typedef {MappableMaterialUniformTypes | Texture | Sampler | CustomMaterialData | null} MappableMaterialTypes */
+/** @typedef {MappableMaterialUniformTypes | Texture | Sampler | CustomMaterialData | string | null} MappableMaterialTypes */
 
-/** @typedef {"number" | "vec2" | "vec3" | "vec4" | "texture2d" | "sampler" | "custom"} MappableMaterialTypesEnum */
+/** @typedef {"number" | "vec2" | "vec3" | "vec4" | "texture2d" | "sampler" | "enum" | "custom"} MappableMaterialTypesEnum */
 /**
  * @typedef {object} MaterialMapMappedValue
  * @property {string} mappedName The new property name set by the user. I.e. the

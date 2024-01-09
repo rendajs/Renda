@@ -53,6 +53,20 @@ export class MaterialMapListUi {
 				};
 			} else if (item.type == "custom") {
 				// Custom properties don't have any ui for a default value
+			} else if (item.type == "enum") {
+				let defaultValue = "";
+				if (typeof item.defaultValue == "string") {
+					defaultValue = item.defaultValue;
+				}
+				defaultValueTypeOptions = {
+					defaultValue: {
+						type: "dropdown",
+						guiOpts: {
+							items: item.enumOptions,
+							defaultValue,
+						}
+					}
+				}
 			} else {
 				defaultValueTypeOptions = {
 					defaultValue: {

@@ -72,6 +72,12 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 					defaultValue = new Vec3();
 				} else if (mappedValue.type == "vec4") {
 					defaultValue = new Vec4();
+				} else if (mappedValue.type == "enum") {
+					if (mappedValue.enumOptions && mappedValue.enumOptions.length > 0) {
+						defaultValue = mappedValue.enumOptions[0];
+					} else {
+						defaultValue = "";
+					}
 				} else if (mappedValue.type == "texture2d") {
 					defaultValue = null;
 				} else if (mappedValue.type == "sampler") {
