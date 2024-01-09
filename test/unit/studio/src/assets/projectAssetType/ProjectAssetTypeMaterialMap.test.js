@@ -294,6 +294,9 @@ Deno.test({
 						vec4: {
 							mappedName: "mappedVec4",
 						},
+						enum: {
+							mappedName: "mappedEnum",
+						},
 						numHidden: {
 							visible: false,
 						},
@@ -840,5 +843,38 @@ Deno.test({
 		assertSpyCall(getReferencedAssetUuidsSpy, 0, {
 			args: [{foo: "bar"}],
 		});
+	},
+});
+
+Deno.test({
+	name: "Enum with no options has an empty string as default value",
+	async fn() {
+		const {projectAssetType, ExtendedMaterialMapType} = basicSetup({
+			mappableValues: [
+				{
+					name: "enum",
+					type: "enum",
+					enumOptions: [],
+				},
+			],
+		});
+		const recursionTracker = getMockRecursionTracker();
+
+		const {liveAsset} = await projectAssetType.getLiveAssetData({
+			maps: [
+				{
+					mapTypeId: BASIC_MATERIAL_MAP_TYPE_ID,
+				},
+			],
+		}, recursionTracker);
+
+		const mappedDatas = Array.from(liveAsset.getMappedDatasForMapType(ExtendedMaterialMapType));
+		assertEquals(mappedDatas, [
+			{
+				mappedName: "enum",
+				mappedType: "enum",
+				defaultValue: "",
+			},
+		]);
 	},
 });
