@@ -267,7 +267,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 								};
 							} else if (mappedValue.mappedType == "enum") {
 								if (typeof mappedValue.defaultValue != "string") {
-									throw new Error("Assertion failed, expected a string a sdefault value");
+									throw new Error("Assertion failed, expected a string as default value");
 								}
 								typeUnion = {
 									isEnum: true,
