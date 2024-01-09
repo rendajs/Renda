@@ -178,6 +178,12 @@ Deno.test({
 					name: "texture2d",
 					type: "texture2d",
 				},
+				{
+					name: "enum",
+					type: "enum",
+					enumOptions: ["option1", "option2"],
+					defaultValue: "option2",
+				},
 			];
 			return values;
 		});
@@ -261,6 +267,14 @@ Deno.test({
 					label: "texture2d",
 					defaultValue: undefined,
 					supportedAssetTypes: [Texture],
+				},
+			},
+			{
+				type: "dropdown",
+				guiOpts: {
+					items: ["option1", "option2"],
+					defaultValue: "option2",
+					label: "enum",
 				},
 			},
 		]);
