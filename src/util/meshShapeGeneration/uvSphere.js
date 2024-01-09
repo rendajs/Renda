@@ -71,10 +71,10 @@ export function createUvSphere({
 				const indexRight = isLastColumn ? j : currentIndex + heightSegments;
 				const indexDiagonal = indexRight + 1;
 				if (isFirstRow) {
-					indices.push(currentIndex, indexBelow, indexDiagonal);
+					indices.push(currentIndex, indexDiagonal, indexBelow);
 				} else {
-					indices.push(currentIndex, indexBelow, indexRight);
-					indices.push(indexBelow, indexDiagonal, indexRight);
+					indices.push(currentIndex, indexRight, indexBelow);
+					indices.push(indexBelow, indexRight, indexDiagonal);
 				}
 			}
 		}
