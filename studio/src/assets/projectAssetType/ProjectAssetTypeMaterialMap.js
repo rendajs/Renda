@@ -207,19 +207,6 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 */
 	async createBundledAssetData() {
 		/**
-		 * @typedef MappedValue
-		 * @property {string} originalName
-		 * @property {string} [mappedName]
-		 * @property {import("../../../../src/util/binarySerializationTypes.ts").OptionsToObject<typeof materialMapBinaryOptions>} typeUnion
-		 */
-		/**
-		 * @typedef MapData
-		 * @property {import("../../../../src/mod.js").UuidString} typeUuid
-		 * @property {ArrayBuffer} data
-		 * @property {MappedValue[]} mappedValues
-		 */
-
-		/**
 		 * @type {import("../../../../src/util/binarySerializationTypes.ts").OptionsToObject<typeof materialMapBinaryOptions, false>}
 		 */
 		const objectToBinaryData = {
