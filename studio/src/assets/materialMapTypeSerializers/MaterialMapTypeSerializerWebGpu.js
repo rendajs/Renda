@@ -48,6 +48,12 @@ export class MaterialMapTypeSerializerWebGpu extends MaterialMapTypeSerializer {
 		if (pipelineConfig?.fragmentShader) {
 			this.fillMappableValuesForShader(pipelineConfig.fragmentShader, mappableValues);
 		}
+		mappableValues.set("cullMode", {
+			name: "cullMode",
+			type: "enum",
+			enumOptions: ["back", "front", "none"],
+			defaultValue: "back",
+		});
 		return Array.from(mappableValues.values());
 	}
 

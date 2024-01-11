@@ -441,12 +441,22 @@ export class WebGpuRenderer extends Renderer {
 			for (const material of meshRenderData.component.materials) {
 				if (!material || material.destructed || !material.materialMap) continue; // todo: log a (supressable) warning when the material is destructed
 
+				const cullModeData = material.getMappedPropertyForMapType(WebGpuMaterialMapType, "cullMode");
+				/** @type {GPUCullMode} */
+				let cullMode = "back";
+				if (cullModeData) {
+					if (cullModeData.value == "front") {
+						cullMode = "front";
+					} else if (cullModeData.value == "none") {
+						cullMode = "none";
+					}
+				}
 				const materialData = this.#getCachedMaterialData(material);
 				const forwardPipelineConfig = materialData.getForwardPipelineConfig();
 				if (!forwardPipelineConfig || !forwardPipelineConfig.vertexShader || !forwardPipelineConfig.fragmentShader) continue;
 				const pipelineLayout = materialData.getPipelineLayout();
 				if (!pipelineLayout) continue;
-				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, meshRenderData.component.mesh.vertexState, domTarget.swapChainFormat, outputConfig, camera.clusteredLightsConfig);
+				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, meshRenderData.component.mesh.vertexState, cullMode, domTarget.swapChainFormat, outputConfig, camera.clusteredLightsConfig);
 
 				let pipelineRenderData = pipelineRenderDatas.get(forwardPipeline);
 				if (!pipelineRenderData) {
@@ -472,6 +482,7 @@ export class WebGpuRenderer extends Renderer {
 					const placeHolderTextureRefs = new Set();
 
 					for (let {mappedData, value} of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
+						if (mappedData.mappedName == "cullMode") continue;
 						if (mappedData.mappedType == "texture2d") {
 							/** @type {GPUTextureView | null} */
 							let textureView = null;
@@ -536,6 +547,8 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 								materialUniformsGroup.appendScalar(value, "f32");
 							} else if (Array.isArray(value)) {
 								materialUniformsGroup.appendNumericArray(value, "f32");
+							} else if (typeof value == "string") {
+								throw new Error("Assertion failed, enum cannot be used as uniform.");
 							} else {
 								materialUniformsGroup.appendMathType(value, "f32");
 							}
@@ -700,11 +713,12 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 	 * @param {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} pipelineConfig
 	 * @param {GPUPipelineLayout} pipelineLayout
 	 * @param {import("../../VertexState.js").VertexState} vertexState
+	 * @param {GPUCullMode} cullMode
 	 * @param {GPUTextureFormat} outputFormat
 	 * @param {import("../../RenderOutputConfig.js").RenderOutputConfig} outputConfig
 	 * @param {import("../../ClusteredLightsConfig.js").ClusteredLightsConfig?} clusteredLightsConfig
 	 */
-	getPipeline(pipelineConfig, pipelineLayout, vertexState, outputFormat, outputConfig, clusteredLightsConfig) {
+	getPipeline(pipelineConfig, pipelineLayout, vertexState, cullMode, outputFormat, outputConfig, clusteredLightsConfig) {
 		if (!pipelineConfig.vertexShader) {
 			throw new Error("Failed to create pipeline, pipeline config has no vertex shader");
 		}
@@ -715,7 +729,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 			throw new Error("Renderer is not initialized");
 		}
 		/** @type {*[]} */
-		const keys = [outputFormat, outputConfig, vertexState, pipelineConfig, pipelineLayout];
+		const keys = [outputFormat, outputConfig, vertexState, cullMode, pipelineConfig, pipelineLayout];
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig) {
 			keys.push(clusteredLightsConfig);
 		}
@@ -757,6 +771,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 				},
 				primitive: {
 					topology: pipelineConfig.primitiveTopology,
+					cullMode,
 				},
 				depthStencil: {
 					format: outputConfig.depthStencilFormat,

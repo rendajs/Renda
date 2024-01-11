@@ -72,6 +72,12 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 					defaultValue = new Vec3();
 				} else if (mappedValue.type == "vec4") {
 					defaultValue = new Vec4();
+				} else if (mappedValue.type == "enum") {
+					if (mappedValue.enumOptions && mappedValue.enumOptions.length > 0) {
+						defaultValue = mappedValue.enumOptions[0];
+					} else {
+						defaultValue = "";
+					}
 				} else if (mappedValue.type == "texture2d") {
 					defaultValue = null;
 				} else if (mappedValue.type == "sampler") {
@@ -102,7 +108,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 						const mappedValue = mappedValues[key];
 						if (!mappedValue) continue;
 						const defaultValue = mappedValue.defaultValue;
-						if (mappedValue.mappedType == "number") {
+						if (mappedValue.mappedType == "number" || mappedValue.mappedType == "enum") {
 							mappedValue.defaultValue = mappedValueDiskData.defaultValue;
 						} else if (mappedValue.mappedType == "vec2" || mappedValue.mappedType == "vec3" || mappedValue.mappedType == "vec4") {
 							if (!(defaultValue instanceof Vec2 || defaultValue instanceof Vec3 || defaultValue instanceof Vec4)) {
@@ -201,19 +207,6 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 */
 	async createBundledAssetData() {
 		/**
-		 * @typedef MappedValue
-		 * @property {string} originalName
-		 * @property {string} [mappedName]
-		 * @property {import("../../../../src/util/binarySerializationTypes.ts").OptionsToObject<typeof materialMapBinaryOptions>} typeUnion
-		 */
-		/**
-		 * @typedef MapData
-		 * @property {import("../../../../src/mod.js").UuidString} typeUuid
-		 * @property {ArrayBuffer} data
-		 * @property {MappedValue[]} mappedValues
-		 */
-
-		/**
 		 * @type {import("../../../../src/util/binarySerializationTypes.ts").OptionsToObject<typeof materialMapBinaryOptions, false>}
 		 */
 		const objectToBinaryData = {
@@ -271,6 +264,14 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 								typeUnion = {
 									isVec4: true,
 									defaultValue: mappedValue.defaultValue.toArray(),
+								};
+							} else if (mappedValue.mappedType == "enum") {
+								if (typeof mappedValue.defaultValue != "string") {
+									throw new Error("Assertion failed, expected a string as default value");
+								}
+								typeUnion = {
+									isEnum: true,
+									defaultValue: mappedValue.defaultValue,
 								};
 							} else if (mappedValue.mappedType == "sampler") {
 								if (!mappedValue.defaultValue) {

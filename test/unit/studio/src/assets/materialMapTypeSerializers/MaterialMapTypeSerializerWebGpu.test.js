@@ -197,6 +197,12 @@ Deno.test({
 				name: "albedoTexture",
 				type: "texture2d",
 			},
+			{
+				name: "cullMode",
+				type: "enum",
+				enumOptions: ["back", "front", "none"],
+				defaultValue: "back",
+			},
 		]);
 	},
 });

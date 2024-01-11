@@ -6,6 +6,7 @@ import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
 import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
 
 const BASIC_SERIALIZER_UUID = "ba51c000-0000-0000-0000-5e71a112e700";
+const ENUM_SERIALIZER_UUID = "e0130000-0000-0000-0000-5e71a112e700";
 const BASIC_MATERIAL_MAP_ASSET_UUID = "basic material map asset uuid";
 const NON_EXISTENT_MATERIAL_MAP_ASSET_UUID = "non existent material map asset uuid";
 
@@ -311,21 +312,52 @@ Deno.test({
 Deno.test({
 	name: "getMapValuesForMapAssetUuid(), missing mapped values",
 	async fn() {
+		class EnumMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
+			static uiName = "enum serializer";
+			static typeUuid = ENUM_SERIALIZER_UUID;
+			static expectedLiveAssetConstructor = LiveAssetConstructor;
+
+			/** @type {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewStructure} */
+			static settingsStructure = {
+				enum: {
+					type: "dropdown",
+				},
+			};
+
+			/**
+			 * @override
+			 * @param {import("../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
+			 * @param {*} customData The customData as stored on disk.
+			 * @returns {Promise<import("../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
+			 */
+			static async getMappableValues(context, customData) {
+				return [
+					{
+						name: "enum",
+						type: "enum",
+						defaultValue: "option2",
+						enumOptions: ["option1", "option2", "option3"],
+					},
+				];
+			}
+		}
 		const {manager} = basicGetMapValuesForMapAssetUuidSetup({
 			mapReadAssetDataReturnValue: {
 				maps: [
 					{
-						mapTypeId: BASIC_SERIALIZER_UUID,
+						mapTypeId: ENUM_SERIALIZER_UUID,
 					},
 				],
 			},
 		});
+		manager.registerMapType(EnumMaterialMapTypeSerializer);
 		const result = await manager.getMapValuesForMapAssetUuid(BASIC_MATERIAL_MAP_ASSET_UUID);
 		assertEquals(result, [
 			{
-				name: "foo",
-				type: "number",
-				defaultValue: 3,
+				name: "enum",
+				type: "enum",
+				defaultValue: "option2",
+				enumOptions: ["option1", "option2", "option3"],
 			},
 		]);
 	},

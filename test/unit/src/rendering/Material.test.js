@@ -100,12 +100,17 @@ fakeMappedDatas.set("samplerMappedName", {
 	mappedType: "sampler",
 	defaultValue: null,
 });
+fakeMappedDatas.set("enumMappedName", {
+	mappedName: "enumOriginalName",
+	mappedType: "enum",
+	defaultValue: "option1",
+});
 fakeMappedDatas.set("customDataMappedName", {
 	mappedName: "customDataOriginalName",
 	mappedType: "custom",
 	defaultValue: null,
 });
-const EXPECTED_MAPPED_PROPERTIES_LENGTH = 7;
+const EXPECTED_MAPPED_PROPERTIES_LENGTH = fakeMappedDatas.size;
 const mockMaterialMap = createFakeMaterialMap(fakeMappedDatas);
 
 Deno.test({
@@ -512,15 +517,18 @@ Deno.test({
  * @param {string} options.propertyName The name used in material.setProperty().
  * @param {any} options.propertyValue The instance to use.
  * @param {string} options.expectedType The expected type in the error message when an invalid type is set.
+ * @param {boolean} [options.only]
  */
 function instancePropertyTest({
 	name,
 	propertyName,
 	propertyValue,
 	expectedType,
+	only = false,
 }) {
 	Deno.test({
 		name: `Material with a ${name} property`,
+		only,
 		fn() {
 			const material = new Material(mockMaterialMap);
 			material.setProperties({
@@ -556,6 +564,13 @@ instancePropertyTest({
 	propertyName: "samplerMappedName",
 	expectedType: "sampler",
 	propertyValue: new Sampler(),
+});
+
+instancePropertyTest({
+	name: "Enum",
+	propertyName: "enumMappedName",
+	expectedType: "enum",
+	propertyValue: "option",
 });
 
 instancePropertyTest({

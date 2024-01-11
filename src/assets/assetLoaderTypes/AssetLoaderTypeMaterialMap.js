@@ -38,6 +38,10 @@ export const materialMapBinaryOptions = createObjectToBinaryOptions({
 								defaultValue: [StorageType.FLOAT64],
 							},
 							{
+								isEnum: StorageType.BOOL,
+								defaultValue: StorageType.STRING,
+							},
+							{
 								isSampler: StorageType.BOOL,
 								defaultValue: StorageType.ASSET_UUID,
 							},
@@ -74,11 +78,12 @@ export const materialMapBinaryOptions = createObjectToBinaryOptions({
 		isVec2: 10,
 		isVec3: 11,
 		isVec4: 12,
-		isSampler: 13,
-		isNullSampler: 14,
-		isTexture: 15,
-		isColorTexture: 16,
-		isNullTexture: 17,
+		isEnum: 13,
+		isSampler: 14,
+		isNullSampler: 15,
+		isTexture: 16,
+		isColorTexture: 17,
+		isNullTexture: 18,
 	},
 });
 
@@ -138,6 +143,9 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 					} else if ("isVec4" in mappedValue.typeUnion) {
 						mappedType = "vec4";
 						defaultValue = new Vec4(mappedValue.typeUnion.defaultValue);
+					} else if ("isEnum" in mappedValue.typeUnion) {
+						mappedType = "enum";
+						defaultValue = mappedValue.typeUnion.defaultValue;
 					} else if ("isSampler" in mappedValue.typeUnion) {
 						mappedType = "sampler";
 						if (!(mappedValue.typeUnion.defaultValue instanceof Sampler)) {

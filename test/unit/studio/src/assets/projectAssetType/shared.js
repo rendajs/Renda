@@ -5,6 +5,7 @@ import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSyst
 import {bundledAssetDataToArrayBufferOrString} from "../../../../../../studio/src/util/bundledAssetDataToArrayBufferOrString.js";
 
 /**
+ * Creates dependencies which can be used to pass to a ProjectAssetType constructor.
  * @param {object} options
  * @param {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager["getAssetUuidFromLiveAsset"]} [options.getAssetUuidFromLiveAssetImpl]
  * @param {import("../../../../../../studio/src/assets/AssetManager.js").AssetManager["getAssetUuidOrEmbeddedAssetDataFromLiveAsset"]} [options.getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl]

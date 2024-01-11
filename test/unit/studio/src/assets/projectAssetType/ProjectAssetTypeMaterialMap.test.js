@@ -58,6 +58,12 @@ function basicSetup({
 			name: "tex",
 			type: "texture2d",
 		},
+		{
+			name: "enum",
+			type: "enum",
+			enumOptions: ["option1", "option2", "option3"],
+			defaultValue: "option2",
+		},
 	],
 	extraMappableValues = [],
 	readAssetDataReturnValue = {},
@@ -244,21 +250,26 @@ Deno.test({
 				{name: "vec2", type: "vec2"},
 				{name: "vec3", type: "vec3"},
 				{name: "vec4", type: "vec4"},
+				{name: "enum", type: "enum", enumOptions: ["option1", "option2", "option3"]},
 				{name: "numHidden", type: "number"},
 				{name: "vec2Hidden", type: "vec2"},
 				{name: "vec3Hidden", type: "vec3"},
 				{name: "vec4Hidden", type: "vec4"},
+				{name: "enumHidden", type: "enum", enumOptions: ["option1", "option2", "option3"]},
 				{name: "numWithSetDefault", type: "number"},
 				{name: "vec2withSetDefault", type: "vec2"},
 				{name: "vec3withSetDefault", type: "vec3"},
 				{name: "vec4withSetDefault", type: "vec4"},
+				{name: "enumWithSetDefault", type: "enum", enumOptions: ["option1", "option2", "option3"]},
 				{name: "numWithDefaultDefault", type: "number", defaultValue: 1},
 				{name: "vec2withDefaultDefault", type: "vec2", defaultValue: new Vec2(1, 2)},
 				{name: "vec3withDefaultDefault", type: "vec3", defaultValue: new Vec3(1, 2, 3)},
 				{name: "vec4withDefaultDefault", type: "vec4", defaultValue: new Vec4(1, 2, 3, 4)},
+				{name: "enumWithDefaultDefault", type: "enum", enumOptions: ["option1", "option2", "option3"], defaultValue: "option2"},
 				{name: "numAllDefault", type: "number"},
 				{name: "vec2AllDefault", type: "vec2"},
 				{name: "vec2AllDefaultWithDefaultDefault", type: "vec2", defaultValue: new Vec2(1, 2)},
+				{name: "enumAllDefaultWithDefaultDefault", type: "enum", enumOptions: ["option1", "option2", "option3"], defaultValue: "option2"},
 				{name: "texture2d", type: "texture2d"},
 				{name: "sampler", type: "sampler"},
 			];
@@ -283,6 +294,9 @@ Deno.test({
 						vec4: {
 							mappedName: "mappedVec4",
 						},
+						enum: {
+							mappedName: "mappedEnum",
+						},
 						numHidden: {
 							visible: false,
 						},
@@ -293,6 +307,9 @@ Deno.test({
 							visible: false,
 						},
 						vec4Hidden: {
+							visible: false,
+						},
+						enumHidden: {
 							visible: false,
 						},
 						numWithSetDefault: {
@@ -311,6 +328,10 @@ Deno.test({
 							mappedName: "mappedVec4withSetDefault",
 							defaultValue: new Vec4(1, 2, 3, 4),
 						},
+						enumWithSetDefault: {
+							mappedName: "mappedEnumWithSetDefault",
+							defaultValue: "option3",
+						},
 						numWithDefaultDefault: {
 							mappedName: "mappedNumWithDefaultDefault",
 						},
@@ -323,7 +344,10 @@ Deno.test({
 						vec4withDefaultDefault: {
 							mappedName: "mappedVec4withDefaultDefault",
 						},
-						// numAllDefault, vec2AllDefault and vec2AllDefaultWithDefaultDefault are deliberately
+						enumWithDefaultDefault: {
+							mappedName: "mappedEnumWithDefaultDefault",
+						},
+						// numAllDefault, vec2AllDefault, vec2AllDefaultWithDefaultDefault and enumAllDefaultWithDefaultDefault are deliberately
 						// missing when all values have the default value
 						texture2d: {
 							defaultValue: BASIC_TEXTURE_UUID,
@@ -361,6 +385,11 @@ Deno.test({
 				mappedType: "vec4",
 				defaultValue: new Vec4(0, 0, 0, 1),
 			},
+			{
+				mappedName: "enum",
+				mappedType: "enum",
+				defaultValue: "option1",
+			},
 			// hidden variables should not be included
 			{
 				mappedName: "numWithSetDefault",
@@ -383,6 +412,11 @@ Deno.test({
 				defaultValue: new Vec4(1, 2, 3, 4),
 			},
 			{
+				mappedName: "enumWithSetDefault",
+				mappedType: "enum",
+				defaultValue: "option3",
+			},
+			{
 				mappedName: "numWithDefaultDefault",
 				mappedType: "number",
 				defaultValue: 1,
@@ -403,6 +437,11 @@ Deno.test({
 				defaultValue: new Vec4(1, 2, 3, 4),
 			},
 			{
+				mappedName: "enumWithDefaultDefault",
+				mappedType: "enum",
+				defaultValue: "option2",
+			},
+			{
 				mappedName: "numAllDefault",
 				mappedType: "number",
 				defaultValue: 0,
@@ -416,6 +455,11 @@ Deno.test({
 				mappedName: "vec2AllDefaultWithDefaultDefault",
 				mappedType: "vec2",
 				defaultValue: new Vec2(1, 2),
+			},
+			{
+				mappedName: "enumAllDefaultWithDefaultDefault",
+				mappedType: "enum",
+				defaultValue: "option2",
 			},
 			{
 				mappedName: "texture2d",
@@ -532,6 +576,10 @@ Deno.test({
 							samp: {
 								mappedName: "mappedSamp",
 							},
+							enum: {
+								mappedName: "mappedEnum",
+								defaultValue: "option3",
+							},
 						},
 					},
 				],
@@ -594,6 +642,11 @@ Deno.test({
 				mappedType: "texture2d",
 				defaultValue: null,
 			},
+			{
+				mappedName: "enum",
+				mappedType: "enum",
+				defaultValue: "option3",
+			},
 		]);
 
 		const mappedNumProperty = Array.from(materialMap.mapProperty("mappedNum"));
@@ -603,11 +656,20 @@ Deno.test({
 				{mappedName: "num", defaultValue: 42, mappedType: "number"},
 			],
 		]);
+
 		const mappedV4Property = Array.from(materialMap.mapProperty("mappedV4"));
 		assertEquals(mappedV4Property, [
 			[
 				MapType,
 				{mappedName: "v4", defaultValue: new Vec4(1, 2, 3, 4), mappedType: "vec4"},
+			],
+		]);
+
+		const mappedEnumProperty = Array.from(materialMap.mapProperty("mappedEnum"));
+		assertEquals(mappedEnumProperty, [
+			[
+				MapType,
+				{mappedName: "enum", defaultValue: "option3", mappedType: "enum"},
 			],
 		]);
 	},
@@ -781,5 +843,38 @@ Deno.test({
 		assertSpyCall(getReferencedAssetUuidsSpy, 0, {
 			args: [{foo: "bar"}],
 		});
+	},
+});
+
+Deno.test({
+	name: "Enum with no options has an empty string as default value",
+	async fn() {
+		const {projectAssetType, ExtendedMaterialMapType} = basicSetup({
+			mappableValues: [
+				{
+					name: "enum",
+					type: "enum",
+					enumOptions: [],
+				},
+			],
+		});
+		const recursionTracker = getMockRecursionTracker();
+
+		const {liveAsset} = await projectAssetType.getLiveAssetData({
+			maps: [
+				{
+					mapTypeId: BASIC_MATERIAL_MAP_TYPE_ID,
+				},
+			],
+		}, recursionTracker);
+
+		const mappedDatas = Array.from(liveAsset.getMappedDatasForMapType(ExtendedMaterialMapType));
+		assertEquals(mappedDatas, [
+			{
+				mappedName: "enum",
+				mappedType: "enum",
+				defaultValue: "",
+			},
+		]);
 	},
 });

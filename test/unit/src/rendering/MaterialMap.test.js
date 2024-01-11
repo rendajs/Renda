@@ -14,6 +14,7 @@ Deno.test({
 		MaterialMap.assertIsMappableType(new Vec3());
 		MaterialMap.assertIsMappableType(new Vec4());
 		MaterialMap.assertIsMappableType(new Quat());
+		MaterialMap.assertIsMappableType("enum");
 		MaterialMap.assertIsMappableType(new Texture(new Blob([])));
 		MaterialMap.assertIsMappableType(new Sampler());
 		MaterialMap.assertIsMappableType(new CustomMaterialData());
@@ -29,7 +30,6 @@ Deno.test({
 		assertThrows(() => MaterialMap.assertIsMappableType(false));
 		assertThrows(() => MaterialMap.assertIsMappableType(() => {}));
 		assertThrows(() => MaterialMap.assertIsMappableType({}));
-		assertThrows(() => MaterialMap.assertIsMappableType(""));
 		assertThrows(() => MaterialMap.assertIsMappableType(new Uint8Array()));
 		class Foo {}
 		assertThrows(() => MaterialMap.assertIsMappableType(new Foo()));

@@ -45,6 +45,11 @@ Deno.test({
 					type: "texture2d",
 				},
 				{
+					name: "enum",
+					type: "enum",
+					enumOptions: ["option1", "option2"],
+				},
+				{
 					name: "custom",
 					type: "custom",
 				},
@@ -117,6 +122,27 @@ Deno.test({
 				mappedName: {
 					type: "string",
 					guiOpts: {
+						defaultValue: "enum",
+					},
+				},
+				visible: {
+					type: "boolean",
+					guiOpts: {
+						defaultValue: true,
+					},
+				},
+				defaultValue: {
+					type: "dropdown",
+					guiOpts: {
+						defaultValue: "",
+						items: ["option1", "option2"],
+					},
+				},
+			},
+			{
+				mappedName: {
+					type: "string",
+					guiOpts: {
 						defaultValue: "custom",
 					},
 				},
@@ -166,6 +192,11 @@ Deno.test({
 					type: "texture2d",
 				},
 				{
+					name: "enum",
+					type: "enum",
+					enumOptions: ["option1", "option2"],
+				},
+				{
 					name: "custom",
 					type: "custom",
 				},
@@ -193,6 +224,10 @@ Deno.test({
 			texture2: {
 				mappedName: "texture2",
 				defaultValue: "textureAssetHash",
+			},
+			enum: {
+				mappedName: "enum2",
+				defaultValue: "option2",
 			},
 			custom: {
 				mappedName: "custom2",
@@ -237,7 +272,18 @@ Deno.test({
 			],
 		});
 
-		const customSpy = spies[4];
+		const enumSpy = spies[4];
+		assertSpyCalls(enumSpy, 1);
+		assertSpyCall(enumSpy, 0, {
+			args: [
+				{
+					mappedName: "enum2",
+					defaultValue: "option2",
+				},
+			],
+		});
+
+		const customSpy = spies[5];
 		assertSpyCalls(customSpy, 1);
 		assertSpyCall(customSpy, 0, {
 			args: [
@@ -272,6 +318,12 @@ Deno.test({
 					type: "texture2d",
 				},
 				{
+					name: "enum",
+					type: "enum",
+					enumOptions: ["option1", "option2"],
+					defaultValue: "option2",
+				},
+				{
 					name: "custom",
 					type: "custom",
 				},
@@ -284,7 +336,7 @@ Deno.test({
 			castTreeViews.push(castTreeView(castChild));
 		}
 
-		const [numTreeView, samplerTreeView, texture1TreeView, texture2TreeView, customTreeView] = castTreeViews;
+		const [numTreeView, samplerTreeView, texture1TreeView, texture2TreeView, enumTreeView, customTreeView] = castTreeViews;
 		const numSpy = stub(numTreeView, "getSerializableStructureValues", () => {
 			return {
 				defaultValue: 1,
@@ -306,6 +358,11 @@ Deno.test({
 				defaultColor: [0.1, 0.2, 0.3, 0.4],
 			};
 		});
+		const enumSpy = stub(enumTreeView, "getSerializableStructureValues", () => {
+			return {
+				defaultValue: "option2",
+			};
+		});
 		const customSpy = stub(customTreeView, "getSerializableStructureValues", () => {
 			return {
 				visible: false,
@@ -318,6 +375,7 @@ Deno.test({
 		assertSpyCalls(samplerSpy, 1);
 		assertSpyCalls(texture1Spy, 1);
 		assertSpyCalls(texture2Spy, 1);
+		assertSpyCalls(enumSpy, 1);
 		assertSpyCalls(customSpy, 1);
 
 		assertEquals(result, {
@@ -332,6 +390,9 @@ Deno.test({
 			},
 			texture2: {
 				defaultValue: [0.1, 0.2, 0.3, 0.4],
+			},
+			enum: {
+				defaultValue: "option2",
 			},
 			custom: {
 				visible: false,
