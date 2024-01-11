@@ -9,6 +9,7 @@ import {getGltfTextureData} from "./getTexture.js";
  * @property {import("../../rendering/MaterialMap.js").MaterialMap} defaultMaterialMap
  * @property {import("./getSampler.js").GetSamplerFn} getSamplerFn
  * @property {import("./getTexture.js").GetTextureFn} getTextureFn
+ * @property {import("./gltfParsing.js").ParseGltfHooks} hooks
  */
 
 /**
@@ -24,15 +25,17 @@ export async function getMaterialHelper(jsonData, materialId, materialsCache, {
 	defaultMaterialMap,
 	getSamplerFn,
 	getTextureFn,
+	hooks,
 }) {
 	if (materialId == undefined) {
 		return defaultMaterial;
 	}
 
 	let material = materialsCache.get(materialId);
+	let materialData = null;
 	if (!material) {
 		const materialDatas = jsonData.materials || [];
-		const materialData = materialDatas[materialId];
+		materialData = materialDatas[materialId];
 		if (!materialData) {
 			throw new Error(`Tried to reference material with index ${materialId} but it does not exist.`);
 		}
@@ -78,6 +81,16 @@ export async function getMaterialHelper(jsonData, materialId, materialsCache, {
 				material.setProperty("normalScale", materialData.normalTexture.scale);
 			}
 		}
+
+		if (materialData.doubleSided) {
+			material.setProperty("cullMode", "none");
+		} else {
+			material.setProperty("cullMode", "back");
+		}
+	}
+
+	if (hooks.material) {
+		hooks.material({material, materialData, materialId});
 	}
 
 	return material;

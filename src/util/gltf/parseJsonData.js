@@ -79,6 +79,7 @@ export async function parseJsonData(jsonData, {
 			defaultMaterialMap: nonNullDefaultMaterialMap,
 			getSamplerFn,
 			getTextureFn,
+			hooks,
 		});
 	}
 

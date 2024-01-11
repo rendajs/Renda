@@ -4,6 +4,7 @@ import {parseJsonData} from "./parseJsonData.js";
 /**
  * @typedef ParseGltfHooks
  * @property {(context: ParsedGltfNodeHookContext) => void} [node]
+ * @property {(context: ParsedGltfMaterialHookContext) => void} [material]
  */
 
 /**
@@ -11,6 +12,13 @@ import {parseJsonData} from "./parseJsonData.js";
  * @property {import("../../mod.js").Entity} entity
  * @property {GltfNodeData} nodeData
  * @property {number} nodeId
+ */
+
+/**
+ * @typedef ParsedGltfMaterialHookContext
+ * @property {import("../../mod.js").Material} material
+ * @property {GltfMaterialData?} materialData
+ * @property {number} materialId
  */
 
 /**
