@@ -7,30 +7,34 @@ import {Sampler} from "../../../../../src/rendering/Sampler.js";
 import {getMaterialHelper} from "../../../../../src/util/gltf/getMaterial.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 
-function basicSetup() {
+/**
+ * @param {object} options
+ * @param {import("../../../../../src/util/gltf/gltfParsing.js").GltfMaterialData} [options.materialData]
+ */
+function basicSetup({
+	materialData = {
+		name: "Material 1",
+		pbrMetallicRoughness: {
+			baseColorFactor: [0.2, 0.3, 0.4, 1],
+			baseColorTexture: {
+				index: 0,
+			},
+			metallicFactor: 0.1234,
+			roughnessFactor: 0.5678,
+			metallicRoughnessTexture: {
+				index: 1,
+			},
+		},
+		normalTexture: {
+			index: 2,
+			scale: 0.5,
+		},
+	},
+} = {}) {
 	/** @type {import("../../../../../src/util/gltf/gltfParsing.js").GltfJsonData} */
 	const jsonData = {
 		asset: {version: "2.0"},
-		materials: [
-			{
-				name: "Material 1",
-				pbrMetallicRoughness: {
-					baseColorFactor: [0.2, 0.3, 0.4, 1],
-					baseColorTexture: {
-						index: 0,
-					},
-					metallicFactor: 0.1234,
-					roughnessFactor: 0.5678,
-					metallicRoughnessTexture: {
-						index: 1,
-					},
-				},
-				normalTexture: {
-					index: 2,
-					scale: 0.5,
-				},
-			},
-		],
+		materials: [materialData],
 		textures: [
 			{
 				sampler: 123,
@@ -69,6 +73,7 @@ function basicSetup() {
 		defaultMaterialMap,
 		getSamplerFn,
 		getTextureFn,
+		hooks: {},
 	};
 
 	return {
@@ -143,6 +148,7 @@ Deno.test({
 			defaultMaterialMap,
 			getSamplerFn: getSamplerSpy,
 			getTextureFn: getTextureSpy,
+			hooks: {},
 		});
 
 		assertSpyCalls(getSamplerSpy, 3);
@@ -186,5 +192,79 @@ Deno.test({
 		assertStrictEquals(normalSampler, await getSamplerSpy.calls[2].returned);
 		const normalTexture = result.getProperty("normalTexture");
 		assertStrictEquals(normalTexture, await getTextureSpy.calls[2].returned);
+	},
+});
+
+Deno.test({
+	name: "Has cullmode set to 'back' by default",
+	async fn() {
+		const {jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn} = basicSetup();
+
+		const result = await getMaterialHelper(jsonData, 0, materialsCache, {
+			defaultMaterial,
+			defaultMaterialMap,
+			getSamplerFn,
+			getTextureFn,
+			hooks: {},
+		});
+
+		assertEquals(result.getProperty("cullMode"), "back");
+	},
+});
+
+Deno.test({
+	name: "Double sided material sets cullmode to none",
+	async fn() {
+		const {jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn} = basicSetup({
+			materialData: {
+				name: "My Material",
+				doubleSided: true,
+			},
+		});
+
+		const result = await getMaterialHelper(jsonData, 0, materialsCache, {
+			defaultMaterial,
+			defaultMaterialMap,
+			getSamplerFn,
+			getTextureFn,
+			hooks: {},
+		});
+
+		assertEquals(result.getProperty("cullMode"), "none");
+	},
+});
+
+Deno.test({
+	name: "Fires hooks",
+	async fn() {
+		const {jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn} = basicSetup({
+			materialData: {
+				name: "My Material",
+			},
+		});
+
+		/**
+		 * @param {import("../../../../../src/util/gltf/gltfParsing.js").ParsedGltfMaterialHookContext} context
+		 */
+		const materialHook = context => {};
+		const spyFn = spy(materialHook);
+
+		const result = await getMaterialHelper(jsonData, 0, materialsCache, {
+			defaultMaterial,
+			defaultMaterialMap,
+			getSamplerFn,
+			getTextureFn,
+			hooks: {
+				material: spyFn,
+			},
+		});
+
+		assertSpyCalls(spyFn, 1);
+		const ctx = spyFn.calls[0].args[0];
+		assertStrictEquals(ctx.material, result);
+		assertEquals(ctx.materialData, {
+			name: "My Material",
+		});
+		assertEquals(ctx.materialId, 0);
 	},
 });
