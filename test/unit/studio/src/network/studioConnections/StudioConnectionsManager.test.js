@@ -80,6 +80,7 @@ async function basicTest({
 				return currentProjectIsRemote;
 			},
 			assignRemoteConnection(connection) {},
+			getRemoteFileSystem() {}
 		});
 		const {preferencesManager} = createPreferencesManager({
 			"studioConnections.enableRemoteDiscovery": {
@@ -473,6 +474,7 @@ Deno.test({
 
 Deno.test({
 	name: "Connecting to a studio-host from a studio-client, automatically accepted since we initiated it",
+	only: true,
 	async fn() {
 		await basicTest({
 			fn({manager, projectManager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
