@@ -80,7 +80,6 @@ testAll({
 
 testAll({
 	name: "writeFile should create the file and fire onChange",
-	ignore: ["remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -112,7 +111,6 @@ testAll({
 
 testAll({
 	name: "writeFile to existing file should overwrite it and fire change event",
-	ignore: ["remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs({disableStructuredClone: true});
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -144,7 +142,6 @@ testAll({
 
 testAll({
 	name: "writeFile should create parent directories when they don't exist",
-	ignore: ["remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);

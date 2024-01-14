@@ -6,7 +6,6 @@ import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
 
 testAll({
 	name: "createDir() should create a directory and fire onchange",
-	ignore: ["remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);

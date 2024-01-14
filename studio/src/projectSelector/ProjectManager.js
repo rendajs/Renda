@@ -396,18 +396,29 @@ export class ProjectManager {
 		}, fromUserGesture);
 	}
 
+	#assertProjectOpenEvent() {
+		if (!this.#currentProjectOpenEvent) {
+			throw new Error("Assertion failed: An active connection was made before a project entry was created.");
+		}
+		return this.#currentProjectOpenEvent;
+	}
+
+	getRemoteFileSystem() {
+		const openEvent = this.#assertProjectOpenEvent();
+		if (openEvent.fileSystemType != "remote" || !(this.currentProjectFileSystem instanceof RemoteStudioFileSystem)) {
+			throw new Error("Assertion failed: Current file system is not a remote file system.");
+		}
+		return this.currentProjectFileSystem;
+	}
+
 	/**
 	 * Assigns a connection to the current file system and project open event.
 	 * Throws if the current project is not a remote project or if a connection has already been assigned.
 	 * @param {import("../network/studioConnections/handlers.js").StudioClientHostConnection} connection
 	 */
 	assignRemoteConnection(connection) {
-		if (!this.#currentProjectOpenEvent) {
-			throw new Error("Assertion failed: An active connection was made before a project entry was created.");
-		}
-		if (this.#currentProjectOpenEvent.fileSystemType != "remote" || !(this.currentProjectFileSystem instanceof RemoteStudioFileSystem)) {
-			throw new Error("Assertion failed: Current file system is not a remote file system.");
-		}
+		const openEvent = this.#assertProjectOpenEvent();
+		const fileSystem = this.getRemoteFileSystem();
 		const metadata = connection.projectMetadata;
 		if (!metadata) {
 			throw new Error("Assertion failed: Connection does not have project metadata.");
@@ -415,11 +426,11 @@ export class ProjectManager {
 		this.#currentProjectOpenEvent = {
 			name: metadata.name,
 			fileSystemType: "remote",
-			projectUuid: this.#currentProjectOpenEvent.projectUuid,
+			projectUuid: openEvent.projectUuid,
 			remoteProjectUuid: metadata.uuid,
 			remoteProjectConnectionType: connection.connectionType,
 		};
-		this.currentProjectFileSystem.setConnection(connection);
+		fileSystem.setConnection(connection);
 		this.markCurrentProjectAsWorthSaving();
 	}
 

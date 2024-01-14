@@ -80,6 +80,7 @@ async function basicTest({
 				return currentProjectIsRemote;
 			},
 			assignRemoteConnection(connection) {},
+			getRemoteFileSystem() {},
 		});
 		const {preferencesManager} = createPreferencesManager({
 			"studioConnections.enableRemoteDiscovery": {

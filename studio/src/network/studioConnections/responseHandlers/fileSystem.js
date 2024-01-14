@@ -3,7 +3,7 @@ import {StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary
 /**
  * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem
  */
-export function createFileSystemHandlers(fileSystem) {
+export function createFileSystemHostHandlers(fileSystem) {
 	return {
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
@@ -47,6 +47,20 @@ export function createFileSystemHandlers(fileSystem) {
 		 */
 		"fileSystem.exists": async path => {
 			return await fileSystem.exists(path);
+		},
+	};
+}
+
+/**
+ * @param {import("../../../util/fileSystems/RemoteStudioFileSystem.js").RemoteStudioFileSystem} fileSystem
+ */
+export function createFileSystemClientHandlers(fileSystem) {
+	return {
+		/**
+		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent} e
+		 */
+		"fileSystem.changeEvent": e => {
+			fileSystem.fireChange(e);
 		},
 	};
 }

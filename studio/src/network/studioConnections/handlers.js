@@ -1,7 +1,8 @@
-import {createFileSystemHandlers, createFileSystemRequestDeserializers, createFileSystemRequestSerializers, createFileSystemResponseDeserializers, createFileSystemResponseSerializers} from "./responseHandlers/fileSystem.js";
+import {createFileSystemClientHandlers, createFileSystemHostHandlers, createFileSystemRequestDeserializers, createFileSystemRequestSerializers, createFileSystemResponseDeserializers, createFileSystemResponseSerializers} from "./responseHandlers/fileSystem.js";
 import {createAssetsHandlers} from "./responseHandlers/assets.js";
 
-/** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<{}, StudioConnectionRequestHandlersToTypedMessengerHandlers<ReturnType<typeof createStudioHostHandlers>["reliableResponseHandlers"]>>} StudioClientHostConnection */
+/** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<ExtractResponseHandlers<typeof createStudioClientHandlers>, ExtractResponseHandlers<typeof createStudioHostHandlers>>} StudioClientHostConnection */
+/** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<ExtractResponseHandlers<typeof createStudioHostHandlers>, ExtractResponseHandlers<typeof createStudioClientHandlers>>} StudioHostClientConnection */
 
 /** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<StudioConnectionRequestHandlersToTypedMessengerHandlers<ReturnType<import("../../../../src/mod.js").InspectorManager["getResponseHandlers"]>["reliableResponseHandlers"]>, StudioConnectionRequestHandlersToTypedMessengerHandlers<ReturnType<typeof createStudioInspectorHandlers>["reliableResponseHandlers"]>>} InspectorStudioConnection */
 /** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<StudioConnectionRequestHandlersToTypedMessengerHandlers<ReturnType<typeof createStudioInspectorHandlers>["reliableResponseHandlers"]>, StudioConnectionRequestHandlersToTypedMessengerHandlers<ReturnType<import("../../../../src/mod.js").InspectorManager["getResponseHandlers"]>["reliableResponseHandlers"]>>} StudioInspectorConnection */
@@ -26,13 +27,18 @@ import {createAssetsHandlers} from "./responseHandlers/assets.js";
  */
 
 /**
+ * @template {(...args: any) => {reliableResponseHandlers: any}} T
+ * @typedef {StudioConnectionRequestHandlersToTypedMessengerHandlers<ReturnType<T>["reliableResponseHandlers"]>} ExtractResponseHandlers
+ */
+
+/**
  * @param {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem
  */
 export function createStudioHostHandlers(fileSystem) {
 	/** @satisfies {import("../../../../src/network/studioConnections/DiscoveryManager.js").ConnectionRequestAcceptOptions<any>} */
 	const handlers = {
 		reliableResponseHandlers: {
-			...createFileSystemHandlers(fileSystem),
+			...createFileSystemHostHandlers(fileSystem),
 		},
 		requestDeserializers: {
 			...createFileSystemRequestDeserializers(),
@@ -44,9 +50,15 @@ export function createStudioHostHandlers(fileSystem) {
 	return handlers;
 }
 
-export function createStudioClientHandlers() {
+/**
+ * @param {import("../../util/fileSystems/RemoteStudioFileSystem.js").RemoteStudioFileSystem} fileSystem
+ */
+export function createStudioClientHandlers(fileSystem) {
 	/** @satisfies {import("../../../../src/network/studioConnections/DiscoveryManager.js").ConnectionRequestAcceptOptions<any>} */
 	const handlers = {
+		reliableResponseHandlers: {
+			...createFileSystemClientHandlers(fileSystem),
+		},
 		requestSerializers: {
 			...createFileSystemRequestSerializers(),
 		},
