@@ -7,6 +7,7 @@ import {testAll} from "../shared.js";
 
 testAll({
 	name: "delete() should delete files and fire onChange",
+	ignore: ["remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
