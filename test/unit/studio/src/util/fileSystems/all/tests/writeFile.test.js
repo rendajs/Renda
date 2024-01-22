@@ -51,7 +51,6 @@ testAll({
 
 testAll({
 	name: "writing an Uint8Array",
-	ignore: ["fsa"],
 	async fn(ctx) {
 		// https://github.com/denoland/deno/issues/12067
 		const fs = await ctx.createFs({disableStructuredClone: true});

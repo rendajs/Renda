@@ -153,6 +153,9 @@ export class FakeHandle {
 				if (typeof chunk == "string") {
 					chunk = new TextEncoder().encode(chunk).buffer;
 				}
+				if (ArrayBuffer.isView(chunk)) {
+					chunk = chunk.buffer.slice(chunk.byteOffset, chunk.byteLength + chunk.byteOffset);
+				}
 				if (!(chunk instanceof ArrayBuffer)) {
 					throw new Error("Writing this type is not supported in the mock file handle.");
 				}
