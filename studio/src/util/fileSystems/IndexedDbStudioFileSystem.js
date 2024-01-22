@@ -688,7 +688,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 				// Since we only need to check if the existing object is a directory, we won't throw here.
 			}
 			if (existingObject && existingObject.obj.isDir) {
-				throw new Error(`Failed to write, "${path.join("/")}" is not a file.`)
+				throw new Error(`Failed to write, "${path.join("/")}" is not a file.`);
 			}
 
 			if (!file) file = new Blob();
