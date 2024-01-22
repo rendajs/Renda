@@ -66,8 +66,8 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 				} else if (type == "type-mismatch") {
 					ending = `, "${failurePathStr}" is not a directory.`;
 				}
-				const atText = pathStr == failurePathStr ? "" : ` at "${pathStr}"`;
-				throw new Error(`Couldn't ${errorMessageActionName}${atText}${ending}`);
+				const atText = pathStr == failurePathStr ? "" : ` "${pathStr}"`;
+				throw new Error(`Failed to ${errorMessageActionName}${atText}${ending}`);
 			}
 			if (currentObject.isFile) {
 				throwError("type-mismatch");
@@ -118,11 +118,11 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 		const files = [];
 		const directories = [];
 		const {pointer} = this.getObjectPointer(path, {
-			errorMessageActionName: "readDir",
+			errorMessageActionName: "read",
 		});
 		if (pointer.isFile) {
 			const pathStr = path.join("/");
-			throw new Error(`Couldn't readDir, "${pathStr}" is not a directory.`);
+			throw new Error(`Failed to read, "${pathStr}" is not a directory.`);
 		}
 		for (const child of pointer.children) {
 			if (child.isFile) {
@@ -154,10 +154,10 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 	 */
 	async readFile(path) {
 		const {pointer} = this.getObjectPointer(path, {
-			errorMessageActionName: "readFile",
+			errorMessageActionName: "read",
 		});
 		if (!pointer.isFile) {
-			throw new Error(`Couldn't readFile, "${path.join("/")}" is not a file.`);
+			throw new Error(`Failed to read, "${path.join("/")}" is not a file.`);
 		}
 		return pointer.file;
 	}
@@ -172,11 +172,11 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 		const {pointer, created} = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
-			errorMessageActionName: "writeFile",
+			errorMessageActionName: "write",
 		});
 		if (!pointer.isFile) {
 			const pathStr = path.join("/");
-			throw new Error(`Couldn't writeFile, "${pathStr}" is not a file.`);
+			throw new Error(`Failed to write, "${pathStr}" is not a file.`);
 		}
 		pointer.file = new File([file], pointer.name);
 
@@ -200,11 +200,11 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 		const {pointer} = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
-			errorMessageActionName: "writeFileStream",
+			errorMessageActionName: "write",
 		});
 		if (!pointer.isFile) {
 			const pathStr = path.join("/");
-			throw new Error(`Couldn't writeFileStream, "${pathStr}" is not a file.`);
+			throw new Error(`Failed to write, "${pathStr}" is not a file.`);
 		}
 		if (!keepExistingData) {
 			pointer.file = new File([], pointer.name);
@@ -229,7 +229,9 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 			const {pointer} = this.getObjectPointer(path, {
 				errorMessageActionName: "delete",
 			});
-			if (!pointer.isFile) notFoundError();
+			if (!pointer.isFile) {
+				throw new Error(`Failed to delete "${path.join("/")}" because it is a non-empty directory. Use recursive = true to delete non-empty directories.`);
+			}
 		}
 
 		const parentPath = path.slice(0, -1);

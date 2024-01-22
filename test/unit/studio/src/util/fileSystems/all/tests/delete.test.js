@@ -47,31 +47,31 @@ testAll({
 
 testAll({
 	name: "delete() should throw when deleting a non-existent file",
-	ignore: ["fsa", "memory", "remote", "serialized-remote"],
+	ignore: ["fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
-		const fs = await ctx.createFs();
+		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.delete(["root", "onlyfiles", "nonexistent"]);
-		}, Error, 'Failed to delete "root/onlyfiles/nonexistent" because it does not exist.');
+		}, Error, 'Failed to delete, "root/onlyfiles/nonexistent" does not exist.');
 	},
 });
 
 testAll({
 	name: "delete() should throw when deleting a file with non-existent parent",
-	ignore: ["fsa", "memory", "remote", "serialized-remote"],
+	ignore: ["fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
-		const fs = await ctx.createFs();
+		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.delete(["root", "nonexistent", "nonexistent"]);
-		}, Error, 'Failed to delete "root/nonexistent/nonexistent" because it does not exist.');
+		}, Error, 'Failed to delete "root/nonexistent/nonexistent", "root/nonexistent" does not exist.');
 	},
 });
 
 testAll({
 	name: "delete() should throw when deleting a non-empty directory with recursive=false",
-	ignore: ["fsa", "memory", "remote", "serialized-remote"],
+	ignore: ["fsa", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

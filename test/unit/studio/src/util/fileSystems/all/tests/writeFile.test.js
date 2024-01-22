@@ -192,7 +192,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.writeFile(["root", "onlydirs"], "hello world");
-		}, Error, `Couldn't writeFile, "root/onlydirs" is not a file.`);
+		}, Error, `Failed to write, "root/onlydirs" is not a file.`);
 	},
 });
 
@@ -203,7 +203,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.writeFile(["root", "file1", "newfile"], "hello world");
-		}, Error, `Couldn't writeFile at "root/file1/newfile", "root/file1" is not a directory.`);
+		}, Error, `Failed to write "root/file1/newfile", "root/file1" is not a directory.`);
 	},
 });
 
@@ -214,7 +214,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.writeFile(["root", "file1", "anotherdir", "newfile"], "hello world");
-		}, Error, `Couldn't writeFile at "root/file1/anotherdir/newfile", "root/file1" is not a directory.`);
+		}, Error, `Failed to write "root/file1/anotherdir/newfile", "root/file1" is not a directory.`);
 	},
 });
 
