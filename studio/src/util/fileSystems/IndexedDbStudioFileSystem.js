@@ -680,6 +680,17 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		const writeOp = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 		try {
+			let existingObject = null;
+			try {
+				existingObject = await this.getObjectFromPath(path);
+			} catch {
+				// The existing object either already is a file, or it doesn't exist.
+				// Since we only need to check if the existing object is a directory, we won't throw here.
+			}
+			if (existingObject && existingObject.obj.isDir) {
+				throw new Error(`Failed to write, "${path.join("/")}" is not a file.`)
+			}
+
 			if (!file) file = new Blob();
 			const fileName = path[path.length - 1];
 			let type = "";

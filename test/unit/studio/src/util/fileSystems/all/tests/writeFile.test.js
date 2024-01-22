@@ -187,7 +187,6 @@ testAll({
 
 testAll({
 	name: "writeFile should error when the target is a directory",
-	ignore: ["indexedDb"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
