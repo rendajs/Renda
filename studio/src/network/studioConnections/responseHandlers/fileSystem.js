@@ -32,6 +32,13 @@ export function createFileSystemHostHandlers(fileSystem) {
 		},
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
+		 * @param {boolean} recursive
+		 */
+		"fileSystem.delete": async (path, recursive) => {
+			return await fileSystem.delete(path, recursive);
+		},
+		/**
+		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
 		"fileSystem.isFile": async path => {
 			return await fileSystem.isFile(path);
