@@ -18,6 +18,13 @@ export function createFileSystemHostHandlers(fileSystem) {
 			return await fileSystem.createDir(path);
 		},
 		/**
+		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} fromPath
+		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} toPath
+		 */
+		"fileSystem.move": async (fromPath, toPath) => {
+			return await fileSystem.move(fromPath, toPath);
+		},
+		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
 		"fileSystem.readFile": async path => {

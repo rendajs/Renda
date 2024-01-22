@@ -63,6 +63,18 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @override
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} fromPath
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} toPath
+	 */
+	async move(fromPath = [], toPath = []) {
+		fromPath = [...fromPath];
+		toPath = [...toPath];
+		const connection = await this.#waitForConnection();
+		return await connection.messenger.send["fileSystem.move"](fromPath, toPath);
+	}
+
+	/**
+	 * @override
 	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<File>}
 	 */
