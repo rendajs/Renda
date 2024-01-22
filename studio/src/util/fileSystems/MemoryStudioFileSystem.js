@@ -149,6 +149,96 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @override
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} fromPath
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} toPath
+	 */
+	async move(fromPath = [], toPath = []) {
+		/** @returns {never} */
+		function notFoundError() {
+			throw new Error(`Failed to move: The file or directory at "${fromPath.join("/")}" does not exist.`);
+		}
+
+		const oldParentPath = fromPath.slice(0, -1);
+		const newParentPath = toPath.slice(0, -1);
+
+		const oldBasename = fromPath.at(-1);
+		if (!oldBasename) notFoundError();
+		const newBasename = toPath.at(-1);
+		if (!newBasename) {
+			throw new Error("Assertion failed, newBasename doesn't exist.");
+		}
+
+		const {pointer: oldParentPointer} = this.getObjectPointer(oldParentPath, {
+			errorMessageActionName: "delete",
+		});
+		if (oldParentPointer.isFile) notFoundError();
+		const index = oldParentPointer.children.findIndex(child => child.name == oldBasename);
+		if (index == -1) notFoundError();
+		const movingPointer = oldParentPointer.children[index];
+
+		let existingPointer;
+		try {
+			existingPointer = this.getObjectPointer(toPath);
+		} catch {
+			// If there is no existing pointer yet, we can continue with the move
+		}
+		if (existingPointer) {
+			if (existingPointer.pointer.isFile) {
+				throw new Error(`Failed to move: "${toPath.join("/")}" is a file.`);
+			} else if (existingPointer.pointer.children.length > 0) {
+				throw new Error(`Failed to move: "${toPath.join("/")}" is a non-empty directory.`);
+			}
+		}
+
+		const {pointer: newParentPointer} = this.getObjectPointer(newParentPath, {
+			create: true,
+			createType: movingPointer.isFile ? "file" : "dir",
+		});
+		if (newParentPointer.isFile) {
+			throw new Error("Assertion failed, destination parent is a file.");
+		}
+		/** @type {MemoryStudioFileSystemPointer} */
+		let movingPointerClone;
+		if (movingPointer.isFile) {
+			movingPointerClone = {
+				isFile: true,
+				file: movingPointer.file,
+				name: newBasename,
+			};
+		} else {
+			movingPointerClone = {
+				isFile: false,
+				name: newBasename,
+				children: movingPointer.children,
+			};
+		}
+
+		// If the destination already exists, we need to overwrite it,
+		// so we remove the existing entry
+		const existingIndex = newParentPointer.children.findIndex(child => child.name == newBasename);
+		if (existingIndex >= 0) {
+			newParentPointer.children.splice(existingIndex, 1);
+		}
+
+		newParentPointer.children.push(movingPointerClone);
+		this.fireChange({
+			external: false,
+			kind: "file",
+			path: toPath,
+			type: "created",
+		});
+
+		oldParentPointer.children.splice(index, 1);
+		this.fireChange({
+			external: false,
+			kind: "unknown",
+			path: fromPath,
+			type: "deleted",
+		});
+	}
+
+	/**
+	 * @override
 	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<File>}
 	 */
