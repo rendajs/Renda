@@ -5,7 +5,6 @@ import {testAll} from "../shared.js";
 
 testAll({
 	name: "move() rename a file",
-	ignore: ["memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -52,7 +51,6 @@ testAll({
 
 testAll({
 	name: "move() a file",
-	ignore: ["memory", "remote", "serialized-remote"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -103,7 +101,7 @@ testAll({
 
 testAll({
 	name: "move() rename a directory with files",
-	ignore: ["memory", "fsa", "remote", "serialized-remote"],
+	ignore: ["fsa"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -143,7 +141,7 @@ testAll({
 
 testAll({
 	name: "move() rename a directory with dirs",
-	ignore: ["memory", "fsa", "remote", "serialized-remote"],
+	ignore: ["fsa"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -160,7 +158,7 @@ testAll({
 
 testAll({
 	name: "move() a directory with files",
-	ignore: ["memory", "fsa", "remote", "serialized-remote"],
+	ignore: ["fsa"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -177,7 +175,7 @@ testAll({
 
 testAll({
 	name: "move() a directory with dirs",
-	ignore: ["memory", "fsa", "remote", "serialized-remote"],
+	ignore: ["fsa"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -194,7 +192,7 @@ testAll({
 
 testAll({
 	name: "move() should throw when the from path doesn't exist",
-	ignore: ["memory", "fsa", "remote", "serialized-remote"],
+	ignore: ["fsa"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -212,7 +210,7 @@ testAll({
 
 testAll({
 	name: "move() should throw when overwriting an existing file",
-	ignore: ["memory", "fsa", "remote", "serialized-remote"],
+	ignore: ["fsa"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -224,7 +222,7 @@ testAll({
 
 testAll({
 	name: "move() should throw when overwriting an existing directory",
-	ignore: ["memory", "fsa", "remote", "serialized-remote"],
+	ignore: ["fsa"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -239,7 +237,7 @@ testAll({
 
 testAll({
 	name: "move() should not throw when overwriting an existing directory if it's empty",
-	ignore: ["memory", "fsa", "remote", "serialized-remote"],
+	ignore: ["fsa"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

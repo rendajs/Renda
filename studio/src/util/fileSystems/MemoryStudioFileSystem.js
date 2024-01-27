@@ -66,8 +66,8 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 				} else if (type == "type-mismatch") {
 					ending = `, "${failurePathStr}" is not a directory.`;
 				}
-				const atText = pathStr == failurePathStr ? "" : ` at "${pathStr}"`;
-				throw new Error(`Couldn't ${errorMessageActionName}${atText}${ending}`);
+				const atText = pathStr == failurePathStr ? "" : ` "${pathStr}"`;
+				throw new Error(`Failed to ${errorMessageActionName}${atText}${ending}`);
 			}
 			if (currentObject.isFile) {
 				throwError("type-mismatch");
@@ -118,11 +118,11 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 		const files = [];
 		const directories = [];
 		const {pointer} = this.getObjectPointer(path, {
-			errorMessageActionName: "readDir",
+			errorMessageActionName: "read",
 		});
 		if (pointer.isFile) {
 			const pathStr = path.join("/");
-			throw new Error(`Couldn't readDir, "${pathStr}" is not a directory.`);
+			throw new Error(`Failed to read, "${pathStr}" is not a directory.`);
 		}
 		for (const child of pointer.children) {
 			if (child.isFile) {
@@ -149,15 +149,105 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @override
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} fromPath
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} toPath
+	 */
+	async move(fromPath = [], toPath = []) {
+		/** @returns {never} */
+		function notFoundError() {
+			throw new Error(`Failed to move: The file or directory at "${fromPath.join("/")}" does not exist.`);
+		}
+
+		const oldParentPath = fromPath.slice(0, -1);
+		const newParentPath = toPath.slice(0, -1);
+
+		const oldBasename = fromPath.at(-1);
+		if (!oldBasename) notFoundError();
+		const newBasename = toPath.at(-1);
+		if (!newBasename) {
+			throw new Error("Assertion failed, newBasename doesn't exist.");
+		}
+
+		const {pointer: oldParentPointer} = this.getObjectPointer(oldParentPath, {
+			errorMessageActionName: "delete",
+		});
+		if (oldParentPointer.isFile) notFoundError();
+		const index = oldParentPointer.children.findIndex(child => child.name == oldBasename);
+		if (index == -1) notFoundError();
+		const movingPointer = oldParentPointer.children[index];
+
+		let existingPointer;
+		try {
+			existingPointer = this.getObjectPointer(toPath);
+		} catch {
+			// If there is no existing pointer yet, we can continue with the move
+		}
+		if (existingPointer) {
+			if (existingPointer.pointer.isFile) {
+				throw new Error(`Failed to move: "${toPath.join("/")}" is a file.`);
+			} else if (existingPointer.pointer.children.length > 0) {
+				throw new Error(`Failed to move: "${toPath.join("/")}" is a non-empty directory.`);
+			}
+		}
+
+		const {pointer: newParentPointer} = this.getObjectPointer(newParentPath, {
+			create: true,
+			createType: movingPointer.isFile ? "file" : "dir",
+		});
+		if (newParentPointer.isFile) {
+			throw new Error("Assertion failed, destination parent is a file.");
+		}
+		/** @type {MemoryStudioFileSystemPointer} */
+		let movingPointerClone;
+		if (movingPointer.isFile) {
+			movingPointerClone = {
+				isFile: true,
+				file: movingPointer.file,
+				name: newBasename,
+			};
+		} else {
+			movingPointerClone = {
+				isFile: false,
+				name: newBasename,
+				children: movingPointer.children,
+			};
+		}
+
+		// If the destination already exists, we need to overwrite it,
+		// so we remove the existing entry
+		const existingIndex = newParentPointer.children.findIndex(child => child.name == newBasename);
+		if (existingIndex >= 0) {
+			newParentPointer.children.splice(existingIndex, 1);
+		}
+
+		newParentPointer.children.push(movingPointerClone);
+		this.fireChange({
+			external: false,
+			kind: "file",
+			path: toPath,
+			type: "created",
+		});
+
+		oldParentPointer.children.splice(index, 1);
+		this.fireChange({
+			external: false,
+			kind: "unknown",
+			path: fromPath,
+			type: "deleted",
+		});
+	}
+
+	/**
+	 * @override
 	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path) {
 		const {pointer} = this.getObjectPointer(path, {
-			errorMessageActionName: "readFile",
+			errorMessageActionName: "read",
 		});
 		if (!pointer.isFile) {
-			throw new Error(`Couldn't readFile, "${path.join("/")}" is not a file.`);
+			throw new Error(`Failed to read, "${path.join("/")}" is not a file.`);
 		}
 		return pointer.file;
 	}
@@ -172,11 +262,11 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 		const {pointer, created} = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
-			errorMessageActionName: "writeFile",
+			errorMessageActionName: "write",
 		});
 		if (!pointer.isFile) {
 			const pathStr = path.join("/");
-			throw new Error(`Couldn't writeFile, "${pathStr}" is not a file.`);
+			throw new Error(`Failed to write, "${pathStr}" is not a file.`);
 		}
 		pointer.file = new File([file], pointer.name);
 
@@ -200,11 +290,11 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 		const {pointer} = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
-			errorMessageActionName: "writeFileStream",
+			errorMessageActionName: "write",
 		});
 		if (!pointer.isFile) {
 			const pathStr = path.join("/");
-			throw new Error(`Couldn't writeFileStream, "${pathStr}" is not a file.`);
+			throw new Error(`Failed to write, "${pathStr}" is not a file.`);
 		}
 		if (!keepExistingData) {
 			pointer.file = new File([], pointer.name);
@@ -229,7 +319,9 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 			const {pointer} = this.getObjectPointer(path, {
 				errorMessageActionName: "delete",
 			});
-			if (!pointer.isFile) notFoundError();
+			if (!pointer.isFile) {
+				throw new Error(`Failed to delete "${path.join("/")}" because it is a non-empty directory. Use recursive = true to delete non-empty directories.`);
+			}
 		}
 
 		const parentPath = path.slice(0, -1);

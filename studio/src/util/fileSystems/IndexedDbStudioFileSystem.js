@@ -290,8 +290,8 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		for (const [i, dir] of path.entries()) {
 			let foundAny = false;
 			const failurePathStr = path.slice(0, i).join("/");
-			const atText = pathStr == failurePathStr ? "" : ` at "${pathStr}"`;
-			this.assertIsDir(obj, `Couldn't ${errorMessageActionName}${atText}, "${failurePathStr}" is not a directory.`);
+			const atText = pathStr == failurePathStr ? "" : ` "${pathStr}"`;
+			this.assertIsDir(obj, `Failed to ${errorMessageActionName}${atText}, "${failurePathStr}" is not a directory.`);
 			for (const filePointer of obj.files) {
 				const fileObj = await this.getObject(filePointer);
 				if (fileObj.fileName == dir) {
@@ -303,8 +303,8 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 			}
 			if (!foundAny) {
 				const failurePathStr = path.slice(0, i + 1).join("/");
-				const atText = pathStr == failurePathStr ? "" : ` at "${pathStr}"`;
-				throw new Error(`Couldn't ${errorMessageActionName}${atText}, "${failurePathStr}" does not exist.`);
+				const atText = pathStr == failurePathStr ? "" : ` "${pathStr}"`;
+				throw new Error(`Failed to ${errorMessageActionName}${atText}, "${failurePathStr}" does not exist.`);
 			}
 		}
 		return {pointer, obj};
@@ -384,8 +384,8 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		const assertionPath = path.slice(0, travelledData.length - 1);
 		const errorMessagePathStr = errorMessagePath.join("/");
 		const assertionPathStr = assertionPath.join("/");
-		const atText = errorMessagePathStr == assertionPathStr ? "" : ` at "${errorMessagePathStr}"`;
-		this.assertIsDir(lastFoundObject, `Couldn't ${errorMessageActionName}${atText}, "${assertionPath.join("/")}" is not a directory.`);
+		const atText = errorMessagePathStr == assertionPathStr ? "" : ` "${errorMessagePathStr}"`;
+		this.assertIsDir(lastFoundObject, `Failed to ${errorMessageActionName}${atText}, "${assertionPath.join("/")}" is not a directory.`);
 		if (!lastCreatedPointer) {
 			throw new Error("Failed to get file pointer");
 			// This should never be called because we already checked if the
@@ -457,9 +457,9 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		const {unlock} = await this.#getSystemLock();
 		try {
 			const {obj} = await this.getObjectFromPath(path, {
-				errorMessageActionName: "readDir",
+				errorMessageActionName: "read",
 			});
-			this.assertIsDir(obj, `Couldn't readDir, "${path.join("/")}" is not a directory.`);
+			this.assertIsDir(obj, `Failed to read, "${path.join("/")}" is not a directory.`);
 			const {files, directories} = await this.readDirObject(obj);
 			return {
 				files: Array.from(files.keys()),
@@ -631,7 +631,13 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		}
 		const travelledData = await this.findDeepestExisting(path);
 		if (travelledData.length - 1 != path.length) {
-			throw new Error(`Failed to delete "${path.join("/")}" because it does not exist.`);
+			const fullPath = path.join("/");
+			const failurePathStr = path.slice(0, travelledData.length).join("/");
+			if (fullPath == failurePathStr) {
+				throw new Error(`Failed to delete, "${fullPath}" does not exist.`);
+			} else {
+				throw new Error(`Failed to delete "${path.join("/")}", "${failurePathStr}" does not exist.`);
+			}
 		}
 		const lastTravelledItem = travelledData.at(-1);
 		if (!lastTravelledItem) {
@@ -674,6 +680,17 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		const writeOp = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 		try {
+			let existingObject = null;
+			try {
+				existingObject = await this.getObjectFromPath(path);
+			} catch {
+				// The existing object either already is a file, or it doesn't exist.
+				// Since we only need to check if the existing object is a directory, we won't throw here.
+			}
+			if (existingObject && existingObject.obj.isDir) {
+				throw new Error(`Failed to write, "${path.join("/")}" is not a file.`);
+			}
+
 			if (!file) file = new Blob();
 			const fileName = path[path.length - 1];
 			let type = "";
@@ -686,11 +703,11 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 			const newParentPath = path.slice(0, path.length - 1);
 			const newParentTravelledData = await this.createDirInternal(newParentPath, {
 				errorMessagePath: path,
-				errorMessageActionName: "writeFile",
+				errorMessageActionName: "write",
 			});
 			const newFileName = path[path.length - 1];
 			const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
-			this.assertIsDir(newParentObj.obj, `Couldn't writeFile at "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
+			this.assertIsDir(newParentObj.obj, `Failed to write "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
 
 			const newPointer = await this.createObject({
 				isFile: true,
@@ -737,11 +754,11 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		const {unlock} = await this.#getSystemLock();
 		try {
 			const {obj} = await this.getObjectFromPath(path, {
-				errorMessageActionName: "readFile",
+				errorMessageActionName: "read",
 			});
 			if (!obj.isFile) {
 				const pathStr = path.join("/");
-				throw new Error(`Couldn't readFile, "${pathStr}" is not a file.`);
+				throw new Error(`Failed to read, "${pathStr}" is not a file.`);
 			}
 			return obj.file;
 		} finally {

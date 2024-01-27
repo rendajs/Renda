@@ -64,7 +64,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.readDir(["root", "file1"]);
-		}, Error, `Couldn't readDir, "root/file1" is not a directory.`);
+		}, Error, `Failed to read, "root/file1" is not a directory.`);
 	},
 });
 
@@ -75,7 +75,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.readDir(["root", "file1", "file2"]);
-		}, Error, `Couldn't readDir at "root/file1/file2", "root/file1" is not a directory.`);
+		}, Error, `Failed to read "root/file1/file2", "root/file1" is not a directory.`);
 	},
 });
 
@@ -86,7 +86,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.readDir(["root", "nonExistent", "nonExistent"]);
-		}, Error, `Couldn't readDir at "root/nonExistent/nonExistent", "root/nonExistent" does not exist.`);
+		}, Error, `Failed to read "root/nonExistent/nonExistent", "root/nonExistent" does not exist.`);
 	},
 });
 

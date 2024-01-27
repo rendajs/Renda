@@ -96,6 +96,6 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.createDir(["root", "file1", "dir"]);
-		}, Error, `Couldn't createDir at "root/file1/dir", "root/file1" is not a directory.`);
+		}, Error, `Failed to createDir "root/file1/dir", "root/file1" is not a directory.`);
 	},
 });

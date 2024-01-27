@@ -36,7 +36,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.writeFileStream(["root", "onlydirs"]);
-		}, Error, `Couldn't writeFileStream, "root/onlydirs" is not a file.`);
+		}, Error, `Failed to write, "root/onlydirs" is not a file.`);
 	},
 });
 
@@ -48,6 +48,6 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.writeFileStream(["root", "file1", "newfile"]);
-		}, Error, `Couldn't writeFileStream at "root/file1/newfile", "root/file1" is not a directory.`);
+		}, Error, `Failed to write "root/file1/newfile", "root/file1" is not a directory.`);
 	},
 });

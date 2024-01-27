@@ -63,6 +63,18 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @override
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} fromPath
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} toPath
+	 */
+	async move(fromPath = [], toPath = []) {
+		fromPath = [...fromPath];
+		toPath = [...toPath];
+		const connection = await this.#waitForConnection();
+		return await connection.messenger.send["fileSystem.move"](fromPath, toPath);
+	}
+
+	/**
+	 * @override
 	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<File>}
 	 */
@@ -114,5 +126,16 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 		path = [...path];
 		const connection = await this.#waitForConnection();
 		return await connection.messenger.send["fileSystem.writeFile"](path, file);
+	}
+
+	/**
+	 * @override
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path The file or directory to delete.
+	 * @param {boolean} recursive Whether to delete all subdirectories and files.
+	 */
+	async delete(path, recursive = false) {
+		path = [...path];
+		const connection = await this.#waitForConnection();
+		return await connection.messenger.send["fileSystem.delete"](path, recursive);
 	}
 }

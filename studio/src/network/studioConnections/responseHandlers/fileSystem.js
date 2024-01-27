@@ -18,6 +18,13 @@ export function createFileSystemHostHandlers(fileSystem) {
 			return await fileSystem.createDir(path);
 		},
 		/**
+		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} fromPath
+		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} toPath
+		 */
+		"fileSystem.move": async (fromPath, toPath) => {
+			return await fileSystem.move(fromPath, toPath);
+		},
+		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
 		"fileSystem.readFile": async path => {
@@ -29,6 +36,13 @@ export function createFileSystemHostHandlers(fileSystem) {
 		 */
 		"fileSystem.writeFile": async (path, file) => {
 			return await fileSystem.writeFile(path, file);
+		},
+		/**
+		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
+		 * @param {boolean} recursive
+		 */
+		"fileSystem.delete": async (path, recursive) => {
+			return await fileSystem.delete(path, recursive);
 		},
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path

@@ -211,8 +211,8 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 						}
 					}
 
-					const atText = pathStr == failurePathStr ? "" : ` at "${pathStr}"`;
-					const message = `Couldn't ${errorMessageActionName}${atText}${end}`;
+					const atText = pathStr == failurePathStr ? "" : ` "${pathStr}"`;
+					const message = `Failed to ${errorMessageActionName}${atText}${end}`;
 					throw new Error(message, {cause: error});
 				} else {
 					throw error;
@@ -289,7 +289,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 						end = `, "${pathStr}" does not exist.`;
 					}
 				}
-				const message = `Couldn't ${errorMessageActionName}${end}`;
+				const message = `Failed to ${errorMessageActionName}${end}`;
 				throw new Error(message, {cause: error});
 			} else {
 				throw error;
@@ -304,7 +304,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 */
 	async readDir(path) {
 		const handle = await this.getDirHandle(path, {
-			errorMessageActionName: "readDir",
+			errorMessageActionName: "read",
 		});
 		/** @type {import("./StudioFileSystem.js").StudioFileSystemReadDirResult} */
 		const result = {
@@ -410,7 +410,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 		let catchedError;
 		try {
 			const {fileHandle} = await this.getFileHandle(path, {
-				errorMessageActionName: "readFile",
+				errorMessageActionName: "read",
 			});
 			await this.verifyHandlePermission(fileHandle, {writable: false});
 			fileContent = await fileHandle.getFile();
@@ -442,7 +442,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 */
 	async writeFile(path, file) {
 		path = [...path];
-		const {fileStream, created} = await this.#writeFileStreamInternal(path, false, "writeFile");
+		const {fileStream, created} = await this.#writeFileStreamInternal(path, false, "write");
 		if (fileStream.locked) {
 			throw new Error("File is locked, writing after lock is not yet implemented");
 		}
@@ -463,7 +463,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async writeFileStream(path, keepExistingData = false) {
-		const {fileStream} = await this.#writeFileStreamInternal(path, keepExistingData, "writeFileStream");
+		const {fileStream} = await this.#writeFileStreamInternal(path, keepExistingData, "write");
 		return fileStream;
 	}
 

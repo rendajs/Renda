@@ -31,9 +31,9 @@ async function basicWriteFileTest(fs, fileParam, expectedBytes) {
 
 testAll({
 	name: "writing a File object",
-	ignore: ["indexedDb"],
 	async fn(ctx) {
-		const fs = await ctx.createFs();
+		// https://github.com/denoland/deno/issues/12067
+		const fs = await ctx.createFs({disableStructuredClone: true});
 		const file = new File([new Uint8Array([1, 2, 3, 4])], "newfile");
 		await basicWriteFileTest(fs, file, [1, 2, 3, 4]);
 	},
@@ -41,9 +41,9 @@ testAll({
 
 testAll({
 	name: "writing an ArrayBuffer",
-	ignore: ["indexedDb"],
 	async fn(ctx) {
-		const fs = await ctx.createFs();
+		// https://github.com/denoland/deno/issues/12067
+		const fs = await ctx.createFs({disableStructuredClone: true});
 		const buffer = new Uint8Array([1, 2, 3, 4]).buffer;
 		await basicWriteFileTest(fs, buffer, [1, 2, 3, 4]);
 	},
@@ -51,9 +51,9 @@ testAll({
 
 testAll({
 	name: "writing an Uint8Array",
-	ignore: ["indexedDb", "fsa"],
 	async fn(ctx) {
-		const fs = await ctx.createFs();
+		// https://github.com/denoland/deno/issues/12067
+		const fs = await ctx.createFs({disableStructuredClone: true});
 		const uint8Array = new Uint8Array([1, 2, 3, 4]);
 		await basicWriteFileTest(fs, uint8Array, [1, 2, 3, 4]);
 	},
@@ -61,9 +61,9 @@ testAll({
 
 testAll({
 	name: "writing a Blob",
-	ignore: ["indexedDb"],
 	async fn(ctx) {
-		const fs = await ctx.createFs();
+		// https://github.com/denoland/deno/issues/12067
+		const fs = await ctx.createFs({disableStructuredClone: true});
 		const file = new Blob([new Uint8Array([1, 2, 3, 4])]);
 		await basicWriteFileTest(fs, file, [1, 2, 3, 4]);
 	},
@@ -71,9 +71,9 @@ testAll({
 
 testAll({
 	name: "writing a string",
-	ignore: ["indexedDb"],
 	async fn(ctx) {
-		const fs = await ctx.createFs();
+		// https://github.com/denoland/deno/issues/12067
+		const fs = await ctx.createFs({disableStructuredClone: true});
 		await basicWriteFileTest(fs, "hello", [104, 101, 108, 108, 111]);
 	},
 });
@@ -186,13 +186,12 @@ testAll({
 
 testAll({
 	name: "writeFile should error when the target is a directory",
-	ignore: ["indexedDb"],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.writeFile(["root", "onlydirs"], "hello world");
-		}, Error, `Couldn't writeFile, "root/onlydirs" is not a file.`);
+		}, Error, `Failed to write, "root/onlydirs" is not a file.`);
 	},
 });
 
@@ -203,7 +202,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.writeFile(["root", "file1", "newfile"], "hello world");
-		}, Error, `Couldn't writeFile at "root/file1/newfile", "root/file1" is not a directory.`);
+		}, Error, `Failed to write "root/file1/newfile", "root/file1" is not a directory.`);
 	},
 });
 
@@ -214,7 +213,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.writeFile(["root", "file1", "anotherdir", "newfile"], "hello world");
-		}, Error, `Couldn't writeFile at "root/file1/anotherdir/newfile", "root/file1" is not a directory.`);
+		}, Error, `Failed to write "root/file1/anotherdir/newfile", "root/file1" is not a directory.`);
 	},
 });
 

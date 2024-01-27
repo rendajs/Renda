@@ -21,7 +21,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.readFile(["root", "nonExistent"]);
-		}, Error, `Couldn't readFile, "root/nonExistent" does not exist.`);
+		}, Error, `Failed to read, "root/nonExistent" does not exist.`);
 	},
 });
 
@@ -32,7 +32,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.readFile(["root", "nonExistent", "nonExistent"]);
-		}, Error, `Couldn't readFile at "root/nonExistent/nonExistent", "root/nonExistent" does not exist.`);
+		}, Error, `Failed to read "root/nonExistent/nonExistent", "root/nonExistent" does not exist.`);
 	},
 });
 
@@ -43,7 +43,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.readFile(["root", "file1", "nonExistent"]);
-		}, Error, `Couldn't readFile at "root/file1/nonExistent", "root/file1" is not a directory.`);
+		}, Error, `Failed to read "root/file1/nonExistent", "root/file1" is not a directory.`);
 	},
 });
 
@@ -89,8 +89,8 @@ testAll({
 
 		assertNotEquals(error1, null);
 		assertNotEquals(error2, null);
-		assertIsError(error1, Error, `Couldn't readFile, "root/nonExistent" does not exist.`);
-		assertIsError(error2, Error, `Couldn't readFile, "root/nonExistent" does not exist.`);
+		assertIsError(error1, Error, `Failed to read, "root/nonExistent" does not exist.`);
+		assertIsError(error2, Error, `Failed to read, "root/nonExistent" does not exist.`);
 	},
 });
 
@@ -101,7 +101,7 @@ testAll({
 
 		await assertRejects(async () => {
 			await fs.readFile(["root", "onlydirs"]);
-		}, Error, `Couldn't readFile, "root/onlydirs" is not a file.`);
+		}, Error, `Failed to read, "root/onlydirs" is not a file.`);
 	},
 });
 
