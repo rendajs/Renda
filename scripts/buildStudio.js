@@ -224,6 +224,7 @@ for await (const entry of walk(outputPath)) {
 const serviceWorkerEntryPoint = path.resolve(outputPath, getEntryPoint(SERVICE_WORKER_ENTRY_POINT_PATH));
 let serviceWorkerContent = await Deno.readTextFile(serviceWorkerEntryPoint);
 serviceWorkerContent = serviceWorkerContent.replace("/* GENERATED_FILES_INSERTION_TAG */", `"${swCacheFiles.join(`", "`)}",`);
+serviceWorkerContent = serviceWorkerContent.replace('/* GIT_COMMIT_INSERTION_TAG */""', `"${gitCommit}"`)
 await Deno.writeTextFile(serviceWorkerEntryPoint, serviceWorkerContent);
 
 // Minify all JavaScript files

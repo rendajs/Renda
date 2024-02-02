@@ -8,18 +8,43 @@ const swSelf = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (
  */
 const installCachePaths = [/* GENERATED_FILES_INSERTION_TAG */];
 
-const CLIENT_CACHE_KEY = "rendaStudio";
+const gitCommit = /* GIT_COMMIT_INSERTION_TAG */"";
+
+/** If we are in a development 'build', we don't want to cache anything. */
+const cacheEnabled = Boolean(gitCommit);
+
+const CLIENT_CACHE_PREFIX = "rendaStudio-static-"
+const CLIENT_CACHE_KEY = CLIENT_CACHE_PREFIX + gitCommit;
 async function openCache() {
 	return await caches.open(CLIENT_CACHE_KEY);
 }
 
 swSelf.addEventListener("install", e => {
-	e.waitUntil((async () => {
-		const cache = await openCache();
-		await cache.addAll(installCachePaths);
-	})());
+	console.log("install");
+	if (cacheEnabled) {
+		e.waitUntil((async () => {
+			const cache = await openCache();
+			await cache.addAll(installCachePaths);
+		})());
+	}
 });
-self.addEventListener("activate", e => {
+swSelf.addEventListener("activate", e => {
+	e.waitUntil((async () => {
+		// Delete old caches
+		const promises = [];
+		for (const key of await caches.keys()) {
+			let deleteCache = false;
+			if (key == "swCache") {
+				deleteCache = true;
+			} else if (key.startsWith(CLIENT_CACHE_PREFIX) && key != CLIENT_CACHE_KEY) {
+				deleteCache = true;
+			}
+			if (deleteCache) {
+				promises.push(caches.delete(key));
+			}
+		}
+		await Promise.all(promises);
+	})());
 });
 
 /**
@@ -130,7 +155,7 @@ swSelf.addEventListener("fetch", e => {
 				const clientPath = clientsPathname.slice(slashIndex + 1);
 				e.respondWith(getClientResponse(clientId, clientPath, url));
 			}
-		} else {
+		} else if (cacheEnabled) {
 			e.respondWith((async () => {
 				const cache = await openCache();
 				const cacheResponse = await cache.match(e.request);
