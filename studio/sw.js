@@ -1,9 +1,26 @@
 import {TypedMessenger} from "../src/util/TypedMessenger/TypedMessenger.js";
 
-const castSelf = /** @type {unknown} */ (self);
-const swSelf = /** @type {ServiceWorkerGlobalScope} */ (castSelf);
+const swSelf = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
 
-self.addEventListener("install", e => {
+/**
+ * Paths that will be fetched and cached when installing the service worker.
+ */
+const installCachePaths = [
+	"./",
+	"./internalDiscovery",
+	/* GENERATED_FILES_INSERTION_TAG */
+];
+
+const CLIENT_CACHE_KEY = "rendaStudio";
+async function openCache() {
+	return await caches.open(CLIENT_CACHE_KEY);
+}
+
+swSelf.addEventListener("install", e => {
+	e.waitUntil((async () => {
+		const cache = await openCache();
+		await cache.addAll(installCachePaths);
+	})());
 });
 self.addEventListener("activate", e => {
 });
@@ -116,6 +133,14 @@ swSelf.addEventListener("fetch", e => {
 				const clientPath = clientsPathname.slice(slashIndex + 1);
 				e.respondWith(getClientResponse(clientId, clientPath, url));
 			}
+		} else {
+			e.respondWith((async () => {
+				const cache = await openCache();
+				const cacheResponse = await cache.match(e.request);
+				if (cacheResponse) return cacheResponse;
+
+				return await fetch(e.request);
+			})());
 		}
 	}
 });
