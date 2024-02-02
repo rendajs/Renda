@@ -159,7 +159,6 @@ const bundle = await rollup({
 	plugins: [
 		overrideDefines("/studio/src/studioDefines.js", studioDefines),
 		resolveUrlObjects(),
-		// terser(),
 		rebaseCssUrl({
 			outputPath,
 		}),
