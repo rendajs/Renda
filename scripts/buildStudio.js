@@ -79,24 +79,6 @@ function overrideDefines(definesFilePath, defines) {
 }
 
 /**
- * A rollup plugin for minifying builds.
- * @param {import("terser").MinifyOptions} minifyOptions
- * @returns {import("rollup").Plugin}
- */
-function terser(minifyOptions = {}) {
-	return {
-		name: "terser",
-		async renderChunk(code, chunk, outputOptions) {
-			const output = await minify(code, minifyOptions);
-			if (!output.code) return null;
-			return {
-				code: output.code,
-			};
-		},
-	};
-}
-
-/**
  * A rollup plugin for remapping url() paths in css files.
  * @param {object} options
  * @param {string} options.outputPath The path where the Javascript files are
@@ -198,6 +180,8 @@ const {output} = await bundle.write({
 
 /** @type {Map<string, string>} */
 const entryPointPaths = new Map();
+/** @type {string[]} */
+const createdChunkFiles = [];
 for (const chunkOrAsset of output) {
 	if (chunkOrAsset.type != "chunk") {
 		throw new Error("Assertion failed, unexpected type: " + chunkOrAsset.type);
@@ -205,6 +189,7 @@ for (const chunkOrAsset of output) {
 	if (chunkOrAsset.facadeModuleId) {
 		entryPointPaths.set(chunkOrAsset.facadeModuleId, chunkOrAsset.fileName);
 	}
+	createdChunkFiles.push(chunkOrAsset.fileName);
 }
 
 /**
@@ -238,3 +223,14 @@ const serviceWorkerEntryPoint = path.resolve(outputPath, getEntryPoint(SERVICE_W
 let serviceWorkerContent = await Deno.readTextFile(serviceWorkerEntryPoint);
 serviceWorkerContent = serviceWorkerContent.replace("/* GENERATED_FILES_INSERTION_TAG */", `"${swCacheFiles.join(`", "`)}",`);
 await Deno.writeTextFile(serviceWorkerEntryPoint, serviceWorkerContent);
+
+// Minify all JavaScript files
+for (const chunk of createdChunkFiles) {
+	const chunkPath = path.resolve(outputPath, chunk);
+	const fileContent = await Deno.readTextFile(chunkPath);
+	const output = await minify(fileContent);
+	if (!output.code) {
+		throw new Error(`Failed to minify "${chunkPath}"`);
+	}
+	await Deno.writeTextFile(chunkPath, output.code);
+}
