@@ -211,7 +211,10 @@ const internalDiscoveryEntryPoint = getEntryPoint(INTERNAL_DISCOVERY_ENTRY_POINT
 await setHtmlAttribute(path.resolve(outputPath, "internalDiscovery.html"), "discovery script tag", internalDiscoveryEntryPoint);
 
 // Insert all generated files into the service worker script
-const swCacheFiles = [];
+const swCacheFiles = [
+	"./",
+	"./internalDiscovery",
+];
 for await (const entry of walk(outputPath)) {
 	if (entry.name.endsWith(".html")) continue;
 	if (!entry.isFile) continue;

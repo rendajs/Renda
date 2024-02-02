@@ -4,12 +4,9 @@ const swSelf = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (
 
 /**
  * Paths that will be fetched and cached when installing the service worker.
+ * @type {string[]}
  */
-const installCachePaths = [
-	"./",
-	"./internalDiscovery",
-	/* GENERATED_FILES_INSERTION_TAG */
-];
+const installCachePaths = [/* GENERATED_FILES_INSERTION_TAG */];
 
 const CLIENT_CACHE_KEY = "rendaStudio";
 async function openCache() {
