@@ -211,6 +211,8 @@ const internalDiscoveryEntryPoint = getEntryPoint(INTERNAL_DISCOVERY_ENTRY_POINT
 await setHtmlAttribute(path.resolve(outputPath, "internalDiscovery.html"), "discovery script tag", internalDiscoveryEntryPoint);
 
 // Insert all generated files into the service worker script
+const serviceWorkerEntryPoint = getEntryPoint(SERVICE_WORKER_ENTRY_POINT_PATH);
+const fullServiceWorkerEntryPointPath = path.resolve(outputPath, serviceWorkerEntryPoint);
 const swCacheFiles = [
 	"./",
 	"./internalDiscovery",
@@ -218,22 +220,39 @@ const swCacheFiles = [
 for await (const entry of walk(outputPath)) {
 	if (entry.name.endsWith(".html")) continue;
 	if (!entry.isFile) continue;
+
+	// We should exclude the service worker from the list of files to cache,
+	// because we don't want the service worker to cache itself.
+	// Besides, later on we will rename this file back to 'sw.js'
+	if (entry.path == fullServiceWorkerEntryPointPath) continue;
+
 	const entryName = path.relative(outputPath, entry.path);
 	swCacheFiles.push("./" + entryName);
 }
-const serviceWorkerEntryPoint = path.resolve(outputPath, getEntryPoint(SERVICE_WORKER_ENTRY_POINT_PATH));
-let serviceWorkerContent = await Deno.readTextFile(serviceWorkerEntryPoint);
+
+let serviceWorkerContent = await Deno.readTextFile(fullServiceWorkerEntryPointPath);
 serviceWorkerContent = serviceWorkerContent.replace("/* GENERATED_FILES_INSERTION_TAG */", `"${swCacheFiles.join(`", "`)}",`);
 serviceWorkerContent = serviceWorkerContent.replace('/* GIT_COMMIT_INSERTION_TAG */""', `"${gitCommit}"`)
-await Deno.writeTextFile(serviceWorkerEntryPoint, serviceWorkerContent);
+await Deno.writeTextFile(fullServiceWorkerEntryPointPath, serviceWorkerContent);
 
 // Minify all JavaScript files
 for (const chunk of createdChunkFiles) {
 	const chunkPath = path.resolve(outputPath, chunk);
-	const fileContent = await Deno.readTextFile(chunkPath);
+	let fileContent = await Deno.readTextFile(chunkPath);
+
+	// We need to replace any occurrences of the service worker because we will be renaming it below
+	fileContent = fileContent.replaceAll(serviceWorkerEntryPoint, "sw.js");
+
 	const output = await minify(fileContent);
 	if (!output.code) {
 		throw new Error(`Failed to minify "${chunkPath}"`);
 	}
 	await Deno.writeTextFile(chunkPath, output.code);
 }
+
+// We rename the service worker file to always be 'sw.js'.
+// If we don't do this, the service worker will get a different name with different versions.
+// The browser will check the contents of the currently installed service worker to see if there are any updates.
+// If the file name is changed the browser will check an old service worker, resulting in a 404 response.
+// As a result, the service worker would never be updated and the user would stay stuck with a past version forever.
+await Deno.rename(fullServiceWorkerEntryPointPath, path.resolve(outputPath, "sw.js"));

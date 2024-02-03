@@ -20,7 +20,6 @@ async function openCache() {
 }
 
 swSelf.addEventListener("install", e => {
-	console.log("install");
 	if (cacheEnabled) {
 		e.waitUntil((async () => {
 			const cache = await openCache();
