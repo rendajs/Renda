@@ -2,8 +2,6 @@ import "./styles/projectSelectorStyles.js";
 import {getProjectSelectorInstance, initProjectSelector} from "./projectSelector/projectSelectorInstance.js";
 export {};
 
-console.log("test commit");
-
 initProjectSelector();
 const projectSelector = getProjectSelectorInstance();
 globalThis["projectSelector"] = projectSelector;
