@@ -13,7 +13,7 @@ const gitCommit = /* GIT_COMMIT_INSERTION_TAG */"";
 /** If we are in a development 'build', we don't want to cache anything. */
 const cacheEnabled = Boolean(gitCommit);
 
-const CLIENT_CACHE_PREFIX = "rendaStudio-static-"
+const CLIENT_CACHE_PREFIX = "rendaStudio-static-";
 const CLIENT_CACHE_KEY = CLIENT_CACHE_PREFIX + gitCommit;
 async function openCache() {
 	return await caches.open(CLIENT_CACHE_KEY);
