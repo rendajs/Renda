@@ -16,6 +16,7 @@
 .update-check-icon {
 	width: 20px;
 	height: 20px;
+	flex-shrink: 0;
 	background-image: url(../../../static/icons/circleCheck.svg);
 }
 
