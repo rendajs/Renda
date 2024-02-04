@@ -1,4 +1,18 @@
+.update-container {
+	background-color: var(--bg-color-level1);
+	color: var(--text-color-level1);
+	margin: 5px;
+	padding: 5px;
+	border-radius: var(--default-border-radius);
+	display: flex;
+	gap: 5px;
+}
+
+.update-container.center-button {
+	justify-content: center;
+}
+
 .about-container {
 	user-select: text;
-	margin: 0;
+	margin: 5px;
 }

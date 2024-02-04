@@ -3,17 +3,24 @@ import {licenses} from "../../misc/thirdPartyLicenses.js";
 import {Button} from "../../ui/Button.js";
 import {TreeView} from "../../ui/TreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
+import {getStudioInstance} from "../../studioInstance.js";
 
 export class ContentWindowAbout extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:about");
 	static contentWindowUiName = "About";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/about.svg";
 
+	#updateEl;
+
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
 	 */
 	constructor(...args) {
 		super(...args);
+
+		this.#updateEl = document.createElement("div");
+		this.#updateEl.classList.add("update-container");
+		this.contentEl.appendChild(this.#updateEl);
 
 		const aboutEl = document.createElement("p");
 		aboutEl.classList.add("about-container");
@@ -93,6 +100,51 @@ export class ContentWindowAbout extends ContentWindow {
 				},
 			});
 			licenseTreeView.addButton(licenseButton);
+		}
+
+		getStudioInstance().serviceWorkerManager.onInstallingStateChange(this.#updateUpdateState);
+		getStudioInstance().serviceWorkerManager.onOpenTabCountChange(this.#updateUpdateState);
+
+		this.#updateUpdateState();
+	}
+
+	destructor() {
+		super.destructor();
+		getStudioInstance().serviceWorkerManager.removeOnInstallingStateChange(this.#updateUpdateState);
+		getStudioInstance().serviceWorkerManager.removeOnOpenTabCountChange(this.#updateUpdateState);
+	}
+
+	#updateUpdateState = () => {
+		const state = getStudioInstance().serviceWorkerManager.installingState;
+		this.#updateEl.classList.toggle("center-button", state == "idle");
+		if (state == "up-to-date") {
+			this.#updateEl.innerText = "Renda Studio is up to date!";
+		} else if (state == "checking-for-updates") {
+			this.#updateEl.innerText = "Checking for updates...";
+		} else if (state == "installing") {
+			this.#updateEl.innerText = "Installing update...";
+		} else if (state == "waiting-for-restart") {
+			const tabCount = getStudioInstance().serviceWorkerManager.openTabCount;
+			this.#updateEl.innerText = "Almost up to date!";
+			const buttonText = tabCount > 1 ? `Reload ${tabCount} Tabs` : "Restart"
+			const button = new Button({
+				text: buttonText,
+				onClick() {
+					getStudioInstance().serviceWorkerManager.restartClients();
+				}
+			});
+			this.#updateEl.appendChild(button.el);
+		} else if (state == "restarting") {
+			this.#updateEl.innerText = "Restarting...";
+		} else if (state == "idle") {
+			this.#updateEl.innerText = "";
+			const button = new Button({
+				text: "Check for Updates",
+				onClick() {
+					getStudioInstance().serviceWorkerManager.checkForUpdates();
+				}
+			});
+			this.#updateEl.appendChild(button.el);
 		}
 	}
 }

@@ -51,8 +51,18 @@ swSelf.addEventListener("activate", e => {
  */
 function getMessageHandlers(client) {
 	return {
+		registerClient() {
+			updateOpenTabCount();
+		},
+		unregisterClient() {
+			typedMessengers.delete(client.id);
+			updateOpenTabCount();
+		},
 		requestClientId() {
 			return client.id;
+		},
+		async skipWaiting() {
+			await swSelf.skipWaiting();
 		},
 	};
 }
@@ -62,6 +72,7 @@ function getMessageHandlers(client) {
 
 /** @type {Map<string, TypedMessengerWithTypes>} */
 const typedMessengers = new Map();
+
 /**
  * @param {Client} client
  */
@@ -79,15 +90,27 @@ function getTypedMessenger(client) {
 	return messenger;
 }
 
-// Remove old typed messengers
+// Remove old typed messengers in case they something went wrong and they didn't unregister themselves.
 setInterval(async () => {
+	let deletedAny = false;
 	for (const id of typedMessengers.keys()) {
 		const client = await swSelf.clients.get(id);
 		if (!client) {
 			typedMessengers.delete(id);
+			deletedAny = true;
 		}
 	}
+	if (deletedAny) {
+		updateOpenTabCount();
+	}
 }, 120_000);
+
+function updateOpenTabCount() {
+	const openTabCount = typedMessengers.size;
+	for (const messenger of typedMessengers.values()) {
+		messenger.send.openTabCountChanged(openTabCount);
+	}
+}
 
 swSelf.addEventListener("message", e => {
 	if (e.source instanceof Client) {
