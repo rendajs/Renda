@@ -1,9 +1,16 @@
 import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
 import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
+import {createSpinner} from "../ui/spinner.js";
 import {IndexedDbStudioFileSystem} from "../util/fileSystems/IndexedDbStudioFileSystem.js";
 
 export class ProjectSelector {
 	/** @typedef {import("./ProjectManager.js").StoredProjectEntryAny} StoredProjectEntryAny */
+
+	#versionEl;
+	/** @type {HTMLDivElement?} */
+	#updateSpinnerEl = null;
+	/** @type {HTMLButtonElement?} */
+	#updateButtonEl = null;
 
 	constructor() {
 		this.visible = true;
@@ -16,24 +23,29 @@ export class ProjectSelector {
 		this.curtainEl = document.createElement("div");
 		this.curtainEl.classList.add("project-selector-curtain");
 		this.curtainEl.addEventListener("click", () => this.setVisibility(false));
-		document.body.appendChild(this.curtainEl);
+		document.body.append(this.curtainEl);
 
 		this.el = document.createElement("div");
 		this.el.classList.add("project-selector-window");
-		document.body.appendChild(this.el);
+		document.body.append(this.el);
 
 		const headerEl = document.createElement("div");
 		headerEl.classList.add("project-selector-header");
-		this.el.appendChild(headerEl);
+		this.el.append(headerEl);
 
 		const logoEl = document.createElement("div");
 		logoEl.classList.add("project-selector-logo");
-		headerEl.appendChild(logoEl);
+		headerEl.append(logoEl);
 
 		const titleEl = document.createElement("h1");
 		titleEl.classList.add("project-selector-title");
 		titleEl.textContent = "Renda";
-		headerEl.appendChild(titleEl);
+		headerEl.append(titleEl);
+
+		this.#versionEl = document.createElement("div");
+		this.#versionEl.classList.add("version");
+		this.#versionEl.textContent = "v0.1.0";
+		headerEl.append(this.#versionEl);
 
 		this.actionsListEl = this.createList("actions", "Start");
 		this.recentListEl = this.createList("recent", "Recent");
@@ -285,6 +297,36 @@ export class ProjectSelector {
 		studio.projectManager.onProjectOpenEntryChange(entry => {
 			if (entry) {
 				this.addRecentProjectEntry(entry);
+			}
+		});
+		studio.serviceWorkerManager.onInstallingStateChange(() => {
+			const state = studio.serviceWorkerManager.installingState;
+			if (state == "installing") {
+				if (!this.#updateSpinnerEl) {
+					this.#updateSpinnerEl = createSpinner();
+					this.#versionEl.append(this.#updateSpinnerEl);
+				}
+			} else {
+				if (this.#updateSpinnerEl) {
+					this.#versionEl.removeChild(this.#updateSpinnerEl);
+					this.#updateSpinnerEl = null;
+				}
+			}
+			if (state == "waiting-for-restart") {
+				if (!this.#updateSpinnerEl) {
+					this.#updateButtonEl = document.createElement("button");
+					this.#updateButtonEl.textContent = "Update";
+					this.#updateButtonEl.addEventListener("click", () => {
+						studio.windowManager.focusOrCreateContentWindow("renda:about");
+						this.setVisibility(false);
+					});
+					this.#versionEl.append(this.#updateButtonEl);
+				}
+			} else {
+				if (this.#updateButtonEl) {
+					this.#versionEl.removeChild(this.#updateButtonEl);
+					this.#updateButtonEl = null;
+				}
 			}
 		});
 		if (this.shouldOpenEmptyOnLoad) {
