@@ -12,6 +12,8 @@ export class ContentWindowAbout extends ContentWindow {
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/about.svg";
 
 	#updateEl;
+	#updateCheckEl;
+	#updateCheckFilter;
 	#updateSpinnerEl;
 	#updateTextEl;
 	#updateButton;
@@ -25,6 +27,11 @@ export class ContentWindowAbout extends ContentWindow {
 		this.#updateEl = document.createElement("div");
 		this.#updateEl.classList.add("update-container");
 		this.contentEl.append(this.#updateEl);
+
+		this.#updateCheckEl = document.createElement("div");
+		this.#updateCheckEl.classList.add("update-check-icon");
+		this.#updateCheckFilter = getStudioInstance().colorizerFilterManager.applyFilter(this.#updateCheckEl, "var(--text-color-level0)");
+		this.#updateEl.append(this.#updateCheckEl);
 
 		this.#updateSpinnerEl = createSpinner();
 		this.#updateEl.append(this.#updateSpinnerEl);
@@ -134,6 +141,7 @@ export class ContentWindowAbout extends ContentWindow {
 		super.destructor();
 		getStudioInstance().serviceWorkerManager.removeOnInstallingStateChange(this.#updateUpdateState);
 		getStudioInstance().serviceWorkerManager.removeOnOpenTabCountChange(this.#updateUpdateState);
+		this.#updateCheckFilter.destructor();
 	}
 
 	#updateUpdateState = () => {
@@ -141,8 +149,10 @@ export class ContentWindowAbout extends ContentWindow {
 		this.#updateEl.classList.toggle("center-button", state == "idle");
 		let buttonVisible = false;
 		let spinnerVisible = false;
+		let checkVisible = false;
 		if (state == "up-to-date") {
 			this.#updateTextEl.innerText = "Renda Studio is up to date!";
+			checkVisible = true;
 		} else if (state == "checking-for-updates") {
 			this.#updateTextEl.innerText = "Checking for updates...";
 			spinnerVisible = true;
@@ -179,5 +189,6 @@ export class ContentWindowAbout extends ContentWindow {
 
 		this.#updateButton.setVisibility(buttonVisible);
 		this.#updateSpinnerEl.style.display = spinnerVisible ? "" : "none";
+		this.#updateCheckEl.style.display = checkVisible ? "" : "none";
 	};
 }
