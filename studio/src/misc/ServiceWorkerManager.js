@@ -114,7 +114,7 @@ export class ServiceWorkerManager {
 			});
 			navigator.serviceWorker.addEventListener("controllerchange", () => {
 				location.reload();
-			})
+			});
 		}
 
 		window.addEventListener("unload", () => {

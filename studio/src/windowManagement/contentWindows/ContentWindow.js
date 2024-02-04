@@ -35,6 +35,8 @@ export class ContentWindow {
 	/** @type {import("../../ui/Button.js").Button?} */
 	#preferencesButton = null;
 
+	#visible = false;
+
 	/**
 	 * @param {import("../../Studio.js").Studio} studioInstance
 	 * @param {import("../WindowManager.js").WindowManager} windowManager
@@ -62,7 +64,7 @@ export class ContentWindow {
 		const castConstructor = /** @type {typeof ContentWindow} */ (this.constructor);
 
 		this.el = document.createElement("div");
-		this.el.classList.add("studio-content-window");
+		this.el.classList.add("studio-content-window", "hidden");
 
 		if (STUDIO_ENV == "dev") {
 			this.el.dataset.contentWindowTypeId = castConstructor.contentWindowTypeId;
@@ -141,11 +143,22 @@ export class ContentWindow {
 	}
 
 	/**
+	 * This gets called from the TabStudioWindow that contains this ContentWindow.
+	 * This should not be called by the content window itself.
 	 * @param {boolean} visible
 	 */
-	setVisible(visible) {
-		this.el.classList.toggle("hidden", !visible);
+	setVisibilityFromTabWindow(visible) {
+		if (this.#visible != visible) {
+			this.el.classList.toggle("hidden", !visible);
+			this.#visible = visible;
+			this.onVisibilityChange(visible);
+		}
 	}
+	/**
+	 * Fires whenever the visibility state of the tab changes.
+	 * @param {boolean} visible
+	 */
+	onVisibilityChange(visible) {}
 
 	/**
 	 * Gets called when the user clicks this content window so that it receives focus.

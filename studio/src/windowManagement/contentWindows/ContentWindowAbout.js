@@ -144,6 +144,15 @@ export class ContentWindowAbout extends ContentWindow {
 		this.#updateCheckFilter.destructor();
 	}
 
+	/**
+	 * @param {boolean} visible
+	 */
+	onVisibilityChange(visible) {
+		if (visible) {
+			getStudioInstance().serviceWorkerManager.checkForUpdates();
+		}
+	}
+
 	#updateUpdateState = () => {
 		const state = getStudioInstance().serviceWorkerManager.installingState;
 		this.#updateEl.classList.toggle("center-button", state == "idle");
@@ -164,13 +173,6 @@ export class ContentWindowAbout extends ContentWindow {
 			this.#updateTextEl.innerText = "Almost up to date!";
 			this.#updateButton.setText(tabCount > 1 ? `Reload ${tabCount} Tabs` : "Restart");
 			buttonVisible = true;
-			// const button = new Button({
-			// 	text: buttonText,
-			// 	onClick() {
-			// 		getStudioInstance().serviceWorkerManager.restartClients();
-			// 	}
-			// });
-			// this.#updateEl.appendChild(button.el);
 		} else if (state == "restarting") {
 			this.#updateTextEl.innerText = "Restarting...";
 			spinnerVisible = true;
@@ -178,13 +180,6 @@ export class ContentWindowAbout extends ContentWindow {
 			this.#updateTextEl.innerText = "";
 			this.#updateButton.setText("Check for Updates");
 			buttonVisible = true;
-			// const button = new Button({
-			// 	text: "Check for Updates",
-			// 	onClick() {
-			// 		getStudioInstance().serviceWorkerManager.checkForUpdates();
-			// 	}
-			// });
-			// this.#updateEl.appendChild(button.el);
 		}
 
 		this.#updateButton.setVisibility(buttonVisible);
