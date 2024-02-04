@@ -23,6 +23,7 @@ export const STUDIO_ENV = "dev";
  */
 export const ENGINE_SOURCE_PATH = "/src/mod.js";
 
+export const BUILD_VERSION_STRING = "v0.1.0";
 export const BUILD_GIT_BRANCH = "dev";
 /** @type {string} */
 export const BUILD_GIT_COMMIT = "-";

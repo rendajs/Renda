@@ -1,5 +1,6 @@
 import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
 import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
+import {BUILD_VERSION_STRING} from "../studioDefines.js";
 import {createSpinner} from "../ui/spinner.js";
 import {IndexedDbStudioFileSystem} from "../util/fileSystems/IndexedDbStudioFileSystem.js";
 
@@ -44,7 +45,7 @@ export class ProjectSelector {
 
 		this.#versionEl = document.createElement("div");
 		this.#versionEl.classList.add("version");
-		this.#versionEl.textContent = "v0.1.0";
+		this.#versionEl.textContent = BUILD_VERSION_STRING;
 		headerEl.append(this.#versionEl);
 
 		this.actionsListEl = this.createList("actions", "Start");
