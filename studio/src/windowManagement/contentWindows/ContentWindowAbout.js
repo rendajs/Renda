@@ -4,6 +4,7 @@ import {Button} from "../../ui/Button.js";
 import {TreeView} from "../../ui/TreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
 import {getStudioInstance} from "../../studioInstance.js";
+import {createSpinner} from "../../ui/spinner.js";
 
 export class ContentWindowAbout extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:about");
@@ -11,6 +12,9 @@ export class ContentWindowAbout extends ContentWindow {
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/about.svg";
 
 	#updateEl;
+	#updateSpinnerEl;
+	#updateTextEl;
+	#updateButton;
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
@@ -20,11 +24,29 @@ export class ContentWindowAbout extends ContentWindow {
 
 		this.#updateEl = document.createElement("div");
 		this.#updateEl.classList.add("update-container");
-		this.contentEl.appendChild(this.#updateEl);
+		this.contentEl.append(this.#updateEl);
+
+		this.#updateSpinnerEl = createSpinner();
+		this.#updateEl.append(this.#updateSpinnerEl);
+
+		this.#updateTextEl = document.createElement("span");
+		this.#updateEl.append(this.#updateTextEl);
+
+		this.#updateButton = new Button({
+			onClick() {
+				const state = getStudioInstance().serviceWorkerManager.installingState;
+				if (state == "waiting-for-restart") {
+					getStudioInstance().serviceWorkerManager.restartClients();
+				} else if (state == "idle") {
+					getStudioInstance().serviceWorkerManager.checkForUpdates();
+				}
+			},
+		});
+		this.#updateEl.append(this.#updateButton.el);
 
 		const aboutEl = document.createElement("p");
 		aboutEl.classList.add("about-container");
-		this.contentEl.appendChild(aboutEl);
+		this.contentEl.append(aboutEl);
 
 		const dateStr = new Date(BUILD_DATE).toLocaleString();
 		const second = 1000;
@@ -117,34 +139,45 @@ export class ContentWindowAbout extends ContentWindow {
 	#updateUpdateState = () => {
 		const state = getStudioInstance().serviceWorkerManager.installingState;
 		this.#updateEl.classList.toggle("center-button", state == "idle");
+		let buttonVisible = false;
+		let spinnerVisible = false;
 		if (state == "up-to-date") {
-			this.#updateEl.innerText = "Renda Studio is up to date!";
+			this.#updateTextEl.innerText = "Renda Studio is up to date!";
 		} else if (state == "checking-for-updates") {
-			this.#updateEl.innerText = "Checking for updates...";
+			this.#updateTextEl.innerText = "Checking for updates...";
+			spinnerVisible = true;
 		} else if (state == "installing") {
-			this.#updateEl.innerText = "Installing update...";
+			this.#updateTextEl.innerText = "Installing update...";
+			spinnerVisible = true;
 		} else if (state == "waiting-for-restart") {
 			const tabCount = getStudioInstance().serviceWorkerManager.openTabCount;
-			this.#updateEl.innerText = "Almost up to date!";
-			const buttonText = tabCount > 1 ? `Reload ${tabCount} Tabs` : "Restart"
-			const button = new Button({
-				text: buttonText,
-				onClick() {
-					getStudioInstance().serviceWorkerManager.restartClients();
-				}
-			});
-			this.#updateEl.appendChild(button.el);
+			this.#updateTextEl.innerText = "Almost up to date!";
+			this.#updateButton.setText(tabCount > 1 ? `Reload ${tabCount} Tabs` : "Restart");
+			buttonVisible = true;
+			// const button = new Button({
+			// 	text: buttonText,
+			// 	onClick() {
+			// 		getStudioInstance().serviceWorkerManager.restartClients();
+			// 	}
+			// });
+			// this.#updateEl.appendChild(button.el);
 		} else if (state == "restarting") {
-			this.#updateEl.innerText = "Restarting...";
+			this.#updateTextEl.innerText = "Restarting...";
+			spinnerVisible = true;
 		} else if (state == "idle") {
-			this.#updateEl.innerText = "";
-			const button = new Button({
-				text: "Check for Updates",
-				onClick() {
-					getStudioInstance().serviceWorkerManager.checkForUpdates();
-				}
-			});
-			this.#updateEl.appendChild(button.el);
+			this.#updateTextEl.innerText = "";
+			this.#updateButton.setText("Check for Updates");
+			buttonVisible = true;
+			// const button = new Button({
+			// 	text: "Check for Updates",
+			// 	onClick() {
+			// 		getStudioInstance().serviceWorkerManager.checkForUpdates();
+			// 	}
+			// });
+			// this.#updateEl.appendChild(button.el);
 		}
-	}
+
+		this.#updateButton.setVisibility(buttonVisible);
+		this.#updateSpinnerEl.style.display = spinnerVisible ? "" : "none";
+	};
 }

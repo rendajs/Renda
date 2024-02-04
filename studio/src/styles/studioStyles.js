@@ -11,6 +11,8 @@ import popoverMenus from "../ui/popoverMenus/popoverMenus.css" assert {type: "cs
 // @ts-ignore
 import guis from "../ui/guis.css" assert {type: "css"};
 // @ts-ignore
+import spinner from "../ui/spinner.css" assert {type: "css"};
+// @ts-ignore
 import treeView from "../ui/treeView.css" assert {type: "css"};
 
 document.adoptedStyleSheets = [
@@ -21,5 +23,6 @@ document.adoptedStyleSheets = [
 	contentWindowAbout,
 	popoverMenus,
 	guis,
+	spinner,
 	treeView,
 ];

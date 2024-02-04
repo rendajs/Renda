@@ -1,0 +1,33 @@
+.spinner {
+	width: 20px;
+	height: 20px;
+}
+
+.spinner div {
+	box-sizing: border-box;
+	display: block;
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	margin: 2px;
+	border: 2px solid currentColor;
+	border-radius: 50%;
+}
+
+.spinner div.partial {
+	border-color: currentColor transparent transparent transparent;
+	animation: spinner-rotate 2s linear(190, 190, 188, 184, 178, 170, 162, 157, 154, 153, 181, 257, 329, 399, 465, 529, 590, 648, 703, 755, 804, 850, 893, 933, 969, 1001, 1030, 1054, 1074, 1090, 1108, 1131, 1159, 1190, 1225, 1258, 1287, 1307, 1321, 1328, 1330, 1327, 1320, 1308, 1293, 1277, 1262, 1250, 1242, 1239, 1240, 1242, 1247, 1252, 1258, 1262, 1265, 1267, 1269, 1270) infinite;
+}
+
+.spinner div.full {
+	border-color: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+@keyframes spinner-rotate {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(1deg);
+	}
+}
