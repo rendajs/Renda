@@ -36,6 +36,9 @@ export class ContentWindow {
 	#preferencesButton = null;
 
 	#visible = false;
+	get visible() {
+		return this.#visible;
+	}
 
 	/**
 	 * @param {import("../../Studio.js").Studio} studioInstance

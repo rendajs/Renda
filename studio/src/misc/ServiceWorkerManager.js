@@ -242,6 +242,7 @@ export class ServiceWorkerManager {
 	 */
 	async checkForUpdates() {
 		if (!this.supported || !this.#registration || this.#isCheckingForUpdates) return;
+		if (this.#installingState != "idle") return;
 
 		this.#isCheckingForUpdates = true;
 		this.#updateInstallingState();

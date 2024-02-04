@@ -133,6 +133,7 @@ export class ContentWindowAbout extends ContentWindow {
 
 		getStudioInstance().serviceWorkerManager.onInstallingStateChange(this.#updateUpdateState);
 		getStudioInstance().serviceWorkerManager.onOpenTabCountChange(this.#updateUpdateState);
+		document.addEventListener("visibilitychange", this.#onPageVisibilityChange);
 
 		this.#updateUpdateState();
 	}
@@ -141,6 +142,7 @@ export class ContentWindowAbout extends ContentWindow {
 		super.destructor();
 		getStudioInstance().serviceWorkerManager.removeOnInstallingStateChange(this.#updateUpdateState);
 		getStudioInstance().serviceWorkerManager.removeOnOpenTabCountChange(this.#updateUpdateState);
+		document.removeEventListener("visibilitychange", this.#onPageVisibilityChange);
 		this.#updateCheckFilter.destructor();
 	}
 
@@ -152,6 +154,12 @@ export class ContentWindowAbout extends ContentWindow {
 			getStudioInstance().serviceWorkerManager.checkForUpdates();
 		}
 	}
+
+	#onPageVisibilityChange = () => {
+		if (document.visibilityState == "visible" && this.visible) {
+			getStudioInstance().serviceWorkerManager.checkForUpdates();
+		}
+	};
 
 	#updateUpdateState = () => {
 		const state = getStudioInstance().serviceWorkerManager.installingState;
