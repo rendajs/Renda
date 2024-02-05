@@ -1,4 +1,4 @@
-import {BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT} from "../../studioDefines.js";
+import {BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT, BUILD_VERSION_STRING} from "../../studioDefines.js";
 import {licenses} from "../../misc/thirdPartyLicenses.js";
 import {Button} from "../../ui/Button.js";
 import {TreeView} from "../../ui/TreeView.js";
@@ -85,6 +85,8 @@ export class ContentWindowAbout extends ContentWindow {
 		}
 
 		const html = `
+			Version: v${BUILD_VERSION_STRING} (beta)
+			<br>
 			Branch: ${BUILD_GIT_BRANCH}
 			<br>
 			Commit: ${commitHtml}
