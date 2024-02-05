@@ -45,7 +45,7 @@ export class ProjectSelector {
 
 		this.#versionEl = document.createElement("div");
 		this.#versionEl.classList.add("version");
-		this.#versionEl.textContent = BUILD_VERSION_STRING;
+		this.#versionEl.textContent = `v${BUILD_VERSION_STRING} (beta)`;
 		headerEl.append(this.#versionEl);
 
 		this.actionsListEl = this.createList("actions", "Start");
