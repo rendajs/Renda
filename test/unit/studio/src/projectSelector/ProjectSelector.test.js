@@ -311,7 +311,7 @@ Deno.test({
 			assertEquals(updateButton.tagName, "BUTTON");
 
 			assertSpyCalls(focusSpy, 0);
-			updateButton.dispatchEvent(new Event("click", {}));
+			updateButton.dispatchEvent(new Event("click"));
 			assertSpyCalls(focusSpy, 1);
 			assertSpyCall(focusSpy, 0, {
 				args: ["renda:about"],

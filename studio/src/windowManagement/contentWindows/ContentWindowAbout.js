@@ -170,24 +170,24 @@ export class ContentWindowAbout extends ContentWindow {
 		let spinnerVisible = false;
 		let checkVisible = false;
 		if (state == "up-to-date") {
-			this.#updateTextEl.innerText = "Renda Studio is up to date!";
+			this.#updateTextEl.textContent = "Renda Studio is up to date!";
 			checkVisible = true;
 		} else if (state == "checking-for-updates") {
-			this.#updateTextEl.innerText = "Checking for updates...";
+			this.#updateTextEl.textContent = "Checking for updates...";
 			spinnerVisible = true;
 		} else if (state == "installing") {
-			this.#updateTextEl.innerText = "Installing update...";
+			this.#updateTextEl.textContent = "Installing update...";
 			spinnerVisible = true;
 		} else if (state == "waiting-for-restart") {
 			const tabCount = getStudioInstance().serviceWorkerManager.openTabCount;
-			this.#updateTextEl.innerText = "Almost up to date!";
+			this.#updateTextEl.textContent = "Almost up to date!";
 			this.#updateButton.setText(tabCount > 1 ? `Reload ${tabCount} Tabs` : "Restart");
 			buttonVisible = true;
 		} else if (state == "restarting") {
-			this.#updateTextEl.innerText = "Restarting...";
+			this.#updateTextEl.textContent = "Restarting...";
 			spinnerVisible = true;
 		} else if (state == "idle") {
-			this.#updateTextEl.innerText = "";
+			this.#updateTextEl.textContent = "";
 			this.#updateButton.setText("Check for Updates");
 			buttonVisible = true;
 		}
