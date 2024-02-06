@@ -36,6 +36,9 @@ export function basicSetup({
 		projectManager: {
 			onProjectOpenEntryChange(cb) {},
 		},
+		serviceWorkerManager: {
+			onInstallingStateChange(cb) {},
+		}
 	});
 
 	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async fromUserGesture => {});
