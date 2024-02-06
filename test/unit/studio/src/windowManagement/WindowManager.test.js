@@ -365,7 +365,7 @@ Deno.test({
 Deno.test({
 	name: "Clicking tab buttons changes the active tab",
 	async fn() {
-		const {windowManager, cleanup} = await basicSetup();
+		const {windowManager, ContentWindowTab1, ContentWindowTab2, cleanup} = await basicSetup();
 
 		try {
 			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
@@ -373,12 +373,23 @@ Deno.test({
 			assertInstanceOf(changingTabsWindow, TabsStudioWindow);
 			assertEquals(changingTabsWindow.activeTabIndex, 0);
 
+			const contentWindow1 = changingTabsWindow.tabs[0];
+			assertInstanceOf(contentWindow1, ContentWindowTab1);
+			const contentWindow2 = changingTabsWindow.tabs[1];
+			assertInstanceOf(contentWindow2, ContentWindowTab2);
+
+			const onVisibilityChangeSpy1 = spy(contentWindow1, "onVisibilityChange");
+			const onVisibilityChangeSpy2 = spy(contentWindow2, "onVisibilityChange");
 			const saveWorkspaceSpy = spy(windowManager.workspaceManager, "setActiveWorkspaceData");
 
 			changingTabsWindow.tabsSelectorGroup.buttons[1].click();
 
 			assertEquals(changingTabsWindow.activeTabIndex, 1);
 			assertSpyCalls(saveWorkspaceSpy, 1);
+			assertSpyCalls(onVisibilityChangeSpy1, 1);
+			assertSpyCalls(onVisibilityChangeSpy2, 1);
+			assertEquals(contentWindow1.visible, false);
+			assertEquals(contentWindow2.visible, true);
 			assertSpyCall(saveWorkspaceSpy, 0, {
 				args: [
 					{
