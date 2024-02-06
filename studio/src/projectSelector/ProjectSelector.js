@@ -13,8 +13,13 @@ export class ProjectSelector {
 	/** @type {HTMLButtonElement?} */
 	#updateButtonEl = null;
 
+	#visible = true;
+	#hasEverBeenHidden = false;
+	get visible() {
+		return this.#visible;
+	}
+
 	constructor() {
-		this.visible = true;
 		this.loadedStudio = null;
 		/** @type {Set<(studio: import("../Studio.js").Studio) => void>} */
 		this.onStudioLoadCbs = new Set();
@@ -318,6 +323,9 @@ export class ProjectSelector {
 					this.#updateButtonEl = document.createElement("button");
 					this.#updateButtonEl.textContent = "Update";
 					this.#updateButtonEl.addEventListener("click", () => {
+						if (!this.#hasEverBeenHidden && studio.serviceWorkerManager.openTabCount <= 1) {
+							studio.serviceWorkerManager.restartClients();
+						}
 						studio.windowManager.focusOrCreateContentWindow("renda:about");
 						this.setVisibility(false);
 					});
@@ -443,7 +451,7 @@ export class ProjectSelector {
 	 */
 	setVisibility(visible) {
 		if (visible == this.visible) return;
-		this.visible = visible;
+		this.#visible = visible;
 
 		if (visible) {
 			document.body.appendChild(this.el);
@@ -451,6 +459,7 @@ export class ProjectSelector {
 			this.updateRecentProjectsUi();
 			this.allowOpeningNew = true;
 		} else {
+			this.#hasEverBeenHidden = true;
 			document.body.removeChild(this.el);
 			document.body.removeChild(this.curtainEl);
 		}

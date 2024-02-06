@@ -20,6 +20,16 @@ function getVersionEl(projectSelector) {
 	return header.children[2];
 }
 
+/**
+ * @param {import("../../../../../studio/src/projectSelector/ProjectSelector.js").ProjectSelector} projectSelector
+ */
+function clickUpdateButton(projectSelector) {
+	const versionEl = getVersionEl(projectSelector);
+	const updateButton = versionEl.children[0];
+	assertEquals(updateButton.tagName, "BUTTON");
+	updateButton.dispatchEvent(new Event("click"));
+}
+
 Deno.test({
 	name: "Shows the correct buttons on load",
 	async fn() {
@@ -291,10 +301,9 @@ Deno.test({
 Deno.test({
 	name: "Updates service worker install state",
 	async fn() {
-		const {projectSelector, mockStudio, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+		const {projectSelector, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
 
 		try {
-			const focusSpy = spy(mockStudio.windowManager, "focusOrCreateContentWindow");
 			triggerStudioLoad();
 			await waitForMicrotasks();
 
@@ -307,20 +316,106 @@ Deno.test({
 			assertIsSpinnerEl(versionEl.children[0]);
 			setInstallingState("waiting-for-restart");
 			assertEquals(versionEl.childElementCount, 1);
-			const updateButton = versionEl.children[0];
-			assertEquals(updateButton.tagName, "BUTTON");
 
+			setInstallingState("idle");
+			assertEquals(versionEl.childElementCount, 0);
+		} finally {
+			await uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Update button doesn't restart when there are other tabs open",
+	async fn() {
+		const {projectSelector, restartClientsSpy, setOpenTabCount, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+
+		try {
+			triggerStudioLoad();
+			await waitForMicrotasks();
+
+			setInstallingState("waiting-for-restart");
+			setOpenTabCount(2);
+			clickUpdateButton(projectSelector);
+			assertSpyCalls(restartClientsSpy, 0);
+		} finally {
+			await uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Update button doesn't restart when the project selector was closed at least once",
+	async fn() {
+		const {projectSelector, restartClientsSpy, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+
+		try {
+			triggerStudioLoad();
+			await waitForMicrotasks();
+
+			setInstallingState("waiting-for-restart");
+			projectSelector.setVisibility(false);
+			projectSelector.setVisibility(true);
+			clickUpdateButton(projectSelector);
+			assertSpyCalls(restartClientsSpy, 0);
+		} finally {
+			await uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Update button restarts and focuses the about window",
+	async fn() {
+		const {projectSelector, mockStudio, restartClientsSpy, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+
+		try {
+			const focusSpy = spy(mockStudio.windowManager, "focusOrCreateContentWindow");
+			triggerStudioLoad();
+			await waitForMicrotasks();
+
+			setInstallingState("waiting-for-restart");
+
+			assertSpyCalls(restartClientsSpy, 0);
 			assertSpyCalls(focusSpy, 0);
-			updateButton.dispatchEvent(new Event("click"));
+			clickUpdateButton(projectSelector);
+
+			assertSpyCalls(restartClientsSpy, 1);
+
 			assertSpyCalls(focusSpy, 1);
 			assertSpyCall(focusSpy, 0, {
 				args: ["renda:about"],
 			});
 			assertEquals(projectSelector.visible, false);
+		} finally {
+			await uninstall();
+		}
+	},
+});
 
-			projectSelector.setVisibility(true);
-			setInstallingState("idle");
-			assertEquals(versionEl.childElementCount, 0);
+Deno.test({
+	name: "Update button still focuses the about window when no restart is triggered",
+	async fn() {
+		const {projectSelector, mockStudio, restartClientsSpy, setOpenTabCount, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+
+		try {
+			const focusSpy = spy(mockStudio.windowManager, "focusOrCreateContentWindow");
+			triggerStudioLoad();
+			await waitForMicrotasks();
+			setOpenTabCount(2);
+
+			setInstallingState("waiting-for-restart");
+
+			assertSpyCalls(focusSpy, 0);
+			clickUpdateButton(projectSelector);
+
+			assertSpyCalls(restartClientsSpy, 0);
+
+			assertSpyCalls(focusSpy, 1);
+			assertSpyCall(focusSpy, 0, {
+				args: ["renda:about"],
+			});
+			assertEquals(projectSelector.visible, false);
 		} finally {
 			await uninstall();
 		}
