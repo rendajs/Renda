@@ -1,4 +1,5 @@
 import {spy} from "std/testing/mock.ts";
+import {assert, assertEquals} from "std/testing/asserts.ts";
 
 /**
  * @template {import("../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js").GuiInterface} T
@@ -14,4 +15,12 @@ export function createOnChangeEventSpy(gui) {
 	}
 	gui.onValueChange(changeSpy);
 	return changeSpy;
+}
+
+/**
+ * @param {Element} el
+ */
+export function assertIsSpinnerEl(el) {
+	assertEquals(el.tagName, "DIV");
+	assert(el.classList.contains("spinner"), "Expected the element to be a spinner");
 }

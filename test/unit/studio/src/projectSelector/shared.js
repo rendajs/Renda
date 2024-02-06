@@ -32,13 +32,28 @@ export function basicSetup({
 
 	const projectSelector = new ProjectSelector();
 
+	/** @type {import("../../../../../studio/src/misc/ServiceWorkerManager.js").ServiceWorkerInstallingState} */
+	let installingState = "idle";
+	/** @type {Set<() => void>} */
+	const installingStateChangeCbs = new Set();
+
 	const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 		projectManager: {
 			onProjectOpenEntryChange(cb) {},
 		},
 		serviceWorkerManager: {
-			onInstallingStateChange(cb) {},
-		}
+			get installingState() {
+				return installingState;
+			},
+			onInstallingStateChange(cb) {
+				installingStateChangeCbs.add(cb);
+			},
+		},
+		windowManager: {
+			focusOrCreateContentWindow(contentWindowConstructorOrId) {
+
+			},
+		},
 	});
 
 	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async fromUserGesture => {});
@@ -49,6 +64,14 @@ export function basicSetup({
 
 	function triggerStudioLoad() {
 		projectSelector.setStudioLoaded(mockStudio);
+	}
+
+	/**
+	 * @param {import("../../../../../studio/src/misc/ServiceWorkerManager.js").ServiceWorkerInstallingState} newState
+	 */
+	function setInstallingState(newState) {
+		installingState = newState;
+		installingStateChangeCbs.forEach(cb => cb());
 	}
 
 	async function uninstall() {
@@ -64,6 +87,7 @@ export function basicSetup({
 		newProjectButton,
 		openProjectButton,
 		triggerStudioLoad,
+		setInstallingState,
 		uninstall,
 	};
 }

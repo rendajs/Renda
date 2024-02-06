@@ -1,8 +1,24 @@
 import {basicSetup} from "./shared.js";
 import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
+import {assertIsSpinnerEl} from "../ui/shared.js";
+
+/**
+ * @param {import("../../../../../studio/src/projectSelector/ProjectSelector.js").ProjectSelector} projectSelector
+ */
+function getHeaderEl(projectSelector) {
+	return projectSelector.el.children[0];
+}
+
+/**
+ * @param {import("../../../../../studio/src/projectSelector/ProjectSelector.js").ProjectSelector} projectSelector
+ */
+function getVersionEl(projectSelector) {
+	const header = getHeaderEl(projectSelector);
+	return header.children[2];
+}
 
 Deno.test({
 	name: "Shows the correct buttons on load",
@@ -266,6 +282,45 @@ Deno.test({
 
 			assertSpyCalls(openProjectFromLocalDirectorySpy, 1);
 			assertEquals(projectSelector.visible, false);
+		} finally {
+			await uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Updates service worker install state",
+	async fn() {
+		const {projectSelector, mockStudio, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+
+		try {
+			const focusSpy = spy(mockStudio.windowManager, "focusOrCreateContentWindow");
+			triggerStudioLoad();
+			await waitForMicrotasks();
+
+			const versionEl = getVersionEl(projectSelector);
+			assertEquals(versionEl.childElementCount, 0);
+			setInstallingState("checking-for-updates");
+			assertEquals(versionEl.childElementCount, 0);
+			setInstallingState("installing");
+			assertEquals(versionEl.childElementCount, 1);
+			assertIsSpinnerEl(versionEl.children[0]);
+			setInstallingState("waiting-for-restart");
+			assertEquals(versionEl.childElementCount, 1);
+			const updateButton = versionEl.children[0];
+			assertEquals(updateButton.tagName, "BUTTON");
+
+			assertSpyCalls(focusSpy, 0);
+			updateButton.dispatchEvent(new Event("click", {}));
+			assertSpyCalls(focusSpy, 1);
+			assertSpyCall(focusSpy, 0, {
+				args: ["renda:about"],
+			});
+			assertEquals(projectSelector.visible, false);
+
+			projectSelector.setVisibility(true);
+			setInstallingState("idle");
+			assertEquals(versionEl.childElementCount, 0);
 		} finally {
 			await uninstall();
 		}
