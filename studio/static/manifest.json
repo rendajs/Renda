@@ -1,0 +1,23 @@
+{
+	"$schema": "https://json.schemastore.org/web-manifest-combined.json",
+	"name": "Renda Studio",
+	"short_name": "Renda",
+	"description": "A modern rendering engine for the web.",
+	"lang": "en",
+	"start_url": "/",
+	"background_color": "#272727",
+	"theme_color": "#720702",
+	"display": "standalone",
+	"categories": ["tools", "software", "productivity", "utilities", "game development", "3d", "graphics"],
+	"icons": [
+		{
+			"type": "image/svg+xml",
+			"src": "./renda-circle.svg",
+			"sizes": "150x150",
+			"purpose": "any"
+		}
+	],
+	"launch_handler": {
+		"client_mode": "navigate-new"
+	}
+}
