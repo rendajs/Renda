@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <mask id="mask">
+      <rect x="0" y="0" width="500" height="500" style="fill: black"/>
+			<circle cx="250" cy="250" r="160" fill="white"/>
+			<polyline style="fill: transparent; stroke: black; stroke-width: 100px;" points="80 260 200 370 420 130" transform="translate(250 250) scale(0.5) translate(-250 -250)" />
+    </mask>
+  </defs>
+  <rect x="0" y="0" width="500" height="500" mask="url(#mask)" style="fill: black"/>
+</svg>

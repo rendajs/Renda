@@ -293,7 +293,7 @@ export class TabsStudioWindow extends StudioWindow {
 		for (let i = 0; i < this.tabs.length; i++) {
 			const active = i == index;
 			this.tabsSelectorGroup.buttons[i].setSelectedHighlight(active);
-			this.tabs[i].setVisible(active);
+			this.tabs[i].setVisibilityFromTabWindow(active);
 		}
 		this.fireActiveTabChange();
 		this.fireWorkspaceChangeCbs({trigger});

@@ -1,13 +1,22 @@
-import {BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT} from "../../studioDefines.js";
+import {BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT, BUILD_VERSION_STRING} from "../../studioDefines.js";
 import {licenses} from "../../misc/thirdPartyLicenses.js";
 import {Button} from "../../ui/Button.js";
 import {TreeView} from "../../ui/TreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
+import {getStudioInstance} from "../../studioInstance.js";
+import {createSpinner} from "../../ui/spinner.js";
 
 export class ContentWindowAbout extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:about");
 	static contentWindowUiName = "About";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/about.svg";
+
+	#updateEl;
+	#updateCheckEl;
+	#updateCheckFilter;
+	#updateSpinnerEl;
+	#updateTextEl;
+	#updateButton;
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
@@ -15,9 +24,36 @@ export class ContentWindowAbout extends ContentWindow {
 	constructor(...args) {
 		super(...args);
 
+		this.#updateEl = document.createElement("div");
+		this.#updateEl.classList.add("update-container");
+		this.contentEl.append(this.#updateEl);
+
+		this.#updateCheckEl = document.createElement("div");
+		this.#updateCheckEl.classList.add("update-check-icon");
+		this.#updateCheckFilter = getStudioInstance().colorizerFilterManager.applyFilter(this.#updateCheckEl, "var(--text-color-level0)");
+		this.#updateEl.append(this.#updateCheckEl);
+
+		this.#updateSpinnerEl = createSpinner();
+		this.#updateEl.append(this.#updateSpinnerEl);
+
+		this.#updateTextEl = document.createElement("span");
+		this.#updateEl.append(this.#updateTextEl);
+
+		this.#updateButton = new Button({
+			onClick() {
+				const state = getStudioInstance().serviceWorkerManager.installingState;
+				if (state == "waiting-for-restart") {
+					getStudioInstance().serviceWorkerManager.restartClients();
+				} else if (state == "idle") {
+					getStudioInstance().serviceWorkerManager.checkForUpdates();
+				}
+			},
+		});
+		this.#updateEl.append(this.#updateButton.el);
+
 		const aboutEl = document.createElement("p");
 		aboutEl.classList.add("about-container");
-		this.contentEl.appendChild(aboutEl);
+		this.contentEl.append(aboutEl);
 
 		const dateStr = new Date(BUILD_DATE).toLocaleString();
 		const second = 1000;
@@ -49,6 +85,8 @@ export class ContentWindowAbout extends ContentWindow {
 		}
 
 		const html = `
+			Version: v${BUILD_VERSION_STRING} (beta)
+			<br>
 			Branch: ${BUILD_GIT_BRANCH}
 			<br>
 			Commit: ${commitHtml}
@@ -94,5 +132,68 @@ export class ContentWindowAbout extends ContentWindow {
 			});
 			licenseTreeView.addButton(licenseButton);
 		}
+
+		getStudioInstance().serviceWorkerManager.onInstallingStateChange(this.#updateUpdateState);
+		getStudioInstance().serviceWorkerManager.onOpenTabCountChange(this.#updateUpdateState);
+		document.addEventListener("visibilitychange", this.#onPageVisibilityChange);
+
+		this.#updateUpdateState();
 	}
+
+	destructor() {
+		super.destructor();
+		getStudioInstance().serviceWorkerManager.removeOnInstallingStateChange(this.#updateUpdateState);
+		getStudioInstance().serviceWorkerManager.removeOnOpenTabCountChange(this.#updateUpdateState);
+		document.removeEventListener("visibilitychange", this.#onPageVisibilityChange);
+		this.#updateCheckFilter.destructor();
+	}
+
+	/**
+	 * @param {boolean} visible
+	 */
+	onVisibilityChange(visible) {
+		if (visible) {
+			getStudioInstance().serviceWorkerManager.checkForUpdates();
+		}
+	}
+
+	#onPageVisibilityChange = () => {
+		if (document.visibilityState == "visible" && this.visible) {
+			getStudioInstance().serviceWorkerManager.checkForUpdates();
+		}
+	};
+
+	#updateUpdateState = () => {
+		const state = getStudioInstance().serviceWorkerManager.installingState;
+		this.#updateEl.classList.toggle("center-button", state == "idle");
+		let buttonVisible = false;
+		let spinnerVisible = false;
+		let checkVisible = false;
+		if (state == "up-to-date") {
+			this.#updateTextEl.textContent = "Renda Studio is up to date!";
+			checkVisible = true;
+		} else if (state == "checking-for-updates") {
+			this.#updateTextEl.textContent = "Checking for updates...";
+			spinnerVisible = true;
+		} else if (state == "installing") {
+			this.#updateTextEl.textContent = "Installing update...";
+			spinnerVisible = true;
+		} else if (state == "waiting-for-restart") {
+			const tabCount = getStudioInstance().serviceWorkerManager.openTabCount;
+			this.#updateTextEl.textContent = "Almost up to date!";
+			this.#updateButton.setText(tabCount > 1 ? `Reload ${tabCount} Tabs` : "Restart");
+			buttonVisible = true;
+		} else if (state == "restarting") {
+			this.#updateTextEl.textContent = "Restarting...";
+			spinnerVisible = true;
+		} else if (state == "idle") {
+			this.#updateTextEl.textContent = "";
+			this.#updateButton.setText("Check for Updates");
+			buttonVisible = true;
+		}
+
+		this.#updateButton.setVisibility(buttonVisible);
+		this.#updateSpinnerEl.style.display = spinnerVisible ? "" : "none";
+		this.#updateCheckEl.style.display = checkVisible ? "" : "none";
+	};
 }

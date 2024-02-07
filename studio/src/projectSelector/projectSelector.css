@@ -45,10 +45,14 @@
 
 .project-selector-header {
 	grid-area: header;
+	position: relative;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	gap: 10px;
+	color: #ffe1d0;
+	--shadow-color: #0000004a;
+	text-shadow: 0 2px 3px var(--shadow-color);
 	background: url(../../static/img/splash.svg) no-repeat center/cover;
 }
 
@@ -56,11 +60,41 @@
 	background: url(../../static/img/logo.svg) no-repeat center;
 	width: 169px;
 	height: 206px;
+	pointer-events: none;
+	filter: drop-shadow(0px 2px 3px var(--shadow-color));
 }
 
 .project-selector-title {
 	align-self: center;
-	color: #ffe1d0;
+}
+
+.project-selector-header .version {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	margin: 5px;
+	font-size: 8pt;
+	display: flex;
+	gap: 5px;
+	align-items: center;
+}
+
+.project-selector-header .version button {
+	border: none;
+	background-color: #9f2801d9;
+	color: currentColor;
+	padding: 2px 3px;
+	border-radius: var(--default-border-radius);
+	font-size: 10pt;
+	font-family: var(--default-font-family);
+}
+
+.project-selector-header .version button:hover {
+	background-color: #bd2f00d9;
+}
+
+.project-selector-header .version button:active {
+	background-color: #a72a01d9;
 }
 
 @media (max-width: 420px) {

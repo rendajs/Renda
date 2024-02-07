@@ -1,6 +1,6 @@
 import {Importer} from "fake-imports";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {stub} from "std/testing/mock.ts";
+import {spy, stub} from "std/testing/mock.ts";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
@@ -32,20 +32,60 @@ export function basicSetup({
 
 	const projectSelector = new ProjectSelector();
 
+	/** @type {import("../../../../../studio/src/misc/ServiceWorkerManager.js").ServiceWorkerInstallingState} */
+	let installingState = "idle";
+	/** @type {Set<() => void>} */
+	const installingStateChangeCbs = new Set();
+
+	let openTabCount = 1;
+
 	const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 		projectManager: {
 			onProjectOpenEntryChange(cb) {},
+		},
+		serviceWorkerManager: {
+			get installingState() {
+				return installingState;
+			},
+			onInstallingStateChange(cb) {
+				installingStateChangeCbs.add(cb);
+			},
+			restartClients() {},
+			get openTabCount() {
+				return openTabCount;
+			},
+		},
+		windowManager: {
+			focusOrCreateContentWindow(contentWindowConstructorOrId) {
+
+			},
 		},
 	});
 
 	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async fromUserGesture => {});
 	const openProjectFromLocalDirectorySpy = stub(mockStudio.projectManager, "openProjectFromLocalDirectory", async () => {});
+	const restartClientsSpy = spy(mockStudio.serviceWorkerManager, "restartClients");
 
 	const newProjectButton = projectSelector.actionsListEl.children[0].children[0];
 	const openProjectButton = projectSelector.actionsListEl.children[1].children[0];
 
 	function triggerStudioLoad() {
 		projectSelector.setStudioLoaded(mockStudio);
+	}
+
+	/**
+	 * @param {import("../../../../../studio/src/misc/ServiceWorkerManager.js").ServiceWorkerInstallingState} newState
+	 */
+	function setInstallingState(newState) {
+		installingState = newState;
+		installingStateChangeCbs.forEach(cb => cb());
+	}
+
+	/**
+	 * @param {number} newCount
+	 */
+	function setOpenTabCount(newCount) {
+		openTabCount = newCount;
 	}
 
 	async function uninstall() {
@@ -58,9 +98,12 @@ export function basicSetup({
 		mockStudio,
 		openNewDbProjectSpy,
 		openProjectFromLocalDirectorySpy,
+		restartClientsSpy,
 		newProjectButton,
 		openProjectButton,
 		triggerStudioLoad,
+		setInstallingState,
+		setOpenTabCount,
 		uninstall,
 	};
 }

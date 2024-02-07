@@ -1,12 +1,25 @@
 import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
 import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
+import {BUILD_VERSION_STRING} from "../studioDefines.js";
+import {createSpinner} from "../ui/spinner.js";
 import {IndexedDbStudioFileSystem} from "../util/fileSystems/IndexedDbStudioFileSystem.js";
 
 export class ProjectSelector {
 	/** @typedef {import("./ProjectManager.js").StoredProjectEntryAny} StoredProjectEntryAny */
 
+	#versionEl;
+	/** @type {HTMLDivElement?} */
+	#updateSpinnerEl = null;
+	/** @type {HTMLButtonElement?} */
+	#updateButtonEl = null;
+
+	#visible = true;
+	#hasEverBeenHidden = false;
+	get visible() {
+		return this.#visible;
+	}
+
 	constructor() {
-		this.visible = true;
 		this.loadedStudio = null;
 		/** @type {Set<(studio: import("../Studio.js").Studio) => void>} */
 		this.onStudioLoadCbs = new Set();
@@ -16,24 +29,29 @@ export class ProjectSelector {
 		this.curtainEl = document.createElement("div");
 		this.curtainEl.classList.add("project-selector-curtain");
 		this.curtainEl.addEventListener("click", () => this.setVisibility(false));
-		document.body.appendChild(this.curtainEl);
+		document.body.append(this.curtainEl);
 
 		this.el = document.createElement("div");
 		this.el.classList.add("project-selector-window");
-		document.body.appendChild(this.el);
+		document.body.append(this.el);
 
 		const headerEl = document.createElement("div");
 		headerEl.classList.add("project-selector-header");
-		this.el.appendChild(headerEl);
+		this.el.append(headerEl);
 
 		const logoEl = document.createElement("div");
 		logoEl.classList.add("project-selector-logo");
-		headerEl.appendChild(logoEl);
+		headerEl.append(logoEl);
 
 		const titleEl = document.createElement("h1");
 		titleEl.classList.add("project-selector-title");
 		titleEl.textContent = "Renda";
-		headerEl.appendChild(titleEl);
+		headerEl.append(titleEl);
+
+		this.#versionEl = document.createElement("div");
+		this.#versionEl.classList.add("version");
+		this.#versionEl.textContent = `v${BUILD_VERSION_STRING} (beta)`;
+		headerEl.append(this.#versionEl);
 
 		this.actionsListEl = this.createList("actions", "Start");
 		this.recentListEl = this.createList("recent", "Recent");
@@ -287,6 +305,39 @@ export class ProjectSelector {
 				this.addRecentProjectEntry(entry);
 			}
 		});
+		studio.serviceWorkerManager.onInstallingStateChange(() => {
+			const state = studio.serviceWorkerManager.installingState;
+			if (state == "installing") {
+				if (!this.#updateSpinnerEl) {
+					this.#updateSpinnerEl = createSpinner();
+					this.#versionEl.append(this.#updateSpinnerEl);
+				}
+			} else {
+				if (this.#updateSpinnerEl) {
+					this.#versionEl.removeChild(this.#updateSpinnerEl);
+					this.#updateSpinnerEl = null;
+				}
+			}
+			if (state == "waiting-for-restart") {
+				if (!this.#updateSpinnerEl) {
+					this.#updateButtonEl = document.createElement("button");
+					this.#updateButtonEl.textContent = "Update";
+					this.#updateButtonEl.addEventListener("click", () => {
+						if (!this.#hasEverBeenHidden && studio.serviceWorkerManager.openTabCount <= 1) {
+							studio.serviceWorkerManager.restartClients();
+						}
+						studio.windowManager.focusOrCreateContentWindow("renda:about");
+						this.setVisibility(false);
+					});
+					this.#versionEl.append(this.#updateButtonEl);
+				}
+			} else {
+				if (this.#updateButtonEl) {
+					this.#versionEl.removeChild(this.#updateButtonEl);
+					this.#updateButtonEl = null;
+				}
+			}
+		});
 		if (this.shouldOpenEmptyOnLoad) {
 			studio.projectManager.openNewDbProject(false);
 			this.allowOpeningNew = false;
@@ -400,7 +451,7 @@ export class ProjectSelector {
 	 */
 	setVisibility(visible) {
 		if (visible == this.visible) return;
-		this.visible = visible;
+		this.#visible = visible;
 
 		if (visible) {
 			document.body.appendChild(this.el);
@@ -408,6 +459,7 @@ export class ProjectSelector {
 			this.updateRecentProjectsUi();
 			this.allowOpeningNew = true;
 		} else {
+			this.#hasEverBeenHidden = true;
 			document.body.removeChild(this.el);
 			document.body.removeChild(this.curtainEl);
 		}
