@@ -38,7 +38,6 @@ export async function dev({
 
 		const promise = generateTypes({
 			outputDir: ".denoTypes",
-			unstable: true,
 			importMap: "importmap.json",
 			include: [
 				"scripts",
