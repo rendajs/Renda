@@ -74,15 +74,15 @@ if (useIo) {
 	if (Deno.args.includes("--all")) {
 		lintFilesStr = "**/*.js";
 	} else {
-		const proc = Deno.run({
-			cmd: ["git", "status", "-z"],
+		const command = new Deno.Command("git", {
+			args: ["status", "-z"],
 			stdout: "piped",
 		});
-		const status = await proc.status();
-		if (!status.success) {
+		const output = await command.output();
+		if (!output.success) {
 			throw new Error("Failed to determine which files were changed, run with --all to lint all files in the repository.");
 		}
-		const result = await proc.output();
+		const result = output.stdout;
 
 		let files = [];
 		let i = 0;
