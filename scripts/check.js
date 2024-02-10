@@ -2,16 +2,18 @@ import {dev} from "./dev.js";
 
 await dev({
 	needsTypes: true,
+	needsTypesSync: true,
 	needsDependencies: true,
 });
 
-const proc = Deno.run({
-	// Also update the version in ./scripts/dev.js
-	cmd: ["deno", "run", "--allow-env", "--allow-read", "npm:typescript@5.0.2/tsc", "--noEmit", "-p", "./jsconfig.json"],
+const command = new Deno.Command(Deno.execPath(), {
+	args: ["run", "--allow-env", "--allow-read", "npm:typescript@5.0.2/tsc", "--noEmit", "-p", "./jsconfig.json"],
+	stdout: "inherit",
+	stderr: "inherit",
 });
 
-const status = await proc.status();
-if (!status.success) {
+const output = await command.output();
+if (!output.success) {
 	Deno.exit(1);
 } else {
 	console.log("No type errors!");

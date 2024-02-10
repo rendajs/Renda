@@ -112,17 +112,21 @@ function rebaseCssUrl({
  * @param {string} cmd
  */
 async function runCmd(cmd) {
-	const p = Deno.run({
-		cmd: cmd.split(" "),
+	const splitCmd = cmd.split(" ");
+	if (splitCmd.length <= 0) {
+		throw new Error("Invalid command: " + cmd);
+	}
+	const [exec, ...args] = splitCmd;
+	const command = new Deno.Command(exec, {
+		args,
 		stdout: "piped",
 	});
-	const status = await p.status();
-	if (!status.success) {
-		throw new Error(`Running "${cmd}" exited with status code ${status.code}`);
+	const output = await command.output();
+	if (!output.success) {
+		throw new Error(`Running "${cmd}" exited with status code ${output.code}`);
 	}
-	const outputBuffer = await p.output();
+	const outputBuffer = output.stdout;
 	let outputStr = new TextDecoder().decode(outputBuffer);
-	p.close();
 	outputStr = outputStr.trim();
 	if (!outputStr) {
 		throw new Error(`Running "${cmd}" resulted in an empty string`);

@@ -53,7 +53,7 @@ const testCommands = [];
 
 // Unit tests
 if (needsUnitTests) {
-	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-net", "--parallel"];
+	const denoTestArgs = [Deno.execPath(), "test", "--no-check", "--allow-env", "--allow-read", "--allow-net", "--parallel"];
 	if (needsCoverage) {
 		denoTestArgs.push("--allow-write");
 	}
@@ -74,19 +74,19 @@ if (needsUnitTests) {
 
 // E2e tests
 if (needsE2eTests) {
-	const cmd = ["deno", "run", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net"];
+	const cmd = [Deno.execPath(), "run", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net"];
 	if (inspect) cmd.push("--inspect-brk");
 	cmd.push("test/e2e/shared/e2eTestRunner.js", ...Deno.args);
 	testCommands.push(cmd);
 }
 
-let lastTestStatus;
 for (const cmd of testCommands) {
 	console.log(`Running: ${cmd.join(" ")}`);
-	const testProcess = Deno.run({cmd});
-	lastTestStatus = await testProcess.status();
-	if (!lastTestStatus.success) {
-		Deno.exit(lastTestStatus.code);
+	const [exec, ...args] = cmd;
+	const testCommand = new Deno.Command(exec, {args, stdout: "inherit", stderr: "inherit"});
+	const testOutput = await testCommand.output();
+	if (!testOutput.success) {
+		Deno.exit(testOutput.code);
 	}
 }
 
@@ -103,31 +103,37 @@ if (needsCoverage) {
 	}
 	if (coverageMapExists) {
 		console.log("Applying fake-imports coverage map.");
-		const p = Deno.run({
-			cmd: ["deno", "run", "--allow-read", "--no-check", "--allow-write", "https://deno.land/x/fake_imports@v0.8.1/applyCoverageMap.js", FAKE_IMPORTS_COVERAGE_DIR, DENO_COVERAGE_DIR],
+		const cmd = new Deno.Command(Deno.execPath(), {
+			args: ["run", "--allow-read", "--no-check", "--allow-write", "https://deno.land/x/fake_imports@v0.8.1/applyCoverageMap.js", FAKE_IMPORTS_COVERAGE_DIR, DENO_COVERAGE_DIR],
+			stdout: "inherit",
+			stderr: "inherit",
 		});
-		await p.status();
+		const output = await cmd.output();
+		if (!output.success) {
+			throw new Error(`Applying fake-imports coverage map failed with status ${output.code}`);
+		}
 	}
 
 	console.log("Generating cov.lcov...");
 	const includeRegex = `^file://${Deno.cwd()}/(src|studio/src|studio/devSocket/src)`;
-	const coverageProcess = Deno.run({
-		cmd: ["deno", "coverage", DENO_COVERAGE_DIR, "--lcov", `--include=${includeRegex}`],
+	const coverageProcess = new Deno.Command(Deno.execPath(), {
+		args: ["coverage", DENO_COVERAGE_DIR, "--lcov", `--include=${includeRegex}`],
 		stdout: "piped",
 	});
-	const lcov = await coverageProcess.output();
-	const coverageStatus = await coverageProcess.status();
-	if (!coverageStatus.success) {
-		Deno.exit(coverageStatus.code);
+	const coverageOutput = await coverageProcess.output();
+	if (!coverageOutput.success) {
+		Deno.exit(coverageOutput.code);
 	}
-	await Deno.writeFile(".coverage/cov.lcov", lcov);
+	await Deno.writeFile(".coverage/cov.lcov", coverageOutput.stdout);
 
 	if (needsHtmlCoverageReport) {
 		console.log("Generating HTML coverage report...");
-		let genHtmlProcess = null;
+		let genHtmlCommand = null;
 		try {
-			genHtmlProcess = Deno.run({
-				cmd: ["genhtml", "-o", ".coverage/html", ".coverage/cov.lcov"],
+			genHtmlCommand = new Deno.Command("genhtml", {
+				args: ["-o", ".coverage/html", ".coverage/cov.lcov"],
+				stdout: "inherit",
+				stderr: "inherit",
 			});
 		} catch {
 			console.error("%cERROR%c Failed to generate html report, is lcov not installed?", "color: red", "");
@@ -140,10 +146,10 @@ if (needsCoverage) {
 				console.log(`Try installing it with: %c${installCmd}`, "color: black; background-color: grey");
 			}
 		}
-		if (genHtmlProcess) {
-			const genHtmlStatus = await genHtmlProcess.status();
-			if (!genHtmlStatus.success) {
-				Deno.exit(genHtmlStatus.code);
+		if (genHtmlCommand) {
+			const genHtmlOutput = await genHtmlCommand.output();
+			if (!genHtmlOutput.success) {
+				Deno.exit(genHtmlOutput.code);
 			}
 		}
 	}

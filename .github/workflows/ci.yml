@@ -10,7 +10,7 @@ on:
 env:
   # be sure to also update these in other workflows
   DENO_DIR: deno_dir
-  DENO_VERSION: "1.32.1"
+  DENO_VERSION: "1.40.3"
 
 jobs:
   lint:
@@ -31,7 +31,7 @@ jobs:
           restore-keys: ci-
 
       - name: Setup Deno
-        uses: denoland/setup-deno@9db7f66e8e16b5699a514448ce994936c63f0d54
+        uses: denoland/setup-deno@041b854f97b325bd60e53e9dc2de9cb9f9ac0cba
         with:
           deno-version: ${{ env.DENO_VERSION }}
 
@@ -56,7 +56,7 @@ jobs:
           restore-keys: ci-
 
       - name: Setup Deno
-        uses: denoland/setup-deno@9db7f66e8e16b5699a514448ce994936c63f0d54
+        uses: denoland/setup-deno@041b854f97b325bd60e53e9dc2de9cb9f9ac0cba
         with:
           deno-version: ${{ env.DENO_VERSION }}
 
@@ -81,7 +81,7 @@ jobs:
           restore-keys: ci-
 
       - name: Setup Deno
-        uses: denoland/setup-deno@9db7f66e8e16b5699a514448ce994936c63f0d54
+        uses: denoland/setup-deno@041b854f97b325bd60e53e9dc2de9cb9f9ac0cba
         with:
           deno-version: ${{ env.DENO_VERSION }}
 
@@ -114,7 +114,7 @@ jobs:
           restore-keys: ci-
 
       - name: Setup Deno
-        uses: denoland/setup-deno@9db7f66e8e16b5699a514448ce994936c63f0d54
+        uses: denoland/setup-deno@041b854f97b325bd60e53e9dc2de9cb9f9ac0cba
         with:
           deno-version: ${{ env.DENO_VERSION }}
 

@@ -20,7 +20,7 @@ const SERVICE_WORKER_CLIENT_ID = "service worker client id";
  * @property {(now: number) => void} setPreformanceNow Sets the return value for `preformance.now()`
  * @property {(pending: boolean) => void} setUpdatePromisePending
  * @property {() => Promise<void>} waitForMicrotasks
- * @property {import("std/testing/mock.ts").Stub<Location, [], void>} reloadSpy
+ * @property {import("std/testing/mock.ts").Stub<Location, [forceReload: boolean], void>} reloadSpy
  * @property {import("std/testing/mock.ts").Spy<any, [], void>} registerClientSpy
  * @property {import("std/testing/mock.ts").Spy<any, [], void>} unregisterClientSpy
  * @property {import("std/testing/mock.ts").Spy<any, [], Promise<void>>} skipWaitingSpy
