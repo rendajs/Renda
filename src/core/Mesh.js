@@ -371,6 +371,12 @@ export class Mesh {
 		}
 	}
 
+	clone() {
+		const newMesh = new Mesh();
+		newMesh.setVertexState(this._vertexState);
+		return newMesh;
+	}
+
 	/**
 	 * @param {OnIndexBufferChangeCallback} cb
 	 */

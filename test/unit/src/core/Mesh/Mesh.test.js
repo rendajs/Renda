@@ -1,5 +1,6 @@
 import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Mesh, Vec3} from "../../../../src/mod.js";
+import {Mesh, Vec3} from "../../../../../src/mod.js";
+import {FakeVertexState} from "./shared.js";
 
 Deno.test({
 	name: "Mesh should have an index format of UINT16 by default",
@@ -261,15 +262,7 @@ Deno.test({
 	},
 });
 
-class FakeVertexState {
-	/**
-	 * @param {unknown[]} buffers
-	 */
-	constructor(buffers) {
-		this.buffers = buffers;
-	}
-}
-const mockVertexStateSingleAttribute = /** @type {import("../../../../src/mod.js").VertexState} */ (new FakeVertexState([
+const mockVertexStateSingleAttribute = /** @type {import("../../../../../src/mod.js").VertexState} */ (new FakeVertexState([
 	{
 		attributes: new Map([
 			[
@@ -284,7 +277,7 @@ const mockVertexStateSingleAttribute = /** @type {import("../../../../src/mod.js
 		]),
 	},
 ]));
-const mockVertexStateTwoAttributes = /** @type {import("../../../../src/mod.js").VertexState} */ (new FakeVertexState([
+const mockVertexStateTwoAttributes = /** @type {import("../../../../../src/mod.js").VertexState} */ (new FakeVertexState([
 	{
 		attributes: new Map([
 			[
