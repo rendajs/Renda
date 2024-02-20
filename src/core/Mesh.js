@@ -16,11 +16,12 @@ import {MeshAttributeBuffer} from "./MeshAttributeBuffer.js";
 /** @typedef {() => void} OnIndexBufferChangeCallback */
 
 export class Mesh {
+	/** @type {MeshAttributeBuffer[]} */
+	#buffers = [];
+	/** @type {Map<number, MeshAttributeBuffer>} */
+	#unusedBuffers = new Map();
+
 	constructor() {
-		/** @private @type {MeshAttributeBuffer[]} */
-		this._buffers = [];
-		/** @private @type {Map<number, MeshAttributeBuffer>} */
-		this._unusedBuffers = new Map();
 		/** @private @type {import("../rendering/VertexState.js").VertexState?} */
 		this._vertexState = null;
 		this.indexBuffer = new ArrayBuffer(0);
@@ -312,7 +313,7 @@ export class Mesh {
 			isUnused: true,
 		});
 		unusedBuffer.setVertexCount(this.vertexCount);
-		this._unusedBuffers.set(attributeType, unusedBuffer);
+		this.#unusedBuffers.set(attributeType, unusedBuffer);
 		return unusedBuffer;
 	}
 
@@ -321,11 +322,11 @@ export class Mesh {
 	 * @returns {Generator<MeshAttributeBuffer>}
 	 */
 	*getBuffers(includeUnused = true) {
-		for (const buffer of this._buffers) {
+		for (const buffer of this.#buffers) {
 			yield buffer;
 		}
 		if (includeUnused) {
-			for (const buffer of this._unusedBuffers.values()) {
+			for (const buffer of this.#unusedBuffers.values()) {
 				yield buffer;
 			}
 		}
@@ -342,8 +343,8 @@ export class Mesh {
 		this._vertexState = vertexState;
 
 		const oldBuffers = Array.from(this.getBuffers());
-		this._buffers = [];
-		this._unusedBuffers.clear();
+		this.#buffers = [];
+		this.#unusedBuffers.clear();
 
 		if (vertexState) {
 			for (const bufferDescriptor of vertexState.buffers) {
@@ -362,13 +363,28 @@ export class Mesh {
 					attributes,
 				});
 				if (this.vertexCount) buffer.setVertexCount(this.vertexCount);
-				this._buffers.push(buffer);
+				this.#buffers.push(buffer);
 			}
 		}
 
 		for (const buffer of oldBuffers) {
 			this.copyAttributeBufferData(buffer);
 		}
+	}
+
+	clone() {
+		const newMesh = new Mesh();
+		newMesh.setVertexState(this._vertexState);
+		newMesh.setVertexCount(this.vertexCount);
+		for (const [i, buffer] of this.#buffers.entries()) {
+			newMesh.#buffers[i] = buffer.clone();
+		}
+		for (const [attributeType, buffer] of this.#unusedBuffers) {
+			newMesh.#unusedBuffers.set(attributeType, buffer.clone());
+		}
+		newMesh.setIndexFormat(this.indexFormat);
+		newMesh.setIndexData(this.indexBuffer);
+		return newMesh;
 	}
 
 	/**
