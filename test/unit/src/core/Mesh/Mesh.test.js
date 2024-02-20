@@ -1,6 +1,6 @@
 import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {Mesh, Vec3} from "../../../../../src/mod.js";
-import {FakeVertexState} from "./shared.js";
+import {mockVertexStateSingleAttribute, mockVertexStateTwoAttributes} from "./shared.js";
 
 Deno.test({
 	name: "Mesh should have an index format of UINT16 by default",
@@ -261,46 +261,6 @@ Deno.test({
 		assertEquals(data.length, 3);
 	},
 });
-
-const mockVertexStateSingleAttribute = /** @type {import("../../../../../src/mod.js").VertexState} */ (new FakeVertexState([
-	{
-		attributes: new Map([
-			[
-				Mesh.AttributeType.POSITION,
-				{
-					attributeType: Mesh.AttributeType.POSITION,
-					offset: 0,
-					format: Mesh.AttributeFormat.FLOAT32,
-					componentCount: 3,
-				},
-			],
-		]),
-	},
-]));
-const mockVertexStateTwoAttributes = /** @type {import("../../../../../src/mod.js").VertexState} */ (new FakeVertexState([
-	{
-		attributes: new Map([
-			[
-				Mesh.AttributeType.POSITION,
-				{
-					attributeType: Mesh.AttributeType.POSITION,
-					offset: 0,
-					format: Mesh.AttributeFormat.FLOAT32,
-					componentCount: 3,
-				},
-			],
-			[
-				Mesh.AttributeType.NORMAL,
-				{
-					attributeType: Mesh.AttributeType.NORMAL,
-					offset: 12,
-					format: Mesh.AttributeFormat.FLOAT32,
-					componentCount: 3,
-				},
-			],
-		]),
-	},
-]));
 
 Deno.test({
 	name: "setVertexCount() with attributes from VertexState",

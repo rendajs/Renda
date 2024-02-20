@@ -374,6 +374,15 @@ export class Mesh {
 	clone() {
 		const newMesh = new Mesh();
 		newMesh.setVertexState(this._vertexState);
+		newMesh.setVertexCount(this.vertexCount);
+		for (const [i, buffer] of this._buffers.entries()) {
+			newMesh._buffers[i] = buffer.clone();
+		}
+		for (const [attributeType, buffer] of this._unusedBuffers) {
+			newMesh._unusedBuffers.set(attributeType, buffer.clone());
+		}
+		newMesh.setIndexFormat(this.indexFormat);
+		newMesh.setIndexData(this.indexBuffer);
 		return newMesh;
 	}
 

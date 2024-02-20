@@ -47,6 +47,8 @@ export class MeshAttributeBuffer {
 	}
 
 	/**
+	 * Sets the array stride of the attributes in the buffer.
+	 * Set to `null` to infer an array stride from the currently provided attributes.
 	 * @param {number?} arrayStride
 	 */
 	setArrayStride(arrayStride) {
@@ -309,6 +311,16 @@ export class MeshAttributeBuffer {
 				i += this.arrayStride;
 			}
 		}
+	}
+
+	clone() {
+		const newBuffer = new MeshAttributeBuffer(this.mesh, {
+			arrayStride: this.arrayStride,
+			attributes: structuredClone(this.attributes),
+			arrayBuffer: structuredClone(this.buffer),
+			isUnused: this.isUnused,
+		});
+		return newBuffer;
 	}
 
 	/**
