@@ -456,6 +456,12 @@ export class Entity {
 		this.rot = rot;
 		this.scale = scale;
 		this._localMatrixDirty = false;
+
+		// Mat4.decompose() doesn't extract negative scales correctly right now.
+		// Because of this, it's possible for the world matrix of children not
+		// to get marked as dirty when the scale changes from -1,-1,-1 to 1,1,1 for example.
+		// To fix that, we manually mark them as dirty.
+		this._markWorldMatrixDirty();
 	}
 
 	get worldMatrix() {
@@ -469,10 +475,12 @@ export class Entity {
 
 	_onWorldMatrixChange() {
 		if (this._ignoreWorldMatrixChanges) return;
-		const {pos, rot, scale} = this._worldMatrix.decompose();
-		this._worldPos.set(pos);
-		this._worldRot.set(rot);
-		this._worldScale.set(scale);
+		if (!this.parent) {
+			this.localMatrix.set(this._worldMatrix);
+		} else {
+			const newLocalMatrix = this.parent.worldMatrix.clone().invert().multiplyMatrix(this._worldMatrix);
+			this.localMatrix.set(newLocalMatrix);
+		}
 	}
 
 	/**
