@@ -637,6 +637,72 @@ Deno.test({
 });
 
 Deno.test({
+	name: "setting world matrix affects children",
+	fn() {
+		const root = new Entity("root");
+		const childA = root.add(new Entity("A")); // The entity we will be moving up
+		const childB = childA.add(new Entity("B")); // The entity we will reset (i.e. move down again)
+		const childC = childB.add(new Entity("C")); // The entity that should have the identity matrix
+
+		childA.worldMatrix.set(Mat4.createTranslation(0, 1, 0));
+		assertMatAlmostEquals(childB.worldMatrix, Mat4.createTranslation(0, 1, 0));
+		assertMatAlmostEquals(childC.worldMatrix, Mat4.createTranslation(0, 1, 0));
+
+		childB.worldMatrix.set(new Mat4());
+		assertMatAlmostEquals(childC.worldMatrix, new Mat4());
+	},
+});
+
+Deno.test({
+	name: "setting world matrix affects children when scaling negatively",
+	fn() {
+		// At the time of writing, decomposing negatively scaled matrices means the sign is lost.
+		// So Mat4.createScale(-1, 1, 1) and Mat4.createScale(1, 1, 1) both return a scale of (1,1,1) when calling decompose()
+		// As a result changing the scale of a Entity.worldMatrix doesn't cause the worldmatrices
+		// of children to get marked as dirty.
+		const root = new Entity("root");
+		const childA = root.add(new Entity("A")); // The entity we will be moving up
+		const childB = childA.add(new Entity("B")); // The entity we will reset (i.e. move down again)
+
+		childA.worldMatrix.set(Mat4.createScale(-1, 1, 1));
+		assertMatAlmostEquals(childB.worldMatrix, Mat4.createScale(-1, 1, 1));
+
+		childA.worldMatrix.set(new Mat4());
+		assertMatAlmostEquals(childB.worldMatrix, new Mat4());
+	},
+});
+
+Deno.test({
+	name: "setting world matrix affects local position",
+	fn() {
+		const root = new Entity("root");
+		const childA = root.add(new Entity("A")); // The entity we will be moving up
+		const childB = childA.add(new Entity("B")); // The entity we will reset (i.e. move down again)
+
+		childA.worldMatrix.set(Mat4.createTranslation(0, 1, 0));
+		assertVecAlmostEquals(childB.pos, [0, 0, 0]);
+
+		childB.worldMatrix.set(new Mat4());
+		assertVecAlmostEquals(childB.pos, [0, -1, 0]);
+	},
+});
+
+Deno.test({
+	name: "setting world matrix affects world position",
+	fn() {
+		const root = new Entity("root");
+		const childA = root.add(new Entity("A")); // The entity we will be moving up
+		const childB = childA.add(new Entity("B")); // The entity we will reset (i.e. move down again)
+
+		childA.worldMatrix.set(Mat4.createTranslation(0, 1, 0));
+		assertVecAlmostEquals(childB.worldPos, [0, 1, 0]);
+
+		childB.worldMatrix.set(new Mat4());
+		assertVecAlmostEquals(childB.worldPos, [0, 0, 0]);
+	},
+});
+
+Deno.test({
 	name: "Issue #203: Changing parent transformation shouldn't adjust local transformation from children",
 	fn() {
 		const parent = new Entity("parent");
