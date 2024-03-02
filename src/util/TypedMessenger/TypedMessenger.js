@@ -128,6 +128,7 @@ import {TimeoutError} from "../TimeoutError.js";
  * Otherwise the call from the other end would result in a promise that never resolves, but also isn't garbage collected.
  *
  * Alternatively you could set a `timeout` or `globalTimeout`, causing the promise to reject once the timeout is reached.
+ * @property {() => void} [afterSendHook]
  */
 
 /**
@@ -604,13 +605,17 @@ export class TypedMessenger {
 			}
 
 			const castReturn = /** @type {TypedMessengerRequestHandlerReturn} */ (returnValue);
-			if (castReturn && !didThrow && typeof castReturn == "object" && "$respondOptions" in castReturn && castReturn.$respondOptions) {
-				const options = castReturn.$respondOptions;
-				if (options.respond == false) {
+			let respondOptions;
+			if (castReturn && typeof castReturn == "object" && "$respondOptions" in castReturn && castReturn.$respondOptions) {
+				respondOptions = castReturn.$respondOptions;
+			}
+			if (!didThrow && respondOptions) {
+				if (respondOptions.respond == false) {
 					return;
 				}
-				transfer = options.transfer || [];
-				returnValue = options.returnValue;
+				transfer = respondOptions.transfer || [];
+				returnValue = respondOptions.returnValue;
+				throw new Error("write tests")
 			}
 
 			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type>} */ ({
@@ -623,6 +628,10 @@ export class TypedMessenger {
 				},
 				transfer,
 			}));
+
+			if (respondOptions && respondOptions.afterSendHook) {
+				respondOptions.afterSendHook();
+			}
 		} else if (data.direction == "response") {
 			const cbs = this.onRequestIdMessageCbs.get(data.id);
 			if (cbs) {
