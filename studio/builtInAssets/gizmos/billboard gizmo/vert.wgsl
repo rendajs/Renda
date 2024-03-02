@@ -17,7 +17,7 @@ struct VertexOutput {
 fn main(input : VertexInput) -> VertexOutput {
 	var vertOut : VertexOutput;
 	var objPos = modelUniforms.m[3];
-	var screenPos = modelUniforms.vp * objPos;
+	var screenPos = viewUniforms.viewProjectionMatrix * objPos;
 	screenPos /= screenPos.w;
 	vertOut.position = vec4<f32>(screenPos.xy + input.position.xy / viewUniforms.screenSize.xy, 0.0, 1.0);
 	vertOut.color = input.color;
