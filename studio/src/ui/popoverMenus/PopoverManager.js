@@ -101,9 +101,9 @@ export class PopoverManager {
 		const needsListener = Boolean(this.#activePopovers.length);
 		if (needsListener == this.#hasBodyClickListener) return;
 		if (needsListener) {
-			document.body.addEventListener("click", this.#onBodyClick);
+			document.body.addEventListener("pointerdown", this.#onBodyClick);
 		} else {
-			document.body.removeEventListener("click", this.#onBodyClick);
+			document.body.removeEventListener("pointerdown", this.#onBodyClick);
 		}
 		this.#hasBodyClickListener = needsListener;
 	}
@@ -121,6 +121,8 @@ export class PopoverManager {
 		if (this.#activePopovers.some(p => p.el === e.target || p.el.contains(/** @type {Node} */(e.target)))) {
 			return;
 		}
+
+		e.preventDefault();
 
 		this.#activePopovers.forEach(p => {
 			p.close();
