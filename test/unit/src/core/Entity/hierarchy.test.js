@@ -341,6 +341,19 @@ Deno.test({
 });
 
 Deno.test({
+	name: "traverseDown() with filter should exclude the root #821",
+	fn() {
+		const {root} = getBasicEntityStructure();
+
+		const result = Array.from(root.traverseDown({
+			filter: () => false,
+		}));
+
+		assertEquals(result.length, 0);
+	},
+});
+
+Deno.test({
 	name: "traverseUp()",
 	fn() {
 		const {
@@ -372,6 +385,19 @@ Deno.test({
 
 		assertEquals(result.length, 1);
 		assertStrictEquals(result[0], entity1A);
+	},
+});
+
+Deno.test({
+	name: "traverseUp() with filter should exclude the root #821",
+	fn() {
+		const {root} = getBasicEntityStructure();
+
+		const result = Array.from(root.traverseUp({
+			filter: () => false,
+		}));
+
+		assertEquals(result.length, 0);
 	},
 });
 

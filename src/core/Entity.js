@@ -766,11 +766,10 @@ export class Entity {
 	*traverseDown({
 		filter = null,
 	} = {}) {
+		if (filter && !filter(this)) return;
 		yield this;
 		for (const child of this._children) {
-			if (filter == null || filter(child)) {
-				yield* child.traverseDown({filter});
-			}
+			yield* child.traverseDown({filter});
 		}
 	}
 
@@ -801,11 +800,10 @@ export class Entity {
 	*traverseUp({
 		filter = null,
 	} = {}) {
+		if (filter && !filter(this)) return;
 		yield this;
 		if (this.parent) {
-			if (filter == null || filter(this.parent)) {
-				yield* this.parent.traverseUp({filter});
-			}
+			yield* this.parent.traverseUp({filter});
 		}
 	}
 
