@@ -444,13 +444,16 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e
 	 */
 	#onTreeViewRearrange = e => {
-		/** @type {{entity: Entity, oldParent: Entity, newParent: Entity, insertIndex: number | undefined, removeIndex: number}[]} */
+		/** @type {{entity: Entity, oldParent: Entity, newParent: Entity, insertIndex: number, removeIndex: number}[]} */
 		const actions = [];
 		for (const movedItem of e.movedItems) {
 			const entity = this.#getEntityByIndicesPath(movedItem.oldIndicesPath);
 			const oldParent = this.#getEntityByIndicesPath(movedItem.oldIndicesPath.slice(0, -1));
 			const parentIndicesPath = movedItem.newIndicesPath.slice(0, -1);
 			const insertIndex = movedItem.newIndicesPath.at(-1);
+			if (insertIndex == undefined) {
+				throw new Error("Assertion failed, indices path is an empty array.");
+			}
 			const newParent = this.#getEntityByIndicesPath(parentIndicesPath);
 			if (!entity || !oldParent || !newParent) {
 				throw new Error("Failed to rearrange entities");
