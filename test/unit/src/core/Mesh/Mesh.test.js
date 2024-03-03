@@ -1,6 +1,7 @@
 import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Mesh, Vec3} from "../../../../../src/mod.js";
-import {mockVertexStateSingleAttribute, mockVertexStateTwoAttributes} from "./shared.js";
+import {Mesh, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
+import {mockVertexStateColor, mockVertexStateSingleAttribute, mockVertexStateTwoAttributes, mockVertexStateUv} from "./shared.js";
+import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 
 Deno.test({
 	name: "Mesh should have an index format of UINT16 by default",
@@ -330,7 +331,28 @@ Deno.test({
 });
 
 Deno.test({
-	name: "setVertexData() for attribute in VertexState",
+	name: "setVertexData() for attribute in VertexState with vector 2",
+	fn() {
+		const mesh = new Mesh();
+		mesh.setVertexCount(2);
+		mesh.setVertexState(mockVertexStateUv);
+		mesh.setVertexData(Mesh.AttributeType.UV1, [
+			new Vec2(1, 2),
+			new Vec2(3, 4),
+		]);
+
+		const buffers = Array.from(mesh.getBuffers());
+		assertEquals(buffers.length, 1);
+
+		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.UV1));
+		assertEquals(positionData.length, 2);
+		assertVecAlmostEquals(positionData[0], [1, 2]);
+		assertVecAlmostEquals(positionData[1], [3, 4]);
+	},
+});
+
+Deno.test({
+	name: "setVertexData() for attribute in VertexState with vector 3",
 	fn() {
 		const mesh = new Mesh();
 		mesh.setVertexCount(2);
@@ -345,6 +367,29 @@ Deno.test({
 
 		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(positionData.length, 2);
+		assertVecAlmostEquals(positionData[0], [1, 2, 3]);
+		assertVecAlmostEquals(positionData[1], [4, 5, 6]);
+	},
+});
+
+Deno.test({
+	name: "setVertexData() for attribute in VertexState with vector 4",
+	fn() {
+		const mesh = new Mesh();
+		mesh.setVertexCount(2);
+		mesh.setVertexState(mockVertexStateColor);
+		mesh.setVertexData(Mesh.AttributeType.COLOR, [
+			new Vec4(1, 2, 3, 4),
+			new Vec4(5, 6, 7, 8),
+		]);
+
+		const buffers = Array.from(mesh.getBuffers());
+		assertEquals(buffers.length, 1);
+
+		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.COLOR));
+		assertEquals(positionData.length, 2);
+		assertVecAlmostEquals(positionData[0], [1, 2, 3, 4]);
+		assertVecAlmostEquals(positionData[1], [5, 6, 7, 8]);
 	},
 });
 
