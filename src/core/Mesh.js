@@ -246,7 +246,7 @@ export class Mesh {
 
 	/**
 	 * @param {AttributeType} attributeType
-	 * @param {ArrayBufferLike | number[] | import("../math/Vec2.js").Vec2[] | import("../math/Vec3.js").Vec3[]} data
+	 * @param {ArrayBufferLike | number[] | import("../math/Vec2.js").Vec2[] | import("../math/Vec3.js").Vec3[] | import("../math/Vec4.js").Vec4[]} data
 	 * @param {UnusedAttributeBufferOptions} [opts]
 	 */
 	setVertexData(attributeType, data, opts) {
