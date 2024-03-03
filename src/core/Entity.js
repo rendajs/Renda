@@ -668,7 +668,7 @@ export class Entity {
 	 * @param {number} index
 	 * @param {boolean} keepWorldPosition
 	 */
-	addAtIndex(child, index = -1, keepWorldPosition = false) {
+	addAtIndex(child, index, keepWorldPosition = false) {
 		if (index < 0) {
 			index = this._children.length + index + 1;
 		}
