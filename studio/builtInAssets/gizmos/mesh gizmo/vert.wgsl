@@ -14,7 +14,7 @@ struct VertexOutput {
 @vertex
 fn main(input : VertexInput) -> VertexOutput {
 	var vertOut : VertexOutput;
-	vertOut.position = modelUniforms.mvp * vec4<f32>(input.position, 1.0);
+	vertOut.position = modelUniforms.mvpMatrix * vec4<f32>(input.position, 1.0);
 	vertOut.color = input.color;
 	return vertOut;
 }
