@@ -1,6 +1,6 @@
 import "./styles/projectSelectorStyles.js";
 import {getProjectSelectorInstance, initProjectSelector} from "./projectSelector/projectSelectorInstance.js";
-import { IS_DEV_BUILD } from "./studioDefines.js";
+import {IS_DEV_BUILD} from "./studioDefines.js";
 export {};
 
 initProjectSelector();
