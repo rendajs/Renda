@@ -615,7 +615,6 @@ export class TypedMessenger {
 				}
 				transfer = respondOptions.transfer || [];
 				returnValue = respondOptions.returnValue;
-				throw new Error("write tests")
 			}
 
 			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type>} */ ({
