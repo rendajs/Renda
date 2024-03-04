@@ -5,6 +5,7 @@ import {FakeTime} from "std/testing/time.ts";
 import {assertPromiseResolved} from "../../../../shared/asserts.js";
 import {TimeoutError} from "../../../../../../src/util/TimeoutError.js";
 import {deserializeErrorHook, serializeErrorHook} from "../../../../../../src/util/TypedMessenger/errorSerialization.js";
+import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 
 /**
  * Directly links two TypedMessengers to each other without the use of a WebSocket or anything like that.
@@ -545,6 +546,63 @@ Deno.test({
 				}
 			}
 		});
+	},
+});
+
+Deno.test({
+	name: "respondOptions afterSendHook fires",
+	async fn() {
+		let hookCallCount = 0;
+		const requestHandlers = {
+			withHook: () => {
+				return /** @satisfies {import("../../../../../../src/mod.js").TypedMessengerRequestHandlerReturn} @type {const} */ ({
+					$respondOptions: {
+						afterSendHook: () => {
+							hookCallCount++;
+						},
+					},
+				});
+			},
+		};
+
+		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
+		const messengerB = new TypedMessenger();
+		messengerA.setSendHandler(data => {
+			messengerB.handleReceivedMessage(data.sendData);
+		});
+
+		let resolveWaitForHandler = () => {};
+		/** @type {Promise<void>} */
+		const waitForHandler = new Promise(r => {
+			resolveWaitForHandler = r;
+		});
+
+		let resolveSendPromise = () => {};
+
+		messengerB.setSendHandler(async data => {
+			resolveWaitForHandler();
+			/** @type {Promise<void>} */
+			const promise = new Promise(r => {
+				resolveSendPromise = r;
+			});
+			await promise;
+			messengerA.handleReceivedMessage(data.sendData);
+		});
+
+		messengerB.setResponseHandlers(requestHandlers);
+
+		const sendPromise = messengerA.send.withHook();
+
+		// First we wait for the sendHandler to get called
+		await waitForHandler;
+		await waitForMicrotasks();
+		assertEquals(hookCallCount, 0);
+		resolveSendPromise();
+		await sendPromise;
+		await waitForMicrotasks();
+		assertEquals(hookCallCount, 1);
 	},
 });
 
