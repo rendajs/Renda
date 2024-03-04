@@ -1,5 +1,7 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {AssetLoaderTypeShaderSource} from "../../../../../src/mod.js";
+import {assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
+import {AssetLoaderTypeShaderSource, ShaderSource} from "../../../../../src/mod.js";
+import {getMockRecursionTracker} from "../shared.js";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 
 function getMockAssetLoader() {
 	/** @type {Map<import("../../../../../src/mod.js").UuidString, unknown>} */
@@ -22,9 +24,21 @@ function getMockShaderBuilder() {
 		onShaderUuidRequested(hook) {
 			currentHook = hook;
 		},
+		async buildShader(shaderCode) {
+			/** @type {import("../../../../../src/mod.js").UuidString[]} */
+			const includedUuids = [];
+			return {
+				shaderCode,
+				includedUuids,
+			};
+		},
 	});
+
+	const buildShaderSpy = spy(mockShaderBuilder, "buildShader");
+
 	return {
 		mockShaderBuilder,
+		buildShaderSpy,
 		/**
 		 * @param {import("../../../../../src/mod.js").UuidString} uuid
 		 */
@@ -67,5 +81,55 @@ Deno.test({
 		await assertRejects(async () => {
 			await requestShaderUuid(SHADER_UUID);
 		}, Error, "Tried to load a shader but the resolved asset is not a string. Did you @import the wrong uuid?");
+	},
+});
+
+Deno.test({
+	name: "parseBuffer() uses the builder by default",
+	async fn() {
+		const {mockAssetLoader} = getMockAssetLoader();
+		const {mockShaderBuilder, buildShaderSpy} = getMockShaderBuilder();
+		const mockRecursionTracker = getMockRecursionTracker();
+
+		const loaderType = new AssetLoaderTypeShaderSource(mockAssetLoader);
+		loaderType.setBuilder(mockShaderBuilder);
+
+		const buffer = new TextEncoder().encode("this is a string of shader code");
+		const result = await loaderType.parseBuffer(buffer, mockRecursionTracker);
+		assertInstanceOf(result, ShaderSource);
+		assertEquals(result.source, "this is a string of shader code");
+		assertSpyCalls(buildShaderSpy, 1);
+	},
+});
+
+Deno.test({
+	name: "parseBuffer() throws when no builder has been set",
+	async fn() {
+		const {mockAssetLoader} = getMockAssetLoader();
+		const mockRecursionTracker = getMockRecursionTracker();
+
+		const loaderType = new AssetLoaderTypeShaderSource(mockAssetLoader);
+
+		const buffer = new TextEncoder().encode("this is a string of shader code");
+		await assertRejects(async () => {
+			await loaderType.parseBuffer(buffer, mockRecursionTracker);
+		}, Error, `Failed to load shader because no shader builder was provided.`);
+	},
+});
+
+Deno.test({
+	name: "parseBuffer() doesn't use shaderbuilder when raw = true",
+	async fn() {
+		const {mockAssetLoader} = getMockAssetLoader();
+		const {mockShaderBuilder, buildShaderSpy} = getMockShaderBuilder();
+		const mockRecursionTracker = getMockRecursionTracker();
+
+		const loaderType = new AssetLoaderTypeShaderSource(mockAssetLoader);
+		loaderType.setBuilder(mockShaderBuilder);
+
+		const buffer = new TextEncoder().encode("this is a string of shader code");
+		const result = await loaderType.parseBuffer(buffer, mockRecursionTracker, {raw: true});
+		assertEquals(result, "this is a string of shader code");
+		assertSpyCalls(buildShaderSpy, 0);
 	},
 });

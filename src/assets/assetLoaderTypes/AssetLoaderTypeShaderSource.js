@@ -31,11 +31,29 @@ export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	} = {}) {
 		const decoder = new TextDecoder();
 		const shaderCode = decoder.decode(buffer);
-		if (this.builder && !raw) {
+		if (raw) {
+			return shaderCode;
+		} else {
+			if (!this.builder) {
+				throw new Error(`Failed to load shader because no shader builder was provided.
+Use AssetLoaderTypeShaderSource.setBuilder() to provide one.
+For example:
+
+	const assetLoader = new AssetLoader();
+	const shaderLoader = assetLoader.registerLoaderType(AssetLoaderTypeShaderSource);
+	const shaderBuilder = new ShaderBuilder();
+	shaderLoader.setBuilder(shaderBuilder);
+
+Alternatively, you can load the shader with the 'raw' flag set:
+
+	const result = await this.#assetLoader.getAsset("<your asset uuid>", {
+		assetOpts: {raw: true},
+		createNewInstance: true,
+	});
+`);
+			}
 			const {shaderCode: newShaderCode} = await this.builder.buildShader(shaderCode);
 			return new ShaderSource(newShaderCode);
-		} else {
-			return shaderCode;
 		}
 	}
 
