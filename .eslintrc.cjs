@@ -178,7 +178,7 @@ module.exports = {
 		"switch-colon-spacing": "error",
 		"template-tag-spacing": "error",
 		"unicode-bom": "error",
-		"arrow-parens": ["error", "as-needed"],
+		"arrow-parens": "error",
 		"arrow-spacing": "error",
 		"generator-star-spacing": "error",
 		"no-confusing-arrow": "error",
