@@ -54,11 +54,11 @@ for (const arg of Deno.args) {
 /** @type {FailedTestsData[]} */
 const failedTests = [];
 
-globalThis.addEventListener("unhandledrejection", e => {
+globalThis.addEventListener("unhandledrejection", (e) => {
 	console.log("Unhandled rejection:", e.reason);
 	e.preventDefault();
 });
-globalThis.addEventListener("error", e => {
+globalThis.addEventListener("error", (e) => {
 	console.log("Unhandled error:", e.error);
 	e.preventDefault();
 });

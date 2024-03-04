@@ -133,7 +133,7 @@ export class Popover {
 	setNeedsCurtain(needsCurtain) {
 		if (needsCurtain == this.#needsCurtain) return;
 		this.#needsCurtain = needsCurtain;
-		this.#onNeedsCurtainChangeCbs.forEach(cb => cb(needsCurtain));
+		this.#onNeedsCurtainChangeCbs.forEach((cb) => cb(needsCurtain));
 	}
 
 	/**

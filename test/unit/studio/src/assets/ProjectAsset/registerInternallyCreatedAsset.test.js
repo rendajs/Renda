@@ -9,7 +9,7 @@ Deno.test({
 		const { mockAssetManager } = mocks;
 
 		try {
-			mockAssetManager.getOrCreateInternallyCreatedAsset = persistenceData => {
+			mockAssetManager.getOrCreateInternallyCreatedAsset = (persistenceData) => {
 				return new InternallyCreatedAsset(mockAssetManager, persistenceData, { forcedAssetUuid: null });
 			};
 			const getOrCreateInternallyCreatedAssetSpy = spy(mockAssetManager, "getOrCreateInternallyCreatedAsset");

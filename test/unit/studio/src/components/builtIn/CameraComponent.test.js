@@ -44,16 +44,16 @@ Deno.test({
 			}
 		}
 
-		updateValueTest(value => {
+		updateValueTest((value) => {
 			component.fov = value;
 		});
-		updateValueTest(value => {
+		updateValueTest((value) => {
 			component.clipNear = value;
 		});
-		updateValueTest(value => {
+		updateValueTest((value) => {
 			component.clipFar = value;
 		});
-		updateValueTest(value => {
+		updateValueTest((value) => {
 			component.aspectRatio = value;
 		});
 	},

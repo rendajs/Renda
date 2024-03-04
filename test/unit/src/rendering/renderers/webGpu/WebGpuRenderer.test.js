@@ -8,7 +8,7 @@ testTypes({
 		const engineAssetsManager = /** @type {import("../../../../../../src/mod.js").EngineAssetsManager} */ ({});
 		const renderer = new WebGpuRenderer(engineAssetsManager);
 		const customData = new CustomMaterialData();
-		customData.registerCallback(renderer, group => {
+		customData.registerCallback(renderer, (group) => {
 			// Verify that the type is a string and nothing else
 			const realGroup = new WebGpuChunkedBufferGroup();
 			assertIsType(realGroup, group);

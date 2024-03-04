@@ -22,7 +22,7 @@ Deno.test({
 
 		/** @type {import("../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent[]} */
 		const changeEvents = [];
-		fs.onChange(e => changeEvents.push(e));
+		fs.onChange((e) => changeEvents.push(e));
 		fs.suggestCheckExternalChanges();
 
 		assertEquals(changeEvents.length, 0);
@@ -147,7 +147,7 @@ Deno.test({
 Deno.test({
 	name: "No permission",
 	fn: async () => {
-		const { fs, onlyFilesDirHandle, onChangeSpy } = await initListener(basicFs => {
+		const { fs, onlyFilesDirHandle, onChangeSpy } = await initListener((basicFs) => {
 			basicFs.rootDirHandle.mockPermissionState("denied");
 		});
 
@@ -162,7 +162,7 @@ Deno.test({
 Deno.test({
 	name: "Permission granted after prompt, should not cause change events",
 	fn: async () => {
-		const { fs, fileHandle1, onChangeSpy } = await initListener(basicFs => {
+		const { fs, fileHandle1, onChangeSpy } = await initListener((basicFs) => {
 			basicFs.rootHandle.mockPermissionState("prompt", "granted");
 		});
 
@@ -184,7 +184,7 @@ Deno.test({
 Deno.test({
 	name: "Permission partially granted",
 	fn: async () => {
-		const { fs, onChangeSpy, onlyFilesDirHandle, onlyDirsDirHandle } = await initListener(basicFs => {
+		const { fs, onChangeSpy, onlyFilesDirHandle, onlyDirsDirHandle } = await initListener((basicFs) => {
 			basicFs.onlyDirsDirHandle.mockPermissionState("denied");
 		});
 

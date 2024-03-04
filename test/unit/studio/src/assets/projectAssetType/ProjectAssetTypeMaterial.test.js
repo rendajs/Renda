@@ -31,7 +31,7 @@ function basicSetup({
 	mockAssets.set(DEFAULT_MATERIAL_MAP_UUID, defaultMaterialMapProjectAsset);
 
 	const { projectAssetTypeArgs, assetManager } = createMockDependencies({
-		getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl: liveAsset => {
+		getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl: (liveAsset) => {
 			if (liveAsset == basicMaterialMapLiveAsset) {
 				return BASIC_MATERIAL_MAP_UUID;
 			} else if (liveAsset == defaultMaterialMapLiveAsset) {
@@ -236,7 +236,7 @@ Deno.test({
 		const texture = new Texture(new Blob());
 		const sampler = new Sampler();
 
-		stub(assetManager, "getAssetUuidOrEmbeddedAssetDataFromLiveAsset", liveAsset => {
+		stub(assetManager, "getAssetUuidOrEmbeddedAssetDataFromLiveAsset", (liveAsset) => {
 			if (liveAsset == texture) {
 				return BASIC_TEXTURE_UUID;
 			} else if (liveAsset == sampler) {

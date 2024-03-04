@@ -239,7 +239,7 @@ Deno.test({
 Deno.test({
 	name: "assertPromise resolved true",
 	async fn() {
-		const promise = new Promise(r => {
+		const promise = new Promise((r) => {
 			setTimeout(r, 0);
 		});
 		await promise;
@@ -254,7 +254,7 @@ Deno.test({
 Deno.test({
 	name: "assertPromise resolved false",
 	async fn() {
-		const promise = new Promise(r => {});
+		const promise = new Promise((r) => {});
 		await assertPromiseResolved(promise, false);
 
 		await assertRejects(async () => {

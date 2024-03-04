@@ -17,7 +17,7 @@ async function createBundle() {
 			}),
 			cleanup(),
 		],
-		onwarn: message => {
+		onwarn: (message) => {
 			if (message.code == "CIRCULAR_DEPENDENCY") return;
 			console.error(message.message);
 		},

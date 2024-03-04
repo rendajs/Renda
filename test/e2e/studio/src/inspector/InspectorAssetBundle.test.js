@@ -20,7 +20,7 @@ await runE2eTest({
 		log("Click run application button");
 		await click(page, runApplicationButtonEl);
 
-		await page.waitForFunction(buildViewEl => {
+		await page.waitForFunction((buildViewEl) => {
 			const iframe = buildViewEl.querySelector("iframe");
 			const textContent = iframe?.contentDocument?.body?.textContent;
 			if (!textContent) return;

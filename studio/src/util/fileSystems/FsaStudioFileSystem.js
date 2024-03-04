@@ -109,7 +109,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	} = {}) {
 		const hasPermission = await this.getPermission(path, { writable });
 		if (hasPermission) return;
-		await new Promise(resolve => {
+		await new Promise((resolve) => {
 			this.onPermissionGrantedListeners.add({
 				resolve,
 				path,

@@ -33,7 +33,7 @@ class RegistryItem {
 	}
 
 	forceCleanup() {
-		this.onCleanupCbs.forEach(cb => cb());
+		this.onCleanupCbs.forEach((cb) => cb());
 	}
 
 	/**

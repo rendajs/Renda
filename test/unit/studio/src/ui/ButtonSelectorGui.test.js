@@ -12,7 +12,7 @@ function createOnChangeSpy(gui) {
 	/**
 	 * @type {import("../../../../../studio/src/ui/ButtonSelectorGui.js").OnButtonselectorGuiValueChange}
 	 */
-	const fn = value => {};
+	const fn = (value) => {};
 	const spyFn = spy(fn);
 	gui.onValueChange(spyFn);
 	return spyFn;

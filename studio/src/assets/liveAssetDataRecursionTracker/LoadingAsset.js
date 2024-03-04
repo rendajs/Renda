@@ -38,7 +38,7 @@ export class LoadingAsset {
 	}
 
 	async waitForLoad() {
-		await new Promise(r => this.onLoad(r));
+		await new Promise((r) => this.onLoad(r));
 	}
 
 	/**
@@ -47,7 +47,7 @@ export class LoadingAsset {
 	setLoadedAssetData(loadedAssetData) {
 		this.loadedAssetData = loadedAssetData;
 		this.isLoaded = true;
-		this.onLoadCbs.forEach(cb => cb(this.loadedAssetData));
+		this.onLoadCbs.forEach((cb) => cb(this.loadedAssetData));
 		this.onLoadCbs.clear();
 	}
 }

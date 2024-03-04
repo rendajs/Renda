@@ -57,7 +57,7 @@ export class Mat4 {
 	 */
 	_handleChange() {
 		this.flatArrayBufferCache = new Map();
-		this._onChangeCbs.forEach(cb => cb());
+		this._onChangeCbs.forEach((cb) => cb());
 	}
 
 	/**

@@ -23,7 +23,7 @@ export class ColorizerFilter {
 		feComposite.setAttribute("operator", "in");
 		this.filterEl.appendChild(feComposite);
 
-		this.finalizationRegistry = new FinalizationRegistry(ref => {
+		this.finalizationRegistry = new FinalizationRegistry((ref) => {
 			this.notifyWeakRefDestructed(ref);
 		});
 

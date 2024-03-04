@@ -66,8 +66,8 @@ async function basictest({
 		mockStudioInstance.projectManager.assetManager = assetManager;
 		mockStudioInstance.projectManager.getAssetManager = async () => assetManager;
 		mockStudioInstance.projectManager.assertAssetManagerExists = () => assetManager;
-		mockStudioInstance.projectManager.onAssetManagerChange = cb => {};
-		mockStudioInstance.projectManager.removeOnAssetManagerChange = cb => {};
+		mockStudioInstance.projectManager.onAssetManagerChange = (cb) => {};
+		mockStudioInstance.projectManager.removeOnAssetManagerChange = (cb) => {};
 		assetManager.entityAssetManager = new EntityAssetManager(assetManager);
 
 		const dragManager = new DragManager();
@@ -187,7 +187,7 @@ Deno.test({
 				mockStudioInstance.projectManager.assetManager = null;
 				/** @type {Set<import("../../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback>} */
 				const cbs = new Set();
-				mockStudioInstance.projectManager.onAssetManagerChange = cb => cbs.add(cb);
+				mockStudioInstance.projectManager.onAssetManagerChange = (cb) => cbs.add(cb);
 				mockEntityEditor.editingEntity.add(new Entity("child"));
 
 				const contentWindow = new ContentWindowOutliner(...args);
@@ -197,7 +197,7 @@ Deno.test({
 				});
 
 				mockStudioInstance.projectManager.assetManager = assetManager;
-				cbs.forEach(cb => cb(assetManager));
+				cbs.forEach((cb) => cb(assetManager));
 
 				assertTreeViewStructureEquals(contentWindow.treeView, {
 					name: "Entity",
@@ -222,7 +222,7 @@ Deno.test({
 				mockStudioInstance.projectManager.assetManager = null;
 				/** @type {Set<import("../../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback>} */
 				const cbs = new Set();
-				mockStudioInstance.projectManager.onAssetManagerChange = cb => cbs.add(cb);
+				mockStudioInstance.projectManager.onAssetManagerChange = (cb) => cbs.add(cb);
 				mockEntityEditor.editingEntity.add(new Entity("child"));
 
 				const contentWindow = new ContentWindowOutliner(...args);
@@ -230,7 +230,7 @@ Deno.test({
 				contentWindow.destructor();
 
 				mockStudioInstance.projectManager.assetManager = assetManager;
-				cbs.forEach(cb => cb(assetManager));
+				cbs.forEach((cb) => cb(assetManager));
 
 				assertTreeViewStructureEquals(contentWindow.treeView, {
 					name: "",
@@ -246,7 +246,7 @@ Deno.test({
  */
 function setupTrackedEntityTest(assetManager) {
 	const TRACKED_ENTITY_UUID = "TRACKED_ENTITY_UUID";
-	stub(assetManager, "getLiveAsset", async uuid => {
+	stub(assetManager, "getLiveAsset", async (uuid) => {
 		if (uuid == TRACKED_ENTITY_UUID) {
 			const entity = new Entity("tracked entity");
 			assetManager.entityAssetManager.setLinkedAssetUuid(entity, TRACKED_ENTITY_UUID);
@@ -330,7 +330,7 @@ Deno.test({
  */
 function clickAddEntityButton(contentWindow) {
 	const buttons = Array.from(contentWindow.topButtonBar.children);
-	const button = buttons.find(el => "title" in el && el.title == "Add Entity");
+	const button = buttons.find((el) => "title" in el && el.title == "Add Entity");
 	if (!button) {
 		throw new AssertionError("Unable to find 'add entity' button");
 	}
@@ -650,14 +650,14 @@ Deno.test({
 					liveAsset: entityAsset,
 				});
 
-				stub(mockAssetManager, "getProjectAssetFromUuid", async uuid => {
+				stub(mockAssetManager, "getProjectAssetFromUuid", async (uuid) => {
 					if (uuid == entityAssetUuid) {
 						return projectAsset;
 					}
 					return null;
 				});
 				const makeUuidPersistentSpy = stub(mockAssetManager, "makeAssetUuidPersistent");
-				stub(mockAssetManager.entityAssetManager, "createTrackedEntity", uuid => {
+				stub(mockAssetManager.entityAssetManager, "createTrackedEntity", (uuid) => {
 					if (uuid == entityAssetUuid) return entityAsset;
 					throw new Error("unexpected uuid");
 				});

@@ -410,7 +410,7 @@ export class NumericGui {
 	/**
 	 * @param {number} delta
 	 */
-	#handleCaretAdjust = delta => {
+	#handleCaretAdjust = (delta) => {
 		if (document.activeElement != this.el) return;
 		const value = this.el.value;
 		const caretPos = this.el.selectionStart;

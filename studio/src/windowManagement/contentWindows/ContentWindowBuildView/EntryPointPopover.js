@@ -158,7 +158,7 @@ export class EntryPointPopover extends Popover {
 				}
 				fileNames.add(fileName);
 			}
-			const itemTexts = itemDatas.map(item => {
+			const itemTexts = itemDatas.map((item) => {
 				if (duplicateFileNames.has(item.fileName)) {
 					return item.fullPath;
 				} else {
@@ -169,7 +169,7 @@ export class EntryPointPopover extends Popover {
 			entry.gui.setItems(itemTexts);
 
 			if (selectedEntryPoint) {
-				const index = itemDatas.findIndex(item => item.uuid == selectedEntryPoint);
+				const index = itemDatas.findIndex((item) => item.uuid == selectedEntryPoint);
 				entry.gui.setValue(index + 1);
 			} else {
 				entry.gui.setValue(0);

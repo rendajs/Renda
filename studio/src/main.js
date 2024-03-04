@@ -25,7 +25,7 @@ globalThis["projectSelector"] = projectSelector;
 		import("../../src/math/mod.js"),
 		import("../../src/core/mod.js"),
 	];
-	promises.forEach(async promise => {
+	promises.forEach(async (promise) => {
 		const mod = await promise;
 		for (const [key, value] of Object.entries(mod)) {
 			globalRenda[key] = value;

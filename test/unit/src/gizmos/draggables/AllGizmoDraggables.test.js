@@ -86,7 +86,7 @@ Deno.test({
 			const draggable = new Draggable(mockGizmoManager);
 			/** @type {DraggableDragEvent[]} */
 			const calls = [];
-			draggable.onDrag(event => {
+			draggable.onDrag((event) => {
 				calls.push(event);
 			});
 
@@ -113,7 +113,7 @@ Deno.test({
 			const draggable = new Draggable(mockGizmoManager);
 			/** @type {DraggableDragEvent[]} */
 			const calls = [];
-			draggable.onDrag(event => {
+			draggable.onDrag((event) => {
 				calls.push(event);
 			});
 

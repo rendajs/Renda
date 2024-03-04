@@ -169,7 +169,7 @@ const bundle = await rollup({
 		importAssertionsPlugin(),
 	],
 	acornInjectPlugins: [importAssertions],
-	onwarn: message => {
+	onwarn: (message) => {
 		if (message.code == "CIRCULAR_DEPENDENCY") return;
 		console.error(message.message);
 	},

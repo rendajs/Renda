@@ -62,7 +62,7 @@ export function basicSetup({
 		},
 	});
 
-	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async fromUserGesture => {});
+	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async (fromUserGesture) => {});
 	const openProjectFromLocalDirectorySpy = stub(mockStudio.projectManager, "openProjectFromLocalDirectory", async () => {});
 	const restartClientsSpy = spy(mockStudio.serviceWorkerManager, "restartClients");
 
@@ -78,7 +78,7 @@ export function basicSetup({
 	 */
 	function setInstallingState(newState) {
 		installingState = newState;
-		installingStateChangeCbs.forEach(cb => cb());
+		installingStateChangeCbs.forEach((cb) => cb());
 	}
 
 	/**

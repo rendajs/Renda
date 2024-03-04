@@ -15,7 +15,7 @@ export class InternalMessageHandler extends MessageHandler {
 		this.messagePort = messagePort;
 		/** @private */
 		this.onPermissionResult = onPermissionResult;
-		messagePort.addEventListener("message", e => {
+		messagePort.addEventListener("message", (e) => {
 			this.handleMessageReceived(e.data);
 		});
 		messagePort.start();

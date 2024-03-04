@@ -63,7 +63,7 @@ function createRemoteFileSystemTestConfig(type, supportsSerialization) {
 				supportsSerialization,
 			});
 			remoteFs.setConnection(connectionB);
-			memoryFs.onChange(e => {
+			memoryFs.onChange((e) => {
 				connectionA.messenger.send["fileSystem.changeEvent"](e);
 			});
 			return remoteFs;

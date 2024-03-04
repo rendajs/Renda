@@ -948,7 +948,7 @@ Deno.test({
 		/** @type {number[]} */
 		const expectedResult = [];
 		const vec = new Vec3();
-		vec.onChange(component => {
+		vec.onChange((component) => {
 			fireResults.push(component);
 		});
 

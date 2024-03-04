@@ -13,7 +13,7 @@ Deno.test({
 		installFakeDocument();
 
 		try {
-			const spyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewCollapseEvent} e */ e => {});
+			const spyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewCollapseEvent} e */ (e) => {});
 			const treeView = new TreeView();
 			const child = new TreeView({ name: "child" });
 			treeView.addChild(child);
@@ -52,7 +52,7 @@ Deno.test({
 			assertSpyCalls(spyFn, 4);
 
 			// Events are fired on both the parent and the child
-			const childSpyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewCollapseEvent} e */ e => {});
+			const childSpyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewCollapseEvent} e */ (e) => {});
 			child.addEventListener("collapsedchange", childSpyFn);
 			child.toggleCollapsed();
 			assertSpyCalls(childSpyFn, 1);
@@ -72,8 +72,8 @@ Deno.test({
 		globalThis.Node = /** @type {any} */ (HtmlElement);
 
 		try {
-			const spyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewFocusWithinChangeEvent} e */ e => {});
-			const childSpyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewFocusWithinChangeEvent} e */ e => {});
+			const spyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewFocusWithinChangeEvent} e */ (e) => {});
+			const childSpyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewFocusWithinChangeEvent} e */ (e) => {});
 			const treeView = new TreeView();
 			const childTreeView = new TreeView({ name: "child" });
 			treeView.addChild(childTreeView);

@@ -329,6 +329,6 @@ export class Quat {
 	 * @param {number} changedComponents
 	 */
 	fireOnChange(changedComponents) {
-		this.onChangeCbs.forEach(cb => cb(changedComponents));
+		this.onChangeCbs.forEach((cb) => cb(changedComponents));
 	}
 }

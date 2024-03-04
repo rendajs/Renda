@@ -146,7 +146,7 @@ export class FakeHandle {
 		}
 		/** @type {WritableStream<FileSystemWriteChunkType>} */
 		const stream = new WritableStream({
-			write: async chunk => {
+			write: async (chunk) => {
 				if (chunk instanceof Blob) {
 					chunk = await chunk.arrayBuffer();
 				}

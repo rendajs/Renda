@@ -26,7 +26,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 		if (connected != this.#connected) {
 			this.#connected = connected;
 			if (connected) {
-				this.#onConnectedCbs.forEach(cb => cb());
+				this.#onConnectedCbs.forEach((cb) => cb());
 			}
 		}
 	}
@@ -34,7 +34,7 @@ export class RemoteStudioFileSystem extends StudioFileSystem {
 	async #waitForConnection() {
 		if (this.#connected && this.#connection) return this.#connection;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.#onConnectedCbs.add(r));
+		const promise = new Promise((r) => this.#onConnectedCbs.add(r));
 		await promise;
 		if (!this.#connection) throw new Error("Assertion failed: Connection doesn't exist.");
 		return this.#connection;

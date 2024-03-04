@@ -111,13 +111,13 @@ if (useIo) {
 			}
 			i++;
 		}
-		files = files.map(f => {
+		files = files.map((f) => {
 			if (f.endsWith("/")) {
 				return f + "**/*.js";
 			}
 			return f;
 		});
-		files = files.filter(f => f.endsWith(".js"));
+		files = files.filter((f) => f.endsWith(".js"));
 		if (files.length == 0) {
 			console.log("No files have been modified, there's nothing to lint. Use --all if you wish to forcefully lint all files.");
 			Deno.exit();

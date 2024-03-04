@@ -16,7 +16,7 @@ Deno.test({
 		const { gui, mockDragManager, mockProjectAsset, mockAssetManager, uninstall } = await basicSetupForSettingByUuid();
 
 		try {
-			stub(mockDragManager, "getDraggingData", uuid => {
+			stub(mockDragManager, "getDraggingData", (uuid) => {
 				if (uuid == BASIC_DRAGGING_DATA_UUID) {
 					return { assetUuid: BASIC_ASSET_UUID_FOR_SETTING };
 				}
@@ -141,7 +141,7 @@ function basicSetupForSupportedAssetTypes({
 		},
 	});
 
-	stub(mockDragManager, "getDraggingData", uuid => {
+	stub(mockDragManager, "getDraggingData", (uuid) => {
 		if (uuid == BASIC_DRAGGING_DATA_UUID) {
 			/** @type {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} */
 			return {

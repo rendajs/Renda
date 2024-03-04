@@ -196,7 +196,7 @@ Deno.test({
 
 		/** @type {unknown[]} */
 		const calls = [];
-		manager.onGizmoNeedsRender(gizmo => {
+		manager.onGizmoNeedsRender((gizmo) => {
 			calls.push(gizmo);
 		});
 
@@ -215,7 +215,7 @@ Deno.test({
 
 		const calls = [];
 		/** @type {import("../../../../src/gizmos/GizmoManager.js").OnGizmoNeedsRenderCb} */
-		const cb = gizmo => {
+		const cb = (gizmo) => {
 			calls.push(gizmo);
 		};
 		manager.onGizmoNeedsRender(cb);

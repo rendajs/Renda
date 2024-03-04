@@ -23,7 +23,7 @@ function basicSetup({
 	/**
 	 * @param {import("../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
 	 */
-	const spyFn = e => {};
+	const spyFn = (e) => {};
 	const commandSpy = spy(spyFn);
 
 	/**

@@ -97,7 +97,7 @@ async function basicSetup({
 		 * @param {boolean} granted
 		 */
 		triggerPermissionPromptCbs(granted) {
-			permissionPromptCbs.forEach(cb => cb(granted));
+			permissionPromptCbs.forEach((cb) => cb(granted));
 		},
 		uninstall() {
 			uninstallFakeDocument();

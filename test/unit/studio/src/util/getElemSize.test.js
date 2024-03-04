@@ -10,7 +10,7 @@ async function setup(offsetWidth, offsetHeight, styleMap) {
 	const originalGetComputedStyle = globalThis.getComputedStyle;
 	const fakeEl = /** @type {HTMLElement} */ ({ offsetWidth, offsetHeight });
 
-	globalThis.getComputedStyle = /** @type {typeof getComputedStyle} */ (el => {
+	globalThis.getComputedStyle = /** @type {typeof getComputedStyle} */ ((el) => {
 		if (el != fakeEl) {
 			throw new Error("Wrong element");
 		}
@@ -18,7 +18,7 @@ async function setup(offsetWidth, offsetHeight, styleMap) {
 			/**
 			 * @param {string} name
 			 */
-			getPropertyValue: name => {
+			getPropertyValue: (name) => {
 				return styleMap[name] || "";
 			},
 		};

@@ -75,7 +75,7 @@ export class BuiltInAssetManager {
 	init(devSocket) {
 		if (IS_DEV_BUILD) {
 			this.devSocket = devSocket;
-			devSocket.addListener("builtInAssetChange", data => {
+			devSocket.addListener("builtInAssetChange", (data) => {
 				const asset = this.assets.get(data.uuid);
 				if (asset) {
 					asset.fileChangedExternally();

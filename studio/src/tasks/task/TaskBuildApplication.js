@@ -103,7 +103,7 @@ export class TaskBuildApplication extends Task {
 			bundleAssets: async (contextId, uuids) => {
 				const context = this.getContext(contextId);
 				const bundleAssetsResult = await context.runChildTask("renda:bundleAssets", {
-					assets: uuids.map(uuid => {
+					assets: uuids.map((uuid) => {
 						return {
 							asset: uuid,
 							includeChildren: true,

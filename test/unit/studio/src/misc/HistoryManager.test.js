@@ -52,7 +52,7 @@ function basicTest({
 		const cbs = commandCallbacks.get(command);
 		if (cbs) {
 			const mockEvent = /** @type {import("../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} */ ({});
-			cbs.forEach(cb => cb(mockEvent));
+			cbs.forEach((cb) => cb(mockEvent));
 		}
 	}
 
@@ -68,13 +68,13 @@ function basicTest({
 			fireShortcutCommand("history.redo");
 		},
 		getCurrentEntry() {
-			const entry = Array.from(manager.getEntries()).find(entry => entry.current);
+			const entry = Array.from(manager.getEntries()).find((entry) => entry.current);
 			assertExists(entry);
 			return entry.entry;
 		},
 		expectEntries(expectedEntries) {
 			const actualEntries = Array.from(manager.getEntries());
-			const mapped = actualEntries.map(entry => {
+			const mapped = actualEntries.map((entry) => {
 				/** @type {ExpectedEntry} */
 				const mappedEntry = {
 					uiText: entry.entry.uiText,

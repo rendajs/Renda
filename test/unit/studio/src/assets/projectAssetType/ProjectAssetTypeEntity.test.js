@@ -78,7 +78,7 @@ Deno.test({
 		}
 
 		studio.componentTypeManager = /** @type {import("../../../../../../src/components/ComponentTypeManager.js").ComponentTypeManager} */ ({});
-		stub(studio.componentTypeManager, "getComponentConstructorForUuid", uuid => {
+		stub(studio.componentTypeManager, "getComponentConstructorForUuid", (uuid) => {
 			if (uuid == BASIC_COMPONENT_UUID) {
 				return FooComponent;
 			}
@@ -174,7 +174,7 @@ Deno.test("reload component values when changed", async () => {
 
 	assetType.fillComponentPropertyValueFromJson(newComponentData, originalComponentData, "mesh", "droppable", {}, /** @type {any} */ (fakeRecursionTracker));
 
-	fakeRecursionTracker.onChangeCbs.forEach(cb => cb(replacedMesh));
+	fakeRecursionTracker.onChangeCbs.forEach((cb) => cb(replacedMesh));
 
 	assertEquals(newComponentData.mesh, replacedMesh);
 	assertEquals(markRenderDirtyCalled, true);

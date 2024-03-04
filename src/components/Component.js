@@ -144,7 +144,7 @@ export class Component {
 		castComponent[studioDefaultsHandledSym] = true;
 		const cbs = castComponent[onStudioDefaultsCbsSym];
 		if (cbs) {
-			cbs.forEach(cb => cb());
+			cbs.forEach((cb) => cb());
 		}
 		delete castComponent[settingDefaultsPromisesSym];
 		delete castComponent[onStudioDefaultsCbsSym];
@@ -358,6 +358,6 @@ export class Component {
 			castComponent[onStudioDefaultsCbsSym] = cbs;
 		}
 		const certainCbs = cbs;
-		await new Promise(r => certainCbs.add(r));
+		await new Promise((r) => certainCbs.add(r));
 	}
 }

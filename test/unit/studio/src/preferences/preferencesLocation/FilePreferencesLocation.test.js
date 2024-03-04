@@ -127,7 +127,7 @@ Deno.test({
 		const fs = new MemoryStudioFileSystem();
 		let resolveWait = () => {};
 		const waitForPermissionSpy = stub(fs, "waitForPermission", () => {
-			return new Promise(resolve => {
+			return new Promise((resolve) => {
 				resolveWait = resolve;
 			});
 		});

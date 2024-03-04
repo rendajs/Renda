@@ -41,7 +41,7 @@ function basicTest({ fn, startHistoryEntries = [] }) {
 		const testContext = {
 			contentWindow: /** @type {ContentWindowHistory} */ (/** @type {unknown} */ (null)),
 			triggerOnTreeUpdated() {
-				onTreeUpdatedCbs.forEach(cb => cb());
+				onTreeUpdatedCbs.forEach((cb) => cb());
 			},
 			canUndo: false,
 			canRedo: false,
@@ -102,7 +102,7 @@ Deno.test({
 
 				const svgEl = shadow.children[0];
 				assertEquals(svgEl.tagName, "svg");
-				assertEquals(Array.from(svgEl.children).map(c => c.tagName), ["path", "circle"]);
+				assertEquals(Array.from(svgEl.children).map((c) => c.tagName), ["path", "circle"]);
 
 				const entriesEl = shadow.children[1];
 				assertEquals(entriesEl.tagName, "UL");
@@ -147,7 +147,7 @@ Deno.test({
 
 				ctx.triggerOnTreeUpdated();
 				assertEquals(entriesEl.childElementCount, 3);
-				assertEquals(Array.from(svgEl.children).map(c => c.tagName), ["path", "path", "circle", "circle", "circle"]);
+				assertEquals(Array.from(svgEl.children).map((c) => c.tagName), ["path", "path", "circle", "circle", "circle"]);
 			},
 		});
 	},

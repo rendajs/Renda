@@ -11,7 +11,7 @@ Deno.test({
 		const draggable = new TranslateGizmoDraggable(mockGizmoManager);
 		/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").TranslateGizmoDragEvent[]} */
 		const calls = [];
-		draggable.onDrag(event => {
+		draggable.onDrag((event) => {
 			calls.push(event);
 		});
 

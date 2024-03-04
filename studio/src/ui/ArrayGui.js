@@ -117,7 +117,7 @@ export class ArrayGui {
 			},
 		};
 		const addedItem = this.treeView.addItem(addItemOpts);
-		addedItem.onValueChange(changeEvent => {
+		addedItem.onValueChange((changeEvent) => {
 			this.#fireValueChange(changeEvent.trigger);
 		});
 		if (this.disabled) addedItem.setDisabled(true);
@@ -207,7 +207,7 @@ export class ArrayGui {
 	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	#fireValueChange(trigger) {
-		this.#onValueChangeCbs.forEach(cb => cb({
+		this.#onValueChangeCbs.forEach((cb) => cb({
 			trigger,
 			value: this.value,
 		}));

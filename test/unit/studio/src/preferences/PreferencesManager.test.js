@@ -725,7 +725,7 @@ Deno.test({
 		/** @type {Set<() => void>} */
 		const globalFlushResolveFunctions = new Set();
 		const globalFlushSpy = stub(locations.global, "flush", () => {
-			return new Promise(resolve => {
+			return new Promise((resolve) => {
 				globalFlushResolveFunctions.add(resolve);
 			});
 		});
@@ -758,7 +758,7 @@ Deno.test({
 
 		await assertPromiseResolved(flushPromise, false);
 
-		globalFlushResolveFunctions.forEach(cb => cb());
+		globalFlushResolveFunctions.forEach((cb) => cb());
 		globalFlushResolveFunctions.clear();
 
 		await assertPromiseResolved(flushPromise, true);

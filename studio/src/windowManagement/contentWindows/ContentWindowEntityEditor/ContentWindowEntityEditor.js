@@ -130,7 +130,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editorCamComponent.clusteredLightsConfig = new ClusteredLightsConfig();
 
 		this.grid = new Entity("grid");
-		this.studioInstance.preferencesManager.onChange("entityEditor.showGrid", this.uuid, e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.showGrid", this.uuid, (e) => {
 			if (e.value) {
 				if (!this.grid.parent) {
 					this.editorScene.add(this.grid);
@@ -150,7 +150,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			assertionOptions: {
 				assertInstanceType: Material,
 			},
-		}, asset => {
+		}, (asset) => {
 			gridMeshComponent.materials = [asset];
 			this.markRenderDirty();
 		});
@@ -165,7 +165,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			assertionOptions: {
 				assertInstanceType: VertexState,
 			},
-		}, asset => {
+		}, (asset) => {
 			gridMesh.setVertexState(asset);
 			this.markRenderDirty();
 		});
@@ -178,10 +178,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.orbitControlsValuesDirty = false;
 		this.lastOrbitControlsValuesChangeTime = 0;
 
-		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitX", this.uuid, e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitX", this.uuid, (e) => {
 			this.orbitControls.invertScrollX = e.value;
 		});
-		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitY", this.uuid, e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitY", this.uuid, (e) => {
 			this.orbitControls.invertScrollY = e.value;
 		});
 
@@ -217,17 +217,17 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {Map<Entity, Map<import("../../../../../src/mod.js").Component, import("../../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();
 
-		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookPos", this.uuid, e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookPos", this.uuid, (e) => {
 			if (e.trigger == "application") return;
 			if (!Array.isArray(e.value)) return;
 			this.orbitControls.lookPos = new Vec3(/** @type {[number, number, number]} */ (e.value));
 		});
-		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookRot", this.uuid, e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookRot", this.uuid, (e) => {
 			if (e.trigger == "application") return;
 			if (!Array.isArray(e.value)) return;
 			this.orbitControls.lookRot = new Quat(/** @type {[number, number, number, number]} */ (e.value));
 		});
-		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookDist", this.uuid, e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookDist", this.uuid, (e) => {
 			if (e.trigger == "application") return;
 			this.orbitControls.lookDist = e.value;
 		});
@@ -237,7 +237,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		// We could make the uuid persistent but this would cause assetSettings.json to be updated.
 		// assetSettings.json is expected to be tracked in version control and we don't want to surprise the user
 		// with unexpected changed files.
-		this.studioInstance.preferencesManager.onChange("entityEditor.loadedEntityPath", this.uuid, async e => {
+		this.studioInstance.preferencesManager.onChange("entityEditor.loadedEntityPath", this.uuid, async (e) => {
 			if (e.trigger == "application") return;
 			if (Array.isArray(e.value)) {
 				const castLoadedEntityPath = /** @type {string[]} */ (e.value);
@@ -324,7 +324,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	/**
 	 * @param {import("../../../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
 	 */
-	#onTrackedEntityChange = e => {
+	#onTrackedEntityChange = (e) => {
 		const entityAssetManager = this.studioInstance.projectManager.assetManager?.entityAssetManager;
 		if (entityAssetManager) {
 			const newAssetUuid = entityAssetManager.getLinkedAssetUuid(this.editingEntity);
@@ -494,7 +494,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	/**
 	 * @param {import("../../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
 	 */
-	#translateKeyboardShortcutPressed = e => {
+	#translateKeyboardShortcutPressed = (e) => {
 		const holdState = e.command.holdStateActive;
 		if (holdState) {
 			this.setTransformationMode("translate");
@@ -513,7 +513,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	/**
 	 * @param {import("../../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
 	 */
-	#rotateKeyboardShortcutPressed = e => {
+	#rotateKeyboardShortcutPressed = (e) => {
 		const holdState = e.command.holdStateActive;
 		if (holdState) {
 			this.setTransformationMode("rotate");
@@ -617,19 +617,19 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			if (!gizmo) {
 				if (this.transformationMode == "translate") {
 					gizmo = this.gizmos.addGizmo(TranslationGizmo);
-					gizmo.onDrag(e => {
+					gizmo.onDrag((e) => {
 						const localMatrix = Mat4.createTranslation(e.localDelta);
 						this.dragSelectedEntities(localMatrix);
 					});
 				} else if (this.transformationMode == "rotate") {
 					gizmo = this.gizmos.addGizmo(RotationGizmo);
-					gizmo.onDrag(e => {
+					gizmo.onDrag((e) => {
 						const localMatrix = e.localDelta.toMat4();
 						this.dragSelectedEntities(localMatrix);
 					});
 				} else if (this.transformationMode == "scale") {
 					gizmo = this.gizmos.addGizmo(ScaleGizmo);
-					gizmo.onDrag(e => {
+					gizmo.onDrag((e) => {
 						const localMatrix = Mat4.createScale(e.localDelta);
 						this.dragSelectedEntities(localMatrix);
 					});
@@ -712,7 +712,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (this.transformationPivot == "last" || forceLast) {
 			const last = this.selectionGroup.currentSelectedObjects.at(-1);
 			if (last) {
-				const entities = this.selectionGroup.currentSelectedObjects.map(s => s.entity);
+				const entities = this.selectionGroup.currentSelectedObjects.map((s) => s.entity);
 				pivots.push(createPivotData(last.entity, entities));
 			}
 		} else if (this.transformationPivot == "multiple") {

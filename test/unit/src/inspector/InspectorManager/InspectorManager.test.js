@@ -303,13 +303,13 @@ Deno.test({
 							return new Promise(() => {});
 						}
 						if (callId == 2) {
-							const promise = new Promise(resolve => {
+							const promise = new Promise((resolve) => {
 								resolvecCall2 = resolve;
 							});
 							return promise;
 						}
 						if (callId == 3) {
-							const promise = new Promise(resolve => {
+							const promise = new Promise((resolve) => {
 								resolvecCall3 = resolve;
 							});
 							return promise;

@@ -16,9 +16,9 @@ Deno.test({
 			const child3 = new TreeView({ name: "child3" });
 			treeView.addChild(child3);
 
-			assertEquals(treeView.children.map(c => c.name), ["child1", "child2", "child3"]);
+			assertEquals(treeView.children.map((c) => c.name), ["child1", "child2", "child3"]);
 			treeView.removeChild(child2);
-			assertEquals(treeView.children.map(c => c.name), ["child1", "child3"]);
+			assertEquals(treeView.children.map((c) => c.name), ["child1", "child3"]);
 		});
 	},
 });
@@ -37,16 +37,16 @@ Deno.test({
 			const tv6 = tv5.addChild();
 
 			const treeViews = [tv1, tv2, tv3, tv4, tv5, tv6];
-			const renderContainerValues = treeViews.map(tv => tv.renderContainer);
-			const renderContainerClasses = treeViews.map(tv => tv.el.classList.contains("render-container"));
+			const renderContainerValues = treeViews.map((tv) => tv.renderContainer);
+			const renderContainerClasses = treeViews.map((tv) => tv.el.classList.contains("render-container"));
 			const expectedRenderContainerValues = [false, false, true, true, false, false];
 			assertEquals(renderContainerValues, expectedRenderContainerValues);
 			assertEquals(renderContainerClasses, expectedRenderContainerValues);
 
-			const recursionDepths = treeViews.map(tv => tv.recursionDepth);
+			const recursionDepths = treeViews.map((tv) => tv.recursionDepth);
 			assertEquals(recursionDepths, [0, 1, 0, 0, 1, 2]);
 
-			const containerRecursionDepths = treeViews.map(tv => tv.containerRecursionDepth);
+			const containerRecursionDepths = treeViews.map((tv) => tv.containerRecursionDepth);
 			assertEquals(containerRecursionDepths, [0, 0, 1, 2, 2, 2]);
 
 			const child6 = new TreeView();
@@ -102,7 +102,7 @@ Deno.test({
 				treeViews.push(parent);
 			}
 
-			const bgColors = treeViews.map(tv => tv.el.style.getPropertyValue("background-color"));
+			const bgColors = treeViews.map((tv) => tv.el.style.getPropertyValue("background-color"));
 			assertEquals(bgColors, [
 				"",
 				"var(--bg-color-level1)",
@@ -112,7 +112,7 @@ Deno.test({
 				"var(--bg-color-level1)",
 				"var(--bg-color-level2)",
 			]);
-			const textColors = treeViews.map(tv => tv.el.style.getPropertyValue("color"));
+			const textColors = treeViews.map((tv) => tv.el.style.getPropertyValue("color"));
 			assertEquals(textColors, [
 				"",
 				"var(--text-color-level1)",
@@ -141,9 +141,9 @@ Deno.test({
 			tv1.forceContainerRecursionDepth(4);
 
 			const treeViews = [tv1, tv2, tv3, tv4];
-			const depths = treeViews.map(tv => tv.recursionDepth);
+			const depths = treeViews.map((tv) => tv.recursionDepth);
 			assertEquals(depths, [0, 1, 0, 1]);
-			const containerDepths = treeViews.map(tv => tv.containerRecursionDepth);
+			const containerDepths = treeViews.map((tv) => tv.containerRecursionDepth);
 			assertEquals(containerDepths, [4, 4, 5, 5]);
 		});
 	},
@@ -161,7 +161,7 @@ Deno.test({
 			const treeViews = [tv1, tv2, tv3, tv4, tv5];
 			tv3.rowVisible = false;
 
-			const depths = treeViews.map(tv => tv.recursionDepth);
+			const depths = treeViews.map((tv) => tv.recursionDepth);
 			assertEquals(depths, [0, 1, 1, 2, 3]);
 		});
 	},

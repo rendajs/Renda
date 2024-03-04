@@ -12,7 +12,7 @@ import { waitForStudioLoad } from "./studio.js";
 export async function waitForProjectOpen(page, allowExisting = true) {
 	await waitForStudioLoad(page);
 	log("Waiting for project to open...");
-	await page.evaluate(async allowExisting => {
+	await page.evaluate(async (allowExisting) => {
 		if (!globalThis.studio) throw new Error("Studio instance does not exist");
 		await globalThis.studio.projectManager.waitForProjectOpen(allowExisting);
 	}, allowExisting);

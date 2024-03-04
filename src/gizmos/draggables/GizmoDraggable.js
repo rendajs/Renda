@@ -135,7 +135,7 @@ export class GizmoDraggable {
 		const isHovering = this.#hoveringPointers.size > 0;
 		if (isHovering != this.#isHovering) {
 			this.#isHovering = isHovering;
-			this.#onIsHoveringChangeCbs.forEach(cb => cb(isHovering));
+			this.#onIsHoveringChangeCbs.forEach((cb) => cb(isHovering));
 		}
 	}
 
@@ -163,7 +163,7 @@ export class GizmoDraggable {
 		if (this.#activeDraggingPointer != pointerDevice) return;
 
 		this.#activeDraggingPointer = null;
-		this.#onDragEndCbs.forEach(cb => cb());
+		this.#onDragEndCbs.forEach((cb) => cb());
 		this.handlePointerUp(pointerDevice);
 	}
 
@@ -220,7 +220,7 @@ export class GizmoDraggable {
 	 * @param {TDragEvent} event
 	 */
 	fireDragCallbacks(event) {
-		this.#onDragCbs.forEach(cb => cb(event));
+		this.#onDragCbs.forEach((cb) => cb(event));
 	}
 
 	/**

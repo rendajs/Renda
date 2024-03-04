@@ -69,10 +69,10 @@ export class ExtendedMessageHandler extends MessageHandler {
  * @param {ExtendedMessageHandler} messageHandlerB
  */
 export function connectMessageHandlers(messageHandlerA, messageHandlerB) {
-	messageHandlerA.onSendCalled(async data => {
+	messageHandlerA.onSendCalled(async (data) => {
 		await messageHandlerB.handleMessageReceived(data);
 	});
-	messageHandlerB.onSendCalled(async data => {
+	messageHandlerB.onSendCalled(async (data) => {
 		await messageHandlerA.handleMessageReceived(data);
 	});
 	messageHandlerA.setStatus("connected");

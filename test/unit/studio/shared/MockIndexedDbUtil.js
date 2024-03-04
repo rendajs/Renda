@@ -93,7 +93,7 @@ let currentForcePendingCallback = null;
 export function forcePendingOperations(pending) {
 	if (pending) {
 		if (!currentForcePendingCallback) {
-			currentForcePendingPromise = new Promise(r => {
+			currentForcePendingPromise = new Promise((r) => {
 				currentForcePendingCallback = r;
 			});
 		}

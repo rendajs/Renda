@@ -34,7 +34,7 @@ function getMockArgs() {
 		const saveLiveAssetDataSpy = stub(editingEntityAsset, "saveLiveAssetData", () => {
 			if (autoResolveSaveLiveAssetData) return Promise.resolve();
 			/** @type {Promise<void>} */
-			const promise = new Promise(resolve => {
+			const promise = new Promise((resolve) => {
 				resolveFn = resolve;
 			});
 			return promise;
@@ -61,7 +61,7 @@ function getMockArgs() {
 			async getAssetManager() {
 				const assetManager = /** @type {import("../../../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({
 					async getProjectAssetFromUuid(uuid) {
-						const data = editingEntities.find(data => data.uuid == uuid);
+						const data = editingEntities.find((data) => data.uuid == uuid);
 						if (data) {
 							return data.asset;
 						}
@@ -69,7 +69,7 @@ function getMockArgs() {
 					},
 					entityAssetManager: {
 						findRootEntityAsset(entity) {
-							const data = editingEntities.find(data => data.entity == entity);
+							const data = editingEntities.find((data) => data.entity == entity);
 							if (data) {
 								return { uuid: data.uuid };
 							}

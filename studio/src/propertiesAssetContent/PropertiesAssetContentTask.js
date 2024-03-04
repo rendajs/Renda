@@ -38,14 +38,14 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		this.environmentVariablesTree = this.treeView.addCollapsable("Environment Variables");
 		this.environmentVariablesTree.renderContainer = true;
 		this.environmentVariablesTree.generateFromSerializableStructure(environmentVariablesStructure);
-		this.environmentVariablesTree.onChildValueChange(changeEvent => {
+		this.environmentVariablesTree.onChildValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			this.saveTaskAsset();
 		});
 
 		this.taskConfigTree = this.treeView.addCollapsable("Task Settings");
 		this.taskConfigTree.renderContainer = true;
-		this.taskConfigTree.onChildValueChange(changeEvent => {
+		this.taskConfigTree.onChildValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			this.saveTaskAsset();
 		});

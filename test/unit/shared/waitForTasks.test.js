@@ -10,7 +10,7 @@ Deno.test({
 
 		async function someAsyncFunction() {
 			/** @type {Promise<void>} */
-			const promise = new Promise(r => {
+			const promise = new Promise((r) => {
 				finishPromise = r;
 			});
 			await promise;
@@ -38,7 +38,7 @@ Deno.test({
 
 		async function someAsyncFunction() {
 			/** @type {Promise<void>} */
-			const promise = new Promise(r => {
+			const promise = new Promise((r) => {
 				finishPromise = r;
 			});
 			await promise;
@@ -68,7 +68,7 @@ Deno.test({
 
 		async function someAsyncFunction() {
 			/** @type {Promise<void>} */
-			const promise = new Promise(r => {
+			const promise = new Promise((r) => {
 				finishPromise = r;
 			});
 			await promise;
@@ -104,12 +104,12 @@ Deno.test({
 
 		async function someAsyncFunction() {
 			/** @type {Promise<void>} */
-			const promise = new Promise(r => {
+			const promise = new Promise((r) => {
 				finishPromise = r;
 			});
 			await promise;
 
-			await new Promise(r => setTimeout(r, 0));
+			await new Promise((r) => setTimeout(r, 0));
 			endReached = true;
 		}
 		const functionPromise = someAsyncFunction();

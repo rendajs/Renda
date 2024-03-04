@@ -75,7 +75,7 @@ Deno.test({
 			mockParent.childEmbeddedAssetNeedsSave = async () => {
 				needsSaveCallCount++;
 				/** @type {Promise<void>} */
-				const promise = new Promise(r => needsSavePromises.add(r));
+				const promise = new Promise((r) => needsSavePromises.add(r));
 				await promise;
 			};
 
@@ -89,7 +89,7 @@ Deno.test({
 
 			assert(!resolved, "writeEmbeddedAssetData() should not resolve until its parent childEmbeddedAssetNeedsSave() resolves.");
 
-			needsSavePromises.forEach(r => r());
+			needsSavePromises.forEach((r) => r());
 			await writeAssetDataPromise;
 
 			assertEquals(needsSaveCallCount, 1);
@@ -225,7 +225,7 @@ Deno.test({
 			mockParent.childEmbeddedAssetNeedsSave = async () => {
 				needsSaveCallCount++;
 				/** @type {Promise<void>} */
-				const promise = new Promise(r => needsSavePromises.add(r));
+				const promise = new Promise((r) => needsSavePromises.add(r));
 				await promise;
 			};
 
@@ -242,7 +242,7 @@ Deno.test({
 
 			assert(!resolved, "writeEmbeddedAssetData() should not resolve until its parent childEmbeddedAssetNeedsSave() resolves.");
 
-			needsSavePromises.forEach(r => r());
+			needsSavePromises.forEach((r) => r());
 
 			await writePromise;
 

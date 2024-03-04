@@ -56,7 +56,7 @@ function installMockDenoCalls({
 				if (queueItem) return queueItem;
 
 				/** @type {Promise<GeneratorNextResult>} */
-				const eventPromise = new Promise(r => {
+				const eventPromise = new Promise((r) => {
 					currentlyWaitingNextCallback = r;
 				});
 				return await eventPromise;

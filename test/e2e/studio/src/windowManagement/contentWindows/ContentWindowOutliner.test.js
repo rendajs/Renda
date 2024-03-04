@@ -29,7 +29,7 @@ async function assertRootChildCount(page, expectedRootChildCount, expectedSubChi
 
 		const subChildCount = await page.evaluate(() => {
 			const castEntity = /** @type {import("../../../../../../src/core/Entity.js").Entity?} */ (globalThis.studio?.selected.entity);
-			return castEntity?.children.map(child => child.childCount);
+			return castEntity?.children.map((child) => child.childCount);
 		});
 		assertEquals(subChildCount, expectedSubChildCount);
 	}

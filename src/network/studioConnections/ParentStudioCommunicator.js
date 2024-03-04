@@ -12,14 +12,14 @@ export class ParentStudioCommunicator {
 		 * @private @type {TypedMessenger<{}, import("../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
 		 */
 		this.parentMessenger = new TypedMessenger({ globalTimeout: 1000 });
-		this.parentMessenger.setSendHandler(data => {
+		this.parentMessenger.setSendHandler((data) => {
 			if (!this.isInIframe()) {
 				throw new Error("Failed to send message to parent, the page is not embedded in an iframe");
 			}
 			window.parent.postMessage(data.sendData, "*", data.transfer);
 		});
 
-		window.addEventListener("message", e => {
+		window.addEventListener("message", (e) => {
 			if (!e.data) return;
 			if (e.source == window.parent) {
 				this.parentMessenger.handleReceivedMessage(e.data);

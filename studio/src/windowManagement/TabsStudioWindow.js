@@ -244,7 +244,7 @@ export class TabsStudioWindow extends StudioWindow {
 						this.setActiveTabIndex(tabIndex, "user");
 					},
 					draggable: true,
-					onDragStart: e => {
+					onDragStart: (e) => {
 						if (!e.dataTransfer) return;
 						this.windowManager.setTabDragEnabled(true);
 						e.dataTransfer.effectAllowed = "move";
@@ -412,7 +412,7 @@ export class TabsStudioWindow extends StudioWindow {
 											text: "Autosave",
 											reserveIconSpace: true,
 											showCheckmark: autoSaveValue,
-											onClick: e => {
+											onClick: (e) => {
 												e.preventMenuClose();
 												autoSaveValue = !autoSaveValue;
 												e.item.showCheckmark = autoSaveValue;
@@ -526,7 +526,7 @@ export class TabsStudioWindow extends StudioWindow {
 	 */
 	onTabDragOver(e) {
 		if (!e.dataTransfer) return;
-		if (!e.dataTransfer.types.some(mimeType => this.validateTabDragMimeType(mimeType))) return;
+		if (!e.dataTransfer.types.some((mimeType) => this.validateTabDragMimeType(mimeType))) return;
 		if (!this.lastTabDragOverlayBoundingRect) return;
 		e.preventDefault();
 		e.dataTransfer.dropEffect = "move";
@@ -564,7 +564,7 @@ export class TabsStudioWindow extends StudioWindow {
 	 */
 	*uuidsToContentWindows(uuids, fromOtherTabsOnly = false) {
 		for (const uuid of uuids) {
-			if (fromOtherTabsOnly && this.tabs.some(tab => tab.uuid == uuid)) continue;
+			if (fromOtherTabsOnly && this.tabs.some((tab) => tab.uuid == uuid)) continue;
 			const contentWindow = this.windowManager.getContentWindowByUuid(uuid);
 			if (contentWindow) {
 				yield contentWindow;
@@ -578,11 +578,11 @@ export class TabsStudioWindow extends StudioWindow {
 	async onTabDrop(e) {
 		if (!e.dataTransfer) return;
 		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
-		const tabUuidPromisess = Array.from(e.dataTransfer.items).filter(item => {
+		const tabUuidPromisess = Array.from(e.dataTransfer.items).filter((item) => {
 			if (item.kind != "string") return false;
 			return this.validateTabDragMimeType(item.type);
-		}).map(item => {
-			return new Promise(r => item.getAsString(r));
+		}).map((item) => {
+			return new Promise((r) => item.getAsString(r));
 		});
 		const tabUuids = await Promise.all(tabUuidPromisess);
 		if (dragPosition == "center") {

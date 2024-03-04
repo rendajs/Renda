@@ -100,12 +100,12 @@ async function basicTest({
 		const unregisterClientSpy = spy(handlers, "unregisterClient");
 		const skipWaitingSpy = spy(handlers, "skipWaiting");
 		messenger.setResponseHandlers(handlers);
-		messenger.setSendHandler(data => {
+		messenger.setSendHandler((data) => {
 			const event = /** @type {MessageEvent} */ ({
 				data: data.sendData,
 				source: activeWorker,
 			});
-			onMessageListeners.forEach(listener => listener(event));
+			onMessageListeners.forEach((listener) => listener(event));
 		});
 
 		class MockServiceWorker {
@@ -132,7 +132,7 @@ async function basicTest({
 			}
 
 			fireStateChange() {
-				this.#onStateChangeListeners.forEach(cb => cb());
+				this.#onStateChangeListeners.forEach((cb) => cb());
 			}
 		}
 
@@ -238,10 +238,10 @@ async function basicTest({
 				unregisterClientSpy,
 				skipWaitingSpy,
 				fireControllerChange() {
-					onControllerChangeListeners.forEach(cb => cb());
+					onControllerChangeListeners.forEach((cb) => cb());
 				},
 				fireUnload() {
-					unloadListeners.forEach(cb => cb());
+					unloadListeners.forEach((cb) => cb());
 				},
 				fireTimeout() {
 					if (!setTimeoutCallback) {
@@ -254,7 +254,7 @@ async function basicTest({
 				},
 				createInstallingWorker() {
 					installingWorker = new MockServiceWorker();
-					updateFoundListeners.forEach(cb => cb());
+					updateFoundListeners.forEach((cb) => cb());
 				},
 				promoteInstallingWorker() {
 					if (!installingWorker) {
@@ -274,7 +274,7 @@ async function basicTest({
 				},
 				setUpdatePromisePending(pending) {
 					if (pending) {
-						updatePromise = new Promise(r => {
+						updatePromise = new Promise((r) => {
 							resolveUpdatePromise = r;
 						});
 					} else {
@@ -282,7 +282,7 @@ async function basicTest({
 					}
 				},
 				waitForMicrotasks() {
-					return new Promise(r => originalSetTimeout(r, 0));
+					return new Promise((r) => originalSetTimeout(r, 0));
 				},
 			});
 		})();

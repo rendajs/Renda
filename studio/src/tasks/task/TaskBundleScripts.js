@@ -75,7 +75,7 @@ export class TaskBundleScripts extends Task {
 		/**
 		 * @param {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
-		const readScriptCallback = async path => {
+		const readScriptCallback = async (path) => {
 			return await readAssetFromPath(path, {
 				assertAssetType: ProjectAssetTypeJavascript,
 			});

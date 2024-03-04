@@ -91,7 +91,7 @@ export class StudioConnectionsManager {
 		discoveryManager.onAvailableConnectionsChanged(() => {
 			this.#fireOnConnectionsChanged();
 		});
-		discoveryManager.onConnectionRequest(connectionRequest => {
+		discoveryManager.onConnectionRequest((connectionRequest) => {
 			// TODO: Add an allowlist #751
 			// TODO: Automatically accept connections that are hosted by this studio instance #810
 			let autoAccept = false;
@@ -120,7 +120,7 @@ export class StudioConnectionsManager {
 					/** @type {import("./handlers.js").StudioHostClientConnection} */
 					const connection = connectionRequest.accept(createStudioHostHandlers(fileSystem));
 					// TODO #857 Clean this up when the connection closes
-					fileSystem.onChange(e => {
+					fileSystem.onChange((e) => {
 						connection.messenger.send["fileSystem.changeEvent"](e);
 					});
 					this.#addActiveConnection(connection);
@@ -187,16 +187,16 @@ export class StudioConnectionsManager {
 		const desiredWebRtcEndpoint = this.#webRtcDiscoveryEndpoint || this.getDefaultWebRtcDiscoveryEndpoint();
 		if (this.#webRtcDiscoveryMethod && (!needsWebRtcDiscovery || this.#webRtcDiscoveryMethod.endpoint != desiredWebRtcEndpoint)) {
 			this.#discoveryManager.removeDiscoveryMethod(this.#webRtcDiscoveryMethod);
-			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb("disconnected"));
+			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach((cb) => cb("disconnected"));
 			this.#webRtcDiscoveryMethod = null;
 		}
 		if (!this.#webRtcDiscoveryMethod && needsWebRtcDiscovery) {
 			this.#webRtcDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(WebRtcDiscoveryMethod, desiredWebRtcEndpoint);
-			this.#webRtcDiscoveryMethod.onStatusChange(status => {
-				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
+			this.#webRtcDiscoveryMethod.onStatusChange((status) => {
+				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach((cb) => cb(status));
 			});
 			const status = this.#webRtcDiscoveryMethod.status;
-			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
+			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach((cb) => cb(status));
 		}
 
 		this.#updateProjectMetadata();
@@ -284,7 +284,7 @@ export class StudioConnectionsManager {
 	}
 
 	#fireOnConnectionsChanged() {
-		this.#onConnectionsChangedCbs.forEach(cb => cb());
+		this.#onConnectionsChangedCbs.forEach((cb) => cb());
 	}
 
 	/**

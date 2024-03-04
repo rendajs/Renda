@@ -108,7 +108,7 @@ function basicSetup() {
 	 * @param {import("../../../../../../studio/src/misc/SelectionManager.js").SelectionChangeData} changes
 	 */
 	function fireSelectionChange(changes) {
-		selectionChangeCbs.forEach(cb => cb(changes));
+		selectionChangeCbs.forEach((cb) => cb(changes));
 	}
 
 	return {

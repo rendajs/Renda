@@ -100,7 +100,7 @@ export class ProjectManager {
 		this.assetManager = null;
 
 		/** @type {(newName: string) => void} */
-		this.#boundOnFileSystemRootNameChange = newName => {
+		this.#boundOnFileSystemRootNameChange = (newName) => {
 			if (!this.#currentProjectOpenEvent) {
 				throw new Error("Cannot change the name of a remote project before it has been created.");
 			}
@@ -137,12 +137,12 @@ export class ProjectManager {
 		this.#fireOnProjectOpenEntryChangeCbs();
 
 		this.#rootHasWritePermissions = false;
-		this.#onRootHasWritePermissionsChangeCbs.forEach(cb => cb());
+		this.#onRootHasWritePermissionsChangeCbs.forEach((cb) => cb());
 		(async () => {
 			await fileSystem.waitForPermission([], { writable: true });
 			if (fileSystem != this.currentProjectFileSystem) return;
 			this.#rootHasWritePermissions = true;
-			this.#onRootHasWritePermissionsChangeCbs.forEach(cb => cb());
+			this.#onRootHasWritePermissionsChangeCbs.forEach((cb) => cb());
 		})();
 
 		const gitIgnoreManager = new GitIgnoreManager(fileSystem);
@@ -181,15 +181,15 @@ export class ProjectManager {
 		studio.windowManager.setContentWindowPreferences(contentWindowPreferences);
 
 		this.#hasOpenProject = true;
-		this.#onProjectOpenCbs.forEach(cb => cb());
-		this.#onProjectOpenOnceCbs.forEach(cb => cb());
+		this.#onProjectOpenCbs.forEach((cb) => cb());
+		this.#onProjectOpenOnceCbs.forEach((cb) => cb());
 		this.#onProjectOpenOnceCbs.clear();
 	}
 
 	/**
 	 * @param {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[] | null} data
 	 */
-	#contentWindowPreferencesFlushRequest = async data => {
+	#contentWindowPreferencesFlushRequest = async (data) => {
 		if (!this.#currentPreferencesLocation) return;
 		await this.#currentPreferencesLocation.setContentWindowPreferences(data);
 	};
@@ -231,9 +231,9 @@ export class ProjectManager {
 		const assetManager = new AssetManager(this, builtInAssetManager, builtInDefaultAssetLinksManager, projectAssetTypeManager, this.currentProjectFileSystem);
 		this.assetManager = assetManager;
 		await this.assetManager.waitForAssetSettingsLoad();
-		this.#onAssetManagerLoadPromiseCbs.forEach(cb => cb());
+		this.#onAssetManagerLoadPromiseCbs.forEach((cb) => cb());
 		this.#onAssetManagerLoadPromiseCbs.clear();
-		this.#onAssetManagerChangeCbs.forEach(cb => cb(assetManager));
+		this.#onAssetManagerChangeCbs.forEach((cb) => cb(assetManager));
 	}
 
 	/**
@@ -251,7 +251,7 @@ export class ProjectManager {
 	async getAssetManager() {
 		if (this.assetManager && this.assetManager.assetSettingsLoaded) return this.assetManager;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.#onAssetManagerLoadPromiseCbs.add(r));
+		const promise = new Promise((r) => this.#onAssetManagerLoadPromiseCbs.add(r));
 		await promise;
 		return this.assertAssetManagerExists();
 	}
@@ -278,7 +278,7 @@ export class ProjectManager {
 	}
 
 	/** @type {(e: import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent) => void} */
-	#onFileSystemChange = e => {
+	#onFileSystemChange = (e) => {
 		for (const cb of this.#onFileChangeCbs) {
 			cb(e);
 		}
@@ -303,7 +303,7 @@ export class ProjectManager {
 
 	#fireOnProjectOpenEntryChangeCbs() {
 		const entry = this.#currentProjectOpenEvent;
-		this.#onProjectOpenEntryChangeCbs.forEach(cb => cb(entry));
+		this.#onProjectOpenEntryChangeCbs.forEach((cb) => cb(entry));
 	}
 
 	/**
@@ -313,7 +313,7 @@ export class ProjectManager {
 	async waitForProjectOpen(allowExisting = true) {
 		if (allowExisting && this.#hasOpenProject) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.#onProjectOpenOnceCbs.add(r));
+		const promise = new Promise((r) => this.#onProjectOpenOnceCbs.add(r));
 		await promise;
 	}
 

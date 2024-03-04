@@ -10,9 +10,9 @@ function basicSpyFn() {
 	/**
 	 * @param {string} param
 	 */
-	const fn = async param => {
+	const fn = async (param) => {
 		/** @type {Promise<string>} */
-		const promise = new Promise(r => {
+		const promise = new Promise((r) => {
 			resolvePromise = r;
 		});
 		const promiseResult = await promise;
@@ -38,7 +38,7 @@ Deno.test({
 		/**
 		 * @param {number} x
 		 */
-		const fn = x => x;
+		const fn = (x) => x;
 		const instance = new SingleInstancePromise(fn);
 
 		const result = await instance.run(1337);
@@ -77,7 +77,7 @@ Deno.test({
 		/**
 		 * @param {number} x
 		 */
-		const spyFn = x => x;
+		const spyFn = (x) => x;
 		const fn = spy(spyFn);
 		const instance = new SingleInstancePromise(fn, { once: true });
 

@@ -217,7 +217,7 @@ Deno.test({
 		const { translationGizmo, createdDraggables } = basicSetup();
 
 		/** @type {import("../../../../../src/gizmos/gizmos/TranslationGizmo.js").TranslationGizmoDragCallback} */
-		const cb = e => {};
+		const cb = (e) => {};
 		const cbSpy = spy(cb);
 		translationGizmo.onDrag(cbSpy);
 
@@ -259,7 +259,7 @@ Deno.test({
 		const zDraggable = createdDraggables[3];
 
 		/** @type {import("../../../../../src/gizmos/gizmos/TranslationGizmo.js").TranslationGizmoDragCallback} */
-		const cb = e => {};
+		const cb = (e) => {};
 		const cbSpy = spy(cb);
 		translationGizmo.onDrag(cbSpy);
 

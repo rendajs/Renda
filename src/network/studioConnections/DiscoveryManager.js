@@ -132,9 +132,9 @@ export class DiscoveryManager {
 		this.discoveryMethods.add(discoveryMethod);
 		discoveryMethod.onAvailableConnectionsChanged(() => {
 			if (this.#destructed) return;
-			this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
+			this.onAvailableConnectionsChangedCbs.forEach((cb) => cb());
 		});
-		discoveryMethod.onConnectionRequest(messageHandler => {
+		discoveryMethod.onConnectionRequest((messageHandler) => {
 			if (this.#destructed) return;
 			let anySuccess = false;
 			let accepted = false;
@@ -155,7 +155,7 @@ export class DiscoveryManager {
 					clientType: messageHandler.clientType,
 					initiatedByMe: messageHandler.initiatedByMe,
 					connectionRequestData: messageHandler.connectionRequestData,
-					accept: options => {
+					accept: (options) => {
 						assertFirstCall();
 						accepted = true;
 						messageHandler.requestAccepted();
@@ -200,7 +200,7 @@ export class DiscoveryManager {
 				break;
 			}
 			if (hadConnections) {
-				this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
+				this.onAvailableConnectionsChangedCbs.forEach((cb) => cb());
 			}
 		}
 	}
@@ -286,7 +286,7 @@ export class DiscoveryManager {
 			return connection;
 		} else {
 			/** @type {AvailableConnectionWithType} */
-			const connection = await new Promise(resolve => {
+			const connection = await new Promise((resolve) => {
 				const cb = () => {
 					const connection = this.#findConnection(config);
 					if (connection) {

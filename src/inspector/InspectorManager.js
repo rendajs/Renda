@@ -23,14 +23,14 @@ export class InspectorManager {
 		 * or 2 seconds after creation of the InspectorManager.
 		 * @private @type {Promise<void>}
 		 */
-		this._initialConnectionPromise = new Promise(resolve => {
+		this._initialConnectionPromise = new Promise((resolve) => {
 			resolveInitialConnectionPromise = resolve;
 			setTimeout(() => {
 				resolve();
 			}, 2000);
 		});
 
-		this.discoveryManager.onConnectionRequest(connectionRequest => {
+		this.discoveryManager.onConnectionRequest((connectionRequest) => {
 			if (connectionRequest.clientType == "inspector") {
 				throw new Error("An inspector is not able to connect to another inspector.");
 			} else if (connectionRequest.clientType == "studio-client" || connectionRequest.clientType == "studio-host") {
@@ -40,7 +40,7 @@ export class InspectorManager {
 				if (connection.status == "connected") {
 					resolveInitialConnectionPromise();
 				} else {
-					connection.onStatusChange(status => {
+					connection.onStatusChange((status) => {
 						if (status == "connected") {
 							resolveInitialConnectionPromise();
 						}
@@ -83,9 +83,9 @@ export class InspectorManager {
 		}
 
 		/** @type {Promise<TCallbackReturn & ({} | null)>} */
-		const anyTruePromise = new Promise(resolve => {
+		const anyTruePromise = new Promise((resolve) => {
 			for (const promise of promises) {
-				promise.then(result => {
+				promise.then((result) => {
 					if (result !== undefined) resolve(result);
 				});
 			}

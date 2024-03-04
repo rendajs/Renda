@@ -55,7 +55,7 @@ export class ObjectGui {
 		this.structure = structure;
 		this.treeView = PropertiesTreeView.withStructure(structure);
 		this.treeView.renderContainer = true;
-		this.treeView.onChildValueChange(changeEvent => {
+		this.treeView.onChildValueChange((changeEvent) => {
 			this.#fireValueChange(changeEvent.trigger);
 		});
 

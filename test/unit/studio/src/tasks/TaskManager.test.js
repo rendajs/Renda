@@ -45,7 +45,7 @@ Deno.test({
 		manager.registerTaskType(Task1);
 		manager.registerTaskType(Task2);
 
-		const result = Array.from(manager.getTaskTypes()).map(t => t.type);
+		const result = Array.from(manager.getTaskTypes()).map((t) => t.type);
 		assertEquals(result, ["namespace:type1", "namespace:type2"]);
 	},
 });
@@ -171,10 +171,10 @@ Deno.test({
 				constructor(...args) {
 					super(...args);
 					this.#messenger = new TypedMessenger();
-					this.#messenger.setSendHandler(data => {
+					this.#messenger.setSendHandler((data) => {
 						this.worker.postMessage(data.sendData);
 					});
-					this.worker.addEventListener("message", event => {
+					this.worker.addEventListener("message", (event) => {
 						this.#messenger.handleReceivedMessage(event.data);
 					});
 				}

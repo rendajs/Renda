@@ -41,6 +41,6 @@ export class WebRtcDiscoveryMethod extends ExtendedDiscoveryMethod {
 	 */
 	setStatus(status) {
 		this.status = status;
-		this.#onStatusChangeCbs.forEach(cb => cb(status));
+		this.#onStatusChangeCbs.forEach((cb) => cb(status));
 	}
 }

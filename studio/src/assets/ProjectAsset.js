@@ -550,8 +550,8 @@ export class ProjectAsset {
 	 * @param {TLiveAssetData} liveAssetData
 	 */
 	fireOnLiveAssetDataChangeCbs(liveAssetData) {
-		this.#onLiveAssetDataChangeCbs.forEach(cb => cb(liveAssetData));
-		this.#onLiveAssetDataChangePromiseCbs.forEach(p => p.resolve(liveAssetData));
+		this.#onLiveAssetDataChangeCbs.forEach((cb) => cb(liveAssetData));
+		this.#onLiveAssetDataChangePromiseCbs.forEach((p) => p.resolve(liveAssetData));
 		this.#onLiveAssetDataChangePromiseCbs.clear();
 		this.isGettingLiveAssetData = false;
 	}
@@ -562,7 +562,7 @@ export class ProjectAsset {
 	 * @param {unknown} error
 	 */
 	rejectOnLiveAssetDataChangePromises(error) {
-		this.#onLiveAssetDataChangePromiseCbs.forEach(p => p.reject(error));
+		this.#onLiveAssetDataChangePromiseCbs.forEach((p) => p.reject(error));
 		this.#onLiveAssetDataChangePromiseCbs.clear();
 		this.isGettingLiveAssetData = false;
 	}
@@ -745,7 +745,7 @@ export class ProjectAsset {
 	/**
 	 * @param {FileDataType} fileData
 	 */
-	#writeAssetDataImpl = async fileData => {
+	#writeAssetDataImpl = async (fileData) => {
 		if (!this.projectAssetTypeConstructorSync) {
 			throw new Error("Unable to write asset data without a ProjectAssetType");
 		}
@@ -958,7 +958,7 @@ export class ProjectAsset {
 			const referencedUuids = [];
 			objectToBinary(assetData, {
 				...binarySerializationOpts,
-				transformValueHook: args => {
+				transformValueHook: (args) => {
 					let { value, type } = args;
 					if (binarySerializationOpts.transformValueHook) {
 						value = binarySerializationOpts.transformValueHook(args);

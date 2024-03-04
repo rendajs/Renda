@@ -214,7 +214,7 @@ Deno.test({
 			assertSpyCalls(markDirtySpy, expectedCallCount);
 
 			mockStudioInstance.projectManager.assetManager = assetManager;
-			onLoadCbs.forEach(cb => cb(assetManager));
+			onLoadCbs.forEach((cb) => cb(assetManager));
 
 			entityAssetManager.updateEntityTransform(entity, null);
 
@@ -287,7 +287,7 @@ Deno.test({
 			contentWindow.destructor();
 
 			mockStudioInstance.projectManager.assetManager = assetManager;
-			onLoadCbs.forEach(cb => cb(assetManager));
+			onLoadCbs.forEach((cb) => cb(assetManager));
 
 			entityAssetManager.updateEntityTransform(entity, null);
 

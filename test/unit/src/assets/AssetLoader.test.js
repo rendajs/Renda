@@ -613,7 +613,7 @@ Deno.test({
 						label: "first asset",
 						secondAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(SECOND_ASSET_UUID, asset => {
+					recursionTracker.getAsset(SECOND_ASSET_UUID, (asset) => {
 						assetObj.secondAsset = asset;
 					});
 					return assetObj;
@@ -659,7 +659,7 @@ Deno.test({
 						label: "first asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(SECOND_ASSET_UUID, asset => {
+					recursionTracker.getAsset(SECOND_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;
@@ -668,7 +668,7 @@ Deno.test({
 						label: "second asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(FIRST_ASSET_UUID, asset => {
+					recursionTracker.getAsset(FIRST_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;
@@ -724,7 +724,7 @@ Deno.test({
 						label: "first asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(SECOND_ASSET_UUID, asset => {
+					recursionTracker.getAsset(SECOND_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;
@@ -733,7 +733,7 @@ Deno.test({
 						label: "second asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(THIRD_ASSET_UUID, asset => {
+					recursionTracker.getAsset(THIRD_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;
@@ -742,7 +742,7 @@ Deno.test({
 						label: "third asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(SECOND_ASSET_UUID, asset => {
+					recursionTracker.getAsset(SECOND_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;

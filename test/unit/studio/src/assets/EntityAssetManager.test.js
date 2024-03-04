@@ -202,7 +202,7 @@ Deno.test({
 		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeEvent[]} */
 		const calls = [];
 		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeCallback} */
-		const onChangeFn = e => {
+		const onChangeFn = (e) => {
 			calls.push(e);
 		};
 		manager.onTrackedEntityChange(entity2, onChangeFn);
@@ -270,13 +270,13 @@ Deno.test({
 		/** @type {{trackedEntity: Entity, event: import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeEvent}[]} */
 		const calls = [];
 		let callCount = 0;
-		manager.onTrackedEntityChange(entity1, event => {
+		manager.onTrackedEntityChange(entity1, (event) => {
 			calls.push({ trackedEntity: entity1, event });
 		});
-		manager.onTrackedEntityChange(nestedEntityAsset1b, event => {
+		manager.onTrackedEntityChange(nestedEntityAsset1b, (event) => {
 			calls.push({ trackedEntity: nestedEntityAsset1b, event });
 		});
-		manager.onTrackedEntityChange(nestedEntityAsset1a, event => {
+		manager.onTrackedEntityChange(nestedEntityAsset1a, (event) => {
 			calls.push({ trackedEntity: nestedEntityAsset1a, event });
 		});
 
@@ -420,11 +420,11 @@ Deno.test({
 		/** @type {{trackedEntity: Entity, event: import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeEvent}[]} */
 		const calls = [];
 		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeCallback} */
-		const onChange2Fn = event => {
+		const onChange2Fn = (event) => {
 			calls.push({ trackedEntity: entity2, event });
 		};
 		manager.onTrackedEntityChange(entity2, onChange2Fn);
-		manager.onTrackedEntityChange(entity1, event => {
+		manager.onTrackedEntityChange(entity1, (event) => {
 			calls.push({ trackedEntity: entity1, event });
 		});
 
@@ -482,7 +482,7 @@ Deno.test({
 		const { manager } = basicSetup();
 		const entity = new Entity();
 		/** @type {import("../../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeCallback} */
-		const onChangeFn = event => {};
+		const onChangeFn = (event) => {};
 		const onChangeSpy = spy(onChangeFn);
 		manager.onTrackedEntityChange(entity, onChangeSpy);
 
@@ -502,9 +502,9 @@ Deno.test({
 		const { manager, assetManager } = basicSetup();
 
 		/** @param {unknown} value */
-		let resolveGetLiveAsset = value => {};
+		let resolveGetLiveAsset = (value) => {};
 		stub(assetManager, "getLiveAsset", () => {
-			return new Promise(resolve => {
+			return new Promise((resolve) => {
 				resolveGetLiveAsset = resolve;
 			});
 		});

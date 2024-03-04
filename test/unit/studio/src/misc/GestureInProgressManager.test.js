@@ -3,7 +3,7 @@ import { assertEquals } from "std/testing/asserts.ts";
 import { GestureInProgressManager } from "../../../../../studio/src/misc/GestureInProgressManager.js";
 
 /** @param {boolean} gestureInProgress */
-const callbackSignature = gestureInProgress => {};
+const callbackSignature = (gestureInProgress) => {};
 
 Deno.test({
 	name: "Fires callback when it is registered",

@@ -33,7 +33,7 @@ await runE2eTest({
 		const assetContentEl = await getPropertiesWindowContentAsset(page);
 
 		const assetContentReference = await getPropertiesAssetContentReference(page);
-		await page.evaluateHandle(async assetContent => {
+		await page.evaluateHandle(async (assetContent) => {
 			const { PropertiesAssetContentMaterial } = await import("../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
 			if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
 			await assetContent.waitForAssetLoad();
@@ -86,7 +86,7 @@ await runE2eTest({
 		const checkbox2 = await depthWriteValueEl2.$("input[type=checkbox]");
 		assertExists(checkbox2);
 
-		const checked = await checkbox2.evaluate(checkbox => {
+		const checked = await checkbox2.evaluate((checkbox) => {
 			if (!(checkbox instanceof HTMLInputElement)) throw new Error("Assertion failed, checkbox is not a HTMLInputElement.");
 			return checkbox.checked;
 		});

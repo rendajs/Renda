@@ -26,7 +26,7 @@ export class PathGui {
 		this.el.classList.add("button-like", "reset-input", "text-input", "pathInput");
 		this.el.style.resize = "none";
 		this.el.spellcheck = false;
-		this.el.addEventListener("input", e => {
+		this.el.addEventListener("input", (e) => {
 			this.#updateContent();
 			this.#fireOnChangeCbs("user");
 		});

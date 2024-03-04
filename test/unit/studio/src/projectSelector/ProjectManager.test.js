@@ -344,7 +344,7 @@ Deno.test({
 		await basicTest({
 			async fn({ manager }) {
 				/** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback} */
-				const onChangeFn = assetManager => {};
+				const onChangeFn = (assetManager) => {};
 				const onChangeSpy = spy(onChangeFn);
 
 				manager.onAssetManagerChange(onChangeSpy);
@@ -468,7 +468,7 @@ Deno.test({
 			async fn({ manager }) {
 				/** @type {(import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny | null)[]} */
 				const onEntryChangeCalls = [];
-				manager.onProjectOpenEntryChange(entry => {
+				manager.onProjectOpenEntryChange((entry) => {
 					onEntryChangeCalls.push(structuredClone(entry));
 				});
 
@@ -513,7 +513,7 @@ Deno.test({
 
 				let resolvePermission = () => {};
 				/** @type {Promise<void>} */
-				const permissionPromise = new Promise(resolve => {
+				const permissionPromise = new Promise((resolve) => {
 					resolvePermission = resolve;
 				});
 				const fs1 = new MemoryStudioFileSystem();
@@ -544,7 +544,7 @@ Deno.test({
 
 				let resolvePermission = () => {};
 				/** @type {Promise<void>} */
-				const permissionPromise = new Promise(resolve => {
+				const permissionPromise = new Promise((resolve) => {
 					resolvePermission = resolve;
 				});
 				stub(fs1, "waitForPermission", () => {
@@ -592,9 +592,9 @@ Deno.test({
 			async fn({ manager, studio }) {
 				/** @type {(connection: import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType) => void} */
 				let resolveConnectionSpy = () => {};
-				const waitForConnectionSpy = stub(studio.studioConnectionsManager, "waitForConnection", async config => {
+				const waitForConnectionSpy = stub(studio.studioConnectionsManager, "waitForConnection", async (config) => {
 					/** @type {Promise<import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType>} */
-					const promise = new Promise(r => {
+					const promise = new Promise((r) => {
 						resolveConnectionSpy = r;
 					});
 					return promise;
@@ -766,7 +766,7 @@ Deno.test({
 				});
 				/** @type {(import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny | null)[]} */
 				const onEntryChangeCalls = [];
-				manager.onProjectOpenEntryChange(entry => {
+				manager.onProjectOpenEntryChange((entry) => {
 					onEntryChangeCalls.push(entry);
 				});
 

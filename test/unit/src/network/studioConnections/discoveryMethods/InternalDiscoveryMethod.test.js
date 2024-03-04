@@ -53,7 +53,7 @@ async function basicSetup({
 				},
 				parent: {
 					postMessage(message, options) {
-						parentMessageEventListeners.forEach(listener => {
+						parentMessageEventListeners.forEach((listener) => {
 							const event = /** @type {MessageEvent} */ ({
 								data: message,
 								source: messageEventSource,
@@ -75,7 +75,7 @@ async function basicSetup({
 				 * @param {any} message
 				 */
 				createMessageEvent(message) {
-					messageListeners.forEach(listener => {
+					messageListeners.forEach((listener) => {
 						const event = new MessageEvent("message", {
 							data: message,
 						});
@@ -152,7 +152,7 @@ async function basicSetup({
 				createdMessagePorts.add(sharedWorkerChannel.port2);
 				this.port = sharedWorkerChannel.port1;
 
-				sharedWorkerConnectCallbacks.forEach(listener => {
+				sharedWorkerConnectCallbacks.forEach((listener) => {
 					const mockEvent = /** @type {MessageEvent} */ ({
 						ports: /** @type {readonly MessagePort[]} */ ([sharedWorkerChannel.port2]),
 					});
@@ -187,7 +187,7 @@ async function basicSetup({
 		window.parent = previousParent;
 		globalThis.SharedWorker = previousSharedWorker;
 
-		createdMessagePorts.forEach(p => p.close());
+		createdMessagePorts.forEach((p) => p.close());
 	}
 }
 
@@ -228,7 +228,7 @@ Deno.test({
 				/** @type {(clientId: string) => void} */
 				let resolveStudioClientId = () => {};
 				/** @type {Promise<string>} */
-				const studioClientId = new Promise(resolve => {
+				const studioClientId = new Promise((resolve) => {
 					resolveStudioClientId = resolve;
 				});
 				method2.onAvailableConnectionsChanged(() => {
@@ -449,16 +449,16 @@ Deno.test({
 				// Ideally we'd use waitForMicrotasks, but since messages are being sent via a MessagePort,
 				// waiting for microtasks doesn't necessarily guarantee that all messages have been sent.
 				/** @type {Promise<void>} */
-				const connectedPromise1 = new Promise(resolve => {
-					handler1.onStatusChange(status => {
+				const connectedPromise1 = new Promise((resolve) => {
+					handler1.onStatusChange((status) => {
 						if (status == "connected") {
 							resolve();
 						}
 					});
 				});
 				/** @type {Promise<void>} */
-				const connectedPromise2 = new Promise(resolve => {
-					handler2.onStatusChange(status => {
+				const connectedPromise2 = new Promise((resolve) => {
+					handler2.onStatusChange((status) => {
 						if (status == "connected") {
 							resolve();
 						}
@@ -533,16 +533,16 @@ Deno.test({
 				// Ideally we'd use waitForMicrotasks, but since messages are being sent via a MessagePort,
 				// waiting for microtasks doesn't necessarily guarantee that all messages have been sent.
 				/** @type {Promise<void>} */
-				const connectedPromise1 = new Promise(resolve => {
-					handler1.onStatusChange(status => {
+				const connectedPromise1 = new Promise((resolve) => {
+					handler1.onStatusChange((status) => {
 						if (status == "outgoing-permission-rejected") {
 							resolve();
 						}
 					});
 				});
 				/** @type {Promise<void>} */
-				const connectedPromise2 = new Promise(resolve => {
-					handler2.onStatusChange(status => {
+				const connectedPromise2 = new Promise((resolve) => {
+					handler2.onStatusChange((status) => {
 						if (status == "connected") {
 							resolve();
 						}

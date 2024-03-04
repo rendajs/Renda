@@ -59,7 +59,7 @@ const responseHandlers = {
 			});
 		}
 		const castWriteAssets = /** @type {import("../../task/Task.js").RunTaskCreateAssetData<import("../bundleScripts/bundle.js").RunTaskCreateAssetBundleScriptsCustomData>[]} */ (scriptBundle.writeAssets);
-		const bundledEntryPoints = castWriteAssets.filter(a => a.customData?.isEntry);
+		const bundledEntryPoints = castWriteAssets.filter((a) => a.customData?.isEntry);
 		if (bundledEntryPoints.length != 1) {
 			throw new Error("Assertion failed: bundled scripts contain more than one entry point");
 		}

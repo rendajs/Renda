@@ -199,7 +199,7 @@ export class WindowManager {
 	/**
 	 * @param {import("./StudioWindow.js").WorkspaceChangeEvent} event
 	 */
-	#onWorkspaceChange = event => {
+	#onWorkspaceChange = (event) => {
 		if (event.trigger != "load") {
 			this.saveActiveWorkspace();
 		}
@@ -319,11 +319,11 @@ export class WindowManager {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
 			});
-			castWindow.onClickWithin(e => {
+			castWindow.onClickWithin((e) => {
 				const mayChangeFocus = (e.target == castWindow.activeTab.contentEl);
 				this.#addContentWindowToLastClicked(castWindow.activeTab, mayChangeFocus);
 			});
-			castWindow.onFocusedWithinChange(hasFocus => {
+			castWindow.onFocusedWithinChange((hasFocus) => {
 				if (hasFocus) {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
@@ -404,9 +404,9 @@ export class WindowManager {
 			/** @type {import("./WorkspaceManager.js").WorkspaceDataWindowTabs} */
 			const data = {
 				type: "tabs",
-				tabTypes: workspaceWindow.tabs.map(tab => /** @type {typeof ContentWindow} */ (tab.constructor).contentWindowTypeId),
+				tabTypes: workspaceWindow.tabs.map((tab) => /** @type {typeof ContentWindow} */ (tab.constructor).contentWindowTypeId),
 				activeTabIndex: workspaceWindow.activeTabIndex,
-				tabUuids: workspaceWindow.tabs.map(tab => tab.uuid),
+				tabUuids: workspaceWindow.tabs.map((tab) => tab.uuid),
 			};
 			return /** @type {any} */ (data);
 		}
@@ -423,7 +423,7 @@ export class WindowManager {
 		if (!constructor.contentWindowTypeId) {
 			throw new Error(`Tried to register content window "${constructor.name}" with no type id, override the static contentWindowTypeId property in order for this content window to function properly.`);
 		}
-		if (!constructor.contentWindowTypeId.includes(":") || constructor.contentWindowTypeId.split(":").filter(s => Boolean(s)).length < 2) {
+		if (!constructor.contentWindowTypeId.includes(":") || constructor.contentWindowTypeId.split(":").filter((s) => Boolean(s)).length < 2) {
 			throw new Error(`Tried to register content window "${constructor.name}" without a namespace in the contentWindowTypeId.`);
 		}
 

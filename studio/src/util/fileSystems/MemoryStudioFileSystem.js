@@ -74,7 +74,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 			}
 			/** @type {MemoryStudioFileSystemPointer[]} */
 			const children = currentObject.children;
-			let child = children.find(c => c.name == name);
+			let child = children.find((c) => c.name == name);
 			if (!child) {
 				if (!create) {
 					throwError("not-found", 1);
@@ -172,7 +172,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 			errorMessageActionName: "delete",
 		});
 		if (oldParentPointer.isFile) notFoundError();
-		const index = oldParentPointer.children.findIndex(child => child.name == oldBasename);
+		const index = oldParentPointer.children.findIndex((child) => child.name == oldBasename);
 		if (index == -1) notFoundError();
 		const movingPointer = oldParentPointer.children[index];
 
@@ -215,7 +215,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 
 		// If the destination already exists, we need to overwrite it,
 		// so we remove the existing entry
-		const existingIndex = newParentPointer.children.findIndex(child => child.name == newBasename);
+		const existingIndex = newParentPointer.children.findIndex((child) => child.name == newBasename);
 		if (existingIndex >= 0) {
 			newParentPointer.children.splice(existingIndex, 1);
 		}
@@ -331,7 +331,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 			errorMessageActionName: "delete",
 		});
 		if (parentPointer.isFile) notFoundError();
-		const index = parentPointer.children.findIndex(child => child.name == basename);
+		const index = parentPointer.children.findIndex((child) => child.name == basename);
 		if (index == -1) notFoundError();
 		parentPointer.children.splice(index, 1);
 

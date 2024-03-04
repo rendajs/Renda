@@ -452,10 +452,10 @@ export class TypedMessenger {
 	 * @param {TRes} responseHandlers
 	 */
 	initializeWorker(worker, responseHandlers) {
-		this.setSendHandler(data => {
+		this.setSendHandler((data) => {
 			worker.postMessage(data.sendData, data.transfer);
 		});
-		worker.addEventListener("message", event => {
+		worker.addEventListener("message", (event) => {
 			this.handleReceivedMessage(event.data);
 		});
 		this.setResponseHandlers(responseHandlers);
@@ -479,12 +479,12 @@ export class TypedMessenger {
 	 * @param {TRes} responseHandlers
 	 */
 	initializeWorkerContext(responseHandlers) {
-		this.setSendHandler(data => {
+		this.setSendHandler((data) => {
 			globalThis.postMessage(data.sendData, {
 				transfer: data.transfer,
 			});
 		});
-		globalThis.addEventListener("message", event => {
+		globalThis.addEventListener("message", (event) => {
 			this.handleReceivedMessage(event.data);
 		});
 		this.setResponseHandlers(responseHandlers);
@@ -507,7 +507,7 @@ export class TypedMessenger {
 	 * @param {boolean} [options.waitForOpen]
 	 */
 	initializeWebSocket(webSocket, responseHandlers) {
-		this.setSendHandler(async data => {
+		this.setSendHandler(async (data) => {
 			if (webSocket.readyState == WebSocket.CONNECTING) {
 				/** @type {Promise<void>} */
 				const promise = new Promise((resolve, reject) => {
@@ -530,7 +530,7 @@ export class TypedMessenger {
 			}
 			webSocket.send(JSON.stringify(data.sendData));
 		});
-		webSocket.addEventListener("message", async message => {
+		webSocket.addEventListener("message", async (message) => {
 			try {
 				if (typeof message.data == "string") {
 					const parsed = JSON.parse(message.data);
@@ -725,7 +725,7 @@ export class TypedMessenger {
 				promise = new Promise(() => {});
 			} else {
 				promise = new Promise((resolve, reject) => {
-					this.onResponseMessage(requestId, message => {
+					this.onResponseMessage(requestId, (message) => {
 						if (message.didThrow) {
 							/** @type {unknown} */
 							let rejectValue = message.returnValue;
@@ -763,10 +763,10 @@ export class TypedMessenger {
 					reject(new TimeoutError("TypedMessenger response timed out."));
 				}, timeout);
 
-				responsePromise.then(result => {
+				responsePromise.then((result) => {
 					resolve(result);
 					globalThis.clearTimeout(createdTimeout);
-				}).catch(err => {
+				}).catch((err) => {
 					reject(err);
 					globalThis.clearTimeout(createdTimeout);
 				});

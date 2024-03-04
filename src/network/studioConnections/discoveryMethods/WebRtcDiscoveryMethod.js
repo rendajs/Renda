@@ -119,21 +119,21 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableConnection[]} connections
 			 */
-			setAvailableConnections: connections => {
+			setAvailableConnections: (connections) => {
 				this.setAvailableConnections(connections);
 				return disableResponseReturn;
 			},
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableConnection} connection
 			 */
-			addAvailableConnection: connection => {
+			addAvailableConnection: (connection) => {
 				this.addAvailableConnection(connection);
 				return disableResponseReturn;
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} id
 			 */
-			removeAvailableConnection: id => {
+			removeAvailableConnection: (id) => {
 				this.removeAvailableConnection(id);
 				return disableResponseReturn;
 			},
@@ -171,7 +171,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	_setStatus(status) {
 		if (status == this._status) return;
 		this._status = status;
-		this.onStatusChangeCbs.forEach(cb => cb(status));
+		this.onStatusChangeCbs.forEach((cb) => cb(status));
 	}
 
 	/**
@@ -203,19 +203,19 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	 */
 	_createConnectionOptions(otherClientUuid) {
 		return {
-			sendRtcIceCandidate: candidate => {
+			sendRtcIceCandidate: (candidate) => {
 				this.webSocketMessenger.send.relayMessage(otherClientUuid, {
 					type: "rtcIceCandidate",
 					candidate,
 				});
 			},
-			sendRtcDescription: description => {
+			sendRtcDescription: (description) => {
 				this.webSocketMessenger.send.relayMessage(otherClientUuid, {
 					type: "rtcDescription",
 					description,
 				});
 			},
-			onPermissionResult: accepted => {
+			onPermissionResult: (accepted) => {
 				this.webSocketMessenger.send.relayMessage(otherClientUuid, {
 					type: "permissionResult",
 					accepted,

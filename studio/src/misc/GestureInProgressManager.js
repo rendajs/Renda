@@ -39,7 +39,7 @@ export class GestureInProgressManager {
 		const gestureInProgress = this.#currentGestures.size > 0;
 		if (gestureInProgress != this.#gestureInProgress) {
 			this.#gestureInProgress = gestureInProgress;
-			this.#onGestureInProgressChangeCallbacks.forEach(cb => cb(gestureInProgress));
+			this.#onGestureInProgressChangeCallbacks.forEach((cb) => cb(gestureInProgress));
 		}
 	}
 

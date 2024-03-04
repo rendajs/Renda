@@ -84,7 +84,7 @@ export class ScaleGizmo extends Gizmo {
 		const sphere = new Sphere(0.5);
 		this.#centerDraggable.addRaycastShape(sphere);
 		this.entity.add(this.#centerDraggable.entity);
-		this.#centerDraggable.onIsHoveringChange(isHovering => {
+		this.#centerDraggable.onIsHoveringChange((isHovering) => {
 			if (isHovering) {
 				this.#circleMaterialColor.set(hoverColor);
 			} else {
@@ -92,11 +92,11 @@ export class ScaleGizmo extends Gizmo {
 			}
 			this.gizmoNeedsRender();
 		});
-		this.#centerDraggable.onDrag(e => {
+		this.#centerDraggable.onDrag((e) => {
 			const localDelta = new Vec3(1, 1, 1);
 			localDelta.multiplyScalar(e.worldDelta);
 
-			this.#onDragCbs.forEach(cb => cb({
+			this.#onDragCbs.forEach((cb) => cb({
 				localDelta,
 			}));
 		});
@@ -213,7 +213,7 @@ export class ScaleGizmo extends Gizmo {
 		draggable.entity.pos.set(axis);
 		const sphere = new Sphere(0.5);
 		draggable.addRaycastShape(sphere);
-		draggable.onIsHoveringChange(isHovering => {
+		draggable.onIsHoveringChange((isHovering) => {
 			if (isHovering) {
 				colorInstance.set(hoverColor);
 			} else {
@@ -221,12 +221,12 @@ export class ScaleGizmo extends Gizmo {
 			}
 			this.gizmoNeedsRender();
 		});
-		draggable.onDrag(e => {
+		draggable.onDrag((e) => {
 			const localDelta = axis.clone();
 			localDelta.magnitude = e.localDelta;
 			localDelta.addScalar(1);
 
-			this.#onDragCbs.forEach(cb => cb({
+			this.#onDragCbs.forEach((cb) => cb({
 				localDelta,
 			}));
 		});
@@ -270,6 +270,6 @@ export class ScaleGizmo extends Gizmo {
 	}
 
 	#fireOnDragEndCbs() {
-		this.#onDragEndCbs.forEach(cb => cb());
+		this.#onDragEndCbs.forEach((cb) => cb());
 	}
 }

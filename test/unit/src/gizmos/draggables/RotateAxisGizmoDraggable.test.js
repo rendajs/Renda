@@ -11,7 +11,7 @@ Deno.test({
 		const draggable = new RotateAxisGizmoDraggable(mockGizmoManager);
 		/** @type {import("../../../../../src/gizmos/draggables/RotateAxisGizmoDraggable.js").RotateAxisGizmoDragEvent[]} */
 		const calls = [];
-		draggable.onDrag(event => {
+		draggable.onDrag((event) => {
 			calls.push(event);
 		});
 

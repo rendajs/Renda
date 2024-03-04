@@ -110,7 +110,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		const db = this.assertDbExists();
 		if (this.#systemLockedByThisInstance) {
 			/** @type {Promise<void>} */
-			const promise = new Promise(r => {
+			const promise = new Promise((r) => {
 				this.#onSystemUnlockQueueCbs.push(r);
 				if (this.#onSystemUnlockQueueCbs.length > SYSTEM_LOCK_QUEUE_LENGTH_FOR_WARNING && !this.#systemUnlockQueueWarningState) {
 					this.#systemUnlockQueueWarningState = true;
@@ -127,7 +127,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		while (locked) {
 			/** @type {typeof db.getSet<number>} */
 			const getSetLock = db.getSet.bind(db);
-			await getSetLock("systemLock", existingLock => {
+			await getSetLock("systemLock", (existingLock) => {
 				if (!existingLock || Date.now() - existingLock > 1_000) {
 					locked = false;
 					return Date.now();
@@ -174,7 +174,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		} catch {
 			return null;
 		}
-		return databases.some(db => db.name == dbName);
+		return databases.some((db) => db.name == dbName);
 	}
 
 	/**
@@ -203,7 +203,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 
 	async waitForRootCreate() {
 		if (this.rootCreated) return;
-		await new Promise(r => this.onRootCreateCbs.push(r));
+		await new Promise((r) => this.onRootCreateCbs.push(r));
 	}
 
 	/**
@@ -530,7 +530,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 					throw new Error(`Failed to move: "${toPath.join("/")}" is a non-empty directory.`);
 				} else {
 					// We need to remove the empty directory since we'll be moving the new directory here
-					newParentEntry.obj.files = newParentEntry.obj.files.filter(pointer => pointer != existingDirectoryPointer);
+					newParentEntry.obj.files = newParentEntry.obj.files.filter((pointer) => pointer != existingDirectoryPointer);
 					// No need to `updateObject` the newParentEntry since we'll do that later when adding the new directory.
 				}
 			}
@@ -548,7 +548,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 			// If the parent hasn't changed, we only need to update a single entry
 			if (oldParentEntry.pointer == newParentEntry.pointer) {
 				// remove old pointer
-				newParentEntry.obj.files = newParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
+				newParentEntry.obj.files = newParentEntry.obj.files.filter((pointer) => pointer != movingEntry.pointer);
 				this.fireChange({
 					external: false,
 					kind: "file",
@@ -568,7 +568,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 			} else {
 				// remove old pointer
 				this.assertIsDir(oldParentEntry.obj);
-				oldParentEntry.obj.files = oldParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
+				oldParentEntry.obj.files = oldParentEntry.obj.files.filter((pointer) => pointer != movingEntry.pointer);
 				await this.updateObject(oldParentEntry.pointer, oldParentEntry.obj);
 				this.fireChange({
 					external: false,
@@ -725,7 +725,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 					createdNew = false;
 				}
 			}
-			newParentObj.obj.files = newParentObj.obj.files.filter(pointer => !deletePointers.includes(pointer));
+			newParentObj.obj.files = newParentObj.obj.files.filter((pointer) => !deletePointers.includes(pointer));
 			const db = this.assertDbExists();
 			for (const pointer of deletePointers) {
 				await db.delete(pointer);

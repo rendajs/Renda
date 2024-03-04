@@ -46,7 +46,7 @@ testTypes({
 			assertionOptions: {
 				assertInstanceType: Foo,
 			},
-		}, asset => {
+		}, (asset) => {
 			// Verify that the type is a Foo instance and nothing else
 			assertIsType(fooInstance, asset);
 			// @ts-expect-error Verify that the type isn't 'any'
@@ -57,7 +57,7 @@ testTypes({
 			assertionOptions: {
 				assertLoaderType: FooLoader,
 			},
-		}, asset => {
+		}, (asset) => {
 			// Verify that the type is a Foo instance and nothing else
 			assertIsType(fooInstance, asset);
 			// @ts-expect-error Verify that the type isn't 'any'

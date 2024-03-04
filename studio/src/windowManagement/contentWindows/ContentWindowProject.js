@@ -174,7 +174,7 @@ export class ContentWindowProject extends ContentWindow {
 			this.initialUpdateTreeView();
 			this.updateRootName();
 			this.treeView.renameable = fs.rootNameSetSupported;
-			fs.onRootNameChange(newName => {
+			fs.onRootNameChange((newName) => {
 				this.treeView.name = newName;
 			});
 		}
@@ -223,7 +223,7 @@ export class ContentWindowProject extends ContentWindow {
 	async waitForInit() {
 		if (this.isInit) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.onInitCbs.add(r));
+		const promise = new Promise((r) => this.onInitCbs.add(r));
 		await promise;
 	}
 
@@ -231,7 +231,7 @@ export class ContentWindowProject extends ContentWindow {
 		if (!this.isInit) return;
 		if (this.initCbsCalled) return;
 		this.initCbsCalled = true;
-		this.onInitCbs.forEach(cb => cb());
+		this.onInitCbs.forEach((cb) => cb());
 	}
 
 	/**
@@ -360,7 +360,7 @@ export class ContentWindowProject extends ContentWindow {
 	async waitForTreeViewUpdate() {
 		if (this.#updatingTreeViewSyms.size == 0) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => {
+		const promise = new Promise((r) => {
 			this.#updatingTreeViewCbs.add(r);
 		});
 		await promise;
@@ -368,7 +368,7 @@ export class ContentWindowProject extends ContentWindow {
 
 	#fireTreeViewUpdateWhenDone() {
 		if (this.#updatingTreeViewSyms.size > 0) return;
-		this.#updatingTreeViewCbs.forEach(cb => cb());
+		this.#updatingTreeViewCbs.forEach((cb) => cb());
 		this.#updatingTreeViewCbs.clear();
 	}
 
@@ -395,7 +395,7 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent} e
 	 */
-	#onFileChange = async e => {
+	#onFileChange = async (e) => {
 		const parentPath = e.path.slice(0, -1);
 		await this.updateTreeView(parentPath);
 	};
@@ -612,7 +612,7 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewValidateDragEvent} e
 	 */
-	#onTreeViewValidateDrag = async e => {
+	#onTreeViewValidateDrag = async (e) => {
 		// Only allow dropping on folders.
 		if (!e.target.alwaysShowArrow) {
 			e.reject();
@@ -655,7 +655,7 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	#onTreeViewDrop = async e => {
+	#onTreeViewDrop = async (e) => {
 		if (!e.rawEvent.dataTransfer) return;
 		const path = this.pathFromTreeView(e.target);
 		for (const file of e.rawEvent.dataTransfer.files) {
@@ -680,8 +680,8 @@ export class ContentWindowProject extends ContentWindow {
 	 */
 	async onTreeViewRearrange(e) {
 		for (const movedItem of e.movedItems) {
-			const oldPath = movedItem.oldTreeViewsPath.map(t => t.name).slice(1);
-			const newPath = movedItem.newTreeViewsPath.map(t => t.name).slice(1);
+			const oldPath = movedItem.oldTreeViewsPath.map((t) => t.name).slice(1);
+			const newPath = movedItem.newTreeViewsPath.map((t) => t.name).slice(1);
 			await this.fileSystem.move(oldPath, newPath);
 			const assetManager = await this.studioInstance.projectManager.getAssetManager();
 			await assetManager.assetMoved(oldPath, newPath);

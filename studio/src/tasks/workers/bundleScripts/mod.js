@@ -8,7 +8,7 @@ const responseHandlers = {
 	/**
 	 * @param {import("./bundle.js").BundleOptions} options
 	 */
-	bundle: async options => {
+	bundle: async (options) => {
 		return await bundle(options, messenger);
 	},
 };

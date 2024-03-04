@@ -25,7 +25,7 @@ function installIframeContentWindow(buildview) {
 	// @ts-ignore
 	iframeEl.contentWindow = iframeContentWindow;
 
-	iframeWindowMessenger.setSendHandler(data => {
+	iframeWindowMessenger.setSendHandler((data) => {
 		const event = /** @type {MessageEvent} */ ({
 			data: data.sendData,
 			source: iframeContentWindow,

@@ -98,11 +98,11 @@ async function basicTest({
 			projectManager: mockProjectManager,
 			preferencesManager,
 			fireOnProjectOpen() {
-				onProjectOpenCbs.forEach(cb => cb());
+				onProjectOpenCbs.forEach((cb) => cb());
 			},
 			fireOnProjectOpenEntryChange() {
 				const entry = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny} */ ({});
-				onProjectOpenEntryChangeCbs.forEach(cb => cb(entry));
+				onProjectOpenEntryChangeCbs.forEach((cb) => cb(entry));
 			},
 			setHasProjectFileSystem(hasFileSystem) {
 				mockProjectManager.currentProjectFileSystem = hasFileSystem ? new MemoryStudioFileSystem() : null;

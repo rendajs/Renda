@@ -22,11 +22,11 @@ function linkMessengers(messengerA, messengerB) {
 	/** @type {import("../../../../../../src/util/TypedMessenger/TypedMessenger.js").TypedMessengerMessage<AToBHandlers, BToAHandlers>[]} */
 	const bToAMessages = [];
 
-	messengerA.setSendHandler(data => {
+	messengerA.setSendHandler((data) => {
 		aToBMessages.push(data);
 		messengerB.handleReceivedMessage(/** @type {import("../../../../../../src/mod.js").TypedMessengerMessageSendData<BToAHandlers, AToBHandlers>} */ (data.sendData));
 	});
-	messengerB.setSendHandler(data => {
+	messengerB.setSendHandler((data) => {
 		bToAMessages.push(data);
 		messengerA.handleReceivedMessage(/** @type {import("../../../../../../src/mod.js").TypedMessengerMessageSendData<AToBHandlers, BToAHandlers>} */ (data.sendData));
 	});
@@ -128,7 +128,7 @@ Deno.test({
 		assertIsType("", actualBoolPromise2);
 
 		// Verify that the send handler types are correct and not 'any':
-		messengerA.setSendHandler(data => {
+		messengerA.setSendHandler((data) => {
 			if (data.sendData.direction == "request") {
 				if (data.sendData.type == "isHigher") {
 					// @ts-expect-error
@@ -137,7 +137,7 @@ Deno.test({
 				}
 			}
 		});
-		messengerB.setSendHandler(data => {
+		messengerB.setSendHandler((data) => {
 			if (data.sendData.direction == "response") {
 				if (data.sendData.type == "isHigher") {
 					// @ts-expect-error
@@ -321,7 +321,7 @@ Deno.test({
 			/**
 			 * @param {number} x
 			 */
-			sameNum: x => x,
+			sameNum: (x) => x,
 		};
 
 		const channel = new MessageChannel();
@@ -329,16 +329,16 @@ Deno.test({
 		const messengerA = new TypedMessenger();
 		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
-		messengerA.setSendHandler(data => {
+		messengerA.setSendHandler((data) => {
 			channel.port2.postMessage(data.sendData);
 		});
-		messengerB.setSendHandler(data => {
+		messengerB.setSendHandler((data) => {
 			channel.port1.postMessage(data.sendData);
 		});
-		channel.port2.onmessage = e => {
+		channel.port2.onmessage = (e) => {
 			messengerA.handleReceivedMessage(e.data);
 		};
-		channel.port1.onmessage = e => {
+		channel.port1.onmessage = (e) => {
 			messengerB.handleReceivedMessage(e.data);
 		};
 		messengerB.setResponseHandlers(requestHandlers);
@@ -382,23 +382,23 @@ Deno.test({
 			/**
 			 * @param {number} x
 			 */
-			sameNum: x => x,
+			sameNum: (x) => x,
 		};
 
 		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
 		const messengerA = new TypedMessenger();
 		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
-		messengerA.setSendHandler(data => {
+		messengerA.setSendHandler((data) => {
 			messengerB.handleReceivedMessage(data.sendData);
 		});
 		/** @type {import("../../../../../../src/util/TypedMessenger/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers>[]} */
 		let requestQueue = [];
-		messengerB.setSendHandler(data => {
+		messengerB.setSendHandler((data) => {
 			requestQueue.push(data);
 			if (requestQueue.length === 2) {
 				// Send the requests in the opposite order they were received:
-				requestQueue.reverse().forEach(data => {
+				requestQueue.reverse().forEach((data) => {
 					messengerA.handleReceivedMessage(data.sendData);
 				});
 				requestQueue = [];
@@ -528,7 +528,7 @@ Deno.test({
 		assertIsType(true, result7);
 
 		// Verify that the send handler types are correct and not 'any':
-		messengerA.setSendHandler(data => {
+		messengerA.setSendHandler((data) => {
 			if (data.sendData.direction == "request") {
 				if (data.sendData.type == "isHigher") {
 					// @ts-expect-error
@@ -537,7 +537,7 @@ Deno.test({
 				}
 			}
 		});
-		messengerB.setSendHandler(data => {
+		messengerB.setSendHandler((data) => {
 			if (data.sendData.direction == "response") {
 				if (data.sendData.type == "isHigher") {
 					// @ts-expect-error
@@ -569,22 +569,22 @@ Deno.test({
 		const messengerA = new TypedMessenger();
 		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
-		messengerA.setSendHandler(data => {
+		messengerA.setSendHandler((data) => {
 			messengerB.handleReceivedMessage(data.sendData);
 		});
 
 		let resolveWaitForHandler = () => {};
 		/** @type {Promise<void>} */
-		const waitForHandler = new Promise(r => {
+		const waitForHandler = new Promise((r) => {
 			resolveWaitForHandler = r;
 		});
 
 		let resolveSendPromise = () => {};
 
-		messengerB.setSendHandler(async data => {
+		messengerB.setSendHandler(async (data) => {
 			resolveWaitForHandler();
 			/** @type {Promise<void>} */
-			const promise = new Promise(r => {
+			const promise = new Promise((r) => {
 				resolveSendPromise = r;
 			});
 			await promise;
@@ -704,7 +704,7 @@ Deno.test({
 
 		/** @type {TypedMessenger<{}, typeof handlers>} */
 		const messengerB = new TypedMessenger({
-			deserializeErrorHook: error => {
+			deserializeErrorHook: (error) => {
 				if (error) {
 					const castError = /** @type {SerializedError} */ (error);
 					if (castError.type == "myError") {
@@ -726,10 +726,10 @@ Deno.test({
 		}
 
 		linkMessengers(messengerA, messengerB);
-		messengerA.setSendHandler(data => {
+		messengerA.setSendHandler((data) => {
 			messengerB.handleReceivedMessage(serialize(data.sendData));
 		});
-		messengerB.setSendHandler(data => {
+		messengerB.setSendHandler((data) => {
 			messengerA.handleReceivedMessage(serialize(data.sendData));
 		});
 		messengerA.setResponseHandlers(handlers);
@@ -811,10 +811,10 @@ Deno.test({
 		}
 
 		linkMessengers(messengerA, messengerB);
-		messengerA.setSendHandler(data => {
+		messengerA.setSendHandler((data) => {
 			messengerB.handleReceivedMessage(serialize(data.sendData));
 		});
-		messengerB.setSendHandler(data => {
+		messengerB.setSendHandler((data) => {
 			messengerA.handleReceivedMessage(serialize(data.sendData));
 		});
 		messengerA.setResponseHandlers(handlers);

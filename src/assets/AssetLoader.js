@@ -121,7 +121,7 @@ export class AssetLoader {
 			const searchCount = this.bundles.size;
 			let unavailableCount = 0;
 			for (const bundle of this.bundles) {
-				bundle.waitForAssetAvailable(uuid).then(available => {
+				bundle.waitForAssetAvailable(uuid).then((available) => {
 					if (available) {
 						resolve(bundle);
 					} else {

@@ -235,7 +235,7 @@ Deno.test({
 		const customData = { label: "material map type custom data" };
 		const textureLiveAsset = new Texture(new Blob());
 		const samplerLiveAsset = new Sampler();
-		stub(assetManager, "getLiveAsset", async uuid => {
+		stub(assetManager, "getLiveAsset", async (uuid) => {
 			if (uuid == BASIC_TEXTURE_UUID) {
 				return textureLiveAsset;
 			} else if (uuid == BASIC_SAMPLER_UUID) {
@@ -752,7 +752,7 @@ Deno.test({
 				],
 			},
 		});
-		stub(assetManager, "getLiveAsset", async uuid => {
+		stub(assetManager, "getLiveAsset", async (uuid) => {
 			if (uuid == BASIC_SAMPLER_UUID) {
 				return sampler;
 			} else if (uuid == BASIC_TEXTURE_UUID) {

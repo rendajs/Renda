@@ -13,7 +13,7 @@ export class WebSocketManager {
 	 * @param {number} port
 	 */
 	async startServer(port) {
-		serve(request => {
+		serve((request) => {
 			return this.handleRequest(request);
 		}, { port });
 		console.log(`DevSocket listening on port ${port}`);
@@ -25,7 +25,7 @@ export class WebSocketManager {
 	handleRequest(request) {
 		const { socket, response } = Deno.upgradeWebSocket(request);
 		this.activeConnections.add(socket);
-		socket.addEventListener("message", e => {
+		socket.addEventListener("message", (e) => {
 			this.handleWebSocketMessage(e);
 		});
 		socket.addEventListener("close", () => {

@@ -40,7 +40,7 @@ await runE2eTest({
 			const contentWindowProjectEl = await page.waitForSelector(projectWindowSelector);
 			assertExists(contentWindowProjectEl);
 
-			await contentWindowProjectEl.evaluate(async contentWindowProjectEl => {
+			await contentWindowProjectEl.evaluate(async (contentWindowProjectEl) => {
 				if (!globalThis.studio) throw new Error("Studio instance does not exist");
 				if (!(contentWindowProjectEl instanceof HTMLElement)) throw new Error("Assertion failed, contentWindowProjectEl is not a HTMLElement");
 				const contentWindowProject = globalThis.studio.windowManager.getWindowByElement(contentWindowProjectEl);
@@ -55,7 +55,7 @@ await runE2eTest({
 
 			const projectNameEl = await page.waitForSelector(rootNameTreeViewSelector);
 			if (!projectNameEl) throw new Error("Project name element not found.");
-			const projectName = await projectNameEl.evaluate(projectNameEl => {
+			const projectName = await projectNameEl.evaluate((projectNameEl) => {
 				return projectNameEl.textContent;
 			});
 			assertEquals(projectName, newProjectName);
@@ -101,7 +101,7 @@ await runE2eTest({
 		await click(projectSelectorEl, ".project-selector-recent-list-container > .project-selector-list > li:nth-child(1) > button", {
 			button: "right",
 		});
-		page.on("dialog", async dialog => {
+		page.on("dialog", async (dialog) => {
 			await dialog.accept();
 		});
 		await clickContextMenuItem(page, ["Delete"]);

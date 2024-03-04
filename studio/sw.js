@@ -19,7 +19,7 @@ async function openCache() {
 	return await caches.open(CLIENT_CACHE_KEY);
 }
 
-swSelf.addEventListener("install", e => {
+swSelf.addEventListener("install", (e) => {
 	if (cacheEnabled) {
 		e.waitUntil((async () => {
 			const cache = await openCache();
@@ -27,7 +27,7 @@ swSelf.addEventListener("install", e => {
 		})());
 	}
 });
-swSelf.addEventListener("activate", e => {
+swSelf.addEventListener("activate", (e) => {
 	e.waitUntil((async () => {
 		// Delete old caches
 		const promises = [];
@@ -82,7 +82,7 @@ function getTypedMessenger(client) {
 
 	/** @type {TypedMessengerWithTypes} */
 	const messenger = new TypedMessenger();
-	messenger.setSendHandler(data => {
+	messenger.setSendHandler((data) => {
 		client.postMessage(data.sendData, data.transfer);
 	});
 	messenger.setResponseHandlers(getMessageHandlers(client));
@@ -112,7 +112,7 @@ function updateOpenTabCount() {
 	}
 }
 
-swSelf.addEventListener("message", e => {
+swSelf.addEventListener("message", (e) => {
 	if (e.source instanceof Client) {
 		const messenger = getTypedMessenger(e.source);
 		messenger.handleReceivedMessage(e.data);
@@ -161,7 +161,7 @@ async function getClientResponse(clientId, pathname, url) {
 	});
 }
 
-swSelf.addEventListener("fetch", e => {
+swSelf.addEventListener("fetch", (e) => {
 	const url = new URL(e.request.url);
 	const scopeUrl = new URL(swSelf.registration.scope);
 	if (url.pathname.startsWith(scopeUrl.pathname)) {

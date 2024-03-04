@@ -117,7 +117,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	/**
 	 * @param {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewChangeEvent<any>} changeEvent
 	 */
-	#handleGuiValueChange = changeEvent => {
+	#handleGuiValueChange = (changeEvent) => {
 		if (changeEvent.trigger != "user") return;
 
 		/** @type {import("../../assets/AssetManager.js").SetDefaultBuiltInAssetLinkData[]} */

@@ -3,7 +3,7 @@ export class PlaceHolderTextureReference {
 	#onDestructedCbs = new Set();
 
 	destructor() {
-		this.#onDestructedCbs.forEach(cb => cb());
+		this.#onDestructedCbs.forEach((cb) => cb());
 	}
 
 	/**

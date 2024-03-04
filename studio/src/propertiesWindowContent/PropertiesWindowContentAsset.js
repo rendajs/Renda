@@ -31,7 +31,7 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 		this.assetContentTree = this.treeView.addCollapsable("Asset Content");
 		this.assetContentTree.rowVisible = false;
 
-		this.assetSettingsTree.onChildValueChange(changeEvent => {
+		this.assetSettingsTree.onChildValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			this.saveAssetSettings();
 		});

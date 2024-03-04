@@ -68,7 +68,7 @@ export class DevServer {
 	start() {
 		this.#devSocket.init();
 		this.#httpServer.listenAndServe();
-		const addrs = this.getAddrs().map(addr => ` - ${addr}`);
+		const addrs = this.getAddrs().map((addr) => ` - ${addr}`);
 		console.log(`Started ${this.#serverName} on:
 ${addrs.join("\n")}`);
 	}

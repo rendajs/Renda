@@ -32,7 +32,7 @@ export class Application {
 			this.webSocketManager.startServer(this.port);
 		}
 
-		this.webSocketManager.registerRoundTripOp("writeBuiltInAsset", async data => {
+		this.webSocketManager.registerRoundTripOp("writeBuiltInAsset", async (data) => {
 			return await this.builtInAssetManager.writeAssetData(data.path, data.writeData);
 		});
 

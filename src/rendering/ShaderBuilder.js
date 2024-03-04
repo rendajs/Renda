@@ -174,7 +174,7 @@ export class ShaderBuilder {
 		/** @type {string?} */
 		let foundShaderCode = null;
 		while (unparsedPromiseItems.length > 0 && !foundShaderCode) {
-			const promises = unparsedPromiseItems.map(i => i.promise);
+			const promises = unparsedPromiseItems.map((i) => i.promise);
 			try {
 				foundShaderCode = await Promise.race(promises);
 			} catch (_) {
@@ -183,7 +183,7 @@ export class ShaderBuilder {
 			if (foundShaderCode) {
 				break;
 			} else {
-				unparsedPromiseItems = unparsedPromiseItems.filter(p => !p.resolved);
+				unparsedPromiseItems = unparsedPromiseItems.filter((p) => !p.resolved);
 			}
 		}
 		if (foundShaderCode) {

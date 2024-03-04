@@ -145,13 +145,13 @@ export class ContextMenu extends Popover {
 			let createdItem = null;
 			if (itemSettings.submenu) {
 				createdItem = this.addSubMenu(itemSettings);
-				createdItem.onCreateSubmenu(submenu => {
+				createdItem.onCreateSubmenu((submenu) => {
 					if (itemSettings.submenu instanceof Array) {
 						submenu.createStructure(itemSettings.submenu);
 					} else if (itemSettings.submenu instanceof Function) {
 						const result = itemSettings.submenu();
 						if (result instanceof Promise) {
-							result.then(submenuStructure => {
+							result.then((submenuStructure) => {
 								submenu.createStructure(submenuStructure);
 							});
 						} else {
@@ -210,7 +210,7 @@ export class ContextMenu extends Popover {
 	}
 
 	updateHasReservedIconSpaceItem() {
-		this.hasReservedIconSpace = this.addedItems.some(item => item.reserveIconSpace);
+		this.hasReservedIconSpace = this.addedItems.some((item) => item.reserveIconSpace);
 		for (const item of this.addedItems) {
 			item.updateIconStyle();
 		}

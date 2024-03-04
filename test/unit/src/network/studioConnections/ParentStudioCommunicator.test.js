@@ -40,8 +40,8 @@ async function basicSetup({
 					};
 				},
 			});
-			parentTypedMessenger.setSendHandler(data => {
-				parentMessageEventListeners.forEach(listener => {
+			parentTypedMessenger.setSendHandler((data) => {
+				parentMessageEventListeners.forEach((listener) => {
 					const event = /** @type {MessageEvent} */ ({
 						data: data.sendData,
 						source: window.parent,
@@ -80,7 +80,7 @@ async function basicSetup({
 	} finally {
 		window.parent = previousParent;
 
-		createdMessagePorts.forEach(p => p.close());
+		createdMessagePorts.forEach((p) => p.close());
 	}
 }
 

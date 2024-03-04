@@ -17,10 +17,10 @@ export function createMockInspectorManager({
 	const inspectorMessenger = new TypedMessenger();
 
 	// Link the two messengers to each other
-	studioHostMessenger.setSendHandler(data => {
+	studioHostMessenger.setSendHandler((data) => {
 		inspectorMessenger.handleReceivedMessage(data.sendData);
 	});
-	inspectorMessenger.setSendHandler(data => {
+	inspectorMessenger.setSendHandler((data) => {
 		studioHostMessenger.handleReceivedMessage(data.sendData);
 	});
 

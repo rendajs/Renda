@@ -60,10 +60,10 @@ export function initializeIframe(window) {
 	const { parentToIframeHandlers, workerToIframeHandlers } = getHandlers({ workerTypedMessenger, parentWindowTypedMessenger, destructorFunction: destructor });
 
 	parentWindowTypedMessenger.setResponseHandlers(parentToIframeHandlers);
-	parentWindowTypedMessenger.setSendHandler(data => {
+	parentWindowTypedMessenger.setSendHandler((data) => {
 		window.parent.postMessage(data.sendData, "*", data.transfer);
 	});
-	window.addEventListener("message", e => {
+	window.addEventListener("message", (e) => {
 		if (!e.data) return;
 		parentWindowTypedMessenger.handleReceivedMessage(e.data);
 	});
@@ -73,10 +73,10 @@ export function initializeIframe(window) {
 	const worker = new SharedWorker(url.href, { type: "module" });
 
 	workerTypedMessenger.setResponseHandlers(workerToIframeHandlers);
-	workerTypedMessenger.setSendHandler(data => {
+	workerTypedMessenger.setSendHandler((data) => {
 		worker.port.postMessage(data.sendData, data.transfer);
 	});
-	worker.port.addEventListener("message", e => {
+	worker.port.addEventListener("message", (e) => {
 		if (!e.data) return;
 
 		workerTypedMessenger.handleReceivedMessage(e.data);

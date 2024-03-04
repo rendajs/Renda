@@ -84,7 +84,7 @@ export class VertexState {
 
 		let lastAutoShaderLocationIndex = 0;
 		/** @type {RequestShaderLocationFn} */
-		const requestShaderLocation = attributeType => {
+		const requestShaderLocation = (attributeType) => {
 			const preferredLocation = preferredShaderLocationsMap.get(attributeType);
 			if (preferredLocation != undefined) {
 				return preferredLocation;
@@ -96,7 +96,7 @@ export class VertexState {
 			return lastAutoShaderLocationIndex;
 		};
 
-		const buffers = this.buffers.map(b => b.getDescriptor(requestShaderLocation));
+		const buffers = this.buffers.map((b) => b.getDescriptor(requestShaderLocation));
 		return { buffers };
 	}
 }

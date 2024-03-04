@@ -25,7 +25,7 @@ function expressionAstTest(expression, expectedAst, expectedResult, options) {
 		fn() {
 			const ast = parseExpression(expression);
 			assertEquals(ast, expectedAst);
-			const result = verifyExpression(ast, name => {
+			const result = verifyExpression(ast, (name) => {
 				return basicConditions[name] || false;
 			});
 			assertEquals(result, expectedResult);

@@ -14,7 +14,7 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 
 		this.assetTreeView = this.treeView.addCollapsable();
 		this.assetTreeView.renderContainer = true;
-		this.assetTreeView.onChildValueChange(changeEvent => {
+		this.assetTreeView.onChildValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			this.saveAsset();
 		});
@@ -48,7 +48,7 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 	}
 
 	async loadAsset() {
-		const editable = this.currentSelection.some(asset => asset.editable);
+		const editable = this.currentSelection.some((asset) => asset.editable);
 		this.assetTreeView.setFullTreeDisabled(!editable);
 
 		// todo: handle multiple selected items or no selection

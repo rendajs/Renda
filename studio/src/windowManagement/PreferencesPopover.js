@@ -86,7 +86,7 @@ export class PreferencesPopover extends Popover {
 					},
 				});
 			}
-			entry.onValueChange(changeEvent => {
+			entry.onValueChange((changeEvent) => {
 				if (changeEvent.trigger != "user") return;
 				preferencesManager.set(id, entry.getValue(), {
 					location: this.#getCurrentLocation(),

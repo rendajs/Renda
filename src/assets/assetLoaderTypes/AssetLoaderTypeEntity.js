@@ -127,7 +127,7 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 			}
 			const loadingEntity = new Entity("Loading Entity");
 			parentOptions.parent.addAtIndex(loadingEntity, parentOptions.childIndex);
-			recursionTracker.getAsset(data.assetUuid, entity => {
+			recursionTracker.getAsset(data.assetUuid, (entity) => {
 				if (!(entity instanceof Entity)) {
 					throw new Error(`Failed to load child entity asset with uuid ${data.assetUuid}, the asset is not of type Entity.`);
 				}

@@ -574,7 +574,7 @@ export class DroppableGui {
 		if (this.disabled) return false;
 		if (!e.dataTransfer) return false;
 
-		const hasValidMimeType = e.dataTransfer.types.some(mimeType => {
+		const hasValidMimeType = e.dataTransfer.types.some((mimeType) => {
 			const dragData = this.getDraggingProjectAssetData(mimeType);
 			return this.validateMimeType(dragData);
 		});
@@ -757,7 +757,7 @@ export class DroppableGui {
 									disabled = true;
 									const assetTypeStr = projectAssetType?.type || "unknown";
 									const expectedTypes = Array.from(this.getProjectAssetTypeFromSupported());
-									const expectedStrings = expectedTypes.map(t => `"${t.type}"`);
+									const expectedStrings = expectedTypes.map((t) => `"${t.type}"`);
 									let expectedStr = `"unknown"`;
 									if (expectedStrings.length == 1) {
 										expectedStr = expectedStrings[0];
@@ -855,12 +855,12 @@ export class DroppableGui {
 	}
 
 	/** @param {FocusEvent} e */
-	#onFocusIn = e => {
+	#onFocusIn = (e) => {
 		this.#updateFocusWithin(e.target);
 	};
 
 	/** @param {FocusEvent} e */
-	#onFocusOut = e => {
+	#onFocusOut = (e) => {
 		this.#updateFocusWithin(e.relatedTarget);
 	};
 
@@ -890,7 +890,7 @@ export class DroppableGui {
 	};
 
 	/** @param {ClipboardEvent} e */
-	#onPasteEvent = e => {
+	#onPasteEvent = (e) => {
 		if (!this.hasFocusWithin) return;
 		e.preventDefault();
 		const uuid = e.clipboardData?.getData("text/plain");

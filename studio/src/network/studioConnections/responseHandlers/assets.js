@@ -8,7 +8,7 @@ export function createAssetsHandlers(assetManager) {
 		/**
 		 * @param {import("../../../../../src/mod.js").UuidString} uuid
 		 */
-		"assets.hasAsset": async uuid => {
+		"assets.hasAsset": async (uuid) => {
 			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
 			return Boolean(projectAsset);
 		},
@@ -16,7 +16,7 @@ export function createAssetsHandlers(assetManager) {
 		 * Converts asset data to binary or a string, similar to what would happen to an asset when bundled.
 		 * @param {import("../../../../../src/mod.js").UuidString} uuid
 		 */
-		"assets.getBundledAssetData": async uuid => {
+		"assets.getBundledAssetData": async (uuid) => {
 			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
 			if (projectAsset) {
 				const assetTypeUuid = await projectAsset.getAssetTypeUuid();

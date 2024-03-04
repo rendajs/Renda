@@ -79,7 +79,7 @@ export class FilePreferencesLocation extends PreferencesLocation {
 		await this.#fs.writeJson(this.#path, preferencesData);
 		if (!this.#fileExists) {
 			this.#fileExists = true;
-			this.#onFileCreatedCbs.forEach(cb => cb());
+			this.#onFileCreatedCbs.forEach((cb) => cb());
 		}
 	}
 

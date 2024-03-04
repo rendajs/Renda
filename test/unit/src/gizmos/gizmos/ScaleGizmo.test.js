@@ -217,7 +217,7 @@ Deno.test({
 		const { scaleGizmo, createdDraggables } = basicSetup();
 
 		/** @type {import("../../../../../src/gizmos/gizmos/ScaleGizmo.js").ScaleGizmoDragCallback} */
-		const cb = e => {};
+		const cb = (e) => {};
 		const cbSpy = spy(cb);
 		scaleGizmo.onDrag(cbSpy);
 
@@ -253,7 +253,7 @@ Deno.test({
 		const zDraggable = createdDraggables[3];
 
 		/** @type {import("../../../../../src/gizmos/gizmos/ScaleGizmo.js").ScaleGizmoDragCallback} */
-		const cb = e => {};
+		const cb = (e) => {};
 		const cbSpy = spy(cb);
 		scaleGizmo.onDrag(cbSpy);
 

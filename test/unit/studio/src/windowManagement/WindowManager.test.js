@@ -49,7 +49,7 @@ stub(StudioWindow.prototype, "onFocusedWithinChange", function(cb) {
  */
 function triggerOnFocusedWithinChange(studioWindow) {
 	const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (studioWindow));
-	castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
+	castWindow[onFocusedWithinChangeSym].forEach((cb) => cb(true));
 }
 
 /** @type {import("../../../../../studio/src/windowManagement/SplitStudioWindow.js")} */
@@ -743,15 +743,15 @@ Deno.test({
 			/**
 			 * @param {unknown} data
 			 */
-			const flushFn = data => {
+			const flushFn = (data) => {
 				/** @type {Promise<void>} */
-				const promise = new Promise(resolve => {
+				const promise = new Promise((resolve) => {
 					flushPromises.add(resolve);
 				});
 				return promise;
 			};
 			function resolveFlushPromises() {
-				flushPromises.forEach(resolve => resolve());
+				flushPromises.forEach((resolve) => resolve());
 				flushPromises.clear();
 			}
 			const flushSpy = spy(flushFn);

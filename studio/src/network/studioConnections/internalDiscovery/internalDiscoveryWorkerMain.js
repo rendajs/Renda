@@ -138,7 +138,7 @@ export function initializeWorker(workerGlobal) {
 	/** @type {Map<import("../../../../../src/mod.js").UuidString, InternalDiscoveryWorkerConnection>} */
 	const activeConnections = new Map();
 
-	workerGlobal.addEventListener("connect", event => {
+	workerGlobal.addEventListener("connect", (event) => {
 		const castEvent = /** @type {MessageEvent} */ (event);
 		const [port] = castEvent.ports;
 
@@ -150,10 +150,10 @@ export function initializeWorker(workerGlobal) {
 		const { iframeResponseHandlers, parentWindowResponseHandlers } = getResponseHandlers(port, iframeMessenger, parentMessenger, activeConnections);
 
 		iframeMessenger.setResponseHandlers(iframeResponseHandlers);
-		iframeMessenger.setSendHandler(data => {
+		iframeMessenger.setSendHandler((data) => {
 			port.postMessage(data.sendData, data.transfer);
 		});
-		port.addEventListener("message", e => {
+		port.addEventListener("message", (e) => {
 			if (!e.data) return;
 
 			iframeMessenger.handleReceivedMessage(e.data);
@@ -161,7 +161,7 @@ export function initializeWorker(workerGlobal) {
 		port.start();
 
 		parentMessenger.setResponseHandlers(parentWindowResponseHandlers);
-		parentMessenger.setSendHandler(data => {
+		parentMessenger.setSendHandler((data) => {
 			iframeMessenger.sendWithOptions.sendToParentWindow({ transfer: data.transfer }, data.sendData, data.transfer);
 		});
 	});

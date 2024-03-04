@@ -132,7 +132,7 @@ export class StudioFileSystem {
 		op.onDone(() => {
 			this.writeOperations.delete(op);
 			if (this.writeOperations.size <= 0) {
-				this.onWriteOperationFinishCbs.forEach(cb => cb());
+				this.onWriteOperationFinishCbs.forEach((cb) => cb());
 				this.onWriteOperationFinishCbs.clear();
 			}
 		});
@@ -147,7 +147,7 @@ export class StudioFileSystem {
 		if (this.writeOperations.size <= 0) return;
 
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => {
+		const promise = new Promise((r) => {
 			this.onWriteOperationFinishCbs.add(r);
 		});
 		await promise;
@@ -165,7 +165,7 @@ export class StudioFileSystem {
 	 * @param {string} name The new name of the root directory.
 	 */
 	async setRootName(name) {
-		this.onRootNameChangeCbs.forEach(cb => cb(name));
+		this.onRootNameChangeCbs.forEach((cb) => cb(name));
 		this.fireChange({
 			external: false,
 			kind: "directory",
@@ -249,7 +249,7 @@ export class StudioFileSystem {
 	 * @param {FileSystemChangeEvent} e
 	 */
 	fireChange(e) {
-		this.#onChangeCbs.forEach(cb => cb(e));
+		this.#onChangeCbs.forEach((cb) => cb(e));
 	}
 
 	/**

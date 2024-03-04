@@ -173,7 +173,7 @@ Deno.test({
 			},
 		};
 
-		mocks.ProjectAssetType.transformBundledAssetData = data => {
+		mocks.ProjectAssetType.transformBundledAssetData = (data) => {
 			data.str = "replaced";
 			return data;
 		};
@@ -240,7 +240,7 @@ Deno.test({
 			},
 		};
 
-		mocks.ProjectAssetType.transformBundledAssetData = data => {
+		mocks.ProjectAssetType.transformBundledAssetData = (data) => {
 			data.asset2 = "00000000-0000-0000-0000-000000000002";
 			return data;
 		};

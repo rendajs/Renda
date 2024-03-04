@@ -85,7 +85,7 @@ export class TranslationGizmo extends Gizmo {
 		const sphere = new Sphere(0.5);
 		this.#centerDraggable.addRaycastShape(sphere);
 		this.entity.add(this.#centerDraggable.entity);
-		this.#centerDraggable.onIsHoveringChange(isHovering => {
+		this.#centerDraggable.onIsHoveringChange((isHovering) => {
 			if (isHovering) {
 				this.#circleMaterialColor.set(hoverColor);
 			} else {
@@ -93,13 +93,13 @@ export class TranslationGizmo extends Gizmo {
 			}
 			this.gizmoNeedsRender();
 		});
-		this.#centerDraggable.onDrag(e => {
+		this.#centerDraggable.onDrag((e) => {
 			this.pos.add(e.worldDelta);
 			this.gizmoNeedsRender();
 			const { rot } = this.entity.localMatrix.decompose();
 			rot.invert();
 			const localDelta = e.worldDelta.clone().rotate(rot);
-			this.#onDragCbs.forEach(cb => cb({
+			this.#onDragCbs.forEach((cb) => cb({
 				worldDelta: e.worldDelta,
 				localDelta,
 			}));
@@ -217,7 +217,7 @@ export class TranslationGizmo extends Gizmo {
 		draggable.entity.pos.set(axis);
 		const sphere = new Sphere(0.5);
 		draggable.addRaycastShape(sphere);
-		draggable.onIsHoveringChange(isHovering => {
+		draggable.onIsHoveringChange((isHovering) => {
 			if (isHovering) {
 				colorInstance.set(hoverColor);
 			} else {
@@ -225,12 +225,12 @@ export class TranslationGizmo extends Gizmo {
 			}
 			this.gizmoNeedsRender();
 		});
-		draggable.onDrag(e => {
+		draggable.onDrag((e) => {
 			this.pos.add(e.worldDelta);
 			this.gizmoNeedsRender();
 			const localDelta = axis.clone();
 			localDelta.magnitude = e.localDelta;
-			this.#onDragCbs.forEach(cb => cb({
+			this.#onDragCbs.forEach((cb) => cb({
 				localDelta,
 				worldDelta: e.worldDelta,
 			}));
@@ -275,6 +275,6 @@ export class TranslationGizmo extends Gizmo {
 	}
 
 	#fireOnDragEndCbs() {
-		this.#onDragEndCbs.forEach(cb => cb());
+		this.#onDragEndCbs.forEach((cb) => cb());
 	}
 }

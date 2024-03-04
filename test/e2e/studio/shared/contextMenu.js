@@ -39,11 +39,11 @@ export async function clickContextMenuItem(page, menuPath) {
 			// If the submenu has no items, it is likely still loading.
 			// We'll keep polling until it has items.
 			while (currentMenu.addedItems.length == 0) {
-				await new Promise(resolve => {
+				await new Promise((resolve) => {
 					requestAnimationFrame(resolve);
 				});
 			}
-			const item = currentMenu.addedItems.find(item => item.textEl.textContent == itemName);
+			const item = currentMenu.addedItems.find((item) => item.textEl.textContent == itemName);
 			if (!item) {
 				throw new Error(`The submenu "${menuPath.join(" > ")}" does not exist. "${itemName}" at index ${submenuCount} does not exist.`);
 			}

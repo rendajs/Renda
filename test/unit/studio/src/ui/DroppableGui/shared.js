@@ -27,7 +27,7 @@ export function applyProjectAssetInstanceOf() {
 		/**
 		 * @param {unknown} instance
 		 */
-		value: instance => {
+		value: (instance) => {
 			return mockProjectAssetInstances.includes(instance);
 		},
 	});
@@ -305,7 +305,7 @@ export function createBasicGui({
 			const cbs = shortcutCommandCallbacks.get(command);
 			if (cbs) {
 				const event = /** @type {import("../../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} */ ({});
-				cbs.forEach(cb => cb(event));
+				cbs.forEach((cb) => cb(event));
 			}
 			await waitForMicrotasks();
 		},
@@ -459,7 +459,7 @@ export async function basicSetupForSettingByUuid({
 
 	const assetManager = returnValue.mockStudio.projectManager.assetManager;
 	assertExists(assetManager);
-	stub(assetManager, "getProjectAssetFromUuid", async uuid => {
+	stub(assetManager, "getProjectAssetFromUuid", async (uuid) => {
 		if (uuid == BASIC_ASSET_UUID_FOR_SETTING) {
 			return mockProjectAsset;
 		}

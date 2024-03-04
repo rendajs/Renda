@@ -52,7 +52,7 @@ export class EventHandler {
 	fireEvent(type, event) {
 		const callbacks = this.callbacks.get(type);
 		if (callbacks) {
-			callbacks.forEach(callback => callback(event));
+			callbacks.forEach((callback) => callback(event));
 		}
 	}
 }

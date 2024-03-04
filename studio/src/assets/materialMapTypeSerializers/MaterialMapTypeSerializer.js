@@ -194,7 +194,7 @@ export class MaterialMapTypeSerializer {
 		const referencedUuids = [];
 		objectToBinary(bundleMapData, {
 			...binarySerializationOpts,
-			transformValueHook: args => {
+			transformValueHook: (args) => {
 				let { value, type } = args;
 				if (binarySerializationOpts.transformValueHook) {
 					value = binarySerializationOpts.transformValueHook(args);

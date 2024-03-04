@@ -107,7 +107,7 @@ export class SplitStudioWindow extends StudioWindow {
 	/**
 	 * @param {MouseEvent} e
 	 */
-	#onResizerMove = e => {
+	#onResizerMove = (e) => {
 		if (!this.resizeStartBounds) return;
 		this.calculateNewPercentage(
 			this.splitHorizontal ? this.resizeStartBounds.top : this.resizeStartBounds.left,

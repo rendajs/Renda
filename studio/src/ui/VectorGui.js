@@ -106,7 +106,7 @@ export class VectorGui {
 			});
 			this.numericGuis.push(numericGui);
 			this.el.appendChild(numericGui.el);
-			numericGui.onValueChange(changeEvent => {
+			numericGui.onValueChange((changeEvent) => {
 				this.#fireValueChange(changeEvent.trigger);
 			});
 		}
@@ -178,7 +178,7 @@ export class VectorGui {
 		} else if (purpose == "binarySerialization") {
 			getAsArrayValue = true;
 		}
-		const numbersArr = this.numericGuis.map(g => g.value);
+		const numbersArr = this.numericGuis.map((g) => g.value);
 		let val = null;
 		if (getAsArrayValue) {
 			val = numbersArr;

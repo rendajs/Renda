@@ -153,7 +153,7 @@ export class RotationGizmo extends Gizmo {
 		draggable.entity.scale.set(raycastScale);
 		const sphere = new Sphere();
 		draggable.addRaycastShape(sphere);
-		draggable.onIsHoveringChange(isHovering => {
+		draggable.onIsHoveringChange((isHovering) => {
 			if (isHovering) {
 				colorInstance.set(hoverColor);
 			} else {
@@ -161,11 +161,11 @@ export class RotationGizmo extends Gizmo {
 			}
 			this.gizmoNeedsRender();
 		});
-		draggable.onDrag(e => {
+		draggable.onDrag((e) => {
 			this.rot.preMultiply(e.worldDelta);
 			this.gizmoNeedsRender();
 			const localDelta = Quat.fromAxisAngle(axis, e.localDelta);
-			this.onDragCbs.forEach(cb => cb({
+			this.onDragCbs.forEach((cb) => cb({
 				localDelta,
 				worldDelta: e.worldDelta,
 			}));

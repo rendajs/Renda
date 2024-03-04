@@ -34,7 +34,7 @@ Deno.test({
 					/**
 					 * @param {string[]} path
 					 */
-					"fileSystem.isFile": async path => {
+					"fileSystem.isFile": async (path) => {
 						return true;
 					},
 				},

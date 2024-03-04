@@ -162,7 +162,7 @@ Deno.test({
 		/**
 		 * @param {import("../../../../../src/util/gltf/gltfParsing.js").ParsedGltfNodeHookContext} context
 		 */
-		const nodeHook = context => {};
+		const nodeHook = (context) => {};
 		const spyFn = spy(nodeHook);
 		const { entity } = parseScenes([
 			{

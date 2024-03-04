@@ -19,7 +19,7 @@ Deno.test({
 		const getAssetSpy = stub(assetLoader, "getAsset", async () => "result");
 		const manager = new EngineAssetsManager(assetLoader);
 
-		manager.addGetAssetHandler(uuid => {
+		manager.addGetAssetHandler((uuid) => {
 			return "incorrect result";
 		});
 

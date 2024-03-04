@@ -249,6 +249,6 @@ export class HistoryManager {
 	}
 
 	#fireOnTreeUpdated() {
-		this.#onTreeUpdatedCbs.forEach(cb => cb());
+		this.#onTreeUpdatedCbs.forEach((cb) => cb());
 	}
 }

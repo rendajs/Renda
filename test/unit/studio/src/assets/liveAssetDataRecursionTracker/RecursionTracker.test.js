@@ -96,7 +96,7 @@ function basicSetup({
 		fireLiveAssetDataChangeCbs(uuid, newLiveAsset) {
 			const cbs = liveAssetChangeCbs.get(uuid);
 			if (cbs) {
-				cbs.forEach(cb => cb({
+				cbs.forEach((cb) => cb({
 					studioData: null,
 					liveAsset: newLiveAsset,
 				}));

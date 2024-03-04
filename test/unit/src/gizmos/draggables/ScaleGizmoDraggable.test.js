@@ -13,7 +13,7 @@ function movementTest(screenPosFrom, screenPosTo, expectedDelta) {
 	const draggable = new ScaleGizmoDraggable(mockGizmoManager);
 	/** @type {import("../../../../../src/gizmos/draggables/ScaleGizmoDraggable.js").ScaleGizmoDragEvent[]} */
 	const calls = [];
-	draggable.onDrag(event => {
+	draggable.onDrag((event) => {
 		calls.push(event);
 	});
 

@@ -21,9 +21,9 @@ async function waitForWorkspaceLoad(page) {
 async function getFirstTabGroupTypes(page) {
 	const groupEl = await page.$(".studio-window-tab-button-group");
 	if (!groupEl) throw new Error("No button group was found");
-	return await groupEl.evaluate(async groupEl => {
+	return await groupEl.evaluate(async (groupEl) => {
 		const arr = Array.from(groupEl.children);
-		return arr.map(child => child.getAttribute("title"));
+		return arr.map((child) => child.getAttribute("title"));
 	});
 }
 
@@ -32,7 +32,7 @@ await runE2eTest({
 	async fn() {
 		const { page } = await getPage();
 		let workspaceIndex = 0;
-		page.on("dialog", async dialog => {
+		page.on("dialog", async (dialog) => {
 			workspaceIndex++;
 			await dialog.accept("workspace" + workspaceIndex);
 		});

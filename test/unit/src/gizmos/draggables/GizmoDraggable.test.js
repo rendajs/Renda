@@ -154,7 +154,7 @@ Deno.test({
 		/** @type {boolean[]} */
 		const cbResults = [];
 
-		draggable.onIsHoveringChange(isHovering => {
+		draggable.onIsHoveringChange((isHovering) => {
 			cbResults.push(draggable.isHovering);
 		});
 
@@ -172,7 +172,7 @@ Deno.test({
 		/** @type {boolean[]} */
 		const cbResults = [];
 
-		draggable.onIsHoveringChange(isHovering => {
+		draggable.onIsHoveringChange((isHovering) => {
 			cbResults.push(draggable.isHovering);
 		});
 
@@ -350,7 +350,7 @@ Deno.test({
 		/** @type {object[]} */
 		const callbackEvents = [];
 		/** @type {(e: object) => void} */
-		const cb = e => {
+		const cb = (e) => {
 			callbackEvents.push(e);
 		};
 		draggable.onDrag(cb);
@@ -370,7 +370,7 @@ Deno.test({
 		/** @type {object[]} */
 		const callbackEvents = [];
 		/** @type {(e: object) => void} */
-		const cb = e => {
+		const cb = (e) => {
 			callbackEvents.push(e);
 		};
 

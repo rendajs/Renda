@@ -104,7 +104,7 @@ function basicSetup() {
 	 */
 	function setInstallingState(newState) {
 		installingState = newState;
-		onInstallingStateChangeCbs.forEach(cb => cb());
+		onInstallingStateChangeCbs.forEach((cb) => cb());
 	}
 
 	/**
@@ -112,7 +112,7 @@ function basicSetup() {
 	 */
 	function setOpenTabCount(newCount) {
 		openTabCount = newCount;
-		onOpenTabCountChangeCbs.forEach(cb => cb());
+		onOpenTabCountChangeCbs.forEach((cb) => cb());
 	}
 
 	return {

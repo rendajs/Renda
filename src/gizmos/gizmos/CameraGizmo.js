@@ -57,7 +57,7 @@ export class CameraGizmo extends Gizmo {
 			new Vec3(1, 1, 1),
 		];
 		const inverse = projection.inverse();
-		const positionsFrustum = positionsCube.map(pos => {
+		const positionsFrustum = positionsCube.map((pos) => {
 			const pos4 = new Vec4(pos);
 			pos4.multiplyMatrix(inverse);
 			pos4.divide(pos4.w);

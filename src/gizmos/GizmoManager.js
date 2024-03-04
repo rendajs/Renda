@@ -56,7 +56,7 @@ export class GizmoManager {
 			assertionOptions: {
 				assertInstanceType: VertexState,
 			},
-		}, asset => {
+		}, (asset) => {
 			this.billboardVertexState = asset;
 			this.updateGizmoMaterials();
 		});
@@ -64,7 +64,7 @@ export class GizmoManager {
 			assertionOptions: {
 				assertInstanceType: Material,
 			},
-		}, asset => {
+		}, (asset) => {
 			this.billboardMaterial = asset;
 			this.updateGizmoMaterials();
 		});
@@ -72,7 +72,7 @@ export class GizmoManager {
 			assertionOptions: {
 				assertInstanceType: VertexState,
 			},
-		}, asset => {
+		}, (asset) => {
 			this.meshVertexState = asset;
 			this.updateGizmoMaterials();
 		});
@@ -80,7 +80,7 @@ export class GizmoManager {
 			assertionOptions: {
 				assertInstanceType: Material,
 			},
-		}, asset => {
+		}, (asset) => {
 			this.meshMaterial = asset;
 			this.updateGizmoMaterials();
 		});
@@ -250,7 +250,7 @@ export class GizmoManager {
 	 * @param {import("./gizmos/Gizmo.js").Gizmo} gizmo
 	 */
 	gizmoNeedsRender(gizmo) {
-		this.onGizmoNeedsRenderCbs.forEach(cb => cb(gizmo));
+		this.onGizmoNeedsRenderCbs.forEach((cb) => cb(gizmo));
 	}
 
 	/**

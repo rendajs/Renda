@@ -9,8 +9,8 @@ Deno.test({
 		const { args, mockStudioInstance, uninstall } = basicTest();
 		try {
 			/** @param {string} message */
-			let resolveMessage = message => {};
-			const promise = new Promise(r => {
+			let resolveMessage = (message) => {};
+			const promise = new Promise((r) => {
 				resolveMessage = r;
 			});
 			mockStudioInstance.rendererErrorMessage = promise;

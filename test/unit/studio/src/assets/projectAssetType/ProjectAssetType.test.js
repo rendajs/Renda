@@ -24,7 +24,7 @@ function createMockProjectAsset({
 	return {
 		mockProjectAsset,
 		fireOnLiveAssetNeedsReplacementCbs() {
-			onLiveAssetNeedsReplacementCbs.forEach(cb => cb());
+			onLiveAssetNeedsReplacementCbs.forEach((cb) => cb());
 		},
 	};
 }

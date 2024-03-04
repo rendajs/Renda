@@ -152,7 +152,7 @@ Deno.test({
 
 		try {
 			/** @type {Promise<void>} */
-			const onChangePromise = new Promise(resolve => {
+			const onChangePromise = new Promise((resolve) => {
 				gui.onValueChange(() => {
 					resolve();
 				});

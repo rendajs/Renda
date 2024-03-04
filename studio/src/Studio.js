@@ -101,7 +101,7 @@ export class Studio {
 		if (IS_DEV_BUILD && this.devSocket) {
 			this.builtInAssetManager.init(this.devSocket);
 		}
-		this.engineAssetManager.addGetAssetHandler(async uuid => {
+		this.engineAssetManager.addGetAssetHandler(async (uuid) => {
 			await this.builtInAssetManager.waitForLoad();
 			await this.projectManager.waitForAssetListsLoad();
 			const projectAsset = this.builtInAssetManager.assets.get(uuid);
@@ -109,7 +109,7 @@ export class Studio {
 			return await projectAsset.getLiveAsset();
 		});
 		if (IS_DEV_BUILD) {
-			this.builtInAssetManager.onAssetChange(uuid => {
+			this.builtInAssetManager.onAssetChange((uuid) => {
 				this.engineAssetManager.notifyAssetChanged(uuid);
 			});
 		}
@@ -143,7 +143,7 @@ export class Studio {
 		this.builtInDefaultAssetLinksManager.init();
 		this.serviceWorkerManager.init();
 
-		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
+		this.webGpuShaderBuilder.onShaderUuidRequested(async (uuid) => {
 			const assetManager = await this.projectManager.getAssetManager();
 			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid, {
 				assertAssetType: ProjectAssetTypeShaderSource,
@@ -156,7 +156,7 @@ export class Studio {
 			return null;
 		});
 
-		this.projectManager.onFileChange(async e => {
+		this.projectManager.onFileChange(async (e) => {
 			const assetManager = await this.projectManager.getAssetManager();
 			const uuid = await assetManager.getAssetUuidFromPath(e.path);
 			this.webGpuShaderBuilder.invalidateShader(uuid);

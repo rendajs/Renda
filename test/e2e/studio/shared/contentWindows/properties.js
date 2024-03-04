@@ -33,7 +33,7 @@ export async function getPropertiesWindowContentAsset(page) {
  */
 export async function getPropertiesWindowContentReference(page) {
 	const contentWindowReference = await getContentWindowReference(page, "renda:properties");
-	const propertiesWindowContentReference = await page.evaluateHandle(async contentWindow => {
+	const propertiesWindowContentReference = await page.evaluateHandle(async (contentWindow) => {
 		const { ContentWindowProperties } = await import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowProperties.js");
 		if (!(contentWindow instanceof ContentWindowProperties)) {
 			throw new Error("Assertion failed, content is not an instance of ContentWindowProperties");
@@ -54,7 +54,7 @@ export async function getPropertiesWindowContentReference(page) {
  */
 export async function getPropertiesAssetContentReference(page) {
 	const propertiesWindowContentReference = await getPropertiesWindowContentReference(page);
-	const propertiesAssetContentReference = await page.evaluateHandle(async propertiesWindowContent => {
+	const propertiesAssetContentReference = await page.evaluateHandle(async (propertiesWindowContent) => {
 		const { PropertiesWindowContentAsset } = await import("../../../../../studio/src/propertiesWindowContent/PropertiesWindowContentAsset.js");
 		if (!(propertiesWindowContent instanceof PropertiesWindowContentAsset)) {
 			throw new Error("Assertion failed, propertiesWindowContent is not an instance of PropertiesWindowContentAsset.");

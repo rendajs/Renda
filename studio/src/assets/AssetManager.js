@@ -200,7 +200,7 @@ export class AssetManager {
 			writable: false,
 		});
 		if (this.loadAssetSettingsFromUserGesture || hasPermissions) {
-			this.#onPermissionPromptResultCbs.forEach(cb => cb(hasPermissions));
+			this.#onPermissionPromptResultCbs.forEach((cb) => cb(hasPermissions));
 		}
 		if (!hasPermissions) {
 			return;
@@ -263,7 +263,7 @@ export class AssetManager {
 	async waitForAssetSettingsLoad() {
 		if (this.assetSettingsLoaded) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.waitForAssetSettingsLoadCbs.add(r));
+		const promise = new Promise((r) => this.waitForAssetSettingsLoadCbs.add(r));
 		await promise;
 	}
 
@@ -465,7 +465,7 @@ export class AssetManager {
 	/**
 	 * @param {import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent} e
 	 */
-	#onFileChange = async e => {
+	#onFileChange = async (e) => {
 		if (!e.external) return;
 
 		const filename = e.path.at(-1);
@@ -578,13 +578,13 @@ export class AssetManager {
 		}
 
 		if (!anyExpected) {
-			const expectedTypes = castExpectedTypes.map(t => t.type);
+			const expectedTypes = castExpectedTypes.map((t) => t.type);
 			let expectedString = "";
 			if (expectedTypes.length > 1) {
 				const lastItem = expectedTypes.pop();
 				const secondLastItem = expectedTypes.pop();
 				expectedTypes.push(`${secondLastItem}" or "${lastItem}`);
-				const quotedTypes = expectedTypes.map(t => `"${t}"`);
+				const quotedTypes = expectedTypes.map((t) => `"${t}"`);
 				expectedString = `one of ${quotedTypes.join(", ")}`;
 			} else {
 				expectedString = `"${expectedTypes[0]}"`;
@@ -806,7 +806,7 @@ export class AssetManager {
 			embeddedParent: parent,
 			embeddedParentPersistenceKey: this.embeddedPersistenceKeyToString(persistenceKey),
 		});
-		projectAsset.onLiveAssetDataChange(liveAssetData => {
+		projectAsset.onLiveAssetDataChange((liveAssetData) => {
 			if (liveAssetData.liveAsset) {
 				this.embeddedAssets.set(liveAssetData.liveAsset, projectAsset);
 			}

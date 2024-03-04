@@ -74,7 +74,7 @@ Deno.test({
 		const { gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset } = await basicSetupForEmbeddedAssets();
 
 		try {
-			const onValueChangePromise = new Promise(resolve => {
+			const onValueChangePromise = new Promise((resolve) => {
 				gui.onValueChange(() => {
 					const value = gui.getValue({ returnLiveAsset: true });
 					resolve(value);

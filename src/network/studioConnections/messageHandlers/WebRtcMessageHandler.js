@@ -28,19 +28,19 @@ export class WebRtcMessageHandler extends MessageHandler {
 		/** @private @type {Map<string, RTCDataChannel>} */
 		this.dataChannels = new Map();
 
-		this.rtcConnection.addEventListener("icecandidate", e => {
+		this.rtcConnection.addEventListener("icecandidate", (e) => {
 			if (e.candidate) {
 				sendRtcIceCandidate(e.candidate);
 			}
 		});
-		this.rtcConnection.addEventListener("datachannel", e => {
+		this.rtcConnection.addEventListener("datachannel", (e) => {
 			this.addDataChannelListeners(e.channel);
 			this.dataChannels.set(e.channel.label, e.channel);
 		});
-		this.rtcConnection.addEventListener("connectionstatechange", e => {
+		this.rtcConnection.addEventListener("connectionstatechange", (e) => {
 			this.updateStatus();
 		});
-		this.rtcConnection.addEventListener("negotiationneeded", e => {
+		this.rtcConnection.addEventListener("negotiationneeded", (e) => {
 			this.initWebRtcConnection();
 		});
 
@@ -117,7 +117,7 @@ export class WebRtcMessageHandler extends MessageHandler {
 			}
 		}
 		if (newStatus == "connected") {
-			this._waitForConnectedCbs.forEach(cb => cb());
+			this._waitForConnectedCbs.forEach((cb) => cb());
 			this._waitForConnectedCbs.clear();
 		}
 		this.setStatus(newStatus);
@@ -141,10 +141,10 @@ export class WebRtcMessageHandler extends MessageHandler {
 	 * @param {RTCDataChannel} channel
 	 */
 	addDataChannelListeners(channel) {
-		channel.addEventListener("open", e => {
+		channel.addEventListener("open", (e) => {
 			this.updateStatus();
 		});
-		channel.addEventListener("message", e => {
+		channel.addEventListener("message", (e) => {
 			this.handleMessageReceived(e.data);
 		});
 	}
@@ -183,7 +183,7 @@ export class WebRtcMessageHandler extends MessageHandler {
 	_waitForConnected() {
 		if (this.status == "connected") return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(resolve => {
+		const promise = new Promise((resolve) => {
 			this._waitForConnectedCbs.add(resolve);
 		});
 		return promise;

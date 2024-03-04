@@ -38,7 +38,7 @@ export class WebGpuRenderer extends Renderer {
 	#placeHolderTextureManager;
 
 	/** @type {FinalizationRegistry<CachedMaterialData>} */
-	#cachedMaterialDataRegistry = new FinalizationRegistry(heldValue => {
+	#cachedMaterialDataRegistry = new FinalizationRegistry((heldValue) => {
 		heldValue.destructor();
 	});
 
@@ -220,14 +220,14 @@ export class WebGpuRenderer extends Renderer {
 				assertionOptions: {
 					assertInstanceType: ShaderSource,
 				},
-			}, asset => {
+			}, (asset) => {
 				this.computeClusterBoundsShaderCode = asset;
 			});
 			await this.engineAssetManager.watchAsset(CLUSTER_LIGHTS_SHADER_ASSET_UUID, {
 				assertionOptions: {
 					assertInstanceType: ShaderSource,
 				},
-			}, asset => {
+			}, (asset) => {
 				this.computeClusterLightsShaderCode = asset;
 			});
 		}
@@ -280,7 +280,7 @@ export class WebGpuRenderer extends Renderer {
 	async waitForInit() {
 		if (this.isInit) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.onInitCbs.add(r));
+		const promise = new Promise((r) => this.onInitCbs.add(r));
 		await promise;
 	}
 

@@ -13,7 +13,7 @@ export class WeakValueMap {
 		this._map = new Map();
 
 		/** @private @type {FinalizationRegistry<K>} */
-		this._finalizationRegistry = new FinalizationRegistry(key => {
+		this._finalizationRegistry = new FinalizationRegistry((key) => {
 			this._map.delete(key);
 		});
 

@@ -201,7 +201,7 @@ export class EntityAssetManager {
 			trackedData = {
 				sourceEntity: null,
 				trackedInstances: new IterableWeakSet(),
-				ready: new Promise(resolve => {
+				ready: new Promise((resolve) => {
 					resolveReady = resolve;
 				}),
 			};
@@ -350,7 +350,7 @@ export class EntityAssetManager {
 		 * Gets an existing tracked entity if one is available, and creates one otherwise.
 		 * @param {import("../../../src/mod.js").UuidString} uuid
 		 */
-		const getTrackedEntity = uuid => {
+		const getTrackedEntity = (uuid) => {
 			const entities = existingTrackedEntities.get(uuid);
 			if (entities) {
 				const entity = entities.pop();

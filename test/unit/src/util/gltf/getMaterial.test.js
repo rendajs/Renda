@@ -246,7 +246,7 @@ Deno.test({
 		/**
 		 * @param {import("../../../../../src/util/gltf/gltfParsing.js").ParsedGltfMaterialHookContext} context
 		 */
-		const materialHook = context => {};
+		const materialHook = (context) => {};
 		const spyFn = spy(materialHook);
 
 		const result = await getMaterialHelper(jsonData, 0, materialsCache, {

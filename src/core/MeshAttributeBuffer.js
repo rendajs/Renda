@@ -153,7 +153,7 @@ export class MeshAttributeBuffer {
 				fixesList.push(`set the componentCount of "${attributeName}" in your VertexState to ${receivedComponentCount}.`);
 				fixesList.push(`provide a ${expectedText} array.`);
 			}
-			const fixesStr = fixesList.map(str => " - " + str).join("\n");
+			const fixesStr = fixesList.map((str) => " - " + str).join("\n");
 			throw new TypeError(`Expected a ${expectedText} array but received a ${dataType} array.\n${vertexStateSentence}\nPotential fixes:\n${fixesStr}`);
 		}
 	}

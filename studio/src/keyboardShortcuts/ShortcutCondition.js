@@ -68,7 +68,7 @@ export class ShortcutCondition {
 
 	updateCurrentValue() {
 		const previousValue = this.value;
-		const setters = Array.from(this.valueSetters).filter(setter => setter.value != null).sort((a, b) => b.priority - a.priority);
+		const setters = Array.from(this.valueSetters).filter((setter) => setter.value != null).sort((a, b) => b.priority - a.priority);
 		if (setters.length == 0) {
 			if (this.type == "boolean") {
 				this.value = /** @type {T} */ (false);
@@ -91,12 +91,12 @@ export class ShortcutCondition {
 				this.value = /** @type {T} */ (value);
 			} else if (this.type == "string") {
 				const castSetters = /** @type {ShorcutConditionValueSetter<string>[]} */ (setters);
-				const values = castSetters.map(setter => setter.value).filter(value => !!value);
+				const values = castSetters.map((setter) => setter.value).filter((value) => !!value);
 				this.value = /** @type {T} */ (values);
 			}
 		}
 		if (this.value != previousValue) {
-			this.onValueChangeCbs.forEach(cb => cb(this.value));
+			this.onValueChangeCbs.forEach((cb) => cb(this.value));
 		}
 	}
 

@@ -144,7 +144,7 @@ export class Button {
 		if (visible == this.#visible) return;
 		this.#visible = visible;
 		this.el.classList.toggle("hidden", !visible);
-		this.#onVisibilityChangeCbs.forEach(cb => cb(visible));
+		this.#onVisibilityChangeCbs.forEach((cb) => cb(visible));
 	}
 
 	get visible() {

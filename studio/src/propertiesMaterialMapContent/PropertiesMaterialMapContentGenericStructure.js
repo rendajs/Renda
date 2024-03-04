@@ -12,7 +12,7 @@ export class PropertiesMaterialMapContentGenericStructure extends PropertiesMate
 		this.settingsGuiStructure = structure;
 
 		this.treeView.generateFromSerializableStructure(this.settingsGuiStructure);
-		this.treeView.onChildValueChange(changeEvent => {
+		this.treeView.onChildValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			this.signalCustomDataChanged();
 		});

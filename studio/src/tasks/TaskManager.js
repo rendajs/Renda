@@ -108,7 +108,7 @@ export class TaskManager {
 		if (!castConstructor.type) {
 			throw new Error("Tried to register task (" + castConstructor.name + ") with no type value, override the static type value in order for this task to function properly.");
 		}
-		if (!castConstructor.type.includes(":") || castConstructor.type.split(":").filter(s => Boolean(s)).length < 2) {
+		if (!castConstructor.type.includes(":") || castConstructor.type.split(":").filter((s) => Boolean(s)).length < 2) {
 			throw new Error("Tried to register task (" + castConstructor.name + ") without a namespace in the type value.");
 		}
 
@@ -200,7 +200,7 @@ export class TaskManager {
 		 * @template {import("../assets/AssetManager.js").AssetAssertionOptions} T
 		 * @param {import("../assets/AssetManager.js").AssetAssertionOptionsToProjectAsset<T>?} asset
 		 */
-		const runDependencyTasksAndRead = async asset => {
+		const runDependencyTasksAndRead = async (asset) => {
 			if (!asset) return null;
 			const taskAsset = this.#touchedTaskAssets.get(asset);
 			if (taskAsset) {
@@ -236,7 +236,7 @@ export class TaskManager {
 				const result = await runDependencyTasksAndRead(asset);
 				return /** @type {import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>} */ (result);
 			},
-			runDependencyTaskAsset: async uuid => {
+			runDependencyTaskAsset: async (uuid) => {
 				const taskAsset = await assetManager?.getProjectAssetFromUuid(uuid, {
 					assertAssetType: [ProjectAssetTypeTask],
 				});

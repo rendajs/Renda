@@ -36,7 +36,7 @@ Deno.test({
 			async fn() {
 				const manager = new WebRtcDiscoveryMethod("endpoint");
 				/** @type {import("../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").OnDiscoveryManagerWebRtcStatusChangeCallback} */
-				const onStatusChange = status => {};
+				const onStatusChange = (status) => {};
 				const onStatusChangeSpy = spy(onStatusChange);
 				manager.onStatusChange(onStatusChangeSpy);
 
@@ -122,7 +122,7 @@ Deno.test({
 			async fn() {
 				const manager = new WebRtcDiscoveryMethod("endpoint");
 				/** @type {import("../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").OnDiscoveryManagerWebRtcStatusChangeCallback} */
-				const onStatusChange = status => {};
+				const onStatusChange = (status) => {};
 				const onStatusChangeSpy = spy(onStatusChange);
 				manager.onStatusChange(onStatusChangeSpy);
 				manager.removeOnStatusChange(onStatusChangeSpy);
@@ -275,7 +275,7 @@ Deno.test({
  */
 function createOnConnectionRequestSpy(discoveryMethod) {
 	/** @param {WebRtcMessageHandler} handler */
-	const onConnectionRequest = handler => {};
+	const onConnectionRequest = (handler) => {};
 	const onConnectionRequestSpy = spy(onConnectionRequest);
 	discoveryMethod.onConnectionRequest(onConnectionRequestSpy);
 	return {

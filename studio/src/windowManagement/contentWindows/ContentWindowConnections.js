@@ -68,7 +68,7 @@ export class ContentWindowConnections extends ContentWindow {
 				placeholder: this.studioInstance.studioConnectionsManager.getDefaultWebRtcDiscoveryEndpoint(),
 			},
 		});
-		discoveryServerEndpointField.onValueChange(changeEvent => {
+		discoveryServerEndpointField.onValueChange((changeEvent) => {
 			this.studioInstance.studioConnectionsManager.setWebRtcDiscoveryEndpoint(changeEvent.value);
 		});
 		const discoveryServerStatusLabel = this.headerTreeView.addItem({
@@ -99,7 +99,7 @@ export class ContentWindowConnections extends ContentWindow {
 	/**
 	 * @param {import("../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js").DiscoveryServerStatusType} status
 	 */
-	#updateWebRtcDiscoveryServerStatus = status => {
+	#updateWebRtcDiscoveryServerStatus = (status) => {
 		this.discoveryServerStatusLabel.setValue(status);
 	};
 

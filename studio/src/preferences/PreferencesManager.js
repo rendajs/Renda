@@ -258,7 +258,7 @@ export class PreferencesManager {
 			/**
 			 * @param {string} key
 			 */
-			const onPreferenceLoaded = key => {
+			const onPreferenceLoaded = (key) => {
 				const castKey = /** @type {PreferenceTypes} */ (key);
 				this.#runAndFireEvents({
 					preference: castKey,
@@ -284,7 +284,7 @@ export class PreferencesManager {
 	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation} location
 	 */
 	removeLocation(location) {
-		this.#registeredLocations = this.#registeredLocations.filter(l => l != location);
+		this.#registeredLocations = this.#registeredLocations.filter((l) => l != location);
 		const handler = this.#onPreferenceLoadedHandlers.get(location);
 		if (handler) location.removeOnPreferenceLoaded(handler);
 	}
@@ -312,7 +312,7 @@ export class PreferencesManager {
 	#getLocationAndConfig(preference, locationOptions) {
 		const preferenceConfig = this.#getPreferenceConfig(preference);
 		const locationType = locationOptions?.location || this.#getDefaultLocationFromConfig(preferenceConfig);
-		const location = this.#registeredLocations.find(location => {
+		const location = this.#registeredLocations.find((location) => {
 			if (location.locationType != locationType) return false;
 			if (location instanceof ContentWindowPreferencesLocation) {
 				if (!locationOptions?.contentWindowUuid) return false;
@@ -345,7 +345,7 @@ export class PreferencesManager {
 	 * @param {SetPreferenceOptions} [setPreferenceOptions]
 	 */
 	reset(preference, setPreferenceOptions) {
-		return this.#changeLocationAndFireEvents(preference, setPreferenceOptions, location => {
+		return this.#changeLocationAndFireEvents(preference, setPreferenceOptions, (location) => {
 			location.delete(preference);
 		});
 	}
@@ -452,7 +452,7 @@ export class PreferencesManager {
 			});
 		}
 
-		this.#onChangeAnyCallbacks.forEach(cb => {
+		this.#onChangeAnyCallbacks.forEach((cb) => {
 			cb({
 				location: eventLocationType,
 				trigger: eventTrigger,
@@ -668,7 +668,7 @@ export class PreferencesManager {
 
 		const callbacks = contentWindowCallbacks.get(contentWindowUuid);
 		if (!callbacks) return;
-		callbacks.forEach(cb => cb(event));
+		callbacks.forEach((cb) => cb(event));
 	}
 }
 

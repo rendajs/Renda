@@ -86,7 +86,7 @@ export class FakeGizmoDraggable {
 	 * @param {boolean} isHovering
 	 */
 	fireIsHoveringChange(isHovering) {
-		this.onIsHoveringChangeCbs.forEach(cb => cb(isHovering));
+		this.onIsHoveringChangeCbs.forEach((cb) => cb(isHovering));
 	}
 
 	/**
@@ -100,7 +100,7 @@ export class FakeGizmoDraggable {
 	 * @param {TDragEvent} event
 	 */
 	fireOnDrag(event) {
-		this.#onDragCbs.forEach(cb => cb(event));
+		this.#onDragCbs.forEach((cb) => cb(event));
 	}
 
 	/**
@@ -111,7 +111,7 @@ export class FakeGizmoDraggable {
 	}
 
 	fireOnDragEnd() {
-		this.#onDragEndCbs.forEach(cb => cb());
+		this.#onDragEndCbs.forEach((cb) => cb());
 	}
 }
 

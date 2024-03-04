@@ -105,11 +105,11 @@ async function basicTest({
 			webRtcStatusLabel,
 			studioConnectionsManager: mockStudioInstance.studioConnectionsManager,
 			fireOnAvailableConnectionsChanged() {
-				onAvailableConnectionsChangedCbs.forEach(cb => cb());
+				onAvailableConnectionsChangedCbs.forEach((cb) => cb());
 			},
 			fireOnWebRtcDiscoveryserverStatusChange(status) {
 				webRtcDiscoveryServerStatus = status;
-				onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
+				onWebRtcDiscoveryServerStatusChangeCbs.forEach((cb) => cb(status));
 			},
 		};
 

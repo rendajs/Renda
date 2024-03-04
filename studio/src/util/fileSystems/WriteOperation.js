@@ -16,7 +16,7 @@ export class WriteOperation {
 	done() {
 		if (this.isDone) return;
 		this.isDone = true;
-		this.onDoneCbs.forEach(cb => cb());
+		this.onDoneCbs.forEach((cb) => cb());
 		this.onDoneCbs.clear();
 	}
 

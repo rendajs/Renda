@@ -322,7 +322,7 @@ Deno.test({
 		} = getBasicEntityStructure();
 
 		const result = Array.from(root.traverseDown({
-			filter: e => e !== entity1,
+			filter: (e) => e !== entity1,
 		}));
 
 		const expected = [
@@ -380,7 +380,7 @@ Deno.test({
 		} = getBasicEntityStructure();
 
 		const result = Array.from(entity1A.traverseUp({
-			filter: e => e !== entity1,
+			filter: (e) => e !== entity1,
 		}));
 
 		assertEquals(result.length, 1);

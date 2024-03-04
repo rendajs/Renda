@@ -40,7 +40,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		/** @type {TypedMessenger<BuildViewIframeResponseHandlers, {}>} */
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this.getIframeResponseHandlers());
-		this.iframeMessenger.setSendHandler(data => {
+		this.iframeMessenger.setSendHandler((data) => {
 			if (!this.iframeEl.contentWindow) {
 				throw new Error("Failed to send message to build view iframe because it hasn't loaded yet.");
 			}
@@ -204,7 +204,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	/**
 	 * @param {MessageEvent} e
 	 */
-	onIframeMessage = e => {
+	onIframeMessage = (e) => {
 		if (e.source == this.iframeEl.contentWindow) {
 			this.iframeMessenger.handleReceivedMessage(e.data);
 		}
@@ -217,7 +217,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	/**
 	 * @param {boolean} gestureInProgress
 	 */
-	#onGestureInProgressChange = gestureInProgress => {
+	#onGestureInProgressChange = (gestureInProgress) => {
 		this.iframeEl.style.pointerEvents = gestureInProgress ? "none" : "";
 	};
 }

@@ -33,7 +33,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				defaultValue: DEFAULT_MATERIAL_MAP_UUID,
 			},
 		});
-		this.mapTreeView.onValueChange(async changeEvent => {
+		this.mapTreeView.onValueChange(async (changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 
 			// todo: support multiselect
@@ -153,7 +153,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			if (value !== undefined) {
 				entry.setValue(value);
 			}
-			entry.onValueChange(async changeEvent => {
+			entry.onValueChange(async (changeEvent) => {
 				if (changeEvent.trigger != "user") return;
 				const newValue = entry.getValue({
 					purpose: "script",

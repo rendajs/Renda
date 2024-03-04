@@ -97,7 +97,7 @@ Deno.test({
 		const { rotationGizmo, createdDraggables } = basicSetup();
 
 		/** @type {import("../../../../../src/gizmos/gizmos/RotationGizmo.js").RotationGizmoDragCallback} */
-		const cb = e => {};
+		const cb = (e) => {};
 		const cbSpy = spy(cb);
 		rotationGizmo.onDrag(cbSpy);
 

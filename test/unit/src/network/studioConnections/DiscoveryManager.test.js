@@ -100,7 +100,7 @@ Deno.test({
 		});
 
 		/** @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest} request */
-		const onConnectionRequest = request => {};
+		const onConnectionRequest = (request) => {};
 		const onConnectionRequestSpy = spy(onConnectionRequest);
 		manager.onConnectionRequest(onConnectionRequestSpy);
 
@@ -125,12 +125,12 @@ Deno.test({
 			projectMetadata: null,
 		});
 
-		manager.onConnectionRequest(request => {
+		manager.onConnectionRequest((request) => {
 			// An implementation could store the request and accept it later
 		});
 
 		/** @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest} request */
-		const onConnectionRequest2 = request => {};
+		const onConnectionRequest2 = (request) => {};
 		const onConnectionRequest2Spy = spy(onConnectionRequest2);
 		manager.onConnectionRequest(onConnectionRequest2Spy);
 
@@ -154,10 +154,10 @@ Deno.test({
 		const consoleErrorSpy = stub(console, "error");
 		try {
 			const error = new Error("oh no");
-			manager.onConnectionRequest(request => {
+			manager.onConnectionRequest((request) => {
 				throw error;
 			});
-			manager.onConnectionRequest(request => {
+			manager.onConnectionRequest((request) => {
 				throw error;
 			});
 
@@ -186,12 +186,12 @@ Deno.test({
 		const consoleErrorSpy = stub(console, "error");
 		try {
 			const error = new Error("oh no");
-			manager.onConnectionRequest(request => {
+			manager.onConnectionRequest((request) => {
 				throw error;
 			});
 
 			/** @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest} request */
-			const onConnectionRequest2 = request => {};
+			const onConnectionRequest2 = (request) => {};
 			const onConnectionRequest2Spy = spy(onConnectionRequest2);
 			manager.onConnectionRequest(onConnectionRequest2Spy);
 
@@ -214,7 +214,7 @@ Deno.test({
 		const manager = new DiscoveryManager("studio-client");
 		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
 		let connectionRequest = /** @type {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest?} */ (null);
-		manager.onConnectionRequest(request => {
+		manager.onConnectionRequest((request) => {
 			connectionRequest = request;
 		});
 
@@ -248,7 +248,7 @@ Deno.test({
 		const manager = new DiscoveryManager("studio-client");
 		const discoveryMethod = manager.addDiscoveryMethod(ExtendedDiscoveryMethod);
 		let connectionRequest = /** @type {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest?} */ (null);
-		manager.onConnectionRequest(request => {
+		manager.onConnectionRequest((request) => {
 			connectionRequest = request;
 		});
 
@@ -287,7 +287,7 @@ Deno.test({
 		});
 
 		/** @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").OnConnectionCreatedRequest} request */
-		const onConnectionRequest2 = request => {};
+		const onConnectionRequest2 = (request) => {};
 		const onConnectionRequest2Spy = spy(onConnectionRequest2);
 		manager.onConnectionRequest(onConnectionRequest2Spy);
 

@@ -38,17 +38,17 @@ export class DevSocketManager {
 	async tryConnectionOnceFn() {
 		const ws = new WebSocket(`ws://${globalThis.location.host}/devSocket`);
 		this.ws = ws;
-		this.ws.addEventListener("message", e => {
+		this.ws.addEventListener("message", (e) => {
 			if (this.ws != ws) return;
 			this.handleMessage(e);
 		});
-		return await new Promise(resolve => {
-			ws.addEventListener("open", e => {
+		return await new Promise((resolve) => {
+			ws.addEventListener("open", (e) => {
 				if (this.ws != ws) return;
 				this.connectedOnce = true;
 				resolve(true);
 			});
-			ws.addEventListener("close", e => {
+			ws.addEventListener("close", (e) => {
 				if (this.ws != ws) return;
 				this.ws = null;
 				resolve(false);
@@ -67,7 +67,7 @@ export class DevSocketManager {
 			attempts++;
 			if (attempts > 3) return false;
 
-			await new Promise(r => setTimeout(r, attempts * 1000));
+			await new Promise((r) => setTimeout(r, attempts * 1000));
 
 			const success = await this.tryConnectionOnce();
 			if (success) return true;
@@ -143,7 +143,7 @@ export class DevSocketManager {
 			roundTripOp: op,
 			roundTripId, data,
 		}));
-		return await new Promise(r => {
+		return await new Promise((r) => {
 			this.roundTripCbs.add({
 				id: roundTripId,
 				cb: r,

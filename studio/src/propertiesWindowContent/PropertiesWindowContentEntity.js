@@ -43,7 +43,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				label: "Position",
 			},
 		});
-		this.positionProperty.onValueChange(changeEvent => {
+		this.positionProperty.onValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
 			for (const { entity } of this.currentSelection) {
@@ -62,7 +62,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				label: "Rotation",
 			},
 		});
-		this.rotationProperty.onValueChange(changeEvent => {
+		this.rotationProperty.onValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
 			for (const { entity } of this.currentSelection) {
@@ -81,7 +81,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				label: "Scale",
 			},
 		});
-		this.scaleProperty.onValueChange(changeEvent => {
+		this.scaleProperty.onValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
 			for (const { entity } of this.currentSelection) {
@@ -167,7 +167,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 	/**
 	 * @param {import("../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
 	 */
-	#onTrackedEntityChange = e => {
+	#onTrackedEntityChange = (e) => {
 		if (e.source == this) return;
 		if (e.type & EntityChangeType.Transform) {
 			this.updateTransformationValues();
@@ -204,7 +204,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			const componentName = componentConstructor?.name || componentConstructor?.uuid || "<unknown>";
 			const componentUI = this.componentsSection.addCollapsable(componentName);
 			componentUI.renderContainer = true;
-			componentUI.addEventListener("contextmenu", e => {
+			componentUI.addEventListener("contextmenu", (e) => {
 				e.showContextMenu([
 					{
 						text: "Remove",
@@ -238,7 +238,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 						return value;
 					},
 				});
-				componentUI.onChildValueChange(e => {
+				componentUI.onChildValueChange((e) => {
 					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.target);
 					if (!propertyName) return;
 					const scriptValueFromGui = e.target.getValue({ purpose: "script" });

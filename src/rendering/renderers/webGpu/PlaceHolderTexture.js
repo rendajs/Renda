@@ -48,7 +48,7 @@ export class PlaceHolderTexture {
 		ref.onDestructed(() => {
 			this.#references.delete(ref);
 			if (this.#references.size == 0) {
-				this.#onAllReferencesDestructedCbs.forEach(cb => cb());
+				this.#onAllReferencesDestructedCbs.forEach((cb) => cb());
 			}
 		});
 		return ref;

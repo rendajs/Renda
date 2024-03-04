@@ -138,9 +138,9 @@ function basicSetupForRunTask({
 	/**
 	 * @type {import("std/testing/mock.ts").Spy}
 	 */
-	const runDependencyTaskAssetSpy = spy(async uuid => {
+	const runDependencyTaskAssetSpy = spy(async (uuid) => {
 		/** @type {Promise<void>} */
-		const promise = new Promise(cb => dependencyResolveCallbacks.push(cb));
+		const promise = new Promise((cb) => dependencyResolveCallbacks.push(cb));
 		await promise;
 	});
 

@@ -167,7 +167,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				if (this.#currentOnEntityChangeCallback && this.#currentOnEntityChangeEntity) {
 					assetManager.entityAssetManager.removeOnTrackedEntityChange(this.#currentOnEntityChangeEntity, this.#currentOnEntityChangeCallback);
 				}
-				this.#currentOnEntityChangeCallback = event => {
+				this.#currentOnEntityChangeCallback = (event) => {
 					if (event.source === this && event.sourceEntity == event.targetEntity) return;
 					if (event.type & EntityChangeType.Hierarchy) {
 						const childTreeView = this.#getTreeViewByEntity(event.targetEntity);
@@ -311,7 +311,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {TreeView[]} treeViews
 	 */
 	mapSelectionChangeData(treeViews) {
-		return treeViews.map(treeView => {
+		return treeViews.map((treeView) => {
 			const entity = this.#getEntityByTreeView(treeView);
 			return new EntitySelection(entity, {
 				outlinerTreeView: treeView,
@@ -360,7 +360,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewContextMenuEvent} e
 	 */
-	#onTreeViewContextMenu = async e => {
+	#onTreeViewContextMenu = async (e) => {
 		const menu = await e.showContextMenu();
 		menu.createStructure([
 			{
@@ -395,7 +395,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	#onTreeViewDragStart = e => {
+	#onTreeViewDragStart = (e) => {
 		const entity = this.#getEntityByTreeView(e.target);
 		const draggingDataUuid = this.studioInstance.dragManager.registerDraggingData(entity);
 		this.#draggingTreeViewUuids.set(e.target, draggingDataUuid);
@@ -407,7 +407,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	#onTreeViewDragEnd = e => {
+	#onTreeViewDragEnd = (e) => {
 		const uuid = this.#draggingTreeViewUuids.get(e.target);
 		if (uuid) {
 			this.studioInstance.dragManager.unregisterDraggingData(uuid);
@@ -443,7 +443,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e
 	 */
-	#onTreeViewRearrange = e => {
+	#onTreeViewRearrange = (e) => {
 		/** @type {{entity: Entity, oldParent: Entity, newParent: Entity, insertIndex: number, removeIndex: number}[]} */
 		const actions = [];
 		for (const movedItem of e.movedItems) {
@@ -488,7 +488,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	#onTreeViewDrop = async e => {
+	#onTreeViewDrop = async (e) => {
 		const parent = this.#getEntityByTreeView(e.target);
 		if (!e.rawEvent.dataTransfer) return;
 		let didDropAsset = false;

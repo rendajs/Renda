@@ -245,7 +245,7 @@ export class BuiltInAssetManager {
 			}
 			return 0;
 		});
-		const sortedUuids = sortedUuidSettings.map(x => x.uuid);
+		const sortedUuids = sortedUuidSettings.map((x) => x.uuid);
 		for (const uuid of sortedUuids) {
 			if (this.assetSettings.has(uuid)) {
 				assets[uuid] = this.assetSettings.get(uuid);
@@ -335,7 +335,7 @@ export class BuiltInAssetManager {
 	 * @param {any} data
 	 */
 	sendAllConnections(op, data = null) {
-		this.onWebsocketBroadcastNeededCbs.forEach(cb => cb(op, data));
+		this.onWebsocketBroadcastNeededCbs.forEach((cb) => cb(op, data));
 	}
 
 	/**

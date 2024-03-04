@@ -45,7 +45,7 @@ export async function getContentWindowElement(page, contentWindowType, {
  */
 export async function waitForContentWindowElement(page, contentWindowType) {
 	log(`Wait for '${contentWindowType}' content window`);
-	const result = await page.waitForFunction(async contentWindowType => {
+	const result = await page.waitForFunction(async (contentWindowType) => {
 		if (!globalThis.e2e) throw new Error("e2e module not initialized");
 		return globalThis.e2e.getContentWindowElement(contentWindowType, false);
 	}, {}, contentWindowType);
@@ -59,7 +59,7 @@ export async function waitForContentWindowElement(page, contentWindowType) {
  * @param {string} contentWindowType The static `contentWindowTypeId` property of the content window. See {@linkcode ContentWindow.contentWindowTypeId}.
  */
 export async function getContentWindowReference(page, contentWindowType) {
-	const reference = await page.evaluateHandle(contentWindowType => {
+	const reference = await page.evaluateHandle((contentWindowType) => {
 		if (!globalThis.e2e) throw new Error("e2e module not initialized");
 		const el = globalThis.e2e.getContentWindowElement(contentWindowType);
 		const contentWindowReference = globalThis.e2e.getContentWindowReference(el);
