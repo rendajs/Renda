@@ -140,7 +140,7 @@ module.exports = {
 				consistent: true,
 			},
 		],
-		"object-curly-spacing": "error",
+		"object-curly-spacing": ["error", "always"],
 		"one-var": ["error", "never"],
 		"operator-linebreak": "error",
 		"padded-blocks": ["error", "never"],
