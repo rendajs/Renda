@@ -1,7 +1,7 @@
-import {ContentWindowPreferencesLocation} from "../../preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
-import {STUDIO_ENV} from "../../studioDefines.js";
-import {PopoverToggleButton} from "../../ui/popoverMenus/PopoverToggleButton.js";
-import {PreferencesPopover} from "../PreferencesPopover.js";
+import { ContentWindowPreferencesLocation } from "../../preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
+import { STUDIO_ENV } from "../../studioDefines.js";
+import { PopoverToggleButton } from "../../ui/popoverMenus/PopoverToggleButton.js";
+import { PreferencesPopover } from "../PreferencesPopover.js";
 
 export class ContentWindow {
 	/**

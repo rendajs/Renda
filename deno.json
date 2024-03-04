@@ -17,5 +17,16 @@
 		"build-engine": "deno run --allow-read --allow-write --allow-net --allow-env scripts/buildEngine.js",
 		"build-studio": "deno run -A scripts/buildStudio.js",
 		"build-npm-package": "deno run --allow-read --allow-write scripts/buildNpmPackage.js"
+	},
+	"fmt": {
+		"exclude": [
+			".denoTypes",
+			"npm_packages",
+			"dist",
+			"studio/dist"
+		],
+		"useTabs": true,
+		"lineWidth": 120,
+		"proseWrap": "preserve"
 	}
 }

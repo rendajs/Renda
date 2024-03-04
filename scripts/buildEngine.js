@@ -1,5 +1,5 @@
 import * as path from "std/path/mod.ts";
-import {rollup} from "rollup";
+import { rollup } from "rollup";
 import cleanup from "rollup-plugin-cleanup";
 import jscc from "rollup-plugin-jscc";
 
@@ -40,7 +40,7 @@ if (import.meta.main) {
 
 export async function buildEngine() {
 	const bundle = await createBundle();
-	const {output} = await bundle.generate(outputOptions);
+	const { output } = await bundle.generate(outputOptions);
 	if (output.length != 1) {
 		throw new Error("Assertion failed, more than one file generated");
 	}

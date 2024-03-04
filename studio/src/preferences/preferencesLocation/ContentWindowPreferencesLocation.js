@@ -1,4 +1,4 @@
-import {PreferencesLocation} from "./PreferencesLocation.js";
+import { PreferencesLocation } from "./PreferencesLocation.js";
 
 /**
  * A preference location used for both "contentwindow-project" and "contentwindow-workspace".

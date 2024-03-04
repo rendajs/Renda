@@ -1,6 +1,6 @@
-import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {ComponentTypeManager, Entity} from "../../../../../src/mod.js";
-import {ExtendedComponent, ExtendedComponent2} from "./shared.js";
+import { assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { ComponentTypeManager, Entity } from "../../../../../src/mod.js";
+import { ExtendedComponent, ExtendedComponent2 } from "./shared.js";
 
 Deno.test({
 	name: "adding a component instance",
@@ -25,7 +25,7 @@ Deno.test({
 		assertEquals(entity.components.length, 1);
 		assertStrictEquals(entity.components[0], component);
 		assertStrictEquals(component.entity, entity);
-		assertEquals(component.restArgs, [{foo: "bar"}]);
+		assertEquals(component.restArgs, [{ foo: "bar" }]);
 	},
 });
 

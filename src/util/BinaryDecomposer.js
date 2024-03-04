@@ -1,4 +1,4 @@
-import {binaryToUuid} from "./binarySerialization.js";
+import { binaryToUuid } from "./binarySerialization.js";
 
 export class BinaryDecomposer {
 	/**

@@ -1,5 +1,5 @@
-import {injectMockStudioInstance} from "../../../../../../../studio/src/studioInstance.js";
-import {PathGui} from "../../../../../../../studio/src/ui/PathGui.js";
+import { injectMockStudioInstance } from "../../../../../../../studio/src/studioInstance.js";
+import { PathGui } from "../../../../../../../studio/src/ui/PathGui.js";
 
 const mockStudio = /** @type {import("../../../../../../../studio/src/Studio.js").Studio} */ ({
 	colorizerFilterManager: {

@@ -1,6 +1,6 @@
-import {prettifyVariableName} from "../util/util.js";
-import {Button} from "./Button.js";
-import {ButtonGroup} from "./ButtonGroup.js";
+import { prettifyVariableName } from "../util/util.js";
+import { Button } from "./Button.js";
+import { ButtonGroup } from "./ButtonGroup.js";
 
 /**
  * @typedef {string | import("./Button.js").ButtonGuiOptions} ButtonSelectorGuiOptionsItem
@@ -71,14 +71,14 @@ export class ButtonSelectorGui {
 		}
 		this.disabled = disabled;
 
-		this.#buttonGroup = new ButtonGroup({vertical});
+		this.#buttonGroup = new ButtonGroup({ vertical });
 		this.el = this.#buttonGroup.el;
 
 		/** @type {Set<OnButtonselectorGuiValueChange>} */
 		this.onValueChangeCbs = new Set();
 
 		this.setItems(items);
-		this.setValue(this.defaultValue, {trigger: "application"});
+		this.setValue(this.defaultValue, { trigger: "application" });
 	}
 
 	/**
@@ -103,10 +103,10 @@ export class ButtonSelectorGui {
 				onClick: () => {
 					if (this.currentValueIndex == i) {
 						if (this.allowSelectNone) {
-							this.setValue(null, {trigger: "user"});
+							this.setValue(null, { trigger: "user" });
 						}
 					} else {
-						this.setValue(i, {trigger: "user"});
+						this.setValue(i, { trigger: "user" });
 					}
 				},
 			};
@@ -122,7 +122,7 @@ export class ButtonSelectorGui {
 			this.#buttons.push(button);
 			this.#buttonGroup.addButton(button);
 		}
-		this.setValue(this.allowSelectNone ? null : 0, {trigger: "application"});
+		this.setValue(this.allowSelectNone ? null : 0, { trigger: "application" });
 	}
 
 	#updateSelectedButton() {

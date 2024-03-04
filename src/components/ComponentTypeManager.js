@@ -1,5 +1,5 @@
-import {isUuid} from "../util/util.js";
-import {Component} from "./Component.js";
+import { isUuid } from "../util/util.js";
+import { Component } from "./Component.js";
 
 export class ComponentTypeManager {
 	constructor() {

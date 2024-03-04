@@ -1,8 +1,8 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, WebGpuPipelineConfig} from "../../../../src/mod.js";
-import {ProjectAssetTypeShaderSource} from "./ProjectAssetTypeShaderSource.js";
-import {blendFactor, blendOperation, compareFunction, primitiveTopologyTypes} from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeWebGpuPipelineConfig.js";
-import {createTreeViewEntryOptions} from "../../ui/propertiesTreeView/createStructureHelpers.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, WebGpuPipelineConfig } from "../../../../src/mod.js";
+import { ProjectAssetTypeShaderSource } from "./ProjectAssetTypeShaderSource.js";
+import { blendFactor, blendOperation, compareFunction, primitiveTopologyTypes } from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeWebGpuPipelineConfig.js";
+import { createTreeViewEntryOptions } from "../../ui/propertiesTreeView/createStructureHelpers.js";
 
 /**
  * @typedef WebGpuPipelineConfigAssetData
@@ -177,6 +177,6 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			renderOrder: fileData.renderOrder,
 			blend,
 		});
-		return {liveAsset, studioData: null};
+		return { liveAsset, studioData: null };
 	}
 }

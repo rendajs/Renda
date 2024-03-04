@@ -1,13 +1,13 @@
-import {assertEquals, assertExists, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, returnsNext, spy, stub} from "std/testing/mock.ts";
+import { assertEquals, assertExists, assertInstanceOf, assertStrictEquals } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, returnsNext, spy, stub } from "std/testing/mock.ts";
 import "../../../shared/initializeStudio.js";
-import {ProjectAssetTypeEntity} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
-import {Component, Entity, Mat4, MeshComponent} from "../../../../../../src/mod.js";
-import {createMockDependencies, getMockRecursionTracker} from "./shared.js";
-import {assertVecAlmostEquals} from "../../../../shared/asserts.js";
-import {createTreeViewStructure} from "../../../../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
-import {EntityAssetManager} from "../../../../../../studio/src/assets/EntityAssetManager.js";
+import { ProjectAssetTypeEntity } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
+import { Component, Entity, Mat4, MeshComponent } from "../../../../../../src/mod.js";
+import { createMockDependencies, getMockRecursionTracker } from "./shared.js";
+import { assertVecAlmostEquals } from "../../../../shared/asserts.js";
+import { createTreeViewStructure } from "../../../../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
+import { EntityAssetManager } from "../../../../../../studio/src/assets/EntityAssetManager.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000000";
 const NESTED_ASSET_UUID = "nested asset uuid";
@@ -16,7 +16,7 @@ const BASIC_COMPONENT_UUID = "basic component uuid";
 Deno.test({
 	name: "getLiveAssetData basic entity",
 	async fn() {
-		const {projectAssetTypeArgs} = createMockDependencies();
+		const { projectAssetTypeArgs } = createMockDependencies();
 		const recursionTracker = getMockRecursionTracker();
 		const assetType = new ProjectAssetTypeEntity(...projectAssetTypeArgs);
 
@@ -48,7 +48,7 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData entity with component",
 	async fn() {
-		const {projectAssetTypeArgs, studio} = createMockDependencies();
+		const { projectAssetTypeArgs, studio } = createMockDependencies();
 		const recursionTracker = getMockRecursionTracker();
 		const assetType = new ProjectAssetTypeEntity(...projectAssetTypeArgs);
 
@@ -106,7 +106,7 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData entity with child entity asset",
 	async fn() {
-		const {projectAssetTypeArgs, assetManager} = createMockDependencies();
+		const { projectAssetTypeArgs, assetManager } = createMockDependencies();
 		const recursionTracker = getMockRecursionTracker();
 		const assetType = new ProjectAssetTypeEntity(...projectAssetTypeArgs);
 
@@ -137,7 +137,7 @@ Deno.test("reload component values when changed", async () => {
 		 * @param {import("../../../../../../src/util/mod.js").UuidString} uuid
 		 * @param {(mesh: {}?) => void} cb
 		 */
-		getLiveAsset(uuid, cb, {repeatOnLiveAssetChange = false}) {
+		getLiveAsset(uuid, cb, { repeatOnLiveAssetChange = false }) {
 			if (uuid == BASIC_ASSET_UUID) {
 				cb(initialMesh);
 			} else {
@@ -221,7 +221,7 @@ async function basicSetupForAssetLoaderImportConfig({
 Deno.test({
 	name: "assetLoaderTypeImportConfig extra no assets",
 	async fn() {
-		const {addImportSpy, result} = await basicSetupForAssetLoaderImportConfig();
+		const { addImportSpy, result } = await basicSetupForAssetLoaderImportConfig();
 
 		assertEquals(result, `const componentTypeManager = new ComponentTypeManager();
 entityLoader.setComponentTypeManager(componentTypeManager);`);
@@ -242,10 +242,10 @@ Deno.test({
 		const childEntity = new Entity();
 		rootEntity.add(childEntity);
 
-		const {projectAsset} = createMockProjectAsset({
+		const { projectAsset } = createMockProjectAsset({
 			liveAsset: rootEntity,
 		});
-		const {addImportSpy, result, assetManager} = await basicSetupForAssetLoaderImportConfig({
+		const { addImportSpy, result, assetManager } = await basicSetupForAssetLoaderImportConfig({
 			usedAssets: [projectAsset],
 		});
 		assetManager.entityAssetManager.setLinkedAssetUuid(rootEntity, BASIC_ASSET_UUID);
@@ -268,7 +268,7 @@ componentTypeManager.registerComponent(MeshComponent);`);
 Deno.test({
 	name: "includeAll",
 	async fn() {
-		const {result, addImportSpy} = await basicSetupForAssetLoaderImportConfig({
+		const { result, addImportSpy } = await basicSetupForAssetLoaderImportConfig({
 			includeAll: true,
 		});
 

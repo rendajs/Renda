@@ -1,4 +1,4 @@
-import {ProjectSelector} from "./ProjectSelector.js";
+import { ProjectSelector } from "./ProjectSelector.js";
 
 /** @type {ProjectSelector?} */
 let projectSelectorInstance = null;

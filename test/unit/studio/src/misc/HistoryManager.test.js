@@ -1,6 +1,6 @@
-import {HistoryManager} from "../../../../../studio/src/misc/HistoryManager.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
+import { HistoryManager } from "../../../../../studio/src/misc/HistoryManager.js";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { assertEquals, assertExists, assertStrictEquals } from "std/testing/asserts.ts";
 
 /**
  * @typedef HistoryManagerTestContext
@@ -108,7 +108,7 @@ Deno.test({
 	name: "undo and redo shortcuts",
 	fn() {
 		basicTest({
-			fn({manager, fireUndoShortcut, fireRedoShortcut}) {
+			fn({ manager, fireUndoShortcut, fireRedoShortcut }) {
 				const undoSpy = spy();
 				const redoSpy = spy();
 				manager.pushEntry({
@@ -133,7 +133,7 @@ Deno.test({
 	name: "multiple nodes",
 	fn() {
 		basicTest({
-			fn({manager}) {
+			fn({ manager }) {
 				const undoSpy1 = spy();
 				const redoSpy1 = spy();
 				manager.pushEntry({
@@ -189,7 +189,7 @@ Deno.test({
 	name: "executeEntry",
 	fn() {
 		basicTest({
-			fn({manager, fireUndoShortcut}) {
+			fn({ manager, fireUndoShortcut }) {
 				const undoSpy = spy();
 				const redoSpy = spy();
 				manager.executeEntry({
@@ -211,7 +211,7 @@ Deno.test({
 	name: "getEntries",
 	fn() {
 		basicTest({
-			fn({manager, expectEntries, executeEntry}) {
+			fn({ manager, expectEntries, executeEntry }) {
 				expectEntries([
 					{
 						uiText: "Open",
@@ -332,7 +332,7 @@ Deno.test({
 	name: "onTreeUpdated",
 	fn() {
 		basicTest({
-			fn({manager}) {
+			fn({ manager }) {
 				const updatedSpy = spy();
 				manager.onTreeUpdated(updatedSpy);
 
@@ -368,7 +368,7 @@ Deno.test({
 	name: "travelToEntry down",
 	fn() {
 		basicTest({
-			fn({manager, executeEntry, getCurrentEntry, stateCalls, clearStateCalls, expectEntries}) {
+			fn({ manager, executeEntry, getCurrentEntry, stateCalls, clearStateCalls, expectEntries }) {
 				executeEntry("entry1");
 				executeEntry("entry2");
 				executeEntry("entry3");
@@ -427,7 +427,7 @@ Deno.test({
 	name: "travelToEntry up",
 	fn() {
 		basicTest({
-			fn({manager, executeEntry, getCurrentEntry, stateCalls, clearStateCalls, expectEntries}) {
+			fn({ manager, executeEntry, getCurrentEntry, stateCalls, clearStateCalls, expectEntries }) {
 				executeEntry("entry1");
 				executeEntry("entry2");
 				const entry2 = getCurrentEntry();
@@ -485,7 +485,7 @@ Deno.test({
 	name: "travelToEntry to current entry",
 	fn() {
 		basicTest({
-			fn({manager, executeEntry, getCurrentEntry, expectEntries, stateCalls, clearStateCalls}) {
+			fn({ manager, executeEntry, getCurrentEntry, expectEntries, stateCalls, clearStateCalls }) {
 				executeEntry("entry1");
 				executeEntry("entry2");
 				executeEntry("entry3");
@@ -545,7 +545,7 @@ Deno.test({
 	name: "travelToEntry up and into a subtree",
 	fn() {
 		basicTest({
-			fn({manager, executeEntry, getCurrentEntry, expectEntries, stateCalls, clearStateCalls}) {
+			fn({ manager, executeEntry, getCurrentEntry, expectEntries, stateCalls, clearStateCalls }) {
 				executeEntry("entry1");
 				executeEntry("entry2");
 
@@ -630,7 +630,7 @@ Deno.test({
 	name: "Pushing entries to a subtree makes it the main branch",
 	fn() {
 		basicTest({
-			fn({manager, executeEntry, getCurrentEntry, expectEntries}) {
+			fn({ manager, executeEntry, getCurrentEntry, expectEntries }) {
 				executeEntry("entry1");
 				executeEntry("entry2");
 				executeEntry("entry3");
@@ -700,7 +700,7 @@ Deno.test({
 	name: "Creating a subtree on a subtree makes it the main branch",
 	fn() {
 		basicTest({
-			fn({manager, executeEntry, getCurrentEntry, expectEntries}) {
+			fn({ manager, executeEntry, getCurrentEntry, expectEntries }) {
 				executeEntry("entry1");
 				executeEntry("entry2");
 				const entry2 = getCurrentEntry();
@@ -771,7 +771,7 @@ Deno.test({
 	name: "Using redo chooses the main branch",
 	fn() {
 		basicTest({
-			fn({manager, executeEntry, getCurrentEntry}) {
+			fn({ manager, executeEntry, getCurrentEntry }) {
 				executeEntry("entry1");
 				executeEntry("entry2");
 				executeEntry("entry3");

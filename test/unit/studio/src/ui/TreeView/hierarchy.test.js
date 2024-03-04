@@ -1,19 +1,19 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
 import "../../../shared/initializeStudio.js";
-import {TreeView} from "../../../../../../studio/src/ui/TreeView.js";
-import {runWithDom} from "../../../shared/runWithDom.js";
-import {createBasicStructure} from "./shared.js";
+import { TreeView } from "../../../../../../studio/src/ui/TreeView.js";
+import { runWithDom } from "../../../shared/runWithDom.js";
+import { createBasicStructure } from "./shared.js";
 
 Deno.test({
 	name: "removeChild()",
 	fn() {
 		runWithDom(() => {
 			const treeView = new TreeView();
-			const child1 = new TreeView({name: "child1"});
+			const child1 = new TreeView({ name: "child1" });
 			treeView.addChild(child1);
-			const child2 = new TreeView({name: "child2"});
+			const child2 = new TreeView({ name: "child2" });
 			treeView.addChild(child2);
-			const child3 = new TreeView({name: "child3"});
+			const child3 = new TreeView({ name: "child3" });
 			treeView.addChild(child3);
 
 			assertEquals(treeView.children.map(c => c.name), ["child1", "child2", "child3"]);
@@ -171,7 +171,7 @@ Deno.test({
 	name: "getIndicesPath",
 	fn() {
 		runWithDom(() => {
-			const {root, child2, child3} = createBasicStructure();
+			const { root, child2, child3 } = createBasicStructure();
 
 			const result1 = child3.getIndicesPath();
 			assertEquals(result1, [0, 0, 2]);
@@ -187,7 +187,7 @@ Deno.test({
 	name: "getNamesPath",
 	fn() {
 		runWithDom(() => {
-			const {root, child2, child3} = createBasicStructure();
+			const { root, child2, child3 } = createBasicStructure();
 
 			const result1 = child3.getNamesPath();
 			assertEquals(result1, ["root", "child1", "child2", "child3"]);
@@ -203,7 +203,7 @@ Deno.test({
 	name: "getTreeViewsPath",
 	fn() {
 		runWithDom(() => {
-			const {root, child1, child2, child3} = createBasicStructure();
+			const { root, child1, child2, child3 } = createBasicStructure();
 
 			const result1 = child3.getTreeViewsPath();
 			assertEquals(result1.length, 4);
@@ -229,7 +229,7 @@ Deno.test({
 	name: "findChildFromNamesPath",
 	fn() {
 		runWithDom(() => {
-			const {root, child2, child3} = createBasicStructure();
+			const { root, child2, child3 } = createBasicStructure();
 
 			const result1 = root.findChildFromNamesPath(["child1", "child2", "child3"]);
 			assertStrictEquals(result1, child3);
@@ -250,7 +250,7 @@ Deno.test({
 	name: "findChildFromIndicesPath",
 	fn() {
 		runWithDom(() => {
-			const {root, child2, child3} = createBasicStructure();
+			const { root, child2, child3 } = createBasicStructure();
 
 			const result1 = root.findChildFromIndicesPath([0, 0, 2]);
 			assertStrictEquals(result1, child3);

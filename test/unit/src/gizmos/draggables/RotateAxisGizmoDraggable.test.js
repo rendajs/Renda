@@ -1,13 +1,13 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {RotateAxisGizmoDraggable} from "../../../../../src/gizmos/draggables/RotateAxisGizmoDraggable.js";
-import {Quat, Vec2} from "../../../../../src/mod.js";
-import {assertQuatAlmostEquals} from "../../../shared/asserts.js";
-import {basicSetup} from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { RotateAxisGizmoDraggable } from "../../../../../src/gizmos/draggables/RotateAxisGizmoDraggable.js";
+import { Quat, Vec2 } from "../../../../../src/mod.js";
+import { assertQuatAlmostEquals } from "../../../shared/asserts.js";
+import { basicSetup } from "./shared.js";
 
 Deno.test({
 	name: "move event with movement",
 	fn() {
-		const {mockGizmoManager, mockPointerDevice, mockCamera} = basicSetup();
+		const { mockGizmoManager, mockPointerDevice, mockCamera } = basicSetup();
 		const draggable = new RotateAxisGizmoDraggable(mockGizmoManager);
 		/** @type {import("../../../../../src/gizmos/draggables/RotateAxisGizmoDraggable.js").RotateAxisGizmoDragEvent[]} */
 		const calls = [];

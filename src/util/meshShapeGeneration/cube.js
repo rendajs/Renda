@@ -1,6 +1,6 @@
-import {Mesh} from "../../core/Mesh.js";
-import {Vec2} from "../../math/Vec2.js";
-import {Vec3} from "../../math/Vec3.js";
+import { Mesh } from "../../core/Mesh.js";
+import { Vec2 } from "../../math/Vec2.js";
+import { Vec3 } from "../../math/Vec3.js";
 
 /**
  * @param {object} options
@@ -43,7 +43,7 @@ export function createCube({
 		new Vec3(-1, 1, 1),
 		new Vec3(1, -1, 1),
 		new Vec3(1, 1, 1),
-	], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
+	], { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3 });
 	mesh.setVertexData(Mesh.AttributeType.UV1, [
 		new Vec2(0, 0),
 		new Vec2(1, 0),
@@ -74,7 +74,7 @@ export function createCube({
 		new Vec2(0, 1),
 		new Vec2(1, 0),
 		new Vec2(1, 1),
-	], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 2});
+	], { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 2 });
 
 	const singleNormals = [
 		new Vec3(-1, 0, 0),
@@ -111,8 +111,8 @@ export function createCube({
 			bitangents.push(singleBitangents[i]);
 		}
 	}
-	mesh.setVertexData(Mesh.AttributeType.NORMAL, normals, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-	mesh.setVertexData(Mesh.AttributeType.TANGENT, tangents, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-	mesh.setVertexData(Mesh.AttributeType.BITANGENT, bitangents, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
+	mesh.setVertexData(Mesh.AttributeType.NORMAL, normals, { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3 });
+	mesh.setVertexData(Mesh.AttributeType.TANGENT, tangents, { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3 });
+	mesh.setVertexData(Mesh.AttributeType.BITANGENT, bitangents, { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3 });
 	return mesh;
 }

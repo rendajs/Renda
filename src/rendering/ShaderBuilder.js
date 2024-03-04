@@ -59,14 +59,14 @@ export class ShaderBuilder {
 		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, uuid, params) => {
 			if (attemptedUuids.includes(uuid)) return "";
 			attemptedUuids.push(uuid);
-			const block = await this.getShaderBlock(uuid, {params});
+			const block = await this.getShaderBlock(uuid, { params });
 			if (block) {
 				includedUuids.push(uuid);
 				return block;
 			}
 			return "";
 		});
-		return {shaderCode, includedUuids};
+		return { shaderCode, includedUuids };
 	}
 
 	/** @typedef {Parameters<typeof String.prototype.replace>[1]} StringReplacerFn */
@@ -107,7 +107,7 @@ export class ShaderBuilder {
 			if (shaderData.builtCode) {
 				return shaderData.builtCode;
 			} else {
-				const {shaderCode, includedUuids} = await this.buildShader(shaderData.shaderCode);
+				const { shaderCode, includedUuids } = await this.buildShader(shaderData.shaderCode);
 				shaderData.builtCode = shaderCode;
 				shaderData.includedUuids = includedUuids;
 				return shaderData.builtCode;

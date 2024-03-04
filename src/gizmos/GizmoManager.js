@@ -1,13 +1,13 @@
-import {Entity} from "../core/Entity.js";
-import {Material} from "../rendering/Material.js";
-import {VertexState} from "../rendering/VertexState.js";
-import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../studioDefines.js";
-import {RotateAxisGizmoDraggable} from "./draggables/RotateAxisGizmoDraggable.js";
-import {ScaleGizmoDraggable} from "./draggables/ScaleGizmoDraggable.js";
-import {TranslateAxisGizmoDraggable} from "./draggables/TranslateAxisGizmoDraggable.js";
-import {TranslateGizmoDraggable} from "./draggables/TranslateGizmoDraggable.js";
-import {GizmoPointerDevice} from "./GizmoPointerDevice.js";
-import {ListeningGizmoPointerElement} from "./ListeningGizmoPointerElement.js";
+import { Entity } from "../core/Entity.js";
+import { Material } from "../rendering/Material.js";
+import { VertexState } from "../rendering/VertexState.js";
+import { ENGINE_ASSETS_LIVE_UPDATES_SUPPORT } from "../studioDefines.js";
+import { RotateAxisGizmoDraggable } from "./draggables/RotateAxisGizmoDraggable.js";
+import { ScaleGizmoDraggable } from "./draggables/ScaleGizmoDraggable.js";
+import { TranslateAxisGizmoDraggable } from "./draggables/TranslateAxisGizmoDraggable.js";
+import { TranslateGizmoDraggable } from "./draggables/TranslateGizmoDraggable.js";
+import { GizmoPointerDevice } from "./GizmoPointerDevice.js";
+import { ListeningGizmoPointerElement } from "./ListeningGizmoPointerElement.js";
 
 /** @typedef {(gizmo: import("./gizmos/Gizmo.js").Gizmo) => void} OnGizmoNeedsRenderCb */
 
@@ -198,7 +198,7 @@ export class GizmoManager {
 	 * @param {import("../math/Vec3.js").Vec3Parameters} screenPos
 	 */
 	raycastDraggables(camera, ...screenPos) {
-		const {start, dir} = camera.getRaycastRayFromScreenPos(...screenPos);
+		const { start, dir } = camera.getRaycastRayFromScreenPos(...screenPos);
 		let closestDist = Infinity;
 		let closestDraggable = null;
 		for (const draggable of this.draggables) {

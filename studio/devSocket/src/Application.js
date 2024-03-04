@@ -1,6 +1,6 @@
-import {BuiltInAssetManager} from "./BuiltInAssetManager.js";
+import { BuiltInAssetManager } from "./BuiltInAssetManager.js";
 
-import {WebSocketManager} from "./WebSocketManager.js";
+import { WebSocketManager } from "./WebSocketManager.js";
 
 /**
  * @typedef ApplicationOptions
@@ -22,7 +22,7 @@ export class Application {
 		this.port = port;
 
 		this.webSocketManager = new WebSocketManager();
-		this.builtInAssetManager = new BuiltInAssetManager({builtInAssetsPath, verbose: true});
+		this.builtInAssetManager = new BuiltInAssetManager({ builtInAssetsPath, verbose: true });
 		this.builtInAssetManager.loadAssetSettings();
 		this.builtInAssetManager.watch();
 	}

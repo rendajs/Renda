@@ -1,10 +1,10 @@
-import {SingleInstancePromise} from "../../../src/mod.js";
-import {handleDuplicateFileName} from "../util/util.js";
-import {generateUuid} from "../../../src/util/mod.js";
-import {DefaultAssetLink} from "./DefaultAssetLink.js";
-import {ProjectAsset} from "./ProjectAsset.js";
-import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
-import {EntityAssetManager} from "./EntityAssetManager.js";
+import { SingleInstancePromise } from "../../../src/mod.js";
+import { handleDuplicateFileName } from "../util/util.js";
+import { generateUuid } from "../../../src/util/mod.js";
+import { DefaultAssetLink } from "./DefaultAssetLink.js";
+import { ProjectAsset } from "./ProjectAsset.js";
+import { InternallyCreatedAsset } from "./InternallyCreatedAsset.js";
+import { EntityAssetManager } from "./EntityAssetManager.js";
 
 /**
  * @typedef {object} SetDefaultBuiltInAssetLinkData
@@ -217,7 +217,7 @@ export class AssetManager {
 			if (json) {
 				if (json.assets) {
 					for (const [uuid, assetData] of Object.entries(json.assets)) {
-						const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, this.projectAssetTypeManager, this.builtInAssetManager, this.fileSystem, {uuid, ...assetData});
+						const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, this.projectAssetTypeManager, this.builtInAssetManager, this.fileSystem, { uuid, ...assetData });
 						if (projectAsset) {
 							projectAsset.makeUuidPersistent();
 							this.projectAssets.set(uuid, projectAsset);
@@ -226,7 +226,7 @@ export class AssetManager {
 				}
 
 				if (json.internallyCreatedAssets) {
-					for (const {uuid, persistenceData} of json.internallyCreatedAssets) {
+					for (const { uuid, persistenceData } of json.internallyCreatedAssets) {
 						const asset = this.getOrCreateInternallyCreatedAsset(persistenceData, {
 							forcedAssetUuid: uuid,
 						});
@@ -400,7 +400,7 @@ export class AssetManager {
 	 */
 	async registerAsset(path, assetType = null, forceAssetType = false) {
 		await this.loadAssetSettings(true);
-		const projectAsset = this.projectAssetFactory({path, assetType, forceAssetType});
+		const projectAsset = this.projectAssetFactory({ path, assetType, forceAssetType });
 		await projectAsset.waitForInit();
 		this.projectAssets.set(projectAsset.uuid, projectAsset);
 		if (projectAsset.needsAssetSettingsSave) {
@@ -429,7 +429,7 @@ export class AssetManager {
 		const persistenceKey = JSON.stringify(persistenceData);
 		const asset = this.internallyCreatedAssetsByPersistenceKey.get(persistenceKey);
 		if (asset) return asset;
-		return new InternallyCreatedAsset(this, persistenceData, {forcedAssetUuid});
+		return new InternallyCreatedAsset(this, persistenceData, { forcedAssetUuid });
 	}
 
 	/**
@@ -492,22 +492,22 @@ export class AssetManager {
 	 */
 	setDefaultAssetLinks(builtInDefaultAssetLinks, defaultAssetLinks) {
 		const unsetAssetLinkUuids = new Set(this.defaultAssetLinks.keys());
-		for (const {defaultAssetUuid, originalAssetUuid} of builtInDefaultAssetLinks) {
+		for (const { defaultAssetUuid, originalAssetUuid } of builtInDefaultAssetLinks) {
 			const existingDefaultAssetLink = this.getDefaultAssetLink(defaultAssetUuid);
 			if (existingDefaultAssetLink) {
-				existingDefaultAssetLink.setUserData({name: "", originalAssetUuid});
+				existingDefaultAssetLink.setUserData({ name: "", originalAssetUuid });
 			} else {
-				this.defaultAssetLinks.set(defaultAssetUuid, new DefaultAssetLink({originalAssetUuid}));
+				this.defaultAssetLinks.set(defaultAssetUuid, new DefaultAssetLink({ originalAssetUuid }));
 			}
 		}
 		const userDefaultAssetLinkUuids = [];
-		for (const {defaultAssetUuid: uuid, name, originalAssetUuid} of defaultAssetLinks) {
+		for (const { defaultAssetUuid: uuid, name, originalAssetUuid } of defaultAssetLinks) {
 			let defaultAssetUuid = uuid;
 			if (!defaultAssetUuid) defaultAssetUuid = generateUuid();
 			userDefaultAssetLinkUuids.push(defaultAssetUuid);
 			unsetAssetLinkUuids.delete(defaultAssetUuid);
 			const existingDefaultAssetLink = this.getDefaultAssetLink(defaultAssetUuid);
-			const userData = {name, defaultAssetUuid, originalAssetUuid};
+			const userData = { name, defaultAssetUuid, originalAssetUuid };
 			if (existingDefaultAssetLink) {
 				existingDefaultAssetLink.setUserData(userData);
 			} else {
@@ -551,7 +551,7 @@ export class AssetManager {
 	 * @returns {Promise<AssetAssertionOptionsToProjectUuid<T>>}
 	 */
 	async getAssetUuidFromPath(path, assertionOptions) {
-		const projectAsset = await this.getProjectAssetFromPath(path, {assertionOptions});
+		const projectAsset = await this.getProjectAssetFromPath(path, { assertionOptions });
 		if (!projectAsset) return /** @type {AssetAssertionOptionsToProjectUuid<T>} */ (null);
 		return projectAsset.uuid;
 	}
@@ -921,11 +921,11 @@ export class AssetManager {
 	 * @param {T} options
 	 * @returns {Promise<AssetAssertionOptionsToProjectAsset<T>?>}
 	 */
-	async getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, {assertAssetType, assertExists, parentAsset, embeddedAssetPersistenceKey}) {
+	async getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, { assertAssetType, assertExists, parentAsset, embeddedAssetPersistenceKey }) {
 		if (!uuidOrData) return null;
 		let projectAsset;
 		if (typeof uuidOrData == "string") {
-			projectAsset = await this.getProjectAssetFromUuid(uuidOrData, {assertAssetType, assertExists});
+			projectAsset = await this.getProjectAssetFromUuid(uuidOrData, { assertAssetType, assertExists });
 		} else {
 			projectAsset = this.getEmbeddedProjectAssetOrCreate(uuidOrData, assertAssetType, parentAsset, embeddedAssetPersistenceKey);
 		}
@@ -941,11 +941,11 @@ export class AssetManager {
 	 * @param {T} options
 	 * @returns {AssetAssertionOptionsToProjectAsset<T>?}
 	 */
-	getProjectAssetFromUuidOrEmbeddedAssetDataSync(uuidOrData, {assertAssetType, parentAsset, embeddedAssetPersistenceKey}) {
+	getProjectAssetFromUuidOrEmbeddedAssetDataSync(uuidOrData, { assertAssetType, parentAsset, embeddedAssetPersistenceKey }) {
 		if (!uuidOrData) return null;
 		let projectAsset;
 		if (typeof uuidOrData == "string") {
-			projectAsset = this.getProjectAssetFromUuidSync(uuidOrData, {assertAssetType});
+			projectAsset = this.getProjectAssetFromUuidSync(uuidOrData, { assertAssetType });
 		} else {
 			projectAsset = this.getEmbeddedProjectAssetOrCreate(uuidOrData, assertAssetType, parentAsset, embeddedAssetPersistenceKey);
 		}

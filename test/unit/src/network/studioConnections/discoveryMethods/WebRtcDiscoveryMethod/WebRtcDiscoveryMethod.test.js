@@ -1,11 +1,11 @@
-import {assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {WebRtcDiscoveryMethod} from "../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
-import {WebRtcMessageHandler} from "../../../../../../../src/network/studioConnections/messageHandlers/WebRtcMessageHandler.js";
-import {MockWebSocket, clearCreatedWebSockets, getSingleCreatedWebSocket, originalWebSocketClosed} from "./MockWebSocket.js";
-import {MockRTCPeerConnection, clearCreatedRtcConnections, getSingleCreatedRtcConnection} from "./MockRTCPeerConnection.js";
-import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
-import {assertPromiseResolved} from "../../../../../shared/asserts.js";
+import { assertEquals, assertInstanceOf, assertRejects } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { WebRtcDiscoveryMethod } from "../../../../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
+import { WebRtcMessageHandler } from "../../../../../../../src/network/studioConnections/messageHandlers/WebRtcMessageHandler.js";
+import { MockWebSocket, clearCreatedWebSockets, getSingleCreatedWebSocket, originalWebSocketClosed } from "./MockWebSocket.js";
+import { MockRTCPeerConnection, clearCreatedRtcConnections, getSingleCreatedRtcConnection } from "./MockRTCPeerConnection.js";
+import { waitForMicrotasks } from "../../../../../shared/waitForMicroTasks.js";
+import { assertPromiseResolved } from "../../../../../shared/asserts.js";
 
 /**
  * @param {object} options
@@ -295,7 +295,7 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
-				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+				const { getMessageHandler } = createOnConnectionRequestSpy(discoveryMethod);
 
 				const socket = getSingleCreatedWebSocket();
 				socket.messenger.send.addAvailableConnection({
@@ -325,7 +325,7 @@ Deno.test({
 
 				const handler = getMessageHandler();
 				assertEquals(handler.status, "connecting");
-				assertEquals(handler.connectionRequestData, {token: "token"});
+				assertEquals(handler.connectionRequestData, { token: "token" });
 
 				const rtcConnection = getSingleCreatedRtcConnection();
 				rtcConnection.dispatchEvent(new Event("negotiationneeded"));
@@ -375,8 +375,8 @@ function createAndConnectSingleAvailableConnection(discoveryMethod) {
 		projectMetadata: null,
 	});
 
-	discoveryMethod.requestConnection("otherUuid", {token: "the_token"});
-	return {socket};
+	discoveryMethod.requestConnection("otherUuid", { token: "the_token" });
+	return { socket };
 }
 
 Deno.test({
@@ -385,9 +385,9 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
-				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+				const { getMessageHandler } = createOnConnectionRequestSpy(discoveryMethod);
 
-				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+				const { socket } = createAndConnectSingleAvailableConnection(discoveryMethod);
 
 				const handler = getMessageHandler();
 				assertEquals(handler.status, "connecting");
@@ -455,9 +455,9 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
-				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+				const { getMessageHandler } = createOnConnectionRequestSpy(discoveryMethod);
 
-				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+				const { socket } = createAndConnectSingleAvailableConnection(discoveryMethod);
 
 				const handler = getMessageHandler();
 
@@ -497,9 +497,9 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
-				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+				const { getMessageHandler } = createOnConnectionRequestSpy(discoveryMethod);
 
-				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+				const { socket } = createAndConnectSingleAvailableConnection(discoveryMethod);
 
 				const handler = getMessageHandler();
 
@@ -562,9 +562,9 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
-				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+				const { getMessageHandler } = createOnConnectionRequestSpy(discoveryMethod);
 
-				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+				const { socket } = createAndConnectSingleAvailableConnection(discoveryMethod);
 
 				const handler = getMessageHandler();
 				assertEquals(handler.status, "connecting");
@@ -603,9 +603,9 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
-				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+				const { getMessageHandler } = createOnConnectionRequestSpy(discoveryMethod);
 
-				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+				const { socket } = createAndConnectSingleAvailableConnection(discoveryMethod);
 
 				const handler = getMessageHandler();
 
@@ -635,9 +635,9 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
-				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
+				const { getMessageHandler } = createOnConnectionRequestSpy(discoveryMethod);
 
-				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+				const { socket } = createAndConnectSingleAvailableConnection(discoveryMethod);
 
 				const handler = getMessageHandler();
 
@@ -676,8 +676,8 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const discoveryMethod = new WebRtcDiscoveryMethod("endpoint");
-				const {getMessageHandler} = createOnConnectionRequestSpy(discoveryMethod);
-				const {socket} = createAndConnectSingleAvailableConnection(discoveryMethod);
+				const { getMessageHandler } = createOnConnectionRequestSpy(discoveryMethod);
+				const { socket } = createAndConnectSingleAvailableConnection(discoveryMethod);
 				const rtcConnection = getSingleCreatedRtcConnection();
 				rtcConnection.setMockConnectionState("connected");
 				const reliableChannel = rtcConnection.addMockDataChannel("reliable");
@@ -691,7 +691,7 @@ Deno.test({
 
 				const handler = getMessageHandler();
 				await assertRejects(async () => {
-					await handler.send({arbitraryData: 42});
+					await handler.send({ arbitraryData: 42 });
 				}, Error, "This message handler only supports sending array buffers.");
 			},
 		});

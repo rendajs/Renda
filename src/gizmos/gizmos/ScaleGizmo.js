@@ -1,11 +1,11 @@
-import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
-import {Mesh} from "../../core/Mesh.js";
-import {Vec2} from "../../math/Vec2.js";
-import {Vec3} from "../../math/Vec3.js";
-import {Sphere} from "../../math/shapes/Sphere.js";
-import {Gizmo} from "./Gizmo.js";
-import {Entity} from "../../core/Entity.js";
-import {blueColor, greenColor, hoverColor, redColor, whiteColor} from "./colors.js";
+import { MeshComponent } from "../../components/builtIn/MeshComponent.js";
+import { Mesh } from "../../core/Mesh.js";
+import { Vec2 } from "../../math/Vec2.js";
+import { Vec3 } from "../../math/Vec3.js";
+import { Sphere } from "../../math/shapes/Sphere.js";
+import { Gizmo } from "./Gizmo.js";
+import { Entity } from "../../core/Entity.js";
+import { blueColor, greenColor, hoverColor, redColor, whiteColor } from "./colors.js";
 
 /**
  * @typedef ScaleGizmoDragEvent

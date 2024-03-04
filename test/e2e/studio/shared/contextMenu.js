@@ -1,5 +1,5 @@
-import {log} from "../../shared/log.js";
-import {click, hover} from "../../shared/util.js";
+import { log } from "../../shared/log.js";
+import { click, hover } from "../../shared/util.js";
 
 /**
  * Waits for a context menu to open, then clicks the specified item and waits

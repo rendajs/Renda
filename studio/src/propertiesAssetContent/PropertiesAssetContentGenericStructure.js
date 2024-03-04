@@ -1,4 +1,4 @@
-import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
+import { PropertiesAssetContent } from "./PropertiesAssetContent.js";
 
 /**
  * @extends {PropertiesAssetContent<any>}

@@ -1,5 +1,5 @@
-import {PropertiesAssetContent} from "../PropertiesAssetContent.js";
-import {MaterialMapTypeEntry} from "./MaterialMapTypeEntry.js";
+import { PropertiesAssetContent } from "../PropertiesAssetContent.js";
+import { MaterialMapTypeEntry } from "./MaterialMapTypeEntry.js";
 
 /**
  * Responsible for rendering the ui in the properties window for MaterialMaps.
@@ -110,7 +110,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	} = {}) {
 		const constructor = this.studioInstance.materialMapTypeSerializerManager.getTypeByUuid(uuid);
 		if (!constructor) throw new Error(`Material map type with uuid ${uuid} not found.`);
-		return this.addMapType(constructor, {updateMapListUi});
+		return this.addMapType(constructor, { updateMapListUi });
 	}
 
 	/**
@@ -148,7 +148,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	async loadMaps(mapData) {
 		const maps = mapData?.maps || [];
 		for (const map of maps) {
-			const typeInstance = this.addMapTypeUuid(map.mapTypeId, {updateMapListUi: false});
+			const typeInstance = this.addMapTypeUuid(map.mapTypeId, { updateMapListUi: false });
 			if (map.customData) await typeInstance.customAssetDataFromLoad(map.customData);
 			await typeInstance.updateMapListUi();
 			if (map.mappedValues) await typeInstance.fillMapListValues(map.mappedValues);
@@ -175,7 +175,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		}
 
 		/** @type {import("../../assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
-		const data = {maps};
+		const data = { maps };
 		return data;
 	}
 

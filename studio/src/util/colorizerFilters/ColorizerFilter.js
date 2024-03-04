@@ -1,4 +1,4 @@
-import {ColorizerFilterUsageReference} from "./ColorizerFilterUsageReference.js";
+import { ColorizerFilterUsageReference } from "./ColorizerFilterUsageReference.js";
 
 export class ColorizerFilter {
 	/**

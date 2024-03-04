@@ -1,13 +1,13 @@
-import {Importer} from "fake-imports";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
-import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {assert, assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
-import {assertLastDiscoveryManager, clearCreatedDiscoveryManagers} from "./shared/MockDiscoveryManager.js";
-import {clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods} from "./shared/MockWebRtcDiscoveryMethod.js";
-import {clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods} from "./shared/MockInternalDiscoveryMethod.js";
-import {clearCreatedMessageHandlers, getCreatedMessageHandlers} from "../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
-import {createMockAssetManager} from "../../../shared/createMockAssetManager.js";
+import { Importer } from "fake-imports";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { createPreferencesManager } from "../../../shared/createPreferencesManager.js";
+import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { assert, assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
+import { assertLastDiscoveryManager, clearCreatedDiscoveryManagers } from "./shared/MockDiscoveryManager.js";
+import { clearCreatedWebRtcDiscoveryMethods, getCreatedWebRtcDiscoveryMethods } from "./shared/MockWebRtcDiscoveryMethod.js";
+import { clearCreatedInternalDiscoveryMethods, getCreatedInternalDiscoveryMethods } from "./shared/MockInternalDiscoveryMethod.js";
+import { clearCreatedMessageHandlers, getCreatedMessageHandlers } from "../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
+import { createMockAssetManager } from "../../../shared/createMockAssetManager.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("./shared/MockDiscoveryManager.js");
@@ -19,7 +19,7 @@ importer.redirectModule("../../../../../../src/network/studioConnections/discove
 
 /** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js")} */
 const StudioConnectionsManagerMod = await importer.import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js");
-const {StudioConnectionsManager} = StudioConnectionsManagerMod;
+const { StudioConnectionsManager } = StudioConnectionsManagerMod;
 
 /**
  * @typedef StudioConnectionsManagerTestContext
@@ -82,7 +82,7 @@ async function basicTest({
 			assignRemoteConnection(connection) {},
 			getRemoteFileSystem() {},
 		});
-		const {preferencesManager} = createPreferencesManager({
+		const { preferencesManager } = createPreferencesManager({
 			"studioConnections.enableRemoteDiscovery": {
 				type: "boolean",
 			},
@@ -107,7 +107,7 @@ async function basicTest({
 			setHasProjectFileSystem(hasFileSystem) {
 				mockProjectManager.currentProjectFileSystem = hasFileSystem ? new MemoryStudioFileSystem() : null;
 				if (hasFileSystem) {
-					const {assetManager} = createMockAssetManager();
+					const { assetManager } = createMockAssetManager();
 					mockProjectManager.assetManager = assetManager;
 				} else {
 					mockProjectManager.assetManager = null;
@@ -164,7 +164,7 @@ Deno.test({
 	name: "Opening a project creates a discovery manager",
 	async fn() {
 		await basicTest({
-			fn({fireOnProjectOpen, setHasProjectFileSystem}) {
+			fn({ fireOnProjectOpen, setHasProjectFileSystem }) {
 				setHasProjectFileSystem(true);
 				fireOnProjectOpen();
 
@@ -183,7 +183,7 @@ Deno.test({
 	name: "Changing studioConnections.enableRemoteDiscovery and discovery endpoint creates and destroys the webrtc discovery method",
 	async fn() {
 		await basicTest({
-			fn({manager, preferencesManager, setCurrentProjectMetadata, fireOnProjectOpen, setHasProjectFileSystem}) {
+			fn({ manager, preferencesManager, setCurrentProjectMetadata, fireOnProjectOpen, setHasProjectFileSystem }) {
 				setHasProjectFileSystem(true);
 				setCurrentProjectMetadata({
 					fileSystemHasWritePermissions: true,
@@ -288,7 +288,7 @@ Deno.test({
 	name: "getDefaultWebRtcDiscoveryEndpoint on main domain",
 	async fn() {
 		await basicTest({
-			fn({manager}) {
+			fn({ manager }) {
 				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "wss://discovery.renda.studio/");
 			},
 		});
@@ -300,7 +300,7 @@ Deno.test({
 	async fn() {
 		await basicTest({
 			location: "https://canary.renda.studio",
-			fn({manager}) {
+			fn({ manager }) {
 				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "wss://discovery.renda.studio/");
 			},
 		});
@@ -312,7 +312,7 @@ Deno.test({
 	async fn() {
 		await basicTest({
 			location: "http://localhost:8080",
-			fn({manager}) {
+			fn({ manager }) {
 				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "ws://localhost:8080/studioDiscovery");
 			},
 		});
@@ -324,7 +324,7 @@ Deno.test({
 	async fn() {
 		await basicTest({
 			location: "https://localhost:8080",
-			fn({manager}) {
+			fn({ manager }) {
 				assertEquals(manager.getDefaultWebRtcDiscoveryEndpoint(), "wss://localhost:8080/studioDiscovery");
 			},
 		});
@@ -335,7 +335,7 @@ Deno.test({
 	name: "Switching to a remote project recreates the discovery manager",
 	async fn() {
 		await basicTest({
-			fn({setHasProjectFileSystem, fireOnProjectOpen, setCurrentProjectIsRemote, fireOnProjectOpenEntryChange}) {
+			fn({ setHasProjectFileSystem, fireOnProjectOpen, setCurrentProjectIsRemote, fireOnProjectOpenEntryChange }) {
 				setHasProjectFileSystem(true);
 				fireOnProjectOpen();
 
@@ -357,7 +357,7 @@ Deno.test({
 	name: "List and update available connections",
 	async fn() {
 		await basicTest({
-			fn({manager, setHasProjectFileSystem, fireOnProjectOpen}) {
+			fn({ manager, setHasProjectFileSystem, fireOnProjectOpen }) {
 				assertEquals(Array.from(manager.getConnections()), []);
 
 				setHasProjectFileSystem(true);
@@ -400,7 +400,7 @@ Deno.test({
 	name: "Internal discovery method is informed of project metadata changes",
 	async fn() {
 		await basicTest({
-			fn({manager, preferencesManager, setHasProjectFileSystem, fireOnProjectOpen, setCurrentProjectMetadata}) {
+			fn({ manager, preferencesManager, setHasProjectFileSystem, fireOnProjectOpen, setCurrentProjectMetadata }) {
 				setHasProjectFileSystem(true);
 
 				setCurrentProjectMetadata({
@@ -465,7 +465,7 @@ Deno.test({
 	name: "getInternalClientUuid",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				assertEquals(await manager.getInternalClientUuid(), "client uuid");
 			},
 		});
@@ -476,7 +476,7 @@ Deno.test({
 	name: "Connecting to a studio-host from a studio-client, automatically accepted since we initiated it",
 	async fn() {
 		await basicTest({
-			fn({manager, projectManager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({ manager, projectManager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen }) {
 				const onConnectionsChangedSpy = spy();
 				manager.onConnectionsChanged(onConnectionsChangedSpy);
 				setHasProjectFileSystem(true);
@@ -546,7 +546,7 @@ Deno.test({
 	name: "Receiving a studio-client connection to a studio-host, accepting it",
 	async fn() {
 		await basicTest({
-			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({ manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen }) {
 				const onConnectionsChangedSpy = spy();
 				manager.onConnectionsChanged(onConnectionsChangedSpy);
 				setHasProjectFileSystem(true);
@@ -643,7 +643,7 @@ Deno.test({
 	name: "Throws when a studio-host tries to connect to a studio-client",
 	async fn() {
 		await basicTest({
-			fn({setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({ setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen }) {
 				setHasProjectFileSystem(true);
 				setCurrentProjectIsRemote(true);
 				fireOnProjectOpen();
@@ -677,7 +677,7 @@ Deno.test({
 	name: "Receiving an inspector connection, accepting it",
 	async fn() {
 		await basicTest({
-			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({ manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen }) {
 				const onConnectionsChangedSpy = spy();
 				manager.onConnectionsChanged(onConnectionsChangedSpy);
 				setHasProjectFileSystem(true);
@@ -774,7 +774,7 @@ Deno.test({
 	name: "Inspector connections with a connection token are automatically accepted",
 	async fn() {
 		await basicTest({
-			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({ manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen }) {
 				const onConnectionsChangedSpy = spy();
 				manager.onConnectionsChanged(onConnectionsChangedSpy);
 				setHasProjectFileSystem(true);
@@ -798,7 +798,7 @@ Deno.test({
 
 				const token = manager.createConnectionToken();
 
-				discoveryMethod.addActive("connection id", false, {token}, 0, "");
+				discoveryMethod.addActive("connection id", false, { token }, 0, "");
 				assertSpyCalls(onConnectionsChangedSpy, 2);
 				assertEquals(Array.from(manager.getConnections()), [
 					{
@@ -831,7 +831,7 @@ Deno.test({
 	name: "Throws when an invalid configuration tries to connect",
 	async fn() {
 		await basicTest({
-			fn({manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen}) {
+			fn({ manager, setHasProjectFileSystem, setCurrentProjectIsRemote, fireOnProjectOpen }) {
 				setHasProjectFileSystem(true);
 				setCurrentProjectIsRemote(false);
 				fireOnProjectOpen();

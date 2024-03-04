@@ -1,5 +1,5 @@
-import {Vec3} from "../../math/Vec3.js";
-import {GizmoDraggable} from "./GizmoDraggable.js";
+import { Vec3 } from "../../math/Vec3.js";
+import { GizmoDraggable } from "./GizmoDraggable.js";
 
 /**
  * @typedef TranslateGizmoDragEvent

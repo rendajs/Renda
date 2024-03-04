@@ -1,15 +1,15 @@
 import "../../../shared/initializeStudio.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {ContentWindowConnections} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowConnections.js";
-import {assertTreeViewStructureEquals, getChildTreeViewFromIndices} from "../../../shared/treeViewUtil.js";
-import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
-import {LabelGui} from "../../../../../../studio/src/ui/LabelGui.js";
-import {PropertiesTreeViewEntry} from "../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
-import {Button} from "../../../../../../studio/src/ui/Button.js";
-import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
-import {getMockWindowManager} from "../shared.js";
-import {TextGui} from "../../../../../../studio/src/ui/TextGui.js";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { ContentWindowConnections } from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowConnections.js";
+import { assertTreeViewStructureEquals, getChildTreeViewFromIndices } from "../../../shared/treeViewUtil.js";
+import { assertEquals, assertExists, assertInstanceOf } from "std/testing/asserts.ts";
+import { LabelGui } from "../../../../../../studio/src/ui/LabelGui.js";
+import { PropertiesTreeViewEntry } from "../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
+import { Button } from "../../../../../../studio/src/ui/Button.js";
+import { PreferencesManager } from "../../../../../../studio/src/preferences/PreferencesManager.js";
+import { getMockWindowManager } from "../shared.js";
+import { TextGui } from "../../../../../../studio/src/ui/TextGui.js";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 
 /**
  * @typedef ContentWindowConnectionsTestContext
@@ -193,7 +193,7 @@ function assertConnectionTreeView(treeView, projectName, connectionType, status,
 		assertEquals(allowButtonGui.currentText, "Allow");
 	}
 
-	return {connectButtonGui, allowButtonGui, blockButtonGui};
+	return { connectButtonGui, allowButtonGui, blockButtonGui };
 }
 
 Deno.test({
@@ -209,7 +209,7 @@ Deno.test({
 					projectMetadata: null,
 				},
 			],
-			fn({studiosListTreeView}) {
+			fn({ studiosListTreeView }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "Studio", "Internal", "Unavailable", "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.", false, false, false);
 			},
@@ -234,7 +234,7 @@ Deno.test({
 					},
 				},
 			],
-			fn({studiosListTreeView}) {
+			fn({ studiosListTreeView }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "My Project", "Internal", "No Filesystem permissions", "The other studio instance hasn't approved file system permissions in its tab yet.", false, false, false);
 			},
@@ -259,7 +259,7 @@ Deno.test({
 					},
 				},
 			],
-			fn({studiosListTreeView}) {
+			fn({ studiosListTreeView }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "Untitled Project", "Internal", "Available", "", true, true, false);
 			},
@@ -285,7 +285,7 @@ Deno.test({
 
 				},
 			],
-			fn({studiosListTreeView}) {
+			fn({ studiosListTreeView }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "Untitled Project", "WebRTC", "Available", "", true, true, false);
 			},
@@ -310,7 +310,7 @@ Deno.test({
 					},
 				},
 			],
-			fn({studiosListTreeView}) {
+			fn({ studiosListTreeView }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "project name", "renda:unknown", "Available", "", true, true, false);
 			},
@@ -331,7 +331,7 @@ Deno.test({
 					projectMetadata: null,
 				},
 			],
-			fn({studiosListTreeView}) {
+			fn({ studiosListTreeView }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "Studio Client", "WebRTC", "Unavailable", "This connection is a studio instance without an open project. Connections can only be initiated from the other end.", false, false, false);
 			},
@@ -356,7 +356,7 @@ Deno.test({
 					},
 				},
 			],
-			fn({studiosListTreeView}) {
+			fn({ studiosListTreeView }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "Studio Client", "WebRTC", "Unavailable", "This connection is a studio instance without an open project. Connections can only be initiated from the other end.", false, false, false);
 			},
@@ -382,9 +382,9 @@ Deno.test({
 
 		await basicTest({
 			connections: [connection],
-			fn({studiosListTreeView, studioConnectionsManager, fireOnAvailableConnectionsChanged}) {
+			fn({ studiosListTreeView, studioConnectionsManager, fireOnAvailableConnectionsChanged }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
-				const {connectButtonGui} = assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Available", "", true, true, false);
+				const { connectButtonGui } = assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Available", "", true, true, false);
 				const requestConnectionSpy = spy(studioConnectionsManager, "requestConnection");
 
 				assertExists(connectButtonGui);
@@ -429,7 +429,7 @@ Deno.test({
 
 		await basicTest({
 			connections: [connection],
-			fn({studiosListTreeView, fireOnAvailableConnectionsChanged}) {
+			fn({ studiosListTreeView, fireOnAvailableConnectionsChanged }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 
 				connection.connectionState = "connecting";
@@ -463,7 +463,7 @@ Deno.test({
 		};
 		await basicTest({
 			connections: [connection],
-			fn({studiosListTreeView, studioConnectionsManager, fireOnAvailableConnectionsChanged}) {
+			fn({ studiosListTreeView, studioConnectionsManager, fireOnAvailableConnectionsChanged }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Available", "", true, true, false);
 
@@ -473,7 +473,7 @@ Deno.test({
 
 				connection.connectionState = "incoming-permission-pending";
 				fireOnAvailableConnectionsChanged();
-				const {allowButtonGui} = assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Waiting for Permission", "", false, false, true);
+				const { allowButtonGui } = assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Waiting for Permission", "", false, false, true);
 
 				const acceptIncomingConnectionSpy = stub(studioConnectionsManager, "acceptIncomingConnection");
 
@@ -505,7 +505,7 @@ Deno.test({
 		};
 		await basicTest({
 			connections: [connection],
-			fn({inspectorsListTreeView, studioConnectionsManager, fireOnAvailableConnectionsChanged}) {
+			fn({ inspectorsListTreeView, studioConnectionsManager, fireOnAvailableConnectionsChanged }) {
 				const studioTreeView = getChildTreeViewFromIndices(inspectorsListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "Inspector", "Internal", "Available", "", true, true, false);
 
@@ -515,7 +515,7 @@ Deno.test({
 
 				connection.connectionState = "incoming-permission-pending";
 				fireOnAvailableConnectionsChanged();
-				const {allowButtonGui} = assertConnectionTreeView(studioTreeView, "Inspector", "Internal", "Waiting for Permission", "", false, false, true);
+				const { allowButtonGui } = assertConnectionTreeView(studioTreeView, "Inspector", "Internal", "Waiting for Permission", "", false, false, true);
 
 				const acceptIncomingConnectionSpy = stub(studioConnectionsManager, "acceptIncomingConnection");
 
@@ -551,7 +551,7 @@ Deno.test({
 		};
 		await basicTest({
 			connections: [connection],
-			fn({studiosListTreeView, studioConnectionsManager, fireOnAvailableConnectionsChanged}) {
+			fn({ studiosListTreeView, studioConnectionsManager, fireOnAvailableConnectionsChanged }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 
 				connection.connectionState = "connecting";
@@ -559,7 +559,7 @@ Deno.test({
 
 				connection.connectionState = "incoming-permission-pending";
 				fireOnAvailableConnectionsChanged();
-				const {blockButtonGui} = assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Waiting for Permission", "", false, false, true);
+				const { blockButtonGui } = assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Waiting for Permission", "", false, false, true);
 
 				const rejectIncomingConnectionSpy = stub(studioConnectionsManager, "rejectIncomingConnection");
 
@@ -597,7 +597,7 @@ Deno.test({
 		];
 		await basicTest({
 			connections,
-			fn({studiosListTreeView, fireOnAvailableConnectionsChanged}) {
+			fn({ studiosListTreeView, fireOnAvailableConnectionsChanged }) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
 				assertConnectionTreeView(studioTreeView, "my project", "WebRTC", "Available", "", true, true, false);
 				connections.pop();
@@ -612,7 +612,7 @@ Deno.test({
 	name: "WebRTC discovery status changes",
 	async fn() {
 		await basicTest({
-			fn({webRtcStatusLabel, fireOnWebRtcDiscoveryserverStatusChange}) {
+			fn({ webRtcStatusLabel, fireOnWebRtcDiscoveryserverStatusChange }) {
 				assertEquals(webRtcStatusLabel.value, "disconnected");
 				fireOnWebRtcDiscoveryserverStatusChange("connecting");
 				assertEquals(webRtcStatusLabel.value, "connecting");
@@ -628,7 +628,7 @@ Deno.test({
 		const connections = [];
 		await basicTest({
 			connections,
-			fn({contentWindow, studiosListTreeView, webRtcStatusLabel, fireOnAvailableConnectionsChanged, fireOnWebRtcDiscoveryserverStatusChange}) {
+			fn({ contentWindow, studiosListTreeView, webRtcStatusLabel, fireOnAvailableConnectionsChanged, fireOnWebRtcDiscoveryserverStatusChange }) {
 				connections.push({
 					id: "uuid1",
 					clientType: "studio-host",
@@ -660,7 +660,7 @@ Deno.test({
 	name: "Discovery endpoint changes are passed to the studioConnectionsManager",
 	async fn() {
 		await basicTest({
-			fn({contentWindow, studioConnectionsManager}) {
+			fn({ contentWindow, studioConnectionsManager }) {
 				const endPointTreeView = getChildTreeViewFromIndices(contentWindow.headerTreeView, 0);
 				const setEndpointSpy = spy(studioConnectionsManager, "setWebRtcDiscoveryEndpoint");
 				assertInstanceOf(endPointTreeView, PropertiesTreeViewEntry);

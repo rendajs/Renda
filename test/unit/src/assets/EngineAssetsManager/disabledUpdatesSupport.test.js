@@ -1,7 +1,7 @@
-import {Importer} from "fake-imports";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assertEquals} from "std/testing/asserts.ts";
-import {createMockAssetLoader} from "./shared.js";
+import { Importer } from "fake-imports";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { assertEquals } from "std/testing/asserts.ts";
+import { createMockAssetLoader } from "./shared.js";
 
 const importer = new Importer(import.meta.url);
 importer.fakeModule("../../../../../src/studioDefines.js", `
@@ -10,7 +10,7 @@ importer.fakeModule("../../../../../src/studioDefines.js", `
 
 /** @type {import("../../../../../src/assets/EngineAssetsManager.js")} */
 const EngineAssetsManagerMod = await importer.import("../../../../../src/assets/EngineAssetsManager.js");
-const {EngineAssetsManager} = EngineAssetsManagerMod;
+const { EngineAssetsManager } = EngineAssetsManagerMod;
 
 Deno.test({
 	name: "getAsset directly maps to the asset loader",
@@ -59,11 +59,11 @@ Deno.test({
 		const callbackSpy = spy(spyFn);
 
 		await manager.watchAsset("uuid", {
-			assetOpts: {foo: "bar"},
+			assetOpts: { foo: "bar" },
 		}, callbackSpy);
 
 		assertSpyCall(getAssetSpy, 0, {
-			args: ["uuid", {assetOpts: {foo: "bar"}}],
+			args: ["uuid", { assetOpts: { foo: "bar" } }],
 		});
 		assertSpyCall(callbackSpy, 0, {
 			args: ["result"],

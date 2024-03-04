@@ -1,4 +1,4 @@
-import {ShorcutConditionValueSetter} from "./ShorcutConditionValueSetter.js";
+import { ShorcutConditionValueSetter } from "./ShorcutConditionValueSetter.js";
 
 /**
  * @typedef {object} ShortcutConditionOptions

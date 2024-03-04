@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import {parseArgs} from "../../shared/testArgs.js";
+import { parseArgs } from "../../shared/testArgs.js";
 
 let mainPageUrl = "";
 /**
@@ -53,7 +53,7 @@ let defaultPage = null;
  * @param {object} options
  * @param {boolean} options.headless
  */
-export async function launch({headless}) {
+export async function launch({ headless }) {
 	const executablePath = await installIfNotInstalled();
 	console.log(`Launching ${executablePath}`);
 	browser = await puppeteer.launch({
@@ -85,7 +85,7 @@ const args = parseArgs();
  * Contexts are automatically cleaned up after each test, even if the test fails.
  */
 export async function getPage(url = getMainPageUrl() + "/studio/") {
-	const browser = await launch({headless: args.headless});
+	const browser = await launch({ headless: args.headless });
 
 	const context = await browser.createIncognitoBrowserContext();
 	contexts.add(context);

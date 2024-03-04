@@ -1,4 +1,4 @@
-import {MessageHandler} from "./MessageHandler.js";
+import { MessageHandler } from "./MessageHandler.js";
 
 export class InternalMessageHandler extends MessageHandler {
 	/**
@@ -57,7 +57,7 @@ export class InternalMessageHandler extends MessageHandler {
 	 * @param {object} [sendOptions]
 	 * @param {Transferable[]} [sendOptions.transfer]
 	 */
-	send(data, {transfer} = {}) {
+	send(data, { transfer } = {}) {
 		if (!this.messagePort) return;
 		this.messagePort.postMessage(data, transfer || []);
 	}

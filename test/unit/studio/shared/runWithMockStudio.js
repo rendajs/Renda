@@ -3,7 +3,7 @@
 // it will cause tests with non async functions to throw outside of the test.
 // That way Deno's test runner is not able to know which test the error originated from.
 
-import {injectMockStudioInstance} from "../../../../studio/src/studioInstance.js";
+import { injectMockStudioInstance } from "../../../../studio/src/studioInstance.js";
 
 /**
  * Runs the function with an installed fake dom.

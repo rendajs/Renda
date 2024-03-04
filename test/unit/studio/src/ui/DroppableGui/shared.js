@@ -1,16 +1,16 @@
-import {spy, stub} from "std/testing/mock.ts";
-import {ProjectAsset} from "../../../../../../studio/src/assets/ProjectAsset.js";
-import {DroppableGui} from "../../../../../../studio/src/ui/DroppableGui.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
-import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {FocusEvent} from "fake-dom/FakeFocusEvent.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {assertContextMenuStructureContains, assertContextMenuStructureNotContainsText, triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
-import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
-import {assertExists} from "std/testing/asserts.ts";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
+import { spy, stub } from "std/testing/mock.ts";
+import { ProjectAsset } from "../../../../../../studio/src/assets/ProjectAsset.js";
+import { DroppableGui } from "../../../../../../studio/src/ui/DroppableGui.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
+import { FakeMouseEvent } from "fake-dom/FakeMouseEvent.js";
+import { FocusEvent } from "fake-dom/FakeFocusEvent.js";
+import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { assertContextMenuStructureContains, assertContextMenuStructureNotContainsText, triggerContextMenuItem } from "../../../shared/contextMenuHelpers.js";
+import { ClipboardEvent } from "fake-dom/FakeClipboardEvent.js";
+import { assertExists } from "std/testing/asserts.ts";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
 
 export const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 export const DEFAULTASSETLINK_LINK_UUID = "DEFAULTASSETLINK_LINK_UUID";
@@ -105,7 +105,7 @@ export function createBasicGui({
 
 	const mockLiveAsset = {};
 
-	const mockProjectAsset = createMockDroppableProjectAsset({mockLiveAsset, needsLiveAssetPreload});
+	const mockProjectAsset = createMockDroppableProjectAsset({ mockLiveAsset, needsLiveAssetPreload });
 
 	const mockDefaultAssetLink = /** @type {import("../../../../../../studio/src/assets/DefaultAssetLink.js").DefaultAssetLink} */ ({});
 
@@ -451,7 +451,7 @@ export async function basicSetupForSettingByUuid({
 		dispatchContextMenuEvent: false,
 	});
 
-	const {projectAsset: mockProjectAsset} = createMockProjectAsset({
+	const { projectAsset: mockProjectAsset } = createMockProjectAsset({
 		uuid: BASIC_ASSET_UUID_FOR_SETTING,
 		projectAssetTypeConstructor: MockProjectAssetTypeConstructor,
 	});
@@ -488,7 +488,7 @@ export async function basicSetupForSettingByUuid({
 		 * @param {boolean} visible
 		 */
 		async assertContextMenu(visible, disabled = false, tooltip = "") {
-			const {createContextMenuCalls} = returnValue;
+			const { createContextMenuCalls } = returnValue;
 			const call = createContextMenuCalls[0];
 			const itemText = "Paste Asset UUID";
 			if (visible) {
@@ -505,7 +505,7 @@ export async function basicSetupForSettingByUuid({
 			}
 		},
 		async clickPaste() {
-			const {createContextMenuCalls} = returnValue;
+			const { createContextMenuCalls } = returnValue;
 			assertExists(createContextMenuCalls[0]);
 			await triggerContextMenuItem(createContextMenuCalls[0], ["Paste Asset UUID"]);
 		},

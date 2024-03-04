@@ -1,5 +1,5 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeRenderOutputConfig, RenderOutputConfig} from "../../../../src/mod.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { AssetLoaderTypeRenderOutputConfig, RenderOutputConfig } from "../../../../src/mod.js";
 
 // todo: better types for generics
 /**
@@ -23,7 +23,7 @@ export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 		},
 		multisampleCount: {
 			type: "number",
-			guiOpts: {min: 1, step: 1},
+			guiOpts: { min: 1, step: 1 },
 		},
 	};
 
@@ -42,6 +42,6 @@ export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	 */
 	async getLiveAssetData(fileData) {
 		const liveAsset = new RenderOutputConfig(fileData);
-		return {liveAsset, studioData: null};
+		return { liveAsset, studioData: null };
 	}
 }

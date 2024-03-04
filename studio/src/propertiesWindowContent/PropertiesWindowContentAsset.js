@@ -1,7 +1,7 @@
-import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
-import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
-import {ProjectAsset} from "../assets/ProjectAsset.js";
-import {PropertiesAssetContentGenericStructure} from "../propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
+import { PropertiesWindowContent } from "./PropertiesWindowContent.js";
+import { PropertiesTreeView } from "../ui/propertiesTreeView/PropertiesTreeView.js";
+import { ProjectAsset } from "../assets/ProjectAsset.js";
+import { PropertiesAssetContentGenericStructure } from "../propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
 /**
  * @typedef {object} PropertiesWindowContentAssetCallbacksContext
@@ -80,7 +80,7 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 			selectedAssets: this.currentSelection,
 		};
 
-		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, {callbacksContext});
+		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, { callbacksContext });
 		const castSettingsValues = /** @type {import("../ui/propertiesTreeView/types.ts").StructureToSetObject<any>} */ (settingsValues);
 		this.assetSettingsTree.fillSerializableStructureValues(castSettingsValues);
 	}
@@ -92,7 +92,7 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 			const structure = await projectAsset.getPropertiesAssetSettingsStructure();
 			// todo: handle selecting multiple assets or none
 			if (structure) {
-				projectAsset.assetSettings = this.assetSettingsTree.getSerializableStructureValues(structure, {purpose: "fileStorage"});
+				projectAsset.assetSettings = this.assetSettingsTree.getSerializableStructureValues(structure, { purpose: "fileStorage" });
 				const assetManager = await this.studioInstance.projectManager.getAssetManager();
 				await assetManager.saveAssetSettings();
 				break;

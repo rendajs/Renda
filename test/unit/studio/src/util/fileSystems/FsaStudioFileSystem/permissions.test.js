@@ -1,10 +1,10 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {createBasicFs} from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { createBasicFs } from "./shared.js";
 
 Deno.test({
 	name: "getPermission, no permission",
 	fn: async () => {
-		const {fs, fileHandle1} = createBasicFs();
+		const { fs, fileHandle1 } = createBasicFs();
 		fileHandle1.mockPermissionState("denied");
 
 		const permission = await fs.getPermission(["root", "file1"]);
@@ -16,7 +16,7 @@ Deno.test({
 Deno.test({
 	name: "getPermission, permission granted",
 	fn: async () => {
-		const {fs, fileHandle1} = createBasicFs();
+		const { fs, fileHandle1 } = createBasicFs();
 		fileHandle1.mockPermissionState("granted");
 
 		const permission = await fs.getPermission(["root", "file1"]);
@@ -28,7 +28,7 @@ Deno.test({
 Deno.test({
 	name: "getPermission, permission granted",
 	fn: async () => {
-		const {fs, fileHandle1} = createBasicFs();
+		const { fs, fileHandle1 } = createBasicFs();
 		fileHandle1.mockPermissionState("granted");
 
 		const permission = await fs.getPermission(["root", "file1"]);
@@ -40,7 +40,7 @@ Deno.test({
 Deno.test({
 	name: "getPermission, prompt, but don't allow prompt",
 	fn: async () => {
-		const {fs, fileHandle1} = createBasicFs();
+		const { fs, fileHandle1 } = createBasicFs();
 		fileHandle1.mockPermissionState("prompt");
 
 		const permission = await fs.getPermission(["root", "file1"], {
@@ -54,7 +54,7 @@ Deno.test({
 Deno.test({
 	name: "getPermission, prompt, allow prompt, prompt denied",
 	fn: async () => {
-		const {fs, fileHandle1} = createBasicFs();
+		const { fs, fileHandle1 } = createBasicFs();
 		fileHandle1.mockPermissionState("prompt", "denied");
 
 		const permission = await fs.getPermission(["root", "file1"], {
@@ -68,7 +68,7 @@ Deno.test({
 Deno.test({
 	name: "getPermission, prompt, allow prompt, prompt granted",
 	fn: async () => {
-		const {fs, fileHandle1} = createBasicFs();
+		const { fs, fileHandle1 } = createBasicFs();
 		fileHandle1.mockPermissionState("prompt", "granted");
 
 		const permission = await fs.getPermission(["root", "file1"], {
@@ -82,7 +82,7 @@ Deno.test({
 Deno.test({
 	name: "getPermission, non existent file, parents permission denied",
 	fn: async () => {
-		const {fs, rootHandle, rootDirHandle} = createBasicFs();
+		const { fs, rootHandle, rootDirHandle } = createBasicFs();
 		rootHandle.mockPermissionState("denied");
 		rootDirHandle.mockPermissionState("denied");
 
@@ -95,7 +95,7 @@ Deno.test({
 Deno.test({
 	name: "getPermission, non existent file, parents permission granted",
 	fn: async () => {
-		const {fs, rootHandle, rootDirHandle} = createBasicFs();
+		const { fs, rootHandle, rootDirHandle } = createBasicFs();
 		rootHandle.mockPermissionState("granted");
 		rootDirHandle.mockPermissionState("granted");
 
@@ -108,7 +108,7 @@ Deno.test({
 Deno.test({
 	name: "getPermission, non existent file, existing parent",
 	fn: async () => {
-		const {fs, rootHandle, rootDirHandle} = createBasicFs();
+		const { fs, rootHandle, rootDirHandle } = createBasicFs();
 		rootHandle.mockPermissionState("granted");
 		rootDirHandle.mockPermissionState("granted");
 
@@ -122,7 +122,7 @@ Deno.test({
 	name: "waitForPermission() resolves once permission is granted",
 	fn: async () => {
 		const path = ["root", "file1"];
-		const {fs} = createBasicFs();
+		const { fs } = createBasicFs();
 
 		const permisionPromise = fs.waitForPermission(path);
 
@@ -137,7 +137,7 @@ Deno.test({
 	name: "waitForPermission() resolves once permission is granted, but it's denied first",
 	fn: async () => {
 		const path = ["root", "file1"];
-		const {fs, fileHandle1} = createBasicFs();
+		const { fs, fileHandle1 } = createBasicFs();
 		fileHandle1.mockPermissionState("prompt", "denied");
 
 		const permisionPromise = fs.waitForPermission(path);
@@ -146,7 +146,7 @@ Deno.test({
 		assertEquals(firstResult, false);
 
 		fileHandle1.mockPermissionState("prompt", "granted");
-		const secondResult = await fs.getPermission(path, {prompt: true});
+		const secondResult = await fs.getPermission(path, { prompt: true });
 		assertEquals(secondResult, true);
 
 		const permissionPromiseResult = await permisionPromise;

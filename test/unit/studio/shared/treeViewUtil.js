@@ -1,6 +1,6 @@
-import {AssertionError, assertEquals} from "std/testing/asserts.ts";
+import { AssertionError, assertEquals } from "std/testing/asserts.ts";
 import "./initializeStudio.js";
-import {PropertiesTreeViewEntry} from "../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
+import { PropertiesTreeViewEntry } from "../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 
 /**
  * @typedef ExpectedTreeViewStructure
@@ -226,5 +226,5 @@ export function getValidateDragResult(treeView, {
 		acceptedState = "rejected";
 	}
 
-	return {acceptedState};
+	return { acceptedState };
 }

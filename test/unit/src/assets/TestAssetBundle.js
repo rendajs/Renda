@@ -1,4 +1,4 @@
-import {AssetBundle} from "../../../../src/mod.js";
+import { AssetBundle } from "../../../../src/mod.js";
 
 export class TestAssetBundle extends AssetBundle {
 	/** @type {Set<import("../../../../src/mod.js").UuidString>} */
@@ -78,6 +78,6 @@ export class TestAssetBundle extends AssetBundle {
 		const type = this.mockAssetTypes.get(uuid);
 		if (!type) return null;
 		const buffer = this.mockAssetBuffers.get(uuid) || new ArrayBuffer(0);
-		return {buffer, type};
+		return { buffer, type };
 	}
 }

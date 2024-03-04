@@ -1,24 +1,24 @@
-import {assertSpyCall, assertSpyCalls, stub} from "std/testing/mock.ts";
-import {assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
-import {basicSetup} from "./shared.js";
-import {AssetLoaderTypeGenericStructure, StorageType, binaryToObject} from "../../../../../../src/mod.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {createMockKeyboardShortcutManager} from "../../../shared/mockKeyboardShortcutManager.js";
+import { assertSpyCall, assertSpyCalls, stub } from "std/testing/mock.ts";
+import { assertEquals, assertInstanceOf, assertRejects } from "std/testing/asserts.ts";
+import { basicSetup } from "./shared.js";
+import { AssetLoaderTypeGenericStructure, StorageType, binaryToObject } from "../../../../../../src/mod.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { createMockKeyboardShortcutManager } from "../../../shared/mockKeyboardShortcutManager.js";
 
 Deno.test({
 	name: "getBundledAssetData(), custom createBundledAssetData() implementation",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup();
+		const { projectAsset, mocks, uninstall } = basicSetup();
 		const createBundledAssetDataSpy = stub(mocks.ProjectAssetType.prototype, "createBundledAssetData", async () => {
 			return "return value";
 		});
 
 		try {
-			const result = await projectAsset.getBundledAssetData({option: true});
+			const result = await projectAsset.getBundledAssetData({ option: true });
 			assertEquals(result, "return value");
 			assertSpyCalls(createBundledAssetDataSpy, 1);
 			assertSpyCall(createBundledAssetDataSpy, 0, {
-				args: [{option: true}],
+				args: [{ option: true }],
 			});
 		} finally {
 			createBundledAssetDataSpy.restore();
@@ -30,7 +30,7 @@ Deno.test({
 Deno.test({
 	name: "getBundledAssetData(), usedAssetLoaderType",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup();
+		const { projectAsset, mocks, uninstall } = basicSetup();
 		mocks.ProjectAssetType.prototype.createBundledAssetData = async () => null;
 
 		try {
@@ -74,7 +74,7 @@ Deno.test({
 Deno.test({
 	name: "getAssetTypeUuid()",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup();
+		const { projectAsset, mocks, uninstall } = basicSetup();
 		try {
 			mocks.ProjectAssetType.typeUuid = "type uuid";
 
@@ -89,7 +89,7 @@ Deno.test({
 Deno.test({
 	name: "getBundledAssetData() throws when binarySerializationOpts is not implemented",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup();
+		const { projectAsset, mocks, uninstall } = basicSetup();
 
 		try {
 			mocks.ProjectAssetType.prototype.createBundledAssetData = async () => null;
@@ -114,7 +114,7 @@ Deno.test({
 Deno.test({
 	name: "getBundledAssetData() reads raw asset data when all else fails",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup();
+		const { projectAsset, mocks, uninstall } = basicSetup();
 		try {
 			mocks.ProjectAssetType.prototype.createBundledAssetData = async () => null;
 
@@ -130,7 +130,7 @@ Deno.test({
 Deno.test({
 	name: "default values are filled using propertiesAssetContentStructure",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup();
+		const { projectAsset, mocks, uninstall } = basicSetup();
 		mocks.ProjectAssetType.prototype.createBundledAssetData = async () => null;
 		installFakeDocument();
 
@@ -199,11 +199,11 @@ Deno.test({
 Deno.test({
 	name: "getReferencedAssetUuids() with an asset loader type set",
 	async fn() {
-		const {projectAsset, mocks, mockStudio, uninstall} = basicSetup();
+		const { projectAsset, mocks, mockStudio, uninstall } = basicSetup();
 		mocks.ProjectAssetType.prototype.createBundledAssetData = async () => null;
 		installFakeDocument();
 
-		const {keyboardShortcutManager} = createMockKeyboardShortcutManager();
+		const { keyboardShortcutManager } = createMockKeyboardShortcutManager();
 		mockStudio.keyboardShortcutManager = keyboardShortcutManager;
 
 		const binarySerializationOpts = {

@@ -1,6 +1,6 @@
-import {Vec2} from "../../math/Vec2.js";
-import {Vec3} from "../../math/Vec3.js";
-import {Mesh} from "../../core/Mesh.js";
+import { Vec2 } from "../../math/Vec2.js";
+import { Vec3 } from "../../math/Vec3.js";
+import { Mesh } from "../../core/Mesh.js";
 
 /**
  * @param {object} options
@@ -64,10 +64,10 @@ export function createPlane({
 	mesh.setVertexCount(positions.length);
 	if (vertexState) mesh.setVertexState(vertexState);
 	mesh.setIndexData(indices);
-	mesh.setVertexData(Mesh.AttributeType.POSITION, positions, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-	mesh.setVertexData(Mesh.AttributeType.NORMAL, normals, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-	mesh.setVertexData(Mesh.AttributeType.UV1, uvs, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 2});
-	mesh.setVertexData(Mesh.AttributeType.TANGENT, tangents, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-	mesh.setVertexData(Mesh.AttributeType.BITANGENT, bitangents, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
+	mesh.setVertexData(Mesh.AttributeType.POSITION, positions, { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3 });
+	mesh.setVertexData(Mesh.AttributeType.NORMAL, normals, { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3 });
+	mesh.setVertexData(Mesh.AttributeType.UV1, uvs, { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 2 });
+	mesh.setVertexData(Mesh.AttributeType.TANGENT, tangents, { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3 });
+	mesh.setVertexData(Mesh.AttributeType.BITANGENT, bitangents, { unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3 });
 	return mesh;
 }

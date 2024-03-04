@@ -1,8 +1,8 @@
-import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
-import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
-import {BUILD_VERSION_STRING} from "../studioDefines.js";
-import {createSpinner} from "../ui/spinner.js";
-import {IndexedDbStudioFileSystem} from "../util/fileSystems/IndexedDbStudioFileSystem.js";
+import { IndexedDbUtil } from "../../../src/util/IndexedDbUtil.js";
+import { PromiseWaitHelper } from "../../../src/util/PromiseWaitHelper.js";
+import { BUILD_VERSION_STRING } from "../studioDefines.js";
+import { createSpinner } from "../ui/spinner.js";
+import { IndexedDbStudioFileSystem } from "../util/fileSystems/IndexedDbStudioFileSystem.js";
 
 export class ProjectSelector {
 	/** @typedef {import("./ProjectManager.js").StoredProjectEntryAny} StoredProjectEntryAny */
@@ -73,7 +73,7 @@ export class ProjectSelector {
 			this.setVisibility(false);
 		});
 
-		const {buttonEl: openProjectButton} = this.createAction("Open Project", async () => {
+		const { buttonEl: openProjectButton } = this.createAction("Open Project", async () => {
 			this.willOpenProjectAfterLoad();
 			const studio = await this.waitForStudio();
 			studio.projectManager.openProjectFromLocalDirectory();
@@ -207,7 +207,7 @@ export class ProjectSelector {
 			if (entry.alias) {
 				text = entry.alias;
 			}
-			const {buttonEl} = this.createListButton(this.recentListEl, text, async () => {
+			const { buttonEl } = this.createListButton(this.recentListEl, text, async () => {
 				this.willOpenProjectAfterLoad();
 				const studio = await this.waitForStudio();
 				studio.projectManager.openExistingProject(entry, true);
@@ -432,7 +432,7 @@ export class ProjectSelector {
 		for (const existingEntry of list) {
 			const promise = (async () => {
 				const same = await this.projectEntryEquals(entry, existingEntry);
-				return {entry: existingEntry, same};
+				return { entry: existingEntry, same };
 			})();
 			promises.push(promise);
 		}

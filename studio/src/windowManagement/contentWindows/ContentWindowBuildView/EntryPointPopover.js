@@ -1,5 +1,5 @@
-import {Popover} from "../../../ui/popoverMenus/Popover.js";
-import {PropertiesTreeView} from "../../../ui/propertiesTreeView/PropertiesTreeView.js";
+import { Popover } from "../../../ui/popoverMenus/Popover.js";
+import { PropertiesTreeView } from "../../../ui/propertiesTreeView/PropertiesTreeView.js";
 
 export const BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID = "5a328430-e3bc-4eda-afab-789f00439f81";
 
@@ -115,7 +115,7 @@ export class EntryPointPopover extends Popover {
 	 * @param {string} options.defaultText
 	 * @param {import("../../../../../src/mod.js").UuidString[]} options.entryPointUuids
 	 */
-	#createSelector({selectedPreferenceId, label, tooltip, defaultText, entryPointUuids}) {
+	#createSelector({ selectedPreferenceId, label, tooltip, defaultText, entryPointUuids }) {
 		const entry = this.treeView.addItem({
 			type: "buttonSelector",
 			guiOpts: {
@@ -152,7 +152,7 @@ export class EntryPointPopover extends Popover {
 				if (!asset) continue;
 				const fullPath = asset.path.join("/");
 				const fileName = asset.path.at(-1) || "";
-				itemDatas.push({uuid, fullPath, fileName});
+				itemDatas.push({ uuid, fullPath, fileName });
 				if (fileNames.has(fileName)) {
 					duplicateFileNames.add(fileName);
 				}
@@ -175,15 +175,15 @@ export class EntryPointPopover extends Popover {
 				entry.gui.setValue(0);
 			}
 			entry.gui.onValueChange(() => {
-				const index = entry.gui.getValue({getIndex: true});
+				const index = entry.gui.getValue({ getIndex: true });
 				if (index == 0) {
-					this.#preferencesManager.reset(selectedPreferenceId, {contentWindowUuid: this.#contentWindowUuid});
+					this.#preferencesManager.reset(selectedPreferenceId, { contentWindowUuid: this.#contentWindowUuid });
 				} else {
 					const itemData = itemDatas[index - 1];
 					if (!itemData) {
 						throw new Error("Assertion failed, item data doesn't exist");
 					}
-					this.#preferencesManager.set(selectedPreferenceId, itemData.uuid, {contentWindowUuid: this.#contentWindowUuid});
+					this.#preferencesManager.set(selectedPreferenceId, itemData.uuid, { contentWindowUuid: this.#contentWindowUuid });
 				}
 			});
 		})();

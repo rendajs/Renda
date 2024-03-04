@@ -1,11 +1,11 @@
-import {getMockArgs} from "./shared.js";
-import {runWithDomAsync} from "../../../shared/runWithDom.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
-import {runWithMockStudioAsync} from "../../../shared/runWithMockStudio.js";
-import {ContentWindowAbout} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js";
-import {assertIsSpinnerEl} from "../../ui/shared.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
+import { getMockArgs } from "./shared.js";
+import { runWithDomAsync } from "../../../shared/runWithDom.js";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
+import { runWithMockStudioAsync } from "../../../shared/runWithMockStudio.js";
+import { ContentWindowAbout } from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js";
+import { assertIsSpinnerEl } from "../../ui/shared.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
 
 /**
  * @param {ContentWindowAbout} contentWindow
@@ -55,7 +55,7 @@ function clickUpdateButton(contentWindow) {
 }
 
 function basicSetup() {
-	const {args, mockStudioInstance} = getMockArgs();
+	const { args, mockStudioInstance } = getMockArgs();
 
 	/** @type {import("../../../../../../studio/src/misc/ServiceWorkerManager.js").ServiceWorkerInstallingState} */
 	let installingState = "idle";
@@ -129,7 +129,7 @@ Deno.test({
 	name: "Service worker updates are shown",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, mockStudioInstance, checkForUpdatesSpy, restartClientsSpy, setInstallingState, setOpenTabCount} = basicSetup();
+			const { args, mockStudioInstance, checkForUpdatesSpy, restartClientsSpy, setInstallingState, setOpenTabCount } = basicSetup();
 			await runWithMockStudioAsync(mockStudioInstance, async () => {
 				const contentWindow = new ContentWindowAbout(...args);
 				assertUpdateElementVisibilities(contentWindow, false, false, "", "Check for Updates");
@@ -175,7 +175,7 @@ Deno.test({
 	name: "Cecks for updates when the window becomes visible",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, mockStudioInstance, checkForUpdatesSpy} = basicSetup();
+			const { args, mockStudioInstance, checkForUpdatesSpy } = basicSetup();
 			await runWithMockStudioAsync(mockStudioInstance, async () => {
 				const contentWindow = new ContentWindowAbout(...args);
 

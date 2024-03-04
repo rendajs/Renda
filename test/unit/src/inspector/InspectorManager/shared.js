@@ -1,5 +1,5 @@
-import {TypedMessenger} from "../../../../../src/mod.js";
-import {createStudioInspectorHandlers} from "../../../../../studio/src/network/studioConnections/handlers.js";
+import { TypedMessenger } from "../../../../../src/mod.js";
+import { createStudioInspectorHandlers } from "../../../../../studio/src/network/studioConnections/handlers.js";
 
 /**
  * Creates an InspectorManager which responds to messages according to

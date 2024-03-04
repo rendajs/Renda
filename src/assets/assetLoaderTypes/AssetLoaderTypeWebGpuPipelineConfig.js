@@ -1,6 +1,6 @@
-import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
-import {StorageType} from "../../util/binarySerialization.js";
-import {WebGpuPipelineConfig} from "../../rendering/renderers/webGpu/WebGpuPipelineConfig.js";
+import { AssetLoaderTypeGenericStructure } from "./AssetLoaderTypeGenericStructure.js";
+import { StorageType } from "../../util/binarySerialization.js";
+import { WebGpuPipelineConfig } from "../../rendering/renderers/webGpu/WebGpuPipelineConfig.js";
 
 export const primitiveTopologyTypes = ["point-list", "line-list", "line-strip", "triangle-list", "triangle-strip"];
 

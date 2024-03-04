@@ -1,5 +1,5 @@
-import {generateUuid} from "../../../../src/mod.js";
-import {IndexedDbStudioFileSystem} from "../fileSystems/IndexedDbStudioFileSystem.js";
+import { generateUuid } from "../../../../src/mod.js";
+import { IndexedDbStudioFileSystem } from "../fileSystems/IndexedDbStudioFileSystem.js";
 
 /**
  * @deprecated Use `loadE2eProject()` in /test/e2e/studio/shared/project.js instead.
@@ -21,7 +21,7 @@ export async function injectProject(projectName, filePaths) {
 			const response = await fetch(`/test/e2e/studio/projects/${projectName}/${filePath}`);
 			const buffer = await response.arrayBuffer();
 			const type = response.headers.get("Content-Type") || "";
-			const file = new File([buffer], "filename", {type});
+			const file = new File([buffer], "filename", { type });
 			fileSystem.writeFile(path, file);
 		})());
 	}

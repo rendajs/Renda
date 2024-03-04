@@ -1,8 +1,8 @@
-import {ContentWindow} from "./ContentWindow.js";
-import {TreeView} from "../../ui/TreeView.js";
-import {Button} from "../../ui/Button.js";
-import {handleDuplicateFileName, parseMimeType} from "../../util/util.js";
-import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorInstance.js";
+import { ContentWindow } from "./ContentWindow.js";
+import { TreeView } from "../../ui/TreeView.js";
+import { Button } from "../../ui/Button.js";
+import { handleDuplicateFileName, parseMimeType } from "../../util/util.js";
+import { getProjectSelectorInstance } from "../../projectSelector/projectSelectorInstance.js";
 
 /**
  * @typedef {object} DraggingProjectAssetData
@@ -210,7 +210,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	async initialUpdateTreeView() {
-		await this.fileSystem.waitForPermission([], {writable: false});
+		await this.fileSystem.waitForPermission([], { writable: false });
 		await this.updateTreeView();
 		this.treeViewInit = true;
 		this.updateInit();
@@ -267,7 +267,7 @@ export class ContentWindowProject extends ContentWindow {
 	 * should already be updated so you generally won't need to use this.
 	 */
 	async updateTreeViewRange(end, start = null, updateAll = false) {
-		let {treeView} = this;
+		let { treeView } = this;
 		if (start) {
 			const childTreeView = this.treeView.findChildFromNamesPath(start);
 			if (!childTreeView) {
@@ -309,16 +309,16 @@ export class ContentWindowProject extends ContentWindow {
 	async updateTreeViewRecursive(treeView, path) {
 		if (this.destructed) return;
 		if (treeView.collapsed) return;
-		const hasPermissions = await this.fileSystem.getPermission(path, {writable: false});
+		const hasPermissions = await this.fileSystem.getPermission(path, { writable: false });
 		if (!hasPermissions) return;
 		const fileTree = await this.fileSystem.readDir(path);
 		if (this.destructed) return;
 
 		// Determine the order of the files and directories.
 		const sortedFiles = [...fileTree.files];
-		sortedFiles.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base"}));
+		sortedFiles.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 		const sortedDirectories = [...fileTree.directories];
-		sortedDirectories.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base"}));
+		sortedDirectories.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 		const childOrder = [...sortedDirectories, ...sortedFiles];
 
 		for (const dir of sortedDirectories) {
@@ -425,7 +425,7 @@ export class ContentWindowProject extends ContentWindow {
 
 	getSelectedParentPathForCreate() {
 		let selectedPath = [];
-		let {treeView} = this;
+		let { treeView } = this;
 		for (const selectedItem of this.treeView.getSelectedItems()) {
 			if (!selectedItem.alwaysShowArrow && selectedItem.parent) {
 				treeView = selectedItem.parent;

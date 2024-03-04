@@ -1,8 +1,8 @@
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {ProjectAsset} from "../../../../../../studio/src/assets/ProjectAsset.js";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {bundledAssetDataToArrayBufferOrString} from "../../../../../../studio/src/util/bundledAssetDataToArrayBufferOrString.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { ProjectAsset } from "../../../../../../studio/src/assets/ProjectAsset.js";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { bundledAssetDataToArrayBufferOrString } from "../../../../../../studio/src/util/bundledAssetDataToArrayBufferOrString.js";
 
 /**
  * Creates dependencies which can be used to pass to a ProjectAssetType constructor.

@@ -1,9 +1,9 @@
-import {assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
-import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
-import {ServiceWorkerManager} from "../../../../../studio/src/misc/ServiceWorkerManager.js";
-import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
+import { assertEquals, assertInstanceOf, assertRejects } from "std/testing/asserts.ts";
+import { injectMockStudioInstance } from "../../../../../studio/src/studioInstance.js";
+import { ServiceWorkerManager } from "../../../../../studio/src/misc/ServiceWorkerManager.js";
+import { MemoryStudioFileSystem } from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub } from "std/testing/mock.ts";
 
 const SERVICE_WORKER_CLIENT_ID = "service worker client id";
 

@@ -1,8 +1,8 @@
-import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {Entity, MeshComponent, TranslationGizmo, Vec3} from "../../../../../src/mod.js";
-import {assertVecAlmostEquals} from "../../../shared/asserts.js";
-import {createFakeGizmoManager} from "../shared.js";
+import { assertEquals, assertExists, assertInstanceOf } from "std/testing/asserts.ts";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { Entity, MeshComponent, TranslationGizmo, Vec3 } from "../../../../../src/mod.js";
+import { assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { createFakeGizmoManager } from "../shared.js";
 
 /**
  * @param  {Parameters<typeof createFakeGizmoManager>} opts
@@ -53,7 +53,7 @@ function basicSetup(...opts) {
 Deno.test({
 	name: "Materials get applied when they load via the engine assets manager",
 	fn() {
-		const {circleMeshComponent, circleMesh, arrowMesh, xArrowMesh, yArrowMesh, zArrowMesh, translationGizmo, initEngineAssets} = basicSetup({initEngineAssets: false});
+		const { circleMeshComponent, circleMesh, arrowMesh, xArrowMesh, yArrowMesh, zArrowMesh, translationGizmo, initEngineAssets } = basicSetup({ initEngineAssets: false });
 
 		assertEquals(circleMesh.vertexState, null);
 		assertEquals(arrowMesh.vertexState, null);
@@ -77,7 +77,7 @@ Deno.test({
 Deno.test({
 	name: "destructor removes entity from parent",
 	fn() {
-		const {translationGizmo} = basicSetup();
+		const { translationGizmo } = basicSetup();
 		const parent = new Entity("parent");
 		parent.add(translationGizmo.entity);
 
@@ -90,7 +90,7 @@ Deno.test({
 Deno.test({
 	name: "default material colors are correct",
 	fn() {
-		const {getBillboardMaterial, getMeshMaterial} = basicSetup();
+		const { getBillboardMaterial, getMeshMaterial } = basicSetup();
 
 		const circleMaterial = getBillboardMaterial(0);
 		assertVecAlmostEquals(circleMaterial.getProperty("colorMultiplier"), new Vec3(1, 1, 1));
@@ -106,7 +106,7 @@ Deno.test({
 Deno.test({
 	name: "hovering over the center draggable shows hover feedback",
 	fn() {
-		const {circleMeshComponent, createdDraggables} = basicSetup();
+		const { circleMeshComponent, createdDraggables } = basicSetup();
 
 		const centerDraggable = createdDraggables[0];
 		const material1 = circleMeshComponent.materials[0];
@@ -133,7 +133,7 @@ Deno.test({
 Deno.test({
 	name: "hovering over the x arrow draggable shows hover feedback",
 	fn() {
-		const {xArrowMesh, createdDraggables} = basicSetup();
+		const { xArrowMesh, createdDraggables } = basicSetup();
 
 		const xDraggable = createdDraggables[1];
 		const material1 = xArrowMesh.materials[0];
@@ -160,7 +160,7 @@ Deno.test({
 Deno.test({
 	name: "hovering over the y arrow draggable shows hover feedback",
 	fn() {
-		const {yArrowMesh, createdDraggables} = basicSetup();
+		const { yArrowMesh, createdDraggables } = basicSetup();
 
 		const yDraggable = createdDraggables[2];
 		const material1 = yArrowMesh.materials[0];
@@ -187,7 +187,7 @@ Deno.test({
 Deno.test({
 	name: "hovering over the z arrow draggable shows hover feedback",
 	fn() {
-		const {zArrowMesh, createdDraggables} = basicSetup();
+		const { zArrowMesh, createdDraggables } = basicSetup();
 
 		const zDraggable = createdDraggables[3];
 		const material1 = zArrowMesh.materials[0];
@@ -214,7 +214,7 @@ Deno.test({
 Deno.test({
 	name: "dragging the center draggable updates the gizmo position and fires callbacks",
 	fn() {
-		const {translationGizmo, createdDraggables} = basicSetup();
+		const { translationGizmo, createdDraggables } = basicSetup();
 
 		/** @type {import("../../../../../src/gizmos/gizmos/TranslationGizmo.js").TranslationGizmoDragCallback} */
 		const cb = e => {};
@@ -249,7 +249,7 @@ Deno.test({
 Deno.test({
 	name: "dragging the axis draggables updates the gizmo position and fires callbacks",
 	fn() {
-		const {translationGizmo, createdDraggables} = basicSetup();
+		const { translationGizmo, createdDraggables } = basicSetup();
 
 		/** @type {import("../shared.js").FakeGizmoDraggable<import("../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js").TranslateAxisGizmoDragEvent>} */
 		const xDraggable = createdDraggables[1];
@@ -300,7 +300,7 @@ Deno.test({
 Deno.test({
 	name: "draggable positions are relative to the gizmo",
 	fn() {
-		const {translationGizmo, createdDraggables} = basicSetup();
+		const { translationGizmo, createdDraggables } = basicSetup();
 
 		translationGizmo.entity.pos.set(1, 1, 1);
 
@@ -314,7 +314,7 @@ Deno.test({
 Deno.test({
 	name: "onDragEnd callbacks fire",
 	fn() {
-		const {translationGizmo, createdDraggables} = basicSetup();
+		const { translationGizmo, createdDraggables } = basicSetup();
 
 		const cb1 = spy();
 		const cb2 = spy();

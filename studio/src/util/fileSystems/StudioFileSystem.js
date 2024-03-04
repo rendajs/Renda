@@ -1,5 +1,5 @@
-import {toFormattedJsonString} from "../../../../src/util/toFormattedJsonString.js";
-import {WriteOperation} from "./WriteOperation.js";
+import { toFormattedJsonString } from "../../../../src/util/toFormattedJsonString.js";
+import { WriteOperation } from "./WriteOperation.js";
 
 /** @typedef {string[]} StudioFileSystemPath */
 
@@ -270,7 +270,7 @@ export class StudioFileSystem {
 	async writeText(path, text, {
 		type = "text/plain",
 	} = {}) {
-		await this.writeFile(path, new File([text], "", {type}));
+		await this.writeFile(path, new File([text], "", { type }));
 	}
 
 	/**
@@ -288,7 +288,7 @@ export class StudioFileSystem {
 	 */
 	async writeJson(path, json) {
 		const jsonStr = toFormattedJsonString(json);
-		await this.writeText(path, jsonStr, {type: "application/json"});
+		await this.writeText(path, jsonStr, { type: "application/json" });
 	}
 
 	/**

@@ -1,10 +1,10 @@
-import {InternalDiscoveryMethod} from "../../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
-import {assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
-import {initializeIframe} from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
-import {initializeWorker} from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
-import {AssertionError, assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {assertPromiseResolved} from "../../../../shared/asserts.js";
+import { InternalDiscoveryMethod } from "../../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
+import { assertSpyCalls, mockSessionAsync, spy, stub } from "std/testing/mock.ts";
+import { initializeIframe } from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
+import { initializeWorker } from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
+import { AssertionError, assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { assertPromiseResolved } from "../../../../shared/asserts.js";
 
 /**
  * Creates a mocked iframe and SharedWorker with the required functionality for the InternalDiscoveryMethod.
@@ -115,7 +115,7 @@ async function basicSetup({
 							assertEquals(value, assertIframeSrc);
 						}
 						iframeSrcWasSet = true;
-						const {createMessageEvent} = createIframeWithWindow(contentWindow);
+						const { createMessageEvent } = createIframeWithWindow(contentWindow);
 						createMessageEventFn = createMessageEvent;
 					},
 				});
@@ -432,7 +432,7 @@ Deno.test({
 				assertEquals(handler2.otherClientUuid, method1ClientId);
 				assertEquals(handler2.clientType, "studio-host");
 				assertEquals(handler2.initiatedByMe, false);
-				assertEquals(handler2.connectionRequestData, {token: "token"});
+				assertEquals(handler2.connectionRequestData, { token: "token" });
 				assertEquals(handler2.projectMetadata, {
 					fileSystemHasWritePermissions: true,
 					name: "project name",

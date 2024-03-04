@@ -1,8 +1,8 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {Mesh} from "../../../../../../src/mod.js";
-import {CachedMeshData} from "../../../../../../src/rendering/renderers/webGpu/CachedMeshData.js";
-import {runWithWebGpuConstants} from "./shared/webGpuConstants.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { assertEquals, assertExists } from "std/testing/asserts.ts";
+import { Mesh } from "../../../../../../src/mod.js";
+import { CachedMeshData } from "../../../../../../src/rendering/renderers/webGpu/CachedMeshData.js";
+import { runWithWebGpuConstants } from "./shared/webGpuConstants.js";
 
 function createMocks({
 	hasDevice = true,
@@ -40,14 +40,14 @@ function createMocks({
 		isInit: true,
 	});
 
-	return {mockRenderer, mockDevice, createBufferSpy, createdBuffers};
+	return { mockRenderer, mockDevice, createBufferSpy, createdBuffers };
 }
 
 Deno.test({
 	name: "Index buffers are 4 byte aligned",
 	fn() {
 		runWithWebGpuConstants(() => {
-			const {mockRenderer, createBufferSpy, createdBuffers} = createMocks();
+			const { mockRenderer, createBufferSpy, createdBuffers } = createMocks();
 			const mesh = new Mesh();
 			mesh.setIndexData([1, 2, 3]);
 			new CachedMeshData(mesh, mockRenderer);

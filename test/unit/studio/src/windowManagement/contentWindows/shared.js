@@ -1,13 +1,13 @@
 import "../../../shared/initializeStudio.js";
-import {createPreferencesManager} from "../../../shared/createPreferencesManager.js";
-import {getMockWindowManager} from "../shared.js";
+import { createPreferencesManager } from "../../../shared/createPreferencesManager.js";
+import { getMockWindowManager } from "../shared.js";
 
 export const DEFAULT_CONTENT_WINDOW_UUID = "content window uuid";
 
 export function getMockArgs() {
 	const mockWindowManager = getMockWindowManager();
 
-	const {preferencesManagerAny} = createPreferencesManager({});
+	const { preferencesManagerAny } = createPreferencesManager({});
 
 	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		preferencesManager: preferencesManagerAny,
@@ -26,5 +26,5 @@ export function getMockArgs() {
 
 	/** @type {ConstructorParameters<typeof import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow>} */
 	const args = [mockStudioInstance, mockWindowManager, DEFAULT_CONTENT_WINDOW_UUID];
-	return {args, mockStudioInstance, mockWindowManager};
+	return { args, mockStudioInstance, mockWindowManager };
 }

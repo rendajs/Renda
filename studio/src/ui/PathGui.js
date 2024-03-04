@@ -1,4 +1,4 @@
-import {getStudioInstance} from "../studioInstance.js";
+import { getStudioInstance } from "../studioInstance.js";
 
 /**
  * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase} PathGuiOptions

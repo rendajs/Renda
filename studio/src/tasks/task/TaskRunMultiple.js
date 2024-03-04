@@ -1,6 +1,6 @@
-import {ProjectAssetTypeTask} from "../../assets/projectAssetType/ProjectAssetTypeTask.js";
-import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
-import {Task} from "./Task.js";
+import { ProjectAssetTypeTask } from "../../assets/projectAssetType/ProjectAssetTypeTask.js";
+import { createTreeViewStructure } from "../../ui/propertiesTreeView/createStructureHelpers.js";
+import { Task } from "./Task.js";
 
 /**
  * @fileoverview A task that runs multiple tasks.
@@ -75,7 +75,7 @@ export class TaskRunMultiple extends Task {
 		} else {
 			taskGroup = recursionResult;
 		}
-		return {taskGroup};
+		return { taskGroup };
 	}
 
 	/**
@@ -159,7 +159,7 @@ export class TaskRunMultiple extends Task {
 	/**
 	 * @param {import("./Task.js").RunTaskOptions<TaskRunMultipleConfig>} options
 	 */
-	async runTask({config, runDependencyTaskAsset}) {
+	async runTask({ config, runDependencyTaskAsset }) {
 		if (!config?.taskGroup) return {};
 
 		/**

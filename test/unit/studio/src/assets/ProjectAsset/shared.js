@@ -1,9 +1,9 @@
-import {spy} from "std/testing/mock.ts";
-import {ProjectAsset} from "../../../../../../studio/src/assets/ProjectAsset.js";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
-import {createMockProjectAssetTypeManager} from "../../../shared/createMockProjectAssetTypeManager.js";
+import { spy } from "std/testing/mock.ts";
+import { ProjectAsset } from "../../../../../../studio/src/assets/ProjectAsset.js";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { createMockProjectAssetType } from "../../../shared/createMockProjectAssetType.js";
+import { createMockProjectAssetTypeManager } from "../../../shared/createMockProjectAssetTypeManager.js";
 
 export const BASIC_UUID = "00000000-0000-0000-0000-000000000000";
 export const BASIC_PROJECTASSETTYPE = "test:basicassettype";

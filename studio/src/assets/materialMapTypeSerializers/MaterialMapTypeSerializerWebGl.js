@@ -1,7 +1,7 @@
-import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
-import {ShaderSource} from "../../../../src/mod.js";
-import {StorageType} from "../../../../src/util/binarySerialization.js";
-import {ProjectAssetTypeShaderSource} from "../projectAssetType/ProjectAssetTypeShaderSource.js";
+import { MaterialMapTypeSerializer } from "./MaterialMapTypeSerializer.js";
+import { ShaderSource } from "../../../../src/mod.js";
+import { StorageType } from "../../../../src/util/binarySerialization.js";
+import { ProjectAssetTypeShaderSource } from "../projectAssetType/ProjectAssetTypeShaderSource.js";
 
 export class MaterialMapTypeSerializerWebGl extends MaterialMapTypeSerializer {
 	static uiName = "WebGL Renderer";
@@ -84,7 +84,7 @@ export class MaterialMapTypeSerializerWebGl extends MaterialMapTypeSerializer {
 		const items = [];
 		for (const [name, itemData] of itemsMap) {
 			const type = itemData.type;
-			items.push({name, type});
+			items.push({ name, type });
 		}
 		return items;
 	}
@@ -98,8 +98,8 @@ export class MaterialMapTypeSerializerWebGl extends MaterialMapTypeSerializer {
 		const shaderAsset = await assetManager.getProjectAssetFromUuid(shaderUuid, {
 			assertAssetType: ProjectAssetTypeShaderSource,
 		});
-		for (const {name, type} of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)) {
-			itemsMap.set(name, {type});
+		for (const { name, type } of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)) {
+			itemsMap.set(name, { type });
 		}
 	}
 
@@ -129,7 +129,7 @@ export class MaterialMapTypeSerializerWebGl extends MaterialMapTypeSerializer {
 				type = "vec3";
 			}
 			if (type) {
-				yield {name, type};
+				yield { name, type };
 			}
 		}
 	}

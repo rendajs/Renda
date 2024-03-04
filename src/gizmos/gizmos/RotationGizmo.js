@@ -1,11 +1,11 @@
-import {Mesh} from "../../core/Mesh.js";
-import {Vec3} from "../../math/Vec3.js";
-import {Entity} from "../../core/Entity.js";
-import {Gizmo} from "./Gizmo.js";
-import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
-import {blueColor, greenColor, hoverColor, redColor} from "./colors.js";
-import {Sphere} from "../../math/shapes/Sphere.js";
-import {Quat} from "../../math/Quat.js";
+import { Mesh } from "../../core/Mesh.js";
+import { Vec3 } from "../../math/Vec3.js";
+import { Entity } from "../../core/Entity.js";
+import { Gizmo } from "./Gizmo.js";
+import { MeshComponent } from "../../components/builtIn/MeshComponent.js";
+import { blueColor, greenColor, hoverColor, redColor } from "./colors.js";
+import { Sphere } from "../../math/shapes/Sphere.js";
+import { Quat } from "../../math/Quat.js";
 
 /**
  * @typedef RotationGizmoDragEvent
@@ -87,7 +87,7 @@ export class RotationGizmo extends Gizmo {
 
 		this.circleMesh.destructor();
 
-		for (const {draggable} of this.createdCircles) {
+		for (const { draggable } of this.createdCircles) {
 			this.gizmoManager.removeDraggable(draggable);
 		}
 	}

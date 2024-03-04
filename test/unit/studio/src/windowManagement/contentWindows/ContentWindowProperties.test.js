@@ -1,10 +1,10 @@
 import "../../../shared/initializeStudio.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {PropertiesWindowContent} from "../../../../../../studio/src/propertiesWindowContent/PropertiesWindowContent.js";
-import {ContentWindowProperties} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowProperties.js";
-import {PropertiesWindowContentEmpty} from "../../../../../../studio/src/propertiesWindowContent/PropertiesWindowContentEmpty.js";
-import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { PropertiesWindowContent } from "../../../../../../studio/src/propertiesWindowContent/PropertiesWindowContent.js";
+import { ContentWindowProperties } from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowProperties.js";
+import { PropertiesWindowContentEmpty } from "../../../../../../studio/src/propertiesWindowContent/PropertiesWindowContentEmpty.js";
+import { PreferencesManager } from "../../../../../../studio/src/preferences/PreferencesManager.js";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
 
@@ -62,9 +62,9 @@ function basicSetup() {
 	/** @type {Set<import("../../../../../../studio/src/misc/SelectionManager.js").SelectionChangeCallback>} */
 	const selectionChangeCbs = new Set();
 
-	const selectedObject1 = {obj1: "obj1"};
-	const selectedObject2 = {obj2: "obj2"};
-	const selectedObject3 = {obj2: "obj3"};
+	const selectedObject1 = { obj1: "obj1" };
+	const selectedObject2 = { obj2: "obj2" };
+	const selectedObject3 = { obj2: "obj3" };
 	const contentConstructorMap = new Map([
 		[/** @type {unknown} */(selectedObject1), PropertiesWindowContentExtended1],
 		[/** @type {unknown} */(selectedObject2), PropertiesWindowContentExtended2],
@@ -147,7 +147,7 @@ function basicSetup() {
 Deno.test({
 	name: "a new selection creates content",
 	fn() {
-		const {contentWindow, selectedObject1, setSelectedObject, uninstall} = basicSetup();
+		const { contentWindow, selectedObject1, setSelectedObject, uninstall } = basicSetup();
 
 		try {
 			setSelectedObject(selectedObject1);
@@ -168,7 +168,7 @@ Deno.test({
 Deno.test({
 	name: "change active objects via setActiveObjects()",
 	fn() {
-		const {contentWindow, selectedObject1, uninstall} = basicSetup();
+		const { contentWindow, selectedObject1, uninstall } = basicSetup();
 
 		try {
 			contentWindow.setActiveObjects([selectedObject1]);
@@ -189,7 +189,7 @@ Deno.test({
 Deno.test({
 	name: "changing selection but keeping the same content constructor",
 	fn() {
-		const {contentWindow, selectedObject2, selectedObject3, setSelectedObject, uninstall} = basicSetup();
+		const { contentWindow, selectedObject2, selectedObject3, setSelectedObject, uninstall } = basicSetup();
 
 		try {
 			setSelectedObject(selectedObject2);
@@ -216,7 +216,7 @@ Deno.test({
 Deno.test({
 	name: "changing selection with a different content constructor",
 	fn() {
-		const {contentWindow, selectedObject1, selectedObject2, setSelectedObject, uninstall} = basicSetup();
+		const { contentWindow, selectedObject1, selectedObject2, setSelectedObject, uninstall } = basicSetup();
 
 		try {
 			setSelectedObject(selectedObject1);
@@ -242,7 +242,7 @@ Deno.test({
 Deno.test({
 	name: "selection changes before the content window is registered",
 	fn() {
-		const {contentWindow, selectedObject1, setSelectedObject, setGetContentTypeForObjectsEnabled, uninstall} = basicSetup();
+		const { contentWindow, selectedObject1, setSelectedObject, setGetContentTypeForObjectsEnabled, uninstall } = basicSetup();
 		try {
 			setGetContentTypeForObjectsEnabled(false);
 
@@ -267,7 +267,7 @@ Deno.test({
 Deno.test({
 	name: "destructor destructs the active content",
 	fn() {
-		const {contentWindow, selectedObject1, setSelectedObject, uninstall} = basicSetup();
+		const { contentWindow, selectedObject1, setSelectedObject, uninstall } = basicSetup();
 
 		try {
 			setSelectedObject(selectedObject1);
@@ -290,7 +290,7 @@ Deno.test({
 Deno.test({
 	name: "selection change after destructor does nothing",
 	fn() {
-		const {contentWindow, selectedObject1, selectedObject2, setSelectedObject, uninstall} = basicSetup();
+		const { contentWindow, selectedObject1, selectedObject2, setSelectedObject, uninstall } = basicSetup();
 
 		try {
 			setSelectedObject(selectedObject1);

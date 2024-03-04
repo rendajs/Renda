@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {DiscoveryManager as RealDiscoveryManager} from "../../../../../../../src/network/studioConnections/DiscoveryManager.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { DiscoveryManager as RealDiscoveryManager } from "../../../../../../../src/network/studioConnections/DiscoveryManager.js";
 
 /** @type {Set<DiscoveryManager>} */
 const createdDiscoveryManagers = new Set();

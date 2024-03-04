@@ -1,6 +1,6 @@
-import {getMaybeStudioInstance, getStudioInstance} from "../studioInstance.js";
-import {parseMimeType} from "../util/util.js";
-import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
+import { getMaybeStudioInstance, getStudioInstance } from "../studioInstance.js";
+import { parseMimeType } from "../util/util.js";
+import { clamp, generateUuid, iLerp } from "../../../src/util/mod.js";
 
 /**
  * @typedef TreeViewInitData
@@ -800,7 +800,7 @@ export class TreeView {
 				}
 			}
 			if (studio) {
-				const {el, x, y} = studio.dragManager.createDragFeedbackText({
+				const { el, x, y } = studio.dragManager.createDragFeedbackText({
 					text: draggingItems.map(item => item.name),
 				});
 				this.#currenDragFeedbackText = el;
@@ -1078,7 +1078,7 @@ export class TreeView {
 		const parsed = parseMimeType(item.type);
 		if (!parsed) return false;
 
-		const {type, subType, parameters} = parsed;
+		const { type, subType, parameters } = parsed;
 		if (type == "text" && subType == "renda") {
 			const root = this.findRoot();
 			const castRoot = /** @type {TreeViewWithDragRoot} */ (root);

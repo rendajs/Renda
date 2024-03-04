@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 
 /** @typedef {typeof responseHandlers} BuildApplicationMessengerResponseHandlers */
 
@@ -33,7 +33,7 @@ const responseHandlers = {
 		/** @type {import("../../task/Task.js").RunTaskCreateAssetData[]} */
 		const writeAssets = [];
 
-		const {servicesScript, usedAssets: usedServicesAssets} = await messenger.send.generateServices({
+		const { servicesScript, usedAssets: usedServicesAssets } = await messenger.send.generateServices({
 			contextId,
 			usedAssetsUuids,
 			entryPointUuids: [config.entryPoint],
@@ -72,7 +72,7 @@ const responseHandlers = {
 		});
 
 		/** @type {import("../../task/Task.js").RunTaskReturn} */
-		const taskResult = {writeAssets};
+		const taskResult = { writeAssets };
 
 		return taskResult;
 	},

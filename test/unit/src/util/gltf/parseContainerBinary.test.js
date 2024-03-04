@@ -1,5 +1,5 @@
-import {assertEquals, assertExists, assertThrows} from "std/testing/asserts.ts";
-import {parseContainerBinary} from "../../../../../src/util/gltf/parseContainerBinary.js";
+import { assertEquals, assertExists, assertThrows } from "std/testing/asserts.ts";
+import { parseContainerBinary } from "../../../../../src/util/gltf/parseContainerBinary.js";
 
 /**
  * Returns an ArrayBuffer that contains valid container data. This can be used
@@ -66,13 +66,13 @@ function createGltfBuffer({
 	for (let i = 0; i < uint32Numbers.length; i++) {
 		dataView.setUint32(i * 4, uint32Numbers[i], true);
 	}
-	return {buffer, dataView, binaryBuffer};
+	return { buffer, dataView, binaryBuffer };
 }
 
 Deno.test({
 	name: "valid gltf data",
 	fn() {
-		const {buffer, binaryBuffer} = createGltfBuffer();
+		const { buffer, binaryBuffer } = createGltfBuffer();
 		const result = parseContainerBinary(buffer);
 
 		assertEquals(result.json, {
@@ -92,7 +92,7 @@ Deno.test({
 Deno.test({
 	name: "valid data without binary",
 	fn() {
-		const {buffer} = createGltfBuffer({hasBinary: false});
+		const { buffer } = createGltfBuffer({ hasBinary: false });
 		const result = parseContainerBinary(buffer);
 		assertEquals(result, {
 			json: {
@@ -108,7 +108,7 @@ Deno.test({
 Deno.test({
 	name: "invalid magic in header",
 	fn() {
-		const {buffer} = createGltfBuffer({magicHeader: 0x12345678});
+		const { buffer } = createGltfBuffer({ magicHeader: 0x12345678 });
 
 		assertThrows(() => {
 			parseContainerBinary(buffer);
@@ -119,7 +119,7 @@ Deno.test({
 Deno.test({
 	name: "too new container version",
 	fn() {
-		const {buffer} = createGltfBuffer({containerVersion: 3});
+		const { buffer } = createGltfBuffer({ containerVersion: 3 });
 
 		assertThrows(() => {
 			parseContainerBinary(buffer);
@@ -130,7 +130,7 @@ Deno.test({
 Deno.test({
 	name: "invalid total length",
 	fn() {
-		const {buffer} = createGltfBuffer({totalLength: 10000});
+		const { buffer } = createGltfBuffer({ totalLength: 10000 });
 
 		assertThrows(() => {
 			parseContainerBinary(buffer);
@@ -141,7 +141,7 @@ Deno.test({
 Deno.test({
 	name: "missing json chunk",
 	fn() {
-		const {buffer} = createGltfBuffer({hasJson: false});
+		const { buffer } = createGltfBuffer({ hasJson: false });
 
 		assertThrows(() => {
 			parseContainerBinary(buffer);
@@ -152,7 +152,7 @@ Deno.test({
 Deno.test({
 	name: "Chunk length too large",
 	fn() {
-		const {buffer} = createGltfBuffer({customBinaryChunkLengthValue: 1000});
+		const { buffer } = createGltfBuffer({ customBinaryChunkLengthValue: 1000 });
 		assertThrows(() => {
 			parseContainerBinary(buffer);
 		}, Error, "Failed to parse glTF. The length of a chunk is larger than the total file length.");

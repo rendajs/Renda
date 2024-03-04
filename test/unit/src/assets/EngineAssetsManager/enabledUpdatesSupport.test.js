@@ -1,7 +1,7 @@
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assertEquals} from "std/testing/asserts.ts";
-import {EngineAssetsManager} from "../../../../../src/mod.js";
-import {createMockAssetLoader} from "./shared.js";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { assertEquals } from "std/testing/asserts.ts";
+import { EngineAssetsManager } from "../../../../../src/mod.js";
+import { createMockAssetLoader } from "./shared.js";
 
 Deno.test({
 	name: "getAsset directly maps to the asset loader when no handler returns a result",
@@ -72,11 +72,11 @@ Deno.test({
 		const callbackSpy = spy(spyFn);
 
 		await manager.watchAsset("uuid", {
-			assetOpts: {foo: "bar"},
+			assetOpts: { foo: "bar" },
 		}, callbackSpy);
 
 		assertSpyCall(getAssetSpy, 0, {
-			args: ["uuid", {assetOpts: {foo: "bar"}}],
+			args: ["uuid", { assetOpts: { foo: "bar" } }],
 		});
 		assertSpyCall(callbackSpy, 0, {
 			args: ["result"],
@@ -111,10 +111,10 @@ Deno.test({
 		}, callbackSpy2);
 
 		assertSpyCall(getAssetSpy, 0, {
-			args: ["uuid", {assetOpts: "watch1"}],
+			args: ["uuid", { assetOpts: "watch1" }],
 		});
 		assertSpyCall(getAssetSpy, 1, {
-			args: ["uuid", {assetOpts: "watch2"}],
+			args: ["uuid", { assetOpts: "watch2" }],
 		});
 		assertSpyCall(callbackSpy1, 0, {
 			args: ["watch1"],
@@ -126,10 +126,10 @@ Deno.test({
 		await manager.notifyAssetChanged("uuid");
 
 		assertSpyCall(getAssetSpy, 2, {
-			args: ["uuid", {assetOpts: "watch1"}],
+			args: ["uuid", { assetOpts: "watch1" }],
 		});
 		assertSpyCall(getAssetSpy, 3, {
-			args: ["uuid", {assetOpts: "watch2"}],
+			args: ["uuid", { assetOpts: "watch2" }],
 		});
 		assertSpyCall(callbackSpy1, 1, {
 			args: ["watch1"],

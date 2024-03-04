@@ -1,7 +1,7 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {Mesh, Vec3} from "../../../../../src/mod.js";
-import {FakeVertexState, mockVertexStateSingleAttribute} from "./shared.js";
-import {assertVecAlmostEquals} from "../../../shared/asserts.js";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { Mesh, Vec3 } from "../../../../../src/mod.js";
+import { FakeVertexState, mockVertexStateSingleAttribute } from "./shared.js";
+import { assertVecAlmostEquals } from "../../../shared/asserts.js";
 
 Deno.test({
 	name: "maintains the same vertexState instance",

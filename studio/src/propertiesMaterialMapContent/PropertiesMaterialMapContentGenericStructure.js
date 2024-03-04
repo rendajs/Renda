@@ -1,5 +1,5 @@
-import {DroppableGui} from "../ui/DroppableGui.js";
-import {PropertiesMaterialMapContent} from "./PropertiesMaterialMapContent.js";
+import { DroppableGui } from "../ui/DroppableGui.js";
+import { PropertiesMaterialMapContent } from "./PropertiesMaterialMapContent.js";
 
 export class PropertiesMaterialMapContentGenericStructure extends PropertiesMaterialMapContent {
 	/**

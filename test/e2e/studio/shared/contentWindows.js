@@ -1,5 +1,5 @@
-import {ElementHandle} from "puppeteer";
-import {log} from "../../shared/log.js";
+import { ElementHandle } from "puppeteer";
+import { log } from "../../shared/log.js";
 
 // This type has its own closure in order to not export the type.
 // See https://github.com/microsoft/TypeScript/issues/46011 and

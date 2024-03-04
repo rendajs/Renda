@@ -1,4 +1,4 @@
-import {log} from "../../shared/log.js";
+import { log } from "../../shared/log.js";
 
 /**
  * @param {import("puppeteer").Page} page

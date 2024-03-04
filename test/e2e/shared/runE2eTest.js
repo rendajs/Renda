@@ -1,5 +1,5 @@
-import {bgRed, gray, green, red, yellow} from "std/fmt/colors.ts";
-import {discardCurrentContexts} from "./browser.js";
+import { bgRed, gray, green, red, yellow } from "std/fmt/colors.ts";
+import { discardCurrentContexts } from "./browser.js";
 
 /**
  * @typedef E2eTestConfig

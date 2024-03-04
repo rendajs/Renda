@@ -1,10 +1,10 @@
-import {Vec2} from "../math/Vec2.js";
-import {Vec3} from "../math/Vec3.js";
-import {Vec4} from "../math/Vec4.js";
-import {Quat} from "../math/Quat.js";
-import {Texture} from "../core/Texture.js";
-import {Sampler} from "./Sampler.js";
-import {CustomMaterialData} from "./CustomMaterialData.js";
+import { Vec2 } from "../math/Vec2.js";
+import { Vec3 } from "../math/Vec3.js";
+import { Vec4 } from "../math/Vec4.js";
+import { Quat } from "../math/Quat.js";
+import { Texture } from "../core/Texture.js";
+import { Sampler } from "./Sampler.js";
+import { CustomMaterialData } from "./CustomMaterialData.js";
 
 /** @typedef {number | number[] | Vec2 | Vec3 | Vec4 | Quat} MappableMaterialUniformTypes */
 /** @typedef {MappableMaterialUniformTypes | Texture | Sampler | CustomMaterialData | string | null} MappableMaterialTypes */
@@ -40,13 +40,13 @@ export class MaterialMap {
 
 		/** @type {Map<typeof import("./MaterialMapType.js").MaterialMapType, Map<string, Set<MaterialMapMappedValue>>>} */
 		this.inverseMappedData = new Map();
-		for (const {mapType, mappedValues} of materialMapTypes) {
+		for (const { mapType, mappedValues } of materialMapTypes) {
 			const castConstructor = /** @type {typeof import("./MaterialMapType.js").MaterialMapType} */ (mapType.constructor);
 			this.mapTypes.set(castConstructor, mapType);
 
 			/** @type {Map<string, Set<MaterialMapMappedValue>>} */
 			const mappedNamesMap = new Map();
-			for (const [originalName, {mappedName, defaultValue, mappedType}] of Object.entries(mappedValues)) {
+			for (const [originalName, { mappedName, defaultValue, mappedType }] of Object.entries(mappedValues)) {
 				let mappedNamesSet = mappedNamesMap.get(mappedName);
 				if (!mappedNamesSet) {
 					mappedNamesSet = new Set();

@@ -1,4 +1,4 @@
-import {Entity} from "../../core/Entity.js";
+import { Entity } from "../../core/Entity.js";
 
 /** @typedef {(isHovering: boolean) => void} OnIsHoveringChangeCb */
 

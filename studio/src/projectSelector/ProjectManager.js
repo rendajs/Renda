@@ -1,12 +1,12 @@
-import {getStudioInstance} from "../studioInstance.js";
-import {FsaStudioFileSystem} from "../util/fileSystems/FsaStudioFileSystem.js";
-import {IndexedDbStudioFileSystem} from "../util/fileSystems/IndexedDbStudioFileSystem.js";
-import {RemoteStudioFileSystem} from "../util/fileSystems/RemoteStudioFileSystem.js";
-import {AssetManager} from "../assets/AssetManager.js";
-import {generateUuid} from "../../../src/util/util.js";
-import {GitIgnoreManager} from "./GitIgnoreManager.js";
-import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
-import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePreferencesLocation.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { FsaStudioFileSystem } from "../util/fileSystems/FsaStudioFileSystem.js";
+import { IndexedDbStudioFileSystem } from "../util/fileSystems/IndexedDbStudioFileSystem.js";
+import { RemoteStudioFileSystem } from "../util/fileSystems/RemoteStudioFileSystem.js";
+import { AssetManager } from "../assets/AssetManager.js";
+import { generateUuid } from "../../../src/util/util.js";
+import { GitIgnoreManager } from "./GitIgnoreManager.js";
+import { ContentWindowConnections } from "../windowManagement/contentWindows/ContentWindowConnections.js";
+import { FilePreferencesLocation } from "../preferences/preferencesLocation/FilePreferencesLocation.js";
 
 /**
  * @typedef {object} StoredProjectEntryBase
@@ -139,7 +139,7 @@ export class ProjectManager {
 		this.#rootHasWritePermissions = false;
 		this.#onRootHasWritePermissionsChangeCbs.forEach(cb => cb());
 		(async () => {
-			await fileSystem.waitForPermission([], {writable: true});
+			await fileSystem.waitForPermission([], { writable: true });
 			if (fileSystem != this.currentProjectFileSystem) return;
 			this.#rootHasWritePermissions = true;
 			this.#onRootHasWritePermissionsChangeCbs.forEach(cb => cb());
@@ -365,7 +365,7 @@ export class ProjectManager {
 
 	async openProjectFromLocalDirectory() {
 		const fileSystem = await FsaStudioFileSystem.openUserDir();
-		const permission = await fileSystem.getPermission([], {prompt: true, writable: false});
+		const permission = await fileSystem.getPermission([], { prompt: true, writable: false });
 		let name = "Unnamed Filesystem";
 		if (permission) {
 			name = fileSystem.handle.name;

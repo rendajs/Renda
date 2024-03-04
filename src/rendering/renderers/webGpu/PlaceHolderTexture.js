@@ -1,4 +1,4 @@
-import {PlaceHolderTextureReference} from "./PlaceHolderTextureReference.js";
+import { PlaceHolderTextureReference } from "./PlaceHolderTextureReference.js";
 
 /**
  * Contains a generated 1x1 texture of a single color and keeps track of

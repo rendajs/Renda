@@ -50,7 +50,7 @@ export function parseMimeType(mimeType) {
 	for (const [name, value] of paramsStr.map(p => p.trim().split("="))) {
 		params[name.toLowerCase()] = value;
 	}
-	return {type, subType, parameters: params};
+	return { type, subType, parameters: params };
 }
 
 /**

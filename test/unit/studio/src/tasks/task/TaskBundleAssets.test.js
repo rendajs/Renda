@@ -1,10 +1,10 @@
-import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
-import {TaskBundleAssets} from "../../../../../../studio/src/tasks/task/TaskBundleAssets.js";
-import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
-import {stub} from "std/testing/mock.ts";
-import {BinaryDecomposer} from "../../../../../../src/mod.js";
-import {getBasicRunTaskReadAssetOptions} from "./shared.js";
+import { assertEquals, assertExists, assertInstanceOf } from "std/testing/asserts.ts";
+import { TaskBundleAssets } from "../../../../../../studio/src/tasks/task/TaskBundleAssets.js";
+import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
+import { stub } from "std/testing/mock.ts";
+import { BinaryDecomposer } from "../../../../../../src/mod.js";
+import { getBasicRunTaskReadAssetOptions } from "./shared.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000001";
 const BASIC_ASSET_TYPE_UUID = "00000000-0000-0000-0000-000000000002";
@@ -21,7 +21,7 @@ async function basicSetup({
 } = {}) {
 	const fileSystem = new MemoryStudioFileSystem();
 
-	const {projectAsset} = createMockProjectAsset();
+	const { projectAsset } = createMockProjectAsset();
 
 	stub(projectAsset, "getAssetTypeUuid", async () => {
 		return getAssetTypeUuidReturn;
@@ -154,7 +154,7 @@ async function basicFileSystemBundleChecks({
 Deno.test({
 	name: "Empty bundle",
 	async fn() {
-		const {task, fileSystem, cleanup} = await basicSetup();
+		const { task, fileSystem, cleanup } = await basicSetup();
 		try {
 			const result = await task.runTask({
 				...basicRunTaskOptions,
@@ -181,7 +181,7 @@ Deno.test({
 Deno.test({
 	name: "A single asset",
 	async fn() {
-		const {task, fileSystem, cleanup} = await basicSetup();
+		const { task, fileSystem, cleanup } = await basicSetup();
 		try {
 			const result = await task.runTask(basicRunTaskOptions);
 
@@ -204,7 +204,7 @@ Deno.test({
 Deno.test({
 	name: "An asset with a child asset",
 	async fn() {
-		const {task, fileSystem, cleanup} = await basicSetup();
+		const { task, fileSystem, cleanup } = await basicSetup();
 		try {
 			await task.runTask({
 				...basicRunTaskOptions,
@@ -240,7 +240,7 @@ Deno.test({
 	async fn() {
 		const buffer = new Uint8Array([0, 1, 2, 3]);
 		const blob = new Blob([buffer]);
-		const {task, fileSystem, cleanup} = await basicSetup({
+		const { task, fileSystem, cleanup } = await basicSetup({
 			bundledAssetDataReturn: blob,
 		});
 		try {
@@ -264,7 +264,7 @@ Deno.test({
 	async fn() {
 		const buffer = new Uint8Array([0, 0, 0, 0, 0, 1, 2, 3]);
 		const view = new Uint8Array(buffer.buffer, 4, 4);
-		const {task, fileSystem, cleanup} = await basicSetup({
+		const { task, fileSystem, cleanup } = await basicSetup({
 			bundledAssetDataReturn: view,
 		});
 		try {
@@ -286,7 +286,7 @@ Deno.test({
 Deno.test({
 	name: "getBundledAssetData() returns null",
 	async fn() {
-		const {task, fileSystem, cleanup} = await basicSetup({
+		const { task, fileSystem, cleanup } = await basicSetup({
 			bundledAssetDataReturn: null,
 		});
 		try {
@@ -314,7 +314,7 @@ Deno.test({
 Deno.test({
 	name: "allowDiskWrites: false",
 	async fn() {
-		const {task, fileSystem, cleanup} = await basicSetup();
+		const { task, fileSystem, cleanup } = await basicSetup();
 		try {
 			const result = await task.runTask({
 				...basicRunTaskOptions,

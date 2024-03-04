@@ -200,4 +200,4 @@ export class MockIndexedDbUtil {
 }
 
 const cast = /** @type {typeof MockIndexedDbUtil & typeof import("../../../../src/mod.js").IndexedDbUtil & (new (...args: any) => (MockIndexedDbUtil & import("../../../../src/mod.js").IndexedDbUtil))} */ (MockIndexedDbUtil);
-export {cast as IndexedDbUtil};
+export { cast as IndexedDbUtil };

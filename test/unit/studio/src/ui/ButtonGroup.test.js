@@ -1,7 +1,7 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {Button} from "../../../../../studio/src/ui/Button.js";
-import {ButtonGroup} from "../../../../../studio/src/ui/ButtonGroup.js";
-import {runWithDom} from "../../shared/runWithDom.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { Button } from "../../../../../studio/src/ui/Button.js";
+import { ButtonGroup } from "../../../../../studio/src/ui/ButtonGroup.js";
+import { runWithDom } from "../../shared/runWithDom.js";
 
 Deno.test({
 	name: "Adding and removing buttons and visibility",

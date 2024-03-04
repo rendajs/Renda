@@ -1,5 +1,5 @@
-import {NumericGui} from "./NumericGui.js";
-import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
+import { NumericGui } from "./NumericGui.js";
+import { Vec2, Vec3, Vec4 } from "../../../src/mod.js";
 
 /**
  * @template {Vec2 | Vec3 | Vec4} T
@@ -204,7 +204,7 @@ export class VectorGui {
 	#fireValueChange(trigger) {
 		for (const cb of this.#onValueChangeCbs) {
 			const value = /** @type {T} */ (this.value.clone());
-			cb({value, trigger});
+			cb({ value, trigger });
 		}
 	}
 

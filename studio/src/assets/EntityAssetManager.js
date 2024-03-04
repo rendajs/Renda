@@ -16,10 +16,10 @@
  * but for more complex tasks the entity is cloned and replaced entirely.
  */
 
-import {Entity} from "../../../src/mod.js";
-import {EventHandler} from "../../../src/util/EventHandler.js";
-import {IterableWeakSet} from "../../../src/util/IterableWeakSet.js";
-import {ProjectAssetTypeEntity} from "./projectAssetType/ProjectAssetTypeEntity.js";
+import { Entity } from "../../../src/mod.js";
+import { EventHandler } from "../../../src/util/EventHandler.js";
+import { IterableWeakSet } from "../../../src/util/IterableWeakSet.js";
+import { ProjectAssetTypeEntity } from "./projectAssetType/ProjectAssetTypeEntity.js";
 
 /**
  * @readonly
@@ -280,7 +280,7 @@ export class EntityAssetManager {
 	updateEntity(entityInstance, changeEventType, eventSource) {
 		const rootData = this.findRootEntityAsset(entityInstance);
 		if (rootData) {
-			const {uuid, root, indicesPath} = rootData;
+			const { uuid, root, indicesPath } = rootData;
 			const trackedData = this.#trackedEntities.get(uuid);
 			if (trackedData) {
 				const sourceEntity = root.getEntityByIndicesPath(indicesPath);
@@ -361,7 +361,7 @@ export class EntityAssetManager {
 
 		for (const child of sourceEntity.children) {
 			const clone = child.clone({
-				cloneChildHook: ({child}) => {
+				cloneChildHook: ({ child }) => {
 					const uuid = this.getLinkedAssetUuid(child);
 					if (uuid) {
 						return getTrackedEntity(uuid);
@@ -396,7 +396,7 @@ export class EntityAssetManager {
 	updateEntityTransform(entityInstance, eventSource) {
 		const rootData = this.findRootEntityAsset(entityInstance);
 		if (rootData) {
-			const {uuid, indicesPath, root} = rootData;
+			const { uuid, indicesPath, root } = rootData;
 			const trackedData = this.#trackedEntities.get(uuid);
 			if (trackedData) {
 				const sourceChild = root.getEntityByIndicesPath(indicesPath);

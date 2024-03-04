@@ -1,7 +1,7 @@
-import {DiscoveryManager} from "../../../../src/network/studioConnections/DiscoveryManager.js";
-import {InternalDiscoveryMethod} from "../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
-import {WebRtcDiscoveryMethod} from "../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
-import {createStudioClientHandlers, createStudioHostHandlers, createStudioInspectorHandlers} from "./handlers.js";
+import { DiscoveryManager } from "../../../../src/network/studioConnections/DiscoveryManager.js";
+import { InternalDiscoveryMethod } from "../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
+import { WebRtcDiscoveryMethod } from "../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
+import { createStudioClientHandlers, createStudioHostHandlers, createStudioInspectorHandlers } from "./handlers.js";
 
 /**
  * @typedef {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType & {connectionState: import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus}} StudioConnectionData
@@ -54,7 +54,7 @@ export class StudioConnectionsManager {
 		this.#projectManager = projectManager;
 		this.#preferencesManager = preferencesManager;
 
-		const {discoveryManager, internalDiscoveryMethod} = this.#createDiscoveryManager(this.#getDesiredClientType());
+		const { discoveryManager, internalDiscoveryMethod } = this.#createDiscoveryManager(this.#getDesiredClientType());
 		this.#discoveryManager = discoveryManager;
 		this.#internalDiscoveryMethod = internalDiscoveryMethod;
 
@@ -126,7 +126,7 @@ export class StudioConnectionsManager {
 					this.#addActiveConnection(connection);
 				};
 			} else if (connectionRequest.clientType == "inspector") {
-				const {token} = connectionRequest.connectionRequestData;
+				const { token } = connectionRequest.connectionRequestData;
 				if (token && this.#connectionTokens.has(token)) {
 					this.#connectionTokens.delete(token);
 					autoAccept = true;
@@ -164,7 +164,7 @@ export class StudioConnectionsManager {
 
 		const internalDiscoveryMethod = discoveryManager.addDiscoveryMethod(InternalDiscoveryMethod, this.#getDefaultInternalDiscoveryUrl());
 
-		return {discoveryManager, internalDiscoveryMethod};
+		return { discoveryManager, internalDiscoveryMethod };
 	}
 
 	#updateDiscoveryManager = () => {
@@ -177,7 +177,7 @@ export class StudioConnectionsManager {
 			this.#webRtcDiscoveryMethod = null;
 			this.#lastSentProjectMetadataWebRtc = null;
 			this.#lastSentProjectMetadataInternal = null;
-			const {discoveryManager, internalDiscoveryMethod} = this.#createDiscoveryManager(desiredClientType);
+			const { discoveryManager, internalDiscoveryMethod } = this.#createDiscoveryManager(desiredClientType);
 			this.#discoveryManager = discoveryManager;
 			this.#internalDiscoveryMethod = internalDiscoveryMethod;
 		}
@@ -214,7 +214,7 @@ export class StudioConnectionsManager {
 		if (this.#pendingIncomingConnections.has(connectionId)) {
 			this.rejectIncomingConnection(connectionId);
 		}
-		this.#pendingIncomingConnections.set(connectionId, {acceptHandler, rejectHandler});
+		this.#pendingIncomingConnections.set(connectionId, { acceptHandler, rejectHandler });
 		this.#fireOnConnectionsChanged();
 	}
 

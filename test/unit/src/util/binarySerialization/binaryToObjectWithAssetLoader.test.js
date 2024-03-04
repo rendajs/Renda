@@ -1,7 +1,7 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals} from "std/testing/asserts.ts";
-import {StorageType, binaryToObjectWithAssetLoader, createObjectToBinaryOptions, objectToBinary} from "../../../../../src/mod.js";
-import {assertIsType} from "../../../shared/typeAssertions.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { assertEquals } from "std/testing/asserts.ts";
+import { StorageType, binaryToObjectWithAssetLoader, createObjectToBinaryOptions, objectToBinary } from "../../../../../src/mod.js";
+import { assertIsType } from "../../../shared/typeAssertions.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000001";
 
@@ -45,7 +45,7 @@ Deno.test({
 		const assetLoader = createMockAssetLoader();
 
 		/** @type {import("../../../../../src/mod.js").BinaryToObjectTransformValueHook} */
-		const transformValueHook = function({value, placedOnKey}) {
+		const transformValueHook = function({ value, placedOnKey }) {
 			if (placedOnKey == "replacedByTransformValueHook") {
 				if (typeof value != "number") {
 					throw new Error("Assertion failed, expected a number.");

@@ -1,5 +1,5 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {ShaderSource} from "../../../../src/mod.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { ShaderSource } from "../../../../src/mod.js";
 
 /**
  * @extends {ProjectAssetType<ShaderSource, null, string>}
@@ -43,14 +43,14 @@ shaderLoader.setBuilder(shaderBuilder);`;
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<ShaderSource, null>>}
 	 */
 	async getLiveAssetData(source) {
-		const {shaderCode, includedUuids} = await this.studioInstance.webGpuShaderBuilder.buildShader(source);
+		const { shaderCode, includedUuids } = await this.studioInstance.webGpuShaderBuilder.buildShader(source);
 		this.includedUuids = includedUuids;
 		if (!this.boundOnShaderInvalidated) {
 			this.boundOnShaderInvalidated = this.onShaderInvalidated.bind(this);
 			this.studioInstance.webGpuShaderBuilder.onShaderInvalidated(this.boundOnShaderInvalidated);
 		}
 		const liveAsset = new ShaderSource(shaderCode);
-		return {liveAsset, studioData: null};
+		return { liveAsset, studioData: null };
 	}
 
 	/**
@@ -76,7 +76,7 @@ shaderLoader.setBuilder(shaderBuilder);`;
 
 	async *getReferencedAssetUuids() {
 		const source = await this.projectAsset.readAssetData();
-		const {includedUuids} = await this.studioInstance.webGpuShaderBuilder.buildShader(source);
+		const { includedUuids } = await this.studioInstance.webGpuShaderBuilder.buildShader(source);
 		for (const uuid of includedUuids) {
 			yield uuid;
 		}

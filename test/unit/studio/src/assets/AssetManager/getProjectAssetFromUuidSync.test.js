@@ -1,13 +1,13 @@
-import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {BASIC_ASSET_PATH, BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, NONEXISTENT_ASSET_UUID, NONEXISTENT_PROJECTASSETTYPE, basicSetup} from "./shared.js";
+import { assertEquals, assertExists, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { BASIC_ASSET_PATH, BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, NONEXISTENT_ASSET_UUID, NONEXISTENT_PROJECTASSETTYPE, basicSetup } from "./shared.js";
 
 injectMockStudioInstance(/** @type {any} */ ({}));
 
 Deno.test({
 	name: "getProjectAssetFromUuidSync()",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		const asset = assetManager.getProjectAssetFromUuidSync(BASIC_ASSET_UUID);
 
@@ -18,7 +18,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidSync() with null",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		const asset = assetManager.getProjectAssetFromUuidSync(null);
 
@@ -29,7 +29,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidSync() when asset settings are not loaded returns null",
 	async fn() {
-		const {assetManager} = await basicSetup({waitForAssetListsLoad: false});
+		const { assetManager } = await basicSetup({ waitForAssetListsLoad: false });
 
 		const asset = assetManager.getProjectAssetFromUuidSync(BASIC_ASSET_UUID);
 
@@ -42,7 +42,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidSync() non existent",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		const asset = assetManager.getProjectAssetFromUuidSync(NONEXISTENT_ASSET_UUID);
 
@@ -53,7 +53,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidSync() assert asset type, valid asset type, but project asset not initialized yet",
 	async fn() {
-		const {assetManager, ProjectAssetType} = await basicSetup();
+		const { assetManager, ProjectAssetType } = await basicSetup();
 
 		assertThrows(() => {
 			assetManager.getProjectAssetFromUuidSync(BASIC_ASSET_UUID, {
@@ -66,7 +66,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidSync() assert asset type, valid asset type, project asset initialized",
 	async fn() {
-		const {assetManager, ProjectAssetType} = await basicSetup();
+		const { assetManager, ProjectAssetType } = await basicSetup();
 
 		const asset1 = assetManager.getProjectAssetFromUuidSync(BASIC_ASSET_UUID);
 		assertExists(asset1);
@@ -84,7 +84,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidSync() assert asset type, invalid asset type",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		class ExpectedProjectAssetType {
 			static type = "namespace:expected";
@@ -105,7 +105,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidSync() assert asset type, no asset type",
 	async fn() {
-		const {assetManager} = await basicSetup({
+		const { assetManager } = await basicSetup({
 			stubAssets: [
 				{
 					uuid: BASIC_ASSET_UUID,

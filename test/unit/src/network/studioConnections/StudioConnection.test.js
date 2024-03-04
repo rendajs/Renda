@@ -1,7 +1,7 @@
-import {assert, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
-import {StudioConnection} from "../../../../../src/network/studioConnections/StudioConnection.js";
-import {assertSpyCalls} from "std/testing/mock.ts";
-import {ExtendedMessageHandler, connectMessageHandlers} from "./shared.js";
+import { assert, assertEquals, assertInstanceOf, assertRejects } from "std/testing/asserts.ts";
+import { StudioConnection } from "../../../../../src/network/studioConnections/StudioConnection.js";
+import { assertSpyCalls } from "std/testing/mock.ts";
+import { ExtendedMessageHandler, connectMessageHandlers } from "./shared.js";
 
 Deno.test({
 	name: "Exposes properties from the message handler",
@@ -33,7 +33,7 @@ Deno.test({
 Deno.test({
 	name: "Messages are directly passed to the other end when serialization is supported",
 	async fn() {
-		const messageHandlerA = new ExtendedMessageHandler({supportsSerialization: true});
+		const messageHandlerA = new ExtendedMessageHandler({ supportsSerialization: true });
 		new StudioConnection(messageHandlerA, {
 			reliableResponseHandlers: {
 				/**
@@ -43,7 +43,7 @@ Deno.test({
 			},
 		});
 
-		const messageHandlerB = new ExtendedMessageHandler({supportsSerialization: true});
+		const messageHandlerB = new ExtendedMessageHandler({ supportsSerialization: true });
 		const connectionB = new StudioConnection(messageHandlerB, {});
 
 		connectMessageHandlers(messageHandlerA, messageHandlerB);

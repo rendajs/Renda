@@ -1,10 +1,10 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {createBasicFs} from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { createBasicFs } from "./shared.js";
 
 Deno.test({
 	name: "Should delete the file handle",
 	fn: async () => {
-		const {fs, rootDirHandle} = createBasicFs();
+		const { fs, rootDirHandle } = createBasicFs();
 
 		const path = ["root", "file1"];
 		const deletePromise = fs.delete(path);

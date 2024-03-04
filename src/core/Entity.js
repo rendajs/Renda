@@ -1,9 +1,9 @@
-import {Mat4} from "../math/Mat4.js";
-import {Quat} from "../math/Quat.js";
-import {Vec3} from "../math/Vec3.js";
-import {Component} from "../components/Component.js";
-import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../studioDefines.js";
-import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
+import { Mat4 } from "../math/Mat4.js";
+import { Quat } from "../math/Quat.js";
+import { Vec3 } from "../math/Vec3.js";
+import { Component } from "../components/Component.js";
+import { ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT } from "../studioDefines.js";
+import { ComponentTypeManager } from "../components/ComponentTypeManager.js";
 
 /**
  * @typedef {object} CreateEntityOptions
@@ -451,7 +451,7 @@ export class Entity {
 	 */
 	_onLocalMatrixChange() {
 		if (this._ignoreLocalMatrixChanges) return;
-		const {pos, rot, scale} = this._localMatrix.decompose();
+		const { pos, rot, scale } = this._localMatrix.decompose();
 		this.pos = pos;
 		this.rot = rot;
 		this.scale = scale;
@@ -530,7 +530,7 @@ export class Entity {
 	updateWorldPosRotScaleIfDirty() {
 		this.updateWorldMatrixIfDirty();
 		if (!this._worldPosRotScaleDirty) return;
-		const {pos, rot, scale} = this._worldMatrix.decompose();
+		const { pos, rot, scale } = this._worldMatrix.decompose();
 		this._ignoreWorldChanges = true;
 		this._worldPos.set(pos);
 		this._worldRot.set(rot);
@@ -769,7 +769,7 @@ export class Entity {
 		if (filter && !filter(this)) return;
 		yield this;
 		for (const child of this._children) {
-			yield* child.traverseDown({filter});
+			yield* child.traverseDown({ filter });
 		}
 	}
 
@@ -803,7 +803,7 @@ export class Entity {
 		if (filter && !filter(this)) return;
 		yield this;
 		if (this.parent) {
-			yield* this.parent.traverseUp({filter});
+			yield* this.parent.traverseUp({ filter });
 		}
 	}
 
@@ -853,7 +853,7 @@ export class Entity {
 	 * @param {Entity} [options.forcedRoot] The root at which the returned array starts,
 	 * when provided the indices array will start at this entity instead of the default root entity.
 	 */
-	getIndicesPath({forcedRoot} = {}) {
+	getIndicesPath({ forcedRoot } = {}) {
 		/** @type {number[]} */
 		const indices = [];
 		for (const child of this.traverseUp()) {
@@ -886,7 +886,7 @@ export class Entity {
 	 */
 	clone(options = {}) {
 		if (options.cloneChildHook) {
-			const result = options.cloneChildHook({child: this, options});
+			const result = options.cloneChildHook({ child: this, options });
 			if (result === false) {
 				throw new Error("cloneChildHook cannot return false for the root entity.");
 			}
@@ -912,7 +912,7 @@ export class Entity {
 
 		const cloneChildHook = options.cloneChildHook || (() => null);
 		for (const child of this.children) {
-			let clonedChild = cloneChildHook({child, options});
+			let clonedChild = cloneChildHook({ child, options });
 			if (clonedChild === false) continue;
 			if (clonedChild == null || clonedChild == undefined) {
 				// eslint-disable-next-line no-underscore-dangle

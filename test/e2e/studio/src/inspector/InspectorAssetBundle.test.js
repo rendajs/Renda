@@ -1,14 +1,14 @@
-import {log} from "../../../shared/log.js";
-import {runE2eTest} from "../../../shared/runE2eTest.js";
-import {click} from "../../../shared/util.js";
-import {loadE2eProject} from "../../shared/project.js";
-import {getPage} from "../../../shared/browser.js";
-import {waitForContentWindowElement} from "../../shared/contentWindows.js";
+import { log } from "../../../shared/log.js";
+import { runE2eTest } from "../../../shared/runE2eTest.js";
+import { click } from "../../../shared/util.js";
+import { loadE2eProject } from "../../shared/project.js";
+import { getPage } from "../../../shared/browser.js";
+import { waitForContentWindowElement } from "../../shared/contentWindows.js";
 
 await runE2eTest({
 	name: "Assets are loaded via the InspectorAssetBundle",
 	async fn() {
-		const {page} = await getPage();
+		const { page } = await getPage();
 		await loadE2eProject(page, "inspector-asset-bundle");
 
 		const buildViewEl = await waitForContentWindowElement(page, "renda:buildView");

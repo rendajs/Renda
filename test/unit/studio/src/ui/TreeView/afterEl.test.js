@@ -1,10 +1,10 @@
 import "../../../shared/initializeStudio.js";
-import {TreeView} from "../../../../../../studio/src/ui/TreeView.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
-import {FocusEvent} from "fake-dom/FakeFocusEvent.js";
-import {runWithDom} from "../../../shared/runWithDom.js";
-import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
+import { TreeView } from "../../../../../../studio/src/ui/TreeView.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
+import { FocusEvent } from "fake-dom/FakeFocusEvent.js";
+import { runWithDom } from "../../../shared/runWithDom.js";
+import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
 
 /**
  * @param {() => void} fn

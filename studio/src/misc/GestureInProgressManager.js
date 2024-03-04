@@ -32,7 +32,7 @@ export class GestureInProgressManager {
 			this.#updateHasActiveGesture();
 		};
 
-		return {stopGesture};
+		return { stopGesture };
 	}
 
 	#updateHasActiveGesture() {

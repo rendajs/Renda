@@ -1,11 +1,11 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {log} from "../../../../shared/log.js";
-import {runE2eTest} from "../../../../shared/runE2eTest.js";
-import {click, drag, waitFor} from "../../../../shared/util.js";
-import {clickAsset, createAsset} from "../../../shared/contentWindows/project.js";
-import {clickCreateEmptyButton, getOutlinerRootEntityTreeView} from "../../../shared/contentWindows/outliner.js";
-import {setupNewProject} from "../../../shared/project.js";
-import {getPage} from "../../../../shared/browser.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { log } from "../../../../shared/log.js";
+import { runE2eTest } from "../../../../shared/runE2eTest.js";
+import { click, drag, waitFor } from "../../../../shared/util.js";
+import { clickAsset, createAsset } from "../../../shared/contentWindows/project.js";
+import { clickCreateEmptyButton, getOutlinerRootEntityTreeView } from "../../../shared/contentWindows/outliner.js";
+import { setupNewProject } from "../../../shared/project.js";
+import { getPage } from "../../../../shared/browser.js";
 
 /**
  * @param {import("puppeteer").Page} page
@@ -38,7 +38,7 @@ async function assertRootChildCount(page, expectedRootChildCount, expectedSubChi
 await runE2eTest({
 	name: "Dragging entities within a hierarchy",
 	async fn() {
-		const {page} = await getPage();
+		const { page } = await getPage();
 		await setupNewProject(page);
 
 		await createAsset(page, ["New Entity"]);

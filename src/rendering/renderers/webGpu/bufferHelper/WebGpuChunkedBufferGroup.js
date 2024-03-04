@@ -1,4 +1,4 @@
-import {Vec2} from "../../../../math/Vec2.js";
+import { Vec2 } from "../../../../math/Vec2.js";
 
 /**
  * @typedef {"f32" | "i32" | "u32"} AppendFormat

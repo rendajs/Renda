@@ -1,15 +1,15 @@
-import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {ASSET_SETTINGS_PATH, BASIC_ASSET_PATH, BASIC_ASSET_UUID, basicSetup} from "./shared.js";
+import { assertEquals, assertExists, assertRejects } from "std/testing/asserts.ts";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
+import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { ASSET_SETTINGS_PATH, BASIC_ASSET_PATH, BASIC_ASSET_UUID, basicSetup } from "./shared.js";
 
 injectMockStudioInstance(/** @type {any} */ ({}));
 
 Deno.test({
 	name: "externalChange doesn't get called when the assetManager is destructed",
 	async fn() {
-		const {assetManager, mockFileSystem} = await basicSetup();
+		const { assetManager, mockFileSystem } = await basicSetup();
 		const projectAsset = assetManager.projectAssets.get(BASIC_ASSET_UUID);
 		assetManager.destructor();
 		assertExists(projectAsset);
@@ -34,7 +34,7 @@ Deno.test({
 Deno.test({
 	name: "external changes from crswap are ignored",
 	async fn() {
-		const {assetManager, mockFileSystem} = await basicSetup({
+		const { assetManager, mockFileSystem } = await basicSetup({
 			stubAssets: [],
 		});
 
@@ -57,7 +57,7 @@ Deno.test({
 Deno.test({
 	name: "registerAsset()",
 	async fn() {
-		const {assetManager, mockFileSystem} = await basicSetup();
+		const { assetManager, mockFileSystem } = await basicSetup();
 
 		const path = ["path", "to", "newAsset.json"];
 		await mockFileSystem.writeJson(path, {});
@@ -88,7 +88,7 @@ Deno.test({
 Deno.test({
 	name: "registerAsset() with forceAssetType = true",
 	async fn() {
-		const {assetManager, mockFileSystem} = await basicSetup();
+		const { assetManager, mockFileSystem } = await basicSetup();
 
 		const path = ["path", "to", "newAsset.json"];
 		await mockFileSystem.writeJson(path, {});
@@ -119,7 +119,7 @@ Deno.test({
 Deno.test({
 	name: "getAssetUuidFromPath()",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		const result = await assetManager.getAssetUuidFromPath(BASIC_ASSET_PATH);
 
@@ -130,7 +130,7 @@ Deno.test({
 Deno.test({
 	name: "getAssetUuidFromPath() non existent",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		const result = await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"]);
 
@@ -141,7 +141,7 @@ Deno.test({
 Deno.test({
 	name: "getAssetUuidFromPath() non existent, assertExists true",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		await assertRejects(async () => {
 			await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"], {
@@ -154,7 +154,7 @@ Deno.test({
 testTypes({
 	name: "getAssetUuidFromPath() has the correct return types",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 		const uuidString = /** @type {import("../../../../../../src/mod.js").UuidString} */ ("");
 		const uuidStringOrNull = /** @type {typeof uuidString | null} */ ("");
 

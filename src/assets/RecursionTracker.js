@@ -1,4 +1,4 @@
-import {RecursionTrackerLoadingAsset} from "./RecursionTrackerLoadingAsset.js";
+import { RecursionTrackerLoadingAsset } from "./RecursionTrackerLoadingAsset.js";
 
 /**
  * When two assets refer to each other with an uuid, we want `AssetLoader.getAsset()`

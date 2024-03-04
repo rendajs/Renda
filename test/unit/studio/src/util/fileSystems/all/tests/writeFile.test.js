@@ -1,9 +1,9 @@
-import {assert, assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {assertPromiseResolved} from "../../../../../../shared/asserts.js";
-import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
-import {registerOnChangeSpy} from "../../shared.js";
-import {testAll} from "../shared.js";
+import { assert, assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { assertPromiseResolved } from "../../../../../../shared/asserts.js";
+import { waitForMicrotasks } from "../../../../../../shared/waitForMicroTasks.js";
+import { registerOnChangeSpy } from "../../shared.js";
+import { testAll } from "../shared.js";
 
 /**
  * Used for tests that write a single file to root/newfile.
@@ -20,7 +20,7 @@ async function basicWriteFileTest(fs, fileParam, expectedBytes) {
 
 	await writeFilePromise;
 
-	const {files} = await fs.readDir(["root"]);
+	const { files } = await fs.readDir(["root"]);
 	assert(files.includes("newfile"), "'newfile' was not created");
 
 	const file = await fs.readFile(["root", "newfile"]);
@@ -33,7 +33,7 @@ testAll({
 	name: "writing a File object",
 	async fn(ctx) {
 		// https://github.com/denoland/deno/issues/12067
-		const fs = await ctx.createFs({disableStructuredClone: true});
+		const fs = await ctx.createFs({ disableStructuredClone: true });
 		const file = new File([new Uint8Array([1, 2, 3, 4])], "newfile");
 		await basicWriteFileTest(fs, file, [1, 2, 3, 4]);
 	},
@@ -43,7 +43,7 @@ testAll({
 	name: "writing an ArrayBuffer",
 	async fn(ctx) {
 		// https://github.com/denoland/deno/issues/12067
-		const fs = await ctx.createFs({disableStructuredClone: true});
+		const fs = await ctx.createFs({ disableStructuredClone: true });
 		const buffer = new Uint8Array([1, 2, 3, 4]).buffer;
 		await basicWriteFileTest(fs, buffer, [1, 2, 3, 4]);
 	},
@@ -53,7 +53,7 @@ testAll({
 	name: "writing an Uint8Array",
 	async fn(ctx) {
 		// https://github.com/denoland/deno/issues/12067
-		const fs = await ctx.createFs({disableStructuredClone: true});
+		const fs = await ctx.createFs({ disableStructuredClone: true });
 		const uint8Array = new Uint8Array([1, 2, 3, 4]);
 		await basicWriteFileTest(fs, uint8Array, [1, 2, 3, 4]);
 	},
@@ -63,7 +63,7 @@ testAll({
 	name: "writing a Blob",
 	async fn(ctx) {
 		// https://github.com/denoland/deno/issues/12067
-		const fs = await ctx.createFs({disableStructuredClone: true});
+		const fs = await ctx.createFs({ disableStructuredClone: true });
 		const file = new Blob([new Uint8Array([1, 2, 3, 4])]);
 		await basicWriteFileTest(fs, file, [1, 2, 3, 4]);
 	},
@@ -73,7 +73,7 @@ testAll({
 	name: "writing a string",
 	async fn(ctx) {
 		// https://github.com/denoland/deno/issues/12067
-		const fs = await ctx.createFs({disableStructuredClone: true});
+		const fs = await ctx.createFs({ disableStructuredClone: true });
 		await basicWriteFileTest(fs, "hello", [104, 101, 108, 108, 111]);
 	},
 });
@@ -92,7 +92,7 @@ testAll({
 
 		await writeFilePromise;
 
-		const {files} = await fs.readDir(["root"]);
+		const { files } = await fs.readDir(["root"]);
 		assert(files.includes("newfile"), "'newfile' was not created");
 
 		assertSpyCalls(onChangeSpy, 1);
@@ -112,7 +112,7 @@ testAll({
 testAll({
 	name: "writeFile to existing file should overwrite it and fire change event",
 	async fn(ctx) {
-		const fs = await ctx.createBasicFs({disableStructuredClone: true});
+		const fs = await ctx.createBasicFs({ disableStructuredClone: true });
 		const onChangeSpy = registerOnChangeSpy(fs);
 
 		const path = ["root", "file1"];
@@ -154,10 +154,10 @@ testAll({
 
 		await writeFilePromise;
 
-		const {directories} = await fs.readDir(["root"]);
+		const { directories } = await fs.readDir(["root"]);
 		assert(directories.includes("parent"), "'parent' was not created");
 
-		const {files} = await fs.readDir(["root", "parent"]);
+		const { files } = await fs.readDir(["root", "parent"]);
 		assert(files.includes("newfile"), "'newfile' was not created");
 
 		assertSpyCalls(onChangeSpy, 2);

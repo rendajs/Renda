@@ -1,8 +1,8 @@
-import {assertExists} from "std/testing/asserts.ts";
-import {log} from "../../shared/log.js";
-import {click} from "../../shared/util.js";
-import {clickContextMenuItem} from "./contextMenu.js";
-import {getPropertiesTreeViewEntryValueEl} from "./treeView.js";
+import { assertExists } from "std/testing/asserts.ts";
+import { log } from "../../shared/log.js";
+import { click } from "../../shared/util.js";
+import { clickContextMenuItem } from "./contextMenu.js";
+import { getPropertiesTreeViewEntryValueEl } from "./treeView.js";
 
 /**
  * @param {import("puppeteer").Page} page

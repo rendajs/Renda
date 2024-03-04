@@ -5,10 +5,10 @@
  * tests.
  */
 
-import {serveDir} from "std/http/file_server.ts";
-import {Server} from "std/http/server.ts";
-import {Application as DevSocket} from "../studio/devSocket/src/Application.js";
-import {Application as StudioDiscovery} from "https://raw.githubusercontent.com/rendajs/studio-discovery-server/f11212158ce959f55713888eb7fb03679c186ef5/src/main.js";
+import { serveDir } from "std/http/file_server.ts";
+import { Server } from "std/http/server.ts";
+import { Application as DevSocket } from "../studio/devSocket/src/Application.js";
+import { Application as StudioDiscovery } from "https://raw.githubusercontent.com/rendajs/studio-discovery-server/f11212158ce959f55713888eb7fb03679c186ef5/src/main.js";
 import * as path from "std/path/mod.ts";
 import * as fs from "std/fs/mod.ts";
 
@@ -82,7 +82,7 @@ ${addrs.join("\n")}`);
 		// TODO: use `isFile` when https://github.com/denoland/deno_std/pull/2785 lands.
 		let StudioDiscoveryConstructor = StudioDiscovery;
 		if (fs.existsSync(discoveryRepositoryEntryPoint)) {
-			const {Application} = await import(discoveryRepositoryEntryPoint);
+			const { Application } = await import(discoveryRepositoryEntryPoint);
 			StudioDiscoveryConstructor = Application;
 		}
 		return new StudioDiscoveryConstructor();

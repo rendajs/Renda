@@ -1,5 +1,5 @@
-import {PreferencesManager} from "../../../../studio/src/preferences/PreferencesManager.js";
-import {PreferencesLocation} from "../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
+import { PreferencesManager } from "../../../../studio/src/preferences/PreferencesManager.js";
+import { PreferencesLocation } from "../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 
 /**
  * Creates a basic preferences manager that can be used in tests.

@@ -1,11 +1,11 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {DragEvent} from "fake-dom/FakeDragEvent.js";
-import {BASIC_ASSET_UUID_FOR_SETTING, basicSetupForSettingByUuid, createBasicGui} from "./shared.js";
-import {ProjectAssetType} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
-import {DroppableGui} from "../../../../../../studio/src/ui/DroppableGui.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { DragEvent } from "fake-dom/FakeDragEvent.js";
+import { BASIC_ASSET_UUID_FOR_SETTING, basicSetupForSettingByUuid, createBasicGui } from "./shared.js";
+import { ProjectAssetType } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
+import { DroppableGui } from "../../../../../../studio/src/ui/DroppableGui.js";
+import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
 
 const BASIC_DRAGGING_DATA_UUID = "BASIC_DRAGGING_DATA_UUID";
 const VALID_DRAG_TYPE = `text/renda; dragtype=projectasset; draggingdata=${BASIC_DRAGGING_DATA_UUID}`;
@@ -13,12 +13,12 @@ const VALID_DRAG_TYPE = `text/renda; dragtype=projectasset; draggingdata=${BASIC
 Deno.test({
 	name: "Valid drag event",
 	async fn() {
-		const {gui, mockDragManager, mockProjectAsset, mockAssetManager, uninstall} = await basicSetupForSettingByUuid();
+		const { gui, mockDragManager, mockProjectAsset, mockAssetManager, uninstall } = await basicSetupForSettingByUuid();
 
 		try {
 			stub(mockDragManager, "getDraggingData", uuid => {
 				if (uuid == BASIC_DRAGGING_DATA_UUID) {
-					return {assetUuid: BASIC_ASSET_UUID_FOR_SETTING};
+					return { assetUuid: BASIC_ASSET_UUID_FOR_SETTING };
 				}
 			});
 			const makePersistentSpy = spy(mockAssetManager, "makeAssetUuidPersistent");
@@ -48,7 +48,7 @@ Deno.test({
 Deno.test({
 	name: "Valid drag event on disabled gui",
 	fn() {
-		const {gui, uninstall} = createBasicGui({
+		const { gui, uninstall } = createBasicGui({
 			guiOpts: {
 				disabled: true,
 			},
@@ -70,7 +70,7 @@ Deno.test({
 Deno.test({
 	name: "Invalid drag event",
 	fn() {
-		const {gui, uninstall} = createBasicGui();
+		const { gui, uninstall } = createBasicGui();
 
 		try {
 			const dragEvent = new DragEvent("dragenter");
@@ -135,7 +135,7 @@ function basicSetupForSupportedAssetTypes({
 	} else if (supportedAssetType == "project-asset-type-without-liveasset") {
 		getDraggingDataAssetType = /** @type {typeof ProjectAssetType} */ (NoLiveAssetExtendedProjectAssetType);
 	}
-	const {gui, uninstall, mockDragManager} = createBasicGui({
+	const { gui, uninstall, mockDragManager } = createBasicGui({
 		guiOpts: {
 			supportedAssetTypes,
 		},
@@ -180,7 +180,7 @@ function basicSetupForSupportedAssetTypes({
 Deno.test({
 	name: "Invalid drag event because the asset type is not supported, asset type is live asset",
 	fn() {
-		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes({
+		const { triggerDragEvent, assertIsDragHovering, uninstall } = basicSetupForSupportedAssetTypes({
 			draggingDataHasSupportedAssetType: false,
 		});
 
@@ -196,7 +196,7 @@ Deno.test({
 Deno.test({
 	name: "Valid drag event with supportedAssetTypes",
 	fn() {
-		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes();
+		const { triggerDragEvent, assertIsDragHovering, uninstall } = basicSetupForSupportedAssetTypes();
 
 		try {
 			const dragEvent = triggerDragEvent();
@@ -210,7 +210,7 @@ Deno.test({
 Deno.test({
 	name: "Invalid drag event because the asset type is not supported, asset type is ProjectAssetType",
 	fn() {
-		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes({
+		const { triggerDragEvent, assertIsDragHovering, uninstall } = basicSetupForSupportedAssetTypes({
 			draggingDataHasSupportedAssetType: false,
 			supportedAssetType: "project-asset-type",
 		});
@@ -227,7 +227,7 @@ Deno.test({
 Deno.test({
 	name: "Valid drag event with supported ProjectAssetType",
 	fn() {
-		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes({
+		const { triggerDragEvent, assertIsDragHovering, uninstall } = basicSetupForSupportedAssetTypes({
 			draggingDataHasSupportedAssetType: true,
 			supportedAssetType: "project-asset-type",
 		});
@@ -244,7 +244,7 @@ Deno.test({
 Deno.test({
 	name: "Valid drag event with supported ProjectAssetType without a liveasset",
 	fn() {
-		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes({
+		const { triggerDragEvent, assertIsDragHovering, uninstall } = basicSetupForSupportedAssetTypes({
 			draggingDataHasSupportedAssetType: true,
 			supportedAssetType: "project-asset-type-without-liveasset",
 		});

@@ -1,4 +1,4 @@
-import {TreeView} from "../../../../../../studio/src/ui/TreeView.js";
+import { TreeView } from "../../../../../../studio/src/ui/TreeView.js";
 
 export function createBasicStructure() {
 	const root = new TreeView({
@@ -17,5 +17,5 @@ export function createBasicStructure() {
 	const child3 = child2.addChild();
 	child3.name = "child3";
 
-	return {root, child1, child2, child3};
+	return { root, child1, child2, child3 };
 }

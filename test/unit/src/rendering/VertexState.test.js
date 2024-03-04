@@ -1,6 +1,6 @@
-import {assertEquals, assertExists, assertThrows} from "std/testing/asserts.ts";
-import {Mesh} from "../../../../src/core/Mesh.js";
-import {VertexState} from "../../../../src/rendering/VertexState.js";
+import { assertEquals, assertExists, assertThrows } from "std/testing/asserts.ts";
+import { Mesh } from "../../../../src/core/Mesh.js";
+import { VertexState } from "../../../../src/rendering/VertexState.js";
 
 function getBasicVertexStateOptions() {
 	/** @type {import("../../../../src/rendering/VertexState.js").VertexStateOptions} */
@@ -214,8 +214,8 @@ Deno.test({
 
 		const result = vertexState.getDescriptor({
 			preferredShaderLocations: [
-				{attributeType: Mesh.AttributeType.POSITION, location: 123},
-				{attributeType: Mesh.AttributeType.NORMAL, location: 456},
+				{ attributeType: Mesh.AttributeType.POSITION, location: 123 },
+				{ attributeType: Mesh.AttributeType.NORMAL, location: 456 },
 			],
 		});
 
@@ -287,7 +287,7 @@ Deno.test({
 		});
 
 		const result = vertexState.getDescriptor({
-			preferredShaderLocations: [{attributeType: Mesh.AttributeType.TANGENT, location: 3}],
+			preferredShaderLocations: [{ attributeType: Mesh.AttributeType.TANGENT, location: 3 }],
 		});
 
 		assertEquals(result, {
@@ -335,8 +335,8 @@ Deno.test({
 		assertThrows(() => {
 			vertexState.getDescriptor({
 				preferredShaderLocations: [
-					{attributeType: Mesh.AttributeType.POSITION, location: 123},
-					{attributeType: Mesh.AttributeType.POSITION, location: 456},
+					{ attributeType: Mesh.AttributeType.POSITION, location: 123 },
+					{ attributeType: Mesh.AttributeType.POSITION, location: 456 },
 				],
 			});
 		}, Error, "Preferred shader location for attribute type 0 is mapped to multiple locations.");
@@ -353,7 +353,7 @@ Deno.test({
 		const vertexState = new VertexState(options);
 		assertThrows(() => {
 			vertexState.getDescriptor({
-				preferredShaderLocations: [{attributeType: Mesh.AttributeType.POSITION, location: 123}],
+				preferredShaderLocations: [{ attributeType: Mesh.AttributeType.POSITION, location: 123 }],
 			});
 		}, Error, "Preferred shader location 123 is already taken by an attribute in the VertexState.");
 	},

@@ -24,4 +24,4 @@ const autoRegisterBuiltInDefaultAssetLinks = [
 	},
 ];
 
-export {autoRegisterBuiltInDefaultAssetLinks};
+export { autoRegisterBuiltInDefaultAssetLinks };

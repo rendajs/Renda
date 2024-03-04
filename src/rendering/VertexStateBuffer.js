@@ -1,4 +1,4 @@
-import {VertexStateAttribute} from "./VertexStateAttribute.js";
+import { VertexStateAttribute } from "./VertexStateAttribute.js";
 
 /**
  * @typedef VertexStateBufferOptions

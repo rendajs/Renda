@@ -1,12 +1,12 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {BASIC_ASSET_UUID, DEFAULTASSETLINK_LINK_UUID, createBasicGui} from "./shared.js";
-import {createOnChangeEventSpy} from "../shared.js";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { BASIC_ASSET_UUID, DEFAULTASSETLINK_LINK_UUID, createBasicGui } from "./shared.js";
+import { createOnChangeEventSpy } from "../shared.js";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
 
 Deno.test({
 	name: "setValue() to null",
 	fn() {
-		const {gui, uninstall} = createBasicGui();
+		const { gui, uninstall } = createBasicGui();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
@@ -33,7 +33,7 @@ Deno.test({
 Deno.test({
 	name: "setValue() with an uuid",
 	fn() {
-		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+		const { gui, mockProjectAsset, uninstall } = createBasicGui();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
@@ -60,7 +60,7 @@ Deno.test({
 Deno.test({
 	name: "setValue() with an invalid uuid",
 	fn() {
-		const {gui, uninstall} = createBasicGui();
+		const { gui, uninstall } = createBasicGui();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
@@ -89,11 +89,11 @@ Deno.test({
 Deno.test({
 	name: "setValue() with an uuid and isDiskData = true",
 	fn() {
-		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+		const { gui, mockProjectAsset, uninstall } = createBasicGui();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
-			gui.setValue(BASIC_ASSET_UUID, {isDiskData: true});
+			gui.setValue(BASIC_ASSET_UUID, { isDiskData: true });
 
 			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
 			assertEquals(gui.defaultAssetLink, null);
@@ -116,7 +116,7 @@ Deno.test({
 Deno.test({
 	name: "setValue() with an assetlink uuid",
 	fn() {
-		const {gui, mockProjectAsset, mockDefaultAssetLink, uninstall} = createBasicGui();
+		const { gui, mockProjectAsset, mockDefaultAssetLink, uninstall } = createBasicGui();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
@@ -143,7 +143,7 @@ Deno.test({
 Deno.test({
 	name: "setValue() using a ProjectAsset",
 	fn() {
-		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+		const { gui, mockProjectAsset, uninstall } = createBasicGui();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
@@ -170,11 +170,11 @@ Deno.test({
 Deno.test({
 	name: "setValue() using a ProjectAsset and isDiskData = true",
 	fn() {
-		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+		const { gui, mockProjectAsset, uninstall } = createBasicGui();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
-			gui.setValue(mockProjectAsset, {isDiskData: true});
+			gui.setValue(mockProjectAsset, { isDiskData: true });
 
 			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
 			assertEquals(gui.defaultAssetLink, null);
@@ -197,7 +197,7 @@ Deno.test({
 Deno.test({
 	name: "setValue() using a live asset",
 	fn() {
-		const {gui, mockLiveAsset, mockProjectAsset, uninstall} = createBasicGui();
+		const { gui, mockLiveAsset, mockProjectAsset, uninstall } = createBasicGui();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
@@ -224,7 +224,7 @@ Deno.test({
 Deno.test({
 	name: "getValue() without parameters",
 	fn() {
-		const {gui, uninstall} = createBasicGui();
+		const { gui, uninstall } = createBasicGui();
 
 		try {
 			const result = gui.getValue();
@@ -239,7 +239,7 @@ Deno.test({
 Deno.test({
 	name: "getValue() without parameters and no value set",
 	fn() {
-		const {gui, uninstall} = createBasicGui({valueType: "none"});
+		const { gui, uninstall } = createBasicGui({ valueType: "none" });
 
 		try {
 			const result = gui.getValue();
@@ -254,7 +254,7 @@ Deno.test({
 Deno.test({
 	name: "getValue() without parameters and asset link",
 	fn() {
-		const {gui, uninstall} = createBasicGui({valueType: "defaultAssetLink"});
+		const { gui, uninstall } = createBasicGui({ valueType: "defaultAssetLink" });
 
 		try {
 			const result = gui.getValue();
@@ -269,10 +269,10 @@ Deno.test({
 Deno.test({
 	name: "getValue() with asset link and resolveDefaultAssetLinks = true",
 	fn() {
-		const {gui, uninstall} = createBasicGui({valueType: "defaultAssetLink"});
+		const { gui, uninstall } = createBasicGui({ valueType: "defaultAssetLink" });
 
 		try {
-			const result = gui.getValue({resolveDefaultAssetLinks: true});
+			const result = gui.getValue({ resolveDefaultAssetLinks: true });
 
 			assertEquals(result, BASIC_ASSET_UUID);
 		} finally {
@@ -284,12 +284,12 @@ Deno.test({
 Deno.test({
 	name: "getValue() with returnLiveAsset = true",
 	fn() {
-		const {gui, mockLiveAsset, uninstall} = createBasicGui({
+		const { gui, mockLiveAsset, uninstall } = createBasicGui({
 			needsLiveAssetPreload: false,
 		});
 
 		try {
-			const result = gui.getValue({returnLiveAsset: true});
+			const result = gui.getValue({ returnLiveAsset: true });
 
 			assertStrictEquals(result, mockLiveAsset);
 		} finally {
@@ -301,10 +301,10 @@ Deno.test({
 Deno.test({
 	name: "getValue() with returnLiveAsset = true and no value set",
 	fn() {
-		const {gui, uninstall} = createBasicGui({valueType: "none"});
+		const { gui, uninstall } = createBasicGui({ valueType: "none" });
 
 		try {
-			const result = gui.getValue({returnLiveAsset: true});
+			const result = gui.getValue({ returnLiveAsset: true });
 
 			assertEquals(result, null);
 		} finally {
@@ -316,10 +316,10 @@ Deno.test({
 Deno.test({
 	name: "getValue() with purpose 'fileStorage'",
 	fn() {
-		const {gui, uninstall} = createBasicGui();
+		const { gui, uninstall } = createBasicGui();
 
 		try {
-			const result = gui.getValue({purpose: "fileStorage"});
+			const result = gui.getValue({ purpose: "fileStorage" });
 
 			assertEquals(result, BASIC_ASSET_UUID);
 		} finally {
@@ -331,10 +331,10 @@ Deno.test({
 Deno.test({
 	name: "getValue() with purpose 'binarySerialization'",
 	fn() {
-		const {gui, uninstall} = createBasicGui();
+		const { gui, uninstall } = createBasicGui();
 
 		try {
-			const result = gui.getValue({purpose: "binarySerialization"});
+			const result = gui.getValue({ purpose: "binarySerialization" });
 
 			assertEquals(result, BASIC_ASSET_UUID);
 		}	finally {
@@ -346,12 +346,12 @@ Deno.test({
 Deno.test({
 	name: "getValue() with purpose 'script'",
 	fn() {
-		const {gui, mockLiveAsset, uninstall} = createBasicGui({
+		const { gui, mockLiveAsset, uninstall } = createBasicGui({
 			needsLiveAssetPreload: false,
 		});
 
 		try {
-			const result = gui.getValue({purpose: "script"});
+			const result = gui.getValue({ purpose: "script" });
 
 			assertStrictEquals(result, mockLiveAsset);
 		} finally {
@@ -363,7 +363,7 @@ Deno.test({
 Deno.test({
 	name: "getValue() with no parameters and an embedded asset",
 	fn() {
-		const {gui, uninstall} = createBasicGui({
+		const { gui, uninstall } = createBasicGui({
 			valueType: "embedded",
 		});
 

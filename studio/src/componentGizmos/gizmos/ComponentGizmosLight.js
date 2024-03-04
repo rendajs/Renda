@@ -1,5 +1,5 @@
-import {ComponentGizmos} from "./ComponentGizmos.js";
-import {LightComponent, LightIconGizmo} from "../../../../src/mod.js";
+import { ComponentGizmos } from "./ComponentGizmos.js";
+import { LightComponent, LightIconGizmo } from "../../../../src/mod.js";
 
 /**
  * @extends {ComponentGizmos<LightComponent, [LightIconGizmo]>}

@@ -1,6 +1,6 @@
-import {TypedMessenger} from "../../../util/TypedMessenger/TypedMessenger.js";
-import {InternalMessageHandler} from "../messageHandlers/InternalMessageHandler.js";
-import {DiscoveryMethod} from "./DiscoveryMethod.js";
+import { TypedMessenger } from "../../../util/TypedMessenger/TypedMessenger.js";
+import { InternalMessageHandler } from "../messageHandlers/InternalMessageHandler.js";
+import { DiscoveryMethod } from "./DiscoveryMethod.js";
 
 /**
  * @fileoverview This DiscoveryMethod allows connecting to other clients within the same browser using a SharedWorker.
@@ -78,7 +78,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
 		this.workerMessenger.setSendHandler(async data => {
-			await this.iframeMessenger.sendWithOptions.postWorkerMessage({transfer: data.transfer}, data.sendData, data.transfer);
+			await this.iframeMessenger.sendWithOptions.postWorkerMessage({ transfer: data.transfer }, data.sendData, data.transfer);
 		});
 
 		window.addEventListener("unload", () => {

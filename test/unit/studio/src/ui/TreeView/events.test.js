@@ -1,11 +1,11 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
 import "../../../shared/initializeStudio.js";
-import {TreeView} from "../../../../../../studio/src/ui/TreeView.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {FakeFocusEvent} from "fake-dom/FakeFocusEvent.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
+import { TreeView } from "../../../../../../studio/src/ui/TreeView.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { FakeMouseEvent } from "fake-dom/FakeMouseEvent.js";
+import { FakeFocusEvent } from "fake-dom/FakeFocusEvent.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
 
 Deno.test({
 	name: "collapsedchange",
@@ -15,7 +15,7 @@ Deno.test({
 		try {
 			const spyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewCollapseEvent} e */ e => {});
 			const treeView = new TreeView();
-			const child = new TreeView({name: "child"});
+			const child = new TreeView({ name: "child" });
 			treeView.addChild(child);
 			treeView.addEventListener("collapsedchange", spyFn);
 
@@ -75,7 +75,7 @@ Deno.test({
 			const spyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewFocusWithinChangeEvent} e */ e => {});
 			const childSpyFn = spy(/** @param {import("../../../../../../studio/src/ui/TreeView.js").TreeViewFocusWithinChangeEvent} e */ e => {});
 			const treeView = new TreeView();
-			const childTreeView = new TreeView({name: "child"});
+			const childTreeView = new TreeView({ name: "child" });
 			treeView.addChild(childTreeView);
 			treeView.addEventListener("focuswithinchange", spyFn);
 			childTreeView.addEventListener("focuswithinchange", childSpyFn);

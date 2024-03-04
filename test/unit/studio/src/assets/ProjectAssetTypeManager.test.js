@@ -1,7 +1,7 @@
-import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import { assertEquals, assertExists, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 import "../../shared/initializeStudio.js";
-import {ProjectAssetTypeManager} from "../../../../../studio/src/assets/ProjectAssetTypeManager.js";
-import {ProjectAssetType} from "../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
+import { ProjectAssetTypeManager } from "../../../../../studio/src/assets/ProjectAssetTypeManager.js";
+import { ProjectAssetType } from "../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
 
 const BASIC_UUID = "00000000-0000-0000-0000-000000000000";
 const BASIC_UUID2 = "00000000-0000-0000-0000-000000000001";

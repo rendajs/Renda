@@ -1,7 +1,7 @@
-import {locationTypePriorities} from "../preferences/PreferencesManager.js";
-import {DropDownGui} from "../ui/DropDownGui.js";
-import {Popover} from "../ui/popoverMenus/Popover.js";
-import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
+import { locationTypePriorities } from "../preferences/PreferencesManager.js";
+import { DropDownGui } from "../ui/DropDownGui.js";
+import { Popover } from "../ui/popoverMenus/Popover.js";
+import { PropertiesTreeView } from "../ui/propertiesTreeView/PropertiesTreeView.js";
 
 export class PreferencesPopover extends Popover {
 	/** @type {import("../preferences/PreferencesManager.js").PreferencesManager<any>} */
@@ -63,7 +63,7 @@ export class PreferencesPopover extends Popover {
 		this.el.appendChild(this.preferencesTreeView.el);
 
 		for (const id of preferenceIds) {
-			const {uiName, type, allowedLocations, guiOpts} = preferencesManager.getPreferenceUiData(id);
+			const { uiName, type, allowedLocations, guiOpts } = preferencesManager.getPreferenceUiData(id);
 			if (type == "unknown") {
 				throw new Error("Preferences with unknown type can not be added to PreferencesPopovers.");
 			}
@@ -92,7 +92,7 @@ export class PreferencesPopover extends Popover {
 					location: this.#getCurrentLocation(),
 					contentWindowUuid,
 				});
-				this.#updateEntries({updateValues: false});
+				this.#updateEntries({ updateValues: false });
 			});
 			this.#createdEntries.set(id, {
 				type,
@@ -108,7 +108,7 @@ export class PreferencesPopover extends Popover {
 	 * @returns {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} The currently selected location type. Or null when the 'default' location has been selected.
 	 */
 	#getCurrentLocation() {
-		const index = this.locationDropDown.getValue({getAsString: false}) - 1;
+		const index = this.locationDropDown.getValue({ getAsString: false }) - 1;
 		/**
 		 * @type {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]}
 		 */
@@ -137,7 +137,7 @@ export class PreferencesPopover extends Popover {
 		}
 
 		const currentLocation = this.#getCurrentLocation();
-		for (const [id, {entry, type, allowedLocations}] of this.#createdEntries) {
+		for (const [id, { entry, type, allowedLocations }] of this.#createdEntries) {
 			if (updateValues) {
 				let value = this.#preferencesManager.getUiValueAtLocation(id, currentLocation, {
 					contentWindowUuid: this.#contentWindowUuid,

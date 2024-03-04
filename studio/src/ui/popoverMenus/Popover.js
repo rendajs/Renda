@@ -1,6 +1,6 @@
-import {ContextMenuItem} from "./ContextMenuItem.js";
-import {Button} from "../Button.js";
-import {clamp} from "../../../../src/mod.js";
+import { ContextMenuItem } from "./ContextMenuItem.js";
+import { Button } from "../Button.js";
+import { clamp } from "../../../../src/mod.js";
 
 /**
  * @typedef {HTMLElement | Button | ContextMenuItem | MouseEvent} PopoverSetPosItem

@@ -1,7 +1,7 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {registerOnChangeSpy} from "../../shared.js";
-import {testAll} from "../shared.js";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { registerOnChangeSpy } from "../../shared.js";
+import { testAll } from "../shared.js";
 
 testAll({
 	name: "move() rename a file",
@@ -13,7 +13,7 @@ testAll({
 
 		let hasFile2 = false;
 		let hasFile3 = false;
-		const {files} = await fs.readDir(["root"]);
+		const { files } = await fs.readDir(["root"]);
 		for (const name of files) {
 			if (name == "file2") {
 				hasFile2 = true;
@@ -58,14 +58,14 @@ testAll({
 		await fs.move(["root", "file2"], ["root", "onlyfiles", "file2"]);
 
 		let hasFile2 = false;
-		const {files} = await fs.readDir(["root"]);
+		const { files } = await fs.readDir(["root"]);
 		for (const name of files) {
 			if (name == "file2") {
 				hasFile2 = true;
 			}
 		}
 		let hasFile3 = false;
-		const {files: files2} = await fs.readDir(["root", "onlyfiles"]);
+		const { files: files2 } = await fs.readDir(["root", "onlyfiles"]);
 		for (const name of files2) {
 			if (name == "file2") {
 				hasFile3 = true;

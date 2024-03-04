@@ -1,9 +1,9 @@
-import {KeyboardShortcutManager} from "../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {KeyboardEvent} from "fake-dom/FakeKeyboardEvent.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {incrementTime, installMockTime, uninstallMockTime} from "../../../shared/mockTime.js";
+import { KeyboardShortcutManager } from "../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { KeyboardEvent } from "fake-dom/FakeKeyboardEvent.js";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
+import { incrementTime, installMockTime, uninstallMockTime } from "../../../shared/mockTime.js";
 
 /**
  * @typedef KeyboardShortcutManagerTestContext
@@ -41,7 +41,7 @@ function basicSetup({
 
 	try {
 		const manager = new KeyboardShortcutManager();
-		fn({manager, commandSpy, fireKeyEvent});
+		fn({ manager, commandSpy, fireKeyEvent });
 	} finally {
 		uninstallFakeDocument();
 	}
@@ -51,7 +51,7 @@ Deno.test({
 	name: "onCommand fires",
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 				});
@@ -81,7 +81,7 @@ Deno.test({
 	name: "fireCommand throws when the command is not registered",
 	fn() {
 		basicSetup({
-			fn({manager}) {
+			fn({ manager }) {
 				assertThrows(() => {
 					manager.fireCommand("does not exist");
 				}, Error, 'Shortcut Command "does not exist" has not been registered.');
@@ -94,7 +94,7 @@ Deno.test({
 	name: "holdType single",
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "single",
@@ -119,7 +119,7 @@ Deno.test({
 	name: "holdType hold",
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "hold",
@@ -144,7 +144,7 @@ Deno.test({
 	name: "holdType toggle",
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "toggle",
@@ -177,7 +177,7 @@ Deno.test({
 	name: "holdType smart: toggle",
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "smart",
@@ -210,7 +210,7 @@ Deno.test({
 	name: "forcing hold state while the key is still down",
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					holdType: "smart",
@@ -246,7 +246,7 @@ Deno.test({
 	name: "holdType smart: hold",
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				installMockTime();
 
 				try {
@@ -281,7 +281,7 @@ Deno.test({
 	ignore: true,
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				manager.registerCommand("cmd", {
 					defaultKeys: ["ctrl+a b"],
 				});
@@ -305,7 +305,7 @@ Deno.test({
 	name: "Shortcuts are not fired when a textfield has focus",
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 				});
@@ -332,7 +332,7 @@ Deno.test({
 	name: "Shortcuts with captureInsideTextFields are fired when a textfield has focus",
 	fn() {
 		basicSetup({
-			fn({manager, commandSpy, fireKeyEvent}) {
+			fn({ manager, commandSpy, fireKeyEvent }) {
 				manager.registerCommand("cmd", {
 					defaultKeys: ["a"],
 					captureInsideTextFields: true,

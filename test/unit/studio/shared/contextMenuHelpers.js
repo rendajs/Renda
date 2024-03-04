@@ -1,5 +1,5 @@
-import {AssertionError, assertEquals, assertNotEquals, equal} from "std/testing/asserts.ts";
-import {spy} from "std/testing/mock.ts";
+import { AssertionError, assertEquals, assertNotEquals, equal } from "std/testing/asserts.ts";
+import { spy } from "std/testing/mock.ts";
 
 /**
  * @param {import("../../../../studio/src/ui/popoverMenus/ContextMenu.js").ContextMenuItemOpts} itemOpts

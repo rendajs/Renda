@@ -1,4 +1,4 @@
-import {StudioFileSystem} from "./StudioFileSystem.js";
+import { StudioFileSystem } from "./StudioFileSystem.js";
 
 export class RemoteStudioFileSystem extends StudioFileSystem {
 	/** @type {import("../../network/studioConnections/handlers.js").StudioClientHostConnection?} */

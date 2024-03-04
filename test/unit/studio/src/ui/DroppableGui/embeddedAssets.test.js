@@ -1,8 +1,8 @@
-import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
-import {basicSetupForContextMenus, createBasicGui, createMockProjectAssetType} from "./shared.js";
-import {createOnChangeEventSpy} from "../shared.js";
+import { assertEquals, assertExists, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { triggerContextMenuItem } from "../../../shared/contextMenuHelpers.js";
+import { basicSetupForContextMenus, createBasicGui, createMockProjectAssetType } from "./shared.js";
+import { createOnChangeEventSpy } from "../shared.js";
 
 const BASIC_PERSISTENCE_KEY = "persistenceKey";
 
@@ -13,7 +13,7 @@ function createMockParentAsset() {
 
 async function basicSetupForEmbeddedAssets() {
 	const mockParent = createMockParentAsset();
-	const {MockLiveAssetConstructor, ProjectAssetType} = createMockProjectAssetType();
+	const { MockLiveAssetConstructor, ProjectAssetType } = createMockProjectAssetType();
 	const returnValue = await basicSetupForContextMenus({
 		basicGuiOptions: {
 			valueType: "none",
@@ -42,7 +42,7 @@ async function basicSetupForEmbeddedAssets() {
 Deno.test({
 	name: "create embedded asset via context menu",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = await basicSetupForEmbeddedAssets();
+		const { gui, uninstall, triggerCreateEmbeddedAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent } = await basicSetupForEmbeddedAssets();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
@@ -71,12 +71,12 @@ Deno.test({
 Deno.test({
 	name: "creating embedded assets waits with firing the onChange event until the live asset is loaded",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset} = await basicSetupForEmbeddedAssets();
+		const { gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset } = await basicSetupForEmbeddedAssets();
 
 		try {
 			const onValueChangePromise = new Promise(resolve => {
 				gui.onValueChange(() => {
-					const value = gui.getValue({returnLiveAsset: true});
+					const value = gui.getValue({ returnLiveAsset: true });
 					resolve(value);
 				});
 			});
@@ -96,13 +96,13 @@ Deno.test({
 Deno.test({
 	name: "removeEmbeddedAssetSupport() and setEmbeddedParentAsset()",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = await basicSetupForEmbeddedAssets();
+		const { gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent } = await basicSetupForEmbeddedAssets();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
 			await triggerCreateEmbeddedAsset();
 
-			const liveAsset1 = gui.getValue({returnLiveAsset: true});
+			const liveAsset1 = gui.getValue({ returnLiveAsset: true });
 			assertStrictEquals(liveAsset1, mockLiveAsset);
 
 			gui.removeEmbeddedAssetSupport();
@@ -136,7 +136,7 @@ Deno.test({
 
 			await triggerCreateEmbeddedAsset();
 
-			const liveAsset2 = gui.getValue({returnLiveAsset: true});
+			const liveAsset2 = gui.getValue({ returnLiveAsset: true });
 			assertStrictEquals(liveAsset2, mockLiveAsset);
 
 			assertSpyCalls(onChangeSpy, 4);
@@ -157,7 +157,7 @@ Deno.test({
 Deno.test({
 	name: "setEmbeddedParentAsset() remembers the previous persistence key when not provided",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = await basicSetupForEmbeddedAssets();
+		const { gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent } = await basicSetupForEmbeddedAssets();
 
 		try {
 			const mockParent2 = createMockParentAsset();
@@ -166,7 +166,7 @@ Deno.test({
 
 			await triggerCreateEmbeddedAsset();
 
-			const liveAsset2 = gui.getValue({returnLiveAsset: true});
+			const liveAsset2 = gui.getValue({ returnLiveAsset: true });
 			assertStrictEquals(liveAsset2, mockLiveAsset);
 
 			assertSpyCalls(createEmbeddedAssetSpy, 1);
@@ -184,14 +184,14 @@ Deno.test({
 Deno.test({
 	name: "setValue() with isDiskData true, no embedded asset support enabled",
 	fn() {
-		const {gui, uninstall} = createBasicGui();
+		const { gui, uninstall } = createBasicGui();
 		const onChangeSpy = createOnChangeEventSpy(gui);
 
 		try {
 			const embeddedDiskData = {};
 
 			assertThrows(() => {
-				gui.setValue(embeddedDiskData, {isDiskData: true});
+				gui.setValue(embeddedDiskData, { isDiskData: true });
 			}, Error, "Tried to set DroppableGui value to embedded asset data, but embedded asset support is not enabled.");
 			assertSpyCalls(onChangeSpy, 0);
 		} finally {
@@ -203,7 +203,7 @@ Deno.test({
 Deno.test({
 	name: "setValue() with isDiskData true, no persistence key set",
 	fn() {
-		const {gui, uninstall} = createBasicGui();
+		const { gui, uninstall } = createBasicGui();
 
 		try {
 			const mockParent = createMockParentAsset();
@@ -211,7 +211,7 @@ Deno.test({
 			const embeddedDiskData = {};
 
 			assertThrows(() => {
-				gui.setValue(embeddedDiskData, {isDiskData: true});
+				gui.setValue(embeddedDiskData, { isDiskData: true });
 			}, Error, "Tried to set DroppableGui value to embedded asset data, but no persistence key was set.");
 		} finally {
 			uninstall();
@@ -222,7 +222,7 @@ Deno.test({
 Deno.test({
 	name: "setValue() with isDiskData true, no supported asset types set",
 	fn() {
-		const {gui, uninstall} = createBasicGui();
+		const { gui, uninstall } = createBasicGui();
 
 		try {
 			const mockParent = createMockParentAsset();
@@ -230,7 +230,7 @@ Deno.test({
 			const embeddedDiskData = {};
 
 			assertThrows(() => {
-				gui.setValue(embeddedDiskData, {isDiskData: true});
+				gui.setValue(embeddedDiskData, { isDiskData: true });
 			}, Error, "Tried to set DroppableGui value to embedded asset data, but no supported asset types are set.");
 		} finally {
 			uninstall();
@@ -241,9 +241,9 @@ Deno.test({
 Deno.test({
 	name: "setValue() with isDiskData true, too many supported asset types set",
 	fn() {
-		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType();
-		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType();
-		const {gui, uninstall} = createBasicGui({
+		const { MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1 } = createMockProjectAssetType();
+		const { MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2 } = createMockProjectAssetType();
+		const { gui, uninstall } = createBasicGui({
 			guiOpts: {
 				supportedAssetTypes: [MockLiveAssetConstructor1, MockLiveAssetConstructor2],
 			},
@@ -259,7 +259,7 @@ Deno.test({
 			const embeddedDiskData = {};
 
 			assertThrows(() => {
-				gui.setValue(embeddedDiskData, {isDiskData: true});
+				gui.setValue(embeddedDiskData, { isDiskData: true });
 			}, Error, "Tried to set DroppableGui value to embedded asset data, but multiple asset types are supported.");
 		} finally {
 			uninstall();
@@ -270,11 +270,11 @@ Deno.test({
 Deno.test({
 	name: "setValue() with isDiskData true",
 	async fn() {
-		const {gui, uninstall, getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy, MockProjectAssetType, mockParent} = await basicSetupForEmbeddedAssets();
+		const { gui, uninstall, getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy, MockProjectAssetType, mockParent } = await basicSetupForEmbeddedAssets();
 
 		try {
-			const embeddedAssetData = {label: "embedded asset data"};
-			gui.setValue(embeddedAssetData, {isDiskData: true});
+			const embeddedAssetData = { label: "embedded asset data" };
+			gui.setValue(embeddedAssetData, { isDiskData: true });
 
 			assertSpyCalls(getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy, 1);
 			assertSpyCall(getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy, 0, {

@@ -1,4 +1,4 @@
-import {ExtendedDiscoveryMethod} from "../../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
+import { ExtendedDiscoveryMethod } from "../../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
 
 /** @type {Set<InternalDiscoveryMethod>} */
 const createdDiscoveryMethods = new Set();

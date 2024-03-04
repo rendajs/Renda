@@ -1,12 +1,12 @@
-import {getMockArgs} from "../shared.js";
-import {FakeHtmlElement} from "fake-dom/FakeHtmlElement.js";
-import {installShadowDom} from "fake-dom/FakeShadowRoot.js";
-import {stub} from "std/testing/mock.ts";
-import {SelectionManager} from "../../../../../../../studio/src/misc/SelectionManager.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {EntityAssetManager} from "../../../../../../../studio/src/assets/EntityAssetManager.js";
-import {Entity} from "../../../../../../../src/mod.js";
-import {createMockProjectAsset} from "../../../../shared/createMockProjectAsset.js";
+import { getMockArgs } from "../shared.js";
+import { FakeHtmlElement } from "fake-dom/FakeHtmlElement.js";
+import { installShadowDom } from "fake-dom/FakeShadowRoot.js";
+import { stub } from "std/testing/mock.ts";
+import { SelectionManager } from "../../../../../../../studio/src/misc/SelectionManager.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { EntityAssetManager } from "../../../../../../../studio/src/assets/EntityAssetManager.js";
+import { Entity } from "../../../../../../../src/mod.js";
+import { createMockProjectAsset } from "../../../../shared/createMockProjectAsset.js";
 
 export const BASIC_ENTITY_UUID = "entity uuid1";
 export const BASIC_ENTITY_PATH = ["path", "to", "entity"];
@@ -15,13 +15,13 @@ export function basicTest() {
 	installFakeDocument();
 	installShadowDom();
 	const requestAnimationFrameStub = stub(window, "requestAnimationFrame");
-	const {args, mockWindowManager, mockStudioInstance} = getMockArgs();
+	const { args, mockWindowManager, mockStudioInstance } = getMockArgs();
 	mockStudioInstance.renderer = /** @type {import("../../../../../../../src/mod.js").WebGpuRenderer} */ ({
 		createDomTarget() {
 			return {
 				destructor() {},
 				getElement() {
-					const el = new FakeHtmlElement({tagName: "canvas"});
+					const el = new FakeHtmlElement({ tagName: "canvas" });
 					return /** @type {HTMLCanvasElement} */ (/** @type {unknown} */ (el));
 				},
 			};
@@ -70,10 +70,10 @@ export function basicTest() {
 	});
 	const preferencesFlushSpy = stub(mockWindowManager, "requestContentWindowProjectPreferencesFlush");
 
-	mockStudioInstance.preferencesManager.registerPreference("entityEditor.autosaveEntities", {type: "boolean"});
-	mockStudioInstance.preferencesManager.registerPreference("entityEditor.showGrid", {type: "boolean"});
-	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitX", {type: "boolean"});
-	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitY", {type: "boolean"});
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.autosaveEntities", { type: "boolean" });
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.showGrid", { type: "boolean" });
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitX", { type: "boolean" });
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitY", { type: "boolean" });
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookPos", {
 		type: "unknown",
 		default: [0, 0, 0],
@@ -86,12 +86,12 @@ export function basicTest() {
 		type: "number",
 		default: 0,
 	});
-	mockStudioInstance.preferencesManager.registerPreference("entityEditor.loadedEntityPath", {type: "unknown"});
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.loadedEntityPath", { type: "unknown" });
 
 	const entity = new Entity("editing entity");
 	assetManager.entityAssetManager.setLinkedAssetUuid(entity, BASIC_ENTITY_UUID);
 
-	const {projectAsset: entityProjectAsset} = createMockProjectAsset({
+	const { projectAsset: entityProjectAsset } = createMockProjectAsset({
 		uuid: BASIC_ENTITY_UUID,
 		path: BASIC_ENTITY_PATH,
 		liveAsset: entity,

@@ -1,12 +1,12 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Texture} from "../../../../../src/core/Texture.js";
-import {getGltfTextureData, getTextureHelper} from "../../../../../src/util/gltf/getTexture.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { assertEquals, assertRejects, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { Texture } from "../../../../../src/core/Texture.js";
+import { getGltfTextureData, getTextureHelper } from "../../../../../src/util/gltf/getTexture.js";
 
 function basicSetup() {
 	/** @type {import("../../../../../src/util/gltf/gltfParsing.js").GltfJsonData} */
 	const jsonData = {
-		asset: {version: "2.0"},
+		asset: { version: "2.0" },
 	};
 
 	/** @type {Map<number, Texture>} */
@@ -33,7 +33,7 @@ function basicSetup() {
 Deno.test({
 	name: "getTextureHelper throws when imageId is undefined",
 	async fn() {
-		const {jsonData, texturesCache, basicOptions} = basicSetup();
+		const { jsonData, texturesCache, basicOptions } = basicSetup();
 		await assertRejects(async () => {
 			await getTextureHelper(jsonData, undefined, texturesCache, basicOptions);
 		}, Error, "Tried to reference image with index undefined which is not supported.");
@@ -43,7 +43,7 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper throws when the texture id doesn't exist",
 	async fn() {
-		const {jsonData, texturesCache, basicOptions} = basicSetup();
+		const { jsonData, texturesCache, basicOptions } = basicSetup();
 
 		await assertRejects(async () => {
 			await getTextureHelper(jsonData, 12345, texturesCache, basicOptions);
@@ -54,7 +54,7 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper throws when the json doesn't contain textures",
 	async fn() {
-		const {jsonData, texturesCache, basicOptions} = basicSetup();
+		const { jsonData, texturesCache, basicOptions } = basicSetup();
 		delete jsonData.textures;
 
 		await assertRejects(async () => {
@@ -66,7 +66,7 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper uses cached samplers",
 	async fn() {
-		const {jsonData, texturesCache, basicOptions} = basicSetup();
+		const { jsonData, texturesCache, basicOptions } = basicSetup();
 
 		const cachedSampler = new Texture(new Blob());
 		texturesCache.set(0, cachedSampler);
@@ -80,7 +80,7 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper throws when the image contains neither a uri nor a bufferView property",
 	async fn() {
-		const {jsonData, texturesCache, basicOptions} = basicSetup();
+		const { jsonData, texturesCache, basicOptions } = basicSetup();
 
 		jsonData.images = [{}];
 
@@ -93,7 +93,7 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper throws when the image contains a bufferView property without a mimetype",
 	async fn() {
-		const {jsonData, texturesCache, basicOptions} = basicSetup();
+		const { jsonData, texturesCache, basicOptions } = basicSetup();
 
 		jsonData.images = [
 			{
@@ -110,7 +110,7 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper creates a texture with a blob from getBufferFn",
 	async fn() {
-		const {jsonData, texturesCache, getBufferFn} = basicSetup();
+		const { jsonData, texturesCache, getBufferFn } = basicSetup();
 
 		const getBufferSpy = spy(getBufferFn);
 
@@ -144,7 +144,7 @@ Deno.test({
 	fn() {
 		/** @type {import("../../../../../src/util/gltf/gltfParsing.js").GltfJsonData} */
 		const jsonData = {
-			asset: {version: "2.0"},
+			asset: { version: "2.0" },
 			textures: [
 				{
 					sampler: 0,
@@ -164,7 +164,7 @@ Deno.test({
 	fn() {
 		/** @type {import("../../../../../src/util/gltf/gltfParsing.js").GltfJsonData} */
 		const jsonData = {
-			asset: {version: "2.0"},
+			asset: { version: "2.0" },
 		};
 
 		assertThrows(() => {
@@ -177,7 +177,7 @@ Deno.test({
 	name: "getGltfTextureData returns the correct data",
 	fn() {
 		const result = getGltfTextureData({
-			asset: {version: "2.0"},
+			asset: { version: "2.0" },
 			textures: [
 				{
 					sampler: 123,

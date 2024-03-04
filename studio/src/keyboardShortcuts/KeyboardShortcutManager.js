@@ -1,5 +1,5 @@
-import {ShortcutCommand} from "./ShortcutCommand.js";
-import {ShortcutCondition} from "./ShortcutCondition.js";
+import { ShortcutCommand } from "./ShortcutCommand.js";
+import { ShortcutCondition } from "./ShortcutCondition.js";
 
 const modifierKeysOrder = ["cmd", "ctrl", "alt", "shift"];
 

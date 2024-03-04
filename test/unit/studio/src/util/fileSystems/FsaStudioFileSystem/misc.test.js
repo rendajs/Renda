@@ -1,10 +1,10 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {createBasicFs} from "./shared.js";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { createBasicFs } from "./shared.js";
 
 Deno.test({
 	name: "getRootName",
 	fn: async () => {
-		const {fs} = createBasicFs();
+		const { fs } = createBasicFs();
 
 		const rootName = await fs.getRootName();
 		assertEquals(rootName, "actualRoot");
@@ -14,9 +14,9 @@ Deno.test({
 Deno.test({
 	name: "splitDirFileName",
 	fn: async () => {
-		const {fs} = createBasicFs();
+		const { fs } = createBasicFs();
 
-		const {dirPath, fileName} = fs.splitDirFileName(["path", "to", "file1"]);
+		const { dirPath, fileName } = fs.splitDirFileName(["path", "to", "file1"]);
 		assertEquals(dirPath, ["path", "to"]);
 		assertEquals(fileName, "file1");
 	},
@@ -25,7 +25,7 @@ Deno.test({
 Deno.test({
 	name: "setRootName should throw",
 	async fn() {
-		const {fs} = createBasicFs();
+		const { fs } = createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.setRootName("test");

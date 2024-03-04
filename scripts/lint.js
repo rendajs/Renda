@@ -1,10 +1,10 @@
-import {ESLint} from "eslint";
+import { ESLint } from "eslint";
 import jsdoc from "npm:eslint-plugin-jsdoc@39.8.0";
-import {rule as noDefaultExportsRule} from "../.eslintrules/no-default-exports.js";
-import {rule as noModImportsRule} from "../.eslintrules/no-mod-imports.js";
-import {rule as noThisInStaticMethodRule} from "../.eslintrules/no-this-in-static-method.js";
-import {setCwd} from "chdir-anywhere";
-import {readAll} from "std/streams/mod.ts";
+import { rule as noDefaultExportsRule } from "../.eslintrules/no-default-exports.js";
+import { rule as noModImportsRule } from "../.eslintrules/no-mod-imports.js";
+import { rule as noThisInStaticMethodRule } from "../.eslintrules/no-this-in-static-method.js";
+import { setCwd } from "chdir-anywhere";
+import { readAll } from "std/streams/mod.ts";
 
 setCwd();
 Deno.chdir("..");

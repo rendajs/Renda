@@ -1,6 +1,6 @@
-import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {MultiKeyWeakMap} from "../../../../src/mod.js";
-import {forceCleanup, forceCleanupAll, runWithMockWeakRef} from "../../shared/mockWeakRef.js";
+import { assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { MultiKeyWeakMap } from "../../../../src/mod.js";
+import { forceCleanup, forceCleanupAll, runWithMockWeakRef } from "../../shared/mockWeakRef.js";
 
 Deno.test({
 	name: "Constructing with values",
@@ -181,7 +181,7 @@ Deno.test({
 		for (const test of tests) {
 			runWithMockWeakRef(() => {
 				const object = Symbol("object");
-				const map = new MultiKeyWeakMap([], {allowNonObjects: true});
+				const map = new MultiKeyWeakMap([], { allowNonObjects: true });
 				map.set(test, object);
 				assertStrictEquals(map.get(test), object);
 				assertEquals(map.has(test), true);
@@ -193,7 +193,7 @@ Deno.test({
 
 			runWithMockWeakRef(() => {
 				const object = Symbol("object");
-				const map = new MultiKeyWeakMap([], {allowNonObjects: true});
+				const map = new MultiKeyWeakMap([], { allowNonObjects: true });
 				map.set(test, object);
 				assertStrictEquals(map.get(test), object);
 				assertEquals(map.has(test), true);
@@ -210,7 +210,7 @@ Deno.test({
 	name: "Multiple strings",
 	fn() {
 		runWithMockWeakRef(() => {
-			const map = new MultiKeyWeakMap([], {allowNonObjects: true});
+			const map = new MultiKeyWeakMap([], { allowNonObjects: true });
 
 			const objectA = Symbol("objectA");
 			const objectB = Symbol("objectB");

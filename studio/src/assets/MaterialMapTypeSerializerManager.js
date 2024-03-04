@@ -1,8 +1,8 @@
-import {autoRegisterMaterialMapTypeSerializers} from "./materialMapTypeSerializers/autoRegisterMaterialMapTypeSerializers.js";
-import {MaterialMapTypeSerializer} from "./materialMapTypeSerializers/MaterialMapTypeSerializer.js";
-import {isUuid} from "../../../src/util/mod.js";
-import {getStudioInstance} from "../studioInstance.js";
-import {ProjectAssetTypeMaterialMap} from "./projectAssetType/ProjectAssetTypeMaterialMap.js";
+import { autoRegisterMaterialMapTypeSerializers } from "./materialMapTypeSerializers/autoRegisterMaterialMapTypeSerializers.js";
+import { MaterialMapTypeSerializer } from "./materialMapTypeSerializers/MaterialMapTypeSerializer.js";
+import { isUuid } from "../../../src/util/mod.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { ProjectAssetTypeMaterialMap } from "./projectAssetType/ProjectAssetTypeMaterialMap.js";
 
 /**
  * @typedef {object} MaterialMapMappedValueAssetData

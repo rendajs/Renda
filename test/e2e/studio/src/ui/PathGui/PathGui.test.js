@@ -1,12 +1,12 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {openBasicScriptPage} from "../../../../shared/browser.js";
-import {runE2eTest} from "../../../../shared/runE2eTest.js";
-import {waitFor} from "../../../../shared/util.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { openBasicScriptPage } from "../../../../shared/browser.js";
+import { runE2eTest } from "../../../../shared/runE2eTest.js";
+import { waitFor } from "../../../../shared/util.js";
 
 await runE2eTest({
 	name: "Setting and getting a value",
 	async fn() {
-		const {page, discard: disconnect} = await openBasicScriptPage("./browserContent/basic.js", import.meta.url);
+		const { page, discard: disconnect } = await openBasicScriptPage("./browserContent/basic.js", import.meta.url);
 		const el = await waitFor(page, "div[role='textbox']");
 		const gui = await page.evaluateHandle(() => {
 			const g1 = /** @type {unknown} */ (globalThis);

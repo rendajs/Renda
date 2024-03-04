@@ -1,7 +1,7 @@
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {TextGui} from "../../../../../studio/src/ui/TextGui.js";
-import {runWithDom} from "../../shared/runWithDom.js";
-import {createOnChangeEventSpy} from "./shared.js";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { TextGui } from "../../../../../studio/src/ui/TextGui.js";
+import { runWithDom } from "../../shared/runWithDom.js";
+import { createOnChangeEventSpy } from "./shared.js";
 
 Deno.test({
 	name: "Fires events when changed by user",

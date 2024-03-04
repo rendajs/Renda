@@ -1,8 +1,8 @@
-import {ProjectAssetTypeTask} from "../assets/projectAssetType/ProjectAssetTypeTask.js";
-import {getStudioInstance} from "../studioInstance.js";
-import {autoRegisterTaskTypes} from "./autoRegisterTaskTypes.js";
-import {fillEnvironmentVariables} from "./environmentVariables.js";
-import {Task} from "./task/Task.js";
+import { ProjectAssetTypeTask } from "../assets/projectAssetType/ProjectAssetTypeTask.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { autoRegisterTaskTypes } from "./autoRegisterTaskTypes.js";
+import { fillEnvironmentVariables } from "./environmentVariables.js";
+import { Task } from "./task/Task.js";
 
 /**
  * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(path: import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath, assertionOptions: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>>} ReadAssetFromPathSignature
@@ -222,7 +222,7 @@ export class TaskManager {
 			 * @param {T} [assertionOptions]
 			 */
 			async readAssetFromPath(path, assertionOptions) {
-				const asset = await assetManager?.getProjectAssetFromPath(path, {assertionOptions}) || null;
+				const asset = await assetManager?.getProjectAssetFromPath(path, { assertionOptions }) || null;
 				const result = await runDependencyTasksAndRead(asset);
 				return /** @type {import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>} */ (result);
 			},

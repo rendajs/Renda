@@ -1,6 +1,6 @@
-import {CustomMaterialData, WebGpuRenderer} from "../../../../../../src/mod.js";
-import {WebGpuChunkedBufferGroup} from "../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBufferGroup.js";
-import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
+import { CustomMaterialData, WebGpuRenderer } from "../../../../../../src/mod.js";
+import { WebGpuChunkedBufferGroup } from "../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBufferGroup.js";
+import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
 
 testTypes({
 	name: "CustomMaterialData callback arguments have the correct types",

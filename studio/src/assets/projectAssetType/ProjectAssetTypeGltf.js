@@ -1,9 +1,9 @@
-import {parseGltf} from "../../../../src/util/gltf/gltfParsing.js";
-import {getNameAndExtension} from "../../util/fileSystems/pathUtil.js";
-import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
-import {ProjectAssetTypeMaterial} from "./ProjectAssetTypeMaterial.js";
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {ProjectAssetTypeSampler} from "./ProjectAssetTypeSampler.js";
+import { parseGltf } from "../../../../src/util/gltf/gltfParsing.js";
+import { getNameAndExtension } from "../../util/fileSystems/pathUtil.js";
+import { ProjectAssetTypeMaterialMap } from "./ProjectAssetTypeMaterialMap.js";
+import { ProjectAssetTypeMaterial } from "./ProjectAssetTypeMaterial.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { ProjectAssetTypeSampler } from "./ProjectAssetTypeSampler.js";
 
 /**
  * @extends {ProjectAssetType<import("../../../../src/core/Entity.js").Entity, null, "binary">}
@@ -45,11 +45,11 @@ export class ProjectAssetTypeGltf extends ProjectAssetType {
 		if (!fileName) {
 			throw new Error("Assertion failed, asset has no file name");
 		}
-		const {extension} = getNameAndExtension(fileName);
+		const { extension } = getNameAndExtension(fileName);
 		if (extension != "glb" && extension != "gltf") {
 			throw new Error("Assertion failed, file extension is not glb or gltf");
 		}
-		const {entity} = await parseGltf(arrayBuffer, {
+		const { entity } = await parseGltf(arrayBuffer, {
 			defaultMaterial,
 			defaultMaterialMap,
 			defaultSampler,

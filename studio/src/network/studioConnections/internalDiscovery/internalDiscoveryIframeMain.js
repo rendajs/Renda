@@ -3,7 +3,7 @@
  * The page is expected to be loaded in an iframe.
  */
 
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 
 /**
  * @param {object} params
@@ -11,7 +11,7 @@ import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessen
  * @param {TypedMessenger<any, any>} params.parentWindowTypedMessenger
  * @param {() => Promise<void>} params.destructorFunction
  */
-function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destructorFunction}) {
+function getHandlers({ workerTypedMessenger, parentWindowTypedMessenger, destructorFunction }) {
 	return {
 		parentToIframeHandlers: {
 			/**
@@ -19,7 +19,7 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			 * @param {Transferable[]} transfer
 			 */
 			postWorkerMessage(data, transfer) {
-				workerTypedMessenger.sendWithOptions.parentWindowToWorkerMessage({transfer}, data);
+				workerTypedMessenger.sendWithOptions.parentWindowToWorkerMessage({ transfer }, data);
 			},
 			async destructor() {
 				await destructorFunction();
@@ -31,7 +31,7 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			 * @param {Transferable[]} transfer
 			 */
 			sendToParentWindow(data, transfer) {
-				parentWindowTypedMessenger.sendWithOptions.workerToParentWindowMessage({transfer}, data);
+				parentWindowTypedMessenger.sendWithOptions.workerToParentWindowMessage({ transfer }, data);
 			},
 		},
 	};
@@ -57,7 +57,7 @@ export function initializeIframe(window) {
 	/** @type {TypedMessenger<InternalDiscoveryIframeHandlers, import("../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js").InternalDiscoveryParentHandlers>} */
 	const parentWindowTypedMessenger = new TypedMessenger();
 
-	const {parentToIframeHandlers, workerToIframeHandlers} = getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destructorFunction: destructor});
+	const { parentToIframeHandlers, workerToIframeHandlers } = getHandlers({ workerTypedMessenger, parentWindowTypedMessenger, destructorFunction: destructor });
 
 	parentWindowTypedMessenger.setResponseHandlers(parentToIframeHandlers);
 	parentWindowTypedMessenger.setSendHandler(data => {
@@ -70,7 +70,7 @@ export function initializeIframe(window) {
 
 	// @rollup-plugin-resolve-url-objects
 	const url = new URL("./internalDiscoveryWorkerEntryPoint.js", import.meta.url);
-	const worker = new SharedWorker(url.href, {type: "module"});
+	const worker = new SharedWorker(url.href, { type: "module" });
 
 	workerTypedMessenger.setResponseHandlers(workerToIframeHandlers);
 	workerTypedMessenger.setSendHandler(data => {

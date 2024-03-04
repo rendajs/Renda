@@ -1,5 +1,5 @@
-import {AssetManager} from "../AssetManager.js";
-import {LoadingAsset} from "./LoadingAsset.js";
+import { AssetManager } from "../AssetManager.js";
+import { LoadingAsset } from "./LoadingAsset.js";
 
 {
 	/** @typedef {import("../projectAssetType/ProjectAssetType.js").ProjectAssetType} ProjectAssetType */

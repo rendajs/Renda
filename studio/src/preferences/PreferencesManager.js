@@ -1,5 +1,5 @@
-import {prettifyVariableName} from "../util/util.js";
-import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWindowPreferencesLocation.js";
+import { prettifyVariableName } from "../util/util.js";
+import { ContentWindowPreferencesLocation } from "./preferencesLocation/ContentWindowPreferencesLocation.js";
 
 /**
  * @typedef PreferenceTypesMap
@@ -327,7 +327,7 @@ export class PreferencesManager {
 				throw new Error(`"${locationType}" preference location was not found.`);
 			}
 		}
-		return {location, preferenceConfig};
+		return { location, preferenceConfig };
 	}
 
 	/**
@@ -389,7 +389,7 @@ export class PreferencesManager {
 	 * @param {(location: import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation, config: PreferenceConfig) => void} cb
 	 */
 	#changeLocationAndFireEvents(preference, setPreferenceOptions, cb) {
-		const {location, preferenceConfig} = this.#getLocationAndConfig(preference, setPreferenceOptions);
+		const { location, preferenceConfig } = this.#getLocationAndConfig(preference, setPreferenceOptions);
 		const trigger = setPreferenceOptions?.performedByUser ? "user" : "application";
 		this.#runAndFireEvents({
 			preference,
@@ -420,20 +420,20 @@ export class PreferencesManager {
 	 * from the first value query. The second value (after the callback) will be queried without any excluded locations
 	 * and will be comapred against the first value query.
 	 */
-	#runAndFireEvents({preference, eventLocationType, eventTrigger, cb, excludeLocations}) {
+	#runAndFireEvents({ preference, eventLocationType, eventTrigger, cb, excludeLocations }) {
 		/** @type {Map<import("../../../src/mod.js").UuidString, unknown>} */
 		const oldLocationValues = new Map();
 
 		for (const uuid of this.#getContentWindowLocationUuids()) {
-			const {value} = this.#getInternal(preference, uuid, {excludeLocations, assertRegistered: false});
+			const { value } = this.#getInternal(preference, uuid, { excludeLocations, assertRegistered: false });
 			oldLocationValues.set(uuid, value);
 		}
-		const {value: oldWindowLessValue} = this.#getInternal(preference, null, {excludeLocations, assertRegistered: false});
+		const { value: oldWindowLessValue } = this.#getInternal(preference, null, { excludeLocations, assertRegistered: false });
 
 		if (cb) cb();
 
 		for (const [uuid, oldValue] of oldLocationValues) {
-			const {value: newValue} = this.#getInternal(preference, uuid, {assertRegistered: false});
+			const { value: newValue } = this.#getInternal(preference, uuid, { assertRegistered: false });
 			if (newValue != oldValue) {
 				this.#fireChangeEvent(preference, uuid, {
 					location: eventLocationType,
@@ -443,7 +443,7 @@ export class PreferencesManager {
 			}
 		}
 
-		const {value: newWindowLessValue} = this.#getInternal(preference, null, {assertRegistered: false});
+		const { value: newWindowLessValue } = this.#getInternal(preference, null, { assertRegistered: false });
 		if (newWindowLessValue != oldWindowLessValue) {
 			this.#fireChangeEvent(preference, null, {
 				location: eventLocationType,
@@ -477,7 +477,7 @@ export class PreferencesManager {
 	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid
 	 */
 	get(preference, contentWindowUuid) {
-		const {value, foundContentWindowLocation} = this.#getInternal(preference, contentWindowUuid);
+		const { value, foundContentWindowLocation } = this.#getInternal(preference, contentWindowUuid);
 		if (contentWindowUuid && !foundContentWindowLocation) {
 			this.#throwContentWindowUuidNotFound(contentWindowUuid);
 		}
@@ -537,7 +537,7 @@ export class PreferencesManager {
 				}
 			}
 		}
-		return {value, foundContentWindowLocation};
+		return { value, foundContentWindowLocation };
 	}
 
 	/**
@@ -561,7 +561,7 @@ export class PreferencesManager {
 		contentWindowUuid,
 	} = {}) {
 		const preferenceConfig = this.#getPreferenceConfig(preference);
-		const {location} = this.#getLocationAndConfig(preference, {
+		const { location } = this.#getLocationAndConfig(preference, {
 			location: locationName || undefined,
 			contentWindowUuid,
 		});

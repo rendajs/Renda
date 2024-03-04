@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {getNameAndExtension} from "../../../../../../../studio/src/util/fileSystems/pathUtil.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { getNameAndExtension } from "../../../../../../../studio/src/util/fileSystems/pathUtil.js";
 
 Deno.test({
 	name: "Basic",

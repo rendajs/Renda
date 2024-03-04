@@ -49,7 +49,7 @@ export class Button {
 		this.#hasDownArrow = hasDownArrow;
 		this.colorizerFilterManager = colorizerFilterManager;
 		this.currentText = text;
-		const {el, iconEl, textEl} = this.createButtonEl();
+		const { el, iconEl, textEl } = this.createButtonEl();
 		this.el = el;
 		this.iconEl = iconEl;
 		this.textEl = textEl;
@@ -106,7 +106,7 @@ export class Button {
 			this.#applyIconToEl(downArrowEl, "static/icons/generic/buttonDownArrow.svg");
 		}
 
-		return {el, iconEl, textEl};
+		return { el, iconEl, textEl };
 	}
 
 	click() {
@@ -227,7 +227,7 @@ export class Button {
 	 */
 	dragStart(e) {
 		if (!this.dragFeedbackEl) {
-			const {el}	= this.createButtonEl();
+			const { el }	= this.createButtonEl();
 			this.dragFeedbackEl = el;
 			el.style.position = "absolute";
 			el.style.transform = "translateX(-100%)";

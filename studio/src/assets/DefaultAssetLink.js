@@ -30,7 +30,7 @@ export class DefaultAssetLink {
 	/**
 	 * @param {AssetLinkConfig} data
 	 */
-	setUserData({name, originalAssetUuid}) {
+	setUserData({ name, originalAssetUuid }) {
 		if (!this.isBuiltIn) {
 			this.name = name ?? "";
 		}

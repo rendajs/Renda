@@ -1,10 +1,10 @@
-import {StudioWindow} from "./StudioWindow.js";
-import {getElementSize, parseMimeType} from "../util/util.js";
-import {generateUuid, iLerp} from "../../../src/util/mod.js";
-import {getStudioInstance} from "../studioInstance.js";
-import {Button} from "../ui/Button.js";
-import {ButtonGroup} from "../ui/ButtonGroup.js";
-import {SplitStudioWindow} from "./SplitStudioWindow.js";
+import { StudioWindow } from "./StudioWindow.js";
+import { getElementSize, parseMimeType } from "../util/util.js";
+import { generateUuid, iLerp } from "../../../src/util/mod.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { Button } from "../ui/Button.js";
+import { ButtonGroup } from "../ui/ButtonGroup.js";
+import { SplitStudioWindow } from "./SplitStudioWindow.js";
 
 export class TabsStudioWindow extends StudioWindow {
 	/** @type {string[]} */
@@ -108,7 +108,7 @@ export class TabsStudioWindow extends StudioWindow {
 		if (activate) {
 			this.setActiveTabIndex(index, trigger);
 		}
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 		return contentWindow;
 	}
 
@@ -123,7 +123,7 @@ export class TabsStudioWindow extends StudioWindow {
 		this.#intendedTabTypes.splice(tabIndex, 1);
 		this.#updateTabSelector(trigger);
 		this.destructContentWindow(contentWindow);
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 	}
 
 	/**
@@ -208,7 +208,7 @@ export class TabsStudioWindow extends StudioWindow {
 		if (activate) {
 			this.setActiveTabIndex(index, trigger);
 		}
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 	}
 
 	/**
@@ -224,7 +224,7 @@ export class TabsStudioWindow extends StudioWindow {
 			if (this.#intendedTabTypes.length == 0) {
 				this.unsplitParent(trigger);
 			}
-			this.fireWorkspaceChangeCbs({trigger});
+			this.fireWorkspaceChangeCbs({ trigger });
 		}
 	}
 
@@ -296,7 +296,7 @@ export class TabsStudioWindow extends StudioWindow {
 			this.tabs[i].setVisibilityFromTabWindow(active);
 		}
 		this.fireActiveTabChange();
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 	}
 
 	/**
@@ -531,7 +531,7 @@ export class TabsStudioWindow extends StudioWindow {
 		e.preventDefault();
 		e.dataTransfer.dropEffect = "move";
 		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
-		let {left, top, width, height} = this.lastTabDragOverlayBoundingRect;
+		let { left, top, width, height } = this.lastTabDragOverlayBoundingRect;
 		if (dragPosition == "left") {
 			width /= 2;
 		} else if (dragPosition == "right") {
@@ -553,7 +553,7 @@ export class TabsStudioWindow extends StudioWindow {
 	validateTabDragMimeType(mimeType) {
 		const parsed = parseMimeType(mimeType);
 		if (!parsed) return false;
-		const {type, subType, parameters} = parsed;
+		const { type, subType, parameters } = parsed;
 		if (type != "text" || subType != "renda" || parameters.dragtype != "studiowindowtab") return false;
 		return true;
 	}

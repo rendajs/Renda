@@ -1,9 +1,9 @@
 import "../../../shared/initializeStudio.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {installShadowDom} from "fake-dom/FakeShadowRoot.js";
-import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
-import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
-import {ContentWindowHistory} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowHistory.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { installShadowDom } from "fake-dom/FakeShadowRoot.js";
+import { assert, assertEquals, assertExists } from "std/testing/asserts.ts";
+import { PreferencesManager } from "../../../../../../studio/src/preferences/PreferencesManager.js";
+import { ContentWindowHistory } from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowHistory.js";
 
 /**
  * @typedef ContentWindowHistoryTestContext
@@ -32,7 +32,7 @@ function createEntry(uiText) {
  * @param {(ctx: ContentWindowHistoryTestContext) => void} options.fn
  * @param {import("../../../../../../studio/src/misc/HistoryManager.js").HistoryEntriesResult[]} [options.startHistoryEntries]
  */
-function basicTest({fn, startHistoryEntries = []}) {
+function basicTest({ fn, startHistoryEntries = [] }) {
 	installFakeDocument();
 	installShadowDom();
 

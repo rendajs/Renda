@@ -1,5 +1,5 @@
-import {wait} from "../../../../src/util/Timeout.js";
-import {log} from "../../shared/log.js";
+import { wait } from "../../../../src/util/Timeout.js";
+import { log } from "../../shared/log.js";
 
 /**
  * @param {number} seconds

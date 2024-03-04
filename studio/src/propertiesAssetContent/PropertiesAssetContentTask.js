@@ -1,5 +1,5 @@
-import {createTreeViewStructure} from "../ui/propertiesTreeView/createStructureHelpers.js";
-import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
+import { createTreeViewStructure } from "../ui/propertiesTreeView/createStructureHelpers.js";
+import { PropertiesAssetContent } from "./PropertiesAssetContent.js";
 
 export const environmentVariablesStructure = createTreeViewStructure({
 	environmentVariables: {
@@ -92,7 +92,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		const environmentVariables = [];
 		if (assetContent.environmentVariables) {
 			for (const [key, value] of Object.entries(assetContent.environmentVariables)) {
-				environmentVariables.push({key, value});
+				environmentVariables.push({ key, value });
 			}
 		}
 		this.environmentVariablesTree.fillSerializableStructureValues({

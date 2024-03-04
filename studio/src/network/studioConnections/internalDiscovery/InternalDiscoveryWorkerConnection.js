@@ -1,4 +1,4 @@
-import {generateUuid} from "../../../../../src/util/mod.js";
+import { generateUuid } from "../../../../../src/util/mod.js";
 
 /**
  * A single connection to a client.

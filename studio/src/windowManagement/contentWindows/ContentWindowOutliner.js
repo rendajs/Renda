@@ -1,13 +1,13 @@
-import {ContentWindow} from "./ContentWindow.js";
-import {TreeView} from "../../ui/TreeView.js";
-import {Button} from "../../ui/Button.js";
-import {Entity} from "../../../../src/mod.js";
-import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor/ContentWindowEntityEditor.js";
-import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {parseMimeType} from "../../util/util.js";
-import {EntitySelection} from "../../misc/EntitySelection.js";
-import {DropDownGui} from "../../ui/DropDownGui.js";
-import {EntityChangeType} from "../../assets/EntityAssetManager.js";
+import { ContentWindow } from "./ContentWindow.js";
+import { TreeView } from "../../ui/TreeView.js";
+import { Button } from "../../ui/Button.js";
+import { Entity } from "../../../../src/mod.js";
+import { ContentWindowEntityEditor } from "./ContentWindowEntityEditor/ContentWindowEntityEditor.js";
+import { ProjectAssetTypeEntity } from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
+import { parseMimeType } from "../../util/util.js";
+import { EntitySelection } from "../../misc/EntitySelection.js";
+import { DropDownGui } from "../../ui/DropDownGui.js";
+import { EntityChangeType } from "../../assets/EntityAssetManager.js";
 
 export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:outliner");
@@ -58,7 +58,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.availableEntityEditorUuids = [];
 		this.selectEntityEditorDropDown = new DropDownGui();
 		this.selectEntityEditorDropDown.onValueChange(() => {
-			const index = this.selectEntityEditorDropDown.getValue({getAsString: false});
+			const index = this.selectEntityEditorDropDown.getValue({ getAsString: false });
 			const uuid = this.availableEntityEditorUuids[index];
 			const entityEditor = /** @type {ContentWindowEntityEditor} */ (this.studioInstance.windowManager.getContentWindowByUuid(uuid));
 			this.setLinkedEntityEditor(entityEditor);
@@ -174,7 +174,7 @@ export class ContentWindowOutliner extends ContentWindow {
 						if (!childTreeView) {
 							throw new Error("Assertion failed, child treeview wasn't found");
 						}
-						this.updateTreeViewRecursive(childTreeView, event.targetEntity, {assetManager});
+						this.updateTreeViewRecursive(childTreeView, event.targetEntity, { assetManager });
 					}
 				};
 				this.#currentOnEntityChangeEntity = this.linkedEntityEditor.editingEntity;
@@ -270,7 +270,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	#getTreeViewByEntity(entity) {
 		if (!this.linkedEntityEditor) return null;
 		const rootEntity = this.linkedEntityEditor.editingEntity;
-		const indicesPath = entity.getIndicesPath({forcedRoot: rootEntity});
+		const indicesPath = entity.getIndicesPath({ forcedRoot: rootEntity });
 		const treeView = this.treeView.findChildFromIndicesPath(indicesPath);
 		return treeView;
 	}
@@ -459,7 +459,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				throw new Error("Failed to rearrange entities");
 			}
 			const removeIndex = oldParent.children.indexOf(entity);
-			actions.push({entity, oldParent, newParent, insertIndex, removeIndex});
+			actions.push({ entity, oldParent, newParent, insertIndex, removeIndex });
 		}
 		this.studioInstance.historyManager.executeEntry({
 			uiText: actions.length > 1 ? "Rearrange entities" : "Rearrange entity",

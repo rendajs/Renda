@@ -1,4 +1,4 @@
-import {PreferencesLocation} from "./PreferencesLocation.js";
+import { PreferencesLocation } from "./PreferencesLocation.js";
 
 /**
  * @fileoverview A preferences location that stores preferences in a workspace.

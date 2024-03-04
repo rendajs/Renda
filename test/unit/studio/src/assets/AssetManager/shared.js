@@ -1,7 +1,7 @@
-import {AssetManager} from "../../../../../../studio/src/assets/AssetManager.js";
-import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
-import {createMockProjectAssetTypeManager} from "../../../shared/createMockProjectAssetTypeManager.js";
+import { AssetManager } from "../../../../../../studio/src/assets/AssetManager.js";
+import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { createMockProjectAssetType } from "../../../shared/createMockProjectAssetType.js";
+import { createMockProjectAssetTypeManager } from "../../../shared/createMockProjectAssetTypeManager.js";
 
 export const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 export const NONEXISTENT_ASSET_UUID = "NONEXISTENT_ASSET_UUID";
@@ -58,7 +58,7 @@ export async function basicSetup({
 		registeredAssetLinks: new Set(),
 	});
 
-	const {MockProjectAssetType, ProjectAssetType, MockProjectAssetTypeLiveAsset} = createMockProjectAssetType(BASIC_PROJECTASSETTYPE);
+	const { MockProjectAssetType, ProjectAssetType, MockProjectAssetTypeLiveAsset } = createMockProjectAssetType(BASIC_PROJECTASSETTYPE);
 
 	const mockProjectAssetTypeManager = createMockProjectAssetTypeManager({
 		BASIC_ASSET_EXTENSION, BASIC_PROJECTASSETTYPE,

@@ -1,6 +1,6 @@
-import {assertEquals, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {Mesh, MeshAttributeBuffer} from "../../../../../src/mod.js";
-import {fakeMesh} from "./shared.js";
+import { assertEquals, assertNotStrictEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { Mesh, MeshAttributeBuffer } from "../../../../../src/mod.js";
+import { fakeMesh } from "./shared.js";
 
 Deno.test({
 	name: "clone is not the same reference",

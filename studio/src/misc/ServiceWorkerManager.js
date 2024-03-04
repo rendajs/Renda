@@ -1,6 +1,6 @@
-import {TypedMessenger} from "../../../src/util/TypedMessenger/TypedMessenger.js";
-import {ENGINE_SOURCE_PATH} from "../studioDefines.js";
-import {getStudioInstance} from "../studioInstance.js";
+import { TypedMessenger } from "../../../src/util/TypedMessenger/TypedMessenger.js";
+import { ENGINE_SOURCE_PATH } from "../studioDefines.js";
+import { getStudioInstance } from "../studioInstance.js";
 
 const UP_TO_DATE_DURATION_MS = 30_000;
 

@@ -1,7 +1,7 @@
-import {TypedMessenger} from "../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {ProjectAssetTypeJavascript} from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
-import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
-import {Task} from "./Task.js";
+import { TypedMessenger } from "../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { ProjectAssetTypeJavascript } from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
+import { createTreeViewStructure } from "../../ui/propertiesTreeView/createStructureHelpers.js";
+import { Task } from "./Task.js";
 
 /**
  * @typedef {ReturnType<TaskBuildApplication["getResponseHandlers"]>} BuildApplicationMessengerResponseHandlers
@@ -133,7 +133,7 @@ export class TaskBuildApplication extends Task {
 			 * @param {import("../../../../src/mod.js").UuidString[]} options.usedAssetsUuids
 			 * @param {import("../../../../src/mod.js").UuidString[]} options.entryPointUuids
 			 */
-			generateServices: async ({contextId, usedAssetsUuids, entryPointUuids}) => {
+			generateServices: async ({ contextId, usedAssetsUuids, entryPointUuids }) => {
 				const context = this.getContext(contextId);
 				const generateServicesResult = await context.runChildTask("renda:generateServices", {
 					outputLocation: ["services.js"],
@@ -174,8 +174,8 @@ export class TaskBuildApplication extends Task {
 					outputLocation: ["index.html"],
 					template: "264a38b9-4e43-4261-b57d-28a778a12dd9",
 					replacements: [
-						{find: "RENDA_IMPORT_MAP_TAG", replace: ""},
-						{find: "HTML_SCRIPT_SRC", replace: scriptSrc},
+						{ find: "RENDA_IMPORT_MAP_TAG", replace: "" },
+						{ find: "HTML_SCRIPT_SRC", replace: scriptSrc },
 					],
 				}, {
 					allowDiskWrites: false,

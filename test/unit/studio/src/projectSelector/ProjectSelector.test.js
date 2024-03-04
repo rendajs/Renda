@@ -1,9 +1,9 @@
-import {basicSetup} from "./shared.js";
-import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
-import {assertIsSpinnerEl} from "../ui/shared.js";
+import { basicSetup } from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { MouseEvent } from "fake-dom/FakeMouseEvent.js";
+import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
+import { assertIsSpinnerEl } from "../ui/shared.js";
 
 /**
  * @param {import("../../../../../studio/src/projectSelector/ProjectSelector.js").ProjectSelector} projectSelector
@@ -33,7 +33,7 @@ function clickUpdateButton(projectSelector) {
 Deno.test({
 	name: "Shows the correct buttons on load",
 	async fn() {
-		const {projectSelector, uninstall} = basicSetup();
+		const { projectSelector, uninstall } = basicSetup();
 
 		try {
 			assertEquals(projectSelector.actionsListEl.children.length, 3);
@@ -47,7 +47,7 @@ Deno.test({
 Deno.test({
 	name: "Creates an empty project on studio load",
 	async fn() {
-		const {projectSelector, openNewDbProjectSpy, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, openNewDbProjectSpy, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -69,7 +69,7 @@ Deno.test({
 Deno.test({
 	name: "Lists recent projects",
 	async fn() {
-		const {projectSelector, uninstall} = basicSetup({
+		const { projectSelector, uninstall } = basicSetup({
 			async databasesImpl() {
 				return [
 					{
@@ -114,7 +114,7 @@ Deno.test({
 Deno.test({
 	name: "Don't lists recent projects that have been deleted",
 	async fn() {
-		const {projectSelector, uninstall} = basicSetup({
+		const { projectSelector, uninstall } = basicSetup({
 			async databasesImpl() {
 				return [
 					{
@@ -155,7 +155,7 @@ Deno.test({
 Deno.test({
 	name: "Lists all recent projects when databases() is not supported",
 	async fn() {
-		const {projectSelector, uninstall} = basicSetup({
+		const { projectSelector, uninstall } = basicSetup({
 			async databasesImpl() {
 				throw new Error("emulating a browser without databases() support.");
 			},
@@ -191,7 +191,7 @@ Deno.test({
 Deno.test({
 	name: "Opening new project by clicking only opens a new project once",
 	async fn() {
-		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, newProjectButton, openNewDbProjectSpy, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -217,7 +217,7 @@ Deno.test({
 Deno.test({
 	name: "Opening new project by clicking after studio has loaded only hides the project selector",
 	async fn() {
-		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, newProjectButton, openNewDbProjectSpy, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -250,7 +250,7 @@ Deno.test({
 Deno.test({
 	name: "Opening project directory by clicking doesn't open empty project",
 	async fn() {
-		const {projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -275,7 +275,7 @@ Deno.test({
 Deno.test({
 	name: "Opening project directory after studio has already loaded",
 	async fn() {
-		const {projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -301,7 +301,7 @@ Deno.test({
 Deno.test({
 	name: "Updates service worker install state",
 	async fn() {
-		const {projectSelector, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, setInstallingState, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			triggerStudioLoad();
@@ -328,7 +328,7 @@ Deno.test({
 Deno.test({
 	name: "Update button doesn't restart when there are other tabs open",
 	async fn() {
-		const {projectSelector, restartClientsSpy, setOpenTabCount, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, restartClientsSpy, setOpenTabCount, setInstallingState, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			triggerStudioLoad();
@@ -347,7 +347,7 @@ Deno.test({
 Deno.test({
 	name: "Update button doesn't restart when the project selector was closed at least once",
 	async fn() {
-		const {projectSelector, restartClientsSpy, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, restartClientsSpy, setInstallingState, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			triggerStudioLoad();
@@ -367,7 +367,7 @@ Deno.test({
 Deno.test({
 	name: "Update button restarts and focuses the about window",
 	async fn() {
-		const {projectSelector, mockStudio, restartClientsSpy, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, mockStudio, restartClientsSpy, setInstallingState, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			const focusSpy = spy(mockStudio.windowManager, "focusOrCreateContentWindow");
@@ -396,7 +396,7 @@ Deno.test({
 Deno.test({
 	name: "Update button still focuses the about window when no restart is triggered",
 	async fn() {
-		const {projectSelector, mockStudio, restartClientsSpy, setOpenTabCount, setInstallingState, triggerStudioLoad, uninstall} = basicSetup();
+		const { projectSelector, mockStudio, restartClientsSpy, setOpenTabCount, setInstallingState, triggerStudioLoad, uninstall } = basicSetup();
 
 		try {
 			const focusSpy = spy(mockStudio.windowManager, "focusOrCreateContentWindow");

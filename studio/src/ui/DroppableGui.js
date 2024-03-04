@@ -1,8 +1,8 @@
-import {getStudioInstance} from "../studioInstance.js";
-import {parseMimeType} from "../util/util.js";
-import {ProjectAsset} from "../assets/ProjectAsset.js";
-import {ProjectAssetType} from "../assets/projectAssetType/ProjectAssetType.js";
-import {isUuid} from "../../../src/mod.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { parseMimeType } from "../util/util.js";
+import { ProjectAsset } from "../assets/ProjectAsset.js";
+import { ProjectAssetType } from "../assets/projectAssetType/ProjectAssetType.js";
+import { isUuid } from "../../../src/mod.js";
 
 /**
  * @template {new (...args: any) => any} T
@@ -273,7 +273,7 @@ export class DroppableGui {
 				projectAsset = assetManager.getProjectAssetForLiveAsset(value);
 			}
 		}
-		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset});
+		this.setValueFromProjectAsset(projectAsset, { clearDefaultAssetLink: false, preloadLiveAsset });
 	}
 
 	/**
@@ -378,7 +378,7 @@ export class DroppableGui {
 		if (!this.#validateAssetType(await projectAsset.getProjectAssetTypeConstructor())) return;
 		await assetManager.makeAssetUuidPersistent(projectAsset);
 		this.setDefaultAssetLinkUuid(uuid);
-		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset: true, trigger});
+		this.setValueFromProjectAsset(projectAsset, { clearDefaultAssetLink: false, preloadLiveAsset: true, trigger });
 	}
 
 	/**
@@ -518,7 +518,7 @@ export class DroppableGui {
 
 		if (!assetUuid) return;
 
-		const {el, x, y} = getStudioInstance().dragManager.createDragFeedbackText({
+		const { el, x, y } = getStudioInstance().dragManager.createDragFeedbackText({
 			text: this.visibleAssetName,
 		});
 		this.currenDragFeedbackEl = el;
@@ -657,7 +657,7 @@ export class DroppableGui {
 		let isEngineType = false;
 		let isProjectAsset = false;
 		if (parsed) {
-			const {type, subType, parameters} = parsed;
+			const { type, subType, parameters } = parsed;
 			isEngineType = (type == "text" && subType == "renda");
 			if (isEngineType) {
 				isProjectAsset = (parameters.dragtype == "projectasset");
@@ -671,7 +671,7 @@ export class DroppableGui {
 				}
 			}
 		}
-		return {isEngineType, isProjectAsset};
+		return { isEngineType, isProjectAsset };
 	}
 
 	/**
@@ -790,7 +790,7 @@ export class DroppableGui {
 				contextMenuStructure.push({
 					text: "Reset to Default Value",
 					onClick: () => {
-						this.setValue(this.defaultValue, {preloadLiveAsset: true});
+						this.setValue(this.defaultValue, { preloadLiveAsset: true });
 					},
 				});
 			}

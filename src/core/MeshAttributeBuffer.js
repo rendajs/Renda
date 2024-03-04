@@ -1,7 +1,7 @@
-import {Vec2} from "../math/Vec2.js";
-import {Vec3} from "../math/Vec3.js";
-import {Vec4} from "../math/Vec4.js";
-import {Mesh} from "./Mesh.js";
+import { Vec2 } from "../math/Vec2.js";
+import { Vec3 } from "../math/Vec3.js";
+import { Vec4 } from "../math/Vec4.js";
+import { Mesh } from "./Mesh.js";
 
 /** @typedef {() => void} OnBufferChangedCallback */
 

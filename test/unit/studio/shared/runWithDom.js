@@ -1,4 +1,4 @@
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
 
 // I tried combining these two functions into one, but that doesn't work because
 // it will cause tests with non async functions to throw outside of the test.

@@ -1,13 +1,13 @@
-import {isUuid} from "../../util/util.js";
-import {StorageType, binaryToObjectWithAssetLoader, createObjectToBinaryOptions} from "../../util/binarySerialization.js";
-import {MaterialMap} from "../../rendering/MaterialMap.js";
-import {MaterialMapTypeLoader} from "../MaterialMapTypeLoader.js";
-import {AssetLoaderType} from "./AssetLoaderType.js";
-import {Vec2} from "../../math/Vec2.js";
-import {Vec3} from "../../math/Vec3.js";
-import {Vec4} from "../../math/Vec4.js";
-import {Sampler} from "../../rendering/Sampler.js";
-import {Texture} from "../../core/Texture.js";
+import { isUuid } from "../../util/util.js";
+import { StorageType, binaryToObjectWithAssetLoader, createObjectToBinaryOptions } from "../../util/binarySerialization.js";
+import { MaterialMap } from "../../rendering/MaterialMap.js";
+import { MaterialMapTypeLoader } from "../MaterialMapTypeLoader.js";
+import { AssetLoaderType } from "./AssetLoaderType.js";
+import { Vec2 } from "../../math/Vec2.js";
+import { Vec3 } from "../../math/Vec3.js";
+import { Vec4 } from "../../math/Vec4.js";
+import { Sampler } from "../../rendering/Sampler.js";
+import { Texture } from "../../core/Texture.js";
 
 export const materialMapBinaryOptions = createObjectToBinaryOptions({
 	structure: {

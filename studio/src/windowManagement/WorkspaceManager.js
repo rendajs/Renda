@@ -1,4 +1,4 @@
-import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
+import { IndexedDbUtil } from "../../../src/util/IndexedDbUtil.js";
 
 /**
  * @typedef {object} WorkspaceData

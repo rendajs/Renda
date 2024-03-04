@@ -1,11 +1,11 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
-import {Texture} from "../../../../../src/core/Texture.js";
-import {Material} from "../../../../../src/rendering/Material.js";
-import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";
-import {Sampler} from "../../../../../src/rendering/Sampler.js";
-import {getMaterialHelper} from "../../../../../src/util/gltf/getMaterial.js";
-import {assertVecAlmostEquals} from "../../../shared/asserts.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { assertEquals, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
+import { Texture } from "../../../../../src/core/Texture.js";
+import { Material } from "../../../../../src/rendering/Material.js";
+import { MaterialMap } from "../../../../../src/rendering/MaterialMap.js";
+import { Sampler } from "../../../../../src/rendering/Sampler.js";
+import { getMaterialHelper } from "../../../../../src/util/gltf/getMaterial.js";
+import { assertVecAlmostEquals } from "../../../shared/asserts.js";
 
 /**
  * @param {object} options
@@ -33,7 +33,7 @@ function basicSetup({
 } = {}) {
 	/** @type {import("../../../../../src/util/gltf/gltfParsing.js").GltfJsonData} */
 	const jsonData = {
-		asset: {version: "2.0"},
+		asset: { version: "2.0" },
 		materials: [materialData],
 		textures: [
 			{
@@ -90,7 +90,7 @@ function basicSetup({
 Deno.test({
 	name: "Returns the default material when the index is undefined",
 	async fn() {
-		const {jsonData, materialsCache, defaultMaterial, basicOptions} = basicSetup();
+		const { jsonData, materialsCache, defaultMaterial, basicOptions } = basicSetup();
 		delete jsonData.materials;
 		const result = await getMaterialHelper(jsonData, undefined, materialsCache, basicOptions);
 
@@ -101,7 +101,7 @@ Deno.test({
 Deno.test({
 	name: "Throws when the material id doesn't exist",
 	async fn() {
-		const {jsonData, materialsCache, basicOptions} = basicSetup();
+		const { jsonData, materialsCache, basicOptions } = basicSetup();
 
 		await assertRejects(async () => {
 			await getMaterialHelper(jsonData, 12345, materialsCache, basicOptions);
@@ -112,7 +112,7 @@ Deno.test({
 Deno.test({
 	name: "Throws when the json doesn't contain materials",
 	async fn() {
-		const {jsonData, materialsCache, basicOptions} = basicSetup();
+		const { jsonData, materialsCache, basicOptions } = basicSetup();
 		delete jsonData.materials;
 
 		await assertRejects(async () => {
@@ -124,7 +124,7 @@ Deno.test({
 Deno.test({
 	name: "Uses cached materials",
 	async fn() {
-		const {jsonData, materialsCache, basicOptions} = basicSetup();
+		const { jsonData, materialsCache, basicOptions } = basicSetup();
 
 		const cachedMaterial = new Material();
 		materialsCache.set(0, cachedMaterial);
@@ -138,7 +138,7 @@ Deno.test({
 Deno.test({
 	name: "Creates pbr materials with the correct properties",
 	async fn() {
-		const {jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn} = basicSetup();
+		const { jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn } = basicSetup();
 
 		const getSamplerSpy = spy(getSamplerFn);
 		const getTextureSpy = spy(getTextureFn);
@@ -198,7 +198,7 @@ Deno.test({
 Deno.test({
 	name: "Has cullmode set to 'back' by default",
 	async fn() {
-		const {jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn} = basicSetup();
+		const { jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn } = basicSetup();
 
 		const result = await getMaterialHelper(jsonData, 0, materialsCache, {
 			defaultMaterial,
@@ -215,7 +215,7 @@ Deno.test({
 Deno.test({
 	name: "Double sided material sets cullmode to none",
 	async fn() {
-		const {jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn} = basicSetup({
+		const { jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn } = basicSetup({
 			materialData: {
 				name: "My Material",
 				doubleSided: true,
@@ -237,7 +237,7 @@ Deno.test({
 Deno.test({
 	name: "Fires hooks",
 	async fn() {
-		const {jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn} = basicSetup({
+		const { jsonData, materialsCache, defaultMaterial, defaultMaterialMap, getSamplerFn, getTextureFn } = basicSetup({
 			materialData: {
 				name: "My Material",
 			},

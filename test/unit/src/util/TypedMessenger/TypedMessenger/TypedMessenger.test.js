@@ -1,11 +1,11 @@
-import {assert, assertEquals, assertExists, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
-import {TypedMessenger} from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
-import {FakeTime} from "std/testing/time.ts";
-import {assertPromiseResolved} from "../../../../shared/asserts.js";
-import {TimeoutError} from "../../../../../../src/util/TimeoutError.js";
-import {deserializeErrorHook, serializeErrorHook} from "../../../../../../src/util/TypedMessenger/errorSerialization.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import { assert, assertEquals, assertExists, assertInstanceOf, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
+import { TypedMessenger } from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
+import { FakeTime } from "std/testing/time.ts";
+import { assertPromiseResolved } from "../../../../shared/asserts.js";
+import { TimeoutError } from "../../../../../../src/util/TimeoutError.js";
+import { deserializeErrorHook, serializeErrorHook } from "../../../../../../src/util/TypedMessenger/errorSerialization.js";
+import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
 
 /**
  * Directly links two TypedMessengers to each other without the use of a WebSocket or anything like that.
@@ -31,7 +31,7 @@ function linkMessengers(messengerA, messengerB) {
 		messengerA.handleReceivedMessage(/** @type {import("../../../../../../src/mod.js").TypedMessengerMessageSendData<AToBHandlers, BToAHandlers>} */ (data.sendData));
 	});
 
-	return {aToBMessages, bToAMessages};
+	return { aToBMessages, bToAMessages };
 }
 
 Deno.test({
@@ -165,13 +165,13 @@ Deno.test({
 		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
 
-		const {aToBMessages: messages} = linkMessengers(messengerA, messengerB);
+		const { aToBMessages: messages } = linkMessengers(messengerA, messengerB);
 		messengerB.setResponseHandlers(requestHandlers);
 
 		const transferObj = new ArrayBuffer(0);
 
 		// Providing a transfer array should pass it on to the message data.
-		await messengerA.sendWithOptions.needsTransfer({transfer: [transferObj]}, 1, 2);
+		await messengerA.sendWithOptions.needsTransfer({ transfer: [transferObj] }, 1, 2);
 
 		assertEquals(messages.length, 1);
 		assertEquals(messages[0].sendData.args, [1, 2]);
@@ -228,7 +228,7 @@ Deno.test({
 		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
 		const messengerB = new TypedMessenger();
 
-		const {bToAMessages: messages} = linkMessengers(messengerA, messengerB);
+		const { bToAMessages: messages } = linkMessengers(messengerA, messengerB);
 		messengerB.setResponseHandlers(requestHandlers);
 
 		// Providing a transfer array should pass it on to the message data.
@@ -370,7 +370,7 @@ Deno.test({
 		}, TypeError, "Error message");
 
 		await assertRejects(async () => {
-			await messengerA.sendWithOptions.throws({timeout: 1000});
+			await messengerA.sendWithOptions.throws({ timeout: 1000 });
 		}, TypeError, "Error message");
 	},
 });
@@ -615,7 +615,7 @@ const workerWithInitializeHandlers = {
 	foo(arr) {
 		return {
 			$respondOptions: {
-				returnValue: {arr},
+				returnValue: { arr },
 				transfer: [arr],
 			},
 		};
@@ -626,7 +626,7 @@ Deno.test({
 	name: "initializeWorker() with respondOptions and transfer array",
 	async fn() {
 		const url = new URL("./shared/workerWithInitialize.js", import.meta.url);
-		const worker = new Worker(url.href, {type: "module"});
+		const worker = new Worker(url.href, { type: "module" });
 
 		try {
 			/** @type {TypedMessenger<WorkerWithInitializeHandlers, import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers>} */
@@ -853,7 +853,7 @@ Deno.test({
 		/** @type {TypedMessenger<handlersB, {}>} */
 		const messengerB = new TypedMessenger();
 		messengerB.setResponseHandlers(handlersB);
-		const {aToBMessages, bToAMessages} = linkMessengers(messengerA, messengerB);
+		const { aToBMessages, bToAMessages } = linkMessengers(messengerA, messengerB);
 
 		const promise = messengerA.send.noResponse();
 
@@ -888,7 +888,7 @@ Deno.test({
 			messenger.setSendHandler(() => {});
 
 			const assertRejectsPromise = assertRejects(async () => {
-				await messenger.sendWithOptions.foo({timeout: 10_000});
+				await messenger.sendWithOptions.foo({ timeout: 10_000 });
 			}, TimeoutError, "TypedMessenger response timed out.");
 
 			await time.tickAsync(9_000);
@@ -913,7 +913,7 @@ Deno.test({
 		const time = new FakeTime();
 
 		try {
-			const messenger = new TypedMessenger({globalTimeout: 10_000});
+			const messenger = new TypedMessenger({ globalTimeout: 10_000 });
 			messenger.setSendHandler(() => {});
 
 			const assertRejectsPromise1 = assertRejects(async () => {
@@ -971,7 +971,7 @@ Deno.test({
 				},
 			};
 			/** @type {TypedMessenger<{}, handlersB>} */
-			const messengerA = new TypedMessenger({globalTimeout: 10_000});
+			const messengerA = new TypedMessenger({ globalTimeout: 10_000 });
 			/** @type {TypedMessenger<handlersB, {}>} */
 			const messengerB = new TypedMessenger();
 			messengerB.setResponseHandlers(handlersB);
@@ -1010,7 +1010,7 @@ Deno.test({
 				foo() {},
 			});
 
-			const sendPromise = messengerA.sendWithOptions.foo({timeout: 10_000});
+			const sendPromise = messengerA.sendWithOptions.foo({ timeout: 10_000 });
 			await time.tickAsync(5_000);
 			const assertResolvedPromise = assertPromiseResolved(sendPromise, true);
 			await time.nextAsync();
@@ -1032,7 +1032,7 @@ Deno.test({
 			foo() {},
 		});
 
-		await messengerA.sendWithOptions.foo({timeout: 10_000});
+		await messengerA.sendWithOptions.foo({ timeout: 10_000 });
 
 		// The Deno test runner will verify if the timeout was cleared using its test sanitizers.
 	},
@@ -1048,10 +1048,10 @@ Deno.test({
 			foo() {},
 		});
 
-		const promise1 = messengerA.sendWithOptions.foo({expectResponse: false});
+		const promise1 = messengerA.sendWithOptions.foo({ expectResponse: false });
 		await assertPromiseResolved(promise1, false);
 
-		const promise2 = messengerA.sendWithOptions.foo({expectResponse: true});
+		const promise2 = messengerA.sendWithOptions.foo({ expectResponse: true });
 		await assertPromiseResolved(promise2, true);
 	},
 });
@@ -1065,7 +1065,7 @@ Deno.test({
 			const messenger = new TypedMessenger();
 			messenger.setSendHandler(() => {});
 
-			const sendPromise = messenger.sendWithOptions.foo({expectResponse: false, timeout: 10_000});
+			const sendPromise = messenger.sendWithOptions.foo({ expectResponse: false, timeout: 10_000 });
 
 			await time.tickAsync(11_000);
 			const assertResolved1 = assertPromiseResolved(sendPromise, false);
@@ -1083,7 +1083,7 @@ Deno.test({
 		const time = new FakeTime();
 
 		try {
-			const messenger = new TypedMessenger({globalTimeout: 5000});
+			const messenger = new TypedMessenger({ globalTimeout: 5000 });
 			messenger.setSendHandler(() => {});
 
 			messenger.configureSendOptions({

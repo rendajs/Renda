@@ -1,15 +1,15 @@
-import {AssertionError, assert, assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../../../shared/mockWeakRef.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js";
+import { AssertionError, assert, assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { forceCleanup, installMockWeakRef, uninstallMockWeakRef } from "../../../../shared/mockWeakRef.js";
+import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { BASIC_PROJECTASSETTYPE, basicSetup } from "./shared.js";
 
 const BASIC_PERSISTENCE_KEY = "persistenceKey";
 
 Deno.test({
 	name: "creating with isEmbedded true",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup({
+		const { projectAsset, uninstall } = basicSetup({
 			setMockEmbeddedParent: true,
 		});
 
@@ -24,7 +24,7 @@ Deno.test({
 Deno.test({
 	name: "readAssetData() on an embedded asset is an empty object by default",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup({
+		const { projectAsset, mocks, uninstall } = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -48,7 +48,7 @@ Deno.test({
 Deno.test({
 	name: "writeAssetData() and then readAssetData() on an embedded asset",
 	async fn() {
-		const {projectAsset, mocks, mockParent, uninstall} = basicSetup({
+		const { projectAsset, mocks, mockParent, uninstall } = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -115,7 +115,7 @@ Deno.test({
 Deno.test({
 	name: "readEmbeddedAssetData() throws if the asset is not an embedded asset",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 
 		try {
 			assertThrows(() => {
@@ -130,7 +130,7 @@ Deno.test({
 Deno.test({
 	name: "writeEmbeddedAssetDataSync() throws if the asset is not an embedded asset",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 
 		try {
 			assertThrows(() => {
@@ -148,7 +148,7 @@ Deno.test({
 Deno.test({
 	name: "writeEmbeddedAssetDataSync() and then readEmbeddedAssetData() on an embedded asset",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup({
+		const { projectAsset, mocks, uninstall } = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -192,7 +192,7 @@ Deno.test({
 Deno.test({
 	name: "childEmbeddedAssetNeedsSave() for an asset type without a propertiesAssetContentStructure",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup({
+		const { projectAsset, uninstall } = basicSetup({
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
 				path: ["path", "to", "asset"],
@@ -210,7 +210,7 @@ Deno.test({
 Deno.test({
 	name: "writeEmbeddedAssetData() calls childEmbeddedAssetNeedsSave the parent",
 	async fn() {
-		const {projectAsset, mockParent, uninstall} = basicSetup({
+		const { projectAsset, mockParent, uninstall } = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -256,7 +256,7 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() adds the created live asset to the parent asset",
 	async fn() {
-		const {projectAsset, addEmbeddedChildLiveAssetSpy, uninstall} = basicSetup({
+		const { projectAsset, addEmbeddedChildLiveAssetSpy, uninstall } = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -280,11 +280,11 @@ Deno.test({
 Deno.test({
 	name: "setEmbeddedChildLiveAsset() and getPreviousEmbeddedLiveAsset()",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 		installMockWeakRef();
 
 		try {
-			const liveAsset = {label: "the live asset"};
+			const liveAsset = { label: "the live asset" };
 			projectAsset.addEmbeddedChildLiveAsset("key", liveAsset);
 
 			const result = projectAsset.getPreviousEmbeddedLiveAsset("key");
@@ -300,7 +300,7 @@ Deno.test({
 Deno.test({
 	name: "getPreviousEmbeddedLiveAsset() returns null if not set",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 		installMockWeakRef();
 
 		try {
@@ -317,11 +317,11 @@ Deno.test({
 Deno.test({
 	name: "getPreviousEmbeddedLiveAsset() returns null if garbage collected",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 		installMockWeakRef();
 
 		try {
-			const liveAsset = {label: "the live asset"};
+			const liveAsset = { label: "the live asset" };
 			projectAsset.addEmbeddedChildLiveAsset("key", liveAsset);
 
 			forceCleanup(liveAsset);

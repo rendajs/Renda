@@ -1,15 +1,15 @@
-import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {BASIC_ASSET_UUID, BASIC_PERSISTENCE_KEY, BASIC_PROJECTASSETTYPE, STRINGIFIED_PERSISTENCE_KEY, basicSetup} from "./shared.js";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
+import { assertEquals, assertExists, assertStrictEquals } from "std/testing/asserts.ts";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { BASIC_ASSET_UUID, BASIC_PERSISTENCE_KEY, BASIC_PROJECTASSETTYPE, STRINGIFIED_PERSISTENCE_KEY, basicSetup } from "./shared.js";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
 
 injectMockStudioInstance(/** @type {any} */ ({}));
 
 Deno.test({
 	name: "getProjectAssetFromUuidOrEmbeddedAssetData() with null",
 	async fn() {
-		const {assetManager, ProjectAssetType} = await basicSetup();
-		const {projectAsset: parent} = createMockProjectAsset();
+		const { assetManager, ProjectAssetType } = await basicSetup();
+		const { projectAsset: parent } = createMockProjectAsset();
 		const result = await assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(null, {
 			assertAssetType: ProjectAssetType,
 			parentAsset: parent,
@@ -22,8 +22,8 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidOrEmbeddedAssetData() with uuid",
 	async fn() {
-		const {assetManager, ProjectAssetType} = await basicSetup();
-		const {projectAsset: parent} = createMockProjectAsset();
+		const { assetManager, ProjectAssetType } = await basicSetup();
+		const { projectAsset: parent } = createMockProjectAsset();
 		const result = await assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(BASIC_ASSET_UUID, {
 			assertAssetType: ProjectAssetType,
 			parentAsset: parent,
@@ -37,8 +37,8 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidOrEmbeddedAssetData() with embedded asset data",
 	async fn() {
-		const {assetManager, ProjectAssetType} = await basicSetup();
-		const {projectAsset: parent} = createMockProjectAsset();
+		const { assetManager, ProjectAssetType } = await basicSetup();
+		const { projectAsset: parent } = createMockProjectAsset();
 		const projectAsset = await assetManager.getProjectAssetFromUuidOrEmbeddedAssetData({
 			num: 123,
 			str: "foo",
@@ -61,8 +61,8 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidOrEmbeddedAssetData() and a previous live asset still exists",
 	async fn() {
-		const {assetManager, ProjectAssetType} = await basicSetup();
-		const {projectAsset: parent} = createMockProjectAsset();
+		const { assetManager, ProjectAssetType } = await basicSetup();
+		const { projectAsset: parent } = createMockProjectAsset();
 		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent, BASIC_PERSISTENCE_KEY);
 		const embeddedLiveAsset = await embeddedAsset.getLiveAsset();
 		parent.addEmbeddedChildLiveAsset(STRINGIFIED_PERSISTENCE_KEY, embeddedLiveAsset);

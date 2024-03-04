@@ -1,12 +1,12 @@
 import "../../shared/initializeStudio.js";
-import {assertEquals, assertExists, assertInstanceOf, assertRejects, assertThrows} from "std/testing/asserts.ts";
-import {Task} from "../../../../../studio/src/tasks/task/Task.js";
-import {TaskManager} from "../../../../../studio/src/tasks/TaskManager.js";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
-import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
-import {stringArrayEquals} from "../../../../../src/mod.js";
+import { assertEquals, assertExists, assertInstanceOf, assertRejects, assertThrows } from "std/testing/asserts.ts";
+import { Task } from "../../../../../studio/src/tasks/task/Task.js";
+import { TaskManager } from "../../../../../studio/src/tasks/TaskManager.js";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { injectMockStudioInstance } from "../../../../../studio/src/studioInstance.js";
+import { createMockProjectAsset } from "../../shared/createMockProjectAsset.js";
+import { stringArrayEquals } from "../../../../../src/mod.js";
 
 Deno.test({
 	name: "init(), registers the default task types",
@@ -116,7 +116,7 @@ function basicTaskRunningSetup({
 		projectManager: {
 			assetManager: {
 				async getProjectAssetFromPath(path, options) {
-					for (const {path: path2, projectAsset} of pathProjectAssets) {
+					for (const { path: path2, projectAsset } of pathProjectAssets) {
 						if (stringArrayEquals(path, path2)) {
 							return projectAsset;
 						}
@@ -128,7 +128,7 @@ function basicTaskRunningSetup({
 					return uuidProjectAssets.get(uuid) || null;
 				},
 				async registerAsset(path, assetType) {
-					const {projectAsset} = createMockProjectAsset();
+					const { projectAsset } = createMockProjectAsset();
 					registeredAssets.push({
 						writeAssetDataSpy: spy(projectAsset, "writeAssetData"),
 					});
@@ -154,7 +154,7 @@ function basicTaskRunningSetup({
 Deno.test({
 	name: "running a task asset",
 	async fn() {
-		const {registeredAssets, cleanup} = basicTaskRunningSetup();
+		const { registeredAssets, cleanup } = basicTaskRunningSetup();
 
 		try {
 			const manager = new TaskManager();
@@ -200,7 +200,7 @@ Deno.test({
 
 			const runTaskSpy = spy(ExtendedTask.prototype, "runTask");
 
-			const {projectAsset: taskProjectAsset} = createMockProjectAsset({
+			const { projectAsset: taskProjectAsset } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:type",
 					taskConfig: {
@@ -237,7 +237,7 @@ Deno.test({
 Deno.test({
 	name: "Running a tasks that writes a file without an asset type",
 	async fn() {
-		const {mockStudio, cleanup} = basicTaskRunningSetup();
+		const { mockStudio, cleanup } = basicTaskRunningSetup();
 
 		try {
 			const manager = new TaskManager();
@@ -288,11 +288,11 @@ Deno.test({
 Deno.test({
 	name: "Running a non task asset should throw",
 	async fn() {
-		const {cleanup} = basicTaskRunningSetup();
+		const { cleanup } = basicTaskRunningSetup();
 		try {
 			const manager = new TaskManager();
 
-			const {projectAsset: nonTaskProjectAsset} = createMockProjectAsset({
+			const { projectAsset: nonTaskProjectAsset } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					foo: "bar",
 				},
@@ -325,11 +325,11 @@ Deno.test({
 		const TOUCHED_ASSET_PATH = ["touched", "path"];
 		const CHILD_TASK_UUID = "CHILD_TASK_UUID";
 
-		const {projectAsset: dependencyProjectAsset1} = createMockProjectAsset();
-		const {projectAsset: dependencyProjectAsset2} = createMockProjectAsset();
-		const {projectAsset: dependencyProjectAsset3} = createMockProjectAsset();
-		const {projectAsset: dependencyProjectAsset4} = createMockProjectAsset();
-		const {projectAsset: childTaskProjectAsset} = createMockProjectAsset({
+		const { projectAsset: dependencyProjectAsset1 } = createMockProjectAsset();
+		const { projectAsset: dependencyProjectAsset2 } = createMockProjectAsset();
+		const { projectAsset: dependencyProjectAsset3 } = createMockProjectAsset();
+		const { projectAsset: dependencyProjectAsset4 } = createMockProjectAsset();
+		const { projectAsset: childTaskProjectAsset } = createMockProjectAsset({
 			readAssetDataReturnValue: {
 				taskType: "namespace:dependency",
 				taskConfig: {},
@@ -340,7 +340,7 @@ Deno.test({
 		const uuidProjectAssets = new Map();
 		uuidProjectAssets.set(TOUCHED_ASSET_UUID, dependencyProjectAsset2);
 		uuidProjectAssets.set(CHILD_TASK_UUID, childTaskProjectAsset);
-		const {cleanup} = basicTaskRunningSetup({
+		const { cleanup } = basicTaskRunningSetup({
 			pathProjectAssets: [
 				{
 					path: DEPENDENDCY_PATH,
@@ -424,7 +424,7 @@ Deno.test({
 			manager.registerTaskType(ParentTask);
 
 			// First we run the dependency to let the manager know which dependencies are created/touched by this task.
-			const {projectAsset: dependencyTaskAsset} = createMockProjectAsset({
+			const { projectAsset: dependencyTaskAsset } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:dependency",
 					/** @type {DependencyTaskConfig} */
@@ -440,7 +440,7 @@ Deno.test({
 			// Now we run a couple of dependency tasks to check if it causes the task to be run again:
 
 			// This should run the dependency task again because DEPENDENDCY_PATH was written.
-			const {projectAsset: parentTaskAsset1} = createMockProjectAsset({
+			const { projectAsset: parentTaskAsset1 } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:parent",
 					/** @type {ParentTaskConfig} */
@@ -453,7 +453,7 @@ Deno.test({
 			assertEquals(dependencyRunCount, 2);
 
 			// This should run the dependency task because TOUCHED_ASSET_UUID was touched.
-			const {projectAsset: parentTaskAsset2} = createMockProjectAsset({
+			const { projectAsset: parentTaskAsset2 } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:parent",
 					/** @type {ParentTaskConfig} */
@@ -466,7 +466,7 @@ Deno.test({
 			assertEquals(dependencyRunCount, 3);
 
 			// This should run the dependency task because it calls `runDependencyTaskAsset`.
-			const {projectAsset: parentTaskAsset3} = createMockProjectAsset({
+			const { projectAsset: parentTaskAsset3 } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:parent",
 					/** @type {ParentTaskConfig} */
@@ -479,7 +479,7 @@ Deno.test({
 			assertEquals(dependencyRunCount, 4);
 
 			// Now for a created asset that has no asset type
-			const {projectAsset: typelessDependencyTaskAsset} = createMockProjectAsset({
+			const { projectAsset: typelessDependencyTaskAsset } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:dependency",
 					/** @type {DependencyTaskConfig} */
@@ -493,7 +493,7 @@ Deno.test({
 			assertEquals(dependencyRunCount, 5);
 
 			// This should run the dependency task because TOUCHED_ASSET_PATH was touched.
-			const {projectAsset: parentTaskAsset4} = createMockProjectAsset({
+			const { projectAsset: parentTaskAsset4 } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:parent",
 					/** @type {ParentTaskConfig} */
@@ -522,7 +522,7 @@ Deno.test({
 		 * @property {{replace: string}} replaceObj
 		 */
 
-		const {projectAsset: parentProjectAsset} = createMockProjectAsset({
+		const { projectAsset: parentProjectAsset } = createMockProjectAsset({
 			readAssetDataReturnValue: {
 				taskType: "namespace:task",
 				environmentVariables: {
@@ -539,7 +539,7 @@ Deno.test({
 				},
 			},
 		});
-		const {projectAsset: childProjectAsset} = createMockProjectAsset({
+		const { projectAsset: childProjectAsset } = createMockProjectAsset({
 			readAssetDataReturnValue: {
 				taskType: "namespace:task",
 				environmentVariables: {
@@ -558,7 +558,7 @@ Deno.test({
 		/** @type {Map<import("../../../../../src/mod.js").UuidString, import("../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny>} */
 		const uuidProjectAssets = new Map();
 		uuidProjectAssets.set(TOUCHED_ASSET_UUID, childProjectAsset);
-		const {cleanup} = basicTaskRunningSetup({
+		const { cleanup } = basicTaskRunningSetup({
 			uuidProjectAssets,
 		});
 
@@ -654,16 +654,16 @@ Deno.test({
 		}
 		manager.registerTaskType(ExtendedTask);
 
-		const result1 = manager.transformUiToAssetData("namespace:type", {foo: "bar"});
-		assertEquals(result1, {foo: "bar"});
+		const result1 = manager.transformUiToAssetData("namespace:type", { foo: "bar" });
+		assertEquals(result1, { foo: "bar" });
 
-		const result2 = manager.transformAssetToUiData("namespace:type", {foo: "bar"});
-		assertEquals(result2, {foo: "bar"});
+		const result2 = manager.transformAssetToUiData("namespace:type", { foo: "bar" });
+		assertEquals(result2, { foo: "bar" });
 	},
 });
 
 function basicSetupForRunningProgrammatically() {
-	const {cleanup, registeredAssets} = basicTaskRunningSetup();
+	const { cleanup, registeredAssets } = basicTaskRunningSetup();
 
 	const manager = new TaskManager();
 
@@ -698,20 +698,20 @@ function basicSetupForRunningProgrammatically() {
 
 	const runTaskSpy = spy(ExtendedTask.prototype, "runTask");
 
-	return {cleanup, manager, runTaskSpy, registeredAssets};
+	return { cleanup, manager, runTaskSpy, registeredAssets };
 }
 
 Deno.test({
 	name: "Running a task programmatically",
 	async fn() {
-		const {cleanup, manager, runTaskSpy, registeredAssets} = basicSetupForRunningProgrammatically();
+		const { cleanup, manager, runTaskSpy, registeredAssets } = basicSetupForRunningProgrammatically();
 
 		try {
-			const result = await manager.runTask("namespace:type", {foo: "bar"});
+			const result = await manager.runTask("namespace:type", { foo: "bar" });
 
 			assertSpyCalls(runTaskSpy, 1);
 			assertEquals(runTaskSpy.calls[0].args[0].allowDiskWrites, false);
-			assertEquals(runTaskSpy.calls[0].args[0].config, {foo: "bar"});
+			assertEquals(runTaskSpy.calls[0].args[0].config, { foo: "bar" });
 			assertEquals(result, {
 				touchedAssets: ["touched asset"],
 				touchedPaths: [["touched", "path"]],
@@ -733,16 +733,16 @@ Deno.test({
 Deno.test({
 	name: "Running a task programmatically, allow disk writes set to true",
 	async fn() {
-		const {cleanup, manager, runTaskSpy, registeredAssets} = basicSetupForRunningProgrammatically();
+		const { cleanup, manager, runTaskSpy, registeredAssets } = basicSetupForRunningProgrammatically();
 
 		try {
-			const result = await manager.runTask("namespace:type", {foo: "bar"}, {
+			const result = await manager.runTask("namespace:type", { foo: "bar" }, {
 				allowDiskWrites: true,
 			});
 
 			assertSpyCalls(runTaskSpy, 1);
 			assertEquals(runTaskSpy.calls[0].args[0].allowDiskWrites, true);
-			assertEquals(runTaskSpy.calls[0].args[0].config, {foo: "bar"});
+			assertEquals(runTaskSpy.calls[0].args[0].config, { foo: "bar" });
 			assertEquals(result, {
 				touchedAssets: ["touched asset"],
 				touchedPaths: [["touched", "path"]],
@@ -768,7 +768,7 @@ Deno.test({
 Deno.test({
 	name: "Task that directly runs a child task",
 	async fn() {
-		const {cleanup} = basicTaskRunningSetup();
+		const { cleanup } = basicTaskRunningSetup();
 
 		try {
 			const manager = new TaskManager();
@@ -805,10 +805,10 @@ Deno.test({
 
 			const runTaskSpy = spy(ExtendedTask2.prototype, "runTask");
 
-			await manager.runTask("namespace:type1", {foo: "bar"});
+			await manager.runTask("namespace:type1", { foo: "bar" });
 			assertSpyCalls(runTaskSpy, 1);
 			assertEquals(runTaskSpy.calls[0].args[0].allowDiskWrites, false);
-			assertEquals(runTaskSpy.calls[0].args[0].config, {foo: "bar"});
+			assertEquals(runTaskSpy.calls[0].args[0].config, { foo: "bar" });
 		} finally {
 			cleanup();
 		}

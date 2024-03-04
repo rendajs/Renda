@@ -1,8 +1,8 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {Entity, Quat, RotationGizmo, Vec3} from "../../../../../src/mod.js";
-import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
-import {createFakeGizmoManager} from "../shared.js";
+import { assertEquals, assertExists } from "std/testing/asserts.ts";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { Entity, Quat, RotationGizmo, Vec3 } from "../../../../../src/mod.js";
+import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { createFakeGizmoManager } from "../shared.js";
 
 /**
  * @param  {Parameters<typeof createFakeGizmoManager>} opts
@@ -20,7 +20,7 @@ function basicSetup(...opts) {
 Deno.test({
 	name: "Materials get applied when they load via the engine assets manager",
 	fn() {
-		const {rotationGizmo, initEngineAssets} = basicSetup({initEngineAssets: false});
+		const { rotationGizmo, initEngineAssets } = basicSetup({ initEngineAssets: false });
 
 		assertEquals(rotationGizmo.circleMesh.vertexState, null);
 		assertEquals(rotationGizmo.circleMesh.vertexState, null);
@@ -42,7 +42,7 @@ Deno.test({
 Deno.test({
 	name: "destructor removes entity from parent",
 	fn() {
-		const {rotationGizmo} = basicSetup();
+		const { rotationGizmo } = basicSetup();
 		const parent = new Entity("parent");
 		parent.add(rotationGizmo.entity);
 
@@ -55,7 +55,7 @@ Deno.test({
 Deno.test({
 	name: "default material colors are correct",
 	fn() {
-		const {rotationGizmo} = basicSetup();
+		const { rotationGizmo } = basicSetup();
 
 		assertVecAlmostEquals(rotationGizmo.createdCircles[0].colorInstance, new Vec3(1, 0.15, 0.15));
 		assertVecAlmostEquals(rotationGizmo.createdCircles[1].colorInstance, new Vec3(0.2, 1, 0.2));
@@ -66,7 +66,7 @@ Deno.test({
 Deno.test({
 	name: "hovering over a draggable shows hover feedback",
 	fn() {
-		const {rotationGizmo, createdDraggables} = basicSetup();
+		const { rotationGizmo, createdDraggables } = basicSetup();
 		const circleMesh = rotationGizmo.createdCircles[0].meshComponent;
 		const xDraggable = createdDraggables[0];
 
@@ -94,7 +94,7 @@ Deno.test({
 Deno.test({
 	name: "dragging the axis draggables updates the gizmo rotation and fires events",
 	fn() {
-		const {rotationGizmo, createdDraggables} = basicSetup();
+		const { rotationGizmo, createdDraggables } = basicSetup();
 
 		/** @type {import("../../../../../src/gizmos/gizmos/RotationGizmo.js").RotationGizmoDragCallback} */
 		const cb = e => {};
@@ -122,7 +122,7 @@ Deno.test({
 Deno.test({
 	name: "draggable positions are relative to the gizmo",
 	fn() {
-		const {rotationGizmo, createdDraggables} = basicSetup();
+		const { rotationGizmo, createdDraggables } = basicSetup();
 
 		rotationGizmo.entity.pos.set(1, 1, 1);
 

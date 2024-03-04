@@ -47,7 +47,7 @@ export class SingleInstancePromise {
 		}
 
 		/** @type {Promise<TReturn>} */
-		const myPromise = new Promise(resolve => this._queue.push({resolve, args}));
+		const myPromise = new Promise(resolve => this._queue.push({ resolve, args }));
 		this._emptyQueue();
 		return await myPromise;
 	}
@@ -82,7 +82,7 @@ export class SingleInstancePromise {
 				this._onceReturnValue = result;
 			}
 
-			for (const {resolve} of queueCopy) {
+			for (const { resolve } of queueCopy) {
 				resolve(result);
 			}
 		}

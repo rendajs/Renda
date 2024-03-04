@@ -1,4 +1,4 @@
-import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
+import { StorageType, objectToBinary } from "../../../../src/util/binarySerialization.js";
 
 /**
  * @typedef {new (...args: any) => MaterialMapTypeSerializer} MaterialMapTypeSerializerConstructor
@@ -195,7 +195,7 @@ export class MaterialMapTypeSerializer {
 		objectToBinary(bundleMapData, {
 			...binarySerializationOpts,
 			transformValueHook: args => {
-				let {value, type} = args;
+				let { value, type } = args;
 				if (binarySerializationOpts.transformValueHook) {
 					value = binarySerializationOpts.transformValueHook(args);
 				}
@@ -227,7 +227,7 @@ export class MaterialMapTypeSerializer {
 		/** @type {MaterialMapTypeMappableValue[]} */
 		const mappedValues = [];
 		const mappableValues = await this.getMappableValues(context, customData);
-		for (const {name, type, defaultValue, enumOptions} of mappableValues) {
+		for (const { name, type, defaultValue, enumOptions } of mappableValues) {
 			const mappedValueData = mappedValuesData?.[name];
 			if (mappedValueData?.visible ?? true) {
 				/** @type {MaterialMapTypeMappableValue} */

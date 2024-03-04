@@ -1,10 +1,10 @@
 // @ts-nocheck
 
-import {Mesh} from "../../core/Mesh.js";
-import {MeshAttributeBuffer} from "../../core/MeshAttributeBuffer.js";
-import {Mat4} from "../../math/Mat4.js";
-import {WebGlShader} from "../WebGlShader.js";
-import {Renderer} from "./Renderer.js";
+import { Mesh } from "../../core/Mesh.js";
+import { MeshAttributeBuffer } from "../../core/MeshAttributeBuffer.js";
+import { Mat4 } from "../../math/Mat4.js";
+import { WebGlShader } from "../WebGlShader.js";
+import { Renderer } from "./Renderer.js";
 
 export class WebGlRenderer extends Renderer {
 	static materialMapWebGlTypeUuid = "392a2a4e-c895-4245-9c6d-d6259b8e5267";

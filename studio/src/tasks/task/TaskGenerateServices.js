@@ -1,7 +1,7 @@
-import {CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID} from "../../../../src/mod.js";
-import {ProjectAssetTypeJavascript} from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
-import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
-import {Task} from "./Task.js";
+import { CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID } from "../../../../src/mod.js";
+import { ProjectAssetTypeJavascript } from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
+import { createTreeViewStructure } from "../../ui/propertiesTreeView/createStructureHelpers.js";
+import { Task } from "./Task.js";
 
 /**
  * @fileoverview A task that generates a services script that can be used by the user
@@ -115,7 +115,7 @@ export class TaskGenerateServices extends Task {
 	 * @override
 	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateServicesConfig>} options
 	 */
-	async runTask({config}) {
+	async runTask({ config }) {
 		if (!config) {
 			throw new Error("Failed to run task: no config provided");
 		}

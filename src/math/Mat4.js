@@ -1,5 +1,5 @@
-import {Vec3} from "./Vec3.js";
-import {Quat} from "./Quat.js";
+import { Vec3 } from "./Vec3.js";
+import { Quat } from "./Quat.js";
 
 /**
  * @typedef {() => Mat4} mat4SetEmptySignature
@@ -356,7 +356,7 @@ export class Mat4 {
 		const pos = this.getTranslation();
 		const scale = this.getScale();
 		const rot = this.getRotation(scale);
-		return {pos, rot, scale};
+		return { pos, rot, scale };
 	}
 
 	static createDynamicAspectPerspective(fov = 90, near = 0.05, far = 1000, aspect = 1) {

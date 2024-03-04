@@ -1,5 +1,5 @@
-import {AssetLoader, AssetLoaderType, EngineAssetsManager} from "../../../../../src/mod.js";
-import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
+import { AssetLoader, AssetLoaderType, EngineAssetsManager } from "../../../../../src/mod.js";
+import { assertIsType, testTypes } from "../../../shared/typeAssertions.js";
 
 class Foo {}
 const fooInstance = new Foo();

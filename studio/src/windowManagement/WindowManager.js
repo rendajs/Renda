@@ -1,12 +1,12 @@
-import {SplitStudioWindow} from "./SplitStudioWindow.js";
-import {TabsStudioWindow} from "./TabsStudioWindow.js";
-import {ContentWindow} from "./contentWindows/ContentWindow.js";
-import {WorkspaceManager} from "./WorkspaceManager.js";
-import {SingleInstancePromise, generateUuid} from "../../../src/util/mod.js";
-import {EventHandler} from "../../../src/util/EventHandler.js";
-import {STUDIO_ENV} from "../studioDefines.js";
-import {getStudioInstance} from "../studioInstance.js";
-import {WorkspacePreferencesLocation} from "../preferences/preferencesLocation/WorkspacePreferencesLocation.js";
+import { SplitStudioWindow } from "./SplitStudioWindow.js";
+import { TabsStudioWindow } from "./TabsStudioWindow.js";
+import { ContentWindow } from "./contentWindows/ContentWindow.js";
+import { WorkspaceManager } from "./WorkspaceManager.js";
+import { SingleInstancePromise, generateUuid } from "../../../src/util/mod.js";
+import { EventHandler } from "../../../src/util/EventHandler.js";
+import { STUDIO_ENV } from "../studioDefines.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { WorkspacePreferencesLocation } from "../preferences/preferencesLocation/WorkspacePreferencesLocation.js";
 
 /**
  * @typedef {object} ContentWindowEvent
@@ -173,7 +173,7 @@ export class WindowManager {
 		/** @type {Map<import("../../../src/mod.js").UuidString, import("../preferences/preferencesLocation/PreferencesLocation.js").PreferencesData>} */
 		const windowPreferences = new Map();
 		const windows = workspace.preferences?.windows || [];
-		for (const {uuid, preferences} of windows) {
+		for (const { uuid, preferences } of windows) {
 			windowPreferences.set(uuid, preferences);
 		}
 

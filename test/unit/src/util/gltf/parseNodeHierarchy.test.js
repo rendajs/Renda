@@ -1,12 +1,12 @@
-import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {parseScene, parseScenes} from "../../../../../src/util/gltf/parseNodeHierarchy.js";
-import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
+import { assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { parseScene, parseScenes } from "../../../../../src/util/gltf/parseNodeHierarchy.js";
+import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
 
 Deno.test({
 	name: "basic scene",
 	fn() {
-		const {entity, entityNodeIds} = parseScenes([
+		const { entity, entityNodeIds } = parseScenes([
 			{
 				name: "Scene",
 				nodes: [0, 1],
@@ -52,7 +52,7 @@ Deno.test({
 Deno.test({
 	name: "Translated entity",
 	fn() {
-		const {entity} = parseScenes([
+		const { entity } = parseScenes([
 			{
 				name: "Scene",
 				nodes: [0],
@@ -73,7 +73,7 @@ Deno.test({
 Deno.test({
 	name: "Scaled entity",
 	fn() {
-		const {entity} = parseScenes([
+		const { entity } = parseScenes([
 			{
 				name: "Scene",
 				nodes: [0],
@@ -94,7 +94,7 @@ Deno.test({
 Deno.test({
 	name: "Rotated entity",
 	fn() {
-		const {entity} = parseScenes([
+		const { entity } = parseScenes([
 			{
 				name: "Scene",
 				nodes: [0],
@@ -115,7 +115,7 @@ Deno.test({
 Deno.test({
 	name: "Entity with matrix",
 	fn() {
-		const {entity} = parseScenes([
+		const { entity } = parseScenes([
 			{
 				name: "Scene",
 				nodes: [0],
@@ -136,7 +136,7 @@ Deno.test({
 Deno.test({
 	name: "Matrix takes precedence when both a matrix and scale have been set",
 	fn() {
-		const {entity} = parseScenes([
+		const { entity } = parseScenes([
 			{
 				name: "Scene",
 				nodes: [0],
@@ -164,7 +164,7 @@ Deno.test({
 		 */
 		const nodeHook = context => {};
 		const spyFn = spy(nodeHook);
-		const {entity} = parseScenes([
+		const { entity } = parseScenes([
 			{
 				name: "Scene 0",
 				nodes: [0, 1],
@@ -188,12 +188,12 @@ Deno.test({
 		const node1 = entity.children[0].children[0];
 		assertStrictEquals(spyFn.calls[0].args[0].entity, node1);
 		assertEquals(spyFn.calls[0].args[0].nodeId, 0);
-		assertEquals(spyFn.calls[0].args[0].nodeData, {name: "Node 0"});
+		assertEquals(spyFn.calls[0].args[0].nodeData, { name: "Node 0" });
 
 		const node2 = entity.children[0].children[1];
 		assertStrictEquals(spyFn.calls[1].args[0].entity, node2);
 		assertEquals(spyFn.calls[1].args[0].nodeId, 1);
-		assertEquals(spyFn.calls[1].args[0].nodeData, {name: "Node 1", extras: {foo: "bar"}});
+		assertEquals(spyFn.calls[1].args[0].nodeData, { name: "Node 1", extras: { foo: "bar" } });
 	},
 });
 
@@ -214,7 +214,7 @@ Deno.test({
 				name: "Node 1",
 			},
 		], {
-			node({entity}) {
+			node({ entity }) {
 				if (entity.name == "Node 0") {
 					assertEquals(entity.childCount, 1);
 				}
@@ -226,7 +226,7 @@ Deno.test({
 Deno.test({
 	name: "two scenes",
 	fn() {
-		const {entity, entityNodeIds} = parseScenes([
+		const { entity, entityNodeIds } = parseScenes([
 			{
 				name: "Scene 0",
 				nodes: [0],
@@ -271,7 +271,7 @@ Deno.test({
 Deno.test({
 	name: "two scenes with shared root nodes",
 	fn() {
-		const {entity, entityNodeIds} = parseScenes([
+		const { entity, entityNodeIds } = parseScenes([
 			{
 				name: "Scene 0",
 				nodes: [0, 1],
@@ -378,7 +378,7 @@ Deno.test({
 Deno.test({
 	name: "node that is root in one scene and not in another",
 	fn() {
-		const {entity, entityNodeIds} = parseScenes([
+		const { entity, entityNodeIds } = parseScenes([
 			{
 				name: "Scene 0",
 				nodes: [0],

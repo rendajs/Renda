@@ -1,12 +1,12 @@
-import {basicTest} from "./shared.js";
-import {assertEquals} from "std/testing/asserts.ts";
-import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
-import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
+import { basicTest } from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { ContentWindowEntityEditor } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
+import { waitForMicrotasks } from "../../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
 	name: "Shows an error message when the renderer fails to initialize",
 	async fn() {
-		const {args, mockStudioInstance, uninstall} = basicTest();
+		const { args, mockStudioInstance, uninstall } = basicTest();
 		try {
 			/** @param {string} message */
 			let resolveMessage = message => {};

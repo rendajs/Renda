@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../src/util/TypedMessenger/TypedMessenger.js";
+import { TypedMessenger } from "../src/util/TypedMessenger/TypedMessenger.js";
 
 const swSelf = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
 
@@ -127,7 +127,7 @@ swSelf.addEventListener("message", e => {
 async function getClientResponse(clientId, pathname, url) {
 	const client = await swSelf.clients.get(clientId);
 	if (!client) {
-		return new Response("Studio client not found", {status: 404});
+		return new Response("Studio client not found", { status: 404 });
 	}
 	const messenger = getTypedMessenger(client);
 	const projectFilesPrefix = "projectFiles/";

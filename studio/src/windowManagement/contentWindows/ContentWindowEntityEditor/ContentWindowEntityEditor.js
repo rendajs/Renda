@@ -1,15 +1,15 @@
-import {ContentWindow} from "../ContentWindow.js";
-import {Button} from "../../../ui/Button.js";
-import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, Material, MeshComponent, OrbitControls, Quat, TranslationGizmo, Vec3, VertexState, createPlane} from "../../../../../src/mod.js";
-import {ProjectAssetTypeEntity} from "../../../assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {ProjectAssetTypeGltf} from "../../../assets/projectAssetType/ProjectAssetTypeGltf.js";
-import {RotationGizmo} from "../../../../../src/gizmos/gizmos/RotationGizmo.js";
-import {ButtonGroup} from "../../../ui/ButtonGroup.js";
-import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
-import {EntitySavingManager} from "./EntitySavingManager.js";
-import {ScaleGizmo} from "../../../../../src/gizmos/gizmos/ScaleGizmo.js";
-import {EntityChangeType} from "../../../assets/EntityAssetManager.js";
-import {contentWindowEntityEditorSheet} from "../../../styles/shadowStyles.js";
+import { ContentWindow } from "../ContentWindow.js";
+import { Button } from "../../../ui/Button.js";
+import { CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, Material, MeshComponent, OrbitControls, Quat, TranslationGizmo, Vec3, VertexState, createPlane } from "../../../../../src/mod.js";
+import { ProjectAssetTypeEntity } from "../../../assets/projectAssetType/ProjectAssetTypeEntity.js";
+import { ProjectAssetTypeGltf } from "../../../assets/projectAssetType/ProjectAssetTypeGltf.js";
+import { RotationGizmo } from "../../../../../src/gizmos/gizmos/RotationGizmo.js";
+import { ButtonGroup } from "../../../ui/ButtonGroup.js";
+import { ButtonSelectorGui } from "../../../ui/ButtonSelectorGui.js";
+import { EntitySavingManager } from "./EntitySavingManager.js";
+import { ScaleGizmo } from "../../../../../src/gizmos/gizmos/ScaleGizmo.js";
+import { EntityChangeType } from "../../../assets/EntityAssetManager.js";
+import { contentWindowEntityEditorSheet } from "../../../styles/shadowStyles.js";
 
 export const ENTITY_EDITOR_CONTENT_WINDOW_ID = /** @type {const} */ ("renda:entityEditor");
 
@@ -103,7 +103,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		pivotControlsGroup.addButton(this.transformationPivotButton);
 		this.addTopBarEl(pivotControlsGroup.el);
 
-		this.shadow = this.contentEl.attachShadow({mode: "open"});
+		this.shadow = this.contentEl.attachShadow({ mode: "open" });
 		this.shadow.adoptedStyleSheets = [contentWindowEntityEditorSheet];
 
 		(async () => {
@@ -296,7 +296,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 */
 	#notifyOutliners() {
 		for (const outliner of this.studioInstance.windowManager.getContentWindows("renda:outliner")) {
-			outliner.entityEditorUpdated({target: this});
+			outliner.entityEditorUpdated({ target: this });
 		}
 	}
 
@@ -597,7 +597,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				throw new Error("Unknown transformation mode");
 			}
 			for (const oldGizmoData of oldTransformationGizmos) {
-				const {gizmo, entities: gizmoEntities} = oldGizmoData;
+				const { gizmo, entities: gizmoEntities } = oldGizmoData;
 				const castConstructor = /** @type {typeof TranslationGizmo | typeof RotationGizmo | typeof ScaleGizmo} */ (gizmo.constructor);
 				if (castConstructor != expectedType) continue;
 				for (const entity of entities) {
@@ -612,7 +612,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			return null;
 		};
 
-		for (const {matrix, entities} of this.getEditingPivots()) {
+		for (const { matrix, entities } of this.getEditingPivots()) {
 			let gizmo = findExistingGizmo(this.transformationMode, entities);
 			if (!gizmo) {
 				if (this.transformationMode == "translate") {
@@ -637,13 +637,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					throw new Error("Unknown transformation mode");
 				}
 			}
-			this.activeTransformationGizmos.push({gizmo, entities});
+			this.activeTransformationGizmos.push({ gizmo, entities });
 
-			const {pos, rot} = matrix.decompose();
+			const { pos, rot } = matrix.decompose();
 			gizmo.pos = pos;
 			gizmo.rot = rot;
 		}
-		for (const {gizmo} of oldTransformationGizmos.values()) {
+		for (const { gizmo } of oldTransformationGizmos.values()) {
 			this.gizmos.removeGizmo(gizmo);
 		}
 		this.markRenderDirty();
@@ -676,7 +676,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				const averagePos = new Vec3();
 				let count = 0;
 				const entities = [];
-				for (const {entity} of this.selectionGroup.currentSelectedObjects) {
+				for (const { entity } of this.selectionGroup.currentSelectedObjects) {
 					averagePos.add(entity.worldPos);
 					count++;
 					entities.push(entity);
@@ -705,7 +705,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				throw new Error(`Unknown transformation space: "${this.transformationSpace}"`);
 			}
 			/** @type {PivotData} */
-			const pivotData = {matrix, entities};
+			const pivotData = { matrix, entities };
 			return pivotData;
 		};
 
@@ -718,7 +718,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		} else if (this.transformationPivot == "multiple") {
 			/** @type {Set<Entity>} */
 			const entities = new Set();
-			for (const {entity} of this.selectionGroup.currentSelectedObjects) {
+			for (const { entity } of this.selectionGroup.currentSelectedObjects) {
 				entities.add(entity);
 			}
 			for (const a of entities) {
@@ -744,7 +744,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const last = this.selectionGroup.currentSelectedObjects.at(-1);
 		if (!last) return null;
 
-		for (const {entities, gizmo} of this.activeTransformationGizmos) {
+		for (const { entities, gizmo } of this.activeTransformationGizmos) {
 			if (entities.includes(last.entity)) {
 				return gizmo;
 			}
@@ -758,7 +758,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {Mat4} dragMatrix
 	 */
 	dragSelectedEntities(dragMatrix) {
-		for (const {matrix: pivotMatrix, entities} of this.getEditingPivots()) {
+		for (const { matrix: pivotMatrix, entities } of this.getEditingPivots()) {
 			const pivotDragMatrix = Mat4.multiplyMatrices(dragMatrix, pivotMatrix);
 			pivotDragMatrix.premultiplyMatrix(pivotMatrix.inverse());
 			for (const entity of entities) {
@@ -842,7 +842,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	updateLiveAssetChangeListeners() {
-		for (const {projectAsset, listener} of this.createdLiveAssetChangeListeners) {
+		for (const { projectAsset, listener } of this.createdLiveAssetChangeListeners) {
 			projectAsset.removeOnLiveAssetNeedsReplacement(listener);
 		}
 		this.createdLiveAssetChangeListeners.clear();
@@ -913,7 +913,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 						}
 					};
 					projectAsset.onLiveAssetNeedsReplacement(listener);
-					this.createdLiveAssetChangeListeners.add({projectAsset, listener});
+					this.createdLiveAssetChangeListeners.add({ projectAsset, listener });
 				}
 			}
 		}

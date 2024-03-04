@@ -1,5 +1,5 @@
-import {Entity} from "../../../../../src/core/Entity.js";
-import {Component} from "../../../../../src/components/Component.js";
+import { Entity } from "../../../../../src/core/Entity.js";
+import { Component } from "../../../../../src/components/Component.js";
 
 export function createBasicStructure() {
 	const root = new Entity("root");
@@ -14,7 +14,7 @@ export function createBasicStructure() {
 	child2.add(new Entity());
 	const child3 = child2.add(new Entity("child3"));
 
-	return {root, child1, child2, child3};
+	return { root, child1, child2, child3 };
 }
 
 export const EXTENDED_COMPONENT_UUID = "extended component uuid";

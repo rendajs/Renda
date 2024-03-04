@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {parseMaterialUniforms} from "../../../../../src/util/wgslParsing.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { parseMaterialUniforms } from "../../../../../src/util/wgslParsing.js";
 
 Deno.test({
 	name: "no MaterialUniforms struct",

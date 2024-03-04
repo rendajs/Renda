@@ -1,4 +1,4 @@
-import {SelectionGroup} from "./SelectionGroup.js";
+import { SelectionGroup } from "./SelectionGroup.js";
 
 /**
  * @typedef {object} SelectionChangeData
@@ -58,7 +58,7 @@ export class SelectionManager {
 	setActiveSelectionGroup(group, fireSelectionChangeCbs = true) {
 		this.activeGroup = group;
 		if (fireSelectionChangeCbs) {
-			this.onSelectionChangeCbs.forEach(cb => cb({activeSelectionGroup: group}));
+			this.onSelectionChangeCbs.forEach(cb => cb({ activeSelectionGroup: group }));
 		}
 	}
 

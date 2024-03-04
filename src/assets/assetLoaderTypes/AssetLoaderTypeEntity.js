@@ -1,7 +1,7 @@
-import {AssetLoaderType} from "./AssetLoaderType.js";
-import {Entity} from "../../core/Entity.js";
-import {Mat4} from "../../math/Mat4.js";
-import {StorageType, binaryToObject, binaryToObjectWithAssetLoader, createObjectToBinaryOptions} from "../../util/binarySerialization.js";
+import { AssetLoaderType } from "./AssetLoaderType.js";
+import { Entity } from "../../core/Entity.js";
+import { Mat4 } from "../../math/Mat4.js";
+import { StorageType, binaryToObject, binaryToObjectWithAssetLoader, createObjectToBinaryOptions } from "../../util/binarySerialization.js";
 
 /**
  * @typedef EntityComponentStructure
@@ -164,7 +164,7 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 			parentOptions.parent.addAtIndex(entity, parentOptions.childIndex);
 		}
 		for (const [i, child] of data.children.entries()) {
-			await this.createEntityFromData(child, {parent: entity, childIndex: i}, recursionTracker);
+			await this.createEntityFromData(child, { parent: entity, childIndex: i }, recursionTracker);
 		}
 		return entity;
 	}

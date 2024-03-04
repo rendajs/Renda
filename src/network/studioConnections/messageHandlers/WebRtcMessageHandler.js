@@ -1,4 +1,4 @@
-import {MessageHandler} from "./MessageHandler.js";
+import { MessageHandler } from "./MessageHandler.js";
 
 /**
  * @typedef WebRtcMessageHandlerOptions
@@ -12,7 +12,7 @@ export class WebRtcMessageHandler extends MessageHandler {
 	 * @param {import("./MessageHandler.js").MessageHandlerOptions} messageHandlerOptions
 	 * @param {WebRtcMessageHandlerOptions} options
 	 */
-	constructor(messageHandlerOptions, {sendRtcIceCandidate, sendRtcDescription, onPermissionResult}) {
+	constructor(messageHandlerOptions, { sendRtcIceCandidate, sendRtcDescription, onPermissionResult }) {
 		super(messageHandlerOptions);
 		/** @private */
 		this.sendRtcDescription = sendRtcDescription;

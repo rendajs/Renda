@@ -1,9 +1,9 @@
-import {assert, assertEquals, assertExists, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
-import {TaskGenerateServices} from "../../../../../../studio/src/tasks/task/TaskGenerateServices.js";
-import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
-import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
-import {getBasicRunTaskReadAssetOptions} from "./shared.js";
+import { assert, assertEquals, assertExists, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
+import { TaskGenerateServices } from "../../../../../../studio/src/tasks/task/TaskGenerateServices.js";
+import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
+import { createMockProjectAssetType } from "../../../shared/createMockProjectAssetType.js";
+import { getBasicRunTaskReadAssetOptions } from "./shared.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 const BASIC_ASSET_TYPE = "BASIC_ASSET_TYPE";
@@ -43,7 +43,7 @@ const blobModule = `
 		return "bar";
 	}
 `;
-const blobModuleBlob = new Blob([blobModule], {type: "text/javascript"});
+const blobModuleBlob = new Blob([blobModule], { type: "text/javascript" });
 const blobModuleUrl = URL.createObjectURL(blobModuleBlob);
 
 /**
@@ -62,17 +62,17 @@ function basicSetup({
 	const mockFileSystem = new MemoryStudioFileSystem();
 	const fileSystem = /** @type {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} */ (mockFileSystem);
 
-	const {ProjectAssetType} = createMockProjectAssetType(BASIC_ASSET_TYPE);
+	const { ProjectAssetType } = createMockProjectAssetType(BASIC_ASSET_TYPE);
 	ProjectAssetType.assetLoaderTypeImportConfig = importConfig;
 	if (projectAssetTypeModuleSpecifier) {
 		ProjectAssetType.assetLoaderTypeImportConfig.moduleSpecifier = projectAssetTypeModuleSpecifier;
 	}
 
-	const {projectAsset: basicAsset} = createMockProjectAsset();
+	const { projectAsset: basicAsset } = createMockProjectAsset();
 	basicAsset.assetType = BASIC_ASSET_TYPE;
-	const {projectAsset: secondAsset} = createMockProjectAsset();
+	const { projectAsset: secondAsset } = createMockProjectAsset();
 	secondAsset.assetType = BASIC_ASSET_TYPE;
-	const {projectAsset: entryPointAsset} = createMockProjectAsset({
+	const { projectAsset: entryPointAsset } = createMockProjectAsset({
 		readAssetDataReturnValue: entryPointContent,
 	});
 
@@ -129,7 +129,7 @@ function basicSetup({
 	async function callInitializeServices(runTaskResult) {
 		let code = getScriptContent(runTaskResult);
 		code = code.replaceAll(`"renda"`, `"${blobModuleUrl}"`);
-		const blob = new Blob([code], {type: "text/javascript"});
+		const blob = new Blob([code], { type: "text/javascript" });
 		const url = URL.createObjectURL(blob);
 		try {
 			const module = await import(url);
@@ -177,7 +177,7 @@ function createRunTaskOptions({
 Deno.test({
 	name: "initializeServices is empty by default",
 	async fn() {
-		const {task, callInitializeServices} = basicSetup();
+		const { task, callInitializeServices } = basicSetup();
 		const runTaskResult = await task.runTask(createRunTaskOptions());
 
 		const result = await callInitializeServices(runTaskResult);
@@ -188,7 +188,7 @@ Deno.test({
 Deno.test({
 	name: "Throws when there is no asset manager",
 	async fn() {
-		const {task, mockStudio} = basicSetup();
+		const { task, mockStudio } = basicSetup();
 		mockStudio.projectManager.assetManager = null;
 		await assertRejects(async () => {
 			await task.runTask(createRunTaskOptions({}));
@@ -199,7 +199,7 @@ Deno.test({
 Deno.test({
 	name: "Config with a used asset",
 	async fn() {
-		const {task, callInitializeServices} = basicSetup({
+		const { task, callInitializeServices } = basicSetup({
 			entryPointContent: `
 				import {initializeServices} from "renda:services";
 				const {assetLoader} = initializeServices();
@@ -218,7 +218,7 @@ Deno.test({
 Deno.test({
 	name: "Config with a specific module specifier",
 	async fn() {
-		const {task, getScriptContent} = basicSetup({
+		const { task, getScriptContent } = basicSetup({
 			projectAssetTypeModuleSpecifier: "module-specifier",
 			entryPointContent: `
 				import {initializeServices} from "renda:services";
@@ -238,7 +238,7 @@ Deno.test({
 	name: "Asset type with extra import config",
 	async fn() {
 		let usedAssets = /** @type {import("../../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny[]?} */ (null);
-		const {task, basicAsset, secondAsset, callInitializeServices} = basicSetup({
+		const { task, basicAsset, secondAsset, callInitializeServices } = basicSetup({
 			importConfig: {
 				identifier: "BasicAssetTypeLoader",
 				instanceIdentifier: "instanceIdentifier",
@@ -273,7 +273,7 @@ Deno.test({
 Deno.test({
 	name: "initialize renderer",
 	async fn() {
-		const {task, callInitializeServices} = basicSetup({
+		const { task, callInitializeServices } = basicSetup({
 			entryPointContent: `
 			import {initializeServices} from "renda:services";
 			const {renderer} = initializeServices();
@@ -292,7 +292,7 @@ Deno.test({
 	name: "includeAll",
 	async fn() {
 		let extraCalled = false;
-		const {task, callInitializeServices} = basicSetup({
+		const { task, callInitializeServices } = basicSetup({
 			importConfig: {
 				identifier: "BasicAssetTypeLoader",
 				extra(ctx) {

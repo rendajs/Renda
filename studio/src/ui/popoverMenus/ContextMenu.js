@@ -1,7 +1,7 @@
-import {Button} from "../Button.js";
-import {ContextMenuItem} from "./ContextMenuItem.js";
-import {ContextMenuSubmenuItem} from "./ContextMenuSubmenuItem.js";
-import {Popover} from "./Popover.js";
+import { Button } from "../Button.js";
+import { ContextMenuItem } from "./ContextMenuItem.js";
+import { ContextMenuSubmenuItem } from "./ContextMenuSubmenuItem.js";
+import { Popover } from "./Popover.js";
 
 /**
  * @typedef {object} ContextMenuOptions
@@ -42,7 +42,7 @@ export class ContextMenu extends Popover {
 		parentMenu = null,
 		structure = null,
 	} = {}) {
-		super(manager, {showArrow: false});
+		super(manager, { showArrow: false });
 		this.parentMenu = parentMenu;
 
 		/** @type {ContextMenuItem[]} */
@@ -196,7 +196,7 @@ export class ContextMenu extends Popover {
 	startHoverSubmenu(submenuItem) {
 		this.removeSubmenu();
 		this.activeSubmenuItem = submenuItem;
-		this.currentSubmenu = new ContextMenu(this.manager, {parentMenu: this});
+		this.currentSubmenu = new ContextMenu(this.manager, { parentMenu: this });
 		this.currentSubmenu.setPos(submenuItem);
 		return this.currentSubmenu;
 	}

@@ -1,17 +1,17 @@
-import {Importer} from "fake-imports";
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, returnsNext, spy, stub} from "std/testing/mock.ts";
+import { Importer } from "fake-imports";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, returnsNext, spy, stub } from "std/testing/mock.ts";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
 
 /** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js")} */
 const WorkspaceManagerMod = await importer.import("../../../../../studio/src/windowManagement/WorkspaceManager.js");
-const {WorkspaceManager} = WorkspaceManagerMod;
+const { WorkspaceManager } = WorkspaceManagerMod;
 
 /** @type {import("../../shared/MockIndexedDbUtil.js")} */
 const MockIndexedDbUtilMod = await importer.import("../../../../../src/util/IndexedDbUtil.js");
-const {deleteAllDbs} = MockIndexedDbUtilMod;
+const { deleteAllDbs } = MockIndexedDbUtilMod;
 
 Deno.test({
 	name: "getWorkspacesList()",

@@ -1,8 +1,8 @@
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {DiscoveryManager} from "../../../../../src/network/studioConnections/DiscoveryManager.js";
-import {ExtendedDiscoveryMethod} from "./discoveryMethods/shared/ExtendedDiscoveryMethod.js";
-import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {assertPromiseResolved} from "../../../shared/asserts.js";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { DiscoveryManager } from "../../../../../src/network/studioConnections/DiscoveryManager.js";
+import { ExtendedDiscoveryMethod } from "./discoveryMethods/shared/ExtendedDiscoveryMethod.js";
+import { assertEquals, assertExists, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { assertPromiseResolved } from "../../../shared/asserts.js";
 
 Deno.test({
 	name: "Adding a discovery method",
@@ -104,12 +104,12 @@ Deno.test({
 		const onConnectionRequestSpy = spy(onConnectionRequest);
 		manager.onConnectionRequest(onConnectionRequestSpy);
 
-		const messageHandler = discoveryMethod.addActive("id1", false, {token: "the_token"}, 42, "str");
+		const messageHandler = discoveryMethod.addActive("id1", false, { token: "the_token" }, 42, "str");
 		assertSpyCalls(onConnectionRequestSpy, 1);
 		assertEquals(onConnectionRequestSpy.calls[0].args[0].otherClientUuid, "id1");
 		assertEquals(onConnectionRequestSpy.calls[0].args[0].clientType, "inspector");
 		assertEquals(onConnectionRequestSpy.calls[0].args[0].initiatedByMe, false);
-		assertEquals(onConnectionRequestSpy.calls[0].args[0].connectionRequestData, {token: "the_token"});
+		assertEquals(onConnectionRequestSpy.calls[0].args[0].connectionRequestData, { token: "the_token" });
 		assertSpyCalls(messageHandler.closeSpy, 0);
 	},
 });
@@ -354,13 +354,13 @@ Deno.test({
 			projectMetadata: null,
 		});
 
-		manager.requestConnection("id2", {token: "the_token"});
+		manager.requestConnection("id2", { token: "the_token" });
 		assertSpyCalls(spy1, 0);
 		assertSpyCalls(spy2, 1);
 		assertSpyCall(spy2, 0, {
 			args: [
 				"id2",
-				{token: "the_token"},
+				{ token: "the_token" },
 			],
 		});
 

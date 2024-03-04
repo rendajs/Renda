@@ -1,6 +1,6 @@
-import {waitForEventLoop} from "../../../../src/util/util.js";
-import {ContextMenu} from "./ContextMenu.js";
-import {Popover} from "./Popover.js";
+import { waitForEventLoop } from "../../../../src/util/util.js";
+import { ContextMenu } from "./ContextMenu.js";
+import { Popover } from "./Popover.js";
 
 export class PopoverManager {
 	/**
@@ -67,7 +67,7 @@ export class PopoverManager {
 	 * @returns {ContextMenu}
 	 */
 	createContextMenu(structure = null) {
-		return this.addPopover(ContextMenu, {structure});
+		return this.addPopover(ContextMenu, { structure });
 	}
 
 	getLastPopover() {

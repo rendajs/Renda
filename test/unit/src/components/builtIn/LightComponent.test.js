@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {LightComponent, Vec3} from "../../../../../src/mod.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { LightComponent, Vec3 } from "../../../../../src/mod.js";
 
 Deno.test({
 	name: "Light initializes with defaults",

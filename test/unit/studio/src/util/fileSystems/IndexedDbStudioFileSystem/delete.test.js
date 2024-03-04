@@ -1,10 +1,10 @@
-import {createBasicFs} from "./shared.js";
-import {assertEquals} from "std/testing/asserts.ts";
+import { createBasicFs } from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
 
 Deno.test({
 	name: "delete() should throw when deleting the root directory",
 	fn: async () => {
-		const {fs} = await createBasicFs();
+		const { fs } = await createBasicFs();
 
 		let didThrow = false;
 		try {
@@ -20,7 +20,7 @@ Deno.test({
 Deno.test({
 	name: "delete() a directory with recursive = true should clean up all entries",
 	async fn() {
-		const {fs, getEntryCount} = await createBasicFs();
+		const { fs, getEntryCount } = await createBasicFs();
 
 		const initialEntryCount = getEntryCount();
 

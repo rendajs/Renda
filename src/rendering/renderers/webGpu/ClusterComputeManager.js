@@ -1,4 +1,4 @@
-import {ShaderBuilder} from "../../ShaderBuilder.js";
+import { ShaderBuilder } from "../../ShaderBuilder.js";
 
 export class ClusterComputeManager {
 	/**

@@ -1,5 +1,5 @@
-import {PropertiesAssetContentTask} from "../../propertiesAssetContent/PropertiesAssetContentTask.js";
-import {ProjectAssetType} from "./ProjectAssetType.js";
+import { PropertiesAssetContentTask } from "../../propertiesAssetContent/PropertiesAssetContentTask.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
 
 /**
  * @typedef TaskProjectAssetDiskData

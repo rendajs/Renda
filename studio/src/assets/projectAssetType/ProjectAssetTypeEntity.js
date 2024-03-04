@@ -1,6 +1,6 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeEntity, Entity, StorageType, Vec3} from "../../../../src/mod.js";
-import {objectToBinary} from "../../../../src/util/binarySerialization.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { AssetLoaderTypeEntity, Entity, StorageType, Vec3 } from "../../../../src/mod.js";
+import { objectToBinary } from "../../../../src/util/binarySerialization.js";
 
 // todo: better types for generics
 /**
@@ -31,7 +31,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	async getLiveAssetData(json, recursionTracker) {
 		const liveAsset = this.createEntityFromJsonData(json, recursionTracker);
 		this.assetManager.entityAssetManager.setLinkedAssetUuid(liveAsset, this.projectAsset.uuid);
-		return {liveAsset, studioData: null};
+		return { liveAsset, studioData: null };
 	}
 
 	/**
@@ -155,7 +155,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 						w.markRenderDirty();
 					}
 				}
-			}, {repeatOnLiveAssetChange: true});
+			}, { repeatOnLiveAssetChange: true });
 			let usedAssetUuids = newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
 			if (!usedAssetUuids) {
 				usedAssetUuids = {};
@@ -276,7 +276,7 @@ entityLoader.setComponentTypeManager(componentTypeManager);`;
 					objectToBinary(component.propertyValues, {
 						...binarySerializationOpts,
 						transformValueHook: args => {
-							let {value, type} = args;
+							let { value, type } = args;
 							if (binarySerializationOpts.transformValueHook) {
 								value = binarySerializationOpts.transformValueHook(args);
 							}

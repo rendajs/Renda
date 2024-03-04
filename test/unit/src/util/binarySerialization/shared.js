@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {binaryToObject, objectToBinary} from "../../../../../src/util/binarySerialization.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { binaryToObject, objectToBinary } from "../../../../../src/util/binarySerialization.js";
 
 /**
  * @template {import("../../../../../src/util/binarySerializationTypes.ts").AllowedStructureFormat} T

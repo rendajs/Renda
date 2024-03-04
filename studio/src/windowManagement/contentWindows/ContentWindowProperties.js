@@ -1,4 +1,4 @@
-import {ContentWindow} from "./ContentWindow.js";
+import { ContentWindow } from "./ContentWindow.js";
 
 export class ContentWindowProperties extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:properties");

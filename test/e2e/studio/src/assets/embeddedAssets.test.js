@@ -1,15 +1,15 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {log} from "../../../shared/log.js";
-import {runE2eTest} from "../../../shared/runE2eTest.js";
-import {click} from "../../../shared/util.js";
-import {clickAsset, createAsset} from "../../shared/contentWindows/project.js";
-import {getPropertiesAssetContentReference, getPropertiesWindowContentAsset} from "../../shared/contentWindows/properties.js";
-import {clickContextMenuItem} from "../../shared/contextMenu.js";
-import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../shared/droppableGui.js";
-import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
-import {reloadPage} from "../../shared/reloadPage.js";
-import {getPropertiesTreeViewEntryValueEl, getTreeViewItemElement} from "../../shared/treeView.js";
-import {getPage} from "../../../shared/browser.js";
+import { assertEquals, assertExists } from "std/testing/asserts.ts";
+import { log } from "../../../shared/log.js";
+import { runE2eTest } from "../../../shared/runE2eTest.js";
+import { click } from "../../../shared/util.js";
+import { clickAsset, createAsset } from "../../shared/contentWindows/project.js";
+import { getPropertiesAssetContentReference, getPropertiesWindowContentAsset } from "../../shared/contentWindows/properties.js";
+import { clickContextMenuItem } from "../../shared/contextMenu.js";
+import { createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry } from "../../shared/droppableGui.js";
+import { setupNewProject, waitForProjectOpen } from "../../shared/project.js";
+import { reloadPage } from "../../shared/reloadPage.js";
+import { getPropertiesTreeViewEntryValueEl, getTreeViewItemElement } from "../../shared/treeView.js";
+import { getPage } from "../../../shared/browser.js";
 
 const MATERIAL_ASSET_PATH = ["New Material.json"];
 
@@ -24,7 +24,7 @@ async function findMapTreeViewEntry(page, assetContentEl) {
 await runE2eTest({
 	name: "Creating a new material asset with embedded map and pipeline config",
 	async fn() {
-		const {page} = await getPage();
+		const { page } = await getPage();
 		await setupNewProject(page);
 
 		log("Creating the assets");
@@ -34,7 +34,7 @@ await runE2eTest({
 
 		const assetContentReference = await getPropertiesAssetContentReference(page);
 		await page.evaluateHandle(async assetContent => {
-			const {PropertiesAssetContentMaterial} = await import("../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+			const { PropertiesAssetContentMaterial } = await import("../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
 			if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
 			await assetContent.waitForAssetLoad();
 		}, assetContentReference);

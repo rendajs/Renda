@@ -1,4 +1,4 @@
-import {PropertiesTreeView} from "./propertiesTreeView/PropertiesTreeView.js";
+import { PropertiesTreeView } from "./propertiesTreeView/PropertiesTreeView.js";
 
 /**
  * @template {import("./propertiesTreeView/types.ts").PropertiesTreeViewStructure} T
@@ -106,7 +106,7 @@ export class ObjectGui {
 	#fireValueChange(trigger) {
 		const value = this.value;
 		for (const cb of this.#onValueChangeCbs) {
-			cb({value, trigger});
+			cb({ value, trigger });
 		}
 	}
 

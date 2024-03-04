@@ -1,19 +1,19 @@
-import {AssertionError, assertEquals} from "std/testing/asserts.ts";
-import {EntitySavingManager} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/EntitySavingManager.js";
-import {runWithDom, runWithDomAsync} from "../../../../shared/runWithDom.js";
-import {createPreferencesManager} from "../../../../shared/createPreferencesManager.js";
-import {createMockProjectAsset} from "../../../../shared/createMockProjectAsset.js";
-import {assertSpyCalls, stub} from "std/testing/mock.ts";
-import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
-import {ContentWindowPreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
-import {DEFAULT_CONTENT_WINDOW_UUID} from "../shared.js";
-import {Entity} from "../../../../../../../src/mod.js";
+import { AssertionError, assertEquals } from "std/testing/asserts.ts";
+import { EntitySavingManager } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/EntitySavingManager.js";
+import { runWithDom, runWithDomAsync } from "../../../../shared/runWithDom.js";
+import { createPreferencesManager } from "../../../../shared/createPreferencesManager.js";
+import { createMockProjectAsset } from "../../../../shared/createMockProjectAsset.js";
+import { assertSpyCalls, stub } from "std/testing/mock.ts";
+import { waitForMicrotasks } from "../../../../../shared/waitForMicroTasks.js";
+import { ContentWindowPreferencesLocation } from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
+import { DEFAULT_CONTENT_WINDOW_UUID } from "../shared.js";
+import { Entity } from "../../../../../../../src/mod.js";
 
 const BASIC_EDITING_ENTITY_UUID = "editing entity uuid";
 
 function getMockArgs() {
-	const {preferencesManager, preferencesManagerAny} = createPreferencesManager({
-		"entityEditor.autosaveEntities": {type: "boolean", default: true},
+	const { preferencesManager, preferencesManagerAny } = createPreferencesManager({
+		"entityEditor.autosaveEntities": { type: "boolean", default: true },
 	});
 
 	const mockWindowManager = /** @type {import("../../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
@@ -29,7 +29,7 @@ function getMockArgs() {
 	function addEntityAsset(uuid, entity, {
 		autoResolveSaveLiveAssetData = true,
 	} = {}) {
-		const {projectAsset: editingEntityAsset} = createMockProjectAsset();
+		const { projectAsset: editingEntityAsset } = createMockProjectAsset();
 		let resolveFn = () => {};
 		const saveLiveAssetDataSpy = stub(editingEntityAsset, "saveLiveAssetData", () => {
 			if (autoResolveSaveLiveAssetData) return Promise.resolve();
@@ -53,7 +53,7 @@ function getMockArgs() {
 	}
 	const editingEntity = new Entity();
 
-	const {saveLiveAssetDataSpy} = addEntityAsset(BASIC_EDITING_ENTITY_UUID, editingEntity);
+	const { saveLiveAssetDataSpy } = addEntityAsset(BASIC_EDITING_ENTITY_UUID, editingEntity);
 
 	const mockStudio = /** @type {import("../../../../../../../studio/src/Studio.js").Studio} */ ({
 		preferencesManager: preferencesManagerAny,
@@ -71,7 +71,7 @@ function getMockArgs() {
 						findRootEntityAsset(entity) {
 							const data = editingEntities.find(data => data.entity == entity);
 							if (data) {
-								return {uuid: data.uuid};
+								return { uuid: data.uuid };
 							}
 							return null;
 						},
@@ -104,7 +104,7 @@ Deno.test({
 	name: "Save button is hidden when autosave is enabled",
 	async fn() {
 		runWithDom(() => {
-			const {args, preferencesManager} = getMockArgs();
+			const { args, preferencesManager } = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			assertEquals(manager.saveEntityButton.visible, false);
@@ -119,7 +119,7 @@ Deno.test({
 	name: "Save button is disabled by default",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, preferencesManager} = getMockArgs();
+			const { args, preferencesManager } = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", false);
@@ -132,7 +132,7 @@ Deno.test({
 	name: "Entity is saved when clicking the button",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, editingEntity, preferencesManager, saveLiveAssetDataSpy} = getMockArgs();
+			const { args, editingEntity, preferencesManager, saveLiveAssetDataSpy } = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", false);
@@ -151,7 +151,7 @@ Deno.test({
 	name: "Button becomes disabled when there is nothing to save",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, preferencesManager} = getMockArgs();
+			const { args, preferencesManager } = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", false);
@@ -176,7 +176,7 @@ Deno.test({
 	name: "Entities are autosaved when making changes",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, editingEntity, saveLiveAssetDataSpy, preferencesManager} = getMockArgs();
+			const { args, editingEntity, saveLiveAssetDataSpy, preferencesManager } = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", true);
@@ -195,7 +195,7 @@ Deno.test({
 	name: "Loading a new entity should disable the button",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, editingEntity, preferencesManager} = getMockArgs();
+			const { args, editingEntity, preferencesManager } = getMockArgs();
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", false);
@@ -213,15 +213,15 @@ Deno.test({
 	name: "Marking an entity as dirty while another is being saved still saves it in a second pass",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, addEntityAsset, preferencesManager} = getMockArgs();
+			const { args, addEntityAsset, preferencesManager } = getMockArgs();
 
 			const entity1 = new Entity();
 			const uuid1 = "editing entity 1";
-			const {saveLiveAssetDataSpy: saveLiveAssetDataSpy1, resolveSaveLiveAssetData: resolve1} = addEntityAsset(uuid1, entity1, {autoResolveSaveLiveAssetData: false});
+			const { saveLiveAssetDataSpy: saveLiveAssetDataSpy1, resolveSaveLiveAssetData: resolve1 } = addEntityAsset(uuid1, entity1, { autoResolveSaveLiveAssetData: false });
 
 			const entity2 = new Entity();
 			const uuid2 = "editing entity 2";
-			const {saveLiveAssetDataSpy: saveLiveAssetDataSpy2} = addEntityAsset(uuid2, entity2);
+			const { saveLiveAssetDataSpy: saveLiveAssetDataSpy2 } = addEntityAsset(uuid2, entity2);
 
 			const manager = new EntitySavingManager(...args);
 			preferencesManager.set("entityEditor.autosaveEntities", true);

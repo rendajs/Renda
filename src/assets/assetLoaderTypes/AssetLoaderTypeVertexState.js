@@ -1,6 +1,6 @@
-import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
-import {StorageType} from "../../util/binarySerialization.js";
-import {VertexState} from "../../rendering/VertexState.js";
+import { AssetLoaderTypeGenericStructure } from "./AssetLoaderTypeGenericStructure.js";
+import { StorageType } from "../../util/binarySerialization.js";
+import { VertexState } from "../../rendering/VertexState.js";
 
 const binarySerializationOpts = {
 	structure: {

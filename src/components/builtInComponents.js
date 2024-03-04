@@ -1,6 +1,6 @@
-import {CameraComponent} from "./builtIn/CameraComponent.js";
-import {LightComponent} from "./builtIn/LightComponent.js";
-import {MeshComponent} from "./builtIn/MeshComponent.js";
+import { CameraComponent } from "./builtIn/CameraComponent.js";
+import { LightComponent } from "./builtIn/LightComponent.js";
+import { MeshComponent } from "./builtIn/MeshComponent.js";
 
 /** @type {(new (...args: any) => import("./Component.js").Component)[]} */
 const builtInComponents = [
@@ -9,4 +9,4 @@ const builtInComponents = [
 	MeshComponent,
 ];
 
-export {builtInComponents};
+export { builtInComponents };

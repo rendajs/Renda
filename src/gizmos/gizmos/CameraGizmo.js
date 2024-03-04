@@ -1,8 +1,8 @@
-import {Gizmo} from "./Gizmo.js";
-import {Mesh} from "../../core/Mesh.js";
-import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
-import {Vec3} from "../../math/Vec3.js";
-import {Vec4} from "../../math/Vec4.js";
+import { Gizmo } from "./Gizmo.js";
+import { Mesh } from "../../core/Mesh.js";
+import { MeshComponent } from "../../components/builtIn/MeshComponent.js";
+import { Vec3 } from "../../math/Vec3.js";
+import { Vec4 } from "../../math/Vec4.js";
 
 export class CameraGizmo extends Gizmo {
 	/**

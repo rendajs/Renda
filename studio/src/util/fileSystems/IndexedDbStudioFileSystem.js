@@ -1,7 +1,7 @@
-import {StudioFileSystem} from "./StudioFileSystem.js";
-import {IndexedDbUtil} from "../../../../src/util/IndexedDbUtil.js";
-import {generateUuid} from "../../../../src/util/util.js";
-import {wait} from "../../../../src/util/Timeout.js";
+import { StudioFileSystem } from "./StudioFileSystem.js";
+import { IndexedDbUtil } from "../../../../src/util/IndexedDbUtil.js";
+import { generateUuid } from "../../../../src/util/util.js";
+import { wait } from "../../../../src/util/Timeout.js";
 
 // eslint-disable-next-line no-unused-vars
 const fileSystemPointerType = Symbol("file system pointer type");
@@ -307,7 +307,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 				throw new Error(`Failed to ${errorMessageActionName}${atText}, "${failurePathStr}" does not exist.`);
 			}
 		}
-		return {pointer, obj};
+		return { pointer, obj };
 	}
 
 	/**
@@ -327,7 +327,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	async createDir(path) {
 		path = [...path];
 		const op = this.requestWriteOperation();
-		const {unlock} = await this.#getSystemLock();
+		const { unlock } = await this.#getSystemLock();
 		try {
 			await this.createDirInternal(path, {
 				errorMessageActionName: "createDir",
@@ -454,13 +454,13 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	 * @param {StudioFileSystemPath} path
 	 */
 	async readDir(path) {
-		const {unlock} = await this.#getSystemLock();
+		const { unlock } = await this.#getSystemLock();
 		try {
-			const {obj} = await this.getObjectFromPath(path, {
+			const { obj } = await this.getObjectFromPath(path, {
 				errorMessageActionName: "read",
 			});
 			this.assertIsDir(obj, `Failed to read, "${path.join("/")}" is not a directory.`);
-			const {files, directories} = await this.readDirObject(obj);
+			const { files, directories } = await this.readDirObject(obj);
 			return {
 				files: Array.from(files.keys()),
 				directories: Array.from(directories.keys()),
@@ -488,7 +488,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 				files.set(fileObj.fileName, filePointer);
 			}
 		}
-		return {files, directories};
+		return { files, directories };
 	}
 
 	/**
@@ -498,7 +498,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	 */
 	async move(fromPath, toPath) {
 		const writeOp = this.requestWriteOperation();
-		const {unlock} = await this.#getSystemLock();
+		const { unlock } = await this.#getSystemLock();
 
 		try {
 			const oldName = fromPath[fromPath.length - 1];
@@ -515,7 +515,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 			this.assertIsDir(newParentEntry.obj);
 
 			// Check if toPath is an existing file
-			const {files: existingFiles, directories: existingDirectories} = await this.readDirObject(newParentEntry.obj);
+			const { files: existingFiles, directories: existingDirectories } = await this.readDirObject(newParentEntry.obj);
 			if (existingFiles.has(newName)) {
 				throw new Error(`Failed to move: "${toPath.join("/")}" is a file.`);
 			}
@@ -525,7 +525,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 			if (existingDirectoryPointer) {
 				const existingDirObj = await this.getObject(existingDirectoryPointer);
 				this.assertIsDir(existingDirObj);
-				const {files, directories} = await this.readDirObject(existingDirObj);
+				const { files, directories } = await this.readDirObject(existingDirObj);
 				if (files.size > 0 || directories.size > 0) {
 					throw new Error(`Failed to move: "${toPath.join("/")}" is a non-empty directory.`);
 				} else {
@@ -603,7 +603,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	async delete(path, recursive = false) {
 		path = [...path];
 		const writeOp = this.requestWriteOperation();
-		const {unlock} = await this.#getSystemLock();
+		const { unlock } = await this.#getSystemLock();
 
 		try {
 			await this.#deleteInternal(path, recursive);
@@ -643,7 +643,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		if (!lastTravelledItem) {
 			throw new Error("Cannot delete the root directory");
 		}
-		const {obj, pointer} = lastTravelledItem;
+		const { obj, pointer } = lastTravelledItem;
 		if (obj.isDir) {
 			if (!recursive) {
 				if (obj.files.length > 0) {
@@ -678,7 +678,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		path = [...path];
 		let createdNew = true;
 		const writeOp = this.requestWriteOperation();
-		const {unlock} = await this.#getSystemLock();
+		const { unlock } = await this.#getSystemLock();
 		try {
 			let existingObject = null;
 			try {
@@ -699,7 +699,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 				type = file.type;
 				lastModified = file.lastModified;
 			}
-			const createdFile = new File([file], fileName, {type, lastModified});
+			const createdFile = new File([file], fileName, { type, lastModified });
 			const newParentPath = path.slice(0, path.length - 1);
 			const newParentTravelledData = await this.createDirInternal(newParentPath, {
 				errorMessagePath: path,
@@ -751,9 +751,9 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	 * @param {string[]} path
 	 */
 	async readFile(path) {
-		const {unlock} = await this.#getSystemLock();
+		const { unlock } = await this.#getSystemLock();
 		try {
-			const {obj} = await this.getObjectFromPath(path, {
+			const { obj } = await this.getObjectFromPath(path, {
 				errorMessageActionName: "read",
 			});
 			if (!obj.isFile) {
@@ -771,9 +771,9 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	 * @param {string[]} path
 	 */
 	async isFile(path) {
-		const {unlock} = await this.#getSystemLock();
+		const { unlock } = await this.#getSystemLock();
 		try {
-			const {obj} = await this.getObjectFromPath(path);
+			const { obj } = await this.getObjectFromPath(path);
 			return !!obj.isFile;
 		} catch (e) {
 			return false;
@@ -786,9 +786,9 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	 * @param {string[]} path
 	 */
 	async isDir(path) {
-		const {unlock} = await this.#getSystemLock();
+		const { unlock } = await this.#getSystemLock();
 		try {
-			const {obj} = await this.getObjectFromPath(path);
+			const { obj } = await this.getObjectFromPath(path);
 			return !!obj.isDir;
 		} catch (e) {
 			return false;

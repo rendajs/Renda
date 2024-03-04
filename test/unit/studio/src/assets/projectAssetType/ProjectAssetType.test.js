@@ -1,5 +1,5 @@
-import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
-import {ProjectAssetType} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
+import { assertEquals, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
+import { ProjectAssetType } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
 
 /**
  * @param {object} options
@@ -33,7 +33,7 @@ function getMocks() {
 	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
 
 	let liveAssetNeedsReplacementCallCount = 0;
-	const {mockProjectAsset} = createMockProjectAsset({
+	const { mockProjectAsset } = createMockProjectAsset({
 		liveAssetNeedsReplacementCb: () => {
 			liveAssetNeedsReplacementCallCount++;
 		},
@@ -65,7 +65,7 @@ function getMocks() {
 Deno.test({
 	name: "liveAssetNeedsReplacement() requests live asset replacement by default",
 	fn() {
-		const {projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount} = getMocks();
+		const { projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount } = getMocks();
 		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
 
 		projectAssetType.fileChangedExternally();
@@ -77,7 +77,7 @@ Deno.test({
 Deno.test({
 	name: "liveAssetNeedsReplacement() requests live asset replacement",
 	fn() {
-		const {projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount} = getMocks();
+		const { projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount } = getMocks();
 		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
 
 		projectAssetType.liveAssetNeedsReplacement();
@@ -89,9 +89,9 @@ Deno.test({
 Deno.test({
 	name: "listenForUsedLiveAssetChanges() requests live asset replacement when the passed project asset gets a new live asset",
 	fn() {
-		const {projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount} = getMocks();
+		const { projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount } = getMocks();
 		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
-		const {mockProjectAsset, fireOnLiveAssetNeedsReplacementCbs} = createMockProjectAsset();
+		const { mockProjectAsset, fireOnLiveAssetNeedsReplacementCbs } = createMockProjectAsset();
 
 		projectAssetType.listenForUsedLiveAssetChanges(mockProjectAsset);
 		assertEquals(getLiveAssetNeedsReplacementCallCount(), 0);
@@ -105,7 +105,7 @@ Deno.test({
 Deno.test({
 	name: "listenForUsedLiveAssetChanges() with null project asset does nothing",
 	fn() {
-		const {projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount} = getMocks();
+		const { projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount } = getMocks();
 		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
 
 		projectAssetType.listenForUsedLiveAssetChanges(null);
@@ -117,9 +117,9 @@ Deno.test({
 Deno.test({
 	name: "destroyLiveAssetData() removes callbacks from listenForUsedLiveAssetChanges()",
 	fn() {
-		const {projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount} = getMocks();
+		const { projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount } = getMocks();
 		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
-		const {mockProjectAsset, fireOnLiveAssetNeedsReplacementCbs} = createMockProjectAsset();
+		const { mockProjectAsset, fireOnLiveAssetNeedsReplacementCbs } = createMockProjectAsset();
 
 		projectAssetType.listenForUsedLiveAssetChanges(mockProjectAsset);
 		projectAssetType.destroyLiveAssetData();
@@ -132,7 +132,7 @@ Deno.test({
 Deno.test({
 	name: "destroyLiveAssetData() calls destructor on live asset",
 	fn() {
-		const {projectAssetTypeArgs} = getMocks();
+		const { projectAssetTypeArgs } = getMocks();
 		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
 
 		let destructorCalled = false;
@@ -151,7 +151,7 @@ Deno.test({
 Deno.test({
 	name: "open() sets the project asset as active object in a properties window",
 	fn() {
-		const {projectAssetTypeArgs, mockProjectAsset} = getMocks();
+		const { projectAssetTypeArgs, mockProjectAsset } = getMocks();
 		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
 
 		/** @type {unknown[][]} */
@@ -184,7 +184,7 @@ Deno.test({
 		 */
 		class ExtendedProjectAssetType extends ProjectAssetType {}
 
-		const {projectAssetTypeArgs} = getMocks();
+		const { projectAssetTypeArgs } = getMocks();
 		const projectAssetType = new ExtendedProjectAssetType(...projectAssetTypeArgs);
 
 		await assertRejects(async () => {

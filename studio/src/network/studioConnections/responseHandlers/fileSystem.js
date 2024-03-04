@@ -1,4 +1,4 @@
-import {StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary} from "../../../../../src/util/binarySerialization.js";
+import { StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary } from "../../../../../src/util/binarySerialization.js";
 
 /**
  * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem

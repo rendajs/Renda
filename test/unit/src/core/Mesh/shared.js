@@ -1,4 +1,4 @@
-import {Mesh} from "../../../../../src/mod.js";
+import { Mesh } from "../../../../../src/mod.js";
 
 export class FakeVertexState {
 	/**

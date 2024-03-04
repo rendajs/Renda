@@ -1,4 +1,4 @@
-import {MalformedSyntaxError, parseExpression, verifyExpression} from "./conditionExpressions.js";
+import { MalformedSyntaxError, parseExpression, verifyExpression } from "./conditionExpressions.js";
 
 /**
  * - `single` Only fire command once.

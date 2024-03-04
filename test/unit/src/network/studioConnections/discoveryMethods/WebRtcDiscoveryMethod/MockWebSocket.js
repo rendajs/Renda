@@ -1,6 +1,6 @@
-import {AssertionError, assertEquals} from "std/testing/asserts.ts";
-import {spy} from "std/testing/mock.ts";
-import {TypedMessenger} from "../../../../../../../src/mod.js";
+import { AssertionError, assertEquals } from "std/testing/asserts.ts";
+import { spy } from "std/testing/mock.ts";
+import { TypedMessenger } from "../../../../../../../src/mod.js";
 
 /** @type {Set<MockWebSocket>} */
 const createdWebSockets = new Set();
@@ -75,13 +75,13 @@ export class MockWebSocket extends EventTarget {
 			relayMessage: (otherClientUuid, data) => {
 				this.relayMessageSpy(otherClientUuid, data);
 				return {
-					$respondOptions: {respond: false},
+					$respondOptions: { respond: false },
 				};
 			},
 			setProjectMetadata: projectMetadata => {
 				this.setProjectMetadataSpy(projectMetadata);
 				return {
-					$respondOptions: {respond: false},
+					$respondOptions: { respond: false },
 				};
 			},
 		});

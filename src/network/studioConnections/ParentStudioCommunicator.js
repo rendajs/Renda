@@ -1,5 +1,5 @@
-import {TypedMessenger} from "../../util/TypedMessenger/TypedMessenger.js";
-import {TimeoutError} from "../../util/TimeoutError.js";
+import { TypedMessenger } from "../../util/TypedMessenger/TypedMessenger.js";
+import { TimeoutError } from "../../util/TimeoutError.js";
 
 /**
  * This establishes a connection with the parent window in case the page is embedded in an iframe.
@@ -11,7 +11,7 @@ export class ParentStudioCommunicator {
 		/**
 		 * @private @type {TypedMessenger<{}, import("../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>}
 		 */
-		this.parentMessenger = new TypedMessenger({globalTimeout: 1000});
+		this.parentMessenger = new TypedMessenger({ globalTimeout: 1000 });
 		this.parentMessenger.setSendHandler(data => {
 			if (!this.isInIframe()) {
 				throw new Error("Failed to send message to parent, the page is not embedded in an iframe");

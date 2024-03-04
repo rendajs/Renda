@@ -1,20 +1,20 @@
-import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
-import {log} from "../../../shared/log.js";
-import {runE2eTest} from "../../../shared/runE2eTest.js";
-import {click} from "../../../shared/util.js";
-import {createAsset, getAssetTreeView, waitForAssetExists} from "../../shared/contentWindows/project.js";
-import {getMaybeContentWindowConnectionsElement, waitForContentWindowConnectionsElement} from "../../shared/contentWindows/connections.js";
-import {clickContextMenuItem} from "../../shared/contextMenu.js";
-import {openProjectSelector, setupNewProject, waitForProjectOpen, waitForProjectSelector} from "../../shared/project.js";
-import {reloadPage} from "../../shared/reloadPage.js";
-import {waitForStudioLoad} from "../../shared/studio.js";
-import {waitSeconds} from "../../shared/waitSeconds.js";
-import {getPage} from "../../../shared/browser.js";
+import { assert, assertEquals, assertExists } from "std/testing/asserts.ts";
+import { log } from "../../../shared/log.js";
+import { runE2eTest } from "../../../shared/runE2eTest.js";
+import { click } from "../../../shared/util.js";
+import { createAsset, getAssetTreeView, waitForAssetExists } from "../../shared/contentWindows/project.js";
+import { getMaybeContentWindowConnectionsElement, waitForContentWindowConnectionsElement } from "../../shared/contentWindows/connections.js";
+import { clickContextMenuItem } from "../../shared/contextMenu.js";
+import { openProjectSelector, setupNewProject, waitForProjectOpen, waitForProjectSelector } from "../../shared/project.js";
+import { reloadPage } from "../../shared/reloadPage.js";
+import { waitForStudioLoad } from "../../shared/studio.js";
+import { waitSeconds } from "../../shared/waitSeconds.js";
+import { getPage } from "../../../shared/browser.js";
 
 await runE2eTest({
 	name: "Rename a project and refresh the page, it should open the latest project",
 	async fn() {
-		const {page} = await getPage();
+		const { page } = await getPage();
 		const newProjectName = "New Project Name";
 		const projectWindowSelector = "[data-content-window-type-id='renda:project']";
 		const rootNameTreeViewSelector = `${projectWindowSelector} .studio-content-window-content > .tree-view-item`;
@@ -66,7 +66,7 @@ await runE2eTest({
 await runE2eTest({
 	name: "Empty db projects do not persist",
 	async fn() {
-		const {page} = await getPage();
+		const { page } = await getPage();
 		await setupNewProject(page);
 
 		// Since what we're testing for can be triggered by anything, there's
@@ -89,7 +89,7 @@ await runE2eTest({
 await runE2eTest({
 	name: "Deleting db project closes it if it currently open",
 	async fn() {
-		const {page} = await getPage();
+		const { page } = await getPage();
 		await setupNewProject(page);
 
 		// Create an asset to mark the project as isWorthSaving
@@ -113,7 +113,7 @@ await runE2eTest({
 await runE2eTest({
 	name: "Connect remote project opens the connections window",
 	async fn() {
-		const {page} = await getPage();
+		const { page } = await getPage();
 		const projectSelectorEl = await waitForProjectSelector(page);
 		await waitForStudioLoad(page);
 

@@ -1,4 +1,4 @@
-import {StudioConnection} from "./StudioConnection.js";
+import { StudioConnection } from "./StudioConnection.js";
 
 /**
  * There are essentially three types of connection types.

@@ -1,5 +1,5 @@
-import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
-import {ContentWindow} from "./ContentWindow.js";
+import { PropertiesTreeView } from "../../ui/propertiesTreeView/PropertiesTreeView.js";
+import { ContentWindow } from "./ContentWindow.js";
 
 /**
  * @typedef {object} ConectionGui
@@ -32,14 +32,14 @@ export class ContentWindowConnections extends ContentWindow {
 		this.studioConnectionGuis = new Map();
 		this.inspectorConnectionGuis = new Map();
 
-		const {discoveryServerStatusLabel} = this.createHeaderUi();
+		const { discoveryServerStatusLabel } = this.createHeaderUi();
 		this.discoveryServerStatusLabel = discoveryServerStatusLabel;
 
-		const {studioClientConnectionTreeView, studioConnectionsList} = this.createClientConnectionUi();
+		const { studioClientConnectionTreeView, studioConnectionsList } = this.createClientConnectionUi();
 		this.studioClientConnectionsTreeView = studioClientConnectionTreeView;
 		this.studioConnectionsList = studioConnectionsList;
 
-		const {inspectorConnectionsList, inspectorConnectionsTreeView} = this.createInspectorConnectionsUi();
+		const { inspectorConnectionsList, inspectorConnectionsTreeView } = this.createInspectorConnectionsUi();
 		this.inspectorConnectionsTreeView = inspectorConnectionsTreeView;
 		this.inspectorConnectionsList = inspectorConnectionsList;
 
@@ -77,7 +77,7 @@ export class ContentWindowConnections extends ContentWindow {
 				label: "Status",
 			},
 		});
-		return {discoveryServerStatusLabel};
+		return { discoveryServerStatusLabel };
 	}
 
 	createClientConnectionUi() {
@@ -85,7 +85,7 @@ export class ContentWindowConnections extends ContentWindow {
 		this.contentEl.appendChild(studioClientConnectionTreeView.el);
 
 		const studioConnectionsList = studioClientConnectionTreeView.addCollapsable("Studios");
-		return {studioClientConnectionTreeView, studioConnectionsList};
+		return { studioClientConnectionTreeView, studioConnectionsList };
 	}
 
 	createInspectorConnectionsUi() {
@@ -93,7 +93,7 @@ export class ContentWindowConnections extends ContentWindow {
 		this.contentEl.appendChild(inspectorConnectionsTreeView.el);
 
 		const inspectorConnectionsList = inspectorConnectionsTreeView.addCollapsable("Inspectors");
-		return {inspectorConnectionsList, inspectorConnectionsTreeView};
+		return { inspectorConnectionsList, inspectorConnectionsTreeView };
 	}
 
 	/**
@@ -145,7 +145,7 @@ export class ContentWindowConnections extends ContentWindow {
 					},
 				});
 
-				gui = {treeView, statusLabel, connectButton: null, blockButton: null, allowButton: null};
+				gui = { treeView, statusLabel, connectButton: null, blockButton: null, allowButton: null };
 				guisList.set(connection.id, gui);
 			}
 

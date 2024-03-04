@@ -1,6 +1,6 @@
-import {PropertiesTreeView} from "./propertiesTreeView/PropertiesTreeView.js";
-import {ButtonGroup} from "./ButtonGroup.js";
-import {Button} from "./Button.js";
+import { PropertiesTreeView } from "./propertiesTreeView/PropertiesTreeView.js";
+import { ButtonGroup } from "./ButtonGroup.js";
+import { Button } from "./Button.js";
 
 /**
  * @template {import("./propertiesTreeView/types.ts").GuiTypes} T

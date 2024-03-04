@@ -1,19 +1,19 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {MaterialMapTypeSerializerWebGpu} from "../../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializerWebGpu.js";
-import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
-import {WebGpuMaterialMapType} from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { MaterialMapTypeSerializerWebGpu } from "../../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializerWebGpu.js";
+import { WebGpuPipelineConfig } from "../../../../../../src/mod.js";
+import { WebGpuMaterialMapType } from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 
 const BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID = "basic forward pipeline config asset uuid";
 
 function getMockContext({
 	getAssetUuidReturnValue = /** @type {string | object} */ (BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID),
 } = {}) {
-	const {projectAsset: materialMapAsset} = createMockProjectAsset();
+	const { projectAsset: materialMapAsset } = createMockProjectAsset();
 
 	const pipelineConfig = new WebGpuPipelineConfig();
-	const {projectAsset: pipeLineConfigAsset} = createMockProjectAsset({
+	const { projectAsset: pipeLineConfigAsset } = createMockProjectAsset({
 		liveAsset: pipelineConfig,
 	});
 
@@ -48,7 +48,7 @@ function getMockContext({
 Deno.test({
 	name: "loadLiveAssetData() with no data",
 	async fn() {
-		const {context} = getMockContext();
+		const { context } = getMockContext();
 		const result = await MaterialMapTypeSerializerWebGpu.loadLiveAssetData(context, null);
 		assertEquals(result.forwardPipelineConfig, null);
 	},
@@ -57,7 +57,7 @@ Deno.test({
 Deno.test({
 	name: "loadLiveAssetData() with an empty object",
 	async fn() {
-		const {context} = getMockContext();
+		const { context } = getMockContext();
 		const result = await MaterialMapTypeSerializerWebGpu.loadLiveAssetData(context, {});
 		assertEquals(result.forwardPipelineConfig, null);
 	},
@@ -66,7 +66,7 @@ Deno.test({
 Deno.test({
 	name: "loadLiveAssetData() with a forwardPipelineConfig uuid",
 	async fn() {
-		const {context, pipelineConfig, materialMapAsset, pipeLineConfigAsset} = getMockContext();
+		const { context, pipelineConfig, materialMapAsset, pipeLineConfigAsset } = getMockContext();
 
 		const mockProjectAssetType = /** @type {import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ ({
 			listenForUsedLiveAssetChanges(projectAsset) {},
@@ -94,7 +94,7 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with no forwardPipelineConfig",
 	async fn() {
-		const {context} = getMockContext();
+		const { context } = getMockContext();
 		const liveAsset = new WebGpuMaterialMapType();
 
 		const result = await MaterialMapTypeSerializerWebGpu.saveLiveAssetData(context, liveAsset);
@@ -106,9 +106,9 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with a forwardPipelineConfig",
 	async fn() {
-		const {context} = getMockContext();
+		const { context } = getMockContext();
 		const forwardPipelineConfig = new WebGpuPipelineConfig();
-		const liveAsset = new WebGpuMaterialMapType({forwardPipelineConfig});
+		const liveAsset = new WebGpuMaterialMapType({ forwardPipelineConfig });
 
 		const result = await MaterialMapTypeSerializerWebGpu.saveLiveAssetData(context, liveAsset);
 
@@ -126,11 +126,11 @@ Deno.test({
 			depthWriteEnabled: true,
 			renderOrder: 123,
 		};
-		const {context} = getMockContext({
+		const { context } = getMockContext({
 			getAssetUuidReturnValue: pipelineConfigData,
 		});
 		const forwardPipelineConfig = new WebGpuPipelineConfig();
-		const liveAsset = new WebGpuMaterialMapType({forwardPipelineConfig});
+		const liveAsset = new WebGpuMaterialMapType({ forwardPipelineConfig });
 
 		const result = await MaterialMapTypeSerializerWebGpu.saveLiveAssetData(context, liveAsset);
 
@@ -143,7 +143,7 @@ Deno.test({
 Deno.test({
 	name: "getMappableValues()",
 	async fn() {
-		const {context, pipelineConfig} = getMockContext();
+		const { context, pipelineConfig } = getMockContext();
 		pipelineConfig.fragmentShader = {
 			source: `
 				struct MaterialUniforms {
