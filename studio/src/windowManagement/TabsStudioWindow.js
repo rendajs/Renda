@@ -418,7 +418,7 @@ export class TabsStudioWindow extends StudioWindow {
 												e.item.showCheckmark = autoSaveValue;
 												this.windowManager.workspaceManager.setCurrentWorkspaceAutoSaveValue(autoSaveValue);
 											},
-										}
+										},
 									);
 								}
 								submenu.push(
@@ -434,7 +434,7 @@ export class TabsStudioWindow extends StudioWindow {
 										onClick: () => {
 											this.windowManager.workspaceManager.deleteWorkspace(workspaceId);
 										},
-									}
+									},
 								);
 								if (isCurrentWorkspace) {
 									submenu.push({
@@ -461,7 +461,7 @@ export class TabsStudioWindow extends StudioWindow {
 									this.windowManager.workspaceManager.addNewWorkspace(name);
 								}
 							},
-						}
+						},
 					);
 
 					return workspacesSubmenu;

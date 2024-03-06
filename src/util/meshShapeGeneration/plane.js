@@ -55,7 +55,7 @@ export function createPlane({
 			const topRight = bottomRight + 1;
 			indices.push(
 				bottomLeft, topLeft, bottomRight,
-				topLeft, topRight, bottomRight
+				topLeft, topRight, bottomRight,
 			);
 		}
 	}

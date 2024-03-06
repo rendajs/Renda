@@ -62,7 +62,7 @@ export class CameraClusterDataGizmo extends Gizmo {
 				j + 7,
 				j + 6,
 				j + 6,
-				j + 4
+				j + 4,
 			);
 			vertices.push(
 				new Vec3(min.x, min.y, min.z),
@@ -72,7 +72,7 @@ export class CameraClusterDataGizmo extends Gizmo {
 				new Vec3(max.x, min.y, min.z),
 				new Vec3(max.x, min.y, max.z),
 				new Vec3(max.x, max.y, min.z),
-				new Vec3(max.x, max.y, max.z)
+				new Vec3(max.x, max.y, max.z),
 			);
 			const col = new Vec3(0.5, 0.5, 0.5);
 			colors.push(col, col, col, col, col, col, col, col);

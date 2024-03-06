@@ -113,7 +113,7 @@ export class SplitStudioWindow extends StudioWindow {
 			this.splitHorizontal ? this.resizeStartBounds.top : this.resizeStartBounds.left,
 			this.splitHorizontal ? this.resizeStartBounds.bottom : this.resizeStartBounds.right,
 			this.splitHorizontal ? e.clientY : e.clientX,
-			"user"
+			"user",
 		);
 	};
 
