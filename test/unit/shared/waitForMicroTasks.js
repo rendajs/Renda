@@ -57,7 +57,7 @@
  * @returns {Promise<void>}
  */
 export function waitForMicrotasks() {
-	return new Promise(r => setTimeout(r, 0));
+	return new Promise((r) => setTimeout(r, 0));
 }
 
 /**
@@ -118,5 +118,5 @@ export function waitForMicrotasks() {
  * @returns {Promise<void>}
  */
 export function waitForCurrentMicroTasks() {
-	return new Promise(r => queueMicrotask(r));
+	return new Promise((r) => queueMicrotask(r));
 }

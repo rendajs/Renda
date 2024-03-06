@@ -1,5 +1,5 @@
-import {AssetLoaderType} from "./AssetLoaderType.js";
-import {ShaderSource} from "../../rendering/ShaderSource.js";
+import { AssetLoaderType } from "./AssetLoaderType.js";
+import { ShaderSource } from "../../rendering/ShaderSource.js";
 
 // TODO: Make the return type a generic based on whether 'raw' was true.
 
@@ -52,7 +52,7 @@ Alternatively, you can load the shader with the 'raw' flag set:
 	});
 `);
 			}
-			const {shaderCode: newShaderCode} = await this.builder.buildShader(shaderCode);
+			const { shaderCode: newShaderCode } = await this.builder.buildShader(shaderCode);
 			return new ShaderSource(newShaderCode);
 		}
 	}
@@ -74,7 +74,7 @@ Alternatively, you can load the shader with the 'raw' flag set:
 	 */
 	async onShaderUuidRequested(uuid) {
 		const shader = await this.assetLoader.getAsset(uuid, {
-			assetOpts: {raw: true},
+			assetOpts: { raw: true },
 			// createNewInstance is required because this will return a raw string
 			// and raw strings can't be cached used WeakRefs
 			createNewInstance: true,

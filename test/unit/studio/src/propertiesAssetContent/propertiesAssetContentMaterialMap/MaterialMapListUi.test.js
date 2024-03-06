@@ -1,9 +1,9 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {Importer} from "fake-imports";
-import {castTreeView} from "../../../shared/mockTreeView/castTreeView.js";
-import {Texture} from "../../../../../../src/core/Texture.js";
-import {Sampler} from "../../../../../../src/rendering/Sampler.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { Importer } from "fake-imports";
+import { castTreeView } from "../../../shared/mockTreeView/castTreeView.js";
+import { Texture } from "../../../../../../src/core/Texture.js";
+import { Sampler } from "../../../../../../src/rendering/Sampler.js";
 
 const importer = new Importer(import.meta.url, {
 	importMap: "../../../../../../importmap.json",
@@ -14,7 +14,7 @@ importer.makeReal("../../../../../../src/rendering/Sampler.js");
 
 /** @type {import("../../../../../../studio/src/propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapListUi.js")} */
 const MaterialMapListUiImport = await importer.import("../../../../../../studio/src/propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapListUi.js");
-const {MaterialMapListUi} = MaterialMapListUiImport;
+const { MaterialMapListUi } = MaterialMapListUiImport;
 
 Deno.test({
 	name: "Creating with zero items",

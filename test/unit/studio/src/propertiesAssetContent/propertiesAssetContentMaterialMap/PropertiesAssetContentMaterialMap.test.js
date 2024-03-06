@@ -1,6 +1,6 @@
-import {Importer} from "fake-imports";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
-import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
+import { Importer } from "fake-imports";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
+import { assertEquals, assertExists, assertStrictEquals } from "std/testing/asserts.ts";
 
 const importer = new Importer(import.meta.url, {
 	importMap: "../../../../../../importmap.json",
@@ -20,7 +20,7 @@ importer.fakeModule("../../../../../../studio/src/propertiesAssetContent/propert
 
 /** @type {import("../../../../../../studio/src/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js")} */
 const PropertiesAssetContentMaterialMapImport = await importer.import("../../../../../../studio/src/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js");
-const {PropertiesAssetContentMaterialMap} = PropertiesAssetContentMaterialMapImport;
+const { PropertiesAssetContentMaterialMap } = PropertiesAssetContentMaterialMapImport;
 
 const BASIC_MAP_TYPE_UUID = "basic-map-type-uuid";
 
@@ -48,8 +48,8 @@ function basicSetup() {
 Deno.test({
 	name: "Load an empty material map",
 	async fn() {
-		const {assetContent} = basicSetup();
-		const {projectAsset: mockMaterialMapAsset} = createMockProjectAsset({
+		const { assetContent } = basicSetup();
+		const { projectAsset: mockMaterialMapAsset } = createMockProjectAsset({
 			readAssetDataReturnValue: {},
 		});
 
@@ -63,13 +63,13 @@ Deno.test({
 Deno.test({
 	name: "Load a material map with one map",
 	async fn() {
-		const {assetContent, MockMaterialMapTypeSerializer} = basicSetup();
-		const {projectAsset: mockMaterialMapAsset} = createMockProjectAsset({
+		const { assetContent, MockMaterialMapTypeSerializer } = basicSetup();
+		const { projectAsset: mockMaterialMapAsset } = createMockProjectAsset({
 			readAssetDataReturnValue: {
 				maps: [
 					{
 						mapTypeId: BASIC_MAP_TYPE_UUID,
-						customData: {custom: "data"},
+						customData: { custom: "data" },
 					},
 				],
 			},

@@ -1,5 +1,5 @@
-import {assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {binaryToUuid, uuidToBinary} from "../../../../../src/mod.js";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
+import { binaryToUuid, uuidToBinary } from "../../../../../src/mod.js";
 
 Deno.test({
 	name: "uuidToBinary()",

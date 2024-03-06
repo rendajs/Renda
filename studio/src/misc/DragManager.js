@@ -1,4 +1,4 @@
-import {generateUuid} from "../../../src/util/mod.js";
+import { generateUuid } from "../../../src/util/mod.js";
 
 export class DragManager {
 	constructor() {
@@ -33,7 +33,7 @@ export class DragManager {
 			y = el.offsetHeight / 2;
 		}
 		this.createdDragFeedbackEls.add(el);
-		return {el, x, y};
+		return { el, x, y };
 	}
 
 	/**

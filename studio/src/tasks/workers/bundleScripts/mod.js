@@ -1,5 +1,5 @@
-import {bundle} from "./bundle.js";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { bundle } from "./bundle.js";
+import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 
 /** @typedef {typeof messenger} BundleScriptsMessenger */
 /** @typedef {typeof responseHandlers} BundleScriptsMessengerResponseHandlers */
@@ -8,7 +8,7 @@ const responseHandlers = {
 	/**
 	 * @param {import("./bundle.js").BundleOptions} options
 	 */
-	bundle: async options => {
+	bundle: async (options) => {
 		return await bundle(options, messenger);
 	},
 };

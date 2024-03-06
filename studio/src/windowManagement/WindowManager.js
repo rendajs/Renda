@@ -1,12 +1,12 @@
-import {SplitStudioWindow} from "./SplitStudioWindow.js";
-import {TabsStudioWindow} from "./TabsStudioWindow.js";
-import {ContentWindow} from "./contentWindows/ContentWindow.js";
-import {WorkspaceManager} from "./WorkspaceManager.js";
-import {SingleInstancePromise, generateUuid} from "../../../src/util/mod.js";
-import {EventHandler} from "../../../src/util/EventHandler.js";
-import {STUDIO_ENV} from "../studioDefines.js";
-import {getStudioInstance} from "../studioInstance.js";
-import {WorkspacePreferencesLocation} from "../preferences/preferencesLocation/WorkspacePreferencesLocation.js";
+import { SplitStudioWindow } from "./SplitStudioWindow.js";
+import { TabsStudioWindow } from "./TabsStudioWindow.js";
+import { ContentWindow } from "./contentWindows/ContentWindow.js";
+import { WorkspaceManager } from "./WorkspaceManager.js";
+import { SingleInstancePromise, generateUuid } from "../../../src/util/mod.js";
+import { EventHandler } from "../../../src/util/EventHandler.js";
+import { STUDIO_ENV } from "../studioDefines.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { WorkspacePreferencesLocation } from "../preferences/preferencesLocation/WorkspacePreferencesLocation.js";
 
 /**
  * @typedef {object} ContentWindowEvent
@@ -173,7 +173,7 @@ export class WindowManager {
 		/** @type {Map<import("../../../src/mod.js").UuidString, import("../preferences/preferencesLocation/PreferencesLocation.js").PreferencesData>} */
 		const windowPreferences = new Map();
 		const windows = workspace.preferences?.windows || [];
-		for (const {uuid, preferences} of windows) {
+		for (const { uuid, preferences } of windows) {
 			windowPreferences.set(uuid, preferences);
 		}
 
@@ -199,7 +199,7 @@ export class WindowManager {
 	/**
 	 * @param {import("./StudioWindow.js").WorkspaceChangeEvent} event
 	 */
-	#onWorkspaceChange = event => {
+	#onWorkspaceChange = (event) => {
 		if (event.trigger != "load") {
 			this.saveActiveWorkspace();
 		}
@@ -319,11 +319,11 @@ export class WindowManager {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
 			});
-			castWindow.onClickWithin(e => {
+			castWindow.onClickWithin((e) => {
 				const mayChangeFocus = (e.target == castWindow.activeTab.contentEl);
 				this.#addContentWindowToLastClicked(castWindow.activeTab, mayChangeFocus);
 			});
-			castWindow.onFocusedWithinChange(hasFocus => {
+			castWindow.onFocusedWithinChange((hasFocus) => {
 				if (hasFocus) {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
@@ -404,9 +404,9 @@ export class WindowManager {
 			/** @type {import("./WorkspaceManager.js").WorkspaceDataWindowTabs} */
 			const data = {
 				type: "tabs",
-				tabTypes: workspaceWindow.tabs.map(tab => /** @type {typeof ContentWindow} */ (tab.constructor).contentWindowTypeId),
+				tabTypes: workspaceWindow.tabs.map((tab) => /** @type {typeof ContentWindow} */ (tab.constructor).contentWindowTypeId),
 				activeTabIndex: workspaceWindow.activeTabIndex,
-				tabUuids: workspaceWindow.tabs.map(tab => tab.uuid),
+				tabUuids: workspaceWindow.tabs.map((tab) => tab.uuid),
 			};
 			return /** @type {any} */ (data);
 		}
@@ -423,7 +423,7 @@ export class WindowManager {
 		if (!constructor.contentWindowTypeId) {
 			throw new Error(`Tried to register content window "${constructor.name}" with no type id, override the static contentWindowTypeId property in order for this content window to function properly.`);
 		}
-		if (!constructor.contentWindowTypeId.includes(":") || constructor.contentWindowTypeId.split(":").filter(s => Boolean(s)).length < 2) {
+		if (!constructor.contentWindowTypeId.includes(":") || constructor.contentWindowTypeId.split(":").filter((s) => Boolean(s)).length < 2) {
 			throw new Error(`Tried to register content window "${constructor.name}" without a namespace in the contentWindowTypeId.`);
 		}
 

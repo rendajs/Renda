@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {parseBindings} from "../../../../../src/util/wgslParsing.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { parseBindings } from "../../../../../src/util/wgslParsing.js";
 
 Deno.test({
 	name: "with a sampler",

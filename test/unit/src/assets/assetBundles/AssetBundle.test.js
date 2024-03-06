@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {AssetBundle} from "../../../../../src/mod.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { AssetBundle } from "../../../../../src/mod.js";
 
 Deno.test({
 	name: "Methods return the correct value by default",

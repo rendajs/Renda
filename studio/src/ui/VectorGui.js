@@ -1,5 +1,5 @@
-import {NumericGui} from "./NumericGui.js";
-import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
+import { NumericGui } from "./NumericGui.js";
+import { Vec2, Vec3, Vec4 } from "../../../src/mod.js";
 
 /**
  * @template {Vec2 | Vec3 | Vec4} T
@@ -106,7 +106,7 @@ export class VectorGui {
 			});
 			this.numericGuis.push(numericGui);
 			this.el.appendChild(numericGui.el);
-			numericGui.onValueChange(changeEvent => {
+			numericGui.onValueChange((changeEvent) => {
 				this.#fireValueChange(changeEvent.trigger);
 			});
 		}
@@ -178,7 +178,7 @@ export class VectorGui {
 		} else if (purpose == "binarySerialization") {
 			getAsArrayValue = true;
 		}
-		const numbersArr = this.numericGuis.map(g => g.value);
+		const numbersArr = this.numericGuis.map((g) => g.value);
 		let val = null;
 		if (getAsArrayValue) {
 			val = numbersArr;
@@ -204,7 +204,7 @@ export class VectorGui {
 	#fireValueChange(trigger) {
 		for (const cb of this.#onValueChangeCbs) {
 			const value = /** @type {T} */ (this.value.clone());
-			cb({value, trigger});
+			cb({ value, trigger });
 		}
 	}
 

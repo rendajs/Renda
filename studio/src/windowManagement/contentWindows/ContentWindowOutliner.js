@@ -1,13 +1,13 @@
-import {ContentWindow} from "./ContentWindow.js";
-import {TreeView} from "../../ui/TreeView.js";
-import {Button} from "../../ui/Button.js";
-import {Entity} from "../../../../src/mod.js";
-import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor/ContentWindowEntityEditor.js";
-import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {parseMimeType} from "../../util/util.js";
-import {EntitySelection} from "../../misc/EntitySelection.js";
-import {DropDownGui} from "../../ui/DropDownGui.js";
-import {EntityChangeType} from "../../assets/EntityAssetManager.js";
+import { ContentWindow } from "./ContentWindow.js";
+import { TreeView } from "../../ui/TreeView.js";
+import { Button } from "../../ui/Button.js";
+import { Entity } from "../../../../src/mod.js";
+import { ContentWindowEntityEditor } from "./ContentWindowEntityEditor/ContentWindowEntityEditor.js";
+import { ProjectAssetTypeEntity } from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
+import { parseMimeType } from "../../util/util.js";
+import { EntitySelection } from "../../misc/EntitySelection.js";
+import { DropDownGui } from "../../ui/DropDownGui.js";
+import { EntityChangeType } from "../../assets/EntityAssetManager.js";
 
 export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:outliner");
@@ -58,7 +58,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.availableEntityEditorUuids = [];
 		this.selectEntityEditorDropDown = new DropDownGui();
 		this.selectEntityEditorDropDown.onValueChange(() => {
-			const index = this.selectEntityEditorDropDown.getValue({getAsString: false});
+			const index = this.selectEntityEditorDropDown.getValue({ getAsString: false });
 			const uuid = this.availableEntityEditorUuids[index];
 			const entityEditor = /** @type {ContentWindowEntityEditor} */ (this.studioInstance.windowManager.getContentWindowByUuid(uuid));
 			this.setLinkedEntityEditor(entityEditor);
@@ -167,14 +167,14 @@ export class ContentWindowOutliner extends ContentWindow {
 				if (this.#currentOnEntityChangeCallback && this.#currentOnEntityChangeEntity) {
 					assetManager.entityAssetManager.removeOnTrackedEntityChange(this.#currentOnEntityChangeEntity, this.#currentOnEntityChangeCallback);
 				}
-				this.#currentOnEntityChangeCallback = event => {
+				this.#currentOnEntityChangeCallback = (event) => {
 					if (event.source === this && event.sourceEntity == event.targetEntity) return;
 					if (event.type & EntityChangeType.Hierarchy) {
 						const childTreeView = this.#getTreeViewByEntity(event.targetEntity);
 						if (!childTreeView) {
 							throw new Error("Assertion failed, child treeview wasn't found");
 						}
-						this.updateTreeViewRecursive(childTreeView, event.targetEntity, {assetManager});
+						this.updateTreeViewRecursive(childTreeView, event.targetEntity, { assetManager });
 					}
 				};
 				this.#currentOnEntityChangeEntity = this.linkedEntityEditor.editingEntity;
@@ -270,7 +270,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	#getTreeViewByEntity(entity) {
 		if (!this.linkedEntityEditor) return null;
 		const rootEntity = this.linkedEntityEditor.editingEntity;
-		const indicesPath = entity.getIndicesPath({forcedRoot: rootEntity});
+		const indicesPath = entity.getIndicesPath({ forcedRoot: rootEntity });
 		const treeView = this.treeView.findChildFromIndicesPath(indicesPath);
 		return treeView;
 	}
@@ -311,7 +311,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {TreeView[]} treeViews
 	 */
 	mapSelectionChangeData(treeViews) {
-		return treeViews.map(treeView => {
+		return treeViews.map((treeView) => {
 			const entity = this.#getEntityByTreeView(treeView);
 			return new EntitySelection(entity, {
 				outlinerTreeView: treeView,
@@ -360,7 +360,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewContextMenuEvent} e
 	 */
-	#onTreeViewContextMenu = async e => {
+	#onTreeViewContextMenu = async (e) => {
 		const menu = await e.showContextMenu();
 		menu.createStructure([
 			{
@@ -395,7 +395,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	#onTreeViewDragStart = e => {
+	#onTreeViewDragStart = (e) => {
 		const entity = this.#getEntityByTreeView(e.target);
 		const draggingDataUuid = this.studioInstance.dragManager.registerDraggingData(entity);
 		this.#draggingTreeViewUuids.set(e.target, draggingDataUuid);
@@ -407,7 +407,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	#onTreeViewDragEnd = e => {
+	#onTreeViewDragEnd = (e) => {
 		const uuid = this.#draggingTreeViewUuids.get(e.target);
 		if (uuid) {
 			this.studioInstance.dragManager.unregisterDraggingData(uuid);
@@ -443,7 +443,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e
 	 */
-	#onTreeViewRearrange = e => {
+	#onTreeViewRearrange = (e) => {
 		/** @type {{entity: Entity, oldParent: Entity, newParent: Entity, insertIndex: number, removeIndex: number}[]} */
 		const actions = [];
 		for (const movedItem of e.movedItems) {
@@ -459,7 +459,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				throw new Error("Failed to rearrange entities");
 			}
 			const removeIndex = oldParent.children.indexOf(entity);
-			actions.push({entity, oldParent, newParent, insertIndex, removeIndex});
+			actions.push({ entity, oldParent, newParent, insertIndex, removeIndex });
 		}
 		this.studioInstance.historyManager.executeEntry({
 			uiText: actions.length > 1 ? "Rearrange entities" : "Rearrange entity",
@@ -488,7 +488,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	#onTreeViewDrop = async e => {
+	#onTreeViewDrop = async (e) => {
 		const parent = this.#getEntityByTreeView(e.target);
 		if (!e.rawEvent.dataTransfer) return;
 		let didDropAsset = false;

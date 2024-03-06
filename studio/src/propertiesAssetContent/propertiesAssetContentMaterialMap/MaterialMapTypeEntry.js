@@ -1,6 +1,6 @@
-import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
-import {MaterialMapListUi} from "./MaterialMapListUi.js";
-import {PropertiesMaterialMapContentGenericStructure} from "../../propertiesMaterialMapContent/PropertiesMaterialMapContentGenericStructure.js";
+import { PropertiesTreeView } from "../../ui/propertiesTreeView/PropertiesTreeView.js";
+import { MaterialMapListUi } from "./MaterialMapListUi.js";
+import { PropertiesMaterialMapContentGenericStructure } from "../../propertiesMaterialMapContent/PropertiesMaterialMapContentGenericStructure.js";
 
 /**
  * This class is instantiated for every added MaterialMapType in a PropertiesAssetContentMaterialMap.

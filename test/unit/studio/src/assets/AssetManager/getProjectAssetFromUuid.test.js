@@ -1,18 +1,18 @@
 import "../../../shared/initializeStudio.js";
-import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
-import {ProjectAssetTypeEntity} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {ProjectAssetTypeMaterial} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
-import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
-import {BASIC_ASSET_PATH, BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, NONEXISTENT_ASSET_UUID, NONEXISTENT_PROJECTASSETTYPE, basicSetup} from "./shared.js";
+import { assertEquals, assertExists, assertRejects } from "std/testing/asserts.ts";
+import { ProjectAssetTypeEntity } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import { ProjectAssetTypeMaterial } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
+import { createMockProjectAssetType } from "../../../shared/createMockProjectAssetType.js";
+import { BASIC_ASSET_PATH, BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, NONEXISTENT_ASSET_UUID, NONEXISTENT_PROJECTASSETTYPE, basicSetup } from "./shared.js";
 
 injectMockStudioInstance(/** @type {any} */ ({}));
 
 Deno.test({
 	name: "getProjectAssetFromUuid()",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		const asset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID);
 
@@ -23,7 +23,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuid() non existent",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		const asset = await assetManager.getProjectAssetFromUuid(NONEXISTENT_ASSET_UUID);
 
@@ -34,7 +34,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuid() non existent, assertExists true",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		await assertRejects(async () => {
 			await assetManager.getProjectAssetFromUuid(NONEXISTENT_ASSET_UUID, {
@@ -47,7 +47,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuid() assert asset type, valid asset type",
 	async fn() {
-		const {assetManager, ProjectAssetType} = await basicSetup();
+		const { assetManager, ProjectAssetType } = await basicSetup();
 
 		const asset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID, {
 			assertAssetType: ProjectAssetType,
@@ -60,8 +60,8 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuid() assert asset type array, valid asset type",
 	async fn() {
-		const {assetManager, ProjectAssetType} = await basicSetup();
-		const {ProjectAssetType: SecondProjectAssetType} = createMockProjectAssetType("test:secondProjectAssetType");
+		const { assetManager, ProjectAssetType } = await basicSetup();
+		const { ProjectAssetType: SecondProjectAssetType } = createMockProjectAssetType("test:secondProjectAssetType");
 
 		const asset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID, {
 			assertAssetType: [ProjectAssetType, SecondProjectAssetType],
@@ -74,9 +74,9 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuid() assert asset type, invalid asset type",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
-		const {ProjectAssetType: ExpectedProjectAssetType} = createMockProjectAssetType("namespace:expected");
+		const { ProjectAssetType: ExpectedProjectAssetType } = createMockProjectAssetType("namespace:expected");
 
 		await assertRejects(async () => {
 			await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID, {
@@ -89,11 +89,11 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuid() assert asset type array, invalid asset type",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
-		const {ProjectAssetType: ExpectedProjectAssetType1} = createMockProjectAssetType("namespace:expected1");
-		const {ProjectAssetType: ExpectedProjectAssetType2} = createMockProjectAssetType("namespace:expected2");
-		const {ProjectAssetType: ExpectedProjectAssetType3} = createMockProjectAssetType("namespace:expected3");
+		const { ProjectAssetType: ExpectedProjectAssetType1 } = createMockProjectAssetType("namespace:expected1");
+		const { ProjectAssetType: ExpectedProjectAssetType2 } = createMockProjectAssetType("namespace:expected2");
+		const { ProjectAssetType: ExpectedProjectAssetType3 } = createMockProjectAssetType("namespace:expected3");
 
 		await assertRejects(async () => {
 			await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID, {
@@ -106,7 +106,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuid() assert asset type with empty array",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		await assertRejects(async () => {
 			await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID, {
@@ -119,7 +119,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuid() assert asset type, no asset type",
 	async fn() {
-		const {assetManager} = await basicSetup({
+		const { assetManager } = await basicSetup({
 			stubAssets: [
 				{
 					uuid: BASIC_ASSET_UUID,
@@ -144,7 +144,7 @@ Deno.test({
 testTypes({
 	name: "getProjectAssetFromUuid() has the correct return type",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 		const projectAssetUnknown = /** @type {import("../../../../../../studio/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>} */ ({});
 		const projectAssetUnknownOrNull = /** @type {import("../../../../../../studio/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>?} */ ({});
 		const projectAssetMaterial = /** @type {import("../../../../../../studio/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial>} */ ({});

@@ -1,14 +1,14 @@
-import {stub} from "std/testing/mock.ts";
-import {InspectorAssetBundle} from "../../../../../src/mod.js";
-import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
-import {createMockInspectorManager} from "../../inspector/InspectorManager/shared.js";
-import {createMockProjectAsset} from "../../../studio/shared/createMockProjectAsset.js";
+import { stub } from "std/testing/mock.ts";
+import { InspectorAssetBundle } from "../../../../../src/mod.js";
+import { assertEquals, assertExists, assertRejects } from "std/testing/asserts.ts";
+import { createMockInspectorManager } from "../../inspector/InspectorManager/shared.js";
+import { createMockProjectAsset } from "../../../studio/shared/createMockProjectAsset.js";
 
 Deno.test({
 	name: "hasAsset() asks the inspector manager",
 	async fn() {
-		const {mockInspectorManager, mockAssetManager} = createMockInspectorManager();
-		stub(mockAssetManager, "getProjectAssetFromUuid", async uuid => {
+		const { mockInspectorManager, mockAssetManager } = createMockInspectorManager();
+		stub(mockAssetManager, "getProjectAssetFromUuid", async (uuid) => {
 			if (uuid == "existingUuid") {
 				return /** @type {import("../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({});
 			} else {
@@ -24,8 +24,8 @@ Deno.test({
 Deno.test({
 	name: "waitForAssetAvailable() asks the inspector manager",
 	async fn() {
-		const {mockInspectorManager, mockAssetManager} = createMockInspectorManager();
-		stub(mockAssetManager, "getProjectAssetFromUuid", async uuid => {
+		const { mockInspectorManager, mockAssetManager } = createMockInspectorManager();
+		stub(mockAssetManager, "getProjectAssetFromUuid", async (uuid) => {
 			if (uuid == "existingUuid") {
 				return /** @type {import("../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({});
 			} else {
@@ -41,10 +41,10 @@ Deno.test({
 Deno.test({
 	name: "getAsset() returns asset data if it exists",
 	async fn() {
-		const {mockInspectorManager, mockAssetManager} = createMockInspectorManager();
-		stub(mockAssetManager, "getProjectAssetFromUuid", async uuid => {
+		const { mockInspectorManager, mockAssetManager } = createMockInspectorManager();
+		stub(mockAssetManager, "getProjectAssetFromUuid", async (uuid) => {
 			if (uuid == "the uuid") {
-				const {projectAsset} = createMockProjectAsset();
+				const { projectAsset } = createMockProjectAsset();
 				stub(projectAsset, "getAssetTypeUuid", async () => "asset type uuid");
 				stub(projectAsset, "getBundledAssetData", async () => new Uint8Array([1, 2, 3]).buffer);
 				return projectAsset;
@@ -63,9 +63,9 @@ Deno.test({
 Deno.test({
 	name: "getAsset() throws when asset type is unknown",
 	async fn() {
-		const {mockInspectorManager, mockAssetManager} = createMockInspectorManager();
-		stub(mockAssetManager, "getProjectAssetFromUuid", async uuid => {
-			const {projectAsset} = createMockProjectAsset();
+		const { mockInspectorManager, mockAssetManager } = createMockInspectorManager();
+		stub(mockAssetManager, "getProjectAssetFromUuid", async (uuid) => {
+			const { projectAsset } = createMockProjectAsset();
 			stub(projectAsset, "getAssetTypeUuid", async () => null);
 			return projectAsset;
 		});
@@ -79,9 +79,9 @@ Deno.test({
 Deno.test({
 	name: "getAsset() transfers assets with text data as buffer",
 	async fn() {
-		const {mockInspectorManager, mockAssetManager} = createMockInspectorManager();
-		stub(mockAssetManager, "getProjectAssetFromUuid", async uuid => {
-			const {projectAsset} = createMockProjectAsset();
+		const { mockInspectorManager, mockAssetManager } = createMockInspectorManager();
+		stub(mockAssetManager, "getProjectAssetFromUuid", async (uuid) => {
+			const { projectAsset } = createMockProjectAsset();
 			stub(projectAsset, "getAssetTypeUuid", async () => "asset type uuid");
 			stub(projectAsset, "getBundledAssetData", async () => "abcd");
 			return projectAsset;

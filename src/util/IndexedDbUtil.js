@@ -28,7 +28,7 @@ export class IndexedDbUtil {
 
 	async #initDb() {
 		const db = await this.#dbPromise;
-		db.onversionchange = e => {
+		db.onversionchange = (e) => {
 			if (e.newVersion == null) {
 				db.close();
 			}

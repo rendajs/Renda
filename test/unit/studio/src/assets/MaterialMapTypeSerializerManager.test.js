@@ -1,9 +1,9 @@
-import {assert, assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {MaterialMapTypeSerializer} from "../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
-import {MaterialMapTypeSerializerManager} from "../../../../../studio/src/assets/MaterialMapTypeSerializerManager.js";
-import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
-import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
-import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
+import { assert, assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { MaterialMapTypeSerializer } from "../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
+import { MaterialMapTypeSerializerManager } from "../../../../../studio/src/assets/MaterialMapTypeSerializerManager.js";
+import { injectMockStudioInstance } from "../../../../../studio/src/studioInstance.js";
+import { createMockProjectAsset } from "../../shared/createMockProjectAsset.js";
+import { assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub } from "std/testing/mock.ts";
 
 const BASIC_SERIALIZER_UUID = "ba51c000-0000-0000-0000-5e71a112e700";
 const ENUM_SERIALIZER_UUID = "e0130000-0000-0000-0000-5e71a112e700";
@@ -161,7 +161,7 @@ Deno.test({
 function basicGetMapValuesForMapAssetUuidSetup({
 	mapReadAssetDataReturnValue = {},
 } = {}) {
-	const {projectAsset: mockMaterialMapProjectAsset} = createMockProjectAsset({
+	const { projectAsset: mockMaterialMapProjectAsset } = createMockProjectAsset({
 		readAssetDataReturnValue: mapReadAssetDataReturnValue,
 	});
 	const mockProjectAssetType = /** @type {import("../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap} */ ({
@@ -204,7 +204,7 @@ function basicGetMapValuesForMapAssetUuidSetup({
 Deno.test({
 	name: "getMapValuesForMapAssetUuid(), no map uuid provided",
 	async fn() {
-		const {manager} = basicGetMapValuesForMapAssetUuidSetup();
+		const { manager } = basicGetMapValuesForMapAssetUuidSetup();
 		const result = await manager.getMapValuesForMapAssetUuid(null);
 		assertEquals(result, []);
 	},
@@ -213,7 +213,7 @@ Deno.test({
 Deno.test({
 	name: "getMapValuesForMapAssetUuid(), map doesn't exist",
 	async fn() {
-		const {manager} = basicGetMapValuesForMapAssetUuidSetup();
+		const { manager } = basicGetMapValuesForMapAssetUuidSetup();
 		const result = await manager.getMapValuesForMapAssetUuid(NON_EXISTENT_MATERIAL_MAP_ASSET_UUID);
 		assertEquals(result, []);
 	},
@@ -222,7 +222,7 @@ Deno.test({
 Deno.test({
 	name: "getMapValuesForMapAssetUuid(), map has no map types",
 	async fn() {
-		const {manager} = basicGetMapValuesForMapAssetUuidSetup({
+		const { manager } = basicGetMapValuesForMapAssetUuidSetup({
 			mapReadAssetDataReturnValue: {
 				maps: [],
 			},
@@ -237,7 +237,7 @@ Deno.test({
 	async fn() {
 		await mockSessionAsync(async () => {
 			const getMappedValuesSpy = spy(ExtendedMaterialMapTypeSerializer, "getMappedValues");
-			const {manager} = basicGetMapValuesForMapAssetUuidSetup({
+			const { manager } = basicGetMapValuesForMapAssetUuidSetup({
 				mapReadAssetDataReturnValue: {
 					maps: [
 						{
@@ -249,7 +249,7 @@ Deno.test({
 									visible: true,
 								},
 							},
-							customData: {label: "map custom data"},
+							customData: { label: "map custom data" },
 						},
 					],
 				},
@@ -265,8 +265,8 @@ Deno.test({
 			assertSpyCalls(getMappedValuesSpy, 1);
 			assertSpyCall(getMappedValuesSpy, 0, {
 				args: [
-					/** @type {any} */({label: "live asset data context"}),
-					{label: "map custom data"},
+					/** @type {any} */({ label: "live asset data context" }),
+					{ label: "map custom data" },
 					{
 						foo: {
 							defaultValue: 6,
@@ -283,7 +283,7 @@ Deno.test({
 Deno.test({
 	name: "getMapValuesForMapAssetUuid(), missing default value",
 	async fn() {
-		const {manager} = basicGetMapValuesForMapAssetUuidSetup({
+		const { manager } = basicGetMapValuesForMapAssetUuidSetup({
 			mapReadAssetDataReturnValue: {
 				maps: [
 					{
@@ -341,7 +341,7 @@ Deno.test({
 				];
 			}
 		}
-		const {manager} = basicGetMapValuesForMapAssetUuidSetup({
+		const { manager } = basicGetMapValuesForMapAssetUuidSetup({
 			mapReadAssetDataReturnValue: {
 				maps: [
 					{

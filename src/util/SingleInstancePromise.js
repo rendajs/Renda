@@ -47,7 +47,7 @@ export class SingleInstancePromise {
 		}
 
 		/** @type {Promise<TReturn>} */
-		const myPromise = new Promise(resolve => this._queue.push({resolve, args}));
+		const myPromise = new Promise((resolve) => this._queue.push({ resolve, args }));
 		this._emptyQueue();
 		return await myPromise;
 	}
@@ -62,7 +62,7 @@ export class SingleInstancePromise {
 		while (this._queue.length > 0) {
 			if (this.once && this.hasRun) {
 				const returnValue = /** @type {TReturn} */ (this._onceReturnValue);
-				this._queue.forEach(entry => entry.resolve(returnValue));
+				this._queue.forEach((entry) => entry.resolve(returnValue));
 				this._queue = [];
 				break;
 			}
@@ -75,14 +75,14 @@ export class SingleInstancePromise {
 			const result = await this.promiseFn(...lastEntry.args);
 			this._isEmptyingQueue = false;
 			this.hasRun = true;
-			this._onFinishCbs.forEach(cb => cb());
+			this._onFinishCbs.forEach((cb) => cb());
 			this._onFinishCbs.clear();
 
 			if (this.once) {
 				this._onceReturnValue = result;
 			}
 
-			for (const {resolve} of queueCopy) {
+			for (const { resolve } of queueCopy) {
 				resolve(result);
 			}
 		}
@@ -115,7 +115,7 @@ export class SingleInstancePromise {
 			throw new Error("waitForFinish() would stay pending forever when once has been set, use waitForFinishOnce() instead.");
 		}
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this._onFinishCbs.add(r));
+		const promise = new Promise((r) => this._onFinishCbs.add(r));
 		await promise;
 	}
 
@@ -146,7 +146,7 @@ export class SingleInstancePromise {
 	async waitForFinishOnce() {
 		if (this.hasRun) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this._onFinishCbs.add(r));
+		const promise = new Promise((r) => this._onFinishCbs.add(r));
 		await promise;
 	}
 
@@ -179,7 +179,7 @@ export class SingleInstancePromise {
 	async waitForFinishIfRunning() {
 		while (this._isEmptyingQueue) {
 			/** @type {Promise<void>} */
-			const promise = new Promise(r => this._onFinishCbs.add(r));
+			const promise = new Promise((r) => this._onFinishCbs.add(r));
 			await promise;
 		}
 	}

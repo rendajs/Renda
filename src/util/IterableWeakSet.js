@@ -37,7 +37,7 @@ export class IterableWeakSet {
 	 * @param {T} item
 	 */
 	delete(item) {
-		for (const {ref, weakRef} of this._yieldWeakRefs()) {
+		for (const { ref, weakRef } of this._yieldWeakRefs()) {
 			if (item === ref) {
 				this._items.delete(weakRef);
 			}
@@ -55,12 +55,12 @@ export class IterableWeakSet {
 				this._items.delete(weakRef);
 				continue;
 			}
-			yield {ref, weakRef};
+			yield { ref, weakRef };
 		}
 	}
 
 	*[Symbol.iterator]() {
-		for (const {ref} of this._yieldWeakRefs()) {
+		for (const { ref } of this._yieldWeakRefs()) {
 			yield ref;
 		}
 	}

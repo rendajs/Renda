@@ -1,9 +1,9 @@
-import {Vec2} from "../math/Vec2.js";
-import {Vec3} from "../math/Vec3.js";
-import {Vec4} from "../math/Vec4.js";
-import {Sampler} from "./Sampler.js";
-import {Texture} from "../core/Texture.js";
-import {CustomMaterialData} from "./CustomMaterialData.js";
+import { Vec2 } from "../math/Vec2.js";
+import { Vec3 } from "../math/Vec3.js";
+import { Vec4 } from "../math/Vec4.js";
+import { Sampler } from "./Sampler.js";
+import { Texture } from "../core/Texture.js";
+import { CustomMaterialData } from "./CustomMaterialData.js";
 
 /**
  * @typedef MappedPropertyData

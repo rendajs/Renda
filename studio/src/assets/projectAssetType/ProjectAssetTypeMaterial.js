@@ -1,13 +1,13 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {Material} from "../../../../src/rendering/Material.js";
-import {PropertiesAssetContentMaterial} from "../../propertiesAssetContent/PropertiesAssetContentMaterial.js";
-import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
-import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
-import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
-import {DEFAULT_MATERIAL_MAP_UUID} from "../builtinAssetUuids.js";
-import {Texture} from "../../../../src/core/Texture.js";
-import {isUuid} from "../../../../src/mod.js";
-import {Sampler} from "../../../../src/rendering/Sampler.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { Material } from "../../../../src/rendering/Material.js";
+import { PropertiesAssetContentMaterial } from "../../propertiesAssetContent/PropertiesAssetContentMaterial.js";
+import { mathTypeToJson } from "../../../../src/math/MathTypes.js";
+import { StorageType, objectToBinary } from "../../../../src/util/binarySerialization.js";
+import { ProjectAssetTypeMaterialMap } from "./ProjectAssetTypeMaterialMap.js";
+import { DEFAULT_MATERIAL_MAP_UUID } from "../builtinAssetUuids.js";
+import { Texture } from "../../../../src/core/Texture.js";
+import { isUuid } from "../../../../src/mod.js";
+import { Sampler } from "../../../../src/rendering/Sampler.js";
 
 export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
 

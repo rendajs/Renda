@@ -1,7 +1,7 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {ColorizerFilter} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilter.js";
-import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../../../shared/mockWeakRef.js";
-import {runWithDom} from "../../../shared/runWithDom.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { ColorizerFilter } from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilter.js";
+import { forceCleanup, installMockWeakRef, uninstallMockWeakRef } from "../../../../shared/mockWeakRef.js";
+import { runWithDom } from "../../../shared/runWithDom.js";
 
 Deno.test({
 	name: "Construction",

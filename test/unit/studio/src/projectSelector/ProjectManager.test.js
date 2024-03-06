@@ -1,12 +1,12 @@
-import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
-import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {Importer} from "fake-imports";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
-import {assertEquals, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
-import {assertPromiseResolved} from "../../../shared/asserts.js";
-import {SingleInstancePromise} from "../../../../../src/mod.js";
+import { injectMockStudioInstance } from "../../../../../studio/src/studioInstance.js";
+import { MemoryStudioFileSystem } from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { Importer } from "fake-imports";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
+import { assertEquals, assertRejects, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { PreferencesManager } from "../../../../../studio/src/preferences/PreferencesManager.js";
+import { assertPromiseResolved } from "../../../shared/asserts.js";
+import { SingleInstancePromise } from "../../../../../src/mod.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("../../../../../studio/src/studioInstance.js");
@@ -49,7 +49,7 @@ export class RemoteStudioFileSystem extends MemoryStudioFileSystem {
 
 /** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js")} */
 const ProjectManagerMod = await importer.import("../../../../../studio/src/projectSelector/ProjectManager.js");
-const {ProjectManager} = ProjectManagerMod;
+const { ProjectManager } = ProjectManagerMod;
 
 const AssetManagerMod = await importer.import("../../../../../studio/src/assets/AssetManager.js");
 /** @type {(pending: boolean) => void} */
@@ -57,7 +57,7 @@ const forcePendingAssetListsPromise = AssetManagerMod.forcePendingAssetListsProm
 
 /** @type {import("../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js")} */
 const RemoteStudioFileSystemMod = await importer.import("../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js");
-const {RemoteStudioFileSystem} = RemoteStudioFileSystemMod;
+const { RemoteStudioFileSystem } = RemoteStudioFileSystemMod;
 
 const PROJECT_PREFERENCES_PATH = [".renda", "sharedPreferences.json"];
 const LOCAL_PROJECT_PREFERENCES_PATH = [".renda", "localPreferences.json"];
@@ -88,7 +88,7 @@ const mockPreferencesConfig = /** @type {const} @satisfies {Object<string, impor
  * @param {object} options
  * @param {(ctx: ProjectManagerTestContext) => Promise<void>} options.fn
  */
-async function basicTest({fn}) {
+async function basicTest({ fn }) {
 	const oldDocument = globalThis.document;
 	try {
 		globalThis.document = /** @type {Document} */ (new EventTarget());
@@ -166,14 +166,14 @@ Deno.test({
 	name: "content window preferences are loaded and saved",
 	async fn() {
 		await basicTest({
-			async fn({manager, studio, fireFlushRequestCallbacks}) {
+			async fn({ manager, studio, fireFlushRequestCallbacks }) {
 				const fs = new MemoryStudioFileSystem();
 				fs.writeJson(LOCAL_PROJECT_PREFERENCES_PATH, {
 					contentWindowPreferences: [
 						{
 							id: "uuid",
 							type: "type",
-							data: {foo: "bar"},
+							data: { foo: "bar" },
 						},
 					],
 				});
@@ -202,7 +202,7 @@ Deno.test({
 					{
 						id: "uuid",
 						type: "type",
-						data: {foo2: "bar2"},
+						data: { foo2: "bar2" },
 					},
 				]);
 				assertEquals(await fs.readJson(LOCAL_PROJECT_PREFERENCES_PATH), {
@@ -210,7 +210,7 @@ Deno.test({
 						{
 							id: "uuid",
 							type: "type",
-							data: {foo2: "bar2"},
+							data: { foo2: "bar2" },
 						},
 					],
 				});
@@ -227,7 +227,7 @@ Deno.test({
 	name: "Flush requests are not written while loading a workspace",
 	async fn() {
 		await basicTest({
-			async fn({manager, studio, fireFlushRequestCallbacks}) {
+			async fn({ manager, studio, fireFlushRequestCallbacks }) {
 				studio.windowManager.reloadWorkspaceInstance = new SingleInstancePromise(async () => {
 					await fireFlushRequestCallbacks([
 						{
@@ -246,7 +246,7 @@ Deno.test({
 						{
 							id: "uuid",
 							type: "type",
-							data: {foo: "bar"},
+							data: { foo: "bar" },
 						},
 					],
 				});
@@ -259,7 +259,7 @@ Deno.test({
 						{
 							id: "uuid",
 							type: "type",
-							data: {foo: "bar"},
+							data: { foo: "bar" },
 						},
 					],
 				});
@@ -272,7 +272,7 @@ Deno.test({
 						{
 							id: "uuid",
 							type: "type",
-							data: {foo: "bar"},
+							data: { foo: "bar" },
 						},
 					],
 				});
@@ -285,7 +285,7 @@ Deno.test({
 	name: "Creates preference locations for project and version-control",
 	async fn() {
 		await basicTest({
-			async fn({manager, mockPreferencesManager}) {
+			async fn({ manager, mockPreferencesManager }) {
 				const fs = new MemoryStudioFileSystem();
 				const entry = createStoredProjectEntry();
 
@@ -294,8 +294,8 @@ Deno.test({
 				assertEquals(await fs.exists(LOCAL_PROJECT_PREFERENCES_PATH), false);
 				assertEquals(await fs.exists(GITIGNORE_PATH), false);
 
-				mockPreferencesManager.set("strPref", "project", {location: "project"});
-				mockPreferencesManager.set("strPref", "versionControl", {location: "version-control"});
+				mockPreferencesManager.set("strPref", "project", { location: "project" });
+				mockPreferencesManager.set("strPref", "versionControl", { location: "version-control" });
 
 				// Wait for flush
 				await waitForMicrotasks();
@@ -320,7 +320,7 @@ Deno.test({
 	name: "Removes preference locations when project is closed",
 	async fn() {
 		await basicTest({
-			async fn({manager, mockPreferencesManager}) {
+			async fn({ manager, mockPreferencesManager }) {
 				const fs = new MemoryStudioFileSystem();
 				const entry1 = createStoredProjectEntry();
 				const removeLocationSpy = spy(mockPreferencesManager, "removeLocation");
@@ -342,9 +342,9 @@ Deno.test({
 	name: "onAssetManagerChange fires when the asset manager changes",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				/** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback} */
-				const onChangeFn = assetManager => {};
+				const onChangeFn = (assetManager) => {};
 				const onChangeSpy = spy(onChangeFn);
 
 				manager.onAssetManagerChange(onChangeSpy);
@@ -379,7 +379,7 @@ Deno.test({
 	name: "getAssetManager resolves once the asset manager loads",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				const promise1 = manager.getAssetManager();
 				await assertPromiseResolved(promise1, false);
 
@@ -404,7 +404,7 @@ Deno.test({
 	name: "onProjectOpen is fired when a project is opened",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				const onOpenSpy = spy();
 				manager.onProjectOpen(onOpenSpy);
 
@@ -428,7 +428,7 @@ Deno.test({
 	name: "waitForProjectOpen resolves once the currently loading project is open",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				const promise1 = manager.waitForProjectOpen();
 
 				const fs1 = new MemoryStudioFileSystem();
@@ -465,15 +465,15 @@ Deno.test({
 	name: "fires onProjectOpenEntryChange",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				/** @type {(import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny | null)[]} */
 				const onEntryChangeCalls = [];
-				manager.onProjectOpenEntryChange(entry => {
+				manager.onProjectOpenEntryChange((entry) => {
 					onEntryChangeCalls.push(structuredClone(entry));
 				});
 
 				const fs = new MemoryStudioFileSystem();
-				const entry = createStoredProjectEntry({isWorthSaving: false});
+				const entry = createStoredProjectEntry({ isWorthSaving: false });
 				await manager.openProject(fs, entry, true);
 
 				assertEquals(onEntryChangeCalls.length, 1);
@@ -507,13 +507,13 @@ Deno.test({
 	name: "onRootHasWritePermissionsChange is fired",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				const onChangeSpy = spy();
 				manager.onRootHasWritePermissionsChange(onChangeSpy);
 
 				let resolvePermission = () => {};
 				/** @type {Promise<void>} */
-				const permissionPromise = new Promise(resolve => {
+				const permissionPromise = new Promise((resolve) => {
 					resolvePermission = resolve;
 				});
 				const fs1 = new MemoryStudioFileSystem();
@@ -538,20 +538,20 @@ Deno.test({
 	name: "Current project metadata is updated",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				assertEquals(manager.getCurrentProjectMetadata(), null);
 				const fs1 = new MemoryStudioFileSystem();
 
 				let resolvePermission = () => {};
 				/** @type {Promise<void>} */
-				const permissionPromise = new Promise(resolve => {
+				const permissionPromise = new Promise((resolve) => {
 					resolvePermission = resolve;
 				});
 				stub(fs1, "waitForPermission", () => {
 					return permissionPromise;
 				});
 
-				const entry1 = createStoredProjectEntry({isWorthSaving: false});
+				const entry1 = createStoredProjectEntry({ isWorthSaving: false });
 				await manager.openProject(fs1, entry1, true);
 
 				assertEquals(manager.getCurrentProjectMetadata(), {
@@ -589,12 +589,12 @@ Deno.test({
 	name: "Open existing remote project",
 	async fn() {
 		await basicTest({
-			async fn({manager, studio}) {
+			async fn({ manager, studio }) {
 				/** @type {(connection: import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType) => void} */
 				let resolveConnectionSpy = () => {};
-				const waitForConnectionSpy = stub(studio.studioConnectionsManager, "waitForConnection", async config => {
+				const waitForConnectionSpy = stub(studio.studioConnectionsManager, "waitForConnection", async (config) => {
 					/** @type {Promise<import("../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType>} */
-					const promise = new Promise(r => {
+					const promise = new Promise((r) => {
 						resolveConnectionSpy = r;
 					});
 					return promise;
@@ -651,7 +651,7 @@ Deno.test({
 	name: "Throws when opening existing remote project with missing parameters",
 	async fn() {
 		await basicTest({
-			async fn({manager, studio}) {
+			async fn({ manager, studio }) {
 				await assertRejects(async () => {
 					await manager.openExistingProject({
 						fileSystemType: "remote",
@@ -668,7 +668,7 @@ Deno.test({
 	name: "Throws when opening existing project with unknown file system type",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				await assertRejects(async () => {
 					await manager.openExistingProject({
 						fileSystemType: /** @type {"db"} */ (/** @type {unknown} */ ("unknown")),
@@ -685,7 +685,7 @@ Deno.test({
 	name: "Opening remote project",
 	async fn() {
 		await basicTest({
-			async fn({manager, studio}) {
+			async fn({ manager, studio }) {
 				const focusOrCreateContentWindowSpy = spy(studio.windowManager, "focusOrCreateContentWindow");
 				await manager.openNewRemoteProject(true);
 
@@ -703,7 +703,7 @@ Deno.test({
 	name: "assignRemoteConnection throws when no project was opened yet",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				assertThrows(() => {
 					const mockConnection = /** @type {import("../../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>} */ ({});
 					manager.assignRemoteConnection(mockConnection);
@@ -717,7 +717,7 @@ Deno.test({
 	name: "assignRemoteConnection throws when no project was opened yet",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				const fs = new MemoryStudioFileSystem();
 				const entry = createStoredProjectEntry();
 				await manager.openProject(fs, entry, true);
@@ -734,9 +734,9 @@ Deno.test({
 	name: "assignRemoteConnection throws when connection has no metadata",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				const fs = new RemoteStudioFileSystem();
-				const entry = createStoredProjectEntry({fileSystemType: "remote"});
+				const entry = createStoredProjectEntry({ fileSystemType: "remote" });
 				await manager.openProject(fs, entry, true);
 				assertThrows(() => {
 					const mockConnection = /** @type {import("../../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>} */ ({});
@@ -751,10 +751,10 @@ Deno.test({
 	name: "assignRemoteConnection assigns the connection and changes current open event",
 	async fn() {
 		await basicTest({
-			async fn({manager}) {
+			async fn({ manager }) {
 				const fs = new RemoteStudioFileSystem();
 				const setConnectionSpy = spy(fs, "setConnection");
-				const entry = createStoredProjectEntry({fileSystemType: "remote"});
+				const entry = createStoredProjectEntry({ fileSystemType: "remote" });
 				await manager.openProject(fs, entry, true);
 				const mockConnection = /** @type {import("../../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<any, any>} */ ({
 					projectMetadata: {
@@ -766,7 +766,7 @@ Deno.test({
 				});
 				/** @type {(import("../../../../../studio/src/projectSelector/ProjectManager.js").StoredProjectEntryAny | null)[]} */
 				const onEntryChangeCalls = [];
-				manager.onProjectOpenEntryChange(entry => {
+				manager.onProjectOpenEntryChange((entry) => {
 					onEntryChangeCalls.push(entry);
 				});
 

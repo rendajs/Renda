@@ -28,12 +28,12 @@ export class PreferencesLocation {
 			const previousValue = this.#storedPreferences.get(preference);
 			if (value != previousValue) {
 				this.#storedPreferences.set(preference, value);
-				this.#onPreferenceLoadedCbs.forEach(cb => cb(preference));
+				this.#onPreferenceLoadedCbs.forEach((cb) => cb(preference));
 			}
 		}
 		for (const preference of removedPreferences) {
 			this.#storedPreferences.delete(preference);
-			this.#onPreferenceLoadedCbs.forEach(cb => cb(preference));
+			this.#onPreferenceLoadedCbs.forEach((cb) => cb(preference));
 		}
 	}
 

@@ -1,11 +1,11 @@
-import {assertEquals, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
-import {UNKNOWN_ASSET_EXTENSION, basicSetup} from "./shared.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
+import { assertEquals, assertInstanceOf, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
+import { UNKNOWN_ASSET_EXTENSION, basicSetup } from "./shared.js";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
 
 Deno.test({
 	name: "getLiveAssetData throws if the asset doesn't have an ProjectAssetType set",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup({isKnownAssetType: false});
+		const { projectAsset, uninstall } = basicSetup({ isKnownAssetType: false });
 
 		try {
 			await assertRejects(async () => {
@@ -20,7 +20,7 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() returns the asset data",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup();
+		const { projectAsset, mocks, uninstall } = basicSetup();
 
 		try {
 			const liveAssetData = await projectAsset.getLiveAssetData();
@@ -40,7 +40,7 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() returns existing data if it's already been loaded",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 
 		try {
 			const liveAssetData1 = await projectAsset.getLiveAssetData();
@@ -56,7 +56,7 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() returns existing data if it is currently being loaded",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 
 		try {
 			const promise1 = projectAsset.getLiveAssetData();
@@ -74,7 +74,7 @@ Deno.test({
 Deno.test({
 	name: "onLiveAssetDataChange()",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 		try {
 			/** @type {import("std/testing/mock.ts").Spy<any, [import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetDataAny], void>} */
 			const dataChangeSpy = spy();
@@ -100,7 +100,7 @@ Deno.test({
 Deno.test({
 	name: "onLiveAssetDataChange() doesn't fire when removed",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 		try {
 			let callbackCalled = false;
 			const cb = () => {
@@ -121,7 +121,7 @@ Deno.test({
 Deno.test({
 	name: "destroyLiveAssetData() rejects existing pending getLiveAssetData() promises",
 	async fn() {
-		const {projectAsset, mocks, uninstall} = basicSetup();
+		const { projectAsset, mocks, uninstall } = basicSetup();
 
 		try {
 			// At the moment, the first call does resolve because while loading the call to

@@ -1,10 +1,10 @@
-import {BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT, BUILD_VERSION_STRING} from "../../studioDefines.js";
-import {licenses} from "../../misc/thirdPartyLicenses.js";
-import {Button} from "../../ui/Button.js";
-import {TreeView} from "../../ui/TreeView.js";
-import {ContentWindow} from "./ContentWindow.js";
-import {getStudioInstance} from "../../studioInstance.js";
-import {createSpinner} from "../../ui/spinner.js";
+import { BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT, BUILD_VERSION_STRING } from "../../studioDefines.js";
+import { licenses } from "../../misc/thirdPartyLicenses.js";
+import { Button } from "../../ui/Button.js";
+import { TreeView } from "../../ui/TreeView.js";
+import { ContentWindow } from "./ContentWindow.js";
+import { getStudioInstance } from "../../studioInstance.js";
+import { createSpinner } from "../../ui/spinner.js";
 
 export class ContentWindowAbout extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:about");
@@ -63,7 +63,7 @@ export class ContentWindowAbout extends ContentWindow {
 		const month = day * 365 / 12;
 		const year = day * 365;
 		const elapsed = BUILD_DATE - Date.now();
-		const rtf = new Intl.RelativeTimeFormat("en", {numeric: "auto"});
+		const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 		let relativeDateStr = "";
 		if (-elapsed < minute) {
 			relativeDateStr = rtf.format(Math.floor(elapsed / second), "second");

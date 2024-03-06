@@ -1,7 +1,7 @@
 import * as fs from "std/fs/mod.ts";
 import * as path from "std/path/mod.ts";
-import {buildEngine} from "./buildEngine.js";
-import {setCwd} from "chdir-anywhere";
+import { buildEngine } from "./buildEngine.js";
+import { setCwd } from "chdir-anywhere";
 
 setCwd();
 const destination = path.resolve("..", "npmPackage");

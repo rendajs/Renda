@@ -1,10 +1,10 @@
-import {assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {ContentWindowPreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
-import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
-import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
-import {assertPromiseResolved} from "../../../shared/asserts.js";
-import {assertIsType, testTypes} from "../../../shared/typeAssertions.js";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { ContentWindowPreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
+import { PreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
+import { PreferencesManager } from "../../../../../studio/src/preferences/PreferencesManager.js";
+import { assertPromiseResolved } from "../../../shared/asserts.js";
+import { assertIsType, testTypes } from "../../../shared/typeAssertions.js";
 
 const DEFAULT_CONTENT_WINDOW_UUID = "default content window uuid";
 
@@ -85,7 +85,7 @@ function createManager() {
 		manager.addLocation(location);
 	}
 
-	return {manager, locations};
+	return { manager, locations };
 }
 
 function createMockWindowManager() {
@@ -147,13 +147,13 @@ Deno.test({
 			assertEquals(manager.getPreferenceUiData(preferenceName), expectedResult);
 		}
 
-		configTest("pref", {type: "boolean"}, {
+		configTest("pref", { type: "boolean" }, {
 			type: "boolean",
 			uiName: "Pref",
 			allowedLocations: null,
 			guiOpts: null,
 		});
-		configTest("namespace.myPreference", {type: "number"}, {
+		configTest("namespace.myPreference", { type: "number" }, {
 			type: "number",
 			uiName: "My Preference",
 			allowedLocations: null,
@@ -260,7 +260,7 @@ Deno.test({
 
 		const manager = new PreferencesManager();
 		const castInvalidType = /** @type {"unknown"} */ ("invalid type");
-		manager.registerPreference("invalid", {type: castInvalidType});
+		manager.registerPreference("invalid", { type: castInvalidType });
 		assertThrows(() => {
 			manager.getDefaultValue("invalid");
 		}, Error, 'Unexpected preference type: "invalid type"');
@@ -314,7 +314,7 @@ Deno.test({
 Deno.test({
 	name: "Getting and setting preferences.",
 	fn() {
-		const {manager} = createManager();
+		const { manager } = createManager();
 
 		assertEquals(manager.get("boolPref1", null), false);
 		assertEquals(manager.get("boolPref2", null), true);
@@ -322,7 +322,7 @@ Deno.test({
 		assertEquals(manager.get("numPref2", null), 42);
 		assertEquals(manager.get("projectPref", null), "");
 		assertEquals(manager.get("workspacePref", null), "default");
-		assertEquals(manager.get("unknownPref1", null), {some: "data"});
+		assertEquals(manager.get("unknownPref1", null), { some: "data" });
 		assertEquals(manager.get("unknownPref2", null), [1, 2, 3]);
 		assertEquals(manager.get("guiPref", null), [1, 2, 3]);
 
@@ -332,8 +332,8 @@ Deno.test({
 		manager.set("numPref2", 456);
 		manager.set("projectPref", "str");
 		manager.set("workspacePref", "str2");
-		manager.set("unknownPref1", {someOther: "data"});
-		manager.set("unknownPref2", {not: "an array"});
+		manager.set("unknownPref1", { someOther: "data" });
+		manager.set("unknownPref2", { not: "an array" });
 		manager.set("guiPref", [4, 5, 6]);
 
 		const boolPref1 = manager.get("boolPref1", null);
@@ -343,8 +343,8 @@ Deno.test({
 		assertEquals(manager.get("numPref2", null), 456);
 		assertEquals(manager.get("projectPref", null), "str");
 		assertEquals(manager.get("workspacePref", null), "str2");
-		assertEquals(manager.get("unknownPref1", null), {someOther: "data"});
-		assertEquals(manager.get("unknownPref2", null), {not: "an array"});
+		assertEquals(manager.get("unknownPref1", null), { someOther: "data" });
+		assertEquals(manager.get("unknownPref2", null), { not: "an array" });
 		assertEquals(manager.get("guiPref", null), [4, 5, 6]);
 
 		// Verify that the type is a boolean and nothing else
@@ -357,31 +357,31 @@ Deno.test({
 Deno.test({
 	name: "Setting preferences at a specific location",
 	fn() {
-		const {manager} = createManager();
+		const { manager } = createManager();
 
 		assertEquals(manager.get("str", null), "");
-		manager.set("str", "global", {location: "global"});
+		manager.set("str", "global", { location: "global" });
 		assertEquals(manager.get("str", null), "global");
 
-		manager.set("str", "project", {location: "project"});
+		manager.set("str", "project", { location: "project" });
 		assertEquals(manager.get("str", null), "project");
 
-		manager.set("str", "workspace", {location: "workspace"});
+		manager.set("str", "workspace", { location: "workspace" });
 		assertEquals(manager.get("str", null), "project");
 
-		manager.set("str", "version-control", {location: "version-control"});
+		manager.set("str", "version-control", { location: "version-control" });
 		assertEquals(manager.get("str", null), "project");
 
-		manager.reset("str", {location: "project"});
+		manager.reset("str", { location: "project" });
 		assertEquals(manager.get("str", null), "version-control");
 
-		manager.reset("str", {location: "workspace"});
+		manager.reset("str", { location: "workspace" });
 		assertEquals(manager.get("str", null), "version-control");
 
-		manager.reset("str", {location: "version-control"});
+		manager.reset("str", { location: "version-control" });
 		assertEquals(manager.get("str", null), "global");
 
-		manager.reset("str", {location: "global"});
+		manager.reset("str", { location: "global" });
 		assertEquals(manager.get("str", null), "");
 	},
 });
@@ -389,7 +389,7 @@ Deno.test({
 Deno.test({
 	name: "Getting preferences at a specific location",
 	fn() {
-		const {manager} = createManager();
+		const { manager } = createManager();
 
 		// Get default value when no location is provided
 		assertEquals(manager.getUiValueAtLocation("str", null), "");
@@ -398,20 +398,20 @@ Deno.test({
 		assertEquals(manager.getUiValueAtLocation("numPref1", null), 0);
 		assertEquals(manager.getUiValueAtLocation("numPref2", null), 42);
 		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "default");
-		assertEquals(manager.getUiValueAtLocation("unknownPref1", null), {some: "data"});
+		assertEquals(manager.getUiValueAtLocation("unknownPref1", null), { some: "data" });
 		assertEquals(manager.getUiValueAtLocation("unknownPref2", null), [1, 2, 3]);
 
 		assertEquals(manager.getUiValueAtLocation("str", "global"), null);
-		manager.set("str", "global", {location: "global"});
+		manager.set("str", "global", { location: "global" });
 		assertEquals(manager.getUiValueAtLocation("str", "global"), "global");
 		assertEquals(manager.getUiValueAtLocation("str", "project"), null);
 
-		manager.set("str", "project", {location: "project"});
+		manager.set("str", "project", { location: "project" });
 		assertEquals(manager.getUiValueAtLocation("str", "project"), "project");
 
 		assertEquals(manager.getUiValueAtLocation("workspacePref", "global"), null);
 		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "default");
-		manager.set("workspacePref", "workspace", {location: "workspace"});
+		manager.set("workspacePref", "workspace", { location: "workspace" });
 		assertEquals(manager.getUiValueAtLocation("workspacePref", "global"), null);
 		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "workspace");
 
@@ -434,10 +434,10 @@ Deno.test({
 			contentWindowUuid: "location2",
 		});
 
-		assertEquals(manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "location1"}), "location1 value");
-		assertEquals(manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "location2"}), "location2 value");
+		assertEquals(manager.getUiValueAtLocation("str", "contentwindow-project", { contentWindowUuid: "location1" }), "location1 value");
+		assertEquals(manager.getUiValueAtLocation("str", "contentwindow-project", { contentWindowUuid: "location2" }), "location2 value");
 		assertThrows(() => {
-			manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "nonexistent"});
+			manager.getUiValueAtLocation("str", "contentwindow-project", { contentWindowUuid: "nonexistent" });
 		}, Error, 'A content window uuid was provided ("nonexistent") but no location for this uuid was found.');
 	},
 });
@@ -465,15 +465,15 @@ Deno.test({
 Deno.test({
 	name: "Setting at missing location throws",
 	fn() {
-		const {manager, locations} = createManager();
+		const { manager, locations } = createManager();
 
 		assertThrows(() => {
-			manager.set("str", "value", {location: "contentwindow-project"});
+			manager.set("str", "value", { location: "contentwindow-project" });
 		}, Error, '"contentwindow-project" preference location was not found.');
 
 		manager.removeLocation(locations.global);
 		assertThrows(() => {
-			manager.set("str", "value", {location: "global"});
+			manager.set("str", "value", { location: "global" });
 		}, Error, '"global" preference location was not found.');
 	},
 });
@@ -497,14 +497,14 @@ Deno.test({
 		let callCount = 0;
 		manager.onChangeAny(spyFn);
 
-		manager.set("pref1", "globalValue1", {location: "global"});
+		manager.set("pref1", "globalValue1", { location: "global" });
 		assertSpyCalls(spyFn, ++callCount);
 
 		assertThrows(() => {
-			manager.set("pref1", "workspaceValue1", {location: "workspace"});
+			manager.set("pref1", "workspaceValue1", { location: "workspace" });
 		}, Error, '"workspace" is not an allowed location for this preference.');
 
-		manager.set("pref1", "globalValue2", {location: "global"});
+		manager.set("pref1", "globalValue2", { location: "global" });
 		assertSpyCalls(spyFn, ++callCount);
 	},
 });
@@ -544,22 +544,22 @@ Deno.test({
 		assertEquals(value1Global, null);
 		const value1Workspace = manager.getUiValueAtLocation("pref1", "workspace");
 		assertEquals(value1Workspace, null);
-		const value1Window = manager.getUiValueAtLocation("pref1", "contentwindow-project", {contentWindowUuid: DEFAULT_CONTENT_WINDOW_UUID});
+		const value1Window = manager.getUiValueAtLocation("pref1", "contentwindow-project", { contentWindowUuid: DEFAULT_CONTENT_WINDOW_UUID });
 		assertEquals(value1Window, null);
 
 		// Resetting locations that are not in the allowlist is fine, they were already not getting used anyway
-		manager.reset("pref1", {contentWindowUuid: DEFAULT_CONTENT_WINDOW_UUID, location: "contentwindow-project"});
-		manager.reset("pref1", {location: "workspace"});
-		manager.reset("pref1", {location: "global"});
+		manager.reset("pref1", { contentWindowUuid: DEFAULT_CONTENT_WINDOW_UUID, location: "contentwindow-project" });
+		manager.reset("pref1", { location: "workspace" });
+		manager.reset("pref1", { location: "global" });
 	},
 });
 
 Deno.test({
 	name: "All locations are considered when getting a value",
 	fn() {
-		const {manager} = createManager();
+		const { manager } = createManager();
 
-		manager.set("projectPref", "global", {location: "global"});
+		manager.set("projectPref", "global", { location: "global" });
 		manager.set("projectPref", "project");
 		assertEquals(manager.get("projectPref", null), "project");
 		assertEquals(manager.get("projectPref", DEFAULT_CONTENT_WINDOW_UUID), "project");
@@ -569,7 +569,7 @@ Deno.test({
 Deno.test({
 	name: "onChangeAny events are fired for changed preferences",
 	fn() {
-		const {manager, locations} = createManager();
+		const { manager, locations } = createManager();
 
 		/** @type {Parameters<typeof manager.onChangeAny>[0]} */
 		const changeFn = () => {};
@@ -596,7 +596,7 @@ Deno.test({
 			],
 		});
 
-		manager.set("numPref2", 789, {location: "workspace"});
+		manager.set("numPref2", 789, { location: "workspace" });
 		assertSpyCalls(spyFn, ++callCount);
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
@@ -608,7 +608,7 @@ Deno.test({
 		});
 
 		// Setting to an existing value should fire it again
-		manager.set("numPref2", 789, {location: "workspace"});
+		manager.set("numPref2", 789, { location: "workspace" });
 		assertSpyCalls(spyFn, ++callCount);
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
@@ -620,7 +620,7 @@ Deno.test({
 		});
 
 		// Setting a location with higher priority to an existing value should fire events
-		manager.set("numPref2", 789, {location: "project"});
+		manager.set("numPref2", 789, { location: "project" });
 		assertSpyCalls(spyFn, ++callCount);
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
@@ -630,7 +630,7 @@ Deno.test({
 				},
 			],
 		});
-		manager.reset("numPref2", {location: "project"});
+		manager.reset("numPref2", { location: "project" });
 		assertSpyCalls(spyFn, ++callCount);
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
@@ -642,17 +642,17 @@ Deno.test({
 		});
 
 		// Setting a location with lower priority should fire events
-		manager.set("numPref2", 42, {location: "global"});
-		manager.reset("numPref2", {location: "global"});
-		manager.set("numPref2", 123, {location: "global"});
+		manager.set("numPref2", 42, { location: "global" });
+		manager.reset("numPref2", { location: "global" });
+		manager.set("numPref2", 123, { location: "global" });
 		callCount += 3;
 		assertSpyCalls(spyFn, callCount);
 
 		// Resetting a location that was never set should not fire events
-		manager.reset("numPref2", {location: "version-control"});
+		manager.reset("numPref2", { location: "version-control" });
 		assertSpyCalls(spyFn, ++callCount);
 
-		manager.reset("numPref2", {location: "workspace"});
+		manager.reset("numPref2", { location: "workspace" });
 		assertSpyCalls(spyFn, ++callCount);
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
@@ -663,7 +663,7 @@ Deno.test({
 			],
 		});
 
-		manager.set("numPref2", 789, {location: "workspace", performedByUser: true});
+		manager.set("numPref2", 789, { location: "workspace", performedByUser: true });
 		assertSpyCalls(spyFn, ++callCount);
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
@@ -674,7 +674,7 @@ Deno.test({
 			],
 		});
 
-		manager.reset("numPref2", {location: "workspace", performedByUser: true});
+		manager.reset("numPref2", { location: "workspace", performedByUser: true });
 		assertSpyCalls(spyFn, ++callCount);
 		assertSpyCall(spyFn, callCount - 1, {
 			args: [
@@ -699,7 +699,7 @@ Deno.test({
 
 		// Unregistering should stop firing the callback
 		manager.removeOnChangeAny(spyFn);
-		manager.set("numPref2", 789, {location: "workspace"});
+		manager.set("numPref2", 789, { location: "workspace" });
 		assertSpyCalls(spyFn, callCount);
 	},
 });
@@ -707,7 +707,7 @@ Deno.test({
 Deno.test({
 	name: "Values are immediately flushed by default",
 	fn() {
-		const {manager, locations} = createManager();
+		const { manager, locations } = createManager();
 		const flushSpy = spy(locations.global, "flush");
 
 		manager.set("boolPref1", true);
@@ -721,11 +721,11 @@ Deno.test({
 Deno.test({
 	name: "Calling flush flushes unflushed locations",
 	async fn() {
-		const {manager, locations} = createManager();
+		const { manager, locations } = createManager();
 		/** @type {Set<() => void>} */
 		const globalFlushResolveFunctions = new Set();
 		const globalFlushSpy = stub(locations.global, "flush", () => {
-			return new Promise(resolve => {
+			return new Promise((resolve) => {
 				globalFlushResolveFunctions.add(resolve);
 			});
 		});
@@ -758,7 +758,7 @@ Deno.test({
 
 		await assertPromiseResolved(flushPromise, false);
 
-		globalFlushResolveFunctions.forEach(cb => cb());
+		globalFlushResolveFunctions.forEach((cb) => cb());
 		globalFlushResolveFunctions.clear();
 
 		await assertPromiseResolved(flushPromise, true);
@@ -773,7 +773,7 @@ Deno.test({
 Deno.test({
 	name: "Using preferences that have not been registered",
 	fn() {
-		const {manager, locations} = createManager();
+		const { manager, locations } = createManager();
 
 		// Loading non existent preferences should be ignored silently.
 		// Otherwise a deprecated or removed preference in a preferences file on disk
@@ -801,7 +801,7 @@ Deno.test({
 Deno.test({
 	name: "Getting and setting for a specific content window",
 	fn() {
-		const {manager} = createManager();
+		const { manager } = createManager();
 
 		const mockWindowManager = createMockWindowManager();
 
@@ -810,7 +810,7 @@ Deno.test({
 		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location2");
 		manager.addLocation(location2);
 
-		manager.set("str", "global value", {location: "global"});
+		manager.set("str", "global value", { location: "global" });
 		manager.set("str", "location1 value", {
 			location: "contentwindow-project",
 			contentWindowUuid: "location1",
@@ -851,7 +851,7 @@ Deno.test({
 Deno.test({
 	name: "Events fire for specific content windows and non specific content windows",
 	fn() {
-		const {manager} = createManager();
+		const { manager } = createManager();
 
 		const CONTENT_WINDOW_UUID_1 = "content window uuid 1";
 		const CONTENT_WINDOW_UUID_2 = "content window uuid 2";
@@ -881,7 +881,7 @@ Deno.test({
 		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
 
 		// Set globally to initialize the value
-		manager.set("str", "globalValue", {location: "global"});
+		manager.set("str", "globalValue", { location: "global" });
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
 			args: [
@@ -976,7 +976,7 @@ Deno.test({
 		});
 
 		// Setting value from the content window, should fire the content window listener and global listener
-		manager.set("str", "location1set", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		manager.set("str", "location1set", { location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1 });
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
 			args: [
@@ -999,7 +999,7 @@ Deno.test({
 		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
 
 		// Setting it to the same value again, should only fire the global listener
-		manager.set("str", "location1set", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		manager.set("str", "location1set", { location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1 });
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
 			args: [
@@ -1013,7 +1013,7 @@ Deno.test({
 		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
 
 		// Setting value from another content window should only fire events on that content window
-		manager.set("str", "location2set", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_2});
+		manager.set("str", "location2set", { location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_2 });
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
 			args: [
@@ -1036,7 +1036,7 @@ Deno.test({
 		});
 
 		// Setting value globally shouldn't fire the content window events
-		manager.set("str", "globalValueSet", {location: "global"});
+		manager.set("str", "globalValueSet", { location: "global" });
 		assertSpyCalls(contentWindowSpyFn1, contentWindowSpyFn1CallCount);
 		assertSpyCalls(contentWindowSpyFn2, contentWindowSpyFn2CallCount);
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
@@ -1060,7 +1060,7 @@ Deno.test({
 		});
 
 		// Resetting content window should fire with the global value
-		manager.reset("str", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		manager.reset("str", { location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1 });
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
 			args: [
@@ -1084,7 +1084,7 @@ Deno.test({
 
 		// Setting value globally should only fire on content windows that don't already have their own location set
 		// At this point location1 has been reset, while location2 still has a value
-		manager.set("str", "globalValueSet again", {location: "global"});
+		manager.set("str", "globalValueSet again", { location: "global" });
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
 			args: [
@@ -1117,7 +1117,7 @@ Deno.test({
 		});
 
 		// Setting by user on content window should fire
-		manager.set("str", "location1SetUser", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1, performedByUser: true});
+		manager.set("str", "location1SetUser", { location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1, performedByUser: true });
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
 			args: [
@@ -1141,7 +1141,7 @@ Deno.test({
 
 		// Removing the listeners still fires them when the incorrect uuid is provided
 		manager.removeOnChange("str", "wrong location", contentWindowSpyFn1);
-		manager.set("str", "location1set2", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		manager.set("str", "location1set2", { location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1 });
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		assertSpyCalls(contentWindowSpyFn1, ++contentWindowSpyFn1CallCount);
 		assertSpyCall(contentWindowSpyFn1, contentWindowSpyFn1CallCount - 1, {
@@ -1156,13 +1156,13 @@ Deno.test({
 
 		// Removing the listeners on the correct location should no longer fire them
 		manager.removeOnChange("str", CONTENT_WINDOW_UUID_1, contentWindowSpyFn1);
-		manager.set("str", "location1set3", {location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1});
+		manager.set("str", "location1set3", { location: "contentwindow-project", contentWindowUuid: CONTENT_WINDOW_UUID_1 });
 		assertSpyCalls(contentWindowSpyFn1, contentWindowSpyFn1CallCount);
 		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
 		manager.removeOnChangeAny(globalSpyFn);
 		manager.removeOnChange("str", null, contentWindowlessSpyFn);
 		manager.set("str", "globalValueSet3");
-		manager.set("str", "globalValueSet4", {location: "global"});
+		manager.set("str", "globalValueSet4", { location: "global" });
 		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
 		assertSpyCalls(contentWindowlessSpyFn, contentWindowlessSpyFnCallCount);
 	},
@@ -1171,7 +1171,7 @@ Deno.test({
 Deno.test({
 	name: "load event doesn't fire on content windows when the value hasn't changed",
 	fn() {
-		const {manager} = createManager();
+		const { manager } = createManager();
 
 		const CONTENT_WINDOW_UUID = "content window uuid";
 
@@ -1183,7 +1183,7 @@ Deno.test({
 		const onChangeCallbackSignature = () => {};
 		const contentWindowSpyFn = spy(onChangeCallbackSignature);
 
-		manager.set("str", "existing value", {location: "global"});
+		manager.set("str", "existing value", { location: "global" });
 
 		// Register the content window listeners, events fire with 'initial' and 'location: null'
 		manager.onChange("str", CONTENT_WINDOW_UUID, contentWindowSpyFn);

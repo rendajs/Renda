@@ -1,6 +1,6 @@
-import {ProjectAssetTypeEntity} from "../assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {ProjectAssetTypeHtml} from "../assets/projectAssetType/ProjectAssetTypeHtml.js";
-import {ProjectAssetTypeJavascript} from "../assets/projectAssetType/ProjectAssetTypeJavascript.js";
+import { ProjectAssetTypeEntity } from "../assets/projectAssetType/ProjectAssetTypeEntity.js";
+import { ProjectAssetTypeHtml } from "../assets/projectAssetType/ProjectAssetTypeHtml.js";
+import { ProjectAssetTypeJavascript } from "../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 
 /**
  * Takes a preference type and returns it as const.
@@ -95,4 +95,4 @@ const autoRegisterPreferences = /** @type {const} */ ({
 });
 
 /** @typedef {keyof autoRegisterPreferences} AutoRegisterPreferenceTypes */
-export {autoRegisterPreferences};
+export { autoRegisterPreferences };

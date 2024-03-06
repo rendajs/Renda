@@ -1,5 +1,5 @@
-import {WebGpuChunkedBufferChunk} from "./WebGpuChunkedBufferChunk.js";
-import {WebGpuChunkedBufferGroup} from "./WebGpuChunkedBufferGroup.js";
+import { WebGpuChunkedBufferChunk } from "./WebGpuChunkedBufferChunk.js";
+import { WebGpuChunkedBufferGroup } from "./WebGpuChunkedBufferGroup.js";
 
 /**
  * Helper class for creating multiple WebGPU buffers (chunks) that share a similar bindgroup layout.

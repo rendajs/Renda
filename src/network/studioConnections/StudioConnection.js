@@ -1,6 +1,6 @@
-import {StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary} from "../../util/binarySerialization.js";
-import {deserializeErrorHook, serializeErrorHook} from "../../util/TypedMessenger/errorSerialization.js";
-import {TypedMessenger} from "../../util/TypedMessenger/TypedMessenger.js";
+import { StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary } from "../../util/binarySerialization.js";
+import { deserializeErrorHook, serializeErrorHook } from "../../util/TypedMessenger/errorSerialization.js";
+import { TypedMessenger } from "../../util/TypedMessenger/TypedMessenger.js";
 
 const typedMessengerSendDataBinaryOpts = createObjectToBinaryOptions({
 	structure: [
@@ -50,9 +50,9 @@ export class StudioConnection {
 			serializeErrorHook,
 		});
 		this.messenger.setResponseHandlers(options.reliableResponseHandlers || /** @type {TReliableRespondHandlers} */ ({}));
-		this.messenger.setSendHandler(async data => {
+		this.messenger.setSendHandler(async (data) => {
 			if (messageHandler.supportsSerialization) {
-				await messageHandler.send(data.sendData, {transfer: data.transfer});
+				await messageHandler.send(data.sendData, { transfer: data.transfer });
 			} else {
 				const castType = /** @type {string} */ (data.sendData.type);
 				/** @type {ArrayBuffer} */
@@ -80,7 +80,7 @@ export class StudioConnection {
 				await messageHandler.send(buffer);
 			}
 		});
-		messageHandler.onMessage(async data => {
+		messageHandler.onMessage(async (data) => {
 			/** @type {import("../../mod.js").TypedMessengerMessageSendData<any, any>} */
 			let decodedData;
 			if (messageHandler.supportsSerialization) {

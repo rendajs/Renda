@@ -1,6 +1,6 @@
-import {Vec3} from "../../math/Vec3.js";
-import {closestPointBetweenLines} from "../../math/closestPointBetweenLines.js";
-import {GizmoDraggable} from "./GizmoDraggable.js";
+import { Vec3 } from "../../math/Vec3.js";
+import { closestPointBetweenLines } from "../../math/closestPointBetweenLines.js";
+import { GizmoDraggable } from "./GizmoDraggable.js";
 
 /**
  * @typedef TranslateAxisGizmoDragEvent

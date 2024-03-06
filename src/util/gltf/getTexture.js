@@ -1,5 +1,5 @@
-import {Texture} from "../../core/Texture.js";
-import {getBufferViewBuffer} from "./getBuffer.js";
+import { Texture } from "../../core/Texture.js";
+import { getBufferViewBuffer } from "./getBuffer.js";
 
 /** @typedef {(imageId: number | undefined) => Promise<Texture>} GetTextureFn */
 
@@ -45,7 +45,7 @@ export async function getTextureHelper(jsonData, imageId, texturesCache, {
 				throw new Error(`The image with index ${imageId} has no mime type specified, this is required for buffer view images.`);
 			}
 			const buffer = await getBufferViewBuffer(jsonData, imageData.bufferView, getBufferFn);
-			blob = new Blob([buffer], {type: imageData.mimeType});
+			blob = new Blob([buffer], { type: imageData.mimeType });
 		} else {
 			throw new Error(`The image with index ${imageId} contains invalid data. An image should contain one of 'uri' or 'bufferView'.`);
 		}

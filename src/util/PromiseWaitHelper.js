@@ -21,7 +21,7 @@ export class PromiseWaitHelper {
 	async wait() {
 		if (this.done && this.once) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.onFireCbs.add(r));
+		const promise = new Promise((r) => this.onFireCbs.add(r));
 		await promise;
 	}
 }

@@ -1,28 +1,28 @@
-import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../studioDefines.js";
-import {Renderer} from "../Renderer.js";
-import {WebGpuRendererDomTarget} from "./WebGpuRendererDomTarget.js";
-import {WebGpuChunkedBuffer} from "./bufferHelper/WebGpuChunkedBuffer.js";
-import {CachedCameraData} from "./CachedCameraData.js";
-import {CachedMeshData} from "./CachedMeshData.js";
-import {Mat4} from "../../../math/Mat4.js";
-import {Vec2} from "../../../math/Vec2.js";
-import {Vec3} from "../../../math/Vec3.js";
-import {Vec4} from "../../../math/Vec4.js";
-import {LightComponent} from "../../../components/builtIn/LightComponent.js";
-import {MeshComponent} from "../../../components/builtIn/MeshComponent.js";
-import {Mesh} from "../../../core/Mesh.js";
-import {MultiKeyWeakMap} from "../../../util/MultiKeyWeakMap.js";
-import {ShaderBuilder} from "../../ShaderBuilder.js";
-import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
-import {Texture} from "../../../core/Texture.js";
-import {CachedTextureData} from "./CachedTextureData.js";
-import {CachedMaterialData} from "./CachedMaterialData.js";
-import {Sampler} from "../../Sampler.js";
-import {parseVertexInput} from "../../../util/wgslParsing.js";
-import {PlaceHolderTextureManager} from "./PlaceHolderTextureManager.js";
-import {ShaderSource} from "../../ShaderSource.js";
-import {WebGpuRendererError} from "./WebGpuRendererError.js";
-import {CustomMaterialData} from "../../CustomMaterialData.js";
+import { ENABLE_WEBGPU_CLUSTERED_LIGHTS } from "../../../studioDefines.js";
+import { Renderer } from "../Renderer.js";
+import { WebGpuRendererDomTarget } from "./WebGpuRendererDomTarget.js";
+import { WebGpuChunkedBuffer } from "./bufferHelper/WebGpuChunkedBuffer.js";
+import { CachedCameraData } from "./CachedCameraData.js";
+import { CachedMeshData } from "./CachedMeshData.js";
+import { Mat4 } from "../../../math/Mat4.js";
+import { Vec2 } from "../../../math/Vec2.js";
+import { Vec3 } from "../../../math/Vec3.js";
+import { Vec4 } from "../../../math/Vec4.js";
+import { LightComponent } from "../../../components/builtIn/LightComponent.js";
+import { MeshComponent } from "../../../components/builtIn/MeshComponent.js";
+import { Mesh } from "../../../core/Mesh.js";
+import { MultiKeyWeakMap } from "../../../util/MultiKeyWeakMap.js";
+import { ShaderBuilder } from "../../ShaderBuilder.js";
+import { WebGpuMaterialMapType } from "./WebGpuMaterialMapType.js";
+import { Texture } from "../../../core/Texture.js";
+import { CachedTextureData } from "./CachedTextureData.js";
+import { CachedMaterialData } from "./CachedMaterialData.js";
+import { Sampler } from "../../Sampler.js";
+import { parseVertexInput } from "../../../util/wgslParsing.js";
+import { PlaceHolderTextureManager } from "./PlaceHolderTextureManager.js";
+import { ShaderSource } from "../../ShaderSource.js";
+import { WebGpuRendererError } from "./WebGpuRendererError.js";
+import { CustomMaterialData } from "../../CustomMaterialData.js";
 
 export const CLUSTER_BOUNDS_SHADER_ASSET_UUID = "892d56b3-df77-472b-93dd-2c9c38ec2f3d";
 export const CLUSTER_LIGHTS_SHADER_ASSET_UUID = "a2b8172d-d910-47e9-8d3b-2a8ea3280153";
@@ -38,7 +38,7 @@ export class WebGpuRenderer extends Renderer {
 	#placeHolderTextureManager;
 
 	/** @type {FinalizationRegistry<CachedMaterialData>} */
-	#cachedMaterialDataRegistry = new FinalizationRegistry(heldValue => {
+	#cachedMaterialDataRegistry = new FinalizationRegistry((heldValue) => {
 		heldValue.destructor();
 	});
 
@@ -141,7 +141,7 @@ export class WebGpuRenderer extends Renderer {
 		this.cachedMaterialData = new WeakMap();
 
 		/** @type {MultiKeyWeakMap<*[], GPURenderPipeline>} */
-		this.cachedPipelines = new MultiKeyWeakMap([], {allowNonObjects: true});
+		this.cachedPipelines = new MultiKeyWeakMap([], { allowNonObjects: true });
 
 		/** @type {WeakMap<Mesh, CachedMeshData>} */
 		this.cachedMeshData = new WeakMap();
@@ -175,12 +175,12 @@ export class WebGpuRenderer extends Renderer {
 				{
 					binding: 1, // lights
 					visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
-					buffer: {type: "storage"},
+					buffer: { type: "storage" },
 				},
 				{
 					binding: 2, // cluster light indices
 					visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
-					buffer: {type: "storage"},
+					buffer: { type: "storage" },
 				},
 			],
 		});
@@ -200,7 +200,7 @@ export class WebGpuRenderer extends Renderer {
 					{
 						binding: 0, // cluster bounds buffer
 						visibility: GPUShaderStage.COMPUTE,
-						buffer: {type: "storage"},
+						buffer: { type: "storage" },
 					},
 				],
 			});
@@ -211,7 +211,7 @@ export class WebGpuRenderer extends Renderer {
 					{
 						binding: 0, // cluster bounds buffer
 						visibility: GPUShaderStage.COMPUTE,
-						buffer: {type: "storage"},
+						buffer: { type: "storage" },
 					},
 				],
 			});
@@ -220,14 +220,14 @@ export class WebGpuRenderer extends Renderer {
 				assertionOptions: {
 					assertInstanceType: ShaderSource,
 				},
-			}, asset => {
+			}, (asset) => {
 				this.computeClusterBoundsShaderCode = asset;
 			});
 			await this.engineAssetManager.watchAsset(CLUSTER_LIGHTS_SHADER_ASSET_UUID, {
 				assertionOptions: {
 					assertInstanceType: ShaderSource,
 				},
-			}, asset => {
+			}, (asset) => {
 				this.computeClusterLightsShaderCode = asset;
 			});
 		}
@@ -280,7 +280,7 @@ export class WebGpuRenderer extends Renderer {
 	async waitForInit() {
 		if (this.isInit) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.onInitCbs.add(r));
+		const promise = new Promise((r) => this.onInitCbs.add(r));
 		await promise;
 	}
 
@@ -342,7 +342,7 @@ export class WebGpuRenderer extends Renderer {
 				for (const component of child.getComponents(MeshComponent)) {
 					if (!component.mesh || !component.mesh.vertexState) continue;
 					const worldMatrix = child.worldMatrix;
-					meshRenderDatas.push({component, worldMatrix});
+					meshRenderDatas.push({ component, worldMatrix });
 				}
 				for (const component of child.getComponents(LightComponent)) {
 					lightComponents.push(component);
@@ -481,7 +481,7 @@ export class WebGpuRenderer extends Renderer {
 					 */
 					const placeHolderTextureRefs = new Set();
 
-					for (let {mappedData, value} of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
+					for (let { mappedData, value } of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
 						if (mappedData.mappedName == "cullMode") continue;
 						if (mappedData.mappedType == "texture2d") {
 							/** @type {GPUTextureView | null} */
@@ -598,7 +598,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 		const meshChunkedBufferGroups = new Map();
 		for (const [, pipelineRenderData] of sortedPipelineRenderDatas) {
 			for (const materialRenderData of pipelineRenderData.materialRenderDatas.values()) {
-				for (const {component, worldMatrix} of materialRenderData.meshes) {
+				for (const { component, worldMatrix } of materialRenderData.meshes) {
 					const group = this.#objectsChunkedBuffer.createGroup();
 					meshChunkedBufferGroups.set(component, group);
 
@@ -622,7 +622,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 				if (!uniformsBindGroupLayout) {
 					throw new Error("Assertion failed, material doesn't have a uniformsBindGroupLayout.");
 				}
-				const {dynamicOffset, entry} = this.#materialsChunkedBuffer.getBindGroupEntryLocation(materialRenderData.materialUniformsGroup, 0);
+				const { dynamicOffset, entry } = this.#materialsChunkedBuffer.getBindGroupEntryLocation(materialRenderData.materialUniformsGroup, 0);
 				const bindGroup = this.device.createBindGroup({
 					label: "Material uniforms", // TODO use material name as label
 					layout: uniformsBindGroupLayout,
@@ -633,14 +633,14 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 				});
 				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
 
-				for (const {component: meshComponent} of materialRenderData.meshes) {
+				for (const { component: meshComponent } of materialRenderData.meshes) {
 					const mesh = meshComponent.mesh;
 					if (!mesh) continue;
 					const chunkedBufferGroup = meshChunkedBufferGroups.get(meshComponent);
 					if (!chunkedBufferGroup) {
 						throw new Error("Assertion failed, mesh component has no chunked buffer group.");
 					}
-					const {dynamicOffset, entry} = this.#objectsChunkedBuffer.getBindGroupEntryLocation(chunkedBufferGroup, 0);
+					const { dynamicOffset, entry } = this.#objectsChunkedBuffer.getBindGroupEntryLocation(chunkedBufferGroup, 0);
 					const bindGroup = this.device.createBindGroup({
 						label: "Object uniforms", // TODO use object name as label
 						layout: this.objectUniformsBindGroupLayout,
@@ -648,7 +648,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 					});
 					renderPassEncoder.setBindGroup(2, bindGroup, [dynamicOffset]);
 					const meshData = this.getCachedMeshData(mesh);
-					for (const {index, gpuBuffer, newBufferData} of meshData.getVertexBufferGpuCommands()) {
+					for (const { index, gpuBuffer, newBufferData } of meshData.getVertexBufferGpuCommands()) {
 						if (newBufferData) {
 							this.device.queue.writeBuffer(gpuBuffer, 0, newBufferData);
 						}
@@ -738,8 +738,8 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 			let vertexModule;
 			let fragmentModule;
 			if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
-				vertexModule = this.getCachedShaderModule(pipelineConfig.vertexShader, {clusteredLightsConfig});
-				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader, {clusteredLightsConfig});
+				vertexModule = this.getCachedShaderModule(pipelineConfig.vertexShader, { clusteredLightsConfig });
+				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader, { clusteredLightsConfig });
 			} else {
 				vertexModule = this.getCachedShaderModule(pipelineConfig.vertexShader);
 				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader);
@@ -748,7 +748,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 			const vertexInputs = parseVertexInput(pipelineConfig.vertexShader.source);
 			/** @type {import("../../VertexState.js").PreferredShaderLocation[]} */
 			const preferredShaderLocations = [];
-			for (const {identifier, location} of vertexInputs) {
+			for (const { identifier, location } of vertexInputs) {
 				const attributeTypeStr = identifier.toLocaleUpperCase();
 				// @ts-ignore TODO: better attribute type enums
 				const attributeType = Mesh.AttributeType[attributeTypeStr];
@@ -831,7 +831,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 			if (!this.device) {
 				throw new Error("Assertion failed, gpu device is not initialized");
 			}
-			data = this.device.createShaderModule({code});
+			data = this.device.createShaderModule({ code });
 			this.cachedShaderModules.set(keys, data);
 		}
 		return data;

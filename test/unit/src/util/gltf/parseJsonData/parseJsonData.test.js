@@ -1,12 +1,12 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {parseJsonData} from "../../../../../../src/util/gltf/parseJsonData.js";
-import {getBasicOptions} from "./shared.js";
+import { assertEquals, assertExists } from "std/testing/asserts.ts";
+import { parseJsonData } from "../../../../../../src/util/gltf/parseJsonData.js";
+import { getBasicOptions } from "./shared.js";
 
 Deno.test({
 	name: "Basic gltf",
 	async fn() {
-		const {entity} = await parseJsonData({
-			asset: {version: "2.0"},
+		const { entity } = await parseJsonData({
+			asset: { version: "2.0" },
 			scenes: [
 				{
 					name: "My Scene",

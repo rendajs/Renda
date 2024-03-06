@@ -1,8 +1,8 @@
-import {Mesh} from "../../core/Mesh.js";
-import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
-import {VertexState} from "../../rendering/VertexState.js";
-import {BYTE, FLOAT, SHORT, UNSIGNED_BYTE, UNSIGNED_INT, UNSIGNED_SHORT} from "./constants.js";
-import {getBufferViewBuffer} from "./getBuffer.js";
+import { Mesh } from "../../core/Mesh.js";
+import { MeshComponent } from "../../components/builtIn/MeshComponent.js";
+import { VertexState } from "../../rendering/VertexState.js";
+import { BYTE, FLOAT, SHORT, UNSIGNED_BYTE, UNSIGNED_INT, UNSIGNED_SHORT } from "./constants.js";
+import { getBufferViewBuffer } from "./getBuffer.js";
 
 /**
  * @typedef {CreatedGltfMeshPrimitiveData[]} CreatedGltfMeshData
@@ -84,7 +84,7 @@ async function createMeshFromGltfPrimitive(gltfMesh, gltfJsonData, getBufferFn, 
 	let vertexCount = 0;
 	let vertexCountSet = false;
 	for (const [attributeName, accessorIndex] of Object.entries(gltfMesh.attributes)) {
-		const {accessorData, attributeType, format, unsigned, componentCount, buffer} = await getVertexAccessorData(gltfJsonData, accessorIndex, attributeName, getBufferFn);
+		const { accessorData, attributeType, format, unsigned, componentCount, buffer } = await getVertexAccessorData(gltfJsonData, accessorIndex, attributeName, getBufferFn);
 
 		if (!vertexCountSet) {
 			vertexCount = accessorData.count;
@@ -114,7 +114,7 @@ async function createMeshFromGltfPrimitive(gltfMesh, gltfJsonData, getBufferFn, 
 	let indicesBuffer;
 	let indexFormat = Mesh.IndexFormat.NONE;
 	if (gltfMesh.indices) {
-		const {buffer, format} = await getIndexAccessorData(gltfJsonData, gltfMesh.indices, getBufferFn);
+		const { buffer, format } = await getIndexAccessorData(gltfJsonData, gltfMesh.indices, getBufferFn);
 		indicesBuffer = buffer;
 		indexFormat = format;
 	}
@@ -136,7 +136,7 @@ async function createMeshFromGltfPrimitive(gltfMesh, gltfJsonData, getBufferFn, 
 
 	const material = await getMaterialFn(gltfMesh.material);
 
-	return {mesh, material};
+	return { mesh, material };
 }
 
 /**

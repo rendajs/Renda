@@ -1,10 +1,10 @@
-import {Importer} from "fake-imports";
-import {AssertionError, assert, assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
-import {FakeTime} from "std/testing/time.ts";
-import {assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assertLastDiscoveryManager, clearCreatedDiscoveryManagers} from "../../../studio/src/network/studioConnections/shared/MockDiscoveryManager.js";
-import {assertPromiseResolved} from "../../../shared/asserts.js";
-import {ExtendedDiscoveryMethod} from "../../network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
+import { Importer } from "fake-imports";
+import { AssertionError, assert, assertEquals, assertInstanceOf, assertStrictEquals } from "std/testing/asserts.ts";
+import { FakeTime } from "std/testing/time.ts";
+import { assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { assertLastDiscoveryManager, clearCreatedDiscoveryManagers } from "../../../studio/src/network/studioConnections/shared/MockDiscoveryManager.js";
+import { assertPromiseResolved } from "../../../shared/asserts.js";
+import { ExtendedDiscoveryMethod } from "../../network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
 
 const importer = new Importer(import.meta.url);
 importer.makeReal("../../../studio/src/network/studioConnections/shared/MockDiscoveryManager.js");
@@ -17,11 +17,11 @@ importer.redirectModule("../../../../../src/network/studioConnections/DiscoveryM
 
 /** @type {import("../../../../../src/inspector/InspectorManager.js")} */
 const InspectorManagerMod = await importer.import("../../../../../src/inspector/InspectorManager.js");
-const {InspectorManager} = InspectorManagerMod;
+const { InspectorManager } = InspectorManagerMod;
 
 /** @type {import("../../../../../src/network/studioConnections/ParentStudioCommunicator.js")} */
 const ParentStudioCommunicatorMod = await importer.import("../../../../../src/network/studioConnections/ParentStudioCommunicator.js");
-const {ParentStudioCommunicator} = ParentStudioCommunicatorMod;
+const { ParentStudioCommunicator } = ParentStudioCommunicatorMod;
 
 /**
  * @typedef InspectorManagerTestContext
@@ -33,7 +33,7 @@ const {ParentStudioCommunicator} = ParentStudioCommunicatorMod;
  * @param {object} options
  * @param {(ctx: InspectorManagerTestContext) => Promise<void>} options.fn
  */
-async function basicTest({fn}) {
+async function basicTest({ fn }) {
 	const fakeTime = new FakeTime();
 	const requestConnectionSpy = spy(ParentStudioCommunicator.prototype, "requestDesiredParentStudioConnection");
 	try {
@@ -66,14 +66,14 @@ function createConnection({
 		id: connectionId,
 		projectMetadata: null,
 	});
-	return method.addActive(connectionId, true, {}, 42, "", {initialStatus});
+	return method.addActive(connectionId, true, {}, 42, "", { initialStatus });
 }
 
 Deno.test({
 	name: "Requests a connection from the parent studio when created",
 	async fn() {
 		await basicTest({
-			async fn({requestConnectionSpy}) {
+			async fn({ requestConnectionSpy }) {
 				new InspectorManager();
 				assertSpyCalls(requestConnectionSpy, 1);
 				const discoveryManager = assertLastDiscoveryManager();
@@ -87,13 +87,13 @@ Deno.test({
 	name: "Fails when another inspector tries to connect",
 	async fn() {
 		await basicTest({
-			async fn({fakeTime}) {
+			async fn({ fakeTime }) {
 				new InspectorManager();
 
 				const consoleErrorSpy = stub(console, "error", () => {});
 
 				try {
-					createConnection({clientType: "inspector"});
+					createConnection({ clientType: "inspector" });
 
 					assertSpyCalls(consoleErrorSpy, 1);
 					const error = consoleErrorSpy.calls[0].args[0];
@@ -111,7 +111,7 @@ Deno.test({
 	name: "Fails when an unknown client type tries to connect",
 	async fn() {
 		await basicTest({
-			async fn({fakeTime}) {
+			async fn({ fakeTime }) {
 				new InspectorManager();
 
 				const consoleErrorSpy = stub(console, "error", () => {});
@@ -137,7 +137,7 @@ Deno.test({
 	name: "raceAllConnections() returns the default when there is no connection after a while",
 	async fn() {
 		await basicTest({
-			async fn({fakeTime}) {
+			async fn({ fakeTime }) {
 				const manager = new InspectorManager();
 				const promise = manager.raceAllConnections({
 					defaultReturnValue: "default",
@@ -165,7 +165,7 @@ Deno.test({
 	name: "Requests are passed to a connection once it connects, status is 'connected' from the start",
 	async fn() {
 		await basicTest({
-			async fn({fakeTime}) {
+			async fn({ fakeTime }) {
 				const manager = new InspectorManager();
 				const promise = manager.raceAllConnections({
 					defaultReturnValue: "default",
@@ -177,7 +177,7 @@ Deno.test({
 				await fakeTime.nextAsync();
 				await assertResolvedPromise1;
 
-				createConnection({initialStatus: "connected"});
+				createConnection({ initialStatus: "connected" });
 
 				const assertResolvedPromise2 = assertPromiseResolved(promise, true);
 				await fakeTime.nextAsync();
@@ -193,7 +193,7 @@ Deno.test({
 	name: "Requests are passed to a connection once status becomes connected",
 	async fn() {
 		await basicTest({
-			async fn({fakeTime}) {
+			async fn({ fakeTime }) {
 				const manager = new InspectorManager();
 				const promise = manager.raceAllConnections({
 					defaultReturnValue: "default",
@@ -230,9 +230,9 @@ Deno.test({
 			async fn() {
 				const manager = new InspectorManager();
 
-				createConnection({initialStatus: "connected", connectionId: "1"});
-				createConnection({initialStatus: "connected", connectionId: "2"});
-				createConnection({initialStatus: "connected", connectionId: "3"});
+				createConnection({ initialStatus: "connected", connectionId: "1" });
+				createConnection({ initialStatus: "connected", connectionId: "2" });
+				createConnection({ initialStatus: "connected", connectionId: "3" });
 
 				let callId = 0;
 				const result = await manager.raceAllConnections({
@@ -258,9 +258,9 @@ Deno.test({
 			async fn() {
 				const manager = new InspectorManager();
 
-				createConnection({connectionId: "1", initialStatus: "connected"});
-				createConnection({connectionId: "2", initialStatus: "outgoing-permission-pending"});
-				createConnection({connectionId: "3", initialStatus: "connected"});
+				createConnection({ connectionId: "1", initialStatus: "connected" });
+				createConnection({ connectionId: "2", initialStatus: "outgoing-permission-pending" });
+				createConnection({ connectionId: "3", initialStatus: "connected" });
 
 				/** @type {string[]} */
 				const callConnectionIds = [];
@@ -281,12 +281,12 @@ Deno.test({
 	name: "raceAllConnections() returns the result that finishes first",
 	async fn() {
 		await basicTest({
-			async fn({fakeTime}) {
+			async fn({ fakeTime }) {
 				const manager = new InspectorManager();
 
-				createConnection({initialStatus: "connected", connectionId: "1"});
-				createConnection({initialStatus: "connected", connectionId: "2"});
-				createConnection({initialStatus: "connected", connectionId: "3"});
+				createConnection({ initialStatus: "connected", connectionId: "1" });
+				createConnection({ initialStatus: "connected", connectionId: "2" });
+				createConnection({ initialStatus: "connected", connectionId: "3" });
 
 				/** @type {(value: string) => void} */
 				let resolvecCall2 = () => {};
@@ -303,13 +303,13 @@ Deno.test({
 							return new Promise(() => {});
 						}
 						if (callId == 2) {
-							const promise = new Promise(resolve => {
+							const promise = new Promise((resolve) => {
 								resolvecCall2 = resolve;
 							});
 							return promise;
 						}
 						if (callId == 3) {
-							const promise = new Promise(resolve => {
+							const promise = new Promise((resolve) => {
 								resolvecCall3 = resolve;
 							});
 							return promise;

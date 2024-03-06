@@ -1,7 +1,7 @@
-import {Vec2} from "../math/Vec2.js";
-import {Vec3} from "../math/Vec3.js";
-import {Vec4} from "../math/Vec4.js";
-import {Mesh} from "./Mesh.js";
+import { Vec2 } from "../math/Vec2.js";
+import { Vec3 } from "../math/Vec3.js";
+import { Vec4 } from "../math/Vec4.js";
+import { Mesh } from "./Mesh.js";
 
 /** @typedef {() => void} OnBufferChangedCallback */
 
@@ -153,7 +153,7 @@ export class MeshAttributeBuffer {
 				fixesList.push(`set the componentCount of "${attributeName}" in your VertexState to ${receivedComponentCount}.`);
 				fixesList.push(`provide a ${expectedText} array.`);
 			}
-			const fixesStr = fixesList.map(str => " - " + str).join("\n");
+			const fixesStr = fixesList.map((str) => " - " + str).join("\n");
 			throw new TypeError(`Expected a ${expectedText} array but received a ${dataType} array.\n${vertexStateSentence}\nPotential fixes:\n${fixesStr}`);
 		}
 	}

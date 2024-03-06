@@ -41,7 +41,7 @@ export class ShorcutConditionValueSetter {
 	 */
 	setValue(value) {
 		this.value = value;
-		this.onValueChangeCbs.forEach(cb => cb());
+		this.onValueChangeCbs.forEach((cb) => cb());
 	}
 
 	/**

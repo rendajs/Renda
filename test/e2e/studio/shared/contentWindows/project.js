@@ -1,8 +1,8 @@
-import {log} from "../../../shared/log.js";
-import {click} from "../../../shared/util.js";
-import {getContentWindowElement} from "../contentWindows.js";
-import {clickContextMenuItem} from "../contextMenu.js";
-import {getTreeViewItemElement, waitForTreeViewExists} from "../treeView.js";
+import { log } from "../../../shared/log.js";
+import { click } from "../../../shared/util.js";
+import { getContentWindowElement } from "../contentWindows.js";
+import { clickContextMenuItem } from "../contextMenu.js";
+import { getTreeViewItemElement, waitForTreeViewExists } from "../treeView.js";
 
 /**
  * Clicks the create asset button in the project window and clicks the specified

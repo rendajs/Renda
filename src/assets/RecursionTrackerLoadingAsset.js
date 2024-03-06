@@ -35,7 +35,7 @@ export class RecursionTrackerLoadingAsset {
 	}
 
 	async waitForLoad() {
-		await new Promise(r => this.onLoad(r));
+		await new Promise((r) => this.onLoad(r));
 	}
 
 	/**
@@ -44,7 +44,7 @@ export class RecursionTrackerLoadingAsset {
 	setLoadedAsset(loadedAsset) {
 		this.loadedAsset = loadedAsset;
 		this.isLoaded = true;
-		this.onLoadCbs.forEach(cb => cb(this.loadedAsset));
+		this.onLoadCbs.forEach((cb) => cb(this.loadedAsset));
 		this.onLoadCbs.clear();
 	}
 }

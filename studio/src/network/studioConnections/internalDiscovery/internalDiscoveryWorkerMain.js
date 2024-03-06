@@ -2,8 +2,8 @@
  * @fileoverview This is the entry point for the internalDiscovery SharedWorker.
  */
 
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {InternalDiscoveryWorkerConnection} from "./InternalDiscoveryWorkerConnection.js";
+import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { InternalDiscoveryWorkerConnection } from "./InternalDiscoveryWorkerConnection.js";
 
 /**
  * When a client registers itself, this gets called.
@@ -108,8 +108,8 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				if (!otherConnection) return;
 
 				const messageChannel = new MessageChannel();
-				createdConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port1]}, otherClientUuid, true, messageChannel.port1, {});
-				otherConnection.parentMessenger.sendWithOptions.addActiveConnection({transfer: [messageChannel.port2]}, createdConnection.id, false, messageChannel.port2, connectionRequestData || {});
+				createdConnection.parentMessenger.sendWithOptions.addActiveConnection({ transfer: [messageChannel.port1] }, otherClientUuid, true, messageChannel.port1, {});
+				otherConnection.parentMessenger.sendWithOptions.addActiveConnection({ transfer: [messageChannel.port2] }, createdConnection.id, false, messageChannel.port2, connectionRequestData || {});
 			},
 			/**
 			 * @param {import("../../../../../src/mod.js").UuidString} otherClientUuid
@@ -138,7 +138,7 @@ export function initializeWorker(workerGlobal) {
 	/** @type {Map<import("../../../../../src/mod.js").UuidString, InternalDiscoveryWorkerConnection>} */
 	const activeConnections = new Map();
 
-	workerGlobal.addEventListener("connect", event => {
+	workerGlobal.addEventListener("connect", (event) => {
 		const castEvent = /** @type {MessageEvent} */ (event);
 		const [port] = castEvent.ports;
 
@@ -147,13 +147,13 @@ export function initializeWorker(workerGlobal) {
 		/** @type {WorkerToParentTypedMessengerType} */
 		const parentMessenger = new TypedMessenger();
 
-		const {iframeResponseHandlers, parentWindowResponseHandlers} = getResponseHandlers(port, iframeMessenger, parentMessenger, activeConnections);
+		const { iframeResponseHandlers, parentWindowResponseHandlers } = getResponseHandlers(port, iframeMessenger, parentMessenger, activeConnections);
 
 		iframeMessenger.setResponseHandlers(iframeResponseHandlers);
-		iframeMessenger.setSendHandler(data => {
+		iframeMessenger.setSendHandler((data) => {
 			port.postMessage(data.sendData, data.transfer);
 		});
-		port.addEventListener("message", e => {
+		port.addEventListener("message", (e) => {
 			if (!e.data) return;
 
 			iframeMessenger.handleReceivedMessage(e.data);
@@ -161,8 +161,8 @@ export function initializeWorker(workerGlobal) {
 		port.start();
 
 		parentMessenger.setResponseHandlers(parentWindowResponseHandlers);
-		parentMessenger.setSendHandler(data => {
-			iframeMessenger.sendWithOptions.sendToParentWindow({transfer: data.transfer}, data.sendData, data.transfer);
+		parentMessenger.setSendHandler((data) => {
+			iframeMessenger.sendWithOptions.sendToParentWindow({ transfer: data.transfer }, data.sendData, data.transfer);
 		});
 	});
 }

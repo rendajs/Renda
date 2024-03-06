@@ -1,4 +1,4 @@
-import {parse} from "std/flags/mod.ts";
+import { parse } from "std/flags/mod.ts";
 
 export function parseArgs() {
 	const parsed = parse(Deno.args);
@@ -7,5 +7,5 @@ export function parseArgs() {
 	if (parsed.headless || parsed.h) {
 		headless = !headless;
 	}
-	return {inspect, headless};
+	return { inspect, headless };
 }

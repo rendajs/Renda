@@ -29,7 +29,7 @@ export async function waitFor(pageOrElement, selector, options = {}) {
  */
 async function selectorOrHandleToHandle(page, selectorOrHandle) {
 	if (typeof selectorOrHandle == "string") {
-		return await waitFor(page, selectorOrHandle, {visible: true});
+		return await waitFor(page, selectorOrHandle, { visible: true });
 	} else {
 		return selectorOrHandle;
 	}
@@ -76,7 +76,7 @@ export async function hover(page, selector) {
 export async function click(pageOrElement, selectorOrHandle, clickOptions = {}) {
 	let element;
 	if (typeof selectorOrHandle === "string") {
-		element = await waitFor(pageOrElement, selectorOrHandle, {visible: true});
+		element = await waitFor(pageOrElement, selectorOrHandle, { visible: true });
 	} else {
 		element = selectorOrHandle;
 	}

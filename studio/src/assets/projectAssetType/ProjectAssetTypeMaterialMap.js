@@ -1,13 +1,13 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {PropertiesAssetContentMaterialMap} from "../../propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
-import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
-import {Vec2, Vec3, Vec4, isUuid} from "../../../../src/mod.js";
-import {objectToBinary} from "../../../../src/util/binarySerialization.js";
-import {ProjectAssetTypeTexture} from "./ProjectAssetTypeTexture.js";
-import {ProjectAssetTypeSampler} from "./ProjectAssetTypeSampler.js";
-import {materialMapBinaryOptions} from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeMaterialMap.js";
-import {Sampler} from "../../../../src/rendering/Sampler.js";
-import {Texture} from "../../../../src/core/Texture.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { PropertiesAssetContentMaterialMap } from "../../propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
+import { MaterialMap } from "../../../../src/rendering/MaterialMap.js";
+import { Vec2, Vec3, Vec4, isUuid } from "../../../../src/mod.js";
+import { objectToBinary } from "../../../../src/util/binarySerialization.js";
+import { ProjectAssetTypeTexture } from "./ProjectAssetTypeTexture.js";
+import { ProjectAssetTypeSampler } from "./ProjectAssetTypeSampler.js";
+import { materialMapBinaryOptions } from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeMaterialMap.js";
+import { Sampler } from "../../../../src/rendering/Sampler.js";
+import { Texture } from "../../../../src/core/Texture.js";
 
 /**
  * @extends {ProjectAssetType<MaterialMap, null, import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
@@ -132,7 +132,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 				}
 			}
 		}
-		return {mapType, mappedValues};
+		return { mapType, mappedValues };
 	}
 
 	/**
@@ -147,7 +147,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 			for (const map of fileData.maps) {
 				const mappedValuesData = await this.#getMappedValuesFromAssetData(map);
 				if (!mappedValuesData) continue;
-				const {mapType, mappedValues} = mappedValuesData;
+				const { mapType, mappedValues } = mappedValuesData;
 
 				materialMapTypes.push({
 					mapType,

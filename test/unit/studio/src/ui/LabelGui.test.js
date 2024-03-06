@@ -1,6 +1,6 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {LabelGui} from "../../../../../studio/src/ui/LabelGui.js";
-import {runWithDom} from "../../shared/runWithDom.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { LabelGui } from "../../../../../studio/src/ui/LabelGui.js";
+import { runWithDom } from "../../shared/runWithDom.js";
 
 Deno.test({
 	name: "value updates the label",

@@ -1,4 +1,4 @@
-import {Sampler} from "../../rendering/Sampler.js";
+import { Sampler } from "../../rendering/Sampler.js";
 
 export const NEAREST = 9728;
 export const LINEAR = 9729;

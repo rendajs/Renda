@@ -1,7 +1,7 @@
-import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import {Mesh, VertexState} from "../../../src/mod.js";
-import {createTreeViewStructure} from "../ui/propertiesTreeView/createStructureHelpers.js";
-import {ProjectAssetTypeVertexState} from "../assets/projectAssetType/ProjectAssetTypeVertexState.js";
+import { PropertiesAssetContent } from "./PropertiesAssetContent.js";
+import { Mesh, VertexState } from "../../../src/mod.js";
+import { createTreeViewStructure } from "../ui/propertiesTreeView/createStructureHelpers.js";
+import { ProjectAssetTypeVertexState } from "../assets/projectAssetType/ProjectAssetTypeVertexState.js";
 
 /**
  * @extends {PropertiesAssetContent<import("../assets/projectAssetType/ProjectAssetTypeMesh.js").ProjectAssetTypeMesh>}
@@ -34,7 +34,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 		this.meshSettingsTree = this.treeView.addCollapsable("Mesh Settings");
 		this.meshSettingsTree.renderContainer = true;
 		this.meshSettingsTree.generateFromSerializableStructure(this.meshSettingsStructure);
-		this.meshSettingsTree.onChildValueChange(changeEvent => {
+		this.meshSettingsTree.onChildValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			this.saveAsset();
 		});
@@ -44,7 +44,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 		// todo: handle multiple selected items or no selection
 
 		const asset = this.currentSelection[0];
-		const {liveAsset, studioData} = await asset.getLiveAssetData();
+		const { liveAsset, studioData } = await asset.getLiveAssetData();
 
 		if (liveAsset && studioData) {
 			const attributeNames = [];
@@ -66,7 +66,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 
 		// todo: handle multiple selected items or no selection
 		const asset = this.currentSelection[0];
-		const {liveAsset, studioData} = await asset.getLiveAssetData();
+		const { liveAsset, studioData } = await asset.getLiveAssetData();
 		if (liveAsset && studioData) {
 			studioData.vertexStateUuid = settings.vertexState;
 			const assetManager = this.studioInstance.projectManager.assertAssetManagerExists();

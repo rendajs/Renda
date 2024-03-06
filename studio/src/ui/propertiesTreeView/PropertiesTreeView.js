@@ -1,7 +1,7 @@
-import {ArrayGui} from "../ArrayGui.js";
-import {ObjectGui} from "../ObjectGui.js";
-import {TreeView} from "../TreeView.js";
-import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
+import { ArrayGui } from "../ArrayGui.js";
+import { ObjectGui } from "../ObjectGui.js";
+import { TreeView } from "../TreeView.js";
+import { PropertiesTreeViewEntry } from "./PropertiesTreeViewEntry.js";
 
 /**
  * @template {import("./types.ts").PropertiesTreeViewStructure} T

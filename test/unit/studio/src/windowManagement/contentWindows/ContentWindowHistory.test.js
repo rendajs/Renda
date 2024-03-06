@@ -1,9 +1,9 @@
 import "../../../shared/initializeStudio.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {installShadowDom} from "fake-dom/FakeShadowRoot.js";
-import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
-import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
-import {ContentWindowHistory} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowHistory.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { installShadowDom } from "fake-dom/FakeShadowRoot.js";
+import { assert, assertEquals, assertExists } from "std/testing/asserts.ts";
+import { PreferencesManager } from "../../../../../../studio/src/preferences/PreferencesManager.js";
+import { ContentWindowHistory } from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowHistory.js";
 
 /**
  * @typedef ContentWindowHistoryTestContext
@@ -32,7 +32,7 @@ function createEntry(uiText) {
  * @param {(ctx: ContentWindowHistoryTestContext) => void} options.fn
  * @param {import("../../../../../../studio/src/misc/HistoryManager.js").HistoryEntriesResult[]} [options.startHistoryEntries]
  */
-function basicTest({fn, startHistoryEntries = []}) {
+function basicTest({ fn, startHistoryEntries = [] }) {
 	installFakeDocument();
 	installShadowDom();
 
@@ -41,7 +41,7 @@ function basicTest({fn, startHistoryEntries = []}) {
 		const testContext = {
 			contentWindow: /** @type {ContentWindowHistory} */ (/** @type {unknown} */ (null)),
 			triggerOnTreeUpdated() {
-				onTreeUpdatedCbs.forEach(cb => cb());
+				onTreeUpdatedCbs.forEach((cb) => cb());
 			},
 			canUndo: false,
 			canRedo: false,
@@ -102,7 +102,7 @@ Deno.test({
 
 				const svgEl = shadow.children[0];
 				assertEquals(svgEl.tagName, "svg");
-				assertEquals(Array.from(svgEl.children).map(c => c.tagName), ["path", "circle"]);
+				assertEquals(Array.from(svgEl.children).map((c) => c.tagName), ["path", "circle"]);
 
 				const entriesEl = shadow.children[1];
 				assertEquals(entriesEl.tagName, "UL");
@@ -147,7 +147,7 @@ Deno.test({
 
 				ctx.triggerOnTreeUpdated();
 				assertEquals(entriesEl.childElementCount, 3);
-				assertEquals(Array.from(svgEl.children).map(c => c.tagName), ["path", "path", "circle", "circle", "circle"]);
+				assertEquals(Array.from(svgEl.children).map((c) => c.tagName), ["path", "path", "circle", "circle", "circle"]);
 			},
 		});
 	},

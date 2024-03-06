@@ -1,7 +1,7 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {stub} from "std/testing/mock.ts";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { stub } from "std/testing/mock.ts";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, basicSetup } from "./shared.js";
 
 /**
  * @typedef StubReferenceAssetConfig
@@ -29,7 +29,7 @@ async function basicSetupForReferences({
 	/** @type {import("./shared.js").StubAssetConfig[]} */
 	const stubAssets = [];
 	let pathIndex = 0;
-	for (const {uuid, children} of stubReferenceAssets) {
+	for (const { uuid, children } of stubReferenceAssets) {
 		const path = ["path", "to", `asset-${pathIndex++}.json`];
 		stubAssets.push({
 			uuid,
@@ -40,7 +40,7 @@ async function basicSetupForReferences({
 			},
 		});
 	}
-	const {assetManager, ProjectAssetType} = await basicSetup({stubAssets});
+	const { assetManager, ProjectAssetType } = await basicSetup({ stubAssets });
 
 	stub(ProjectAssetType.prototype, "getReferencedAssetUuids", async function *() {
 		// eslint-disable-next-line no-invalid-this
@@ -55,7 +55,7 @@ async function basicSetupForReferences({
 	}
 
 	try {
-		for (const {args, assertResult} of tests) {
+		for (const { args, assertResult } of tests) {
 			/** @type {import("../../../../../../src/mod.js").UuidString[]} */
 			const results = [];
 			for await (const result of assetManager.collectAllAssetReferences(...args)) {

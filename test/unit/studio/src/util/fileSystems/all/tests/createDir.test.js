@@ -1,8 +1,8 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {testAll} from "../shared.js";
-import {registerOnChangeSpy} from "../../shared.js";
-import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { testAll } from "../shared.js";
+import { registerOnChangeSpy } from "../../shared.js";
+import { waitForMicrotasks } from "../../../../../../shared/waitForMicroTasks.js";
 
 testAll({
 	name: "createDir() should create a directory and fire onchange",
@@ -19,7 +19,7 @@ testAll({
 		await createDirPromise;
 
 		let hasNewDir = false;
-		const {directories} = await fs.readDir(["root"]);
+		const { directories } = await fs.readDir(["root"]);
 		for (const name of directories) {
 			if (name == "newdir") {
 				hasNewDir = true;

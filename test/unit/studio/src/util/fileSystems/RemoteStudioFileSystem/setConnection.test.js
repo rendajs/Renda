@@ -1,6 +1,6 @@
-import {assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {RemoteStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
-import {assertPromiseResolved} from "../../../../../shared/asserts.js";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
+import { RemoteStudioFileSystem } from "../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
+import { assertPromiseResolved } from "../../../../../shared/asserts.js";
 
 Deno.test({
 	name: "setConnection() may only be called once",
@@ -34,7 +34,7 @@ Deno.test({
 					/**
 					 * @param {string[]} path
 					 */
-					"fileSystem.isFile": async path => {
+					"fileSystem.isFile": async (path) => {
 						return true;
 					},
 				},

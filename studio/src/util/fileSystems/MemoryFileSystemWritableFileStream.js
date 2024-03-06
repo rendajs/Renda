@@ -50,7 +50,7 @@ export class MemoryFileSystemWritableFileStream extends WritableStream {
 		newBuffer.set(new Uint8Array(existingBuffer), 0);
 		newBuffer.set(new Uint8Array(buffer), this.#cursor);
 		this.#cursor += buffer.byteLength;
-		this.pointer.file = new File([newBuffer], this.pointer.file.name, {type: this.pointer.file.type});
+		this.pointer.file = new File([newBuffer], this.pointer.file.name, { type: this.pointer.file.type });
 	}
 
 	/**

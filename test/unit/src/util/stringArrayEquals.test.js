@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {stringArrayEquals} from "../../../../src/mod.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { stringArrayEquals } from "../../../../src/mod.js";
 
 Deno.test({
 	name: "two empty arrays",

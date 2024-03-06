@@ -1,5 +1,5 @@
-import {assert, assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {testAll} from "../shared.js";
+import { assert, assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { testAll } from "../shared.js";
 
 testAll({
 	name: "writeFileStream()",
@@ -19,7 +19,7 @@ testAll({
 		await stream.write(blob);
 		await stream.close();
 
-		const {files} = await fs.readDir(["root"]);
+		const { files } = await fs.readDir(["root"]);
 		assert(files.includes("newfile"), "'newfile' was not created");
 
 		const text = await fs.readText(["root", "newfile"]);

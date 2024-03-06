@@ -1,4 +1,4 @@
-import {FsaStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
+import { FsaStudioFileSystem } from "../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
 
 export class FakeHandle {
 	/** @type {FakeHandle[]} */
@@ -109,7 +109,7 @@ export class FakeHandle {
 	}
 
 	getFile() {
-		return new File([this.#fileContent], "", {lastModified: this.#lastModified});
+		return new File([this.#fileContent], "", { lastModified: this.#lastModified });
 	}
 
 	/**
@@ -146,7 +146,7 @@ export class FakeHandle {
 		}
 		/** @type {WritableStream<FileSystemWriteChunkType>} */
 		const stream = new WritableStream({
-			write: async chunk => {
+			write: async (chunk) => {
 				if (chunk instanceof Blob) {
 					chunk = await chunk.arrayBuffer();
 				}

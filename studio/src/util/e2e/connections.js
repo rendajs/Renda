@@ -1,4 +1,4 @@
-import {getContentWindowElement} from "./contentWindows.js";
+import { getContentWindowElement } from "./contentWindows.js";
 
 /**
  * Returns the connect button if there is one, null otherwise.

@@ -1,6 +1,6 @@
-import {assertEquals, assertNotStrictEquals} from "std/testing/asserts.ts";
-import {Mat4, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
-import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
+import { assertEquals, assertNotStrictEquals } from "std/testing/asserts.ts";
+import { Mat4, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
+import { assertAlmostEquals, assertVecAlmostEquals } from "../../shared/asserts.js";
 
 Deno.test({
 	name: "Should be 0,0,0,1 by default",
@@ -260,15 +260,15 @@ Deno.test({
 	name: "get magnitude",
 	fn() {
 		const tests = [
-			{vec: [0, 0, 0, 0], expected: 0},
-			{vec: [1, 0, 0, 0], expected: 1},
-			{vec: [0, 5, 0, 0], expected: 5},
-			{vec: [0, 0, -6, 0], expected: 6},
-			{vec: [0, 0, -6, -5], expected: 7.81},
-			{vec: [1, 2, 3, 4], expected: 5.48},
+			{ vec: [0, 0, 0, 0], expected: 0 },
+			{ vec: [1, 0, 0, 0], expected: 1 },
+			{ vec: [0, 5, 0, 0], expected: 5 },
+			{ vec: [0, 0, -6, 0], expected: 6 },
+			{ vec: [0, 0, -6, -5], expected: 7.81 },
+			{ vec: [1, 2, 3, 4], expected: 5.48 },
 		];
 
-		for (const {vec, expected} of tests) {
+		for (const { vec, expected } of tests) {
 			const vec4 = new Vec4(vec);
 			assertAlmostEquals(vec4.magnitude, expected, 0.1);
 		}
@@ -279,16 +279,16 @@ Deno.test({
 	name: "set magnitude",
 	fn() {
 		const tests = [
-			{vec: [0, 0, 0, 0], magnitude: 1, expected: [0, 0, 0, 0]},
-			{vec: [1, 0, 0, 0], magnitude: 5, expected: [5, 0, 0, 0]},
-			{vec: [0, 5, 0, 0], magnitude: 1, expected: [0, 1, 0, 0]},
-			{vec: [1, 1, 1, 1], magnitude: 0, expected: [0, 0, 0, 0]},
-			{vec: [5, 0, 0, 0], magnitude: 5, expected: [5, 0, 0, 0]},
-			{vec: [1, 1, 1, 1], magnitude: 5, expected: [2.5, 2.5, 2.5, 2.5]},
-			{vec: [1, 2, 3, 4], magnitude: 10, expected: [1.8, 3.7, 5.5, 7.3]},
+			{ vec: [0, 0, 0, 0], magnitude: 1, expected: [0, 0, 0, 0] },
+			{ vec: [1, 0, 0, 0], magnitude: 5, expected: [5, 0, 0, 0] },
+			{ vec: [0, 5, 0, 0], magnitude: 1, expected: [0, 1, 0, 0] },
+			{ vec: [1, 1, 1, 1], magnitude: 0, expected: [0, 0, 0, 0] },
+			{ vec: [5, 0, 0, 0], magnitude: 5, expected: [5, 0, 0, 0] },
+			{ vec: [1, 1, 1, 1], magnitude: 5, expected: [2.5, 2.5, 2.5, 2.5] },
+			{ vec: [1, 2, 3, 4], magnitude: 10, expected: [1.8, 3.7, 5.5, 7.3] },
 		];
 
-		for (const {vec, magnitude, expected} of tests) {
+		for (const { vec, magnitude, expected } of tests) {
 			const vec4 = new Vec4(vec);
 			vec4.magnitude = magnitude;
 			const vecArr = vec4.toArray();
@@ -303,14 +303,14 @@ Deno.test({
 	name: "normalize()",
 	fn() {
 		const tests = [
-			{vec: [0, 0, 0, 0], expected: [0, 0, 0, 0]},
-			{vec: [1, 0, 0, 0], expected: [1, 0, 0, 0]},
-			{vec: [5, 0, 0, 0], expected: [1, 0, 0, 0]},
-			{vec: [5, 5, 5, 5], expected: [0.5, 0.5, 0.5, 0.5]},
-			{vec: [0, -5, 0, 0], expected: [0, -1, 0, 0]},
+			{ vec: [0, 0, 0, 0], expected: [0, 0, 0, 0] },
+			{ vec: [1, 0, 0, 0], expected: [1, 0, 0, 0] },
+			{ vec: [5, 0, 0, 0], expected: [1, 0, 0, 0] },
+			{ vec: [5, 5, 5, 5], expected: [0.5, 0.5, 0.5, 0.5] },
+			{ vec: [0, -5, 0, 0], expected: [0, -1, 0, 0] },
 		];
 
-		for (const {vec, expected} of tests) {
+		for (const { vec, expected } of tests) {
 			const vec4 = new Vec4(vec);
 			vec4.normalize();
 			assertVecAlmostEquals(vec4, expected, 0.1);
@@ -322,14 +322,14 @@ Deno.test({
 	name: "distanceTo()",
 	fn() {
 		const tests = [
-			{a: [0, 0, 0, 0], b: [0, 0, 0, 0], expected: 0},
-			{a: [1, 0, 0, 0], b: [0, 0, 0, 0], expected: 1},
-			{a: [0, 5, 0, 0], b: [0, 0, 0, 0], expected: 5},
-			{a: [-5, 0, 0, 0], b: [5, 0, 0, 0], expected: 10},
-			{a: [1, 0, 2, 1], b: [0, -2, -1, 3], expected: 4.24},
+			{ a: [0, 0, 0, 0], b: [0, 0, 0, 0], expected: 0 },
+			{ a: [1, 0, 0, 0], b: [0, 0, 0, 0], expected: 1 },
+			{ a: [0, 5, 0, 0], b: [0, 0, 0, 0], expected: 5 },
+			{ a: [-5, 0, 0, 0], b: [5, 0, 0, 0], expected: 10 },
+			{ a: [1, 0, 2, 1], b: [0, -2, -1, 3], expected: 4.24 },
 		];
 
-		for (const {a, b, expected} of tests) {
+		for (const { a, b, expected } of tests) {
 			const vec = new Vec4(a);
 			const dist = vec.distanceTo(b);
 			assertAlmostEquals(dist, expected, 0.1);
@@ -703,13 +703,13 @@ Deno.test({
 	name: "min()",
 	fn() {
 		const tests = [
-			{a: [1, 1, 1, 1], b: [1, 1, 1, 1], result: [1, 1, 1, 1]},
-			{a: [2, 2, 2, 2], b: [1, 1, 1, 1], result: [1, 1, 1, 1]},
-			{a: [1, 1, 1, 1], b: [2, 2, 2, 2], result: [1, 1, 1, 1]},
-			{a: [1, 5, 2, 3], b: [2, 1, 4, 2], result: [1, 1, 2, 2]},
+			{ a: [1, 1, 1, 1], b: [1, 1, 1, 1], result: [1, 1, 1, 1] },
+			{ a: [2, 2, 2, 2], b: [1, 1, 1, 1], result: [1, 1, 1, 1] },
+			{ a: [1, 1, 1, 1], b: [2, 2, 2, 2], result: [1, 1, 1, 1] },
+			{ a: [1, 5, 2, 3], b: [2, 1, 4, 2], result: [1, 1, 2, 2] },
 		];
 
-		for (const {a, b, result} of tests) {
+		for (const { a, b, result } of tests) {
 			const vec = new Vec4(a);
 			vec.min(b);
 
@@ -722,13 +722,13 @@ Deno.test({
 	name: "max()",
 	fn() {
 		const tests = [
-			{a: [1, 1, 1, 1], b: [1, 1, 1, 1], result: [1, 1, 1, 1]},
-			{a: [2, 2, 2, 2], b: [1, 1, 1, 1], result: [2, 2, 2, 2]},
-			{a: [1, 1, 1, 1], b: [2, 2, 2, 2], result: [2, 2, 2, 2]},
-			{a: [1, 5, 2, 3], b: [2, 1, 4, 2], result: [2, 5, 4, 3]},
+			{ a: [1, 1, 1, 1], b: [1, 1, 1, 1], result: [1, 1, 1, 1] },
+			{ a: [2, 2, 2, 2], b: [1, 1, 1, 1], result: [2, 2, 2, 2] },
+			{ a: [1, 1, 1, 1], b: [2, 2, 2, 2], result: [2, 2, 2, 2] },
+			{ a: [1, 5, 2, 3], b: [2, 1, 4, 2], result: [2, 5, 4, 3] },
 		];
 
-		for (const {a, b, result} of tests) {
+		for (const { a, b, result } of tests) {
 			const vec = new Vec4(a);
 			vec.max(b);
 
@@ -741,13 +741,13 @@ Deno.test({
 	name: "dot()",
 	fn() {
 		const tests = [
-			{a: [0, 0, 0, 0], b: [0, 0, 0, 0], result: 0},
-			{a: [1, 2, 3, 4], b: [5, 6, 7, 8], result: 70},
-			{a: [-5, 3, 2, 4], b: [8, 3, 5, 6], result: 3},
-			{a: [1, 1, 1, 1], b: [1, 1, 1, 1], result: 4},
+			{ a: [0, 0, 0, 0], b: [0, 0, 0, 0], result: 0 },
+			{ a: [1, 2, 3, 4], b: [5, 6, 7, 8], result: 70 },
+			{ a: [-5, 3, 2, 4], b: [8, 3, 5, 6], result: 3 },
+			{ a: [1, 1, 1, 1], b: [1, 1, 1, 1], result: 4 },
 		];
 
-		for (const {a, b, result} of tests) {
+		for (const { a, b, result } of tests) {
 			const vec = new Vec4(a);
 			const dot = vec.dot(b);
 
@@ -760,15 +760,15 @@ Deno.test({
 	name: "projectOnVector()",
 	fn() {
 		const tests = [
-			{a: [2, 2, 0, 0], b: [1, 0, 0, 0], result: [2, 0, 0, 0]},
-			{a: [2, 2, 0, 0], b: [-1, 0, 0, 0], result: [2, 0, 0, 0]},
-			{a: [-2, -2, 0, 0], b: [1, 0, 0, 0], result: [-2, 0, 0, 0]},
-			{a: [0, 2, 0, 0], b: [2, 2, 0, 0], result: [1, 1, 0, 0]},
-			{a: [0, 4, 0, 0], b: [2, 2, 0, 0], result: [2, 2, 0, 0]},
-			{a: [0, 4, 0, 0], b: [4, 4, 4, 4], result: [1, 1, 1, 1]},
+			{ a: [2, 2, 0, 0], b: [1, 0, 0, 0], result: [2, 0, 0, 0] },
+			{ a: [2, 2, 0, 0], b: [-1, 0, 0, 0], result: [2, 0, 0, 0] },
+			{ a: [-2, -2, 0, 0], b: [1, 0, 0, 0], result: [-2, 0, 0, 0] },
+			{ a: [0, 2, 0, 0], b: [2, 2, 0, 0], result: [1, 1, 0, 0] },
+			{ a: [0, 4, 0, 0], b: [2, 2, 0, 0], result: [2, 2, 0, 0] },
+			{ a: [0, 4, 0, 0], b: [4, 4, 4, 4], result: [1, 1, 1, 1] },
 		];
 
-		for (const {a, b, result} of tests) {
+		for (const { a, b, result } of tests) {
 			const vec = new Vec4(a);
 			vec.projectOnVector(b);
 
@@ -823,7 +823,7 @@ Deno.test({
 		/** @type {number[]} */
 		const expectedResult = [];
 		const vec = new Vec4();
-		vec.onChange(component => {
+		vec.onChange((component) => {
 			fireResults.push(component);
 		});
 

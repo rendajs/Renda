@@ -1,9 +1,9 @@
 #!/usr/bin/env -S deno run --unstable --no-check --allow-run --allow-read --allow-write --allow-env --allow-net
 
-import {join} from "std/path/mod.ts";
-import {setCwd} from "chdir-anywhere";
-import {dev} from "./dev.js";
-import {parseArgs} from "../test/shared/testArgs.js";
+import { join } from "std/path/mod.ts";
+import { setCwd } from "chdir-anywhere";
+import { dev } from "./dev.js";
+import { parseArgs } from "../test/shared/testArgs.js";
 
 setCwd();
 Deno.chdir("..");
@@ -16,7 +16,7 @@ const FAKE_IMPORTS_COVERAGE_DIR = ".coverage/fakeImportsCoverageMap";
  */
 async function removeMaybeDirectory(path) {
 	try {
-		await Deno.remove(path, {recursive: true});
+		await Deno.remove(path, { recursive: true });
 	} catch (e) {
 		if (!(e instanceof Deno.errors.NotFound)) {
 			throw e;
@@ -40,7 +40,7 @@ await dev({
 	needsDependencies: needsE2eTests,
 });
 
-const {inspect} = parseArgs();
+const { inspect } = parseArgs();
 
 let needsCoverage = Deno.args.includes("--coverage") || Deno.args.includes("-c");
 const needsHtmlCoverageReport = Deno.args.includes("--html");
@@ -83,7 +83,7 @@ if (needsE2eTests) {
 for (const cmd of testCommands) {
 	console.log(`Running: ${cmd.join(" ")}`);
 	const [exec, ...args] = cmd;
-	const testCommand = new Deno.Command(exec, {args, stdout: "inherit", stderr: "inherit"});
+	const testCommand = new Deno.Command(exec, { args, stdout: "inherit", stderr: "inherit" });
 	const testOutput = await testCommand.output();
 	if (!testOutput.success) {
 		Deno.exit(testOutput.code);

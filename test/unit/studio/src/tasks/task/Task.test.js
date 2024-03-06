@@ -1,5 +1,5 @@
-import {assertRejects} from "std/testing/asserts.ts";
-import {Task} from "../../../../../../studio/src/tasks/task/Task.js";
+import { assertRejects } from "std/testing/asserts.ts";
+import { Task } from "../../../../../../studio/src/tasks/task/Task.js";
 
 Deno.test({
 	name: "runTask() throws when not implemented",

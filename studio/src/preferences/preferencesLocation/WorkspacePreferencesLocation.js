@@ -1,4 +1,4 @@
-import {PreferencesLocation} from "./PreferencesLocation.js";
+import { PreferencesLocation } from "./PreferencesLocation.js";
 
 /**
  * @fileoverview A preferences location that stores preferences in a workspace.
@@ -19,7 +19,7 @@ export class WorkspacePreferencesLocation extends PreferencesLocation {
 	 * @override
 	 */
 	async flush() {
-		this.#onFlushRequestCbs.forEach(cb => cb());
+		this.#onFlushRequestCbs.forEach((cb) => cb());
 	}
 
 	/** @type {Set<() => void>} */

@@ -2,8 +2,8 @@
  * @fileoverview Manages SVG filters that can be used for applying colors to icons.
  */
 
-import {ColorizerFilter} from "./ColorizerFilter.js";
-import {generateUuid} from "../../../../src/util/mod.js";
+import { ColorizerFilter } from "./ColorizerFilter.js";
+import { generateUuid } from "../../../../src/util/mod.js";
 
 const elementUsageReferenceSym = Symbol("colorizer filter usage reference");
 

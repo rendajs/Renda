@@ -1,5 +1,5 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {IconGizmo, VertexState} from "../../../../../src/mod.js";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { IconGizmo, VertexState } from "../../../../../src/mod.js";
 
 Deno.test({
 	name: "billboardVertexState from gizmomanager is used",

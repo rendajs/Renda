@@ -1,9 +1,9 @@
-import {assertEquals, assertInstanceOf, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {TestAssetBundle} from "./TestAssetBundle.js";
-import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../shared/mockWeakRef.js";
-import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
-import {assertIsType, testTypes} from "../../shared/typeAssertions.js";
-import {AssetBundle, AssetLoader, AssetLoaderType} from "../../../../src/mod.js";
+import { assertEquals, assertInstanceOf, assertRejects, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { TestAssetBundle } from "./TestAssetBundle.js";
+import { forceCleanup, installMockWeakRef, uninstallMockWeakRef } from "../../shared/mockWeakRef.js";
+import { waitForMicrotasks } from "../../shared/waitForMicroTasks.js";
+import { assertIsType, testTypes } from "../../shared/typeAssertions.js";
+import { AssetBundle, AssetLoader, AssetLoaderType } from "../../../../src/mod.js";
 
 const BASIC_ASSET_UUID = "basic asset uuid";
 const BASIC_ASSET_TYPE_UUID = "ba51c0000-a55e-7000-778e-00000000441d";
@@ -57,12 +57,12 @@ function createBasicLoaderType({
  */
 function basicSetup({
 	registerLoaderType = /** @type {TRegisterLoaderType} */ (true),
-	expectedAsset = /** @type {unknown} */ ({label: "expected asset"}),
+	expectedAsset = /** @type {unknown} */ ({ label: "expected asset" }),
 } = {}) {
 	installMockWeakRef();
 	const assetLoader = new AssetLoader();
 
-	const {ExtendedAssetLoaderType, setParseBufferFn} = createBasicLoaderType({
+	const { ExtendedAssetLoaderType, setParseBufferFn } = createBasicLoaderType({
 		uuid: BASIC_ASSET_TYPE_UUID,
 		parseBufferFn() {
 			return expectedAsset;
@@ -179,7 +179,7 @@ Deno.test({
 Deno.test({
 	name: "getting an asset",
 	async fn() {
-		const {assetLoader, expectedAsset, uninstall} = basicSetup();
+		const { assetLoader, expectedAsset, uninstall } = basicSetup();
 
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
@@ -231,7 +231,7 @@ testTypes({
 Deno.test({
 	name: "getting an asset with the correct LoaderType doesn't throw",
 	async fn() {
-		const {assetLoader, ExtendedAssetLoaderType, expectedAsset, uninstall} = basicSetup();
+		const { assetLoader, ExtendedAssetLoaderType, expectedAsset, uninstall } = basicSetup();
 
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
@@ -255,7 +255,7 @@ Deno.test({
 Deno.test({
 	name: "getting an asset with the incorrect LoaderType throws",
 	async fn() {
-		const {assetLoader, uninstall} = basicSetup();
+		const { assetLoader, uninstall } = basicSetup();
 
 		/** @extends {AssetLoaderType<unknown>} */
 		class WrongAssetLoaderType extends AssetLoaderType {}
@@ -307,7 +307,7 @@ Deno.test({
 	name: "getting an asset with the correct Instance type doesn't throw",
 	async fn() {
 		class Foo {}
-		const {assetLoader, expectedAsset, uninstall} = basicSetup({
+		const { assetLoader, expectedAsset, uninstall } = basicSetup({
 			expectedAsset: new Foo(),
 		});
 
@@ -335,7 +335,7 @@ Deno.test({
 	async fn() {
 		class Foo {}
 		class Bar {}
-		const {assetLoader, uninstall} = basicSetup({
+		const { assetLoader, uninstall } = basicSetup({
 			expectedAsset: new Foo(),
 		});
 
@@ -402,7 +402,7 @@ Deno.test({
 Deno.test({
 	name: "requesting the same asset twice returns the same instance by default",
 	async fn() {
-		const {assetLoader, expectedAsset, setParseBufferFn, uninstall} = basicSetup();
+		const { assetLoader, expectedAsset, setParseBufferFn, uninstall } = basicSetup();
 
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
@@ -414,7 +414,7 @@ Deno.test({
 			assertStrictEquals(asset1, expectedAsset);
 
 			setParseBufferFn(() => {
-				return {label: "unexpected asset"};
+				return { label: "unexpected asset" };
 			});
 
 			const getAssetPromise2 = assetLoader.getAsset(BASIC_ASSET_UUID);
@@ -430,7 +430,7 @@ Deno.test({
 Deno.test({
 	name: "requesting the same asset twice returns a different instance when createNewInstance is true",
 	async fn() {
-		const {assetLoader, expectedAsset: expectedAsset1, setParseBufferFn, uninstall} = basicSetup();
+		const { assetLoader, expectedAsset: expectedAsset1, setParseBufferFn, uninstall } = basicSetup();
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
@@ -442,7 +442,7 @@ Deno.test({
 			const asset1 = await getAssetPromise1;
 			assertStrictEquals(asset1, expectedAsset1);
 
-			const expectedAsset2 = {label: "expected asset 2"};
+			const expectedAsset2 = { label: "expected asset 2" };
 			setParseBufferFn(() => expectedAsset2);
 
 			const getAssetPromise2 = assetLoader.getAsset(BASIC_ASSET_UUID, {
@@ -460,7 +460,7 @@ Deno.test({
 Deno.test({
 	name: "requesting the same asset twice returns a different instance when the old one was garbage collected",
 	async fn() {
-		const {assetLoader, expectedAsset: expectedAsset1, setParseBufferFn, uninstall} = basicSetup();
+		const { assetLoader, expectedAsset: expectedAsset1, setParseBufferFn, uninstall } = basicSetup();
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
 			bundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
@@ -472,7 +472,7 @@ Deno.test({
 
 			forceCleanup(asset1);
 
-			const expectedAsset2 = {label: "expected asset 2"};
+			const expectedAsset2 = { label: "expected asset 2" };
 			setParseBufferFn(() => expectedAsset2);
 
 			const getAssetPromise2 = assetLoader.getAsset(BASIC_ASSET_UUID);
@@ -488,7 +488,7 @@ Deno.test({
 Deno.test({
 	name: "getting an asset with no bundles added rejects",
 	async fn() {
-		const {assetLoader, uninstall} = basicSetup();
+		const { assetLoader, uninstall } = basicSetup();
 
 		try {
 			await assertRejects(async () => {
@@ -503,7 +503,7 @@ Deno.test({
 Deno.test({
 	name: "getting an asset that is not available in any bundle rejects",
 	async fn() {
-		const {assetLoader, uninstall} = basicSetup();
+		const { assetLoader, uninstall } = basicSetup();
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
 
@@ -522,7 +522,7 @@ Deno.test({
 Deno.test({
 	name: "getting an asset that is available in the second bundle, first bundle resolves first",
 	async fn() {
-		const {assetLoader, expectedAsset, uninstall} = basicSetup();
+		const { assetLoader, expectedAsset, uninstall } = basicSetup();
 		try {
 			const bundle1 = assetLoader.addBundle(new TestAssetBundle());
 			const bundle2 = assetLoader.addBundle(new TestAssetBundle());
@@ -546,7 +546,7 @@ Deno.test({
 Deno.test({
 	name: "getting an asset that is available in the second bundle, second bundle resolves first",
 	async fn() {
-		const {assetLoader, expectedAsset, uninstall} = basicSetup();
+		const { assetLoader, expectedAsset, uninstall } = basicSetup();
 		try {
 			const bundle1 = assetLoader.addBundle(new TestAssetBundle());
 			const bundle2 = assetLoader.addBundle(new TestAssetBundle());
@@ -570,7 +570,7 @@ Deno.test({
 Deno.test({
 	name: "loading an asset that doesn't have a registerd loader type rejects",
 	async fn() {
-		const {assetLoader, uninstall} = basicSetup({registerLoaderType: false});
+		const { assetLoader, uninstall } = basicSetup({ registerLoaderType: false });
 
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
@@ -590,7 +590,7 @@ Deno.test({
 Deno.test({
 	name: "Loading an asset that loads another asset",
 	async fn() {
-		const {assetLoader, setParseBufferFn, uninstall} = basicSetup();
+		const { assetLoader, setParseBufferFn, uninstall } = basicSetup();
 
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
@@ -613,19 +613,19 @@ Deno.test({
 						label: "first asset",
 						secondAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(SECOND_ASSET_UUID, asset => {
+					recursionTracker.getAsset(SECOND_ASSET_UUID, (asset) => {
 						assetObj.secondAsset = asset;
 					});
 					return assetObj;
 				} else if (buffer == secondAssetBuffer) {
-					return {label: "second asset"};
+					return { label: "second asset" };
 				}
 			});
 
 			const asset = await assetLoader.getAsset(FIRST_ASSET_UUID);
 			assertEquals(asset, {
 				label: "first asset",
-				secondAsset: {label: "second asset"},
+				secondAsset: { label: "second asset" },
 			});
 		} finally {
 			uninstall();
@@ -636,7 +636,7 @@ Deno.test({
 Deno.test({
 	name: "Loading an assets that load each other as a circular reference",
 	async fn() {
-		const {assetLoader, setParseBufferFn, uninstall} = basicSetup();
+		const { assetLoader, setParseBufferFn, uninstall } = basicSetup();
 
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
@@ -659,7 +659,7 @@ Deno.test({
 						label: "first asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(SECOND_ASSET_UUID, asset => {
+					recursionTracker.getAsset(SECOND_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;
@@ -668,7 +668,7 @@ Deno.test({
 						label: "second asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(FIRST_ASSET_UUID, asset => {
+					recursionTracker.getAsset(FIRST_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;
@@ -695,7 +695,7 @@ Deno.test({
 Deno.test({
 	name: "Loading an assets with a circular reference but the root is not part of the circular reference",
 	async fn() {
-		const {assetLoader, setParseBufferFn, uninstall} = basicSetup();
+		const { assetLoader, setParseBufferFn, uninstall } = basicSetup();
 
 		try {
 			const bundle = assetLoader.addBundle(new TestAssetBundle());
@@ -724,7 +724,7 @@ Deno.test({
 						label: "first asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(SECOND_ASSET_UUID, asset => {
+					recursionTracker.getAsset(SECOND_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;
@@ -733,7 +733,7 @@ Deno.test({
 						label: "second asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(THIRD_ASSET_UUID, asset => {
+					recursionTracker.getAsset(THIRD_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;
@@ -742,7 +742,7 @@ Deno.test({
 						label: "third asset",
 						otherAsset: /** @type {any} */ (null),
 					};
-					recursionTracker.getAsset(SECOND_ASSET_UUID, asset => {
+					recursionTracker.getAsset(SECOND_ASSET_UUID, (asset) => {
 						assetObj.otherAsset = asset;
 					});
 					return assetObj;

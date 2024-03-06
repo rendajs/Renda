@@ -1,4 +1,4 @@
-import {MalformedSyntaxError, parseExpression, verifyExpression} from "./conditionExpressions.js";
+import { MalformedSyntaxError, parseExpression, verifyExpression } from "./conditionExpressions.js";
 
 /**
  * - `single` Only fire command once.
@@ -68,7 +68,7 @@ export class ShortcutCommand {
 			keys = [keys];
 		}
 		for (const keySequence of keys) {
-			const parsedSequence = keySequence.split(" ").map(bit => bit.split("+"));
+			const parsedSequence = keySequence.split(" ").map((bit) => bit.split("+"));
 			this.parsedSequences.push(parsedSequence);
 		}
 	}
@@ -117,7 +117,7 @@ export class ShortcutCommand {
 	verifyCondtions() {
 		if (this.conditionAstFailed) return false;
 		if (!this.conditionsAst) return true;
-		return verifyExpression(this.conditionsAst, name => {
+		return verifyExpression(this.conditionsAst, (name) => {
 			const condition = this.shortcutManager.getCondition(name);
 			if (!condition) return;
 			return condition.value;

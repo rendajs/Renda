@@ -1,19 +1,19 @@
-import {TreeView} from "../TreeView.js";
-import {VectorGui} from "../VectorGui.js";
-import {NumericGui} from "../NumericGui.js";
-import {BooleanGui} from "../BooleanGui.js";
-import {DropDownGui} from "../DropDownGui.js";
-import {TextGui} from "../TextGui.js";
-import {DroppableGui} from "../DroppableGui.js";
-import {ArrayGui} from "../ArrayGui.js";
-import {PathGui} from "../PathGui.js";
-import {Button} from "../Button.js";
-import {LabelGui} from "../LabelGui.js";
-import {ObjectGui} from "../ObjectGui.js";
+import { TreeView } from "../TreeView.js";
+import { VectorGui } from "../VectorGui.js";
+import { NumericGui } from "../NumericGui.js";
+import { BooleanGui } from "../BooleanGui.js";
+import { DropDownGui } from "../DropDownGui.js";
+import { TextGui } from "../TextGui.js";
+import { DroppableGui } from "../DroppableGui.js";
+import { ArrayGui } from "../ArrayGui.js";
+import { PathGui } from "../PathGui.js";
+import { Button } from "../Button.js";
+import { LabelGui } from "../LabelGui.js";
+import { ObjectGui } from "../ObjectGui.js";
 
-import {prettifyVariableName} from "../../util/util.js";
-import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
-import {VALUE_CHANGE_EVENT_NAME} from "./PropertiesTreeView.js";
+import { prettifyVariableName } from "../../util/util.js";
+import { ButtonSelectorGui } from "../ButtonSelectorGui.js";
+import { VALUE_CHANGE_EVENT_NAME } from "./PropertiesTreeView.js";
 
 /**
  * @typedef {object} GuiInterface
@@ -200,7 +200,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 		this.registerNewEventType(VALUE_CHANGE_EVENT_NAME);
 		const castGui = /** @type {GuiInterface} */ (this.gui);
-		castGui?.onValueChange?.(guiChangeEvent => {
+		castGui?.onValueChange?.((guiChangeEvent) => {
 			/** @type {import("./types.ts").PropertiesTreeViewChangeEvent<any>} */
 			const event = {
 				target: this,

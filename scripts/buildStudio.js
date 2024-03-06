@@ -1,16 +1,16 @@
-import {rollup} from "rollup";
-import {copy, ensureDir, walk} from "std/fs/mod.ts";
+import { rollup } from "rollup";
+import { copy, ensureDir, walk } from "std/fs/mod.ts";
 import * as path from "std/path/mod.ts";
-import {minify} from "terser";
-import {setCwd} from "chdir-anywhere";
-import {importAssertionsPlugin} from "https://esm.sh/rollup-plugin-import-assert@2.1.0?pin=v87";
-import {importAssertions} from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
+import { minify } from "terser";
+import { setCwd } from "chdir-anywhere";
+import { importAssertionsPlugin } from "https://esm.sh/rollup-plugin-import-assert@2.1.0?pin=v87";
+import { importAssertions } from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
 import postcss from "https://deno.land/x/postcss@8.4.13/mod.js";
 import postcssUrl from "npm:postcss-url@10.1.3";
 import resolveUrlObjects from "npm:rollup-plugin-resolve-url-objects@0.0.4";
-import {dev} from "./dev.js";
-import {buildEngine} from "./buildEngine.js";
-import {toHashString} from "std/crypto/mod.ts";
+import { dev } from "./dev.js";
+import { buildEngine } from "./buildEngine.js";
+import { toHashString } from "std/crypto/mod.ts";
 
 await dev({
 	needsDependencies: true,
@@ -21,7 +21,7 @@ Deno.chdir("../studio");
 
 const outputPath = path.resolve("dist/");
 try {
-	await Deno.remove(outputPath, {recursive: true});
+	await Deno.remove(outputPath, { recursive: true });
 } catch {
 	// Already removed
 }
@@ -169,13 +169,13 @@ const bundle = await rollup({
 		importAssertionsPlugin(),
 	],
 	acornInjectPlugins: [importAssertions],
-	onwarn: message => {
+	onwarn: (message) => {
 		if (message.code == "CIRCULAR_DEPENDENCY") return;
 		console.error(message.message);
 	},
 	preserveEntrySignatures: false,
 });
-const {output} = await bundle.write({
+const { output } = await bundle.write({
 	dir: outputPath,
 	format: "esm",
 	entryFileNames: "[name]-[hash].js",

@@ -1,5 +1,5 @@
-import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
-import {Sampler} from "../../rendering/Sampler.js";
+import { AssetLoaderTypeGenericStructure } from "./AssetLoaderTypeGenericStructure.js";
+import { Sampler } from "../../rendering/Sampler.js";
 
 export const addressModeTypes = ["clamp-to-edge", "repeat", "mirror-repeat"];
 export const filterModeTypes = ["nearest", "linear"];

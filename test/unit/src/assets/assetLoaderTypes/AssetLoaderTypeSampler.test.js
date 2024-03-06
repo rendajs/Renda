@@ -1,6 +1,6 @@
-import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
-import {AssetLoaderTypeSampler, objectToBinary} from "../../../../../src/mod.js";
-import {Sampler} from "../../../../../src/rendering/Sampler.js";
+import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
+import { AssetLoaderTypeSampler, objectToBinary } from "../../../../../src/mod.js";
+import { Sampler } from "../../../../../src/rendering/Sampler.js";
 
 Deno.test({
 	name: "parseBuffer",

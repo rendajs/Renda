@@ -1,6 +1,6 @@
-import {assertRejects} from "std/testing/asserts.ts";
-import {parseJsonData} from "../../../../../../src/util/gltf/parseJsonData.js";
-import {getBasicOptions} from "./shared.js";
+import { assertRejects } from "std/testing/asserts.ts";
+import { parseJsonData } from "../../../../../../src/util/gltf/parseJsonData.js";
+import { getBasicOptions } from "./shared.js";
 
 Deno.test({
 	name: "version 2.0 no minVersion",

@@ -30,4 +30,4 @@ const autoRegisterShortcutConditions = /** @type {const} */ ({
  * never} GetShortcutConditionType
  */
 
-export {autoRegisterShortcutConditions};
+export { autoRegisterShortcutConditions };

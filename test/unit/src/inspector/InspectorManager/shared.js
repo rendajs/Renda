@@ -1,5 +1,5 @@
-import {TypedMessenger} from "../../../../../src/mod.js";
-import {createStudioInspectorHandlers} from "../../../../../studio/src/network/studioConnections/handlers.js";
+import { TypedMessenger } from "../../../../../src/mod.js";
+import { createStudioInspectorHandlers } from "../../../../../studio/src/network/studioConnections/handlers.js";
 
 /**
  * Creates an InspectorManager which responds to messages according to
@@ -17,10 +17,10 @@ export function createMockInspectorManager({
 	const inspectorMessenger = new TypedMessenger();
 
 	// Link the two messengers to each other
-	studioHostMessenger.setSendHandler(data => {
+	studioHostMessenger.setSendHandler((data) => {
 		inspectorMessenger.handleReceivedMessage(data.sendData);
 	});
-	inspectorMessenger.setSendHandler(data => {
+	inspectorMessenger.setSendHandler((data) => {
 		studioHostMessenger.handleReceivedMessage(data.sendData);
 	});
 

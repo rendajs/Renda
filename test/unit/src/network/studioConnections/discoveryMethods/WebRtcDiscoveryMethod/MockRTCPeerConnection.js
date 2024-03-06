@@ -1,5 +1,5 @@
-import {AssertionError, assertEquals} from "std/testing/asserts.ts";
-import {MockRTCDataChannel} from "./MockRTCDataChannel.js";
+import { AssertionError, assertEquals } from "std/testing/asserts.ts";
+import { MockRTCDataChannel } from "./MockRTCDataChannel.js";
 
 /** @type {Set<MockRTCPeerConnection>} */
 const createdRtcConnections = new Set();

@@ -1,8 +1,8 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {FilePreferencesLocation} from "../../../../../../studio/src/preferences/preferencesLocation/FilePreferencesLocation.js";
-import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { FilePreferencesLocation } from "../../../../../../studio/src/preferences/preferencesLocation/FilePreferencesLocation.js";
+import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 
 Deno.test({
 	name: "Does not create a file until a setting is changed",
@@ -127,7 +127,7 @@ Deno.test({
 		const fs = new MemoryStudioFileSystem();
 		let resolveWait = () => {};
 		const waitForPermissionSpy = stub(fs, "waitForPermission", () => {
-			return new Promise(resolve => {
+			return new Promise((resolve) => {
 				resolveWait = resolve;
 			});
 		});
@@ -135,7 +135,7 @@ Deno.test({
 
 		assertSpyCalls(waitForPermissionSpy, 1);
 		assertSpyCall(waitForPermissionSpy, 0, {
-			args: [["preferences.json"], {writable: false}],
+			args: [["preferences.json"], { writable: false }],
 		});
 
 		// Wait for load

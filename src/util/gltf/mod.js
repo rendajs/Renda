@@ -1,1 +1,1 @@
-export {parseGltf} from "./gltfParsing.js";
+export { parseGltf } from "./gltfParsing.js";

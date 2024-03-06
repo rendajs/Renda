@@ -1,5 +1,5 @@
-import {ContentWindow} from "./ContentWindow.js";
-import {TreeView} from "../../ui/TreeView.js";
+import { ContentWindow } from "./ContentWindow.js";
+import { TreeView } from "../../ui/TreeView.js";
 
 export class ContentWindowBuiltInAssets extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:builtInAssets");

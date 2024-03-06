@@ -1,11 +1,11 @@
-import {getStudioInstance} from "../studioInstance.js";
-import {AssetLoaderTypeGenericStructure} from "../../../src/mod.js";
-import {getNameAndExtension} from "../util/fileSystems/pathUtil.js";
-import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
-import {StorageType, objectToBinary} from "../../../src/util/binarySerialization.js";
-import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
-import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker.js";
-import {AssetManager} from "./AssetManager.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { AssetLoaderTypeGenericStructure } from "../../../src/mod.js";
+import { getNameAndExtension } from "../util/fileSystems/pathUtil.js";
+import { PropertiesTreeView } from "../ui/propertiesTreeView/PropertiesTreeView.js";
+import { StorageType, objectToBinary } from "../../../src/util/binarySerialization.js";
+import { SingleInstancePromise } from "../../../src/util/SingleInstancePromise.js";
+import { RecursionTracker } from "./liveAssetDataRecursionTracker/RecursionTracker.js";
+import { AssetManager } from "./AssetManager.js";
 
 /** @typedef {ProjectAsset<any>} ProjectAssetAny */
 
@@ -134,7 +134,7 @@ export class ProjectAsset {
 		/** @private @type {Map<string, WeakRef<Object>>} */
 		this.previousLiveAssets = new Map();
 
-		this.initInstance = new SingleInstancePromise(async () => await this.init(), {once: true});
+		this.initInstance = new SingleInstancePromise(async () => await this.init(), { once: true });
 		this.initInstance.run();
 
 		this.#writeAssetDataInstance = new SingleInstancePromise(this.#writeAssetDataImpl);
@@ -253,7 +253,7 @@ export class ProjectAsset {
 	static guessAssetTypeFromPath(projectAssetTypeManager, path = []) {
 		if (!path || path.length <= 0) return null;
 		const fileName = path[path.length - 1];
-		const {extension} = getNameAndExtension(fileName);
+		const { extension } = getNameAndExtension(fileName);
 		if (extension == "json" || !extension) return null;
 		for (const assetType of projectAssetTypeManager.getAssetTypesForExtension(extension)) {
 			return assetType.type;
@@ -347,7 +347,7 @@ export class ProjectAsset {
 	async createNewLiveAssetData() {
 		await this.waitForInit();
 		if (!this._projectAssetType) return;
-		const {liveAsset, studioData} = await this._projectAssetType.createNewLiveAssetData();
+		const { liveAsset, studioData } = await this._projectAssetType.createNewLiveAssetData();
 		let assetData = null;
 		try {
 			assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, studioData);
@@ -394,7 +394,7 @@ export class ProjectAsset {
 
 		if (this.isGettingLiveAssetData) {
 			return await new Promise((resolve, reject) => {
-				this.#onLiveAssetDataChangePromiseCbs.add({resolve, reject});
+				this.#onLiveAssetDataChangePromiseCbs.add({ resolve, reject });
 			});
 		}
 
@@ -440,13 +440,13 @@ export class ProjectAsset {
 
 		recursionTracker.pushProjectAssetToStack(this);
 
-		const {liveAsset, studioData} = await this._projectAssetType.getLiveAssetData(fileData, recursionTracker);
+		const { liveAsset, studioData } = await this._projectAssetType.getLiveAssetData(fileData, recursionTracker);
 
 		recursionTracker.popProjectAssetFromStack();
 
 		if (isRootRecursionTracker) {
 			if (recursionTracker.rootLoadingAsset) {
-				recursionTracker.rootLoadingAsset.setLoadedAssetData({liveAsset, studioData});
+				recursionTracker.rootLoadingAsset.setLoadedAssetData({ liveAsset, studioData });
 			}
 			await recursionTracker.waitForAll();
 		}
@@ -484,7 +484,7 @@ export class ProjectAsset {
 	 * @returns {Promise<LiveAssetType>}
 	 */
 	async getLiveAsset(recursionTracker = null) {
-		const {liveAsset} = await this.getLiveAssetData(recursionTracker);
+		const { liveAsset } = await this.getLiveAssetData(recursionTracker);
 		return liveAsset;
 	}
 
@@ -493,7 +493,7 @@ export class ProjectAsset {
 	 * @returns {Promise<StudioDataType?>}
 	 */
 	async getStudioData(recursionTracker = null) {
-		const {studioData} = await this.getLiveAssetData(recursionTracker);
+		const { studioData } = await this.getLiveAssetData(recursionTracker);
 		return studioData ?? null;
 	}
 
@@ -550,8 +550,8 @@ export class ProjectAsset {
 	 * @param {TLiveAssetData} liveAssetData
 	 */
 	fireOnLiveAssetDataChangeCbs(liveAssetData) {
-		this.#onLiveAssetDataChangeCbs.forEach(cb => cb(liveAssetData));
-		this.#onLiveAssetDataChangePromiseCbs.forEach(p => p.resolve(liveAssetData));
+		this.#onLiveAssetDataChangeCbs.forEach((cb) => cb(liveAssetData));
+		this.#onLiveAssetDataChangePromiseCbs.forEach((p) => p.resolve(liveAssetData));
 		this.#onLiveAssetDataChangePromiseCbs.clear();
 		this.isGettingLiveAssetData = false;
 	}
@@ -562,7 +562,7 @@ export class ProjectAsset {
 	 * @param {unknown} error
 	 */
 	rejectOnLiveAssetDataChangePromises(error) {
-		this.#onLiveAssetDataChangePromiseCbs.forEach(p => p.reject(error));
+		this.#onLiveAssetDataChangePromiseCbs.forEach((p) => p.reject(error));
 		this.#onLiveAssetDataChangePromiseCbs.clear();
 		this.isGettingLiveAssetData = false;
 	}
@@ -745,7 +745,7 @@ export class ProjectAsset {
 	/**
 	 * @param {FileDataType} fileData
 	 */
-	#writeAssetDataImpl = async fileData => {
+	#writeAssetDataImpl = async (fileData) => {
 		if (!this.projectAssetTypeConstructorSync) {
 			throw new Error("Unable to write asset data without a ProjectAssetType");
 		}
@@ -802,7 +802,7 @@ export class ProjectAsset {
 			const treeView = new PropertiesTreeView();
 			treeView.generateFromSerializableStructure(structure);
 			treeView.fillSerializableStructureValues(assetData);
-			const newAssetData = treeView.getSerializableStructureValues(structure, {purpose: "binarySerialization"});
+			const newAssetData = treeView.getSerializableStructureValues(structure, { purpose: "binarySerialization" });
 			assetData = /** @type {FileDataType} */ (this.projectAssetTypeConstructorSync.transformBundledAssetData(newAssetData));
 		}
 
@@ -958,8 +958,8 @@ export class ProjectAsset {
 			const referencedUuids = [];
 			objectToBinary(assetData, {
 				...binarySerializationOpts,
-				transformValueHook: args => {
-					let {value, type} = args;
+				transformValueHook: (args) => {
+					let { value, type } = args;
 					if (binarySerializationOpts.transformValueHook) {
 						value = binarySerializationOpts.transformValueHook(args);
 					}

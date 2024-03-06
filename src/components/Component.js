@@ -1,9 +1,9 @@
-import {Vec2} from "../math/Vec2.js";
-import {Vec3} from "../math/Vec3.js";
-import {Vec4} from "../math/Vec4.js";
-import {Mat4} from "../math/Mat4.js";
-import {DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, STUDIO_DEFAULTS_IN_COMPONENTS} from "../studioDefines.js";
-import {mathTypeToJson} from "../math/MathTypes.js";
+import { Vec2 } from "../math/Vec2.js";
+import { Vec3 } from "../math/Vec3.js";
+import { Vec4 } from "../math/Vec4.js";
+import { Mat4 } from "../math/Mat4.js";
+import { DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, STUDIO_DEFAULTS_IN_COMPONENTS } from "../studioDefines.js";
+import { mathTypeToJson } from "../math/MathTypes.js";
 
 const settingDefaultsPromisesSym = Symbol("settingDefaultsPromises");
 const onStudioDefaultsCbsSym = Symbol("onStudioDefaultsCbs");
@@ -144,7 +144,7 @@ export class Component {
 		castComponent[studioDefaultsHandledSym] = true;
 		const cbs = castComponent[onStudioDefaultsCbsSym];
 		if (cbs) {
-			cbs.forEach(cb => cb());
+			cbs.forEach((cb) => cb());
 		}
 		delete castComponent[settingDefaultsPromisesSym];
 		delete castComponent[onStudioDefaultsCbsSym];
@@ -358,6 +358,6 @@ export class Component {
 			castComponent[onStudioDefaultsCbsSym] = cbs;
 		}
 		const certainCbs = cbs;
-		await new Promise(r => certainCbs.add(r));
+		await new Promise((r) => certainCbs.add(r));
 	}
 }

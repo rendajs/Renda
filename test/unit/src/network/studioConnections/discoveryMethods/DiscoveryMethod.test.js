@@ -1,7 +1,7 @@
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {DiscoveryMethod} from "../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js";
-import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {ExtendedDiscoveryMethod, ExtendedMessageHandler} from "./shared/ExtendedDiscoveryMethod.js";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { DiscoveryMethod } from "../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js";
+import { assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { ExtendedDiscoveryMethod, ExtendedMessageHandler } from "./shared/ExtendedDiscoveryMethod.js";
 
 Deno.test({
 	name: "Adding and removing connections",
@@ -263,12 +263,12 @@ Deno.test({
 			clientType: "studio-client",
 			projectMetadata: null,
 		});
-		const messageHandler = method.addActive("id", true, {token: "the_token"}, 42, "foo");
+		const messageHandler = method.addActive("id", true, { token: "the_token" }, 42, "foo");
 
 		assertSpyCalls(spyFn, 1);
 		assertStrictEquals(spyFn.calls[0].args[0], messageHandler);
 		assertEquals(messageHandler.initiatedByMe, true);
-		assertEquals(messageHandler.connectionRequestData, {token: "the_token"});
+		assertEquals(messageHandler.connectionRequestData, { token: "the_token" });
 		assertEquals(messageHandler.param1, 42);
 		assertEquals(messageHandler.param2, "foo");
 		assertEquals(method.getActiveConnections().size, 1);
@@ -301,6 +301,6 @@ Deno.test({
 		connectionRequestData.token = "new token";
 
 		assertEquals(messageHandler.projectMetadata?.name, "old name");
-		assertEquals(messageHandler.connectionRequestData, {token: "token"});
+		assertEquals(messageHandler.connectionRequestData, { token: "token" });
 	},
 });

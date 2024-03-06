@@ -1,7 +1,7 @@
-import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
-import {BuiltInAssetManager} from "../../../../../studio/devSocket/src/BuiltInAssetManager.js";
-import {incrementTime, installMockTime, uninstallMockTime} from "../../../shared/mockTime.js";
-import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
+import { assert, assertEquals, assertExists } from "std/testing/asserts.ts";
+import { BuiltInAssetManager } from "../../../../../studio/devSocket/src/BuiltInAssetManager.js";
+import { incrementTime, installMockTime, uninstallMockTime } from "../../../shared/mockTime.js";
+import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
 
 const originalDenoWatchFs = Deno.watchFs;
 const originalDenoStat = Deno.stat;
@@ -40,7 +40,7 @@ function installMockDenoCalls({
 	 */
 	function triggerWatchEvent(event, done = false) {
 		const value = done ? undefined : event;
-		const result = {value, done};
+		const result = { value, done };
 		if (currentlyWaitingNextCallback) {
 			currentlyWaitingNextCallback(result);
 			currentlyWaitingNextCallback = null;
@@ -56,14 +56,14 @@ function installMockDenoCalls({
 				if (queueItem) return queueItem;
 
 				/** @type {Promise<GeneratorNextResult>} */
-				const eventPromise = new Promise(r => {
+				const eventPromise = new Promise((r) => {
 					currentlyWaitingNextCallback = r;
 				});
 				return await eventPromise;
 			},
 			rid: 0,
 			close() {
-				triggerWatchEvent({kind: "any", paths: []}, true);
+				triggerWatchEvent({ kind: "any", paths: [] }, true);
 			},
 			[Symbol.asyncIterator]() {
 				return /** @type {any} */ (this);
@@ -136,7 +136,7 @@ function uninstallMockDenoCalls() {
  * @param {[string, Uint8Array | string][]} [options.initialFiles]
  */
 async function installMocks({
-	initialAssetSettings = {assets: {}},
+	initialAssetSettings = { assets: {} },
 	initialFiles = [],
 } = {}) {
 	/** @type {Map<string, Uint8Array | string>} */
@@ -144,7 +144,7 @@ async function installMocks({
 	files.set("/assets/assetSettings.json", JSON.stringify(initialAssetSettings));
 	/** @type {{path: string, text: string}[]} */
 	const writeTextFileCalls = [];
-	const {triggerWatchEvent} = installMockDenoCalls({
+	const { triggerWatchEvent } = installMockDenoCalls({
 		statCb(path) {
 			if (path instanceof URL) {
 				path = path.href;
@@ -201,7 +201,7 @@ async function installMocks({
 			if (path instanceof URL) {
 				path = path.href;
 			}
-			writeTextFileCalls.push({path, text});
+			writeTextFileCalls.push({ path, text });
 
 			/** @type {Deno.FsEvent["kind"]} */
 			let eventKind = "other";
@@ -265,7 +265,7 @@ Deno.test({
 Deno.test({
 	name: "Reloads asset settings when watching and assetSettings file changes",
 	async fn() {
-		const {triggerWatchEvent} = installMockDenoCalls();
+		const { triggerWatchEvent } = installMockDenoCalls();
 
 		const manager = new BuiltInAssetManager({
 			builtInAssetsPath: "/assests",
@@ -335,7 +335,7 @@ Deno.test({
 Deno.test({
 	name: "a created file is added to assetSettings.json",
 	async fn() {
-		const {manager, uninstall, triggerWatchEvent, files, writeTextFileCalls} = await installMocks();
+		const { manager, uninstall, triggerWatchEvent, files, writeTextFileCalls } = await installMocks();
 
 		try {
 			files.set("/assets/newFile.dat", new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
@@ -352,7 +352,7 @@ Deno.test({
 			const assetSettings = JSON.parse(writeTextFileCalls[0].text);
 			assertExists(assetSettings.assets);
 			assertEquals(Object.entries(assetSettings.assets).length, 1);
-			assertEquals(Object.values(assetSettings.assets)[0], {path: ["newFile.dat"]});
+			assertEquals(Object.values(assetSettings.assets)[0], { path: ["newFile.dat"] });
 		} finally {
 			uninstall();
 		}
@@ -362,7 +362,7 @@ Deno.test({
 Deno.test({
 	name: "externally modifying assetSettings.json",
 	async fn() {
-		const {manager, uninstall, triggerWatchEvent, files} = await installMocks({
+		const { manager, uninstall, triggerWatchEvent, files } = await installMocks({
 			initialAssetSettings: {
 				assets: {
 					"00000000-0000-0000-0000-000000000000": {
@@ -417,7 +417,7 @@ Deno.test({
 Deno.test({
 	name: "externally modifying assetSettings.json and then adding a file",
 	async fn() {
-		const {manager, uninstall, triggerWatchEvent, files, writeTextFileCalls} = await installMocks({
+		const { manager, uninstall, triggerWatchEvent, files, writeTextFileCalls } = await installMocks({
 			initialAssetSettings: {
 				assets: {
 					"00000000-0000-0000-0000-000000000000": {
@@ -467,7 +467,7 @@ Deno.test({
 Deno.test({
 	name: "external assetSettings.json change only triggers an asset settings reload if the application didn't write to it itself.",
 	async fn() {
-		const {manager, uninstall, triggerWatchEvent, files} = await installMocks();
+		const { manager, uninstall, triggerWatchEvent, files } = await installMocks();
 
 		try {
 			let didReloadAssetSettings = false;
@@ -526,9 +526,9 @@ async function basicSortTest(initialPaths, expectedPaths, newFilePath = ["newFil
 		const assets = {};
 		for (const path of paths) {
 			uuidIndex++;
-			assets["uuid" + uuidIndex] = {path};
+			assets["uuid" + uuidIndex] = { path };
 		}
-		return {assets};
+		return { assets };
 	}
 
 	/**
@@ -547,7 +547,7 @@ async function basicSortTest(initialPaths, expectedPaths, newFilePath = ["newFil
 		initialFiles.push([pathToString(path), new Uint8Array([fileIndex])]);
 	}
 
-	const {manager, uninstall, files, triggerWatchEvent, writeTextFileCalls} = await installMocks({
+	const { manager, uninstall, files, triggerWatchEvent, writeTextFileCalls } = await installMocks({
 		initialAssetSettings: buildAssetSettingsJson(initialPaths),
 		initialFiles,
 	});

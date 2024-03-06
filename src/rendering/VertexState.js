@@ -1,4 +1,4 @@
-import {VertexStateBuffer} from "./VertexStateBuffer.js";
+import { VertexStateBuffer } from "./VertexStateBuffer.js";
 
 /**
  * @typedef VertexStateOptions
@@ -52,7 +52,7 @@ export class VertexState {
 	} = {}) {
 		/** @type {Map<import("../core/Mesh.js").AttributeType, number>} */
 		const preferredShaderLocationsMap = new Map();
-		for (const {attributeType, location} of preferredShaderLocations) {
+		for (const { attributeType, location } of preferredShaderLocations) {
 			if (preferredShaderLocationsMap.has(attributeType)) {
 				throw new Error(`Preferred shader location for attribute type ${attributeType} is mapped to multiple locations.`);
 			}
@@ -84,7 +84,7 @@ export class VertexState {
 
 		let lastAutoShaderLocationIndex = 0;
 		/** @type {RequestShaderLocationFn} */
-		const requestShaderLocation = attributeType => {
+		const requestShaderLocation = (attributeType) => {
 			const preferredLocation = preferredShaderLocationsMap.get(attributeType);
 			if (preferredLocation != undefined) {
 				return preferredLocation;
@@ -96,7 +96,7 @@ export class VertexState {
 			return lastAutoShaderLocationIndex;
 		};
 
-		const buffers = this.buffers.map(b => b.getDescriptor(requestShaderLocation));
-		return {buffers};
+		const buffers = this.buffers.map((b) => b.getDescriptor(requestShaderLocation));
+		return { buffers };
 	}
 }

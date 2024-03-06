@@ -1,9 +1,9 @@
-import {setupNewProject} from "../../shared/project.js";
-import {clickContextMenuItem} from "../../shared/contextMenu.js";
-import {assertEquals} from "std/testing/asserts.ts";
-import {runE2eTest} from "../../../shared/runE2eTest.js";
-import {getPage} from "../../../shared/browser.js";
-import {rightClickFirstContentWindowTabButton} from "../../shared/windowManagement.js";
+import { setupNewProject } from "../../shared/project.js";
+import { clickContextMenuItem } from "../../shared/contextMenu.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { runE2eTest } from "../../../shared/runE2eTest.js";
+import { getPage } from "../../../shared/browser.js";
+import { rightClickFirstContentWindowTabButton } from "../../shared/windowManagement.js";
 
 /**
  * @param {import("puppeteer").Page} page
@@ -21,18 +21,18 @@ async function waitForWorkspaceLoad(page) {
 async function getFirstTabGroupTypes(page) {
 	const groupEl = await page.$(".studio-window-tab-button-group");
 	if (!groupEl) throw new Error("No button group was found");
-	return await groupEl.evaluate(async groupEl => {
+	return await groupEl.evaluate(async (groupEl) => {
 		const arr = Array.from(groupEl.children);
-		return arr.map(child => child.getAttribute("title"));
+		return arr.map((child) => child.getAttribute("title"));
 	});
 }
 
 await runE2eTest({
 	name: "Adding a new workspace and switching between them",
 	async fn() {
-		const {page} = await getPage();
+		const { page } = await getPage();
 		let workspaceIndex = 0;
-		page.on("dialog", async dialog => {
+		page.on("dialog", async (dialog) => {
 			workspaceIndex++;
 			await dialog.accept("workspace" + workspaceIndex);
 		});

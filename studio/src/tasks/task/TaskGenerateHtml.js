@@ -1,6 +1,6 @@
-import {ProjectAssetTypeHtml} from "../../assets/projectAssetType/ProjectAssetTypeHtml.js";
-import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
-import {Task} from "./Task.js";
+import { ProjectAssetTypeHtml } from "../../assets/projectAssetType/ProjectAssetTypeHtml.js";
+import { createTreeViewStructure } from "../../ui/propertiesTreeView/createStructureHelpers.js";
+import { Task } from "./Task.js";
 
 /**
  * @fileoverview A task for making modifications to an existing html template file.
@@ -57,7 +57,7 @@ export class TaskGenerateHtml extends Task {
 	/**
 	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateHtmlConfig>} options
 	 */
-	async runTask({config}) {
+	async runTask({ config }) {
 		if (!config) {
 			throw new Error("Failed to run task: no config provided");
 		}
@@ -77,7 +77,7 @@ export class TaskGenerateHtml extends Task {
 			throw new Error("Failed to run task, template asset not found");
 		}
 		let html = await templateAsset.readAssetData();
-		for (const {find, replace} of config.replacements) {
+		for (const { find, replace } of config.replacements) {
 			if (!find) continue;
 			html = html.replaceAll("$" + find, replace || "");
 		}

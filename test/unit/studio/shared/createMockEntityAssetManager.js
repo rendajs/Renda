@@ -1,5 +1,5 @@
-import {spy} from "std/testing/mock.ts";
-import {EventHandler} from "../../../../src/util/EventHandler.js";
+import { spy } from "std/testing/mock.ts";
+import { EventHandler } from "../../../../src/util/EventHandler.js";
 
 export function createMockEntityAssetManager() {
 	/** @type {EventHandler<import("../../../../src/core/Entity.js").Entity, import("../../../../studio/src/assets/EntityAssetManager.js").OnTrackedEntityChangeEvent>} */

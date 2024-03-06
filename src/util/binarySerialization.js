@@ -1,4 +1,4 @@
-import {clamp, isUuid} from "./util.js";
+import { clamp, isUuid } from "./util.js";
 
 /** @typedef {Object<string, number>} BinarySerializationNameIds */
 
@@ -252,7 +252,7 @@ export function objectToBinary(data, {
 	for (const [ref, structure] of referencesAndStructures) {
 		const id = sortedReferences.length;
 		referenceIds.set(ref, id);
-		sortedReferences.push({ref, structure});
+		sortedReferences.push({ ref, structure });
 	}
 
 	// Only if objects are referenced more than once, will we set the
@@ -266,26 +266,26 @@ export function objectToBinary(data, {
 	let refIdStorageType = StorageType.NULL;
 	if (reoccurringObjectReferences.size > 0) {
 		const highestReferenceId = sortedReferences.length;
-		const {type} = requiredStorageTypeForUint(highestReferenceId);
+		const { type } = requiredStorageTypeForUint(highestReferenceId);
 		refIdStorageType = type;
 	}
 
 	/** @type {BinarySerializationBinaryDigestible[]} */
 	const binaryDigestable = [];
-	for (const {ref, structure} of sortedReferences) {
-		const digestable = generateBinaryDigestable(ref, structure, {referenceIds, nameIdsMap, isInitialItem: true});
+	for (const { ref, structure } of sortedReferences) {
+		const digestable = generateBinaryDigestable(ref, structure, { referenceIds, nameIdsMap, isInitialItem: true });
 		binaryDigestable.push(digestable);
 	}
 
 	const biggestVariableArrayLength = findBiggestVariableArrayLength(binaryDigestable);
 	const dataContainsVariableLengthArrays = biggestVariableArrayLength >= 0;
-	const {type: arrayLengthStorageType} = requiredStorageTypeForUint(biggestVariableArrayLength);
+	const { type: arrayLengthStorageType } = requiredStorageTypeForUint(biggestVariableArrayLength);
 
 	const biggestStringLength = 600; // todo
-	const {type: stringLengthStorageType, bytes: stringLengthByteLength} = requiredStorageTypeForUint(biggestStringLength);
+	const { type: stringLengthStorageType, bytes: stringLengthByteLength } = requiredStorageTypeForUint(biggestStringLength);
 
 	const biggestArrayBufferLength = 600; // todo
-	const {type: arrayBufferLengthStorageType, bytes: arrayBufferLengthByteLength} = requiredStorageTypeForUint(biggestArrayBufferLength);
+	const { type: arrayBufferLengthStorageType, bytes: arrayBufferLengthByteLength } = requiredStorageTypeForUint(biggestArrayBufferLength);
 
 	const flattened = Array.from(flattenBinaryDigestable(binaryDigestable, arrayLengthStorageType));
 	// console.log(flattened);
@@ -315,9 +315,9 @@ export function objectToBinary(data, {
 	}
 	for (const item of flattened) {
 		if (transformValueHook) {
-			item.value = transformValueHook({type: item.type, value: item.value});
+			item.value = transformValueHook({ type: item.type, value: item.value });
 		}
-		const {length, value} = getStructureTypeLength(item.type, {
+		const { length, value } = getStructureTypeLength(item.type, {
 			value: item.value,
 			textEncoder, stringLengthByteLength, arrayBufferLengthByteLength,
 		});
@@ -336,7 +336,7 @@ export function objectToBinary(data, {
 			headerByte |= HeaderBits.hasCustomVariableLengthStorageTypes;
 		}
 
-		byteOffset += setDataViewValue(dataView, headerByte, StorageType.UINT8, byteOffset, {littleEndian});
+		byteOffset += setDataViewValue(dataView, headerByte, StorageType.UINT8, byteOffset, { littleEndian });
 
 		if (hasCustomVariableLengthStorageTypes) {
 			const refIdStorageTypeBits = variableLengthStorageTypeToBits(refIdStorageType);
@@ -350,12 +350,12 @@ export function objectToBinary(data, {
 			customStorageTypesByte |= stringLengthStorageTypeBits << 4;
 			customStorageTypesByte |= arrayBufferLengthStorageTypeBits << 6;
 
-			byteOffset += setDataViewValue(dataView, customStorageTypesByte, StorageType.UINT8, byteOffset, {littleEndian});
+			byteOffset += setDataViewValue(dataView, customStorageTypesByte, StorageType.UINT8, byteOffset, { littleEndian });
 		}
 	}
 
 	for (const item of flattened) {
-		const bytesMoved = setDataViewValue(dataView, item.value, item.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, studioAssetManager});
+		const bytesMoved = setDataViewValue(dataView, item.value, item.type, byteOffset, { littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, studioAssetManager });
 		byteOffset += bytesMoved;
 	}
 
@@ -391,14 +391,14 @@ export function binaryToObject(buffer, {
 	const dataView = new DataView(buffer);
 	let byteOffset = 0;
 	if (useHeaderByte) {
-		const {value: headerByte, bytesMoved} = getDataViewValue(dataView, StorageType.UINT8, byteOffset, {littleEndian});
+		const { value: headerByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian });
 		byteOffset += bytesMoved;
 		if (typeof headerByte != "number") throw new Error("Assertion failed, header byte is not a number.");
 
 		const hasCustomVariableLengthStorageTypes = !!(headerByte & HeaderBits.hasCustomVariableLengthStorageTypes);
 
 		if (hasCustomVariableLengthStorageTypes) {
-			const {value: customStorageTypesByte, bytesMoved} = getDataViewValue(dataView, StorageType.UINT8, byteOffset, {littleEndian});
+			const { value: customStorageTypesByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian });
 			if (typeof customStorageTypesByte != "number") throw new Error("Assertion failed, customStorageTypesByte is not a number.");
 			byteOffset += bytesMoved;
 
@@ -434,7 +434,7 @@ export function binaryToObject(buffer, {
 	const textDecoder = new TextDecoder();
 	/** @type {Map<number, StructureRefData>} */
 	const structureDataById = new Map();
-	structureDataById.set(0, {structureRef: structure});
+	structureDataById.set(0, { structureRef: structure });
 
 	/** @type {CollectedReferenceLink[]} */
 	const collectedReferenceLinks = [];
@@ -449,7 +449,7 @@ export function binaryToObject(buffer, {
 		const structureRef = structureData.structureRef;
 		let reconstructedData = null;
 
-		const {newByteOffset, newReconstructedData} = parseBinaryWithStructure(structureRef, [], reconstructedData, true, {
+		const { newByteOffset, newReconstructedData } = parseBinaryWithStructure(structureRef, [], reconstructedData, true, {
 			reoccurringStructureReferences,
 			nameIdsMap,
 			dataView,
@@ -477,14 +477,14 @@ export function binaryToObject(buffer, {
 	}
 
 	for (const referenceLink of collectedReferenceLinks) {
-		const {refId, location, injectIntoRefId} = referenceLink;
+		const { refId, location, injectIntoRefId } = referenceLink;
 		const structureData = structureDataById.get(refId);
 		if (!structureData) throw new Error(`Assertion failed, no structure data found for id ${refId}`);
 		const value = structureData.reconstructedData;
 		const injectIntoStructureData = structureDataById.get(injectIntoRefId);
 		if (!injectIntoStructureData) throw new Error(`Assertion failed, no structure data found for id ${injectIntoRefId}`);
 		let injectIntoRef = injectIntoStructureData.reconstructedData;
-		injectIntoRef = resolveBinaryValueLocation(injectIntoRef || null, {nameIdsMapInverse, value, location});
+		injectIntoRef = resolveBinaryValueLocation(injectIntoRef || null, { nameIdsMapInverse, value, location });
 		injectIntoStructureData.reconstructedData = injectIntoRef;
 	}
 
@@ -508,7 +508,7 @@ export async function binaryToObjectWithAssetLoader(buffer, assetLoader, options
 	const promises = [];
 	const obj = binaryToObject(buffer, {
 		...options,
-		transformValueHook: ({value, type, placedOnObject, placedOnKey}) => {
+		transformValueHook: ({ value, type, placedOnObject, placedOnKey }) => {
 			if (type != StorageType.ASSET_UUID || value == null) {
 				if (originalTransformValueHook) {
 					value = originalTransformValueHook({
@@ -603,7 +603,7 @@ function collectReoccurringReferences(data, nameIdsMap, isStructure) {
  * it will always be collected, as well as its respective data object.
  * @param {boolean} [options.isInitialItem]
  */
-function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingItems, collectedItems, forceUseAsObjectReferences, forceUseAsStructureReferences, isInitialItem = false}) {
+function collectStoredAsReferenceItems({ data, structure, nameIdsMap, existingItems, collectedItems, forceUseAsObjectReferences, forceUseAsStructureReferences, isInitialItem = false }) {
 	if (!isInitialItem) {
 		for (const existingItemList of existingItems) {
 			if (existingItemList.has(data)) return;
@@ -734,7 +734,7 @@ function requiredStorageTypeForUint(int) {
 		type = StorageType.UINT32;
 		bytes = 4;
 	}
-	return {type, bytes};
+	return { type, bytes };
 }
 
 /**
@@ -806,7 +806,7 @@ function structureToStorageType(structure) {
  * @param {boolean} [opts.isInitialItem] Whether this is the root item of the object.
  * @returns {BinarySerializationBinaryDigestible}
  */
-function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isInitialItem = false}) {
+function generateBinaryDigestable(obj, structure, { referenceIds, nameIdsMap, isInitialItem = false }) {
 	if (typeof structure == "object" && structure != null) {
 		if (!obj) {
 			if (Array.isArray(structure)) {
@@ -818,7 +818,7 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 		if (!isInitialItem && referenceIds.has(obj)) {
 			const refId = referenceIds.get(obj);
 			const type = structureToStorageType(structure);
-			return {value: refId, type};
+			return { value: refId, type };
 		}
 
 		if (Array.isArray(structure)) {
@@ -830,8 +830,8 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 					throw new Error("Tried to serialize an enum, but the provided object is not a string");
 				}
 				const value = castStructure2.indexOf(obj) + 1; // use 0 if the enum value is invalid
-				const {type} = requiredStorageTypeForUint(castStructure2.length);
-				return {value, type};
+				const { type } = requiredStorageTypeForUint(castStructure2.length);
+				return { value, type };
 			} else if (structure[0] == StorageType.UNION_ARRAY) {
 				const [, ...possibleStructures] = structure;
 				const matchingStructure = getUnionMatch(obj, possibleStructures);
@@ -839,8 +839,8 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 				const type = requiredStorageTypeForUint(structure.length).type;
 				return {
 					value: [
-						{value: unionMatchIndex, type}, // union type
-						generateBinaryDigestable(obj, structure[unionMatchIndex + 1], {referenceIds, nameIdsMap, isInitialItem}), // union value
+						{ value: unionMatchIndex, type }, // union type
+						generateBinaryDigestable(obj, structure[unionMatchIndex + 1], { referenceIds, nameIdsMap, isInitialItem }), // union value
 					],
 					type: StorageType.UNION_ARRAY,
 				};
@@ -852,9 +852,9 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 				}
 				for (let i = 0; i < obj.length; i++) {
 					const structureIndex = variableArrayLength ? 0 : i;
-					arr.push(generateBinaryDigestable(obj[i], structure[structureIndex], {referenceIds, nameIdsMap}));
+					arr.push(generateBinaryDigestable(obj[i], structure[structureIndex], { referenceIds, nameIdsMap }));
 				}
-				return {value: arr, type: StorageType.ARRAY, variableArrayLength};
+				return { value: arr, type: StorageType.ARRAY, variableArrayLength };
 			}
 		} else {
 			const arr = [];
@@ -864,17 +864,17 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 				if (nameIdsMap.has(key)) {
 					const val = castObj[key];
 					arr.push({
-						...generateBinaryDigestable(val, castStructure[key], {referenceIds, nameIdsMap}),
+						...generateBinaryDigestable(val, castStructure[key], { referenceIds, nameIdsMap }),
 						nameId: /** @type {number} */ (nameIdsMap.get(key)),
 					});
 				}
 			}
 			sortNameIdsArr(arr);
-			return {value: arr, type: StorageType.OBJECT};
+			return { value: arr, type: StorageType.OBJECT };
 		}
 	} else {
 		const castStructure = /** @type {StorageType} */ (structure);
-		return {value: obj, type: castStructure};
+		return { value: obj, type: castStructure };
 	}
 }
 
@@ -997,7 +997,7 @@ function *flattenBinaryDigestable(binaryDigestableArray, arrayLengthStorageType)
 	for (const item of binaryDigestableArray) {
 		if (Array.isArray(item.value)) {
 			if (item.variableArrayLength) {
-				yield {value: item.value.length, type: arrayLengthStorageType};
+				yield { value: item.value.length, type: arrayLengthStorageType };
 			}
 			for (const item2 of flattenBinaryDigestable(item.value, arrayLengthStorageType)) {
 				yield item2;
@@ -1024,36 +1024,36 @@ function getStructureTypeLength(type, {
 	arrayBufferLengthByteLength,
 }) {
 	if (type == StorageType.INT8) {
-		return {length: 1};
+		return { length: 1 };
 	} else if (type == StorageType.INT16) {
-		return {length: 2};
+		return { length: 2 };
 	} else if (type == StorageType.INT32) {
-		return {length: 4};
+		return { length: 4 };
 	} else if (type == StorageType.UINT8) {
-		return {length: 1};
+		return { length: 1 };
 	} else if (type == StorageType.UINT16) {
-		return {length: 2};
+		return { length: 2 };
 	} else if (type == StorageType.UINT32) {
-		return {length: 4};
+		return { length: 4 };
 	} else if (type == StorageType.FLOAT32) {
-		return {length: 4};
+		return { length: 4 };
 	} else if (type == StorageType.FLOAT64) {
-		return {length: 8};
+		return { length: 8 };
 	} else if (type == StorageType.STRING) {
 		const castValue = /** @type {import("./binarySerializationTypes.ts").StructureItemToObject<typeof type>} */ (value);
 		const encoded = textEncoder.encode(castValue);
-		return {length: encoded.byteLength + stringLengthByteLength, value: encoded};
+		return { length: encoded.byteLength + stringLengthByteLength, value: encoded };
 	} else if (type == StorageType.BOOL) {
-		return {length: 1};
+		return { length: 1 };
 	} else if (type == StorageType.UUID || type == StorageType.ASSET_UUID) {
-		return {length: 16};
+		return { length: 16 };
 	} else if (type == StorageType.ARRAY_BUFFER) {
 		const castValue = /** @type {import("./binarySerializationTypes.ts").StructureItemToObject<typeof type>} */ (value);
-		return {length: castValue.byteLength + arrayBufferLengthByteLength};
+		return { length: castValue.byteLength + arrayBufferLengthByteLength };
 	} else if (type == StorageType.NULL) {
-		return {length: 0};
+		return { length: 0 };
 	}
-	return {length: 0};
+	return { length: 0 };
 }
 
 /**
@@ -1111,7 +1111,7 @@ function setDataViewValue(dataView, value, type, byteOffset = 0, {
 		// string values have already been converted to a buffer in a previous pass.
 		// See `getStructureTypeLength()`.
 		const castValue = /** @type {Uint8Array} */ (value);
-		bytesMoved = insertLengthAndBuffer(dataView, castValue, byteOffset, stringLengthStorageType, {littleEndian});
+		bytesMoved = insertLengthAndBuffer(dataView, castValue, byteOffset, stringLengthStorageType, { littleEndian });
 	} else if (type == StorageType.BOOL) {
 		dataView.setUint8(byteOffset, value ? 1 : 0);
 		bytesMoved = 1;
@@ -1126,7 +1126,7 @@ function setDataViewValue(dataView, value, type, byteOffset = 0, {
 		bytesMoved = 16;
 	} else if (type == StorageType.ARRAY_BUFFER) {
 		const castValue = /** @type {import("./binarySerializationTypes.ts").StructureItemToObject<typeof type>} */ (value);
-		bytesMoved = insertLengthAndBuffer(dataView, castValue, byteOffset, arrayBufferLengthStorageType, {littleEndian});
+		bytesMoved = insertLengthAndBuffer(dataView, castValue, byteOffset, arrayBufferLengthStorageType, { littleEndian });
 	} else if (type == StorageType.NULL) {
 		bytesMoved = 0;
 	}
@@ -1141,8 +1141,8 @@ function setDataViewValue(dataView, value, type, byteOffset = 0, {
  * @param {object} options
  * @param {boolean} options.littleEndian
  */
-function insertLengthAndBuffer(dataView, buffer, byteOffset, lengthStorageType, {littleEndian}) {
-	let bytesMoved = setDataViewValue(dataView, buffer.byteLength, lengthStorageType, byteOffset, {littleEndian});
+function insertLengthAndBuffer(dataView, buffer, byteOffset, lengthStorageType, { littleEndian }) {
+	let bytesMoved = setDataViewValue(dataView, buffer.byteLength, lengthStorageType, byteOffset, { littleEndian });
 	byteOffset += bytesMoved;
 	const view = new Uint8Array(dataView.buffer);
 	view.set(new Uint8Array(buffer), byteOffset);
@@ -1203,21 +1203,21 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 
 	if (typeof structure == "object" && structure != null) {
 		if (!isRootStructure && reoccurringStructureReferences.has(structure)) {
-			const {value: refId, bytesMoved} = getDataViewValue(dataView, refIdStorageType, newByteOffset, {littleEndian});
+			const { value: refId, bytesMoved } = getDataViewValue(dataView, refIdStorageType, newByteOffset, { littleEndian });
 			if (typeof refId != "number") {
 				throw new Error("Assertion failed, unable to get the structure ref id because its type is not a number. This is likely because the refIdStorageType isn't set in the header bit.");
 			}
 			newByteOffset += bytesMoved;
-			if (!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: structure});
+			if (!structureDataById.has(refId)) structureDataById.set(refId, { structureRef: structure });
 			unparsedStructureIds.add(refId);
-			collectedReferenceLinks.push({refId, location: traversedLocationPath, injectIntoRefId: parsingStructureId});
+			collectedReferenceLinks.push({ refId, location: traversedLocationPath, injectIntoRefId: parsingStructureId });
 		} else if (Array.isArray(structure)) {
 			if (typeof structure[0] == "string") {
 				// structure is an array of strings, treat it as an enum
 				const castStructure1 = /** @type {unknown[]} */ (structure);
 				const castStructure2 = /** @type {string[]} */ (castStructure1);
-				const {type} = requiredStorageTypeForUint(structure.length);
-				let {value, bytesMoved} = getDataViewValue(dataView, type, newByteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
+				const { type } = requiredStorageTypeForUint(structure.length);
+				let { value, bytesMoved } = getDataViewValue(dataView, type, newByteOffset, { littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder });
 				newByteOffset += bytesMoved;
 				if (typeof value != "number") {
 					throw new Error("Assertion failed, unable to get the enum value because its type is not a number.");
@@ -1231,7 +1231,7 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 				});
 			} else if (structure[0] == StorageType.UNION_ARRAY) {
 				const typeIndexStorageType = requiredStorageTypeForUint(structure.length).type;
-				const {value: unionIndex, bytesMoved} = getDataViewValue(dataView, typeIndexStorageType, newByteOffset, {littleEndian});
+				const { value: unionIndex, bytesMoved } = getDataViewValue(dataView, typeIndexStorageType, newByteOffset, { littleEndian });
 				if (typeof unionIndex != "number") {
 					throw new Error("Assertion failed, unable to get the type index of an union because its type is not a number.");
 				}
@@ -1239,7 +1239,7 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 
 				const unionStructure = structure[unionIndex + 1];
 
-				const {newByteOffset: newNewByteOffset, newReconstructedData} = parseBinaryWithStructure(unionStructure, traversedLocationPath, reconstructedData, false, {
+				const { newByteOffset: newNewByteOffset, newReconstructedData } = parseBinaryWithStructure(unionStructure, traversedLocationPath, reconstructedData, false, {
 					...options,
 					byteOffset: newByteOffset,
 				});
@@ -1250,7 +1250,7 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 				const castStructure = /** @type {import("./binarySerializationTypes.ts").AllowedStructureFormat[]} */ (structure);
 				const variableArrayLength = castStructure.length == 1;
 				if (variableArrayLength) {
-					const {value: arrayLength, bytesMoved} = getDataViewValue(dataView, arrayLengthStorageType, newByteOffset, {littleEndian});
+					const { value: arrayLength, bytesMoved } = getDataViewValue(dataView, arrayLengthStorageType, newByteOffset, { littleEndian });
 					newByteOffset += bytesMoved;
 					if (arrayLengthStorageType == StorageType.NULL || arrayLength == 0) {
 						reconstructedData = resolveBinaryValueLocation(reconstructedData, {
@@ -1266,8 +1266,8 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 						}
 
 						for (let i = 0; i < arrayLength; i++) {
-							const newTraversedLocationPath = [...traversedLocationPath, {id: i, type: StorageType.ARRAY}];
-							const {newByteOffset: newNewByteOffset, newReconstructedData} = parseBinaryWithStructure(castStructure[0], newTraversedLocationPath, reconstructedData, false, {
+							const newTraversedLocationPath = [...traversedLocationPath, { id: i, type: StorageType.ARRAY }];
+							const { newByteOffset: newNewByteOffset, newReconstructedData } = parseBinaryWithStructure(castStructure[0], newTraversedLocationPath, reconstructedData, false, {
 								...options,
 								byteOffset: newByteOffset,
 							});
@@ -1278,8 +1278,8 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 				} else {
 					const arr = [];
 					for (const [i, arrayStructure] of castStructure.entries()) {
-						const newTraversedLocationPath = [...traversedLocationPath, {id: i, type: StorageType.ARRAY}];
-						const {newByteOffset: newNewByteOffset, newReconstructedData: arrayItemReconstructedData} = parseBinaryWithStructure(arrayStructure, newTraversedLocationPath, reconstructedData, false, {
+						const newTraversedLocationPath = [...traversedLocationPath, { id: i, type: StorageType.ARRAY }];
+						const { newByteOffset: newNewByteOffset, newReconstructedData: arrayItemReconstructedData } = parseBinaryWithStructure(arrayStructure, newTraversedLocationPath, reconstructedData, false, {
 							...options,
 							byteOffset: newByteOffset,
 						});
@@ -1294,7 +1294,7 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 			for (const [key, typeData] of Object.entries(structure)) {
 				const nameId = nameIdsMap.get(key);
 				if (nameId == undefined) continue;
-				const newTraversedLocationPath = [...traversedLocationPath, {id: nameId, type: StorageType.OBJECT}];
+				const newTraversedLocationPath = [...traversedLocationPath, { id: nameId, type: StorageType.OBJECT }];
 				arr.push({
 					type: structureToStorageType(typeData),
 					typeData,
@@ -1303,8 +1303,8 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 				});
 			}
 			sortNameIdsArr(arr);
-			for (const {typeData, location} of arr) {
-				const {newByteOffset: newNewByteOffset, newReconstructedData} = parseBinaryWithStructure(typeData, location, reconstructedData, false, {
+			for (const { typeData, location } of arr) {
+				const { newByteOffset: newNewByteOffset, newReconstructedData } = parseBinaryWithStructure(typeData, location, reconstructedData, false, {
 					...options,
 					byteOffset: newByteOffset,
 				});
@@ -1313,7 +1313,7 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 			}
 		}
 	} else {
-		const {value, bytesMoved} = getDataViewValue(dataView, structure, newByteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
+		const { value, bytesMoved } = getDataViewValue(dataView, structure, newByteOffset, { littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder });
 		newByteOffset += bytesMoved;
 		reconstructedData = resolveBinaryValueLocation(reconstructedData, {
 			nameIdsMapInverse, value,
@@ -1373,7 +1373,7 @@ function getDataViewValue(dataView, type, byteOffset, {
 		value = dataView.getFloat64(byteOffset, littleEndian);
 		bytesMoved = 8;
 	} else if (type == StorageType.STRING) {
-		const {buffer, bytesMoved: newBytesMoved} = getLengthAndBuffer(dataView, byteOffset, stringLengthStorageType, {littleEndian});
+		const { buffer, bytesMoved: newBytesMoved } = getLengthAndBuffer(dataView, byteOffset, stringLengthStorageType, { littleEndian });
 		value = textDecoder.decode(buffer);
 		bytesMoved = newBytesMoved;
 	} else if (type == StorageType.BOOL) {
@@ -1383,7 +1383,7 @@ function getDataViewValue(dataView, type, byteOffset, {
 		value = binaryToUuid(dataView.buffer, byteOffset);
 		bytesMoved = 16;
 	} else if (type == StorageType.ARRAY_BUFFER) {
-		const {buffer, bytesMoved: newBytesMoved} = getLengthAndBuffer(dataView, byteOffset, arrayBufferLengthStorageType, {littleEndian});
+		const { buffer, bytesMoved: newBytesMoved } = getLengthAndBuffer(dataView, byteOffset, arrayBufferLengthStorageType, { littleEndian });
 		value = buffer;
 		bytesMoved = newBytesMoved;
 	} else if (type == StorageType.NULL) {
@@ -1391,7 +1391,7 @@ function getDataViewValue(dataView, type, byteOffset, {
 		bytesMoved = 0;
 	}
 
-	return {value, bytesMoved};
+	return { value, bytesMoved };
 }
 
 /**
@@ -1401,14 +1401,14 @@ function getDataViewValue(dataView, type, byteOffset, {
  * @param {object} options
  * @param {boolean} options.littleEndian
  */
-function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, {littleEndian}) {
-	const {value: bufferByteLength, bytesMoved: newBytesMoved} = getDataViewValue(dataView, lengthStorageType, byteOffset, {littleEndian});
+function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, { littleEndian }) {
+	const { value: bufferByteLength, bytesMoved: newBytesMoved } = getDataViewValue(dataView, lengthStorageType, byteOffset, { littleEndian });
 	if (typeof bufferByteLength != "number") throw new Error("Assertion failed, bufferByteLength is not a number. This is likely because the arrayBufferLengthStorageType isn't set in the header bit.");
 	let bytesMoved = newBytesMoved;
 	const bufferStart = byteOffset + bytesMoved;
 	const buffer = dataView.buffer.slice(bufferStart, bufferStart + bufferByteLength);
 	bytesMoved += bufferByteLength;
-	return {buffer, length: bufferByteLength, bytesMoved};
+	return { buffer, length: bufferByteLength, bytesMoved };
 }
 
 /**
@@ -1452,7 +1452,7 @@ function resolveBinaryValueLocation(obj, {
 			if (transformValueHookType == undefined) {
 				throw new Error("Assertion failed, transformValueHookType was not provided but the hook could potentially get called.");
 			}
-			value = transformValueHook({value, type: transformValueHookType, placedOnObject: castObj, placedOnKey: key});
+			value = transformValueHook({ value, type: transformValueHookType, placedOnObject: castObj, placedOnKey: key });
 		}
 		castObj[key] = value;
 	} else {

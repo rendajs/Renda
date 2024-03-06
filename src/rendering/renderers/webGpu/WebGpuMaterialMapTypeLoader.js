@@ -1,7 +1,7 @@
-import {StorageType, binaryToObjectWithAssetLoader} from "../../../util/binarySerialization.js";
-import {MaterialMapTypeLoader} from "../../../assets/MaterialMapTypeLoader.js";
-import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
-import {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
+import { StorageType, binaryToObjectWithAssetLoader } from "../../../util/binarySerialization.js";
+import { MaterialMapTypeLoader } from "../../../assets/MaterialMapTypeLoader.js";
+import { WebGpuMaterialMapType } from "./WebGpuMaterialMapType.js";
+import { WebGpuPipelineConfig } from "./WebGpuPipelineConfig.js";
 
 /**
  * @typedef {object} WebGpuMaterialMap

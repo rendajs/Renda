@@ -1,5 +1,5 @@
-import {RendererDomTarget} from "../../RendererDomTarget.js";
-import {RenderOutputConfig} from "../../RenderOutputConfig.js";
+import { RendererDomTarget } from "../../RendererDomTarget.js";
+import { RenderOutputConfig } from "../../RenderOutputConfig.js";
 
 export class WebGpuRendererDomTarget extends RendererDomTarget {
 	/**
@@ -160,7 +160,7 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 			view,
 			resolveTarget,
 			loadOp: "clear",
-			clearValue: {r: 0, g: 0, b: 0, a: 1},
+			clearValue: { r: 0, g: 0, b: 0, a: 1 },
 			storeOp: "store",
 		};
 		this.renderPassDescriptor.colorAttachments = [this.colorAttachment];

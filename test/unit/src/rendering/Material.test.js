@@ -1,10 +1,10 @@
-import {assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Texture} from "../../../../src/core/Texture.js";
-import {CustomMaterialData, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
-import {Material} from "../../../../src/rendering/Material.js";
-import {MaterialMapType} from "../../../../src/rendering/MaterialMapType.js";
-import {assertVecAlmostEquals} from "../../shared/asserts.js";
-import {Sampler} from "../../../../src/rendering/Sampler.js";
+import { assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { Texture } from "../../../../src/core/Texture.js";
+import { CustomMaterialData, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
+import { Material } from "../../../../src/rendering/Material.js";
+import { MaterialMapType } from "../../../../src/rendering/MaterialMapType.js";
+import { assertVecAlmostEquals } from "../../shared/asserts.js";
+import { Sampler } from "../../../../src/rendering/Sampler.js";
 
 Deno.test("Empty getAllProperties() for new materials", () => {
 	const material = new Material();

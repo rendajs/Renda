@@ -1,8 +1,8 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {DropDownGui} from "../../../../../studio/src/ui/DropDownGui.js";
-import {runWithDom} from "../../shared/runWithDom.js";
-import {createOnChangeEventSpy} from "./shared.js";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
+import { assertEquals } from "std/testing/asserts.ts";
+import { DropDownGui } from "../../../../../studio/src/ui/DropDownGui.js";
+import { runWithDom } from "../../shared/runWithDom.js";
+import { createOnChangeEventSpy } from "./shared.js";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
 
 Deno.test({
 	name: "Creates the element with the correct defaultValue",

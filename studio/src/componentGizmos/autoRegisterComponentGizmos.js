@@ -1,5 +1,5 @@
-import {ComponentGizmosCamera} from "./gizmos/ComponentGizmosCamera.js";
-import {ComponentGizmosLight} from "./gizmos/ComponentGizmosLight.js";
+import { ComponentGizmosCamera } from "./gizmos/ComponentGizmosCamera.js";
+import { ComponentGizmosLight } from "./gizmos/ComponentGizmosLight.js";
 
 /** @type {import("./gizmos/ComponentGizmos.js").ComponentGizmosConstructorAny[]} */
 const autoRegisterComponentGizmos = [
@@ -7,4 +7,4 @@ const autoRegisterComponentGizmos = [
 	ComponentGizmosLight,
 ];
 
-export {autoRegisterComponentGizmos};
+export { autoRegisterComponentGizmos };

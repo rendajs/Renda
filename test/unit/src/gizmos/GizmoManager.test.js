@@ -1,11 +1,11 @@
-import {assert, assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {GizmoManager} from "../../../../src/gizmos/GizmoManager.js";
-import {screenSpaceToDomSpace} from "../../../../src/util/cameraUtil.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
-import {PointerEvent} from "fake-dom/FakePointerEvent.js";
-import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "fake-dom/mockGetComputedStyle.js";
-import {Gizmo, getFakeEngineAssetsManager, initBasicSetup} from "./shared.js";
-import {Sphere} from "../../../../src/mod.js";
+import { assert, assertEquals, assertExists, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { GizmoManager } from "../../../../src/gizmos/GizmoManager.js";
+import { screenSpaceToDomSpace } from "../../../../src/util/cameraUtil.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
+import { PointerEvent } from "fake-dom/FakePointerEvent.js";
+import { installMockGetComputedStyle, uninstallMockGetComputedStyle } from "fake-dom/mockGetComputedStyle.js";
+import { Gizmo, getFakeEngineAssetsManager, initBasicSetup } from "./shared.js";
+import { Sphere } from "../../../../src/mod.js";
 
 class ExtendedGizmo extends Gizmo {
 }
@@ -55,7 +55,7 @@ Deno.test({
 Deno.test({
 	name: "raycastDraggables()",
 	fn() {
-		const {manager, draggable, cam} = initBasicSetup();
+		const { manager, draggable, cam } = initBasicSetup();
 		const screenPos = draggable.getScreenPos(cam);
 
 		const hit1 = manager.raycastDraggables(cam, screenPos);
@@ -78,7 +78,7 @@ Deno.test({
 Deno.test({
 	name: "requestPointerDevice()",
 	fn() {
-		const {manager} = initBasicSetup();
+		const { manager } = initBasicSetup();
 		const pointer = manager.requestPointerDevice();
 
 		assertExists(pointer);
@@ -89,7 +89,7 @@ Deno.test({
 Deno.test({
 	name: "destroyPointerDevice()",
 	fn() {
-		const {manager} = initBasicSetup();
+		const { manager } = initBasicSetup();
 		const pointer = manager.requestPointerDevice();
 		manager.destroyPointerDevice(pointer);
 
@@ -102,7 +102,7 @@ Deno.test({
 	fn() {
 		installMockGetComputedStyle();
 
-		const {manager, draggable, cam} = initBasicSetup();
+		const { manager, draggable, cam } = initBasicSetup();
 		const screenPos = draggable.getScreenPos(cam);
 		const el = new HtmlElement({
 			clientWidth: 100,
@@ -141,7 +141,7 @@ Deno.test({
 Deno.test({
 	name: "addPointerEventListeners should throw when already added",
 	fn() {
-		const {manager, cam} = initBasicSetup();
+		const { manager, cam } = initBasicSetup();
 		const el = new HtmlElement();
 
 		manager.addPointerEventListeners(el, cam);
@@ -156,7 +156,7 @@ Deno.test({
 	fn() {
 		installMockGetComputedStyle();
 
-		const {manager, draggable, cam} = initBasicSetup();
+		const { manager, draggable, cam } = initBasicSetup();
 		const screenPos = draggable.getScreenPos(cam);
 		const el = new HtmlElement({
 			clientWidth: 100,
@@ -196,7 +196,7 @@ Deno.test({
 
 		/** @type {unknown[]} */
 		const calls = [];
-		manager.onGizmoNeedsRender(gizmo => {
+		manager.onGizmoNeedsRender((gizmo) => {
 			calls.push(gizmo);
 		});
 
@@ -215,7 +215,7 @@ Deno.test({
 
 		const calls = [];
 		/** @type {import("../../../../src/gizmos/GizmoManager.js").OnGizmoNeedsRenderCb} */
-		const cb = gizmo => {
+		const cb = (gizmo) => {
 			calls.push(gizmo);
 		};
 		manager.onGizmoNeedsRender(cb);

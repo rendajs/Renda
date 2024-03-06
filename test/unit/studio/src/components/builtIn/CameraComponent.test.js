@@ -1,6 +1,6 @@
-import {assertEquals, assertNotEquals} from "std/testing/asserts.ts";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {CameraComponent, Mat4} from "../../../../../../src/mod.js";
+import { assertEquals, assertNotEquals } from "std/testing/asserts.ts";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { CameraComponent, Mat4 } from "../../../../../../src/mod.js";
 
 Deno.test({
 	name: "updateProjectionMatrixIfEnabled()",
@@ -44,16 +44,16 @@ Deno.test({
 			}
 		}
 
-		updateValueTest(value => {
+		updateValueTest((value) => {
 			component.fov = value;
 		});
-		updateValueTest(value => {
+		updateValueTest((value) => {
 			component.clipNear = value;
 		});
-		updateValueTest(value => {
+		updateValueTest((value) => {
 			component.clipFar = value;
 		});
-		updateValueTest(value => {
+		updateValueTest((value) => {
 			component.aspectRatio = value;
 		});
 	},

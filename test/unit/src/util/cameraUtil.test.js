@@ -1,7 +1,7 @@
-import {Mat4, Quat, Vec2, Vec3} from "../../../../src/mod.js";
-import {domSpaceToScreenSpace, getRaycastRayFromScreenPos, screenSpaceToDomSpace, screenToWorldPos, worldToScreenPos} from "../../../../src/util/cameraUtil.js";
-import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
+import { Mat4, Quat, Vec2, Vec3 } from "../../../../src/mod.js";
+import { domSpaceToScreenSpace, getRaycastRayFromScreenPos, screenSpaceToDomSpace, screenToWorldPos, worldToScreenPos } from "../../../../src/util/cameraUtil.js";
+import { assertAlmostEquals, assertVecAlmostEquals } from "../../shared/asserts.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
 
 Deno.test({
 	name: "worldToScreenPos, with world matrix",
@@ -187,10 +187,10 @@ Deno.test({
 		const projectionMatrix = Mat4.createPerspective(90, 1, 1000);
 
 		const worldMatrices = [
-			{worldPos: [0, 0, 0], worldRot: [0, 0, 0, 1]},
-			{worldPos: [0, 1, 0], worldRot: [0, 0, 0, 1]},
-			{worldPos: [0, 0, -1], worldRot: [0, 0, 0, 1]},
-			{worldPos: [3, 0, -2], worldRot: [0, 0.2474, 0, 0.9689]},
+			{ worldPos: [0, 0, 0], worldRot: [0, 0, 0, 1] },
+			{ worldPos: [0, 1, 0], worldRot: [0, 0, 0, 1] },
+			{ worldPos: [0, 0, -1], worldRot: [0, 0, 0, 1] },
+			{ worldPos: [3, 0, -2], worldRot: [0, 0.2474, 0, 0.9689] },
 		];
 		const positions = [
 			[0.5, 0, 1],
@@ -198,7 +198,7 @@ Deno.test({
 			[0, -0.5, 2],
 			[3, 0, 10],
 		];
-		for (const {worldPos, worldRot} of worldMatrices) {
+		for (const { worldPos, worldRot } of worldMatrices) {
 			const worldMatrix = Mat4.createPosRotScale(new Vec3(worldPos), new Quat(worldRot), new Vec3(1, 1, 1));
 
 			for (const position of positions) {
@@ -216,7 +216,7 @@ Deno.test({
 	fn: () => {
 		const worldMatrix = Mat4.createTranslation(0, 1, 0);
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
-		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix, worldMatrix);
+		const { start, dir } = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix, worldMatrix);
 
 		assertVecAlmostEquals(start, [0.5, 1.5, -1]);
 		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir.magnitude is not normalized");
@@ -228,7 +228,7 @@ Deno.test({
 	name: "getRaycastRayFromScreenPos, no world matrix",
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
-		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix);
+		const { start, dir } = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix);
 
 		assertVecAlmostEquals(start, [0.5, 0.5, -1]);
 		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir.magnitude is not normalized");

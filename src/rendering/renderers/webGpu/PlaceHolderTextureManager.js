@@ -1,4 +1,4 @@
-import {PlaceHolderTexture} from "./PlaceHolderTexture.js";
+import { PlaceHolderTexture } from "./PlaceHolderTexture.js";
 
 /**
  * In order to make it possible to render materials with unset textures, we want

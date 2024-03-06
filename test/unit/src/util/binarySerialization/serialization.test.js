@@ -1,6 +1,6 @@
-import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {StorageType, binaryToObject, createObjectToBinaryOptions, createObjectToBinaryStructure, objectToBinary} from "../../../../../src/util/binarySerialization.js";
-import {basicObjectToBinaryToObjectTest} from "./shared.js";
+import { assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { StorageType, binaryToObject, createObjectToBinaryOptions, createObjectToBinaryStructure, objectToBinary } from "../../../../../src/util/binarySerialization.js";
+import { basicObjectToBinaryToObjectTest } from "./shared.js";
 
 Deno.test({
 	name: "primitive types",
@@ -217,9 +217,9 @@ Deno.test({
 	fn() {
 		basicObjectToBinaryToObjectTest({
 			array: [
-				{name: "obj1"},
-				{name: "obj2"},
-				{name: "obj3"},
+				{ name: "obj1" },
+				{ name: "obj2" },
+				{ name: "obj3" },
 			],
 		}, {
 			nameIds: {
@@ -227,7 +227,7 @@ Deno.test({
 				name: 2,
 			},
 			structure: {
-				array: [{name: StorageType.STRING}],
+				array: [{ name: StorageType.STRING }],
 			},
 		});
 	},
@@ -253,9 +253,9 @@ Deno.test({
 Deno.test({
 	name: "two objects that are the same reference",
 	fn() {
-		const theObject = {name: "obj"};
-		const theStructure = {name: StorageType.STRING};
-		const {result} = basicObjectToBinaryToObjectTest({
+		const theObject = { name: "obj" };
+		const theStructure = { name: StorageType.STRING };
+		const { result } = basicObjectToBinaryToObjectTest({
 			obj1: theObject,
 			obj2: theObject,
 		}, {
@@ -315,11 +315,11 @@ Deno.test({
 		});
 
 		basicObjectToBinaryToObjectTest({
-			obj1: {label: "object 1"},
-			obj2: {label: "object 2"},
+			obj1: { label: "object 1" },
+			obj2: { label: "object 2" },
 			arr: [
-				{label: "object 3"},
-				{label: "object 4"},
+				{ label: "object 3" },
+				{ label: "object 4" },
 			],
 		}, {
 			structure: {
@@ -352,9 +352,9 @@ Deno.test({
 		 * @property {FooObject} child
 		 */
 
-		const foo = /** @type {FooObject} */ ({name: "foo"});
+		const foo = /** @type {FooObject} */ ({ name: "foo" });
 		/** @type {BarObject} */
-		const bar = {name: "bar", child: foo};
+		const bar = { name: "bar", child: foo };
 		foo.child = bar;
 
 		/**
@@ -369,11 +369,11 @@ Deno.test({
 		 * @property {FooStructure} child
 		 */
 
-		const structureFoo = /** @type {FooStructure} */ ({name: StorageType.STRING});
-		const structureBar = {name: StorageType.STRING, child: structureFoo};
+		const structureFoo = /** @type {FooStructure} */ ({ name: StorageType.STRING });
+		const structureBar = { name: StorageType.STRING, child: structureFoo };
 		structureFoo.child = structureBar;
 
-		const {result} = basicObjectToBinaryToObjectTest(foo, {
+		const { result } = basicObjectToBinaryToObjectTest(foo, {
 			nameIds: {
 				name: 1,
 				child: 2,
@@ -389,7 +389,7 @@ Deno.test({
 Deno.test({
 	name: "structure contains an array, but object contains null",
 	fn() {
-		const {result} = basicObjectToBinaryToObjectTest({
+		const { result } = basicObjectToBinaryToObjectTest({
 			array: /** @type {any} */ (null),
 		}, {
 			nameIds: {

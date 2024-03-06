@@ -1,4 +1,4 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
 
 /**
  * @extends {ProjectAssetType<null, null, string>}

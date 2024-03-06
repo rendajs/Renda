@@ -1,7 +1,7 @@
-import {Mat4} from "./Mat4.js";
-import {Vec2} from "./Vec2.js";
-import {Vec3} from "./Vec3.js";
-import {Vec4} from "./Vec4.js";
+import { Mat4 } from "./Mat4.js";
+import { Vec2 } from "./Vec2.js";
+import { Vec3 } from "./Vec3.js";
+import { Vec4 } from "./Vec4.js";
 
 /** @typedef {(changedComponents: number) => void} OnQuatChangeCallback */
 
@@ -256,7 +256,7 @@ export class Quat {
 			q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
 			q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
 			q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
-			q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z
+			q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z,
 		);
 	}
 
@@ -329,6 +329,6 @@ export class Quat {
 	 * @param {number} changedComponents
 	 */
 	fireOnChange(changedComponents) {
-		this.onChangeCbs.forEach(cb => cb(changedComponents));
+		this.onChangeCbs.forEach((cb) => cb(changedComponents));
 	}
 }

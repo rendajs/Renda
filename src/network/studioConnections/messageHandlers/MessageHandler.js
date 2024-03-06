@@ -130,7 +130,7 @@ export class MessageHandler {
 	setStatus(status) {
 		if (status == this.status) return;
 		this.status = status;
-		this.onStatusChangeCbs.forEach(cb => cb(status));
+		this.onStatusChangeCbs.forEach((cb) => cb(status));
 	}
 
 	/**

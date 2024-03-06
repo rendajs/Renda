@@ -1,6 +1,6 @@
-import {AssertionError, assert} from "std/testing/asserts.ts";
-import {Mat4, Quat, Vec2, Vec3, Vec4} from "../../../src/mod.js";
-import {waitForMicrotasks as waitForMicrotasksFn} from "./waitForMicroTasks.js";
+import { AssertionError, assert } from "std/testing/asserts.ts";
+import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../../../src/mod.js";
+import { waitForMicrotasks as waitForMicrotasksFn } from "./waitForMicroTasks.js";
 
 /**
  * Make an assertion that `actual` and `expected` are almost numbers.

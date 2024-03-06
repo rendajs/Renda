@@ -1,10 +1,10 @@
-import {StudioWindow} from "./StudioWindow.js";
-import {getElementSize, parseMimeType} from "../util/util.js";
-import {generateUuid, iLerp} from "../../../src/util/mod.js";
-import {getStudioInstance} from "../studioInstance.js";
-import {Button} from "../ui/Button.js";
-import {ButtonGroup} from "../ui/ButtonGroup.js";
-import {SplitStudioWindow} from "./SplitStudioWindow.js";
+import { StudioWindow } from "./StudioWindow.js";
+import { getElementSize, parseMimeType } from "../util/util.js";
+import { generateUuid, iLerp } from "../../../src/util/mod.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { Button } from "../ui/Button.js";
+import { ButtonGroup } from "../ui/ButtonGroup.js";
+import { SplitStudioWindow } from "./SplitStudioWindow.js";
 
 export class TabsStudioWindow extends StudioWindow {
 	/** @type {string[]} */
@@ -108,7 +108,7 @@ export class TabsStudioWindow extends StudioWindow {
 		if (activate) {
 			this.setActiveTabIndex(index, trigger);
 		}
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 		return contentWindow;
 	}
 
@@ -123,7 +123,7 @@ export class TabsStudioWindow extends StudioWindow {
 		this.#intendedTabTypes.splice(tabIndex, 1);
 		this.#updateTabSelector(trigger);
 		this.destructContentWindow(contentWindow);
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 	}
 
 	/**
@@ -208,7 +208,7 @@ export class TabsStudioWindow extends StudioWindow {
 		if (activate) {
 			this.setActiveTabIndex(index, trigger);
 		}
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 	}
 
 	/**
@@ -224,7 +224,7 @@ export class TabsStudioWindow extends StudioWindow {
 			if (this.#intendedTabTypes.length == 0) {
 				this.unsplitParent(trigger);
 			}
-			this.fireWorkspaceChangeCbs({trigger});
+			this.fireWorkspaceChangeCbs({ trigger });
 		}
 	}
 
@@ -244,7 +244,7 @@ export class TabsStudioWindow extends StudioWindow {
 						this.setActiveTabIndex(tabIndex, "user");
 					},
 					draggable: true,
-					onDragStart: e => {
+					onDragStart: (e) => {
 						if (!e.dataTransfer) return;
 						this.windowManager.setTabDragEnabled(true);
 						e.dataTransfer.effectAllowed = "move";
@@ -296,7 +296,7 @@ export class TabsStudioWindow extends StudioWindow {
 			this.tabs[i].setVisibilityFromTabWindow(active);
 		}
 		this.fireActiveTabChange();
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 	}
 
 	/**
@@ -412,13 +412,13 @@ export class TabsStudioWindow extends StudioWindow {
 											text: "Autosave",
 											reserveIconSpace: true,
 											showCheckmark: autoSaveValue,
-											onClick: e => {
+											onClick: (e) => {
 												e.preventMenuClose();
 												autoSaveValue = !autoSaveValue;
 												e.item.showCheckmark = autoSaveValue;
 												this.windowManager.workspaceManager.setCurrentWorkspaceAutoSaveValue(autoSaveValue);
 											},
-										}
+										},
 									);
 								}
 								submenu.push(
@@ -434,7 +434,7 @@ export class TabsStudioWindow extends StudioWindow {
 										onClick: () => {
 											this.windowManager.workspaceManager.deleteWorkspace(workspaceId);
 										},
-									}
+									},
 								);
 								if (isCurrentWorkspace) {
 									submenu.push({
@@ -461,7 +461,7 @@ export class TabsStudioWindow extends StudioWindow {
 									this.windowManager.workspaceManager.addNewWorkspace(name);
 								}
 							},
-						}
+						},
 					);
 
 					return workspacesSubmenu;
@@ -526,12 +526,12 @@ export class TabsStudioWindow extends StudioWindow {
 	 */
 	onTabDragOver(e) {
 		if (!e.dataTransfer) return;
-		if (!e.dataTransfer.types.some(mimeType => this.validateTabDragMimeType(mimeType))) return;
+		if (!e.dataTransfer.types.some((mimeType) => this.validateTabDragMimeType(mimeType))) return;
 		if (!this.lastTabDragOverlayBoundingRect) return;
 		e.preventDefault();
 		e.dataTransfer.dropEffect = "move";
 		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
-		let {left, top, width, height} = this.lastTabDragOverlayBoundingRect;
+		let { left, top, width, height } = this.lastTabDragOverlayBoundingRect;
 		if (dragPosition == "left") {
 			width /= 2;
 		} else if (dragPosition == "right") {
@@ -553,7 +553,7 @@ export class TabsStudioWindow extends StudioWindow {
 	validateTabDragMimeType(mimeType) {
 		const parsed = parseMimeType(mimeType);
 		if (!parsed) return false;
-		const {type, subType, parameters} = parsed;
+		const { type, subType, parameters } = parsed;
 		if (type != "text" || subType != "renda" || parameters.dragtype != "studiowindowtab") return false;
 		return true;
 	}
@@ -564,7 +564,7 @@ export class TabsStudioWindow extends StudioWindow {
 	 */
 	*uuidsToContentWindows(uuids, fromOtherTabsOnly = false) {
 		for (const uuid of uuids) {
-			if (fromOtherTabsOnly && this.tabs.some(tab => tab.uuid == uuid)) continue;
+			if (fromOtherTabsOnly && this.tabs.some((tab) => tab.uuid == uuid)) continue;
 			const contentWindow = this.windowManager.getContentWindowByUuid(uuid);
 			if (contentWindow) {
 				yield contentWindow;
@@ -578,11 +578,11 @@ export class TabsStudioWindow extends StudioWindow {
 	async onTabDrop(e) {
 		if (!e.dataTransfer) return;
 		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
-		const tabUuidPromisess = Array.from(e.dataTransfer.items).filter(item => {
+		const tabUuidPromisess = Array.from(e.dataTransfer.items).filter((item) => {
 			if (item.kind != "string") return false;
 			return this.validateTabDragMimeType(item.type);
-		}).map(item => {
-			return new Promise(r => item.getAsString(r));
+		}).map((item) => {
+			return new Promise((r) => item.getAsString(r));
 		});
 		const tabUuids = await Promise.all(tabUuidPromisess);
 		if (dragPosition == "center") {

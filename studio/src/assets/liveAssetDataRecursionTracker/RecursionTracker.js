@@ -1,5 +1,5 @@
-import {AssetManager} from "../AssetManager.js";
-import {LoadingAsset} from "./LoadingAsset.js";
+import { AssetManager } from "../AssetManager.js";
+import { LoadingAsset } from "./LoadingAsset.js";
 
 {
 	/** @typedef {import("../projectAssetType/ProjectAssetType.js").ProjectAssetType} ProjectAssetType */
@@ -95,7 +95,7 @@ export class RecursionTracker {
 		assertAssetType = null,
 	} = /** @type {T} */ ({})) {
 		/** @type {LiveAssetDataCallback<T>} */
-		const wrapperCallback = liveAssetData => {
+		const wrapperCallback = (liveAssetData) => {
 			if (assertAssetType && liveAssetData) {
 				const projectAsset = this.assetManager.getProjectAssetFromUuidSync(uuid);
 				if (!projectAsset) {
@@ -141,7 +141,7 @@ export class RecursionTracker {
 	 * @param {T} options
 	 */
 	getLiveAsset(uuid, cb, options = /** @type {T} */ ({})) {
-		this.getLiveAssetData(uuid, liveAssetData => {
+		this.getLiveAssetData(uuid, (liveAssetData) => {
 			const liveAsset = liveAssetData?.liveAsset ?? null;
 			const castLiveAsset = /** @type {import("../AssetManager.js").AssetAssertionOptionsToLiveAsset<T>?} */ (liveAsset);
 			cb(castLiveAsset);

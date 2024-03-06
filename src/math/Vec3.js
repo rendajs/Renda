@@ -1,8 +1,8 @@
-import {clamp} from "../util/util.js";
-import {Mat4} from "./Mat4.js";
-import {Quat} from "./Quat.js";
-import {Vec2} from "./Vec2.js";
-import {Vec4} from "./Vec4.js";
+import { clamp } from "../util/util.js";
+import { Mat4 } from "./Mat4.js";
+import { Quat } from "./Quat.js";
+import { Vec2 } from "./Vec2.js";
+import { Vec4 } from "./Vec4.js";
 
 /** @typedef {(changedComponents: number) => void} OnVectorChangeCallback */
 

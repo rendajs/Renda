@@ -1,7 +1,7 @@
-import {ArrayGui} from "../../../../../studio/src/ui/ArrayGui.js";
-import {runWithDom} from "../../shared/runWithDom.js";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {createOnChangeEventSpy} from "./shared.js";
+import { ArrayGui } from "../../../../../studio/src/ui/ArrayGui.js";
+import { runWithDom } from "../../shared/runWithDom.js";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { createOnChangeEventSpy } from "./shared.js";
 
 Deno.test({
 	name: "Triggers user events when adding and removing items",

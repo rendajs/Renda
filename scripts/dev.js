@@ -8,7 +8,7 @@
  * On windows you can run this using `deno task dev`.
  */
 
-import {setCwd} from "chdir-anywhere";
+import { setCwd } from "chdir-anywhere";
 
 /**
  * @param {object} opts
@@ -34,7 +34,7 @@ export async function dev({
 	Deno.chdir("..");
 
 	if (needsTypes) {
-		const {generateTypes} = await import("https://deno.land/x/deno_tsc_helper@v0.5.0/mod.js");
+		const { generateTypes } = await import("https://deno.land/x/deno_tsc_helper@v0.5.0/mod.js");
 
 		const cwd = Deno.cwd();
 
@@ -104,7 +104,7 @@ export async function dev({
 	}
 
 	if (needsDependencies || needsDevDependencies) {
-		const {dev} = await import("https://deno.land/x/dev@v0.2.0/mod.js");
+		const { dev } = await import("https://deno.land/x/dev@v0.2.0/mod.js");
 
 		await dev({
 			actions: [
@@ -140,7 +140,7 @@ export async function dev({
 	}
 
 	if (serve) {
-		const {DevServer} = await import("./DevServer.js");
+		const { DevServer } = await import("./DevServer.js");
 		const server = new DevServer({
 			port: 8080,
 			serverName: "development server",

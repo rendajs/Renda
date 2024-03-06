@@ -1,4 +1,4 @@
-import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
+import { WebGpuMaterialMapType } from "./WebGpuMaterialMapType.js";
 
 export class CachedMaterialData {
 	#renderer;
@@ -46,7 +46,7 @@ export class CachedMaterialData {
 			},
 		});
 
-		for (const {mappedData} of this.#material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
+		for (const { mappedData } of this.#material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
 			if (mappedData.mappedType == "texture2d") {
 				bindGroupEntries.push({
 					binding: bindGroupEntries.length,
@@ -60,7 +60,7 @@ export class CachedMaterialData {
 				bindGroupEntries.push({
 					binding: bindGroupEntries.length,
 					visibility: GPUShaderStage.FRAGMENT,
-					sampler: {type: "filtering"},
+					sampler: { type: "filtering" },
 				});
 			}
 		}

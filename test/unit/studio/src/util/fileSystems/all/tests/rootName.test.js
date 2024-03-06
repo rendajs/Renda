@@ -1,7 +1,7 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {testAll} from "../shared.js";
-import {registerOnChangeSpy} from "../../shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { testAll } from "../shared.js";
+import { registerOnChangeSpy } from "../../shared.js";
 
 testAll({
 	name: "getRootName() should return the value passed in setRootName()",

@@ -1,9 +1,9 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {GizmoPointerDevice} from "../../../../src/gizmos/GizmoPointerDevice.js";
-import {Vec3} from "../../../../src/mod.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
-import {PointerEvent} from "fake-dom/FakePointerEvent.js";
-import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "fake-dom/mockGetComputedStyle.js";
+import { assertEquals, assertExists } from "std/testing/asserts.ts";
+import { GizmoPointerDevice } from "../../../../src/gizmos/GizmoPointerDevice.js";
+import { Vec3 } from "../../../../src/mod.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
+import { PointerEvent } from "fake-dom/FakePointerEvent.js";
+import { installMockGetComputedStyle, uninstallMockGetComputedStyle } from "fake-dom/mockGetComputedStyle.js";
 
 class MockDraggable {
 	constructor() {
@@ -84,7 +84,7 @@ function basicSetup() {
 Deno.test({
 	name: "destructor",
 	fn() {
-		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
+		const { pointerDevice, stubElement, stubCamera, mockDraggable, uninstall } = basicSetup();
 
 		try {
 			// Hover over a draggable
@@ -107,7 +107,7 @@ Deno.test({
 Deno.test({
 	name: "2d move event draggable over and out",
 	fn() {
-		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
+		const { pointerDevice, stubElement, stubCamera, mockDraggable, uninstall } = basicSetup();
 
 		try {
 			// Hover over a draggable
@@ -137,7 +137,7 @@ Deno.test({
 Deno.test({
 	name: "down and up events updates hasActiveButton",
 	fn() {
-		const {pointerDevice, stubElement, stubCamera, uninstall} = basicSetup();
+		const { pointerDevice, stubElement, stubCamera, uninstall } = basicSetup();
 
 		try {
 			const event1 = new PointerEvent("pointerdown", {
@@ -160,7 +160,7 @@ Deno.test({
 Deno.test({
 	name: "down, up and move events notify draggables",
 	fn() {
-		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
+		const { pointerDevice, stubElement, stubCamera, mockDraggable, uninstall } = basicSetup();
 
 		try {
 			// Click on a draggable
@@ -202,7 +202,7 @@ Deno.test({
 Deno.test({
 	name: "up event notifies active draggable, even when raycast misses",
 	fn() {
-		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
+		const { pointerDevice, stubElement, stubCamera, mockDraggable, uninstall } = basicSetup();
 
 		try {
 			// Click draggable
@@ -242,7 +242,7 @@ Deno.test({
 Deno.test({
 	name: "forceDragDraggable keeps dragging even though the mouse isn't down",
 	fn() {
-		const {pointerDevice, stubElement, stubCamera, mockDraggable, castMockDraggable, uninstall} = basicSetup();
+		const { pointerDevice, stubElement, stubCamera, mockDraggable, castMockDraggable, uninstall } = basicSetup();
 
 		try {
 			// Move cursor to set an initial location for the pointer device

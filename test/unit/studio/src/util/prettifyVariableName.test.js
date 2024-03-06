@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {prettifyVariableName} from "../../../../../studio/src/util/util.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { prettifyVariableName } from "../../../../../studio/src/util/util.js";
 
 Deno.test("Basic name", () => {
 	const variableName = "myVariableName";

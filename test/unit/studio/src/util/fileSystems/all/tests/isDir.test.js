@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {testAll} from "../shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { testAll } from "../shared.js";
 
 testAll({
 	name: "isDir true",

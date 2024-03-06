@@ -1,7 +1,7 @@
-import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
-import {AssetLoaderTypeWebGpuPipelineConfig, WebGpuPipelineConfig} from "../../../../../../src/mod.js";
-import {ProjectAssetTypeWebGpuPipelineConfig} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
-import {createMockDependencies, serializeAndLoad} from "./shared.js";
+import { assertEquals, assertInstanceOf, assertStrictEquals } from "std/testing/asserts.ts";
+import { AssetLoaderTypeWebGpuPipelineConfig, WebGpuPipelineConfig } from "../../../../../../src/mod.js";
+import { ProjectAssetTypeWebGpuPipelineConfig } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
+import { createMockDependencies, serializeAndLoad } from "./shared.js";
 
 /**
  * @param {unknown} pipelineConfig
@@ -22,9 +22,9 @@ function assertDefaults(pipelineConfig) {
 Deno.test({
 	name: "getLiveAssetData() with an empty object",
 	async fn() {
-		const {projectAssetTypeArgs} = createMockDependencies();
+		const { projectAssetTypeArgs } = createMockDependencies();
 		const projectAssetType = new ProjectAssetTypeWebGpuPipelineConfig(...projectAssetTypeArgs);
-		const {liveAsset, studioData} = await projectAssetType.getLiveAssetData({});
+		const { liveAsset, studioData } = await projectAssetType.getLiveAssetData({});
 
 		assertEquals(studioData, null);
 
@@ -52,7 +52,7 @@ Deno.test({
 Deno.test({
 	name: "primitiveTopology is serialized and loaded",
 	async fn() {
-		const {loadResult} = await serializeAndLoad({
+		const { loadResult } = await serializeAndLoad({
 			ProjectAssetTypeConstructor: ProjectAssetTypeWebGpuPipelineConfig,
 			AssetLoaderType: AssetLoaderTypeWebGpuPipelineConfig,
 			jsonFileData: {
@@ -70,9 +70,9 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() with primitiveTopology",
 	async fn() {
-		const {projectAssetTypeArgs} = createMockDependencies();
+		const { projectAssetTypeArgs } = createMockDependencies();
 		const projectAssetType = new ProjectAssetTypeWebGpuPipelineConfig(...projectAssetTypeArgs);
-		const {liveAsset} = await projectAssetType.getLiveAssetData({
+		const { liveAsset } = await projectAssetType.getLiveAssetData({
 			primitiveTopology: "triangle-strip",
 		});
 
@@ -87,7 +87,7 @@ const FRAGMENT_UUID = "00000000-0000-0000-0000-000000000002";
 Deno.test({
 	name: "Shader uuids are serialized and loaded",
 	async fn() {
-		const {referencedAssetUuids, loadResult, getRequestedAsset} = await serializeAndLoad({
+		const { referencedAssetUuids, loadResult, getRequestedAsset } = await serializeAndLoad({
 			ProjectAssetTypeConstructor: ProjectAssetTypeWebGpuPipelineConfig,
 			AssetLoaderType: AssetLoaderTypeWebGpuPipelineConfig,
 			jsonFileData: {
@@ -108,7 +108,7 @@ Deno.test({
 Deno.test({
 	name: "blendState is serialized and loaded",
 	async fn() {
-		const {loadResult} = await serializeAndLoad({
+		const { loadResult } = await serializeAndLoad({
 			ProjectAssetTypeConstructor: ProjectAssetTypeWebGpuPipelineConfig,
 			AssetLoaderType: AssetLoaderTypeWebGpuPipelineConfig,
 			jsonFileData: {
@@ -144,9 +144,9 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() with blend state",
 	async fn() {
-		const {projectAssetTypeArgs} = createMockDependencies();
+		const { projectAssetTypeArgs } = createMockDependencies();
 		const projectAssetType = new ProjectAssetTypeWebGpuPipelineConfig(...projectAssetTypeArgs);
-		const {liveAsset} = await projectAssetType.getLiveAssetData({
+		const { liveAsset } = await projectAssetType.getLiveAssetData({
 			blend: {
 				color: {
 					srcFactor: "src-alpha",
@@ -174,9 +174,9 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() with blend state, missing one component",
 	async fn() {
-		const {projectAssetTypeArgs} = createMockDependencies();
+		const { projectAssetTypeArgs } = createMockDependencies();
 		const projectAssetType = new ProjectAssetTypeWebGpuPipelineConfig(...projectAssetTypeArgs);
-		const {liveAsset} = await projectAssetType.getLiveAssetData({
+		const { liveAsset } = await projectAssetType.getLiveAssetData({
 			blend: {
 				color: {
 					srcFactor: "src-alpha",

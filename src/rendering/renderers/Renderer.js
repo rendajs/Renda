@@ -1,4 +1,4 @@
-import {RendererDomTarget} from "../RendererDomTarget.js";
+import { RendererDomTarget } from "../RendererDomTarget.js";
 
 /**
  * @template {RendererDomTarget} [TDomTarget = RendererDomTarget]

@@ -1,6 +1,6 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {PreferencesLocation} from "../../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { PreferencesLocation } from "../../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 
 Deno.test({
 	name: "Basic get, set, has and delete",

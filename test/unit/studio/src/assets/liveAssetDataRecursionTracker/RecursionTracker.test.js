@@ -1,8 +1,8 @@
-import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
-import {assertIsError} from "std/testing/asserts.ts";
-import {RecursionTracker} from "../../../../../../studio/src/assets/liveAssetDataRecursionTracker/RecursionTracker.js";
-import {ProjectAssetType} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
+import { assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub } from "std/testing/mock.ts";
+import { assertIsError } from "std/testing/asserts.ts";
+import { RecursionTracker } from "../../../../../../studio/src/assets/liveAssetDataRecursionTracker/RecursionTracker.js";
+import { ProjectAssetType } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
 
 const BASIC_ROOT_ASSET_UUID = "basic asset uuid";
 const BASIC_OTHER_ASSET_UUID = "basic other asset uuid";
@@ -32,11 +32,11 @@ function basicSetup({
 } = {}) {
 	const otherProjectAssetLiveAsset1 = Symbol("other project asset live asset 1");
 	const otherProjectAssetLiveAsset2 = Symbol("other project asset live asset 2");
-	const {projectAsset: mockRootProjectAsset} = createMockProjectAsset({
+	const { projectAsset: mockRootProjectAsset } = createMockProjectAsset({
 		liveAsset: otherProjectAssetLiveAsset1,
 		projectAssetTypeConstructor: rootProjectAssetTypeConstructor,
 	});
-	const {projectAsset: mockOtherProjectAsset} = createMockProjectAsset({
+	const { projectAsset: mockOtherProjectAsset } = createMockProjectAsset({
 		liveAsset: otherProjectAssetLiveAsset1,
 		projectAssetTypeConstructor: otherProjectAssetTypeConstructor,
 	});
@@ -96,7 +96,7 @@ function basicSetup({
 		fireLiveAssetDataChangeCbs(uuid, newLiveAsset) {
 			const cbs = liveAssetChangeCbs.get(uuid);
 			if (cbs) {
-				cbs.forEach(cb => cb({
+				cbs.forEach((cb) => cb({
 					studioData: null,
 					liveAsset: newLiveAsset,
 				}));
@@ -108,7 +108,7 @@ function basicSetup({
 Deno.test({
 	name: "getLiveAssetData() callback is called only once by default",
 	async fn() {
-		const {recursionTracker, otherProjectAssetLiveAsset1, otherProjectAssetLiveAsset2, fireLiveAssetDataChangeCbs} = basicSetup();
+		const { recursionTracker, otherProjectAssetLiveAsset1, otherProjectAssetLiveAsset2, fireLiveAssetDataChangeCbs } = basicSetup();
 
 		const cbSpy = spy();
 		recursionTracker.getLiveAssetData(BASIC_OTHER_ASSET_UUID, cbSpy);
@@ -132,7 +132,7 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() callback is called again when repeatOnLiveAssetChange is true",
 	async fn() {
-		const {recursionTracker, otherProjectAssetLiveAsset2, fireLiveAssetDataChangeCbs} = basicSetup();
+		const { recursionTracker, otherProjectAssetLiveAsset2, fireLiveAssetDataChangeCbs } = basicSetup();
 
 		const cbSpy = spy();
 		recursionTracker.getLiveAssetData(BASIC_OTHER_ASSET_UUID, cbSpy, {
@@ -150,7 +150,7 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() with an asserted asset type, assertion succeeds",
 	async fn() {
-		const {recursionTracker, otherProjectAssetLiveAsset1} = basicSetup({
+		const { recursionTracker, otherProjectAssetLiveAsset1 } = basicSetup({
 			otherProjectAssetTypeConstructor: ExtendedProjectAssetType1,
 		});
 
@@ -178,7 +178,7 @@ Deno.test({
 	async fn() {
 		await mockSessionAsync(async () => {
 			const consoleErrorSpy = stub(console, "error");
-			const {recursionTracker} = basicSetup({
+			const { recursionTracker } = basicSetup({
 				otherProjectAssetTypeConstructor: ExtendedProjectAssetType2,
 			});
 

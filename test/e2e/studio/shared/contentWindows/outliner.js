@@ -1,7 +1,7 @@
-import {assertExists} from "std/testing/asserts.ts";
-import {log} from "../../../shared/log.js";
-import {click, waitFor} from "../../../shared/util.js";
-import {getContentWindowElement, getContentWindowReference} from "../contentWindows.js";
+import { assertExists } from "std/testing/asserts.ts";
+import { log } from "../../../shared/log.js";
+import { click, waitFor } from "../../../shared/util.js";
+import { getContentWindowElement, getContentWindowReference } from "../contentWindows.js";
 
 /**
  * Gets a reference to the first available ContentWindowOutliner instance.

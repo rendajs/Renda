@@ -1,6 +1,6 @@
-import {Vec2} from "./Vec2.js";
-import {Vec3} from "./Vec3.js";
-import {Mat4} from "./Mat4.js";
+import { Vec2 } from "./Vec2.js";
+import { Vec3 } from "./Vec3.js";
+import { Mat4 } from "./Mat4.js";
 
 /**
  * @typedef {() => Vec4} vec4SetEmptySignature

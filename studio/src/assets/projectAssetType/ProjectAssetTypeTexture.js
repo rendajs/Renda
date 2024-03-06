@@ -1,5 +1,5 @@
-import {Texture} from "../../../../src/core/Texture.js";
-import {ProjectAssetType} from "./ProjectAssetType.js";
+import { Texture } from "../../../../src/core/Texture.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
 
 /**
  * @typedef ProjectAssetTypeTextureStudioData

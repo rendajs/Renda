@@ -1,9 +1,9 @@
-import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {CustomMaterialData, Quat, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
-import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
-import {MaterialMapType} from "../../../../src/rendering/MaterialMapType.js";
-import {Texture} from "../../../../src/core/Texture.js";
-import {Sampler} from "../../../../src/rendering/Sampler.js";
+import { assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { CustomMaterialData, Quat, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
+import { MaterialMap } from "../../../../src/rendering/MaterialMap.js";
+import { MaterialMapType } from "../../../../src/rendering/MaterialMapType.js";
+import { Texture } from "../../../../src/core/Texture.js";
+import { Sampler } from "../../../../src/rendering/Sampler.js";
 
 Deno.test({
 	name: "assertIsMappableType(), valid types",

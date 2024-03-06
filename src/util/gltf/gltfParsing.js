@@ -1,5 +1,5 @@
-import {parseContainerBinary} from "./parseContainerBinary.js";
-import {parseJsonData} from "./parseJsonData.js";
+import { parseContainerBinary } from "./parseContainerBinary.js";
+import { parseJsonData } from "./parseJsonData.js";
 
 /**
  * @typedef ParseGltfHooks

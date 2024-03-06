@@ -1,8 +1,8 @@
-import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
-import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
-import {BUILD_VERSION_STRING} from "../studioDefines.js";
-import {createSpinner} from "../ui/spinner.js";
-import {IndexedDbStudioFileSystem} from "../util/fileSystems/IndexedDbStudioFileSystem.js";
+import { IndexedDbUtil } from "../../../src/util/IndexedDbUtil.js";
+import { PromiseWaitHelper } from "../../../src/util/PromiseWaitHelper.js";
+import { BUILD_VERSION_STRING } from "../studioDefines.js";
+import { createSpinner } from "../ui/spinner.js";
+import { IndexedDbStudioFileSystem } from "../util/fileSystems/IndexedDbStudioFileSystem.js";
 
 export class ProjectSelector {
 	/** @typedef {import("./ProjectManager.js").StoredProjectEntryAny} StoredProjectEntryAny */
@@ -73,7 +73,7 @@ export class ProjectSelector {
 			this.setVisibility(false);
 		});
 
-		const {buttonEl: openProjectButton} = this.createAction("Open Project", async () => {
+		const { buttonEl: openProjectButton } = this.createAction("Open Project", async () => {
 			this.willOpenProjectAfterLoad();
 			const studio = await this.waitForStudio();
 			studio.projectManager.openProjectFromLocalDirectory();
@@ -159,14 +159,14 @@ export class ProjectSelector {
 		let databaseNames = null;
 		try {
 			const databases = await indexedDB.databases();
-			const unfilteredNames = databases.map(db => db.name);
-			databaseNames = /** @type {string[]} */ (unfilteredNames.filter(db => Boolean(db)));
+			const unfilteredNames = databases.map((db) => db.name);
+			databaseNames = /** @type {string[]} */ (unfilteredNames.filter((db) => Boolean(db)));
 		} catch {
 			// Some browsers don't support `databases()`, in that case we just don't filter the list.
 		}
 		if (databaseNames) {
 			const certainNames = databaseNames;
-			this.recentProjectsList = this.recentProjectsList.filter(entry => {
+			this.recentProjectsList = this.recentProjectsList.filter((entry) => {
 				if (entry.fileSystemType != "db") return true;
 
 				const dbName = IndexedDbStudioFileSystem.getDbName(entry.projectUuid);
@@ -207,7 +207,7 @@ export class ProjectSelector {
 			if (entry.alias) {
 				text = entry.alias;
 			}
-			const {buttonEl} = this.createListButton(this.recentListEl, text, async () => {
+			const { buttonEl } = this.createListButton(this.recentListEl, text, async () => {
 				this.willOpenProjectAfterLoad();
 				const studio = await this.waitForStudio();
 				studio.projectManager.openExistingProject(entry, true);
@@ -227,7 +227,7 @@ export class ProjectSelector {
 				}
 			}
 			buttonEl.title = tooltip;
-			buttonEl.addEventListener("contextmenu", e => {
+			buttonEl.addEventListener("contextmenu", (e) => {
 				if (this.loadedStudio) {
 					e.preventDefault();
 					let deleteText = "Remove from Recents";
@@ -283,7 +283,7 @@ export class ProjectSelector {
 	async waitForStudio() {
 		if (this.loadedStudio) return this.loadedStudio;
 
-		return new Promise(r => this.onStudioLoadCbs.add(r));
+		return new Promise((r) => this.onStudioLoadCbs.add(r));
 	}
 
 	/**
@@ -300,7 +300,7 @@ export class ProjectSelector {
 	 */
 	setStudioLoaded(studio) {
 		this.loadedStudio = studio;
-		studio.projectManager.onProjectOpenEntryChange(entry => {
+		studio.projectManager.onProjectOpenEntryChange((entry) => {
 			if (entry) {
 				this.addRecentProjectEntry(entry);
 			}
@@ -342,7 +342,7 @@ export class ProjectSelector {
 			studio.projectManager.openNewDbProject(false);
 			this.allowOpeningNew = false;
 		}
-		this.onStudioLoadCbs.forEach(cb => cb(studio));
+		this.onStudioLoadCbs.forEach((cb) => cb(studio));
 	}
 
 	async deleteProjectsNotWorthSaving() {
@@ -432,14 +432,14 @@ export class ProjectSelector {
 		for (const existingEntry of list) {
 			const promise = (async () => {
 				const same = await this.projectEntryEquals(entry, existingEntry);
-				return {entry: existingEntry, same};
+				return { entry: existingEntry, same };
 			})();
 			promises.push(promise);
 		}
 		const results = await Promise.allSettled(promises);
-		const removeResults = results.filter(r => r.status == "fulfilled" && r.value.same);
+		const removeResults = results.filter((r) => r.status == "fulfilled" && r.value.same);
 		const castRemoveResults = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntryAny, same: boolean}>[]} */ (removeResults);
-		const removeEntries = castRemoveResults.map(r => r.value.entry);
+		const removeEntries = castRemoveResults.map((r) => r.value.entry);
 		for (const entry of removeEntries) {
 			list.splice(list.indexOf(entry), 1);
 		}

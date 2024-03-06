@@ -1,6 +1,6 @@
-import {spy} from "std/testing/mock.ts";
-import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
-import {TreeView} from "./TreeView.js";
+import { spy } from "std/testing/mock.ts";
+import { PropertiesTreeViewEntry } from "./PropertiesTreeViewEntry.js";
+import { TreeView } from "./TreeView.js";
 
 export class PropertiesTreeView extends TreeView {
 	constructor() {

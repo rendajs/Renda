@@ -1,4 +1,4 @@
-import {log} from "../../shared/log.js";
+import { log } from "../../shared/log.js";
 
 /**
  * Waits for all operations to finish on the IndexedDB of the current project.

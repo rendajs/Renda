@@ -1,4 +1,4 @@
-import {CachedMeshBufferData} from "./CachedMeshBufferData.js";
+import { CachedMeshBufferData } from "./CachedMeshBufferData.js";
 
 export class CachedMeshData {
 	/**

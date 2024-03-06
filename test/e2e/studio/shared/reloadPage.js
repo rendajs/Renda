@@ -1,5 +1,5 @@
-import {log} from "../../shared/log.js";
-import {flushProjectIndexedDb} from "./indexedDb.js";
+import { log } from "../../shared/log.js";
+import { flushProjectIndexedDb } from "./indexedDb.js";
 
 /**
  * Reloads the page.

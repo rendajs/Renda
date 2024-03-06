@@ -1,8 +1,8 @@
-import {FakeTime} from "std/testing/time.ts";
-import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
-import {TypedMessenger} from "../../../../../src/mod.js";
-import {ParentStudioCommunicator} from "../../../../../src/network/studioConnections/ParentStudioCommunicator.js";
-import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
+import { FakeTime } from "std/testing/time.ts";
+import { assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub } from "std/testing/mock.ts";
+import { TypedMessenger } from "../../../../../src/mod.js";
+import { ParentStudioCommunicator } from "../../../../../src/network/studioConnections/ParentStudioCommunicator.js";
+import { assertEquals, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
 
 /**
  * Creates a mocked parent window that simulates a studio instance.
@@ -40,8 +40,8 @@ async function basicSetup({
 					};
 				},
 			});
-			parentTypedMessenger.setSendHandler(data => {
-				parentMessageEventListeners.forEach(listener => {
+			parentTypedMessenger.setSendHandler((data) => {
+				parentMessageEventListeners.forEach((listener) => {
 					const event = /** @type {MessageEvent} */ ({
 						data: data.sendData,
 						source: window.parent,
@@ -80,7 +80,7 @@ async function basicSetup({
 	} finally {
 		window.parent = previousParent;
 
-		createdMessagePorts.forEach(p => p.close());
+		createdMessagePorts.forEach((p) => p.close());
 	}
 }
 
@@ -106,7 +106,7 @@ function createMockDiscoveryManager() {
 	const addDiscoveryMethodSpy = spy(discoveryManager, "addDiscoveryMethod");
 	const waitForConnectionSpy = spy(discoveryManager, "waitForConnection");
 	const requestConnectionSpy = spy(discoveryManager, "requestConnection");
-	return {mockDiscoveryManager, discoveryManager, addDiscoveryMethodSpy, waitForConnectionSpy, requestConnectionSpy, MockDiscoveryMethod, InternalDiscoveryMethod};
+	return { mockDiscoveryManager, discoveryManager, addDiscoveryMethodSpy, waitForConnectionSpy, requestConnectionSpy, MockDiscoveryMethod, InternalDiscoveryMethod };
 }
 
 Deno.test({
@@ -116,7 +116,7 @@ Deno.test({
 			emulateStudioParent: false,
 			async fn() {
 				const communicator = new ParentStudioCommunicator();
-				const {discoveryManager} = createMockDiscoveryManager();
+				const { discoveryManager } = createMockDiscoveryManager();
 
 				await assertRejects(async () => {
 					await communicator.requestDesiredParentStudioConnection(discoveryManager, []);
@@ -134,7 +134,7 @@ Deno.test({
 			emulateParentResponse: false,
 			async fn() {
 				const communicator = new ParentStudioCommunicator();
-				const {discoveryManager} = createMockDiscoveryManager();
+				const { discoveryManager } = createMockDiscoveryManager();
 				const time = new FakeTime();
 
 				try {
@@ -157,7 +157,7 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const communicator = new ParentStudioCommunicator();
-				const {discoveryManager, InternalDiscoveryMethod, addDiscoveryMethodSpy, waitForConnectionSpy, requestConnectionSpy} = createMockDiscoveryManager();
+				const { discoveryManager, InternalDiscoveryMethod, addDiscoveryMethodSpy, waitForConnectionSpy, requestConnectionSpy } = createMockDiscoveryManager();
 
 				await communicator.requestDesiredParentStudioConnection(discoveryManager, [InternalDiscoveryMethod]);
 
@@ -176,7 +176,7 @@ Deno.test({
 				assertSpyCall(requestConnectionSpy, 0, {
 					args: [
 						"connection id",
-						{token: "token"},
+						{ token: "token" },
 					],
 				});
 			},
@@ -190,7 +190,7 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const communicator = new ParentStudioCommunicator();
-				const {discoveryManager} = createMockDiscoveryManager();
+				const { discoveryManager } = createMockDiscoveryManager();
 
 				await assertRejects(async () => {
 					await communicator.requestDesiredParentStudioConnection(discoveryManager, []);

@@ -1,5 +1,5 @@
 // import {WebGlMaterialMapType} from "./WebGlMaterialMapType.js";
-import {MaterialMapTypeSerializerWebGpu} from "./MaterialMapTypeSerializerWebGpu.js";
+import { MaterialMapTypeSerializerWebGpu } from "./MaterialMapTypeSerializerWebGpu.js";
 
 /** @type {import("./MaterialMapTypeSerializer.js").MaterialMapTypeSerializerConstructor[]} */
 const autoRegisterMaterialMapTypeSerializers = [
@@ -7,4 +7,4 @@ const autoRegisterMaterialMapTypeSerializers = [
 	MaterialMapTypeSerializerWebGpu,
 ];
 
-export {autoRegisterMaterialMapTypeSerializers};
+export { autoRegisterMaterialMapTypeSerializers };

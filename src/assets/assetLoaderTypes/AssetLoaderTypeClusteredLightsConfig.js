@@ -1,6 +1,6 @@
-import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
-import {StorageType} from "../../util/binarySerialization.js";
-import {ClusteredLightsConfig} from "../../rendering/ClusteredLightsConfig.js";
+import { AssetLoaderTypeGenericStructure } from "./AssetLoaderTypeGenericStructure.js";
+import { StorageType } from "../../util/binarySerialization.js";
+import { ClusteredLightsConfig } from "../../rendering/ClusteredLightsConfig.js";
 
 const binarySerializationOpts = {
 	structure: {

@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {handleDuplicateFileName} from "../../../../../studio/src/util/util.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { handleDuplicateFileName } from "../../../../../studio/src/util/util.js";
 
 Deno.test("No existing", () => {
 	const result = handleDuplicateFileName([], "existingFile", ".txt");

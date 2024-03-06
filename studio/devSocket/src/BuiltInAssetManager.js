@@ -1,8 +1,8 @@
-import {base64ToArrayBuffer, generateUuid, stringArrayEquals} from "../../../src/util/mod.js";
-import {hashBuffer} from "../../../src/mod.js";
-import {toFormattedJsonString} from "../../../src/util/toFormattedJsonString.js";
-import {basename, dirname, fromFileUrl, join, relative, resolve} from "std/path/mod.ts";
-import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
+import { base64ToArrayBuffer, generateUuid, stringArrayEquals } from "../../../src/util/mod.js";
+import { hashBuffer } from "../../../src/mod.js";
+import { toFormattedJsonString } from "../../../src/util/toFormattedJsonString.js";
+import { basename, dirname, fromFileUrl, join, relative, resolve } from "std/path/mod.ts";
+import { SingleInstancePromise } from "../../../src/util/SingleInstancePromise.js";
 
 export class BuiltInAssetManager {
 	/** @type {Deno.FsWatcher?} */
@@ -176,7 +176,7 @@ export class BuiltInAssetManager {
 				if (assetSettings) {
 					assetSettings.path = pathArr;
 				} else {
-					this.assetSettings.set(uuid, {path: pathArr});
+					this.assetSettings.set(uuid, { path: pathArr });
 				}
 			} else {
 				uuid = this.createAssetSettings(pathArr);
@@ -220,7 +220,7 @@ export class BuiltInAssetManager {
 		}
 		const sortedUuidSettings = [];
 		for (const [uuid, path] of uuidPaths) {
-			sortedUuidSettings.push({uuid, path});
+			sortedUuidSettings.push({ uuid, path });
 		}
 		sortedUuidSettings.sort((a, b) => {
 			if (a.path && b.path) {
@@ -245,7 +245,7 @@ export class BuiltInAssetManager {
 			}
 			return 0;
 		});
-		const sortedUuids = sortedUuidSettings.map(x => x.uuid);
+		const sortedUuids = sortedUuidSettings.map((x) => x.uuid);
 		for (const uuid of sortedUuids) {
 			if (this.assetSettings.has(uuid)) {
 				assets[uuid] = this.assetSettings.get(uuid);
@@ -255,8 +255,8 @@ export class BuiltInAssetManager {
 			if (assets[uuid]) continue;
 			assets[uuid] = assetSettings;
 		}
-		const json = {assets};
-		const str = toFormattedJsonString(json, {maxArrayStringItemLength: -1});
+		const json = { assets };
+		const str = toFormattedJsonString(json, { maxArrayStringItemLength: -1 });
 		this.lastAssetSettingsSaveTime = Date.now();
 		await Deno.writeTextFile(this.assetSettingsPath, str);
 
@@ -285,7 +285,7 @@ export class BuiltInAssetManager {
 	 */
 	createAssetSettings(path) {
 		const uuid = generateUuid();
-		this.assetSettings.set(uuid, {path});
+		this.assetSettings.set(uuid, { path });
 		return uuid;
 	}
 
@@ -335,7 +335,7 @@ export class BuiltInAssetManager {
 	 * @param {any} data
 	 */
 	sendAllConnections(op, data = null) {
-		this.onWebsocketBroadcastNeededCbs.forEach(cb => cb(op, data));
+		this.onWebsocketBroadcastNeededCbs.forEach((cb) => cb(op, data));
 	}
 
 	/**

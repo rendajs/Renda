@@ -1,6 +1,6 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeEntity, Entity, StorageType, Vec3} from "../../../../src/mod.js";
-import {objectToBinary} from "../../../../src/util/binarySerialization.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { AssetLoaderTypeEntity, Entity, StorageType, Vec3 } from "../../../../src/mod.js";
+import { objectToBinary } from "../../../../src/util/binarySerialization.js";
 
 // todo: better types for generics
 /**
@@ -31,7 +31,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	async getLiveAssetData(json, recursionTracker) {
 		const liveAsset = this.createEntityFromJsonData(json, recursionTracker);
 		this.assetManager.entityAssetManager.setLinkedAssetUuid(liveAsset, this.projectAsset.uuid);
-		return {liveAsset, studioData: null};
+		return { liveAsset, studioData: null };
 	}
 
 	/**
@@ -42,7 +42,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			assetManager: this.assetManager,
 			assetTypeManager: this.projectAssetTypeManager,
 			usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
-			getLinkedAssetUuid: uuid => {
+			getLinkedAssetUuid: (uuid) => {
 				return this.assetManager.entityAssetManager.getLinkedAssetUuid(uuid);
 			},
 		});
@@ -147,7 +147,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		// } else if (propertyType == "mat4") {
 		// 	newPropertyValue = new Mat4(propertyValue);
 		} else if (propertyType == "droppable") {
-			recursionTracker.getLiveAsset(propertyValue, liveAsset => {
+			recursionTracker.getLiveAsset(propertyValue, (liveAsset) => {
 				if (!liveAsset) liveAsset = null;
 				newParentObject[propertyKey] = liveAsset;
 				for (const w of this.studioInstance.windowManager.getContentWindows("renda:entityEditor")) {
@@ -155,7 +155,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 						w.markRenderDirty();
 					}
 				}
-			}, {repeatOnLiveAssetChange: true});
+			}, { repeatOnLiveAssetChange: true });
 			let usedAssetUuids = newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
 			if (!usedAssetUuids) {
 				usedAssetUuids = {};
@@ -184,7 +184,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			for (const asset of ctx.usedAssets) {
 				const entity = await asset.getLiveAsset();
 				const generator = entity.traverseDown({
-					filter: child => {
+					filter: (child) => {
 						const uuid = ctx.assetManager.entityAssetManager.getLinkedAssetUuid(child);
 						return !uuid || uuid == asset.uuid;
 					},
@@ -230,7 +230,7 @@ entityLoader.setComponentTypeManager(componentTypeManager);`;
 				component.propertyValues = objectToBinary(component.propertyValues, {
 					...componentConstructor.binarySerializationOpts,
 					studioAssetManager: this.assetManager,
-					transformValueHook: opts => {
+					transformValueHook: (opts) => {
 						if (opts.type == StorageType.ASSET_UUID) {
 							const uuid = /** @type {import("../../../../src/mod.js").UuidString} */ (opts.value);
 							return this.assetManager.resolveDefaultAssetLinkUuid(uuid);
@@ -275,8 +275,8 @@ entityLoader.setComponentTypeManager(componentTypeManager);`;
 					const referencedUuids = [];
 					objectToBinary(component.propertyValues, {
 						...binarySerializationOpts,
-						transformValueHook: args => {
-							let {value, type} = args;
+						transformValueHook: (args) => {
+							let { value, type } = args;
 							if (binarySerializationOpts.transformValueHook) {
 								value = binarySerializationOpts.transformValueHook(args);
 							}

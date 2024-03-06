@@ -1,16 +1,16 @@
 import "../../../shared/initializeStudio.js";
-import {ProjectAssetTypeGltf} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeGltf.js";
-import {createMockDependencies} from "./shared.js";
-import {assertExists, assertRejects} from "std/testing/asserts.ts";
+import { ProjectAssetTypeGltf } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeGltf.js";
+import { createMockDependencies } from "./shared.js";
+import { assertExists, assertRejects } from "std/testing/asserts.ts";
 
 Deno.test({
 	name: "getLiveAssetData() with a gltf file",
 	async fn() {
-		const {projectAssetTypeArgs, projectAsset} = createMockDependencies();
+		const { projectAssetTypeArgs, projectAsset } = createMockDependencies();
 
 		/** @type {import("../../../../../../src/util/gltf/gltfParsing.js").GltfJsonData} */
 		const json = {
-			asset: {version: "2.0"},
+			asset: { version: "2.0" },
 			scenes: [
 				{
 					nodes: [0],
@@ -23,7 +23,7 @@ Deno.test({
 			],
 		};
 		const jsonStr = JSON.stringify(json);
-		const blob = new Blob([jsonStr], {type: ""});
+		const blob = new Blob([jsonStr], { type: "" });
 		projectAsset.path = ["path", "to", "file.gltf"];
 
 		const projectAssetType = new ProjectAssetTypeGltf(...projectAssetTypeArgs);
@@ -36,9 +36,9 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() with a glb file that doesn't contain gltf data",
 	async fn() {
-		const {projectAssetTypeArgs, projectAsset} = createMockDependencies();
+		const { projectAssetTypeArgs, projectAsset } = createMockDependencies();
 
-		const blob = new Blob(["not gltf data"], {type: ""});
+		const blob = new Blob(["not gltf data"], { type: "" });
 		projectAsset.path = ["path", "to", "file.glb"];
 
 		const projectAssetType = new ProjectAssetTypeGltf(...projectAssetTypeArgs);

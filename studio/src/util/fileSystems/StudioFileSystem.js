@@ -1,5 +1,5 @@
-import {toFormattedJsonString} from "../../../../src/util/toFormattedJsonString.js";
-import {WriteOperation} from "./WriteOperation.js";
+import { toFormattedJsonString } from "../../../../src/util/toFormattedJsonString.js";
+import { WriteOperation } from "./WriteOperation.js";
 
 /** @typedef {string[]} StudioFileSystemPath */
 
@@ -132,7 +132,7 @@ export class StudioFileSystem {
 		op.onDone(() => {
 			this.writeOperations.delete(op);
 			if (this.writeOperations.size <= 0) {
-				this.onWriteOperationFinishCbs.forEach(cb => cb());
+				this.onWriteOperationFinishCbs.forEach((cb) => cb());
 				this.onWriteOperationFinishCbs.clear();
 			}
 		});
@@ -147,7 +147,7 @@ export class StudioFileSystem {
 		if (this.writeOperations.size <= 0) return;
 
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => {
+		const promise = new Promise((r) => {
 			this.onWriteOperationFinishCbs.add(r);
 		});
 		await promise;
@@ -165,7 +165,7 @@ export class StudioFileSystem {
 	 * @param {string} name The new name of the root directory.
 	 */
 	async setRootName(name) {
-		this.onRootNameChangeCbs.forEach(cb => cb(name));
+		this.onRootNameChangeCbs.forEach((cb) => cb(name));
 		this.fireChange({
 			external: false,
 			kind: "directory",
@@ -249,7 +249,7 @@ export class StudioFileSystem {
 	 * @param {FileSystemChangeEvent} e
 	 */
 	fireChange(e) {
-		this.#onChangeCbs.forEach(cb => cb(e));
+		this.#onChangeCbs.forEach((cb) => cb(e));
 	}
 
 	/**
@@ -270,7 +270,7 @@ export class StudioFileSystem {
 	async writeText(path, text, {
 		type = "text/plain",
 	} = {}) {
-		await this.writeFile(path, new File([text], "", {type}));
+		await this.writeFile(path, new File([text], "", { type }));
 	}
 
 	/**
@@ -288,7 +288,7 @@ export class StudioFileSystem {
 	 */
 	async writeJson(path, json) {
 		const jsonStr = toFormattedJsonString(json);
-		await this.writeText(path, jsonStr, {type: "application/json"});
+		await this.writeText(path, jsonStr, { type: "application/json" });
 	}
 
 	/**

@@ -1,6 +1,6 @@
-import {log} from "../../shared/log.js";
-import {click} from "../../shared/util.js";
-import {clickContextMenuItem} from "./contextMenu.js";
+import { log } from "../../shared/log.js";
+import { click } from "../../shared/util.js";
+import { clickContextMenuItem } from "./contextMenu.js";
 
 /**
  * Right clicks the first found tab element of a content window.

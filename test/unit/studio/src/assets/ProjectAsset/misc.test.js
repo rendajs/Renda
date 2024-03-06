@@ -1,12 +1,12 @@
-import {assertEquals, assertExists, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {ProjectAsset} from "../../../../../../studio/src/assets/ProjectAsset.js";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {BASIC_ASSET_EXTENSION, BASIC_PROJECTASSETTYPE, BASIC_UUID, UNKNOWN_ASSET_EXTENSION, basicSetup, getMocks} from "./shared.js";
+import { assertEquals, assertExists, assertInstanceOf, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { ProjectAsset } from "../../../../../../studio/src/assets/ProjectAsset.js";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { BASIC_ASSET_EXTENSION, BASIC_PROJECTASSETTYPE, BASIC_UUID, UNKNOWN_ASSET_EXTENSION, basicSetup, getMocks } from "./shared.js";
 
 Deno.test({
 	name: "throws an error when no file system is provided for a non-built in asset",
 	fn() {
-		const {mockAssetManager, mockProjectAssetTypeManager, mockBuiltInAssetManager} = getMocks();
+		const { mockAssetManager, mockProjectAssetTypeManager, mockBuiltInAssetManager } = getMocks();
 
 		assertThrows(() => {
 			new ProjectAsset(mockAssetManager, mockProjectAssetTypeManager, mockBuiltInAssetManager, null, {
@@ -19,7 +19,7 @@ Deno.test({
 Deno.test({
 	name: "new ProjectAsset with guessed asset type from file extension",
 	async fn() {
-		const {projectAssetArgs, MockProjectAssetType} = getMocks();
+		const { projectAssetArgs, MockProjectAssetType } = getMocks();
 		injectMockStudioInstance(/** @type {any} */({}));
 
 		try {
@@ -50,7 +50,7 @@ Deno.test({
 Deno.test({
 	name: "new ProjectAsset without an asset type",
 	async fn() {
-		const {projectAssetArgs} = getMocks();
+		const { projectAssetArgs } = getMocks();
 		const projectAsset = new ProjectAsset(...projectAssetArgs, {
 			uuid: BASIC_UUID,
 			path: ["path", "to", `asset.${UNKNOWN_ASSET_EXTENSION}`],
@@ -68,7 +68,7 @@ Deno.test({
 Deno.test({
 	name: "get fileName",
 	fn() {
-		const {projectAssetArgs} = getMocks();
+		const { projectAssetArgs } = getMocks();
 
 		const projectAsset1 = new ProjectAsset(...projectAssetArgs, {
 			uuid: BASIC_UUID,
@@ -87,7 +87,7 @@ Deno.test({
 Deno.test({
 	name: "editable is true if an asset is not built-in",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 
 		try {
 			assertEquals(projectAsset.editable, true);
@@ -100,7 +100,7 @@ Deno.test({
 Deno.test({
 	name: "editable is true if an asset is built-in and the builtInAssetManager has allowAssetEditing set to true",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup({
+		const { projectAsset, uninstall } = basicSetup({
 			extraProjectAssetOpts: {
 				isBuiltIn: true,
 			},
@@ -120,7 +120,7 @@ Deno.test({
 Deno.test({
 	name: "editable is false if an asset is built-in and the builtInAssetManager has allowAssetEditing set to false",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup({
+		const { projectAsset, uninstall } = basicSetup({
 			extraProjectAssetOpts: {
 				isBuiltIn: true,
 			},
@@ -140,7 +140,7 @@ Deno.test({
 Deno.test({
 	name: "needsAssetSettingsSave is false by default",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 
 		try {
 			assertEquals(projectAsset.needsAssetSettingsSave, false);
@@ -153,7 +153,7 @@ Deno.test({
 Deno.test({
 	name: "makeUuidPersistent() makes needsAssetSettingsSave true",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup();
+		const { projectAsset, uninstall } = basicSetup();
 
 		try {
 			projectAsset.makeUuidPersistent();
@@ -168,7 +168,7 @@ Deno.test({
 Deno.test({
 	name: "forced asset types makes needsAssetSettingsSave true",
 	async fn() {
-		const {projectAsset, uninstall} = basicSetup({
+		const { projectAsset, uninstall } = basicSetup({
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
 				forceAssetType: true,

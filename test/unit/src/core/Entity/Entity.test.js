@@ -1,6 +1,6 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {Entity} from "../../../../../src/mod.js";
-import {EXTENDED_COMPONENT_UUID, ExtendedComponent} from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { Entity } from "../../../../../src/mod.js";
+import { EXTENDED_COMPONENT_UUID, ExtendedComponent } from "./shared.js";
 
 Deno.test({
 	name: "Default name is 'Entity'",
@@ -13,7 +13,7 @@ Deno.test({
 Deno.test({
 	name: "Setting name via constructor options",
 	fn() {
-		const entity = new Entity({name: "foo"});
+		const entity = new Entity({ name: "foo" });
 		assertEquals(entity.name, "foo");
 	},
 });
@@ -83,11 +83,11 @@ Deno.test({
 			components: [
 				{
 					uuid: EXTENDED_COMPONENT_UUID,
-					propertyValues: {foo: "bar"},
+					propertyValues: { foo: "bar" },
 				},
 				{
 					uuid: EXTENDED_COMPONENT_UUID,
-					propertyValues: {foo: "bar"},
+					propertyValues: { foo: "bar" },
 				},
 			],
 		});

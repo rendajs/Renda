@@ -30,7 +30,7 @@ export function createMockProjectAsset({
 		async getLiveAsset() {
 			if (!allowImmediateLiveAssetReturn) {
 				/** @type {Promise<void>} */
-				const promise = new Promise(r => liveAssetReturnCbs.add(r));
+				const promise = new Promise((r) => liveAssetReturnCbs.add(r));
 				await promise;
 			}
 			return liveAsset;
@@ -38,10 +38,10 @@ export function createMockProjectAsset({
 		async getLiveAssetData() {
 			if (!allowImmediateLiveAssetReturn) {
 				/** @type {Promise<void>} */
-				const promise = new Promise(r => liveAssetReturnCbs.add(r));
+				const promise = new Promise((r) => liveAssetReturnCbs.add(r));
 				await promise;
 			}
-			return {liveAsset, studioData: null};
+			return { liveAsset, studioData: null };
 		},
 		async saveLiveAssetData() {
 			saveLiveAssetDataCallCount++;
@@ -74,7 +74,7 @@ export function createMockProjectAsset({
 	return {
 		projectAsset,
 		triggerLiveAssetReturns() {
-			liveAssetReturnCbs.forEach(cb => cb());
+			liveAssetReturnCbs.forEach((cb) => cb());
 			liveAssetReturnCbs.clear();
 		},
 		getSaveLiveAssetDataCallCount() {

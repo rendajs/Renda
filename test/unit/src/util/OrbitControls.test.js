@@ -1,11 +1,11 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCalls, stub} from "std/testing/mock.ts";
-import {Entity, OrbitControls, Quat, Vec3} from "../../../../src/mod.js";
-import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
-import {runWithDom} from "../../studio/shared/runWithDom.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
-import {WheelEvent} from "fake-dom/FakeWheelEvent.js";
-import {PointerEvent} from "fake-dom/FakePointerEvent.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { assertSpyCalls, stub } from "std/testing/mock.ts";
+import { Entity, OrbitControls, Quat, Vec3 } from "../../../../src/mod.js";
+import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../shared/asserts.js";
+import { runWithDom } from "../../studio/shared/runWithDom.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
+import { WheelEvent } from "fake-dom/FakeWheelEvent.js";
+import { PointerEvent } from "fake-dom/FakePointerEvent.js";
 
 /**
  * After making a change, the transform should be dirty.

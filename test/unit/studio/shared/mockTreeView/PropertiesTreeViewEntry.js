@@ -1,4 +1,4 @@
-import {TreeView} from "./TreeView.js";
+import { TreeView } from "./TreeView.js";
 
 /**
  * @typedef {object} PropertiesTreeViewEntrySpyOnly
@@ -50,14 +50,14 @@ export class PropertiesTreeViewEntry extends TreeView {
 			/**
 			 * @param {any} event
 			 */
-			fireOnValueChangeCbs: event => {
+			fireOnValueChangeCbs: (event) => {
 				const castEvent = /** @type {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<ValueType>} */ (event);
-				this.onValueChangeCbs.forEach(cb => cb(castEvent));
+				this.onValueChangeCbs.forEach((cb) => cb(castEvent));
 			},
 			/**
 			 * @param {unknown} value
 			 */
-			setGetValueReturn: value => {
+			setGetValueReturn: (value) => {
 				this.getValueReturn = value;
 				this.getValueReturnSet = true;
 			},

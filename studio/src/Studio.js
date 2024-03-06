@@ -1,33 +1,33 @@
-import {WindowManager} from "./windowManagement/WindowManager.js";
-import {autoRegisterContentWindows} from "./windowManagement/autoRegisterContentWindows.js";
-import {SelectionManager} from "./misc/SelectionManager.js";
-import {PopoverManager} from "./ui/popoverMenus/PopoverManager.js";
-import {KeyboardShortcutManager} from "./keyboardShortcuts/KeyboardShortcutManager.js";
-import {autoRegisterShortcutCommands} from "./keyboardShortcuts/autoRegisterShortcutCommands.js";
-import {autoRegisterShortcutConditions} from "./keyboardShortcuts/autoRegisterShortcutConditions.js";
-import {PropertiesWindowContentManager} from "./propertiesWindowContent/PropertiesWindowContentManager.js";
-import {ProjectAssetTypeManager} from "./assets/ProjectAssetTypeManager.js";
-import {TaskManager} from "./tasks/TaskManager.js";
-import {HistoryManager} from "./misc/HistoryManager.js";
-import {ComponentGizmosManager} from "./componentGizmos/ComponentGizmosManager.js";
-import {MaterialMapTypeSerializerManager} from "./assets/MaterialMapTypeSerializerManager.js";
-import {ProjectManager} from "./projectSelector/ProjectManager.js";
-import {BuiltInDefaultAssetLinksManager} from "./assets/BuiltInDefaultAssetLinksManager.js";
-import {BuiltInAssetManager} from "./assets/BuiltInAssetManager.js";
-import {DragManager} from "./misc/DragManager.js";
-import {ColorizerFilterManager} from "./util/colorizerFilters/ColorizerFilterManager.js";
-import {ServiceWorkerManager} from "./misc/ServiceWorkerManager.js";
-import {IS_DEV_BUILD} from "./studioDefines.js";
-import {DevSocketManager} from "./network/DevSocketManager.js";
-import {ComponentTypeManager} from "../../src/components/ComponentTypeManager.js";
-import {AssetLoader, EngineAssetsManager, IndexedDbUtil, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
-import {ProjectAssetTypeShaderSource} from "./assets/projectAssetType/ProjectAssetTypeShaderSource.js";
-import {PreferencesManager} from "./preferences/PreferencesManager.js";
-import {autoRegisterPreferences} from "./preferences/autoRegisterPreferences.js";
-import {GlobalPreferencesLocation} from "./preferences/preferencesLocation/GlobalPreferencesLocation.js";
-import {GestureInProgressManager} from "./misc/GestureInProgressManager.js";
-import {WebGpuRendererError} from "../../src/rendering/renderers/webGpu/WebGpuRendererError.js";
-import {StudioConnectionsManager} from "./network/studioConnections/StudioConnectionsManager.js";
+import { WindowManager } from "./windowManagement/WindowManager.js";
+import { autoRegisterContentWindows } from "./windowManagement/autoRegisterContentWindows.js";
+import { SelectionManager } from "./misc/SelectionManager.js";
+import { PopoverManager } from "./ui/popoverMenus/PopoverManager.js";
+import { KeyboardShortcutManager } from "./keyboardShortcuts/KeyboardShortcutManager.js";
+import { autoRegisterShortcutCommands } from "./keyboardShortcuts/autoRegisterShortcutCommands.js";
+import { autoRegisterShortcutConditions } from "./keyboardShortcuts/autoRegisterShortcutConditions.js";
+import { PropertiesWindowContentManager } from "./propertiesWindowContent/PropertiesWindowContentManager.js";
+import { ProjectAssetTypeManager } from "./assets/ProjectAssetTypeManager.js";
+import { TaskManager } from "./tasks/TaskManager.js";
+import { HistoryManager } from "./misc/HistoryManager.js";
+import { ComponentGizmosManager } from "./componentGizmos/ComponentGizmosManager.js";
+import { MaterialMapTypeSerializerManager } from "./assets/MaterialMapTypeSerializerManager.js";
+import { ProjectManager } from "./projectSelector/ProjectManager.js";
+import { BuiltInDefaultAssetLinksManager } from "./assets/BuiltInDefaultAssetLinksManager.js";
+import { BuiltInAssetManager } from "./assets/BuiltInAssetManager.js";
+import { DragManager } from "./misc/DragManager.js";
+import { ColorizerFilterManager } from "./util/colorizerFilters/ColorizerFilterManager.js";
+import { ServiceWorkerManager } from "./misc/ServiceWorkerManager.js";
+import { IS_DEV_BUILD } from "./studioDefines.js";
+import { DevSocketManager } from "./network/DevSocketManager.js";
+import { ComponentTypeManager } from "../../src/components/ComponentTypeManager.js";
+import { AssetLoader, EngineAssetsManager, IndexedDbUtil, ShaderBuilder, WebGpuRenderer, builtInComponents } from "../../src/mod.js";
+import { ProjectAssetTypeShaderSource } from "./assets/projectAssetType/ProjectAssetTypeShaderSource.js";
+import { PreferencesManager } from "./preferences/PreferencesManager.js";
+import { autoRegisterPreferences } from "./preferences/autoRegisterPreferences.js";
+import { GlobalPreferencesLocation } from "./preferences/preferencesLocation/GlobalPreferencesLocation.js";
+import { GestureInProgressManager } from "./misc/GestureInProgressManager.js";
+import { WebGpuRendererError } from "../../src/rendering/renderers/webGpu/WebGpuRendererError.js";
+import { StudioConnectionsManager } from "./network/studioConnections/StudioConnectionsManager.js";
 
 export class Studio {
 	constructor() {
@@ -101,7 +101,7 @@ export class Studio {
 		if (IS_DEV_BUILD && this.devSocket) {
 			this.builtInAssetManager.init(this.devSocket);
 		}
-		this.engineAssetManager.addGetAssetHandler(async uuid => {
+		this.engineAssetManager.addGetAssetHandler(async (uuid) => {
 			await this.builtInAssetManager.waitForLoad();
 			await this.projectManager.waitForAssetListsLoad();
 			const projectAsset = this.builtInAssetManager.assets.get(uuid);
@@ -109,7 +109,7 @@ export class Studio {
 			return await projectAsset.getLiveAsset();
 		});
 		if (IS_DEV_BUILD) {
-			this.builtInAssetManager.onAssetChange(uuid => {
+			this.builtInAssetManager.onAssetChange((uuid) => {
 				this.engineAssetManager.notifyAssetChanged(uuid);
 			});
 		}
@@ -143,7 +143,7 @@ export class Studio {
 		this.builtInDefaultAssetLinksManager.init();
 		this.serviceWorkerManager.init();
 
-		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
+		this.webGpuShaderBuilder.onShaderUuidRequested(async (uuid) => {
 			const assetManager = await this.projectManager.getAssetManager();
 			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid, {
 				assertAssetType: ProjectAssetTypeShaderSource,
@@ -156,7 +156,7 @@ export class Studio {
 			return null;
 		});
 
-		this.projectManager.onFileChange(async e => {
+		this.projectManager.onFileChange(async (e) => {
 			const assetManager = await this.projectManager.getAssetManager();
 			const uuid = await assetManager.getAssetUuidFromPath(e.path);
 			this.webGpuShaderBuilder.invalidateShader(uuid);

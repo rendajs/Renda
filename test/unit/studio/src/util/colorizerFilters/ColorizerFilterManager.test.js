@@ -1,6 +1,6 @@
-import {assert, assertEquals, assertNotEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
-import {runWithDom} from "../../../shared/runWithDom.js";
+import { assert, assertEquals, assertNotEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { ColorizerFilterManager } from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
+import { runWithDom } from "../../../shared/runWithDom.js";
 
 Deno.test({
 	name: "constructor",

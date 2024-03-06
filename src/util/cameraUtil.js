@@ -1,7 +1,7 @@
-import {Vec2} from "../math/Vec2.js";
-import {Vec3} from "../math/Vec3.js";
-import {Vec4} from "../math/Vec4.js";
-import {mapValue} from "./util.js";
+import { Vec2 } from "../math/Vec2.js";
+import { Vec3 } from "../math/Vec3.js";
+import { Vec4 } from "../math/Vec4.js";
+import { mapValue } from "./util.js";
 
 /**
  * Converts world coordinates to screen coordinates using the given camera matrices.
@@ -76,7 +76,7 @@ export function getRaycastRayFromScreenPos(screenPos, camProjectionMatrix, camWo
 	const dir = new Vec3(dir4);
 	dir.sub(start);
 	dir.normalize();
-	return {start, dir};
+	return { start, dir };
 }
 
 /**
@@ -89,7 +89,7 @@ export function getRaycastRayFromScreenPos(screenPos, camProjectionMatrix, camWo
  * @param {import("../math/Vec2.js").Vec2Parameters} domPosition
  */
 export function domSpaceToScreenSpace(el, ...domPosition) {
-	const {x, y} = new Vec2(...domPosition);
+	const { x, y } = new Vec2(...domPosition);
 	const rect = el.getBoundingClientRect();
 
 	const xRel = mapValue(x, rect.left, rect.right, 0, 1, false);
@@ -106,7 +106,7 @@ export function domSpaceToScreenSpace(el, ...domPosition) {
  * @param  {import("../math/Vec2.js").Vec2Parameters} screenSpace
  */
 export function screenSpaceToDomSpace(el, ...screenSpace) {
-	const {x, y} = new Vec2(...screenSpace);
+	const { x, y } = new Vec2(...screenSpace);
 	const rect = el.getBoundingClientRect();
 
 	const xRel = mapValue(x, 0, 1, rect.left, rect.right, false);

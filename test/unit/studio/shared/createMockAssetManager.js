@@ -3,5 +3,5 @@ export function createMockAssetManager() {
 		getProjectAssetFromUuidSync(uuid) {},
 	});
 
-	return {assetManager};
+	return { assetManager };
 }

@@ -1,6 +1,6 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {assertPromiseResolved} from "../../shared/asserts.js";
-import {MockIndexedDbUtil, deleteAllDbs, forcePendingOperations} from "./MockIndexedDbUtil.js";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { assertPromiseResolved } from "../../shared/asserts.js";
+import { MockIndexedDbUtil, deleteAllDbs, forcePendingOperations } from "./MockIndexedDbUtil.js";
 
 Deno.test({
 	name: "Multiple instances share the same data",

@@ -1,15 +1,15 @@
 import "./initializeStudio.js";
-import {TreeView} from "../../../../studio/src/ui/TreeView.js";
-import {runWithDom} from "./runWithDom.js";
-import {assertTreeViewStructureEquals, getChildTreeViewFromIndices} from "./treeViewUtil.js";
-import {assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {PropertiesTreeView} from "../../../../studio/src/ui/propertiesTreeView/PropertiesTreeView.js";
+import { TreeView } from "../../../../studio/src/ui/TreeView.js";
+import { runWithDom } from "./runWithDom.js";
+import { assertTreeViewStructureEquals, getChildTreeViewFromIndices } from "./treeViewUtil.js";
+import { assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { PropertiesTreeView } from "../../../../studio/src/ui/propertiesTreeView/PropertiesTreeView.js";
 
 Deno.test({
 	name: "basic structure equals",
 	fn() {
 		runWithDom(() => {
-			const tv = new TreeView({name: "root"});
+			const tv = new TreeView({ name: "root" });
 
 			const child1 = tv.addChild();
 			child1.name = "child1";
@@ -45,7 +45,7 @@ Deno.test({
 	name: "basic structure not equals",
 	fn() {
 		runWithDom(() => {
-			const tv = new TreeView({name: "root"});
+			const tv = new TreeView({ name: "root" });
 			const child1 = tv.addChild();
 			child1.addChild();
 			tv.addChild();

@@ -1,8 +1,8 @@
-import {assertSpyCall, assertSpyCalls, stub} from "std/testing/mock.ts";
-import {DownloadableAssetBundle} from "../../../../../src/assets/assetBundles/DownloadableAssetBundle.js";
-import {uuidToBinary} from "../../../../../src/mod.js";
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {assertPromiseResolved} from "../../../shared/asserts.js";
+import { assertSpyCall, assertSpyCalls, stub } from "std/testing/mock.ts";
+import { DownloadableAssetBundle } from "../../../../../src/assets/assetBundles/DownloadableAssetBundle.js";
+import { uuidToBinary } from "../../../../../src/mod.js";
+import { assertEquals, assertExists } from "std/testing/asserts.ts";
+import { assertPromiseResolved } from "../../../shared/asserts.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000001";
 const BASIC_ASSET_TYPE_UUID = "00000000-0000-0000-0000-000000000002";

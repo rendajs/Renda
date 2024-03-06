@@ -1,4 +1,4 @@
-import {StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary} from "../../../../../src/util/binarySerialization.js";
+import { StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary } from "../../../../../src/util/binarySerialization.js";
 
 /**
  * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem
@@ -8,13 +8,13 @@ export function createFileSystemHostHandlers(fileSystem) {
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
-		"fileSystem.readDir": async path => {
+		"fileSystem.readDir": async (path) => {
 			return await fileSystem.readDir(path);
 		},
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
-		"fileSystem.createDir": async path => {
+		"fileSystem.createDir": async (path) => {
 			return await fileSystem.createDir(path);
 		},
 		/**
@@ -27,7 +27,7 @@ export function createFileSystemHostHandlers(fileSystem) {
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
-		"fileSystem.readFile": async path => {
+		"fileSystem.readFile": async (path) => {
 			return await fileSystem.readFile(path);
 		},
 		/**
@@ -47,19 +47,19 @@ export function createFileSystemHostHandlers(fileSystem) {
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
-		"fileSystem.isFile": async path => {
+		"fileSystem.isFile": async (path) => {
 			return await fileSystem.isFile(path);
 		},
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
-		"fileSystem.isDir": async path => {
+		"fileSystem.isDir": async (path) => {
 			return await fileSystem.isDir(path);
 		},
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
-		"fileSystem.exists": async path => {
+		"fileSystem.exists": async (path) => {
 			return await fileSystem.exists(path);
 		},
 	};
@@ -73,7 +73,7 @@ export function createFileSystemClientHandlers(fileSystem) {
 		/**
 		 * @param {import("../../../util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent} e
 		 */
-		"fileSystem.changeEvent": e => {
+		"fileSystem.changeEvent": (e) => {
 			fileSystem.fireChange(e);
 		},
 	};
@@ -150,7 +150,7 @@ export function createFileSystemRequestDeserializers() {
 		/**
 		 * @param {ArrayBuffer} buffer
 		 */
-		"fileSystem.writeFile": buffer => {
+		"fileSystem.writeFile": (buffer) => {
 			const deserialized = binaryToObject(buffer, serializeWriteFileBinaryOpts);
 			const deserializedFile = deserializeFile(deserialized.file);
 			return [deserialized.path, deserializedFile];
@@ -163,7 +163,7 @@ export function createFileSystemResponseSerializers() {
 		/**
 		 * @param {File} file
 		 */
-		"fileSystem.readFile": async file => {
+		"fileSystem.readFile": async (file) => {
 			return await serializeFile(file);
 		},
 	};
@@ -174,7 +174,7 @@ export function createFileSystemResponseDeserializers() {
 		/**
 		 * @param {ArrayBuffer} buffer
 		 */
-		"fileSystem.readFile": buffer => {
+		"fileSystem.readFile": (buffer) => {
 			return deserializeFile(buffer);
 		},
 	};

@@ -1,11 +1,11 @@
-import {ContentWindow} from "../ContentWindow.js";
-import {Button} from "../../../ui/Button.js";
-import {ButtonGroup} from "../../../ui/ButtonGroup.js";
-import {EntryPointPopover, getSelectedScriptEntryPoint} from "./EntryPointPopover.js";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
-import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
-import {PopoverToggleButton} from "../../../ui/popoverMenus/PopoverToggleButton.js";
+import { ContentWindow } from "../ContentWindow.js";
+import { Button } from "../../../ui/Button.js";
+import { ButtonGroup } from "../../../ui/ButtonGroup.js";
+import { EntryPointPopover, getSelectedScriptEntryPoint } from "./EntryPointPopover.js";
+import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { ProjectAssetTypeJavascript } from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
+import { ProjectAssetTypeHtml } from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
+import { PopoverToggleButton } from "../../../ui/popoverMenus/PopoverToggleButton.js";
 
 /**
  * @typedef {ReturnType<ContentWindowBuildView["getIframeResponseHandlers"]>} BuildViewIframeResponseHandlers
@@ -40,7 +40,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		/** @type {TypedMessenger<BuildViewIframeResponseHandlers, {}>} */
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this.getIframeResponseHandlers());
-		this.iframeMessenger.setSendHandler(data => {
+		this.iframeMessenger.setSendHandler((data) => {
 			if (!this.iframeEl.contentWindow) {
 				throw new Error("Failed to send message to build view iframe because it hasn't loaded yet.");
 			}
@@ -204,7 +204,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	/**
 	 * @param {MessageEvent} e
 	 */
-	onIframeMessage = e => {
+	onIframeMessage = (e) => {
 		if (e.source == this.iframeEl.contentWindow) {
 			this.iframeMessenger.handleReceivedMessage(e.data);
 		}
@@ -217,7 +217,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	/**
 	 * @param {boolean} gestureInProgress
 	 */
-	#onGestureInProgressChange = gestureInProgress => {
+	#onGestureInProgressChange = (gestureInProgress) => {
 		this.iframeEl.style.pointerEvents = gestureInProgress ? "none" : "";
 	};
 }

@@ -1,7 +1,7 @@
-import {assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {Entity, Mat4, Quat, Vec3} from "../../../../../src/mod.js";
-import {assertMatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
+import { assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { Entity, Mat4, Quat, Vec3 } from "../../../../../src/mod.js";
+import { assertMatAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
 
 // ==== Local transformations ==================================================
 
@@ -240,7 +240,7 @@ Deno.test({
 	name: "setting local matrix via constructor options",
 	fn() {
 		const matrix = Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2), new Vec3(4, 5, 6));
-		const entity = new Entity({localMatrix: matrix});
+		const entity = new Entity({ localMatrix: matrix });
 		assertEquals(entity.localMatrix.toArray(), matrix.toArray());
 		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
 		assertVecAlmostEquals(entity.rot.toAxisAngle(), [Math.PI / 2, 0, 0]);
@@ -356,7 +356,7 @@ Deno.test({
 	name: "setting world matrix via constructor options",
 	fn() {
 		const matrix = Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2), new Vec3(4, 5, 6));
-		const entity = new Entity({worldMatrix: matrix});
+		const entity = new Entity({ worldMatrix: matrix });
 		assertEquals(entity.worldMatrix.toArray(), matrix.toArray());
 		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
 		assertVecAlmostEquals(entity.rot.toAxisAngle(), [Math.PI / 2, 0, 0]);
@@ -371,7 +371,7 @@ Deno.test({
 		parent.pos.set(1, 2, 3);
 
 		const matrix = Mat4.createTranslation(4, 5, 6);
-		const entity = new Entity({worldMatrix: matrix, parent});
+		const entity = new Entity({ worldMatrix: matrix, parent });
 
 		assertVecAlmostEquals(entity.pos, [3, 3, 3]);
 		assertVecAlmostEquals(entity.worldPos, [4, 5, 6]);
@@ -397,7 +397,7 @@ Deno.test({
 		const parent = new Entity();
 		parent.pos.set(1, 2, 3);
 
-		const entity = new Entity({parent});
+		const entity = new Entity({ parent });
 
 		entity.worldMatrix = Mat4.createTranslation(4, 5, 6);
 

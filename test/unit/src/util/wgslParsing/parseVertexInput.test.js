@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {parseVertexInput} from "../../../../../src/util/wgslParsing.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { parseVertexInput } from "../../../../../src/util/wgslParsing.js";
 
 Deno.test({
 	name: "No VertexInput struct",

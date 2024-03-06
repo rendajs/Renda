@@ -1,7 +1,7 @@
-import {assertEquals, assertExists, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Mesh, MeshAttributeBuffer, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
-import {assertVecAlmostEquals} from "../../../shared/asserts.js";
-import {fakeMesh} from "./shared.js";
+import { assertEquals, assertExists, assertNotStrictEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { Mesh, MeshAttributeBuffer, Vec2, Vec3, Vec4 } from "../../../../../src/mod.js";
+import { assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { fakeMesh } from "./shared.js";
 
 Deno.test({
 	name: "throw an error when creating an unused buffer with not exactly one attribute",
@@ -17,8 +17,8 @@ Deno.test({
 			new MeshAttributeBuffer(fakeMesh, {
 				isUnused: true,
 				attributes: [
-					{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION},
-					{offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.NORMAL},
+					{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION },
+					{ offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.NORMAL },
 				],
 			});
 		}, Error, "Unused attribute buffers must have exactly 1 attribute.");
@@ -43,8 +43,8 @@ Deno.test({
 	fn() {
 		const buffer1 = new MeshAttributeBuffer(fakeMesh, {
 			attributes: [
-				{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION},
-				{offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.NORMAL},
+				{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION },
+				{ offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.NORMAL },
 			],
 		});
 		buffer1.setArrayStride(null);
@@ -53,8 +53,8 @@ Deno.test({
 
 		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
 			attributes: [
-				{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION},
-				{offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.NORMAL},
+				{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION },
+				{ offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.NORMAL },
 			],
 		});
 		buffer2.setArrayStride(null);
@@ -95,7 +95,7 @@ Deno.test({
 	name: "hasAttributeType() should return true when the attribute type is present",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.COLOR}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.COLOR }],
 		});
 
 		const result = buffer.hasAttributeType(Mesh.AttributeType.COLOR);
@@ -108,7 +108,7 @@ Deno.test({
 	name: "hasAttributeType() should return false when the attribute type is not present",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.COLOR}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.COLOR }],
 		});
 
 		const result = buffer.hasAttributeType(Mesh.AttributeType.POSITION);
@@ -121,7 +121,7 @@ Deno.test({
 	name: "getAttributeSettings() should return the attribute settings for the specified attribute type",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.COLOR}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.COLOR }],
 		});
 
 		const result = buffer.getAttributeSettings(Mesh.AttributeType.COLOR);
@@ -138,7 +138,7 @@ Deno.test({
 	name: "getAttributeSettings() should return null when the attribute type is not present",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.COLOR}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.COLOR }],
 		});
 
 		const result = buffer.getAttributeSettings(Mesh.AttributeType.POSITION);
@@ -151,7 +151,7 @@ Deno.test({
 	name: "setVertexCount() should keep data from the old buffer",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(1);
 		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(1, 2, 3)]);
@@ -188,8 +188,8 @@ Deno.test({
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
 			attributes: [
-				{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION},
-				{offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.NORMAL},
+				{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION },
+				{ offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.NORMAL },
 			],
 		});
 		buffer.setVertexCount(3);
@@ -210,7 +210,7 @@ Deno.test({
 	name: "setVertexData() with an ArrayBuffer",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(3);
 
@@ -233,7 +233,7 @@ Deno.test({
 	name: "setVertexData() with an TypedArray",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(3);
 
@@ -257,7 +257,7 @@ Deno.test({
 	name: "setVertexData() array of numbers",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(3);
 
@@ -275,7 +275,7 @@ Deno.test({
 	name: "setVertexData() array of Vec2",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -294,7 +294,7 @@ Deno.test({
 	name: "setVertexData() array of Vec3",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -315,7 +315,7 @@ Deno.test({
 	name: "setVertexData() array of Vec4",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -349,7 +349,7 @@ Deno.test({
 	name: "setVertexData() should throw when data doesn't match the component count (1)",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -384,7 +384,7 @@ Deno.test({
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
 			isUnused: true,
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -421,7 +421,7 @@ Deno.test({
 	name: "setVertexData() should throw when data doesn't match the component count (2)",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -456,7 +456,7 @@ Deno.test({
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
 			isUnused: true,
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -493,7 +493,7 @@ Deno.test({
 	name: "setVertexData() should throw when data doesn't match the component count (3)",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -528,7 +528,7 @@ Deno.test({
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
 			isUnused: true,
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -565,7 +565,7 @@ Deno.test({
 	name: "setVertexData() should throw when data doesn't match the component count (4)",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -600,7 +600,7 @@ Deno.test({
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
 			isUnused: true,
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -641,7 +641,7 @@ Deno.test({
 		});
 		const buffer = new MeshAttributeBuffer(mockMesh, {
 			isUnused: true,
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -678,7 +678,7 @@ Deno.test({
 	name: "setVertexData() should fire onBufferChanged callbacks",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 
@@ -697,7 +697,7 @@ Deno.test({
 	name: "getVertexData() should yield nothing when the buffer is empty",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(0);
 
@@ -711,7 +711,7 @@ Deno.test({
 	name: "getVertexData() yielding numbers",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(3);
 		buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2, 3]);
@@ -726,7 +726,7 @@ Deno.test({
 	name: "getVertexData() yielding Vec2",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(1, 2), new Vec2(4, 5)]);
@@ -743,7 +743,7 @@ Deno.test({
 	name: "getVertexData() yielding Vec3",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(1, 2, 3), new Vec3(4, 5, 6)]);
@@ -760,7 +760,7 @@ Deno.test({
 	name: "getVertexData() yielding Vec4",
 	fn() {
 		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION}],
+			attributes: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 4, attributeType: Mesh.AttributeType.POSITION }],
 		});
 		buffer.setVertexCount(2);
 		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(1, 2, 3, 4), new Vec4(5, 6, 7, 8)]);
@@ -788,7 +788,7 @@ Deno.test({
 
 		for (const format of formats) {
 			const buffer = new MeshAttributeBuffer(fakeMesh, {
-				attributes: [{offset: 0, format, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+				attributes: [{ offset: 0, format, componentCount: 1, attributeType: Mesh.AttributeType.POSITION }],
 			});
 			buffer.setVertexCount(3);
 			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2, 3]);

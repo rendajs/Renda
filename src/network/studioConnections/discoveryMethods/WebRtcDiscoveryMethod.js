@@ -1,6 +1,6 @@
-import {TypedMessenger} from "../../../util/TypedMessenger/TypedMessenger.js";
-import {WebRtcMessageHandler} from "../messageHandlers/WebRtcMessageHandler.js";
-import {DiscoveryMethod} from "./DiscoveryMethod.js";
+import { TypedMessenger } from "../../../util/TypedMessenger/TypedMessenger.js";
+import { WebRtcMessageHandler } from "../messageHandlers/WebRtcMessageHandler.js";
+import { DiscoveryMethod } from "./DiscoveryMethod.js";
 
 /**
  * @fileoverview This DiscoveryManager allows connecting to other clients remotely.
@@ -64,7 +64,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 		});
 
 		/** @private @type {TypedMessenger<ExternalDiscoveryMethodResponseHandlers, import("https://raw.githubusercontent.com/rendajs/studio-discovery-server/f11212158ce959f55713888eb7fb03679c186ef5/src/WebSocketConnection.js").StudioDescoveryResponseHandlers>} */
-		this.webSocketMessenger = new TypedMessenger({globalTimeout: 20_000});
+		this.webSocketMessenger = new TypedMessenger({ globalTimeout: 20_000 });
 		this.webSocketMessenger.initializeWebSocket(this.ws, this.getResponseHandlers());
 		this.webSocketMessenger.configureSendOptions({
 			relayMessage: {
@@ -119,21 +119,21 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableConnection[]} connections
 			 */
-			setAvailableConnections: connections => {
+			setAvailableConnections: (connections) => {
 				this.setAvailableConnections(connections);
 				return disableResponseReturn;
 			},
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableConnection} connection
 			 */
-			addAvailableConnection: connection => {
+			addAvailableConnection: (connection) => {
 				this.addAvailableConnection(connection);
 				return disableResponseReturn;
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} id
 			 */
-			removeAvailableConnection: id => {
+			removeAvailableConnection: (id) => {
 				this.removeAvailableConnection(id);
 				return disableResponseReturn;
 			},
@@ -171,7 +171,7 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	_setStatus(status) {
 		if (status == this._status) return;
 		this._status = status;
-		this.onStatusChangeCbs.forEach(cb => cb(status));
+		this.onStatusChangeCbs.forEach((cb) => cb(status));
 	}
 
 	/**
@@ -203,19 +203,19 @@ export class WebRtcDiscoveryMethod extends DiscoveryMethod {
 	 */
 	_createConnectionOptions(otherClientUuid) {
 		return {
-			sendRtcIceCandidate: candidate => {
+			sendRtcIceCandidate: (candidate) => {
 				this.webSocketMessenger.send.relayMessage(otherClientUuid, {
 					type: "rtcIceCandidate",
 					candidate,
 				});
 			},
-			sendRtcDescription: description => {
+			sendRtcDescription: (description) => {
 				this.webSocketMessenger.send.relayMessage(otherClientUuid, {
 					type: "rtcDescription",
 					description,
 				});
 			},
-			onPermissionResult: accepted => {
+			onPermissionResult: (accepted) => {
 				this.webSocketMessenger.send.relayMessage(otherClientUuid, {
 					type: "permissionResult",
 					accepted,

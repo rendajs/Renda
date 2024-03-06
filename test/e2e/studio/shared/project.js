@@ -1,9 +1,9 @@
 import * as fs from "std/fs/mod.ts";
 import * as path from "std/path/mod.ts";
-import {log} from "../../shared/log.js";
-import {click, waitFor} from "../../shared/util.js";
-import {getContentWindowElement} from "./contentWindows.js";
-import {waitForStudioLoad} from "./studio.js";
+import { log } from "../../shared/log.js";
+import { click, waitFor } from "../../shared/util.js";
+import { getContentWindowElement } from "./contentWindows.js";
+import { waitForStudioLoad } from "./studio.js";
 
 /**
  * @param {import("puppeteer").Page} page
@@ -12,7 +12,7 @@ import {waitForStudioLoad} from "./studio.js";
 export async function waitForProjectOpen(page, allowExisting = true) {
 	await waitForStudioLoad(page);
 	log("Waiting for project to open...");
-	await page.evaluate(async allowExisting => {
+	await page.evaluate(async (allowExisting) => {
 		if (!globalThis.studio) throw new Error("Studio instance does not exist");
 		await globalThis.studio.projectManager.waitForProjectOpen(allowExisting);
 	}, allowExisting);
