@@ -556,7 +556,6 @@ Deno.test({
 
 Deno.test({
 	name: "The local scale and rotation of negatively scaled entities doesn't change when setting the rotation",
-	only: true,
 	fn() {
 		const root = new Entity("root");
 		const entity = root.add(new Entity());
@@ -566,9 +565,9 @@ Deno.test({
 		// When we rotate the object slightly, the world scale and rot match the local transformation.
 		entity.rot.set(Quat.fromAxisAngle(0, 1, 0, 0.1));
 		assertVecAlmostEquals(entity.worldScale, [-1, 1, 1]);
-		assertQuatAlmostEquals(entity.worldRot, Quat.fromAxisAngle(0, 1, 0, 2));
+		assertQuatAlmostEquals(entity.worldRot, Quat.fromAxisAngle(0, 1, 0, 0.1));
 		assertVecAlmostEquals(entity.scale, [-1, 1, 1]);
-		assertQuatAlmostEquals(entity.rot, Quat.fromAxisAngle(0, 1, 0, 2));
+		assertQuatAlmostEquals(entity.rot, Quat.fromAxisAngle(0, 1, 0, 0.1));
 
 		// But when we rotate too far, the worldScale will change.
 		// This is because the worldScale and worldRot get extracted from the world matrix,
