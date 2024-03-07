@@ -1,7 +1,7 @@
 import { assertEquals, assertThrows } from "std/testing/asserts.ts";
 import { assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 import { Entity, Mat4, Quat, Vec3 } from "../../../../../src/mod.js";
-import { assertMatAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertMatAlmostEquals, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
 
 // ==== Local transformations ==================================================
 
@@ -551,6 +551,51 @@ Deno.test({
 		parent.add(entity);
 		parent.scale.set(1, 2, 3);
 		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "The local scale and rotation of negatively scaled entities doesn't change when setting the rotation",
+	only: true,
+	fn() {
+		const root = new Entity("root");
+		const entity = root.add(new Entity());
+		entity.scale.set(-1, 1, 1);
+		assertMatAlmostEquals(entity.worldMatrix, [-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+
+		// When we rotate the object slightly, the world scale and rot match the local transformation.
+		entity.rot.set(Quat.fromAxisAngle(0, 1, 0, 0.1));
+		assertVecAlmostEquals(entity.worldScale, [-1, 1, 1]);
+		assertQuatAlmostEquals(entity.worldRot, Quat.fromAxisAngle(0, 1, 0, 2));
+		assertVecAlmostEquals(entity.scale, [-1, 1, 1]);
+		assertQuatAlmostEquals(entity.rot, Quat.fromAxisAngle(0, 1, 0, 2));
+
+		// But when we rotate too far, the worldScale will change.
+		// This is because the worldScale and worldRot get extracted from the world matrix,
+		// which doesn't contain information about which axis the object was scaled on.
+		// The local rotation and scale, however, should never be changed in this case.
+		// The only thing that is allowed to change local position/rotation/scale is when setting
+		// the localMatrix or worldMatrix.
+		entity.rot.set(Quat.fromAxisAngle(0, 1, 0, 2));
+		assertVecAlmostEquals(entity.worldScale, [1, 1, -1]);
+		assertQuatAlmostEquals(entity.worldRot, Quat.fromAxisAngle(0, 1, 0, 2 - Math.PI));
+		assertVecAlmostEquals(entity.scale, [-1, 1, 1]);
+		assertQuatAlmostEquals(entity.rot, Quat.fromAxisAngle(0, 1, 0, 2));
+	},
+});
+
+Deno.test({
+	name: "setting the a local matrix with a negative scale maintains that scale where possible",
+	fn() {
+		const entity = new Entity();
+		entity.localMatrix.set(Mat4.createScale(new Vec3(-1, 1, 1)));
+		assertVecAlmostEquals(entity.scale, [-1, 1, 1]);
+		entity.localMatrix.set(Mat4.createScale(new Vec3(1, -1, 1)));
+		assertVecAlmostEquals(entity.scale, [1, -1, 1]);
+		entity.localMatrix.set(Mat4.createScale(new Vec3(1, 1, -1)));
+		assertVecAlmostEquals(entity.scale, [1, 1, -1]);
+		entity.localMatrix.set(Mat4.createScale(new Vec3(-1, -1, -1)));
+		assertVecAlmostEquals(entity.scale, [-1, -1, -1]);
 	},
 });
 
