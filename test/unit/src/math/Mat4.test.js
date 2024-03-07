@@ -148,6 +148,64 @@ Deno.test({
 });
 
 Deno.test({
+	name: "When the scale is negative getScale() returns a scale that results in the least amount of rotation",
+	fn() {
+		const rotations = [
+			Quat.identity,
+			Quat.fromAxisAngle(1, 0, 0, 0.5),
+			Quat.fromAxisAngle(1, 0, 0, -0.5),
+			Quat.fromAxisAngle(0, 1, 0, 0.5),
+			Quat.fromAxisAngle(0, 1, 0, -0.5),
+			Quat.fromAxisAngle(0, 0, 1, 0.5),
+			Quat.fromAxisAngle(0, 0, 1, -0.5),
+			Quat.fromAxisAngle(1, 1, 1, 0.5),
+			Quat.fromAxisAngle(1, 1, 1, -0.5),
+		];
+
+		const scales = [
+			new Vec3(-1, 1, 1),
+			new Vec3(1, -1, 1),
+			new Vec3(1, 1, -1),
+			new Vec3(-1, -1, -1),
+		];
+
+		for (const rotation of rotations) {
+			for (const scale of scales) {
+				const mat = Mat4.createPosRotScale(Vec3.zero, rotation, scale);
+				assertVecAlmostEquals(mat.getScale(), scale);
+			}
+		}
+	},
+});
+
+Deno.test({
+	name: "decomposing and then recreating should not change the matrix",
+	fn() {
+		const tests = [
+			Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.identity, new Vec3(-1, -1, -1)),
+			Mat4.createPosRotScale(new Vec3(3, 4, 5), Quat.identity, new Vec3(-1, 1, 1)),
+			Mat4.createPosRotScale(new Vec3(0, 0, 0), Quat.identity, new Vec3(1, -1, 1)),
+			Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.identity, new Vec3(1, 1, -1)),
+			Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.identity, new Vec3(1, -1, -1)),
+			Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.identity, new Vec3(-1, 1, -1)),
+			Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(0, 1, 0, Math.PI), new Vec3(-1, 1, -1)),
+			Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(0, 1, 0, Math.PI), new Vec3(1, 1, -1)),
+			Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(0, 1, 0, Math.PI), Vec3.one),
+			Mat4.createPosRotScale(Vec3.zero, Quat.fromAxisAngle(0, 1, 0, Math.PI), Vec3.one),
+			Mat4.createPosRotScale(Vec3.zero, Quat.fromAxisAngle(0, 1, 0, Math.PI), Vec3.one),
+			Mat4.createPosRotScale(Vec3.zero, Quat.identity, Vec3.one),
+			// Mat4.createPosRotScale(Vec3.zero, Quat.identity, Vec3.zero),
+			// Mat4.createPosRotScale(Vec3.one, Quat.identity, Vec3.zero),
+		];
+		for (const mat of tests) {
+			const { pos, rot, scale } = mat.decompose();
+			const mat2 = Mat4.createPosRotScale(pos, rot, scale);
+			assertMatAlmostEquals(mat, mat2);
+		}
+	},
+});
+
+Deno.test({
 	name: "multiplyMatrices",
 	fn() {
 		// Assert that the description in the jsdoc is correct:

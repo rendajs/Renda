@@ -283,14 +283,11 @@ export class Mat4 {
 	getRotation(scale) {
 		if (!scale) scale = this.getScale();
 
-		let sX = scale.x;
-		if (this.getDeterminant() < 0) sX = -sX;
-
 		let m00 = this.values[0][0]; let m10 = this.values[0][1]; let m20 = this.values[0][2];
 		let m01 = this.values[1][0]; let m11 = this.values[1][1]; let m21 = this.values[1][2];
 		let m02 = this.values[2][0]; let m12 = this.values[2][1]; let m22 = this.values[2][2];
 
-		const invSX = 1 / sX;
+		const invSX = 1 / scale.x;
 		const invSY = 1 / scale.y;
 		const invSZ = 1 / scale.z;
 
@@ -334,10 +331,26 @@ export class Mat4 {
 	}
 
 	getScale() {
-		const sx = (new Vec3(this.values[0])).magnitude;
-		const sy = (new Vec3(this.values[1])).magnitude;
-		const sz = (new Vec3(this.values[2])).magnitude;
-		return new Vec3(sx, sy, sz);
+		const scale = new Vec3(
+			(new Vec3(this.values[0])).magnitude,
+			(new Vec3(this.values[1])).magnitude,
+			(new Vec3(this.values[2])).magnitude,
+		);
+		if (this.getDeterminant() < 0) {
+			const xNegative = this.values[0][0] < 0;
+			const yNegative = this.values[1][1] < 0;
+			const zNegative = this.values[2][2] < 0;
+			if (xNegative && yNegative && zNegative) {
+				scale.multiplyScalar(-1);
+			} else if (yNegative) {
+				scale.y *= -1;
+			} else if (zNegative) {
+				scale.z *= -1;
+			} else {
+				scale.x *= -1;
+			}
+		}
+		return scale;
 	}
 
 	/**
