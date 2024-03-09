@@ -81,8 +81,8 @@ Deno.test({
 	fn() {
 		const mesh = new Mesh();
 
-		const dataView1 = mesh.getDataView();
-		const dataView2 = mesh.getDataView();
+		const dataView1 = mesh._getDataView();
+		const dataView2 = mesh._getDataView();
 
 		assertStrictEquals(dataView1, dataView2);
 	},
@@ -93,10 +93,10 @@ Deno.test({
 	fn() {
 		const mesh = new Mesh();
 
-		const dataView1 = mesh.getDataView();
+		const dataView1 = mesh._getDataView();
 
 		mesh.setIndexData(new ArrayBuffer(0));
-		const dataView2 = mesh.getDataView();
+		const dataView2 = mesh._getDataView();
 
 		assertNotStrictEquals(dataView1, dataView2);
 	},
@@ -400,7 +400,7 @@ Deno.test({
 
 		const result = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
 
-		assertEquals(result.isUnused, true);
+		assertEquals(result.#isUnused, true);
 	},
 });
 
@@ -414,7 +414,7 @@ Deno.test({
 			unusedFormat: Mesh.AttributeFormat.INT32,
 		});
 
-		assertEquals(result.isUnused, true);
+		assertEquals(result.#isUnused, true);
 		assertEquals(result.attributes.length, 1);
 		assertEquals(result.attributes[0].componentCount, 1);
 		assertEquals(result.attributes[0].format, Mesh.AttributeFormat.INT32);
@@ -448,7 +448,7 @@ Deno.test({
 		const result2 = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
 
 		assertStrictEquals(result1, result2);
-		assertEquals(result1.isUnused, false);
+		assertEquals(result1.#isUnused, false);
 	},
 });
 

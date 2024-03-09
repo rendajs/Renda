@@ -21,24 +21,38 @@ export class Mesh {
 	/** @type {Map<number, MeshAttributeBuffer>} */
 	#unusedBuffers = new Map();
 
-	constructor() {
-		/** @private @type {import("../rendering/VertexState.js").VertexState?} */
-		this._vertexState = null;
-		this.indexBuffer = new ArrayBuffer(0);
-		/** @type {ArrayBuffer?} */
-		this._currentDataViewIndexBuffer = null;
-		this._dataView = null;
-		this.indexFormat = Mesh.IndexFormat.UINT_16;
-		/**
-		 * The total number of incices in the index buffer.
-		 */
-		this.indexCount = 0;
-
-		this.vertexCount = 0;
-
-		/** @type {Set<OnIndexBufferChangeCallback>} */
-		this.onIndexBufferChangeCbs = new Set();
+	/** @type {import("../rendering/VertexState.js").VertexState?} */
+	#vertexState = null;
+	get vertexState() {
+		return this.#vertexState;
 	}
+
+	/** @type {DataView?} */
+	#dataView = null;
+	/** @type {ArrayBuffer?} */
+	#currentDataViewIndexBuffer = null;
+	/** @type {Set<OnIndexBufferChangeCallback>} */
+	#onIndexBufferChangeCbs = new Set();
+
+	#indexCount = 0;
+	/**
+	 * The total number of incices in the index buffer.
+	 */
+	get indexCount() {
+		return this.#indexCount;
+	}
+
+	#vertexCount = 0;
+	get vertexCount() {
+		return this.#vertexCount;
+	}
+
+	#indexFormat = Mesh.IndexFormat.UINT_16;
+	get indexFormat() {
+		return this.#indexFormat;
+	}
+
+	indexBuffer = new ArrayBuffer(0);
 
 	destructor() {
 		for (const buffer of this.getBuffers()) {
@@ -140,19 +154,19 @@ export class Mesh {
 			}
 			this.setIndexData(typedArray);
 		} else {
-			this.indexFormat = indexFormat;
+			this.#indexFormat = indexFormat;
 		}
 	}
 
-	getDataView() {
-		if (this._currentDataViewIndexBuffer != this.indexBuffer) {
-			this._dataView = null;
+	#getIndexBufferDataView() {
+		if (this.#currentDataViewIndexBuffer != this.indexBuffer) {
+			this.#dataView = null;
 		}
-		if (!this._dataView) {
-			this._dataView = new DataView(this.indexBuffer);
-			this._currentDataViewIndexBuffer = this.indexBuffer;
+		if (!this.#dataView) {
+			this.#dataView = new DataView(this.indexBuffer);
+			this.#currentDataViewIndexBuffer = this.indexBuffer;
 		}
-		return this._dataView;
+		return this.#dataView;
 	}
 
 	/**
@@ -162,29 +176,29 @@ export class Mesh {
 		if (data instanceof ArrayBuffer) {
 			// data already has the correct format
 			if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
-				this.indexCount = data.byteLength / 2;
+				this.#indexCount = data.byteLength / 2;
 			} else if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
-				this.indexCount = data.byteLength / 4;
+				this.#indexCount = data.byteLength / 4;
 			}
 			this.indexBuffer = data;
 		} else if (ArrayBuffer.isView(data)) {
 			let byteCount = 0;
 			if (data instanceof Uint16Array) {
-				this.indexFormat = Mesh.IndexFormat.UINT_16;
+				this.#indexFormat = Mesh.IndexFormat.UINT_16;
 				byteCount = 2;
 			} else if (data instanceof Uint32Array) {
-				this.indexFormat = Mesh.IndexFormat.UINT_32;
+				this.#indexFormat = Mesh.IndexFormat.UINT_32;
 				byteCount = 4;
 			} else {
 				throw new TypeError(`Unsupported TypedArray type, received a ${data.constructor.name} but only Uint16Array and Uint32Array are supported.`);
 			}
 			const slicedData = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-			this.indexCount = slicedData.byteLength / byteCount;
+			this.#indexCount = slicedData.byteLength / byteCount;
 			this.indexBuffer = slicedData;
 		} else if (Array.isArray(data)) {
 			let valueByteSize;
 			let setFunction;
-			this.indexCount = data.length;
+			this.#indexCount = data.length;
 			let bufferLength = 0;
 			if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
 				bufferLength = data.length * 2;
@@ -196,7 +210,7 @@ export class Mesh {
 				throw new Error("Invalid index format.");
 			}
 			this.indexBuffer = new ArrayBuffer(bufferLength);
-			const dataView = this.getDataView();
+			const dataView = this.#getIndexBufferDataView();
 			if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
 				setFunction = dataView.setUint16.bind(dataView);
 			} else if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
@@ -210,11 +224,11 @@ export class Mesh {
 		} else {
 			throw new TypeError("invalid data type");
 		}
-		this.fireIndexBufferChanged();
+		this.#fireIndexBufferChanged();
 	}
 
 	*getIndexData() {
-		const dataView = this.getDataView();
+		const dataView = this.#getIndexBufferDataView();
 
 		let getFunction;
 		let valueByteSize = 4;
@@ -238,7 +252,7 @@ export class Mesh {
 	 * @param {number} vertexCount
 	 */
 	setVertexCount(vertexCount) {
-		this.vertexCount = vertexCount;
+		this.#vertexCount = vertexCount;
 		for (const buffer of this.getBuffers()) {
 			buffer.setVertexCount(vertexCount);
 		}
@@ -332,15 +346,11 @@ export class Mesh {
 		}
 	}
 
-	get vertexState() {
-		return this._vertexState;
-	}
-
 	/**
 	 * @param {import("../rendering/VertexState.js").VertexState?} vertexState
 	 */
 	setVertexState(vertexState) {
-		this._vertexState = vertexState;
+		this.#vertexState = vertexState;
 
 		const oldBuffers = Array.from(this.getBuffers());
 		this.#buffers = [];
@@ -374,7 +384,7 @@ export class Mesh {
 
 	clone() {
 		const newMesh = new Mesh();
-		newMesh.setVertexState(this._vertexState);
+		newMesh.setVertexState(this.#vertexState);
 		newMesh.setVertexCount(this.vertexCount);
 		for (const [i, buffer] of this.#buffers.entries()) {
 			newMesh.#buffers[i] = buffer.clone();
@@ -391,11 +401,11 @@ export class Mesh {
 	 * @param {OnIndexBufferChangeCallback} cb
 	 */
 	onIndexBufferChange(cb) {
-		this.onIndexBufferChangeCbs.add(cb);
+		this.#onIndexBufferChangeCbs.add(cb);
 	}
 
-	fireIndexBufferChanged() {
-		for (const cb of this.onIndexBufferChangeCbs) {
+	#fireIndexBufferChanged() {
+		for (const cb of this.#onIndexBufferChangeCbs) {
 			cb();
 		}
 	}

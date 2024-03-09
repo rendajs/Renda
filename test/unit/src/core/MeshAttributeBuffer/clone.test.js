@@ -18,7 +18,7 @@ Deno.test({
 		const buffer = new MeshAttributeBuffer(fakeMesh, {});
 
 		const clone = buffer.clone();
-		assertStrictEquals(clone.mesh, fakeMesh);
+		assertStrictEquals(clone.#mesh, fakeMesh);
 	},
 });
 
@@ -38,14 +38,14 @@ Deno.test({
 		});
 
 		const clone1 = buffer1.clone();
-		assertStrictEquals(clone1.isUnused, true);
+		assertStrictEquals(clone1.#isUnused, true);
 
 		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
 			isUnused: false,
 		});
 
 		const clone2 = buffer2.clone();
-		assertStrictEquals(clone2.isUnused, false);
+		assertStrictEquals(clone2.#isUnused, false);
 	},
 });
 
@@ -65,14 +65,14 @@ Deno.test({
 		});
 
 		const clone1 = buffer1.clone();
-		assertStrictEquals(clone1.isUnused, true);
+		assertStrictEquals(clone1.#isUnused, true);
 
 		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
 			isUnused: false,
 		});
 
 		const clone2 = buffer2.clone();
-		assertStrictEquals(clone2.isUnused, false);
+		assertStrictEquals(clone2.#isUnused, false);
 	},
 });
 

@@ -69,8 +69,8 @@ Deno.test({
 		const buffer = new MeshAttributeBuffer(fakeMesh);
 		buffer.setVertexCount(0);
 
-		const dataView1 = buffer.getDataView();
-		const dataView2 = buffer.getDataView();
+		const dataView1 = buffer.#getDataView();
+		const dataView2 = buffer.#getDataView();
 
 		assertStrictEquals(dataView1, dataView2);
 	},
@@ -82,10 +82,10 @@ Deno.test({
 		const buffer = new MeshAttributeBuffer(fakeMesh);
 
 		buffer.setVertexCount(0);
-		const dataView1 = buffer.getDataView();
+		const dataView1 = buffer.#getDataView();
 
 		buffer.setVertexCount(10);
-		const dataView2 = buffer.getDataView();
+		const dataView2 = buffer.#getDataView();
 
 		assertNotStrictEquals(dataView1, dataView2);
 	},
@@ -158,7 +158,7 @@ Deno.test({
 
 		buffer.setVertexCount(2);
 
-		const dataView = buffer.getDataView();
+		const dataView = buffer.#getDataView();
 
 		assertEquals(dataView.getFloat32(0, true), 1);
 		assertEquals(dataView.getFloat32(4, true), 2);
@@ -221,7 +221,7 @@ Deno.test({
 		dataView1.setFloat32(8, 3, true);
 		buffer.setVertexData(Mesh.AttributeType.POSITION, arrayBuffer);
 
-		const dataView2 = buffer.getDataView();
+		const dataView2 = buffer.#getDataView();
 
 		assertEquals(dataView2.getFloat32(0, true), 1);
 		assertEquals(dataView2.getFloat32(4, true), 2);
@@ -245,7 +245,7 @@ Deno.test({
 		const typedArray = new Float32Array(arrayBuffer, 4, 3);
 		buffer.setVertexData(Mesh.AttributeType.POSITION, typedArray);
 
-		const dataView2 = buffer.getDataView();
+		const dataView2 = buffer.#getDataView();
 
 		assertEquals(dataView2.getFloat32(0, true), 1);
 		assertEquals(dataView2.getFloat32(4, true), 2);
@@ -263,7 +263,7 @@ Deno.test({
 
 		buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2, 3]);
 
-		const dataView = buffer.getDataView();
+		const dataView = buffer.#getDataView();
 
 		assertEquals(dataView.getFloat32(0, true), 1);
 		assertEquals(dataView.getFloat32(4, true), 2);
@@ -281,7 +281,7 @@ Deno.test({
 
 		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(1, 2), new Vec2(3, 4)]);
 
-		const dataView = buffer.getDataView();
+		const dataView = buffer.#getDataView();
 
 		assertEquals(dataView.getFloat32(0, true), 1);
 		assertEquals(dataView.getFloat32(4, true), 2);
@@ -300,7 +300,7 @@ Deno.test({
 
 		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(1, 2, 3), new Vec3(4, 5, 6)]);
 
-		const dataView = buffer.getDataView();
+		const dataView = buffer.#getDataView();
 
 		assertEquals(dataView.getFloat32(0, true), 1);
 		assertEquals(dataView.getFloat32(4, true), 2);
@@ -321,7 +321,7 @@ Deno.test({
 
 		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec4(1, 2, 3, 4), new Vec4(5, 6, 7, 8)]);
 
-		const dataView = buffer.getDataView();
+		const dataView = buffer.#getDataView();
 
 		assertEquals(dataView.getFloat32(0, true), 1);
 		assertEquals(dataView.getFloat32(4, true), 2);

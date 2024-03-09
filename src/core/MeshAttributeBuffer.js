@@ -14,6 +14,24 @@ import { Mesh } from "./Mesh.js";
  */
 
 export class MeshAttributeBuffer {
+	#mesh;
+	#arrayStride = 0;
+	get arrayStride() {
+		return this.#arrayStride;
+	}
+	/** @type {DataView?} */
+	#dataView = null;
+	/** @type {ArrayBuffer?} */
+	#currentDataViewBuffer = null;
+
+	/** @type {Set<OnBufferChangedCallback>} */
+	#onBufferChangedCbs = new Set();
+
+	#isUnused = false;
+	get isUnused() {
+		return this.#isUnused;
+	}
+
 	/**
 	 * @param {import("./Mesh.js").Mesh} mesh
 	 */
@@ -23,23 +41,16 @@ export class MeshAttributeBuffer {
 		isUnused = false,
 		arrayBuffer = new ArrayBuffer(0),
 	} = {}) {
-		this.mesh = mesh;
+		this.#mesh = mesh;
 		if (isUnused && attributes.length != 1) {
 			throw new Error("Unused attribute buffers must have exactly 1 attribute.");
 		}
-		this.arrayStride = null;
 		this.attributes = attributes;
-		this.isUnused = isUnused;
-
-		this.setArrayStride(arrayStride);
+		this.#isUnused = isUnused;
 
 		this.buffer = arrayBuffer;
-		/** @type {ArrayBuffer?} */
-		this._currentDataViewBuffer = null;
-		this._dataView = null;
 
-		/** @type {Set<OnBufferChangedCallback>} */
-		this.onBufferChangedCbs = new Set();
+		this.setArrayStride(arrayStride);
 	}
 
 	destructor() {
@@ -53,25 +64,25 @@ export class MeshAttributeBuffer {
 	 */
 	setArrayStride(arrayStride) {
 		if (arrayStride != null) {
-			this.arrayStride = arrayStride;
+			this.#arrayStride = arrayStride;
 		} else {
-			this.arrayStride = 0;
+			this.#arrayStride = 0;
 			for (const attribute of this.attributes) {
 				const neededBytes = attribute.componentCount * Mesh.getByteLengthForAttributeFormat(attribute.format);
-				this.arrayStride = Math.max(this.arrayStride, attribute.offset + neededBytes);
+				this.#arrayStride = Math.max(this.#arrayStride, attribute.offset + neededBytes);
 			}
 		}
 	}
 
-	getDataView() {
-		if (this._currentDataViewBuffer != this.buffer) {
-			this._dataView = null;
+	#getDataView() {
+		if (this.#currentDataViewBuffer != this.buffer) {
+			this.#dataView = null;
 		}
-		if (!this._dataView) {
-			this._dataView = new DataView(this.buffer);
-			this._currentDataViewBuffer = this.buffer;
+		if (!this.#dataView) {
+			this.#dataView = new DataView(this.buffer);
+			this.#currentDataViewBuffer = this.buffer;
 		}
-		return this._dataView;
+		return this.#dataView;
 	}
 
 	/**
@@ -105,7 +116,7 @@ export class MeshAttributeBuffer {
 			new Uint8Array(this.buffer).set(new Uint8Array(oldBuffer));
 		}
 
-		this.fireBufferChanged();
+		this.#fireBufferChanged();
 	}
 
 	/**
@@ -114,7 +125,7 @@ export class MeshAttributeBuffer {
 	 * @param {string} expectedText
 	 * @param {number[] | Vec2[] | Vec3[] | Vec4[]} dataArray
 	 */
-	_assertVertexDataType(assertion, attributeSettings, expectedText, dataArray) {
+	#assertVertexDataType(assertion, attributeSettings, expectedText, dataArray) {
 		if (!assertion) {
 			let dataType;
 			const firstArrayItem = dataArray[0];
@@ -138,8 +149,8 @@ export class MeshAttributeBuffer {
 			const fixesList = [];
 			let vertexStateSentence;
 			const attributeName = Mesh.getAttributeNameForType(attributeSettings.attributeType);
-			if (this.isUnused) {
-				if (this.mesh.vertexState == null) {
+			if (this.#isUnused) {
+				if (this.#mesh.vertexState == null) {
 					vertexStateSentence = "The mesh has no VertexState.";
 					fixesList.push(`add a VertexState with "${attributeName}" attribute.`);
 				} else {
@@ -167,7 +178,7 @@ export class MeshAttributeBuffer {
 		if (!attributeSettings) {
 			throw new Error("Attribute type not found in vertex state.");
 		}
-		const dataView = this.getDataView();
+		const dataView = this.#getDataView();
 
 		const valueByteSize = Mesh.getByteLengthForAttributeFormat(attributeSettings.format);
 
@@ -204,7 +215,7 @@ export class MeshAttributeBuffer {
 				return;
 			} else if (attributeSettings.componentCount == 1) {
 				let i = 0;
-				this._assertVertexDataType(typeof data[0] == "number", attributeSettings, "number", data);
+				this.#assertVertexDataType(typeof data[0] == "number", attributeSettings, "number", data);
 				const castData = /** @type {number[]} */ (data);
 				while (i < castData.length) {
 					for (let j = 0; j < attributeSettings.componentCount; j++) {
@@ -213,14 +224,14 @@ export class MeshAttributeBuffer {
 					i++;
 				}
 			} else if (attributeSettings.componentCount == 2) {
-				this._assertVertexDataType(data[0] instanceof Vec2, attributeSettings, "Vec2", data);
+				this.#assertVertexDataType(data[0] instanceof Vec2, attributeSettings, "Vec2", data);
 				const castData = /** @type {Vec2[]} */ (data);
 				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
 				}
 			} else if (attributeSettings.componentCount == 3) {
-				this._assertVertexDataType(data[0] instanceof Vec3, attributeSettings, "Vec3", data);
+				this.#assertVertexDataType(data[0] instanceof Vec3, attributeSettings, "Vec3", data);
 				const castData = /** @type {Vec3[]} */ (data);
 				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
@@ -228,7 +239,7 @@ export class MeshAttributeBuffer {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 2, pos.z, true);
 				}
 			} else if (attributeSettings.componentCount == 4) {
-				this._assertVertexDataType(data[0] instanceof Vec4, attributeSettings, "Vec4", data);
+				this.#assertVertexDataType(data[0] instanceof Vec4, attributeSettings, "Vec4", data);
 				const castData = /** @type {Vec4[]} */ (data);
 				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
@@ -239,7 +250,7 @@ export class MeshAttributeBuffer {
 			}
 		}
 
-		this.fireBufferChanged();
+		this.#fireBufferChanged();
 	}
 
 	/**
@@ -249,7 +260,7 @@ export class MeshAttributeBuffer {
 		const attributeSettings = this.getAttributeSettings(attributeType);
 		if (!attributeSettings) return;
 
-		const dataView = this.getDataView();
+		const dataView = this.#getDataView();
 
 		const valueByteSize = Mesh.getByteLengthForAttributeFormat(attributeSettings.format);
 
@@ -314,11 +325,11 @@ export class MeshAttributeBuffer {
 	}
 
 	clone() {
-		const newBuffer = new MeshAttributeBuffer(this.mesh, {
+		const newBuffer = new MeshAttributeBuffer(this.#mesh, {
 			arrayStride: this.arrayStride,
 			attributes: structuredClone(this.attributes),
 			arrayBuffer: structuredClone(this.buffer),
-			isUnused: this.isUnused,
+			isUnused: this.#isUnused,
 		});
 		return newBuffer;
 	}
@@ -327,11 +338,11 @@ export class MeshAttributeBuffer {
 	 * @param {OnBufferChangedCallback} cb
 	 */
 	onBufferChanged(cb) {
-		this.onBufferChangedCbs.add(cb);
+		this.#onBufferChangedCbs.add(cb);
 	}
 
-	fireBufferChanged() {
-		for (const cb of this.onBufferChangedCbs) {
+	#fireBufferChanged() {
+		for (const cb of this.#onBufferChangedCbs) {
 			cb();
 		}
 	}
