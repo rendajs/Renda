@@ -283,19 +283,19 @@ export class EntityAssetManager {
 			const { uuid, root, indicesPath } = rootData;
 			const trackedData = this.#trackedEntities.get(uuid);
 			if (trackedData) {
-				const sourceEntity = root.getEntityByIndicesPath(indicesPath);
+				const sourceEntity = root.getChildByIndicesPath(indicesPath);
 				if (!sourceEntity) throw new Error("Assertion failed: Source child entity was not found");
 				if (root != trackedData.sourceEntity) {
 					if (!trackedData.sourceEntity) {
 						throw new Error("The source entity has not been loaded yet");
 					}
-					const targetEntity = trackedData.sourceEntity.getEntityByIndicesPath(indicesPath);
+					const targetEntity = trackedData.sourceEntity.getChildByIndicesPath(indicesPath);
 					if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
 					this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 				}
 				for (const trackedEntity of trackedData.trackedInstances) {
 					if (trackedEntity == root) continue;
-					const targetEntity = trackedEntity.getEntityByIndicesPath(indicesPath);
+					const targetEntity = trackedEntity.getChildByIndicesPath(indicesPath);
 					if (!targetEntity) throw new Error("Assertion failed: Target child entity was not found");
 					this.#applyEntityClone(sourceEntity, targetEntity, changeEventType, eventSource);
 				}
@@ -399,7 +399,7 @@ export class EntityAssetManager {
 			const { uuid, indicesPath, root } = rootData;
 			const trackedData = this.#trackedEntities.get(uuid);
 			if (trackedData) {
-				const sourceChild = root.getEntityByIndicesPath(indicesPath);
+				const sourceChild = root.getChildByIndicesPath(indicesPath);
 				if (!sourceChild) throw new Error("Assertion failed, source entity not found");
 				for (const trackedEntity of trackedData.trackedInstances) {
 					if (trackedEntity == root) continue;
@@ -421,7 +421,7 @@ export class EntityAssetManager {
 	 * @param {unknown} eventSource
 	 */
 	#applyEntityTransform(sourceChild, targetEntity, indicesPath, eventSource) {
-		const targetChild = targetEntity.getEntityByIndicesPath(indicesPath);
+		const targetChild = targetEntity.getChildByIndicesPath(indicesPath);
 		if (!targetChild) throw new Error("Assertion failed, target entity not found");
 
 		targetChild.localMatrix = sourceChild.localMatrix;

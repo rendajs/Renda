@@ -31,9 +31,9 @@ Deno.test({
 			const contentWindow = new ContentWindowEntityEditor(...args);
 			contentWindow.setProjectPreferencesLocationData({});
 
-			assertEquals(contentWindow.editorScene.getEntityByName("grid"), null);
+			assertEquals(contentWindow.editorScene.getChildByName("grid"), null);
 			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", true);
-			assertExists(contentWindow.editorScene.getEntityByName("grid"));
+			assertExists(contentWindow.editorScene.getChildByName("grid"));
 		} finally {
 			uninstall();
 		}
@@ -49,9 +49,9 @@ Deno.test({
 			const contentWindow = new ContentWindowEntityEditor(...args);
 			contentWindow.setProjectPreferencesLocationData({});
 
-			assertExists(contentWindow.editorScene.getEntityByName("grid"));
+			assertExists(contentWindow.editorScene.getChildByName("grid"));
 			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", false);
-			assertEquals(contentWindow.editorScene.getEntityByName("grid"), null);
+			assertEquals(contentWindow.editorScene.getChildByName("grid"), null);
 		} finally {
 			uninstall();
 		}

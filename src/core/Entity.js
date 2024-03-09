@@ -837,17 +837,17 @@ export class Entity {
 	 * @param {number[]} indexPath
 	 * @returns {Entity?}
 	 */
-	getEntityByIndicesPath(indexPath, startFrom = 0) {
+	getChildByIndicesPath(indexPath, startFrom = 0) {
 		if (startFrom >= indexPath.length) return this;
 		const index = indexPath[startFrom];
 		if (index < 0 || index > this._children.length) return null;
 		const child = this.children[index];
-		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
+		return child.getChildByIndicesPath(indexPath, startFrom + 1);
 	}
 
 	/**
 	 * Returns an array of numbers that represent the indices that lead to this entity.
-	 * The result will be an array that can essentially be passed to {@linkcode getEntityByIndicesPath} on the root entity,
+	 * The result will be an array that can essentially be passed to {@linkcode getChildByIndicesPath} on the root entity,
 	 * which should then return this entity.
 	 * @param {object} [options]
 	 * @param {Entity} [options.forcedRoot] The root at which the returned array starts,
@@ -871,7 +871,7 @@ export class Entity {
 	 * Recursively searches for an entity with the given name and returns it.
 	 * @param {string} name
 	 */
-	getEntityByName(name) {
+	getChildByName(name) {
 		for (const child of this.traverseDown()) {
 			if (child.name == name) return child;
 		}
