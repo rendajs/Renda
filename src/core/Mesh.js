@@ -52,7 +52,10 @@ export class Mesh {
 		return this.#indexFormat;
 	}
 
-	indexBuffer = new ArrayBuffer(0);
+	#indexBuffer = new ArrayBuffer(0);
+	get indexBuffer() {
+		return this.#indexBuffer;
+	}
 
 	destructor() {
 		for (const buffer of this.getBuffers()) {
@@ -143,12 +146,12 @@ export class Mesh {
 	setIndexFormat(indexFormat) {
 		if (indexFormat == this.indexFormat) return;
 
-		if (this.indexBuffer.byteLength > 0) {
+		if (this.#indexBuffer.byteLength > 0) {
 			let typedArray;
 			if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
-				typedArray = Uint16Array.from(new Uint32Array(this.indexBuffer));
+				typedArray = Uint16Array.from(new Uint32Array(this.#indexBuffer));
 			} else if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
-				typedArray = Uint32Array.from(new Uint16Array(this.indexBuffer));
+				typedArray = Uint32Array.from(new Uint16Array(this.#indexBuffer));
 			} else {
 				throw new Error("Invalid index format.");
 			}
@@ -159,12 +162,12 @@ export class Mesh {
 	}
 
 	#getIndexBufferDataView() {
-		if (this.#currentDataViewIndexBuffer != this.indexBuffer) {
+		if (this.#currentDataViewIndexBuffer != this.#indexBuffer) {
 			this.#dataView = null;
 		}
 		if (!this.#dataView) {
-			this.#dataView = new DataView(this.indexBuffer);
-			this.#currentDataViewIndexBuffer = this.indexBuffer;
+			this.#dataView = new DataView(this.#indexBuffer);
+			this.#currentDataViewIndexBuffer = this.#indexBuffer;
 		}
 		return this.#dataView;
 	}
@@ -180,7 +183,7 @@ export class Mesh {
 			} else if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
 				this.#indexCount = data.byteLength / 4;
 			}
-			this.indexBuffer = data;
+			this.#indexBuffer = data;
 		} else if (ArrayBuffer.isView(data)) {
 			let byteCount = 0;
 			if (data instanceof Uint16Array) {
@@ -194,7 +197,7 @@ export class Mesh {
 			}
 			const slicedData = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
 			this.#indexCount = slicedData.byteLength / byteCount;
-			this.indexBuffer = slicedData;
+			this.#indexBuffer = slicedData;
 		} else if (Array.isArray(data)) {
 			let valueByteSize;
 			let setFunction;
@@ -209,7 +212,7 @@ export class Mesh {
 			} else {
 				throw new Error("Invalid index format.");
 			}
-			this.indexBuffer = new ArrayBuffer(bufferLength);
+			this.#indexBuffer = new ArrayBuffer(bufferLength);
 			const dataView = this.#getIndexBufferDataView();
 			if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
 				setFunction = dataView.setUint16.bind(dataView);
@@ -242,7 +245,7 @@ export class Mesh {
 			throw new Error("Invalid index format.");
 		}
 		let i = 0;
-		while (i < this.indexBuffer.byteLength) {
+		while (i < this.#indexBuffer.byteLength) {
 			yield getFunction(i, true);
 			i += valueByteSize;
 		}
@@ -393,7 +396,7 @@ export class Mesh {
 			newMesh.#unusedBuffers.set(attributeType, buffer.clone());
 		}
 		newMesh.setIndexFormat(this.indexFormat);
-		newMesh.setIndexData(this.indexBuffer);
+		newMesh.setIndexData(this.#indexBuffer);
 		return newMesh;
 	}
 
