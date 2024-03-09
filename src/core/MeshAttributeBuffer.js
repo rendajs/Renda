@@ -19,10 +19,15 @@ export class MeshAttributeBuffer {
 	get arrayStride() {
 		return this.#arrayStride;
 	}
+
 	/** @type {DataView?} */
 	#dataView = null;
 	/** @type {ArrayBuffer?} */
 	#currentDataViewBuffer = null;
+	#buffer;
+	get buffer() {
+		return this.#buffer;
+	}
 
 	/** @type {Set<OnBufferChangedCallback>} */
 	#onBufferChangedCbs = new Set();
@@ -48,7 +53,7 @@ export class MeshAttributeBuffer {
 		this.attributes = attributes;
 		this.#isUnused = isUnused;
 
-		this.buffer = arrayBuffer;
+		this.#buffer = arrayBuffer;
 
 		this.setArrayStride(arrayStride);
 	}
@@ -75,12 +80,12 @@ export class MeshAttributeBuffer {
 	}
 
 	#getDataView() {
-		if (this.#currentDataViewBuffer != this.buffer) {
+		if (this.#currentDataViewBuffer != this.#buffer) {
 			this.#dataView = null;
 		}
 		if (!this.#dataView) {
-			this.#dataView = new DataView(this.buffer);
-			this.#currentDataViewBuffer = this.buffer;
+			this.#dataView = new DataView(this.#buffer);
+			this.#currentDataViewBuffer = this.#buffer;
 		}
 		return this.#dataView;
 	}
@@ -111,7 +116,7 @@ export class MeshAttributeBuffer {
 	setVertexCount(vertexCount) {
 		const length = vertexCount * this.arrayStride;
 		const oldBuffer = this.buffer;
-		this.buffer = new ArrayBuffer(length);
+		this.#buffer = new ArrayBuffer(length);
 		if (oldBuffer) {
 			new Uint8Array(this.buffer).set(new Uint8Array(oldBuffer));
 		}

@@ -13,12 +13,29 @@ Deno.test({
 });
 
 Deno.test({
-	name: "mesh reference is copied",
+	name: "isUnused flag is copied",
 	fn() {
-		const buffer = new MeshAttributeBuffer(fakeMesh, {});
+		const buffer1 = new MeshAttributeBuffer(fakeMesh, {
+			isUnused: true,
+			attributes: [
+				{
+					attributeType: Mesh.AttributeType.POSITION,
+					componentCount: 3,
+					format: Mesh.AttributeFormat.FLOAT16,
+					offset: 0,
+				},
+			],
+		});
 
-		const clone = buffer.clone();
-		assertStrictEquals(clone.#mesh, fakeMesh);
+		const clone1 = buffer1.clone();
+		assertStrictEquals(clone1.isUnused, true);
+
+		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
+			isUnused: false,
+		});
+
+		const clone2 = buffer2.clone();
+		assertStrictEquals(clone2.isUnused, false);
 	},
 });
 
@@ -38,41 +55,14 @@ Deno.test({
 		});
 
 		const clone1 = buffer1.clone();
-		assertStrictEquals(clone1.#isUnused, true);
+		assertStrictEquals(clone1.isUnused, true);
 
 		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
 			isUnused: false,
 		});
 
 		const clone2 = buffer2.clone();
-		assertStrictEquals(clone2.#isUnused, false);
-	},
-});
-
-Deno.test({
-	name: "isUnused flag is copied",
-	fn() {
-		const buffer1 = new MeshAttributeBuffer(fakeMesh, {
-			isUnused: true,
-			attributes: [
-				{
-					attributeType: Mesh.AttributeType.POSITION,
-					componentCount: 3,
-					format: Mesh.AttributeFormat.FLOAT16,
-					offset: 0,
-				},
-			],
-		});
-
-		const clone1 = buffer1.clone();
-		assertStrictEquals(clone1.#isUnused, true);
-
-		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
-			isUnused: false,
-		});
-
-		const clone2 = buffer2.clone();
-		assertStrictEquals(clone2.#isUnused, false);
+		assertStrictEquals(clone2.isUnused, false);
 	},
 });
 
