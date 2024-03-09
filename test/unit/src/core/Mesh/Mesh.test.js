@@ -1,4 +1,4 @@
-import { assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 import { Mesh, Vec2, Vec3, Vec4 } from "../../../../../src/mod.js";
 import { mockVertexStateColor, mockVertexStateSingleAttribute, mockVertexStateTwoAttributes, mockVertexStateUv } from "./shared.js";
 import { assertVecAlmostEquals } from "../../../shared/asserts.js";
@@ -77,28 +77,28 @@ Deno.test({
 });
 
 Deno.test({
-	name: "getDataView() should reuse existing DataView when possible",
+	name: "Changing index buffer should result in new index data",
 	fn() {
 		const mesh = new Mesh();
+		mesh.setIndexFormat(Mesh.IndexFormat.UINT_16);
 
-		const dataView1 = mesh.getDataView();
-		const dataView2 = mesh.getDataView();
+		const buffer1 = new ArrayBuffer(6);
+		const dataView1 = new DataView(buffer1);
+		dataView1.setInt16(0, 1, true);
+		dataView1.setInt16(2, 2, true);
+		dataView1.setInt16(4, 3, true);
+		mesh.setIndexData(buffer1);
 
-		assertStrictEquals(dataView1, dataView2);
-	},
-});
+		assertEquals(Array.from(mesh.getIndexData()), [1, 2, 3]);
 
-Deno.test({
-	name: "getDataView() should create a new DataView when the buffer changed",
-	fn() {
-		const mesh = new Mesh();
+		const buffer2 = new ArrayBuffer(6);
+		const dataView2 = new DataView(buffer2);
+		dataView2.setInt16(0, 4, true);
+		dataView2.setInt16(2, 5, true);
+		dataView2.setInt16(4, 6, true);
+		mesh.setIndexData(buffer2);
 
-		const dataView1 = mesh.getDataView();
-
-		mesh.setIndexData(new ArrayBuffer(0));
-		const dataView2 = mesh.getDataView();
-
-		assertNotStrictEquals(dataView1, dataView2);
+		assertEquals(Array.from(mesh.getIndexData()), [4, 5, 6]);
 	},
 });
 

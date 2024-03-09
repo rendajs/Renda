@@ -13,16 +13,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "mesh reference is copied",
-	fn() {
-		const buffer = new MeshAttributeBuffer(fakeMesh, {});
-
-		const clone = buffer.clone();
-		assertStrictEquals(clone.mesh, fakeMesh);
-	},
-});
-
-Deno.test({
 	name: "isUnused flag is copied",
 	fn() {
 		const buffer1 = new MeshAttributeBuffer(fakeMesh, {
