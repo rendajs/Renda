@@ -15,7 +15,9 @@ env:
   DENO_DIR: deno_dir
   DENO_VERSION: "1.40.3"
 
-permissions: {}
+permissions:
+  contents: read
+  id-token: write # The OIDC ID token is used for authentication with JSR.
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
@@ -29,13 +31,7 @@ jobs:
           deno-version: ${{ env.DENO_VERSION }}
 
       - name: Build package
-        run: deno task build-npm-package ${{ github.event.release.tag_name }} ${{ inputs.version }}
+        run: deno task build-jsr-package ${{ github.event.release.tag_name }} ${{ inputs.version }}
 
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
-        with:
-          node-version: '16.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: cd npmPackage && npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to jsr
+        run: cd jsrPackage && npx jsr publish
