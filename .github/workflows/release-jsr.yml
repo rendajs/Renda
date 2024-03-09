@@ -34,4 +34,4 @@ jobs:
         run: deno task build-jsr-package ${{ github.event.release.tag_name }} ${{ inputs.version }}
 
       - name: Publish to jsr
-        run: cd jsrPackage && npx jsr publish
+        run: cd jsrPackage && npx jsr publish --allow-dirty
