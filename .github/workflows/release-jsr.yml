@@ -3,6 +3,12 @@ name: Publish npm
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to assign to the published package'
+        type: string
+        required: true
 
 env:
   # be sure to also update these in other workflows
@@ -25,7 +31,7 @@ jobs:
           deno-version: ${{ env.DENO_VERSION }}
 
       - name: Build package
-        run: deno task build-jsr-package ${{ github.event.release.tag_name }}
+        run: deno task build-jsr-package ${{ github.event.release.tag_name }} ${{ inputs.version }}
 
       - name: Publish to jsr
         run: cd jsrPackage && npx jsr publish
