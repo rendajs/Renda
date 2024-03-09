@@ -434,7 +434,7 @@ Deno.test({
 	fn() {
 		const { root, child3 } = createBasicStructure();
 
-		const entity = root.getEntityByIndicesPath([0, 0, 2]);
+		const entity = root.getChildByIndicesPath([0, 0, 2]);
 
 		assertStrictEquals(entity, child3);
 	},
@@ -453,7 +453,7 @@ Deno.test({
 		];
 
 		for (const path of paths) {
-			const result = root.getEntityByIndicesPath(path);
+			const result = root.getChildByIndicesPath(path);
 
 			assertEquals(result, null);
 		}
@@ -481,19 +481,19 @@ Deno.test({
 	fn() {
 		const { root, child1, child2, child3 } = createBasicStructure();
 
-		const rootResult = root.getEntityByName("root");
+		const rootResult = root.getChildByName("root");
 		assertStrictEquals(rootResult, root);
 
-		const child1Result = root.getEntityByName("child1");
+		const child1Result = root.getChildByName("child1");
 		assertStrictEquals(child1Result, child1);
 
-		const child2Result = root.getEntityByName("child2");
+		const child2Result = root.getChildByName("child2");
 		assertStrictEquals(child2Result, child2);
 
-		const child3Result = root.getEntityByName("child3");
+		const child3Result = root.getChildByName("child3");
 		assertStrictEquals(child3Result, child3);
 
-		const nonExistentResult = root.getEntityByName("non-existent");
+		const nonExistentResult = root.getChildByName("non-existent");
 		assertEquals(nonExistentResult, null);
 	},
 });

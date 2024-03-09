@@ -228,7 +228,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		const createdEntities = [];
 		// todo: use selection manager
 		for (const indicesPath of this.treeView.getSelectionIndices()) {
-			const entity = rootEntity.getEntityByIndicesPath(indicesPath);
+			const entity = rootEntity.getChildByIndicesPath(indicesPath);
 			if (!entity) continue;
 			const createdEntity = new Entity(name);
 			entity.add(createdEntity);
@@ -281,7 +281,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 */
 	#getEntityByIndicesPath(indicesPath) {
 		if (!this.linkedEntityEditor) return null;
-		return this.linkedEntityEditor.editingEntity.getEntityByIndicesPath(indicesPath);
+		return this.linkedEntityEditor.editingEntity.getChildByIndicesPath(indicesPath);
 	}
 
 	/**
