@@ -1,4 +1,4 @@
-import { assertEquals, assertExists, assertNotStrictEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { assertEquals, assertExists, assertThrows } from "std/testing/asserts.ts";
 import { Mesh, MeshAttributeBuffer, Vec2, Vec3, Vec4 } from "../../../../../src/mod.js";
 import { assertVecAlmostEquals } from "../../../shared/asserts.js";
 import { fakeMesh } from "./shared.js";
