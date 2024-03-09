@@ -19,7 +19,7 @@ const jsrJson = JSON.stringify({
 	name: "@renda/renda",
 	version: parseVersionArg(),
 	exports: "./mod.js",
-	exclude: ["!."]
+	exclude: ["!."],
 }, null, "\t");
 await Deno.writeTextFile(path.resolve(destination, "jsr.json"), jsrJson);
 
