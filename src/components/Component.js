@@ -2,7 +2,7 @@ import { Vec2 } from "../math/Vec2.js";
 import { Vec3 } from "../math/Vec3.js";
 import { Vec4 } from "../math/Vec4.js";
 import { Mat4 } from "../math/Mat4.js";
-import { DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, STUDIO_DEFAULTS_IN_COMPONENTS } from "../studioDefines.js";
+import { DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, STUDIO_DEFAULTS_IN_COMPONENTS } from "../engineDefines.js";
 import { mathTypeToJson } from "../math/MathTypes.js";
 
 const settingDefaultsPromisesSym = Symbol("settingDefaultsPromises");
