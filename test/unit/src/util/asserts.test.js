@@ -122,8 +122,14 @@ Deno.test({
 			assertVecAlmostEquals([0, 0, 0], [11, 0, 0], 10);
 		}, Error, "Expected value to be close to Vec3<11, 0, 0> but got Vec3<0, 0, 0>");
 		assertThrows(() => {
-			assertVecAlmostEquals([NaN, 0, 0], [0, 0, 0]);
-		}, Error, "Expected value to be close to Vec3<0, 0, 0> but got Vec3<NaN, 0, 0>");
+			assertVecAlmostEquals([NaN, 0], [0, 0]);
+		}, Error, "Expected value to be close to Vec2<0, 0> but got Vec2<NaN, 0>");
+		assertThrows(() => {
+			assertVecAlmostEquals([0, NaN, 0], [0, 0, 0]);
+		}, Error, "Expected value to be close to Vec3<0, 0, 0> but got Vec3<0, NaN, 0>");
+		assertThrows(() => {
+			assertVecAlmostEquals([0, 0, NaN, 0], [0, 0, 0, 0]);
+		}, Error, "Expected value to be close to Vec4<0, 0, 0, 0> but got Vec4<0, 0, NaN, 0>");
 		assertThrows(() => {
 			assertVecAlmostEquals([NaN, 0, 0], [NaN, 0, 0]);
 		}, Error, "Expected value to be close to Vec3<NaN, 0, 0> but got Vec3<NaN, 0, 0>");
