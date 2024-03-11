@@ -4,7 +4,7 @@ import { assertEquals } from "std/testing/asserts.ts";
 import { createMockAssetLoader } from "./shared.js";
 
 const importer = new Importer(import.meta.url);
-importer.fakeModule("../../../../../src/studioDefines.js", `
+importer.fakeModule("../../../../../src/engineDefines.js", `
 	export const ENGINE_ASSETS_LIVE_UPDATES_SUPPORT = false;
 `);
 
