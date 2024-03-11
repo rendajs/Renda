@@ -2,11 +2,11 @@ import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../mod.js";
 import { waitForMicrotasks as waitForMicrotasksFn } from "./waitForMicroTasks.js";
 
 export class AssertionError extends Error {
-    name = "AssertionError";
+	name = "AssertionError";
 	/** @param {string} message */
-    constructor(message) {
-        super(message);
-    }
+	constructor(message) {
+		super(message);
+	}
 }
 
 /**
