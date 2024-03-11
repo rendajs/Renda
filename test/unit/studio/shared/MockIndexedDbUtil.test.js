@@ -1,5 +1,5 @@
 import { assertEquals, assertRejects } from "std/testing/asserts.ts";
-import { assertPromiseResolved } from "../../shared/asserts.js";
+import { assertPromiseResolved } from "../../../../src/util/asserts.js";
 import { MockIndexedDbUtil, deleteAllDbs, forcePendingOperations } from "./MockIndexedDbUtil.js";
 
 Deno.test({

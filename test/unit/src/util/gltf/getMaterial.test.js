@@ -5,7 +5,7 @@ import { Material } from "../../../../../src/rendering/Material.js";
 import { MaterialMap } from "../../../../../src/rendering/MaterialMap.js";
 import { Sampler } from "../../../../../src/rendering/Sampler.js";
 import { getMaterialHelper } from "../../../../../src/util/gltf/getMaterial.js";
-import { assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 /**
  * @param {object} options

@@ -6,10 +6,10 @@ import { MouseEvent } from "fake-dom/FakeMouseEvent.js";
 import { injectMockStudioInstance } from "../../../../../studio/src/studioInstance.js";
 import { PreferencesManager } from "../../../../../studio/src/preferences/PreferencesManager.js";
 import { PreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
-import { assertPromiseResolved } from "../../../shared/asserts.js";
+import { assertPromiseResolved } from "../../../../../src/util/asserts.js";
 import { assertIsType } from "../../../shared/typeAssertions.js";
 import { createMockPopoverManager, triggerContextMenuItem } from "../../shared/contextMenuHelpers.js";
-import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../src/util/waitForMicroTasks.js";
 import { WorkspacePreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/WorkspacePreferencesLocation.js";
 
 const importer = new Importer(import.meta.url);

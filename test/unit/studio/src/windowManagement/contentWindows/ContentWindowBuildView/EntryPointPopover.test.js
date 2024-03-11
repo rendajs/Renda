@@ -5,7 +5,7 @@ import { injectMockStudioInstance } from "../../../../../../../studio/src/studio
 import { BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID, EntryPointPopover, getSelectedEntityEntryPoint, getSelectedScriptEntryPoint } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/EntryPointPopover.js";
 import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
 import { PreferencesLocation } from "../../../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
-import { waitForMicrotasks } from "../../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../../src/util/waitForMicroTasks.js";
 import { assertTreeViewStructureEquals } from "../../../../shared/treeViewUtil.js";
 import { PropertiesTreeViewEntry } from "../../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 import { ButtonSelectorGui } from "../../../../../../../studio/src/ui/ButtonSelectorGui.js";

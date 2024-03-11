@@ -1,6 +1,6 @@
 import { assertEquals, assertRejects } from "std/testing/asserts.ts";
 import { GlobalPreferencesLocation } from "../../../../../../studio/src/preferences/preferencesLocation/GlobalPreferencesLocation.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 import { IndexedDbUtil, forcePendingOperations } from "../../../shared/MockIndexedDbUtil.js";
 
 Deno.test({

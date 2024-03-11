@@ -3,7 +3,7 @@ import { assertSpyCalls } from "std/testing/mock.ts";
 import { VectorGui } from "../../../../../studio/src/ui/VectorGui.js";
 import { runWithDom } from "../../shared/runWithDom.js";
 import { createOnChangeEventSpy } from "./shared.js";
-import { assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "Fires events when user changes the value",

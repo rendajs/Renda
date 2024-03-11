@@ -4,8 +4,8 @@ import { WebRtcDiscoveryMethod } from "../../../../../../../src/network/studioCo
 import { WebRtcMessageHandler } from "../../../../../../../src/network/studioConnections/messageHandlers/WebRtcMessageHandler.js";
 import { MockWebSocket, clearCreatedWebSockets, getSingleCreatedWebSocket, originalWebSocketClosed } from "./MockWebSocket.js";
 import { MockRTCPeerConnection, clearCreatedRtcConnections, getSingleCreatedRtcConnection } from "./MockRTCPeerConnection.js";
-import { waitForMicrotasks } from "../../../../../shared/waitForMicroTasks.js";
-import { assertPromiseResolved } from "../../../../../shared/asserts.js";
+import { waitForMicrotasks } from "../../../../../../../src/util/waitForMicroTasks.js";
+import { assertPromiseResolved } from "../../../../../../../src/util/asserts.js";
 
 /**
  * @param {object} options

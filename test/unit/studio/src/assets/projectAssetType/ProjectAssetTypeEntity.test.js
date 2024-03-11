@@ -5,7 +5,7 @@ import { ProjectAssetTypeEntity } from "../../../../../../studio/src/assets/proj
 import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
 import { Component, Entity, Mat4, MeshComponent } from "../../../../../../src/mod.js";
 import { createMockDependencies, getMockRecursionTracker } from "./shared.js";
-import { assertVecAlmostEquals } from "../../../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../../../src/util/asserts.js";
 import { createTreeViewStructure } from "../../../../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
 import { EntityAssetManager } from "../../../../../../studio/src/assets/EntityAssetManager.js";
 

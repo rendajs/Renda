@@ -1,7 +1,7 @@
 import { assert, assertEquals, assertExists } from "std/testing/asserts.ts";
 import { BuiltInAssetManager } from "../../../../../studio/devSocket/src/BuiltInAssetManager.js";
 import { incrementTime, installMockTime, uninstallMockTime } from "../../../shared/mockTime.js";
-import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../src/util/waitForMicroTasks.js";
 
 const originalDenoWatchFs = Deno.watchFs;
 const originalDenoStat = Deno.stat;

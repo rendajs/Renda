@@ -1,6 +1,6 @@
 import { assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 import { parseScene, parseScenes } from "../../../../../src/util/gltf/parseNodeHierarchy.js";
-import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 import { assertSpyCalls, spy } from "std/testing/mock.ts";
 
 Deno.test({

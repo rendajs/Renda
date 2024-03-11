@@ -3,7 +3,7 @@ import { TranslateGizmoDraggable } from "../../../../../src/gizmos/draggables/Tr
 import { TranslateAxisGizmoDraggable } from "../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js";
 import { RotateAxisGizmoDraggable } from "../../../../../src/gizmos/draggables/RotateAxisGizmoDraggable.js";
 import { Quat, Vec2, Vec3 } from "../../../../../src/mod.js";
-import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 import { basicSetup } from "./shared.js";
 import { ScaleGizmoDraggable } from "../../../../../src/gizmos/draggables/ScaleGizmoDraggable.js";
 

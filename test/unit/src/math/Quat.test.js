@@ -1,6 +1,6 @@
 import { assertEquals } from "std/testing/asserts.ts";
 import { Quat, Vec3 } from "../../../../src/mod.js";
-import { assertVecAlmostEquals } from "../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "rotateAxisAngle()",

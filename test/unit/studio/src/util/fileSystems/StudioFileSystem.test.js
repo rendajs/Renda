@@ -1,7 +1,7 @@
 import { assertEquals } from "std/testing/asserts.ts";
 import { StudioFileSystem } from "../../../../../../studio/src/util/fileSystems/StudioFileSystem.js";
 import { Importer } from "fake-imports";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 
 Deno.test({
 	name: "writeText",

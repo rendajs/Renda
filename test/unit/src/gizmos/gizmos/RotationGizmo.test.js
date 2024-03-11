@@ -1,7 +1,7 @@
 import { assertEquals, assertExists } from "std/testing/asserts.ts";
 import { assertSpyCalls, spy } from "std/testing/mock.ts";
 import { Entity, Quat, RotationGizmo, Vec3 } from "../../../../../src/mod.js";
-import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 import { createFakeGizmoManager } from "../shared.js";
 
 /**

@@ -3,7 +3,7 @@ import { AssertionError, assert, assertEquals, assertInstanceOf, assertStrictEqu
 import { FakeTime } from "std/testing/time.ts";
 import { assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 import { assertLastDiscoveryManager, clearCreatedDiscoveryManagers } from "../../../studio/src/network/studioConnections/shared/MockDiscoveryManager.js";
-import { assertPromiseResolved } from "../../../shared/asserts.js";
+import { assertPromiseResolved } from "../../../../../src/util/asserts.js";
 import { ExtendedDiscoveryMethod } from "../../network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
 
 const importer = new Importer(import.meta.url);

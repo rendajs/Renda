@@ -3,8 +3,8 @@ import { assertSpyCalls, mockSessionAsync, spy, stub } from "std/testing/mock.ts
 import { initializeIframe } from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
 import { initializeWorker } from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
 import { AssertionError, assertEquals, assertRejects } from "std/testing/asserts.ts";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
-import { assertPromiseResolved } from "../../../../shared/asserts.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
+import { assertPromiseResolved } from "../../../../../../src/util/asserts.js";
 
 /**
  * Creates a mocked iframe and SharedWorker with the required functionality for the InternalDiscoveryMethod.

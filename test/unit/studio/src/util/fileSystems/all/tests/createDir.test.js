@@ -2,7 +2,7 @@ import { assertEquals, assertRejects } from "std/testing/asserts.ts";
 import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
 import { testAll } from "../shared.js";
 import { registerOnChangeSpy } from "../../shared.js";
-import { waitForMicrotasks } from "../../../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../../../src/util/waitForMicroTasks.js";
 
 testAll({
 	name: "createDir() should create a directory and fire onchange",

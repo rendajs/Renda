@@ -7,7 +7,7 @@ import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 import { createMockProjectAsset } from "../../shared/createMockProjectAsset.js";
 import { PropertiesTreeViewEntry } from "../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 import { TextGui } from "../../../../../studio/src/ui/TextGui.js";
-import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../src/util/waitForMicroTasks.js";
 
 const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({});
 

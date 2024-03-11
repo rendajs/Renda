@@ -1,7 +1,7 @@
 import { AssertionError, assert, assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
 import { forceCleanup, installMockWeakRef, uninstallMockWeakRef } from "../../../../shared/mockWeakRef.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 import { BASIC_PROJECTASSETTYPE, basicSetup } from "./shared.js";
 
 const BASIC_PERSISTENCE_KEY = "persistenceKey";

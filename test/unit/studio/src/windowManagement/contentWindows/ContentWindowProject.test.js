@@ -11,7 +11,7 @@ import { DragManager } from "../../../../../../studio/src/misc/DragManager.js";
 import { Entity } from "../../../../../../src/mod.js";
 import { DragEvent } from "fake-dom/FakeDragEvent.js";
 import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
 

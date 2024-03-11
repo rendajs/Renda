@@ -1,6 +1,13 @@
-import { AssertionError, assert } from "std/testing/asserts.ts";
-import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../../../src/mod.js";
+import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../mod.js";
 import { waitForMicrotasks as waitForMicrotasksFn } from "./waitForMicroTasks.js";
+
+export class AssertionError extends Error {
+    name = "AssertionError";
+	/** @param {string} message */
+    constructor(message) {
+        super(message);
+    }
+}
 
 /**
  * Make an assertion that `actual` and `expected` are almost numbers.
@@ -195,6 +202,8 @@ export async function assertPromiseResolved(promise, expected) {
 		resolved = true;
 	})();
 	await waitForMicrotasksFn();
-	const msg = expected ? "Expected the promise to be resolved" : "Expected the promise to not be resolved";
-	assert(resolved == expected, msg);
+	if (resolved != expected) {
+		const msg = expected ? "Expected the promise to be resolved" : "Expected the promise to not be resolved";
+		throw new AssertionError(msg);
+	}
 }

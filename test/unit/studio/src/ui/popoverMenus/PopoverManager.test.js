@@ -4,7 +4,7 @@ import { assertEquals, assertExists, assertInstanceOf, assertStrictEquals, asser
 import { Popover } from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
 import { PopoverManager } from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import { ColorizerFilterManager } from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
 
 function basicManager() {

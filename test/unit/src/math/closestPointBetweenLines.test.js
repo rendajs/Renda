@@ -1,5 +1,5 @@
 import { Vec3, closestPointBetweenLines } from "../../../../src/mod.js";
-import { assertVecAlmostEquals } from "../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "overlapping lines",

@@ -1,6 +1,6 @@
 import { assertRejects, assertThrows } from "std/testing/asserts.ts";
-import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../../../src/mod.js";
-import { assertAlmostEquals, assertMatAlmostEquals, assertPromiseResolved, assertQuatAlmostEquals, assertVecAlmostEquals } from "./asserts.js";
+import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
+import { assertAlmostEquals, assertMatAlmostEquals, assertPromiseResolved, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "assertAlmostEquals() doesn't throw",

@@ -1,7 +1,7 @@
 import { assertEquals, assertRejects } from "std/testing/asserts.ts";
 import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
-import { assertPromiseResolved } from "../../../../../../shared/asserts.js";
-import { waitForMicrotasks } from "../../../../../../shared/waitForMicroTasks.js";
+import { assertPromiseResolved } from "../../../../../../../../src/util/asserts.js";
+import { waitForMicrotasks } from "../../../../../../../../src/util/waitForMicroTasks.js";
 import { registerOnChangeSpy } from "../../shared.js";
 import { testAll } from "../shared.js";
 

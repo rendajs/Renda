@@ -2,7 +2,7 @@ import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 import { DiscoveryManager } from "../../../../../src/network/studioConnections/DiscoveryManager.js";
 import { ExtendedDiscoveryMethod } from "./discoveryMethods/shared/ExtendedDiscoveryMethod.js";
 import { assertEquals, assertExists, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
-import { assertPromiseResolved } from "../../../shared/asserts.js";
+import { assertPromiseResolved } from "../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "Adding a discovery method",

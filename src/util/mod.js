@@ -1,3 +1,4 @@
+export * from "./asserts.js";
 export * from "./binarySerialization.js";
 export { BinaryComposer } from "./BinaryComposer.js";
 export { BinaryDecomposer } from "./BinaryDecomposer.js";
