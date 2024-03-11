@@ -2,7 +2,7 @@ import { Mat4 } from "../math/Mat4.js";
 import { Quat } from "../math/Quat.js";
 import { Vec3 } from "../math/Vec3.js";
 import { Component } from "../components/Component.js";
-import { ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT } from "../studioDefines.js";
+import { ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT } from "../engineDefines.js";
 import { ComponentTypeManager } from "../components/ComponentTypeManager.js";
 
 /**

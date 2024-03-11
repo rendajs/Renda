@@ -1,4 +1,4 @@
-import { ENABLE_INSPECTOR_SUPPORT } from "../studioDefines.js";
+import { ENABLE_INSPECTOR_SUPPORT } from "../engineDefines.js";
 import { InternalDiscoveryMethod } from "../network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
 import { DiscoveryManager } from "../network/studioConnections/DiscoveryManager.js";
 import { ParentStudioCommunicator } from "../network/studioConnections/ParentStudioCommunicator.js";

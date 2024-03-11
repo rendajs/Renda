@@ -1,4 +1,4 @@
-import { DEBUG_INCLUDE_ERROR_MESSAGES, DEBUG_INCLUDE_ERROR_THROWS } from "../studioDefines.js";
+import { DEBUG_INCLUDE_ERROR_MESSAGES, DEBUG_INCLUDE_ERROR_THROWS } from "../engineDefines.js";
 import { neverNoOp } from "../util/neverNoOp.js";
 import { MeshAttributeBuffer } from "./MeshAttributeBuffer.js";
 

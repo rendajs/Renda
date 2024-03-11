@@ -1,4 +1,4 @@
-import { ENGINE_ASSETS_LIVE_UPDATES_SUPPORT } from "../studioDefines.js";
+import { ENGINE_ASSETS_LIVE_UPDATES_SUPPORT } from "../engineDefines.js";
 
 /** @typedef {Parameters<import("./AssetLoader.js").AssetLoader["getAsset"]>} GetAssetArgs */
 /** @typedef {(...args: GetAssetArgs) => any} GetEngineAssetHandler */

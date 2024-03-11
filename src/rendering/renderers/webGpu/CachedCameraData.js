@@ -1,4 +1,4 @@
-import { ENABLE_WEBGPU_CLUSTERED_LIGHTS } from "../../../studioDefines.js";
+import { ENABLE_WEBGPU_CLUSTERED_LIGHTS } from "../../../engineDefines.js";
 import { ClusterComputeManager } from "./ClusterComputeManager.js";
 
 export class CachedCameraData {

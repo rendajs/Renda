@@ -1,5 +1,5 @@
 import { Mesh } from "../../core/Mesh.js";
-import { STUDIO_DEFAULTS_IN_COMPONENTS } from "../../studioDefines.js";
+import { STUDIO_DEFAULTS_IN_COMPONENTS } from "../../engineDefines.js";
 import { StorageType } from "../../util/binarySerialization.js";
 import { Material } from "../../rendering/Material.js";
 import { Component } from "../Component.js";
