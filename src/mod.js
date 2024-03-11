@@ -1,3 +1,4 @@
+export { RENDA_VERSION_STRING } from "./engineDefines.js";
 export * from "./assets/mod.js";
 export * from "./components/mod.js";
 export * from "./core/mod.js";
