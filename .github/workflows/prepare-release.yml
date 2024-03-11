@@ -16,6 +16,9 @@ env:
 jobs:
   prepare-release:
     runs-on: ubuntu-latest
+    environment:
+      name: Staging
+      url: https://staging.renda.studio/
     steps:
       - name: Setup repo
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8

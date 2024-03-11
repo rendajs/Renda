@@ -6,6 +6,9 @@ on:
 jobs:
   prepare-release:
     runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://renda.studio/
     steps:
       - name: Promote Staging to Production
         env:
