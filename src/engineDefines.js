@@ -12,7 +12,10 @@ export const RENDA_VERSION_STRING = "0.1.0";
 export const ENABLE_WEBGPU_CLUSTERED_LIGHTS = true;
 
 /* ========== Debug Defines ========== */
-// These are defines that are usually only needed for debug builds.
+// These are defines that can likely be disabled in release builds.
+// These are enabled in in the released/minified renda package and users are expected
+// to disable these manually using their own build tool.
+// Users that build their applications using Renda Studio will be able to configure these once #900 is fixed.
 
 export const ENABLE_INSPECTOR_SUPPORT = true;
 
@@ -28,6 +31,7 @@ export const DEBUG_INCLUDE_ERROR_THROWS = true;
 
 /* ======== Studio Defines ======== */
 // These are defines that are generally only needed for Renda Studio. Most release builds can set all of these to false.
+// These are disabled in the released/minified renda package.
 
 /**
  * Enables listening for asset changes for assets that are used by the engine.

@@ -11,6 +11,7 @@ import resolveUrlObjects from "npm:rollup-plugin-resolve-url-objects@0.0.4";
 import { dev } from "./dev.js";
 import { buildEngine } from "./buildEngine.js";
 import { toHashString } from "std/crypto/mod.ts";
+import { overrideDefines } from "./shared/overrideDefinesPlugin.js";
 
 await dev({
 	needsDependencies: true,
@@ -55,27 +56,6 @@ async function setHtmlAttribute(filePath, tagComment, attributeValue, attribute 
 	const newData = html.substring(0, startPos) + attributeValue + html.substring(endPos, html.length);
 	const textEncoder = new TextEncoder();
 	await Deno.writeFile(filePath, textEncoder.encode(newData));
-}
-
-/**
- * @param {string} definesFilePath
- * @param {Object<string, unknown>} defines
- * @returns {import("rollup").Plugin}
- */
-function overrideDefines(definesFilePath, defines) {
-	return {
-		name: "studio-replace-defines",
-		transform(code, id) {
-			if (id.endsWith(definesFilePath)) {
-				for (const [name, value] of Object.entries(defines)) {
-					const re = new RegExp(name + "\\s?=.+;?$", "gm");
-					code = code.replace(re, `${name} = ${JSON.stringify(value)};`);
-				}
-				return code;
-			}
-			return null;
-		},
-	};
 }
 
 /**
