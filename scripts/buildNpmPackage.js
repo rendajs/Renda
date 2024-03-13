@@ -21,9 +21,7 @@ try {
 await fs.ensureDir(destination);
 
 const distPath = path.resolve(destination, "dist");
-const engineSource = await buildEngine();
-await fs.ensureDir(distPath);
-await Deno.writeTextFile(path.resolve(distPath, "renda.js"), engineSource);
+await buildEngine(distPath);
 
 const packageJson = JSON.stringify({
 	name: "renda",
