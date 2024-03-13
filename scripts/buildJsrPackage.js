@@ -2,9 +2,13 @@ import * as fs from "std/fs/mod.ts";
 import * as path from "std/path/mod.ts";
 import { setCwd } from "chdir-anywhere";
 import { parseVersionArg } from "./shared/parseVersionArgs.js";
+import { verifyVersion } from "./shared/verifyVersion.js";
 
 setCwd();
 const destination = path.resolve("..", "jsrPackage");
+
+const version = parseVersionArg();
+verifyVersion(version);
 
 try {
 	await Deno.remove(destination, {
@@ -17,7 +21,7 @@ await fs.ensureDir(destination);
 
 const jsrJson = JSON.stringify({
 	name: "@renda/renda",
-	version: parseVersionArg(),
+	version,
 	exports: "./mod.js",
 	exclude: ["!."],
 }, null, "\t");
