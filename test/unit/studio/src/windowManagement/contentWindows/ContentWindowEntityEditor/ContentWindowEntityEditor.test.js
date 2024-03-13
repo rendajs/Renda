@@ -1,7 +1,7 @@
 import { BASIC_ENTITY_UUID, basicTest } from "./shared.js";
 import { ContentWindowEntityEditor } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import { assertEquals, assertExists, assertStrictEquals } from "std/testing/asserts.ts";
-import { waitForMicrotasks } from "../../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../../src/util/waitForMicroTasks.js";
 import { assertSpyCalls, spy } from "std/testing/mock.ts";
 import { EntityChangeType } from "../../../../../../../studio/src/assets/EntityAssetManager.js";
 import { Entity } from "../../../../../../../src/mod.js";

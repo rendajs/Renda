@@ -1,7 +1,7 @@
 import { assertEquals, assertInstanceOf, assertRejects, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 import { TestAssetBundle } from "./TestAssetBundle.js";
 import { forceCleanup, installMockWeakRef, uninstallMockWeakRef } from "../../shared/mockWeakRef.js";
-import { waitForMicrotasks } from "../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../src/util/waitForMicroTasks.js";
 import { assertIsType, testTypes } from "../../shared/typeAssertions.js";
 import { AssetBundle, AssetLoader, AssetLoaderType } from "../../../../src/mod.js";
 

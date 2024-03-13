@@ -1,6 +1,6 @@
 import { assertEquals, assertInstanceOf, assertStrictEquals } from "std/testing/asserts.ts";
 import { Vec3, VertexState, createPlane } from "../../../../../src/mod.js";
-import { assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "Basic plane",

@@ -1,7 +1,7 @@
 import { basicTest } from "./shared.js";
 import { assertEquals } from "std/testing/asserts.ts";
 import { ContentWindowEntityEditor } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
-import { waitForMicrotasks } from "../../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../../src/util/waitForMicroTasks.js";
 
 Deno.test({
 	name: "Shows an error message when the renderer fails to initialize",

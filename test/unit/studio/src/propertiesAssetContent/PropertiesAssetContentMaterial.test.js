@@ -7,7 +7,7 @@ import { createMockKeyboardShortcutManager } from "../../shared/mockKeyboardShor
 import { MaterialMap } from "../../../../../src/rendering/MaterialMap.js";
 import { Importer } from "fake-imports";
 import { castTreeView } from "../../shared/mockTreeView/castTreeView.js";
-import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../src/util/waitForMicroTasks.js";
 import { MATERIAL_MAP_PERSISTENCE_KEY } from "../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import { Texture } from "../../../../../src/core/Texture.js";
 

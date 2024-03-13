@@ -1,6 +1,6 @@
 import { assertRejects, assertThrows } from "std/testing/asserts.ts";
-import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../../../src/mod.js";
-import { assertAlmostEquals, assertMatAlmostEquals, assertPromiseResolved, assertQuatAlmostEquals, assertVecAlmostEquals } from "./asserts.js";
+import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
+import { assertAlmostEquals, assertMatAlmostEquals, assertPromiseResolved, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "assertAlmostEquals() doesn't throw",
@@ -18,16 +18,32 @@ Deno.test({
 	fn() {
 		assertThrows(() => {
 			assertAlmostEquals(1.0, 1.1);
-		});
+		}, Error, "Expected value to be close to 1.1 but got 1");
 		assertThrows(() => {
 			assertAlmostEquals(1.0, 1.00002);
-		});
+		}, Error, "Expected value to be close to 1.00002 but got 1");
 		assertThrows(() => {
 			assertAlmostEquals(-10.0, 100);
-		});
+		}, Error, "Expected value to be close to 100 but got -10");
 		assertThrows(() => {
 			assertAlmostEquals(NaN, 0);
-		});
+		}, Error, "Expected value to be close to 0 but got NaN");
+		assertThrows(() => {
+			assertAlmostEquals(1.0, 1.1, 0.001, "custom message");
+		}, Error, "custom message");
+		const castNumber = /** @type {number} */ ({});
+		assertThrows(() => {
+			assertAlmostEquals(castNumber, 1.1);
+		}, Error, "[object Object] is not a number");
+		assertThrows(() => {
+			assertAlmostEquals(1.0, castNumber);
+		}, Error, "[object Object] is not a number");
+		assertThrows(() => {
+			assertAlmostEquals(castNumber, 1.1, 0.001, "custom message");
+		}, Error, "custom message");
+		assertThrows(() => {
+			assertAlmostEquals(1.0, castNumber, 0.001, "custom message");
+		}, Error, "custom message");
 	},
 });
 
@@ -111,6 +127,8 @@ Deno.test({
 Deno.test({
 	name: "assertVecAlmostEquals() throw when the values are incorrect",
 	fn() {
+		const castArray = /** @type {number[]} */ ({});
+
 		// Different values
 		assertThrows(() => {
 			assertVecAlmostEquals(new Vec3(1, 2, 3), new Vec3(1.1, 2, 3));
@@ -122,11 +140,38 @@ Deno.test({
 			assertVecAlmostEquals([0, 0, 0], [11, 0, 0], 10);
 		}, Error, "Expected value to be close to Vec3<11, 0, 0> but got Vec3<0, 0, 0>");
 		assertThrows(() => {
-			assertVecAlmostEquals([NaN, 0, 0], [0, 0, 0]);
-		}, Error, "Expected value to be close to Vec3<0, 0, 0> but got Vec3<NaN, 0, 0>");
+			assertVecAlmostEquals([NaN, 0], [0, 0]);
+		}, Error, "Expected value to be close to Vec2<0, 0> but got Vec2<NaN, 0>");
+		assertThrows(() => {
+			assertVecAlmostEquals([0, NaN, 0], [0, 0, 0]);
+		}, Error, "Expected value to be close to Vec3<0, 0, 0> but got Vec3<0, NaN, 0>");
+		assertThrows(() => {
+			assertVecAlmostEquals([0, 0, NaN, 0], [0, 0, 0, 0]);
+		}, Error, "Expected value to be close to Vec4<0, 0, 0, 0> but got Vec4<0, 0, NaN, 0>");
 		assertThrows(() => {
 			assertVecAlmostEquals([NaN, 0, 0], [NaN, 0, 0]);
 		}, Error, "Expected value to be close to Vec3<NaN, 0, 0> but got Vec3<NaN, 0, 0>");
+		assertThrows(() => {
+			assertVecAlmostEquals([0, 0, 0, 0, 0], [0, 0, 0, 0, 0]);
+		}, Error, "0,0,0,0,0 has an unexpected length");
+		assertThrows(() => {
+			assertVecAlmostEquals([0, 0, 0, 0, 0], [0, 0, 0, 0, 0], 0.0001, "custom message");
+		}, Error, "custom message");
+		assertThrows(() => {
+			assertVecAlmostEquals(castArray, castArray, 0.0001, "custom message");
+		}, Error, "custom message");
+		assertThrows(() => {
+			assertVecAlmostEquals([0, 0], [0, 0, 0], 0.0001, "custom message");
+		}, Error, "custom message");
+		assertThrows(() => {
+			assertVecAlmostEquals([0, 0], [0, 0, 0]);
+		}, Error, "Two vectors are not of the same type: Vec2 and Vec3");
+		assertThrows(() => {
+			assertVecAlmostEquals(new Vec2(), new Vec3());
+		}, Error, "Two vectors are not of the same type: Vec2 and Vec3");
+		assertThrows(() => {
+			assertVecAlmostEquals([0, 0, 0], castArray);
+		}, Error, "[object Object] is not a vector");
 	},
 });
 
@@ -151,6 +196,9 @@ Deno.test({
 		assertThrows(() => {
 			assertQuatAlmostEquals({}, [0, 1, 0, 2]);
 		}, Error, "[object Object] is not a quaternion");
+		assertThrows(() => {
+			assertQuatAlmostEquals({}, [0, 1, 0, 2], 0.001, "custom message");
+		}, Error, "custom message");
 	},
 });
 
@@ -209,6 +257,9 @@ Deno.test({
 			const values2 = [1, null, null, null, null, 1, null, null, null, null, 1, null, null, null, null, 1];
 			assertMatAlmostEquals(new Mat4(values1), new Mat4(/** @type {any} */(values2)));
 		});
+		assertThrows(() => {
+			assertMatAlmostEquals(new Mat4(), new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]), 0.0001, "custom message");
+		}, Error, "custom message");
 	},
 });
 Deno.test({

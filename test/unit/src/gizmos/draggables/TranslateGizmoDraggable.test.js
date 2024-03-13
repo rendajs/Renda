@@ -1,7 +1,7 @@
 import { assertEquals } from "std/testing/asserts.ts";
 import { TranslateGizmoDraggable } from "../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js";
 import { Vec2 } from "../../../../../src/mod.js";
-import { assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 import { basicSetup } from "./shared.js";
 
 Deno.test({

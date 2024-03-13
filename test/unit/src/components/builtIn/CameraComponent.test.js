@@ -1,6 +1,6 @@
 import { assertEquals, assertNotEquals } from "std/testing/asserts.ts";
 import { CameraComponent, Entity, Vec2, Vec3 } from "../../../../../src/mod.js";
-import { assertAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertAlmostEquals, assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "updateProjectionMatrixIfEnabled, autoUpdateProjectionMatrix is true",

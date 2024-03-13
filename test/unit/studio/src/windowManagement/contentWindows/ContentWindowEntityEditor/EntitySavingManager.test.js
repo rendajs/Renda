@@ -4,7 +4,7 @@ import { runWithDom, runWithDomAsync } from "../../../../shared/runWithDom.js";
 import { createPreferencesManager } from "../../../../shared/createPreferencesManager.js";
 import { createMockProjectAsset } from "../../../../shared/createMockProjectAsset.js";
 import { assertSpyCalls, stub } from "std/testing/mock.ts";
-import { waitForMicrotasks } from "../../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../../src/util/waitForMicroTasks.js";
 import { ContentWindowPreferencesLocation } from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import { DEFAULT_CONTENT_WINDOW_UUID } from "../shared.js";
 import { Entity } from "../../../../../../../src/mod.js";

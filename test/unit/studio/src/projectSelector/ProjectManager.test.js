@@ -2,10 +2,10 @@ import { injectMockStudioInstance } from "../../../../../studio/src/studioInstan
 import { MemoryStudioFileSystem } from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import { Importer } from "fake-imports";
 import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
-import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../src/util/waitForMicroTasks.js";
 import { assertEquals, assertRejects, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 import { PreferencesManager } from "../../../../../studio/src/preferences/PreferencesManager.js";
-import { assertPromiseResolved } from "../../../shared/asserts.js";
+import { assertPromiseResolved } from "../../../../../src/util/asserts.js";
 import { SingleInstancePromise } from "../../../../../src/mod.js";
 
 const importer = new Importer(import.meta.url);

@@ -5,7 +5,7 @@ import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocumen
 import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
 import { FakeMouseEvent } from "fake-dom/FakeMouseEvent.js";
 import { FocusEvent } from "fake-dom/FakeFocusEvent.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
 import { assertContextMenuStructureContains, assertContextMenuStructureNotContainsText, triggerContextMenuItem } from "../../../shared/contextMenuHelpers.js";
 import { ClipboardEvent } from "fake-dom/FakeClipboardEvent.js";

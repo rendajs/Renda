@@ -1,6 +1,6 @@
 import { assertEquals, assertNotStrictEquals } from "std/testing/asserts.ts";
 import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
-import { assertAlmostEquals, assertVecAlmostEquals } from "../../shared/asserts.js";
+import { assertAlmostEquals, assertVecAlmostEquals } from "../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "Should be 0,0,0 by default",

@@ -1,6 +1,6 @@
 import { assertEquals, assertThrows } from "std/testing/asserts.ts";
 import { RemoteStudioFileSystem } from "../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
-import { assertPromiseResolved } from "../../../../../shared/asserts.js";
+import { assertPromiseResolved } from "../../../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "setConnection() may only be called once",

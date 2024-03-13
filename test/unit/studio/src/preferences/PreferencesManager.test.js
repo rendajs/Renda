@@ -3,7 +3,7 @@ import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 import { ContentWindowPreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import { PreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import { PreferencesManager } from "../../../../../studio/src/preferences/PreferencesManager.js";
-import { assertPromiseResolved } from "../../../shared/asserts.js";
+import { assertPromiseResolved } from "../../../../../src/util/asserts.js";
 import { assertIsType, testTypes } from "../../../shared/typeAssertions.js";
 
 const DEFAULT_CONTENT_WINDOW_UUID = "default content window uuid";

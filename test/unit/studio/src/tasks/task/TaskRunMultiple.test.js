@@ -2,7 +2,7 @@ import { assertEquals } from "std/testing/asserts.ts";
 import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 import "../../../shared/initializeStudio.js";
 import { TaskRunMultiple } from "../../../../../../studio/src/tasks/task/TaskRunMultiple.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 
 Deno.test({
 	name: "transformUiToAssetData()",

@@ -1,8 +1,8 @@
 import { assertEquals, assertRejects } from "std/testing/asserts.ts";
 import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 import { SingleInstancePromise } from "../../../../src/mod.js";
-import { assertPromiseResolved } from "../../shared/asserts.js";
-import { waitForMicrotasks } from "../../shared/waitForMicroTasks.js";
+import { assertPromiseResolved } from "../../../../src/util/asserts.js";
+import { waitForMicrotasks } from "../../../../src/util/waitForMicroTasks.js";
 
 function basicSpyFn() {
 	/** @type {((result: string) => void)?} */

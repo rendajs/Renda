@@ -1,7 +1,7 @@
 import { assertEquals, assertExists, assertRejects } from "std/testing/asserts.ts";
 import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
 import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 import { ASSET_SETTINGS_PATH, BASIC_ASSET_PATH, BASIC_ASSET_UUID, basicSetup } from "./shared.js";
 
 injectMockStudioInstance(/** @type {any} */ ({}));

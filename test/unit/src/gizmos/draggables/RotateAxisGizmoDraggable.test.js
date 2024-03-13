@@ -1,7 +1,7 @@
 import { assertEquals } from "std/testing/asserts.ts";
 import { RotateAxisGizmoDraggable } from "../../../../../src/gizmos/draggables/RotateAxisGizmoDraggable.js";
 import { Quat, Vec2 } from "../../../../../src/mod.js";
-import { assertQuatAlmostEquals } from "../../../shared/asserts.js";
+import { assertQuatAlmostEquals } from "../../../../../src/util/asserts.js";
 import { basicSetup } from "./shared.js";
 
 Deno.test({

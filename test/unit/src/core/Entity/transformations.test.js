@@ -1,7 +1,7 @@
 import { assertEquals, assertThrows } from "std/testing/asserts.ts";
 import { assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 import { Entity, Mat4, Quat, Vec3 } from "../../../../../src/mod.js";
-import { assertMatAlmostEquals, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertMatAlmostEquals, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 // ==== Local transformations ==================================================
 

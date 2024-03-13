@@ -2,7 +2,7 @@ import { assertEquals, assertNotEquals, assertStrictEquals } from "std/testing/a
 import { assertSpyCalls, spy } from "std/testing/mock.ts";
 import { GizmoDraggable } from "../../../../../src/gizmos/draggables/GizmoDraggable.js";
 import { CameraComponent, Entity, Sphere, Vec2, Vec3 } from "../../../../../src/mod.js";
-import { assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 const mockGizmoManager = /** @type {import("../../../../../src/mod.js").GizmoManager} */ ({});
 

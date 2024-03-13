@@ -1,10 +1,10 @@
 import { getMockArgs } from "./shared.js";
 import { PropertiesWindowContentEntity } from "../../../../../../studio/src/propertiesWindowContent/PropertiesWindowContentEntity.js";
 import { runWithDomAsync } from "../../../shared/runWithDom.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 import { Entity } from "../../../../../../src/mod.js";
 import { createMockEntityAssetManager } from "../../../shared/createMockEntityAssetManager.js";
-import { assertVecAlmostEquals } from "../../../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../../../src/util/asserts.js";
 import { assertSpyCalls } from "std/testing/mock.ts";
 import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
 import { EntityChangeType } from "../../../../../../studio/src/assets/EntityAssetManager.js";

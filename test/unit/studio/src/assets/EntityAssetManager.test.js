@@ -1,7 +1,7 @@
 import { assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 import { Entity, LightComponent } from "../../../../../src/mod.js";
 import { EntityAssetManager, EntityChangeType } from "../../../../../studio/src/assets/EntityAssetManager.js";
-import { assertPromiseResolved, assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertPromiseResolved, assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 import { assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 
 const BASIC_ENTITY_UUID = "basic entity uuid";

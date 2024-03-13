@@ -1,7 +1,7 @@
 import { assertEquals, assertExists, assertInstanceOf } from "std/testing/asserts.ts";
 import { assertSpyCalls, spy } from "std/testing/mock.ts";
 import { Entity, MeshComponent, TranslationGizmo, Vec3 } from "../../../../../src/mod.js";
-import { assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 import { createFakeGizmoManager } from "../shared.js";
 
 /**

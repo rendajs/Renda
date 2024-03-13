@@ -1,7 +1,7 @@
 import { assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 import { Mesh, Vec2, Vec3, Vec4 } from "../../../../../src/mod.js";
 import { mockVertexStateColor, mockVertexStateSingleAttribute, mockVertexStateTwoAttributes, mockVertexStateUv } from "./shared.js";
-import { assertVecAlmostEquals } from "../../../shared/asserts.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "Mesh should have an index format of UINT16 by default",

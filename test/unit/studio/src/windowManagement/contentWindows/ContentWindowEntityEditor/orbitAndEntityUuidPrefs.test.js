@@ -4,7 +4,7 @@ import { assertSpyCalls } from "std/testing/mock.ts";
 import { FakeTime } from "std/testing/time.ts";
 import { assertEquals, assertExists, assertStrictEquals } from "std/testing/asserts.ts";
 import { Quat } from "../../../../../../../src/mod.js";
-import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../shared/asserts.js";
+import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "last loaded entity and orbit controls are saved and loaded",

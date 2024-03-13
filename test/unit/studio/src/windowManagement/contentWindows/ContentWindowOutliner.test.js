@@ -11,7 +11,7 @@ import { MouseEvent } from "fake-dom/FakeMouseEvent.js";
 import { EntityAssetManager, EntityChangeType } from "../../../../../../studio/src/assets/EntityAssetManager.js";
 import { HistoryManager } from "../../../../../../studio/src/misc/HistoryManager.js";
 import { createMockKeyboardShortcutManager } from "../../../shared/mockKeyboardShortcutManager.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 import { DragEvent } from "fake-dom/FakeDragEvent.js";
 import { DragManager } from "../../../../../../studio/src/misc/DragManager.js";
 import { parseMimeType } from "../../../../../../studio/src/util/util.js";

@@ -3,7 +3,7 @@ import { ContentWindowDefaultAssetLinks } from "../../../../../../studio/src/win
 import { runWithDomAsync } from "../../../shared/runWithDom.js";
 import { stub } from "std/testing/mock.ts";
 import { createMockAssetManager } from "../../../shared/createMockAssetManager.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
 import { runWithMockStudioAsync } from "../../../shared/runWithMockStudio.js";
 import { PropertiesTreeViewEntry } from "../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";

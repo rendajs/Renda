@@ -1,6 +1,6 @@
 import { Mat4, Quat, Vec2, Vec3 } from "../../../../src/mod.js";
 import { domSpaceToScreenSpace, getRaycastRayFromScreenPos, screenSpaceToDomSpace, screenToWorldPos, worldToScreenPos } from "../../../../src/util/cameraUtil.js";
-import { assertAlmostEquals, assertVecAlmostEquals } from "../../shared/asserts.js";
+import { assertAlmostEquals, assertVecAlmostEquals } from "../../../../src/util/asserts.js";
 import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
 
 Deno.test({

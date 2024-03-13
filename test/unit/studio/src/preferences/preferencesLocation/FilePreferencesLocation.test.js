@@ -1,7 +1,7 @@
 import { assertEquals, assertRejects } from "std/testing/asserts.ts";
 import { FilePreferencesLocation } from "../../../../../../studio/src/preferences/preferencesLocation/FilePreferencesLocation.js";
 import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 
 Deno.test({

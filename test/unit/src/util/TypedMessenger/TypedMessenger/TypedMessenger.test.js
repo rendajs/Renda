@@ -2,10 +2,10 @@ import { assert, assertEquals, assertExists, assertInstanceOf, assertRejects, as
 import { TypedMessenger } from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
 import { FakeTime } from "std/testing/time.ts";
-import { assertPromiseResolved } from "../../../../shared/asserts.js";
+import { assertPromiseResolved } from "../../../../../../src/util/asserts.js";
 import { TimeoutError } from "../../../../../../src/util/TimeoutError.js";
 import { deserializeErrorHook, serializeErrorHook } from "../../../../../../src/util/TypedMessenger/errorSerialization.js";
-import { waitForMicrotasks } from "../../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 
 /**
  * Directly links two TypedMessengers to each other without the use of a WebSocket or anything like that.

@@ -2,7 +2,7 @@ import { basicSetup } from "./shared.js";
 import { assertEquals } from "std/testing/asserts.ts";
 import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 import { MouseEvent } from "fake-dom/FakeMouseEvent.js";
-import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
+import { waitForMicrotasks } from "../../../../../src/util/waitForMicroTasks.js";
 import { assertIsSpinnerEl } from "../ui/shared.js";
 
 /**
