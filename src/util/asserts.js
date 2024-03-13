@@ -51,7 +51,7 @@ function arrayToVector(arrayOrVector, msg) {
 		return new Vec4(arrayOrVector[0], arrayOrVector[1], arrayOrVector[2], arrayOrVector[3]);
 	}
 	if (msg) throw new AssertionError(msg);
-	throw new AssertionError(`${arrayOrVector} is not a vector`);
+	throw new AssertionError(`${arrayOrVector} has an unexpected length`);
 }
 
 /**
@@ -96,10 +96,7 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg
 		if (msg) {
 			throw new AssertionError(msg);
 		}
-		if (!expected) {
-			throw new AssertionError(`Expected ${expectedVec} but got ${expected}`);
-		}
-		throw new AssertionError(`Two vectors are not of the same type: ${actual.constructor.name} and ${expected.constructor.name}`);
+		throw new AssertionError(`Two vectors are not of the same type: ${actualVec.constructor.name} and ${expectedVec.constructor.name}`);
 	}
 	if (dist > tolerance || hasNaN) {
 		let message = msg;
