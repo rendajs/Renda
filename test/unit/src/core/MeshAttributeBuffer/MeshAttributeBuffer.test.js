@@ -157,16 +157,29 @@ Deno.test({
 
 		buffer.setVertexCount(2);
 
-		const data = Array.from(buffer.getVertexData(Mesh.AttributeType.POSITION));
-		assertEquals(data.length, 2);
-		assertVecAlmostEquals(data[0], [1, 2, 3]);
-		assertVecAlmostEquals(data[1], [0, 0, 0]);
+		const data1 = Array.from(buffer.getVertexData(Mesh.AttributeType.POSITION));
+		assertEquals(data1.length, 2);
+		assertVecAlmostEquals(data1[0], [1, 2, 3]);
+		assertVecAlmostEquals(data1[1], [0, 0, 0]);
 
-		const dataView = new DataView(buffer.buffer);
+		const dataView1 = new DataView(buffer.buffer);
+		assertEquals(dataView1.getFloat32(0, true), 1);
+		assertEquals(dataView1.getFloat32(4, true), 2);
+		assertEquals(dataView1.getFloat32(8, true), 3);
+		assertEquals(dataView1.getFloat32(12, true), 0);
+		assertEquals(dataView1.getFloat32(16, true), 0);
+		assertEquals(dataView1.getFloat32(20, true), 0);
 
-		assertEquals(dataView.getFloat32(0, true), 1);
-		assertEquals(dataView.getFloat32(4, true), 2);
-		assertEquals(dataView.getFloat32(8, true), 3);
+		buffer.setVertexCount(1);
+
+		const data2 = Array.from(buffer.getVertexData(Mesh.AttributeType.POSITION));
+		assertEquals(data2.length, 1);
+		assertVecAlmostEquals(data2[0], [1, 2, 3]);
+
+		const dataView2 = new DataView(buffer.buffer);
+		assertEquals(dataView2.getFloat32(0, true), 1);
+		assertEquals(dataView2.getFloat32(4, true), 2);
+		assertEquals(dataView2.getFloat32(8, true), 3);
 	},
 });
 
