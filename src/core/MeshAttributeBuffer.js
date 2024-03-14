@@ -118,7 +118,8 @@ export class MeshAttributeBuffer {
 		const oldBuffer = this.buffer;
 		this.#buffer = new ArrayBuffer(length);
 		if (oldBuffer) {
-			new Uint8Array(this.buffer).set(new Uint8Array(oldBuffer));
+			const copyBufferLength = Math.min(oldBuffer.byteLength, this.buffer.byteLength);
+			new Uint8Array(this.buffer).set(new Uint8Array(oldBuffer, 0, copyBufferLength));
 		}
 
 		this.#fireBufferChanged();
