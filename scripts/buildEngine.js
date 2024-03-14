@@ -66,7 +66,9 @@ export async function buildEngine(outDir) {
 	await fs.ensureDir(outDir);
 	await Deno.writeTextFile(path.resolve(outDir, "renda.js"), engineSource);
 	console.log("Minifying...");
-	const minified = await minify(engineSource);
+	const minified = await minify(engineSource, {
+		module: true,
+	});
 	if (!minified.code) {
 		throw new Error("Failed to minify engine source");
 	}
