@@ -268,16 +268,16 @@ export class Mesh {
 	 */
 	setVertexData(attributeType, data, opts) {
 		const buffer = this.getBufferForAttributeType(attributeType, opts);
-		buffer.setVertexData(attributeType, data);
+		buffer.setVertexData(attributeType, data, Boolean(this.#vertexState));
 	}
 
 	// TODO: change the signature so that you can only provide an ArrayBuffer
 	// I don't think it makes sense to expose isUnused functionality here.
 	/**
-	 * @param {ConstructorParameters<typeof MeshAttributeBuffer>[1]} attributeBufferOpts
+	 * @param {ConstructorParameters<typeof MeshAttributeBuffer>[0]} attributeBufferOpts
 	 */
 	copyBufferData(attributeBufferOpts) {
-		const attributeBuffer = new MeshAttributeBuffer(this, attributeBufferOpts);
+		const attributeBuffer = new MeshAttributeBuffer(attributeBufferOpts);
 		this.copyAttributeBufferData(attributeBuffer);
 	}
 
@@ -318,7 +318,7 @@ export class Mesh {
 			}
 		}
 
-		const unusedBuffer = new MeshAttributeBuffer(this, {
+		const unusedBuffer = new MeshAttributeBuffer({
 			attributes: [
 				{
 					offset: 0,
@@ -371,7 +371,7 @@ export class Mesh {
 						attributeType,
 					});
 				}
-				const buffer = new MeshAttributeBuffer(this, {
+				const buffer = new MeshAttributeBuffer({
 					arrayStride: bufferDescriptor.arrayStride,
 					attributes,
 				});

@@ -1,11 +1,10 @@
 import { assertEquals, assertNotStrictEquals, assertStrictEquals } from "std/testing/asserts.ts";
 import { Mesh, MeshAttributeBuffer } from "../../../../../src/mod.js";
-import { fakeMesh } from "./shared.js";
 
 Deno.test({
 	name: "clone is not the same reference",
 	fn() {
-		const buffer = new MeshAttributeBuffer(fakeMesh, {});
+		const buffer = new MeshAttributeBuffer({});
 
 		const clone = buffer.clone();
 		assertNotStrictEquals(buffer, clone);
@@ -15,7 +14,7 @@ Deno.test({
 Deno.test({
 	name: "isUnused flag is copied",
 	fn() {
-		const buffer1 = new MeshAttributeBuffer(fakeMesh, {
+		const buffer1 = new MeshAttributeBuffer({
 			isUnused: true,
 			attributes: [
 				{
@@ -30,7 +29,7 @@ Deno.test({
 		const clone1 = buffer1.clone();
 		assertStrictEquals(clone1.isUnused, true);
 
-		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
+		const buffer2 = new MeshAttributeBuffer({
 			isUnused: false,
 		});
 
@@ -42,7 +41,7 @@ Deno.test({
 Deno.test({
 	name: "isUnused flag is copied",
 	fn() {
-		const buffer1 = new MeshAttributeBuffer(fakeMesh, {
+		const buffer1 = new MeshAttributeBuffer({
 			isUnused: true,
 			attributes: [
 				{
@@ -57,7 +56,7 @@ Deno.test({
 		const clone1 = buffer1.clone();
 		assertStrictEquals(clone1.isUnused, true);
 
-		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
+		const buffer2 = new MeshAttributeBuffer({
 			isUnused: false,
 		});
 
@@ -69,7 +68,7 @@ Deno.test({
 Deno.test({
 	name: "arrayStride is copied",
 	fn() {
-		const buffer = new MeshAttributeBuffer(fakeMesh, {
+		const buffer = new MeshAttributeBuffer({
 			arrayStride: 2,
 		});
 
@@ -86,7 +85,7 @@ Deno.test({
 Deno.test({
 	name: "attribute data is cloned",
 	fn() {
-		const buffer = new MeshAttributeBuffer(fakeMesh, {
+		const buffer = new MeshAttributeBuffer({
 			attributes: [
 				{
 					attributeType: Mesh.AttributeType.POSITION,

@@ -14,7 +14,6 @@ import { Mesh } from "./Mesh.js";
  */
 
 export class MeshAttributeBuffer {
-	#mesh;
 	#arrayStride = 0;
 	get arrayStride() {
 		return this.#arrayStride;
@@ -38,15 +37,18 @@ export class MeshAttributeBuffer {
 	}
 
 	/**
-	 * @param {import("./Mesh.js").Mesh} mesh
+	 * @param {object} [options]
+	 * @param {number?} [options.arrayStride]
+	 * @param {MeshAttributeSettings[]} [options.attributes]
+	 * @param {boolean} [options.isUnused]
+	 * @param {ArrayBuffer} [options.arrayBuffer]
 	 */
-	constructor(mesh, {
-		arrayStride = /** @type {number?} */ (null),
-		attributes = /** @type {MeshAttributeSettings[]} */ ([]),
+	constructor({
+		arrayStride = null,
+		attributes = [],
 		isUnused = false,
 		arrayBuffer = new ArrayBuffer(0),
 	} = {}) {
-		this.#mesh = mesh;
 		if (isUnused && attributes.length != 1) {
 			throw new Error("Unused attribute buffers must have exactly 1 attribute.");
 		}
@@ -130,8 +132,9 @@ export class MeshAttributeBuffer {
 	 * @param {MeshAttributeSettings} attributeSettings
 	 * @param {string} expectedText
 	 * @param {number[] | Vec2[] | Vec3[] | Vec4[]} dataArray
+	 * @param {boolean | undefined} meshHasVertexState
 	 */
-	#assertVertexDataType(assertion, attributeSettings, expectedText, dataArray) {
+	#assertVertexDataType(assertion, attributeSettings, expectedText, dataArray, meshHasVertexState) {
 		if (!assertion) {
 			let dataType;
 			const firstArrayItem = dataArray[0];
@@ -156,12 +159,12 @@ export class MeshAttributeBuffer {
 			let vertexStateSentence;
 			const attributeName = Mesh.getAttributeNameForType(attributeSettings.attributeType);
 			if (this.#isUnused) {
-				if (this.#mesh.vertexState == null) {
-					vertexStateSentence = "The mesh has no VertexState.";
-					fixesList.push(`add a VertexState with "${attributeName}" attribute.`);
-				} else {
+				if (meshHasVertexState) {
 					vertexStateSentence = `The provided VertexState doesn't contain a "${attributeName}" attribute.`;
 					fixesList.push(`add a "${attributeName}" attribute to the VertexState.`);
+				} else {
+					vertexStateSentence = "The mesh has no VertexState.";
+					fixesList.push(`add a VertexState with "${attributeName}" attribute.`);
 				}
 				fixesList.push(`set the \`unusedComponentCount\` option of \`setVertexData()\` to ${receivedComponentCount}.`);
 				fixesList.push(`provide a ${expectedText} array.`);
@@ -178,8 +181,10 @@ export class MeshAttributeBuffer {
 	/**
 	 * @param {import("./Mesh.js").AttributeType} attributeType
 	 * @param {ArrayBufferLike | number[] | Vec2[] | Vec3[] | Vec4[]} data
+	 * @param {boolean} meshHasVertexState A hint that is used to provide more helpful error messages.
+	 * Set to true if the linked mesh contains a vertex state.
 	 */
-	setVertexData(attributeType, data) {
+	setVertexData(attributeType, data, meshHasVertexState) {
 		const attributeSettings = this.getAttributeSettings(attributeType);
 		if (!attributeSettings) {
 			throw new Error("Attribute type not found in vertex state.");
@@ -221,7 +226,7 @@ export class MeshAttributeBuffer {
 				return;
 			} else if (attributeSettings.componentCount == 1) {
 				let i = 0;
-				this.#assertVertexDataType(typeof data[0] == "number", attributeSettings, "number", data);
+				this.#assertVertexDataType(typeof data[0] == "number", attributeSettings, "number", data, meshHasVertexState);
 				const castData = /** @type {number[]} */ (data);
 				while (i < castData.length) {
 					for (let j = 0; j < attributeSettings.componentCount; j++) {
@@ -230,14 +235,14 @@ export class MeshAttributeBuffer {
 					i++;
 				}
 			} else if (attributeSettings.componentCount == 2) {
-				this.#assertVertexDataType(data[0] instanceof Vec2, attributeSettings, "Vec2", data);
+				this.#assertVertexDataType(data[0] instanceof Vec2, attributeSettings, "Vec2", data, meshHasVertexState);
 				const castData = /** @type {Vec2[]} */ (data);
 				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
 				}
 			} else if (attributeSettings.componentCount == 3) {
-				this.#assertVertexDataType(data[0] instanceof Vec3, attributeSettings, "Vec3", data);
+				this.#assertVertexDataType(data[0] instanceof Vec3, attributeSettings, "Vec3", data, meshHasVertexState);
 				const castData = /** @type {Vec3[]} */ (data);
 				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
@@ -245,7 +250,7 @@ export class MeshAttributeBuffer {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 2, pos.z, true);
 				}
 			} else if (attributeSettings.componentCount == 4) {
-				this.#assertVertexDataType(data[0] instanceof Vec4, attributeSettings, "Vec4", data);
+				this.#assertVertexDataType(data[0] instanceof Vec4, attributeSettings, "Vec4", data, meshHasVertexState);
 				const castData = /** @type {Vec4[]} */ (data);
 				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
@@ -331,7 +336,7 @@ export class MeshAttributeBuffer {
 	}
 
 	clone() {
-		const newBuffer = new MeshAttributeBuffer(this.#mesh, {
+		const newBuffer = new MeshAttributeBuffer({
 			arrayStride: this.arrayStride,
 			attributes: structuredClone(this.attributes),
 			arrayBuffer: structuredClone(this.buffer),
