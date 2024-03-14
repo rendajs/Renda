@@ -4,7 +4,7 @@
  * to get stripped, making the build size smaller.
  */
 
-export const RENDA_VERSION_STRING = "0.1.0";
+export const RENDA_VERSION_STRING = "0.3.0";
 
 /* ==== Generic Defines ==== */
 // These are the defines that are usually needed so they're all true by default.
