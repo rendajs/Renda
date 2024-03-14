@@ -58,7 +58,7 @@ export class Mesh {
 	}
 
 	destructor() {
-		for (const buffer of this.getBuffers()) {
+		for (const buffer of this.#getAttributeBuffers()) {
 			buffer.destructor();
 		}
 	}
@@ -256,7 +256,7 @@ export class Mesh {
 	 */
 	setVertexCount(vertexCount) {
 		this.#vertexCount = vertexCount;
-		for (const buffer of this.getBuffers()) {
+		for (const buffer of this.#getAttributeBuffers()) {
 			buffer.setVertexCount(vertexCount);
 		}
 	}
@@ -267,8 +267,15 @@ export class Mesh {
 	 * @param {UnusedAttributeBufferOptions} [opts]
 	 */
 	setVertexData(attributeType, data, opts) {
-		const buffer = this.getBufferForAttributeType(attributeType, opts);
+		const buffer = this.#getBufferForAttributeType(attributeType, opts);
 		buffer.setVertexData(attributeType, data, Boolean(this.#vertexState));
+	}
+
+	/**
+	 * @param {AttributeType} attributeType
+	 */
+	getVertexData(attributeType) {
+		return this.#getBufferForAttributeType(attributeType).getVertexData(attributeType);
 	}
 
 	// TODO: change the signature so that you can only provide an ArrayBuffer
@@ -308,11 +315,11 @@ export class Mesh {
 	 * @param {AttributeType} attributeType
 	 * @param {UnusedAttributeBufferOptions} options
 	 */
-	getBufferForAttributeType(attributeType, {
+	#getBufferForAttributeType(attributeType, {
 		unusedFormat = Mesh.AttributeFormat.FLOAT32,
 		unusedComponentCount = 3,
 	} = {}) {
-		for (const buffer of this.getBuffers()) {
+		for (const buffer of this.#getAttributeBuffers()) {
 			if (buffer.hasAttributeType(attributeType)) {
 				return buffer;
 			}
@@ -338,7 +345,7 @@ export class Mesh {
 	 * @param {boolean} includeUnused
 	 * @returns {Generator<MeshAttributeBuffer>}
 	 */
-	*getBuffers(includeUnused = true) {
+	*#getAttributeBuffers(includeUnused = true) {
 		for (const buffer of this.#buffers) {
 			yield buffer;
 		}
@@ -355,7 +362,7 @@ export class Mesh {
 	setVertexState(vertexState) {
 		this.#vertexState = vertexState;
 
-		const oldBuffers = Array.from(this.getBuffers());
+		const oldBuffers = Array.from(this.#getAttributeBuffers());
 		this.#buffers = [];
 		this.#unusedBuffers.clear();
 

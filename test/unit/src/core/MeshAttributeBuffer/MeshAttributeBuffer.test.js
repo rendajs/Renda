@@ -1,6 +1,7 @@
 import { assertEquals, assertExists, assertThrows } from "std/testing/asserts.ts";
-import { Mesh, MeshAttributeBuffer, Vec2, Vec3, Vec4 } from "../../../../../src/mod.js";
+import { Mesh, Vec2, Vec3, Vec4 } from "../../../../../src/mod.js";
 import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
+import { MeshAttributeBuffer } from "../../../../../src/core/MeshAttributeBuffer.js";
 
 Deno.test({
 	name: "throw an error when creating an unused buffer with not exactly one attribute",

@@ -6,7 +6,7 @@ Deno.test({
 	fn() {
 		const mesh = createCube();
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
+		const positionBuffer = mesh.#getBufferForAttributeType(0);
 		const vertexData = Array.from(positionBuffer.getVertexData(0));
 		assertEquals(vertexData.length, 24);
 	},

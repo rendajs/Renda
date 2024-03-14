@@ -255,10 +255,7 @@ Deno.test({
 
 		mesh.setVertexCount(3);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const data = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const data = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(data.length, 3);
 	},
 });
@@ -276,10 +273,7 @@ Deno.test({
 
 		mesh.setVertexCount(3);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const data = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const data = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(data.length, 3);
 	},
 });
@@ -301,13 +295,10 @@ Deno.test({
 
 		mesh.setVertexCount(3);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 2);
-
-		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(positionData.length, 3);
 
-		const normalData = Array.from(buffers[1].getVertexData(Mesh.AttributeType.NORMAL));
+		const normalData = Array.from(mesh.getVertexData(Mesh.AttributeType.NORMAL));
 		assertEquals(normalData.length, 3);
 	},
 });
@@ -322,10 +313,7 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(positionData.length, 2);
 	},
 });
@@ -341,10 +329,7 @@ Deno.test({
 			new Vec2(3, 4),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.UV1));
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.UV1));
 		assertEquals(positionData.length, 2);
 		assertVecAlmostEquals(positionData[0], [1, 2]);
 		assertVecAlmostEquals(positionData[1], [3, 4]);
@@ -362,10 +347,7 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(positionData.length, 2);
 		assertVecAlmostEquals(positionData[0], [1, 2, 3]);
 		assertVecAlmostEquals(positionData[1], [4, 5, 6]);
@@ -383,10 +365,7 @@ Deno.test({
 			new Vec4(5, 6, 7, 8),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.COLOR));
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.COLOR));
 		assertEquals(positionData.length, 2);
 		assertVecAlmostEquals(positionData[0], [1, 2, 3, 4]);
 		assertVecAlmostEquals(positionData[1], [5, 6, 7, 8]);
@@ -398,7 +377,7 @@ Deno.test({
 	fn() {
 		const mesh = new Mesh();
 
-		const result = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
+		const result = mesh.#getBufferForAttributeType(Mesh.AttributeType.POSITION);
 
 		assertEquals(result.isUnused, true);
 	},
@@ -409,7 +388,7 @@ Deno.test({
 	fn() {
 		const mesh = new Mesh();
 
-		const result = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION, {
+		const result = mesh.#getBufferForAttributeType(Mesh.AttributeType.POSITION, {
 			unusedComponentCount: 1,
 			unusedFormat: Mesh.AttributeFormat.INT32,
 		});
@@ -426,8 +405,8 @@ Deno.test({
 	fn() {
 		const mesh = new Mesh();
 
-		const result1 = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
-		const result2 = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
+		const result1 = mesh.#getBufferForAttributeType(Mesh.AttributeType.POSITION);
+		const result2 = mesh.#getBufferForAttributeType(Mesh.AttributeType.POSITION);
 
 		assertStrictEquals(result1, result2);
 	},
@@ -444,8 +423,8 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const result1 = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
-		const result2 = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
+		const result1 = mesh.#getBufferForAttributeType(Mesh.AttributeType.POSITION);
+		const result2 = mesh.#getBufferForAttributeType(Mesh.AttributeType.POSITION);
 
 		assertStrictEquals(result1, result2);
 		assertEquals(result1.isUnused, false);
@@ -467,7 +446,7 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers());
+		const buffers = Array.from(mesh.#getBuffers());
 
 		assertEquals(buffers.length, 2);
 	},
@@ -488,7 +467,7 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers(false));
+		const buffers = Array.from(mesh.#getBuffers(false));
 
 		assertEquals(buffers.length, 1);
 	},
@@ -511,7 +490,7 @@ Deno.test({
 
 		mesh.setVertexState(mockVertexStateTwoAttributes);
 
-		const buffers = Array.from(mesh.getBuffers());
+		const buffers = Array.from(mesh.#getBuffers());
 
 		assertEquals(buffers.length, 1);
 		assertEquals(buffers[0].attributes.length, 2);

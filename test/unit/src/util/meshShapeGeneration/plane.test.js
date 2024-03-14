@@ -7,7 +7,7 @@ Deno.test({
 	fn() {
 		const mesh = createPlane();
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
+		const positionBuffer = mesh.#getBufferForAttributeType(0);
 		const vertexData = Array.from(positionBuffer.getVertexData(0));
 		assertEquals(vertexData.length, 4);
 
@@ -24,7 +24,7 @@ Deno.test({
 			heightSegments: 3,
 		});
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
+		const positionBuffer = mesh.#getBufferForAttributeType(0);
 		const vertexData = Array.from(positionBuffer.getVertexData(0));
 		assertEquals(vertexData.length, 24);
 	},
@@ -38,7 +38,7 @@ Deno.test({
 			heightSegments: 2,
 		});
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
+		const positionBuffer = mesh.#getBufferForAttributeType(0);
 		const vertexData = Array.from(positionBuffer.getVertexData(0));
 		assertEquals(vertexData.length, 9);
 		const indexData = Array.from(mesh.getIndexData());
@@ -61,7 +61,7 @@ Deno.test({
 			height: 3,
 		});
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
+		const positionBuffer = mesh.#getBufferForAttributeType(0);
 		const min = new Vec3();
 		const max = new Vec3();
 		for (const vert of positionBuffer.getVertexData(0)) {
