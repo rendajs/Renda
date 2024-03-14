@@ -10,7 +10,7 @@ import { parseVersionArg } from "./parseVersionArgs.js";
  */
 export function verifyVersion(expectedVersion) {
 	if (RENDA_VERSION_STRING != expectedVersion) {
-		console.error(`Expected version to match "${expectedVersion}". Please update studioDefines.js and submit a pull request.`);
+		console.error(`Expected version to match "${expectedVersion}". Please update engineDefines.js and submit a pull request.`);
 		Deno.exit(1);
 	}
 }
