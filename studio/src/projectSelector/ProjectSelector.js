@@ -1,6 +1,6 @@
+import { RENDA_VERSION_STRING } from "../../../src/engineDefines.js";
 import { IndexedDbUtil } from "../../../src/util/IndexedDbUtil.js";
 import { PromiseWaitHelper } from "../../../src/util/PromiseWaitHelper.js";
-import { BUILD_VERSION_STRING } from "../studioDefines.js";
 import { createSpinner } from "../ui/spinner.js";
 import { IndexedDbStudioFileSystem } from "../util/fileSystems/IndexedDbStudioFileSystem.js";
 
@@ -50,7 +50,7 @@ export class ProjectSelector {
 
 		this.#versionEl = document.createElement("div");
 		this.#versionEl.classList.add("version");
-		this.#versionEl.textContent = `v${BUILD_VERSION_STRING} (beta)`;
+		this.#versionEl.textContent = `v${RENDA_VERSION_STRING} (beta)`;
 		headerEl.append(this.#versionEl);
 
 		this.actionsListEl = this.createList("actions", "Start");

@@ -3,9 +3,13 @@ import * as path from "std/path/mod.ts";
 import { buildEngine } from "./buildEngine.js";
 import { setCwd } from "chdir-anywhere";
 import { parseVersionArg } from "./shared/parseVersionArgs.js";
+import { verifyVersion } from "./shared/verifyVersion.js";
 
 setCwd();
 const destination = path.resolve("..", "npmPackage");
+
+const version = parseVersionArg();
+verifyVersion(version);
 
 try {
 	await Deno.remove(destination, {
@@ -17,13 +21,11 @@ try {
 await fs.ensureDir(destination);
 
 const distPath = path.resolve(destination, "dist");
-const engineSource = await buildEngine();
-await fs.ensureDir(distPath);
-await Deno.writeTextFile(path.resolve(distPath, "renda.js"), engineSource);
+await buildEngine(distPath);
 
 const packageJson = JSON.stringify({
 	name: "renda",
-	version: parseVersionArg(),
+	version,
 	description: "A modern rendering engine for the web.",
 	type: "module",
 	main: "dist/renda.js",
