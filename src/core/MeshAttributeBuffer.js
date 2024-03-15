@@ -29,4 +29,8 @@ export class MeshAttributeBuffer {
 	onBufferChanged(cb) {
 		this.#internalAttributeBuffer.onBufferChanged(cb);
 	}
+
+	get isUnused() {
+		return this.#internalAttributeBuffer.isUnused;
+	}
 }
