@@ -58,7 +58,7 @@ export class Mesh {
 	}
 
 	destructor() {
-		for (const buffer of this.#getAttributeBuffers()) {
+		for (const buffer of this.#getInternalAttributeBuffers()) {
 			buffer.destructor();
 		}
 	}
@@ -256,7 +256,7 @@ export class Mesh {
 	 */
 	setVertexCount(vertexCount) {
 		this.#vertexCount = vertexCount;
-		for (const buffer of this.#getAttributeBuffers()) {
+		for (const buffer of this.#getInternalAttributeBuffers()) {
 			buffer.setVertexCount(vertexCount);
 		}
 	}
@@ -267,7 +267,7 @@ export class Mesh {
 	 * @param {UnusedAttributeBufferOptions} [opts]
 	 */
 	setVertexData(attributeType, data, opts) {
-		const buffer = this.#getBufferForAttributeType(attributeType, opts);
+		const buffer = this.#getInternalAttriuteBuffer(attributeType, opts);
 		buffer.setVertexData(attributeType, data, Boolean(this.#vertexState));
 	}
 
@@ -275,7 +275,7 @@ export class Mesh {
 	 * @param {AttributeType} attributeType
 	 */
 	getVertexData(attributeType) {
-		return this.#getBufferForAttributeType(attributeType).getVertexData(attributeType);
+		return this.#getInternalAttriuteBuffer(attributeType).getVertexData(attributeType);
 	}
 
 	// TODO: change the signature so that you can only provide an ArrayBuffer
@@ -315,11 +315,11 @@ export class Mesh {
 	 * @param {AttributeType} attributeType
 	 * @param {UnusedAttributeBufferOptions} options
 	 */
-	#getBufferForAttributeType(attributeType, {
+	#getInternalAttriuteBuffer(attributeType, {
 		unusedFormat = Mesh.AttributeFormat.FLOAT32,
 		unusedComponentCount = 3,
 	} = {}) {
-		for (const buffer of this.#getAttributeBuffers()) {
+		for (const buffer of this.#getInternalAttributeBuffers()) {
 			if (buffer.hasAttributeType(attributeType)) {
 				return buffer;
 			}
@@ -345,7 +345,7 @@ export class Mesh {
 	 * @param {boolean} includeUnused
 	 * @returns {Generator<InternalMeshAttributeBuffer>}
 	 */
-	*#getAttributeBuffers(includeUnused = true) {
+	*#getInternalAttributeBuffers(includeUnused = true) {
 		for (const buffer of this.#buffers) {
 			yield buffer;
 		}
@@ -356,13 +356,19 @@ export class Mesh {
 		}
 	}
 
+	*getBuffers(includeUnused = true) {
+		for (const buffer of this.#getInternalAttributeBuffers(includeUnused)) {
+			yield buffer.exposedAttributeBuffer;
+		}
+	}
+
 	/**
 	 * @param {import("../rendering/VertexState.js").VertexState?} vertexState
 	 */
 	setVertexState(vertexState) {
 		this.#vertexState = vertexState;
 
-		const oldBuffers = Array.from(this.#getAttributeBuffers());
+		const oldBuffers = Array.from(this.#getInternalAttributeBuffers());
 		this.#buffers = [];
 		this.#unusedBuffers.clear();
 

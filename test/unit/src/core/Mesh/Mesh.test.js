@@ -446,7 +446,7 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.#getBuffers());
+		const buffers = Array.from(mesh.getBuffers());
 
 		assertEquals(buffers.length, 2);
 	},
@@ -467,7 +467,7 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.#getBuffers(false));
+		const buffers = Array.from(mesh.getBuffers(false));
 
 		assertEquals(buffers.length, 1);
 	},
@@ -490,7 +490,7 @@ Deno.test({
 
 		mesh.setVertexState(mockVertexStateTwoAttributes);
 
-		const buffers = Array.from(mesh.#getBuffers());
+		const buffers = Array.from(mesh.getBuffers());
 
 		assertEquals(buffers.length, 1);
 		assertEquals(buffers[0].attributes.length, 2);

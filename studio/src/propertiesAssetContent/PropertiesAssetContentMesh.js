@@ -48,7 +48,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 
 		if (liveAsset && studioData) {
 			const attributeNames = [];
-			for (const attributeBuffer of liveAsset.#getBuffers()) {
+			for (const attributeBuffer of liveAsset.getBuffers()) {
 				for (const attribute of attributeBuffer.attributes) {
 					const name = Mesh.getAttributeNameForType(attribute.attributeType);
 					attributeNames.push(name);

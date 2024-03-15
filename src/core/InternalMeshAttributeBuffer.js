@@ -2,8 +2,7 @@ import { Vec2 } from "../math/Vec2.js";
 import { Vec3 } from "../math/Vec3.js";
 import { Vec4 } from "../math/Vec4.js";
 import { Mesh } from "./Mesh.js";
-
-/** @typedef {() => void} OnBufferChangedCallback */
+import { MeshAttributeBuffer } from "./MeshAttributeBuffer.js";
 
 /**
  * @typedef MeshAttributeSettings
@@ -28,12 +27,26 @@ export class InternalMeshAttributeBuffer {
 		return this.#buffer;
 	}
 
-	/** @type {Set<OnBufferChangedCallback>} */
+	/** @type {Set<import("./MeshAttributeBuffer.js").OnBufferChangedCallback>} */
 	#onBufferChangedCbs = new Set();
 
 	#isUnused = false;
 	get isUnused() {
 		return this.#isUnused;
+	}
+
+	/** @type {MeshAttributeBuffer} */
+	#exposedAttributeBuffer;
+	/**
+	 * The `MeshAttributeBuffer` instance which is exposed to the user.
+	 * We want to make sure some methods such as `setVertexCount` is only called by
+	 * the `Mesh` which owns the `InternalMeshAttributeBuffer`.
+	 * Otherwise the user could change the count for a single attribute buffer which would break things.
+	 * The `MeshAttributeBuffer` class is a shallow representation of the `InternalMeshAttributeBuffer` class
+	 * which only exposes some methods.
+	 */
+	get exposedAttributeBuffer() {
+		return this.#exposedAttributeBuffer;
 	}
 
 	/**
@@ -56,6 +69,8 @@ export class InternalMeshAttributeBuffer {
 		this.#isUnused = isUnused;
 
 		this.#buffer = arrayBuffer;
+
+		this.#exposedAttributeBuffer = new MeshAttributeBuffer(this);
 
 		this.setArrayStride(arrayStride);
 	}
@@ -346,7 +361,7 @@ export class InternalMeshAttributeBuffer {
 	}
 
 	/**
-	 * @param {OnBufferChangedCallback} cb
+	 * @param {import("./MeshAttributeBuffer.js").OnBufferChangedCallback} cb
 	 */
 	onBufferChanged(cb) {
 		this.#onBufferChangedCbs.add(cb);

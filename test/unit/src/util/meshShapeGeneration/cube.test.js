@@ -1,13 +1,12 @@
 import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
-import { VertexState, createCube } from "../../../../../src/mod.js";
+import { Mesh, VertexState, createCube } from "../../../../../src/mod.js";
 
 Deno.test({
 	name: "Basic cube",
 	fn() {
 		const mesh = createCube();
 
-		const positionBuffer = mesh.#getBufferForAttributeType(0);
-		const vertexData = Array.from(positionBuffer.getVertexData(0));
+		const vertexData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(vertexData.length, 24);
 	},
 });
