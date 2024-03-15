@@ -13,7 +13,7 @@ import { Mesh } from "./Mesh.js";
  * @property {import("./Mesh.js").AttributeType} attributeType
  */
 
-export class MeshAttributeBuffer {
+export class InternalMeshAttributeBuffer {
 	#arrayStride = 0;
 	get arrayStride() {
 		return this.#arrayStride;
@@ -336,7 +336,7 @@ export class MeshAttributeBuffer {
 	}
 
 	clone() {
-		const newBuffer = new MeshAttributeBuffer({
+		const newBuffer = new InternalMeshAttributeBuffer({
 			arrayStride: this.arrayStride,
 			attributes: structuredClone(this.attributes),
 			arrayBuffer: structuredClone(this.buffer),

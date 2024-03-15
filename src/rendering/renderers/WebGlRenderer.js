@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { Mesh } from "../../core/Mesh.js";
-import { MeshAttributeBuffer } from "../../core/MeshAttributeBuffer.js";
+import { InternalMeshAttributeBuffer } from "../../core/InternalMeshAttributeBuffer.js";
 import { Mat4 } from "../../math/Mat4.js";
 import { WebGlShader } from "../WebGlShader.js";
 import { Renderer } from "./Renderer.js";
@@ -166,17 +166,17 @@ export class WebGlRenderer extends Renderer {
 
 	attribTypeToWebGlConst(type) {
 		switch (type) {
-			case MeshAttributeBuffer.ComponentTypes.BYTE:
+			case InternalMeshAttributeBuffer.ComponentTypes.BYTE:
 				return this.gl.BYTE;
-			case MeshAttributeBuffer.ComponentTypes.SHORT:
+			case InternalMeshAttributeBuffer.ComponentTypes.SHORT:
 				return this.gl.SHORT;
-			case MeshAttributeBuffer.ComponentTypes.UNSIGNED_BYTE:
+			case InternalMeshAttributeBuffer.ComponentTypes.UNSIGNED_BYTE:
 				return this.gl.UNSIGNED_BYTE;
-			case MeshAttributeBuffer.ComponentTypes.UNSIGNED_SHORT:
+			case InternalMeshAttributeBuffer.ComponentTypes.UNSIGNED_SHORT:
 				return this.gl.UNSIGNED_SHORT;
-			case MeshAttributeBuffer.ComponentTypes.FLOAT:
+			case InternalMeshAttributeBuffer.ComponentTypes.FLOAT:
 				return this.gl.FLOAT;
-			case MeshAttributeBuffer.ComponentTypes.HALF_FLOAT:
+			case InternalMeshAttributeBuffer.ComponentTypes.HALF_FLOAT:
 				return this.gl.HALF_FLOAT;
 			default:
 				throw new Error("Unknown component type");

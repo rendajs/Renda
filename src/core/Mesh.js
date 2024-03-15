@@ -1,6 +1,6 @@
 import { DEBUG_INCLUDE_ERROR_MESSAGES, DEBUG_INCLUDE_ERROR_THROWS } from "../engineDefines.js";
 import { neverNoOp } from "../util/neverNoOp.js";
-import { MeshAttributeBuffer } from "./MeshAttributeBuffer.js";
+import { InternalMeshAttributeBuffer } from "./InternalMeshAttributeBuffer.js";
 
 // TODO: make these an enum
 /** @typedef {number} AttributeType */
@@ -16,9 +16,9 @@ import { MeshAttributeBuffer } from "./MeshAttributeBuffer.js";
 /** @typedef {() => void} OnIndexBufferChangeCallback */
 
 export class Mesh {
-	/** @type {MeshAttributeBuffer[]} */
+	/** @type {InternalMeshAttributeBuffer[]} */
 	#buffers = [];
-	/** @type {Map<number, MeshAttributeBuffer>} */
+	/** @type {Map<number, InternalMeshAttributeBuffer>} */
 	#unusedBuffers = new Map();
 
 	/** @type {import("../rendering/VertexState.js").VertexState?} */
@@ -281,15 +281,15 @@ export class Mesh {
 	// TODO: change the signature so that you can only provide an ArrayBuffer
 	// I don't think it makes sense to expose isUnused functionality here.
 	/**
-	 * @param {ConstructorParameters<typeof MeshAttributeBuffer>[0]} attributeBufferOpts
+	 * @param {ConstructorParameters<typeof InternalMeshAttributeBuffer>[0]} attributeBufferOpts
 	 */
 	copyBufferData(attributeBufferOpts) {
-		const attributeBuffer = new MeshAttributeBuffer(attributeBufferOpts);
+		const attributeBuffer = new InternalMeshAttributeBuffer(attributeBufferOpts);
 		this.copyAttributeBufferData(attributeBuffer);
 	}
 
 	/**
-	 * @param {MeshAttributeBuffer} attributeBuffer
+	 * @param {InternalMeshAttributeBuffer} attributeBuffer
 	 */
 	copyAttributeBufferData(attributeBuffer) {
 		// todo: there's probably still some performance that can be gained here
@@ -325,7 +325,7 @@ export class Mesh {
 			}
 		}
 
-		const unusedBuffer = new MeshAttributeBuffer({
+		const unusedBuffer = new InternalMeshAttributeBuffer({
 			attributes: [
 				{
 					offset: 0,
@@ -343,7 +343,7 @@ export class Mesh {
 
 	/**
 	 * @param {boolean} includeUnused
-	 * @returns {Generator<MeshAttributeBuffer>}
+	 * @returns {Generator<InternalMeshAttributeBuffer>}
 	 */
 	*#getAttributeBuffers(includeUnused = true) {
 		for (const buffer of this.#buffers) {
@@ -378,7 +378,7 @@ export class Mesh {
 						attributeType,
 					});
 				}
-				const buffer = new MeshAttributeBuffer({
+				const buffer = new InternalMeshAttributeBuffer({
 					arrayStride: bufferDescriptor.arrayStride,
 					attributes,
 				});
