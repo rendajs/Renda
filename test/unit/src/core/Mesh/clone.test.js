@@ -41,13 +41,13 @@ Deno.test({
 		mesh.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(1, 2, 3)]);
 
 		const clone = mesh.clone();
-		const buffers1 = Array.from(clone.getBuffers());
+		const buffers1 = Array.from(clone.getAttributeBuffers());
 		assertEquals(buffers1.length, 1);
 		const vertexData1 = Array.from(clone.getVertexData(Mesh.AttributeType.POSITION));
 		assertVecAlmostEquals(vertexData1[0], [1, 2, 3]);
 
 		mesh.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(4, 5, 6)]);
-		const buffers2 = Array.from(clone.getBuffers());
+		const buffers2 = Array.from(clone.getAttributeBuffers());
 		assertEquals(buffers2.length, 1);
 		const vertexData2 = Array.from(clone.getVertexData(Mesh.AttributeType.POSITION));
 		assertVecAlmostEquals(vertexData2[0], [1, 2, 3]);

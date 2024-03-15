@@ -356,7 +356,7 @@ export class Mesh {
 		}
 	}
 
-	*getBuffers(includeUnused = true) {
+	*getAttributeBuffers(includeUnused = true) {
 		for (const buffer of this.#getInternalAttributeBuffers(includeUnused)) {
 			yield buffer.exposedAttributeBuffer;
 		}

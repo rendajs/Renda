@@ -11,7 +11,7 @@ export class CachedMeshData {
 
 		// todo: remove old bufferdata when the list of buffers changes
 		this.buffers = [];
-		for (const meshBuffer of mesh.getBuffers(false)) {
+		for (const meshBuffer of mesh.getAttributeBuffers(false)) {
 			const bufferData = new CachedMeshBufferData(meshBuffer, this);
 			this.buffers.push(bufferData);
 		}

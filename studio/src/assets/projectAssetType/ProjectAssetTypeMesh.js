@@ -143,7 +143,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		}
 
 		composer.appendUint32(liveAsset.vertexCount);
-		const buffers = Array.from(liveAsset.getBuffers());
+		const buffers = Array.from(liveAsset.getAttributeBuffers());
 		composer.appendUint16(buffers.length);
 		for (const buffer of buffers) {
 			const attributes = buffer.attributes;
