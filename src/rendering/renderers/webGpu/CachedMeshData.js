@@ -64,7 +64,7 @@ export class CachedMeshData {
 	}
 
 	getIndexedBufferGpuCommands() {
-		// todo: support for dynamic indexbuffer updates using GPUBufferUsage.COPY_DST and device.queue.writeBuffer
+		// todo: support for dynamic indexBuffer updates using GPUBufferUsage.COPY_DST and device.queue.writeBuffer
 		if (this.indexBufferDirty) {
 			this.createIndexGpuBuffer();
 		}

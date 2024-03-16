@@ -37,16 +37,31 @@ export class Mesh {
 	}
 
 	#vertexCount = 0;
+	/**
+	 * The total number of vertices in the mesh.
+	 * This is not necessarily the total amount of vertices that are being rendered.
+	 * If an indexBuffer is used, it is possible for some vertices to be rendered more than once
+	 * and even for some vertices to not be rendered at all.
+	 */
 	get vertexCount() {
 		return this.#vertexCount;
 	}
 
 	#indexFormat = Mesh.IndexFormat.UINT_16;
+	/**
+	 * Whether the index buffer is stored as 16 bit or 32 bit integers.
+	 * If a 16 bit index buffer is used, the mesh can't be used to render more than 65536 vertices.
+	 * Use {@linkcode setIndexFormat} to change the index format.
+	 */
 	get indexFormat() {
 		return this.#indexFormat;
 	}
 
 	#indexBuffer = new ArrayBuffer(0);
+	/**
+	 * The raw index buffer. You may modify this directly for low level control.
+	 * Make sure to call {@linkcode fireIndexBufferChanged} to notify any users of the mesh about the change.
+	 */
 	get indexBuffer() {
 		return this.#indexBuffer;
 	}
@@ -133,8 +148,9 @@ export class Mesh {
 	}
 
 	/**
-	 * This changes the index format of the mesh. If an index buffer has already
-	 * been set, it will be converted to the new format.
+	 * Sets whether the index buffer is stored as 16 bit or 32 bit integers.
+	 * If a 16 bit index buffer is used, the mesh can't be used to render more than 65536 vertices.
+	 * If an index buffer has already been set, it will be converted to the new format.
 	 * @param {IndexFormat} indexFormat
 	 */
 	setIndexFormat(indexFormat) {
@@ -167,6 +183,8 @@ export class Mesh {
 	}
 
 	/**
+	 * Places the provided index data in the underlying index buffer.
+	 * For large meshes it's best to manipulate {@linkcode indexBuffer} directly.
 	 * @param {ArrayBufferLike | number[]} data
 	 */
 	setIndexData(data) {
@@ -224,6 +242,9 @@ export class Mesh {
 		this.fireIndexBufferChanged();
 	}
 
+	/**
+	 * Iterates over the current values in the index buffer.
+	 */
 	*getIndexData() {
 		const dataView = this.#getIndexBufferDataView();
 
@@ -246,6 +267,9 @@ export class Mesh {
 	}
 
 	/**
+	 * Before providing vertex data, you need use this to tell the mesh how large you want the underlying buffers to be.
+	 * This resizes existing buffers so that they fit the vertices of the provided amount.
+	 * If the data provided with {@linkcode setVertexData} is bigger than the current vertex count, an error will be thrown.
 	 * @param {number} vertexCount
 	 */
 	setVertexCount(vertexCount) {
@@ -264,6 +288,15 @@ export class Mesh {
 	 */
 
 	/**
+	 * Assigns vertex data to the underlying array buffer.
+	 * For large meshes it's best to use {@linkcode getAttributeBufferForType} and manipulate its buffer directly.
+	 *
+	 * When using {@linkcode setVertexData}, is best to call {@linkcode setVertexState} first before providing vertex data, otherwise an 'unused' buffer will be created.
+	 * Unused buffers store vertex data in the most basic format, but once you assign a `VertexState`, this format may be converted.
+	 * If you assign a `VertexState` first, the vertex data will be written in the correct format right away.
+	 *
+	 * If you still wish to store vertex data in 'unused' buffers,
+	 * make sure to provide a `unusedFormat` and a `unusedComponentCount` to avoid errors.
 	 * @param {AttributeType} attributeType
 	 * @param {ArrayBufferLike | number[] | import("../math/Vec2.js").Vec2[] | import("../math/Vec3.js").Vec3[] | import("../math/Vec4.js").Vec4[]} data
 	 * @param {UnusedAttributeBufferOptions<any>} [opts]
@@ -277,6 +310,7 @@ export class Mesh {
 	}
 
 	/**
+	 * Iterates over the vertex data of the specified attribute.
 	 * @param {AttributeType} attributeType
 	 */
 	getVertexData(attributeType) {
@@ -377,6 +411,10 @@ export class Mesh {
 		}
 	}
 
+	/**
+	 * Iterates over all AttributeBuffers.
+	 * This gives you more low level access to the underlying vertex buffers.
+	 */
 	*getAttributeBuffers(includeUnused = true) {
 		for (const buffer of this.#getInternalAttributeBuffers(includeUnused)) {
 			yield buffer.exposedAttributeBuffer;
@@ -384,6 +422,10 @@ export class Mesh {
 	}
 
 	/**
+	 * Returns an AttributeBuffer for the provided attribute type.
+	 * This gives you more low level access to the underlying vertex buffer of the attribute.
+	 * Note that attribute buffers may contain multiple attributes in a single buffer.
+	 * In that case, the returned buffer may also include extra vertex data for an attribute type that you didn't request.
 	 * @param {AttributeType} attributeType
 	 */
 	getAttributeBufferForType(attributeType) {
@@ -393,6 +435,10 @@ export class Mesh {
 	}
 
 	/**
+	 * Provides a VertexState describing the format in which vertex buffers should be stored.
+	 * If the mesh already contains existing vertex buffers,
+	 * these will be converted to match the format of the new VertexState.
+	 * Therefore, it's usually best to call {@linkcode setVertexState} first before making calls to {@linkcode setVertexData}.
 	 * @param {import("../rendering/VertexState.js").VertexState?} vertexState
 	 */
 	setVertexState(vertexState) {
@@ -428,6 +474,9 @@ export class Mesh {
 		}
 	}
 
+	/**
+	 * Makes a copy of the mesh and all of it's buffers.
+	 */
 	clone() {
 		const newMesh = new Mesh();
 		newMesh.setVertexState(this.#vertexState);
@@ -444,12 +493,27 @@ export class Mesh {
 	}
 
 	/**
+	 * Registers a callback which fires when the underlying index buffer has changed.
+	 *
+	 * This is only fired when index data is modified using {@linkcode setIndexData}.
+	 * If you plan on manually making modifications to the underlying {@linkcode indexBuffer},
+	 * you should call {@linkcode fireIndexBufferChanged} once you're done.
+	 *
+	 * If you wish to receive updates when a vertex buffer is changed,
+	 * you should use {@linkcode getAttributeBufferForType} and register a callback
+	 * using `onBufferChanged` on the returned `MeshAttributeBuffer`.
 	 * @param {OnIndexBufferChangeCallback} cb
 	 */
 	onIndexBufferChange(cb) {
 		this.#onIndexBufferChangeCbs.add(cb);
 	}
 
+	/**
+	 * Call this after making a change to the underlying index buffer.
+	 * This notifies users of the mesh such as renderers that the mesh has changed
+	 * and that cache needs to be invalidated or that the buffer needs to be
+	 * reuploaded to the gpu.
+	 */
 	fireIndexBufferChanged() {
 		for (const cb of this.#onIndexBufferChangeCbs) {
 			cb();
