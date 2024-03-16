@@ -221,7 +221,7 @@ export class Mesh {
 		} else {
 			throw new TypeError("invalid data type");
 		}
-		this.#fireIndexBufferChanged();
+		this.fireIndexBufferChanged();
 	}
 
 	*getIndexData() {
@@ -450,7 +450,7 @@ export class Mesh {
 		this.#onIndexBufferChangeCbs.add(cb);
 	}
 
-	#fireIndexBufferChanged() {
+	fireIndexBufferChanged() {
 		for (const cb of this.#onIndexBufferChangeCbs) {
 			cb();
 		}

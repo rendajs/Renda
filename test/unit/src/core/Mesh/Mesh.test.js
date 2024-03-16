@@ -244,6 +244,21 @@ Deno.test({
 });
 
 Deno.test({
+	name: "fireIndexBufferChanged should fire onIndexBufferChange",
+	fn() {
+		const mesh = new Mesh();
+
+		let onIndexBufferChangeCallCount = 0;
+		mesh.onIndexBufferChange(() => {
+			onIndexBufferChangeCallCount++;
+		});
+
+		mesh.fireIndexBufferChanged();
+		assertEquals(onIndexBufferChangeCallCount, 1);
+	},
+});
+
+Deno.test({
 	name: "setVertexCount() with single unused attribute",
 	fn() {
 		const mesh = new Mesh();
