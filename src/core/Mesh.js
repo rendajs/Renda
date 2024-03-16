@@ -7,12 +7,6 @@ import { InternalMeshAttributeBuffer } from "./InternalMeshAttributeBuffer.js";
 /** @typedef {number} AttributeFormat */
 /** @typedef {number} IndexFormat */
 
-/**
- * @typedef UnusedAttributeBufferOptions
- * @property {AttributeFormat} [unusedFormat = Mesh.AttributeFormat.FLOAT32]
- * @property {number} [unusedComponentCount = 3]
- */
-
 /** @typedef {() => void} OnIndexBufferChangeCallback */
 
 export class Mesh {
@@ -262,12 +256,23 @@ export class Mesh {
 	}
 
 	/**
+	 * @template {boolean} TCreate
+	 * @typedef UnusedAttributeBufferOptions
+	 * @property {AttributeFormat} [unusedFormat = Mesh.AttributeFormat.FLOAT32]
+	 * @property {number} [unusedComponentCount = 3]
+	 * @property {TCreate} [createUnused]
+	 */
+
+	/**
 	 * @param {AttributeType} attributeType
 	 * @param {ArrayBufferLike | number[] | import("../math/Vec2.js").Vec2[] | import("../math/Vec3.js").Vec3[] | import("../math/Vec4.js").Vec4[]} data
-	 * @param {UnusedAttributeBufferOptions} [opts]
+	 * @param {UnusedAttributeBufferOptions<any>} [opts]
 	 */
 	setVertexData(attributeType, data, opts) {
-		const buffer = this.#getInternalAttriuteBuffer(attributeType, opts);
+		const buffer = this.#getInternalAttributeBuffer(attributeType, {
+			...opts,
+			createUnused: true,
+		});
 		buffer.setVertexData(attributeType, data, Boolean(this.#vertexState));
 	}
 
@@ -275,7 +280,7 @@ export class Mesh {
 	 * @param {AttributeType} attributeType
 	 */
 	getVertexData(attributeType) {
-		return this.#getInternalAttriuteBuffer(attributeType).getVertexData(attributeType);
+		return this.#getInternalAttributeBuffer(attributeType).getVertexData(attributeType);
 	}
 
 	// TODO: change the signature so that you can only provide an ArrayBuffer
@@ -312,18 +317,30 @@ export class Mesh {
 	}
 
 	/**
-	 * @param {AttributeType} attributeType
-	 * @param {UnusedAttributeBufferOptions} options
+	 * @template {boolean} TCreate
+	 * @typedef {TCreate extends true ?
+	 * 	InternalMeshAttributeBuffer :
+	 * 	InternalMeshAttributeBuffer | null} GetInternalAttributeBufferReturn
 	 */
-	#getInternalAttriuteBuffer(attributeType, {
+
+	/**
+	 * @template {boolean} [TCreate = true]
+	 * @param {AttributeType} attributeType
+	 * @param {UnusedAttributeBufferOptions<TCreate>} options
+	 * @returns {GetInternalAttributeBufferReturn<TCreate>}
+	 */
+	#getInternalAttributeBuffer(attributeType, {
 		unusedFormat = Mesh.AttributeFormat.FLOAT32,
 		unusedComponentCount = 3,
+		createUnused = /** @type {TCreate} */ (true),
 	} = {}) {
 		for (const buffer of this.#getInternalAttributeBuffers()) {
 			if (buffer.hasAttributeType(attributeType)) {
-				return buffer;
+				return /** @type {GetInternalAttributeBufferReturn<TCreate>} */ (buffer);
 			}
 		}
+
+		if (!createUnused) return /** @type {GetInternalAttributeBufferReturn<TCreate>} */ (null);
 
 		const unusedBuffer = new InternalMeshAttributeBuffer({
 			attributes: [
@@ -338,7 +355,7 @@ export class Mesh {
 		});
 		unusedBuffer.setVertexCount(this.vertexCount);
 		this.#unusedBuffers.set(attributeType, unusedBuffer);
-		return unusedBuffer;
+		return /** @type {GetInternalAttributeBufferReturn<TCreate>} */ (unusedBuffer);
 	}
 
 	/**
@@ -360,6 +377,13 @@ export class Mesh {
 		for (const buffer of this.#getInternalAttributeBuffers(includeUnused)) {
 			yield buffer.exposedAttributeBuffer;
 		}
+	}
+
+	/**
+	 * @param {AttributeType} attributeType
+	 */
+	getAttributeBufferForType(attributeType) {
+		return this.#getInternalAttributeBuffer(attributeType, { createUnused: false });
 	}
 
 	/**
