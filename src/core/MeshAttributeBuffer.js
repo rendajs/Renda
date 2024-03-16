@@ -37,4 +37,8 @@ export class MeshAttributeBuffer {
 	get attributeSettings() {
 		return this.#internalAttributeBuffer.attributeSettings;
 	}
+
+	get arrayStride() {
+		return this.#internalAttributeBuffer.arrayStride;
+	}
 }
