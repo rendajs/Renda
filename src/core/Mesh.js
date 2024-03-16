@@ -280,7 +280,11 @@ export class Mesh {
 	 * @param {AttributeType} attributeType
 	 */
 	getVertexData(attributeType) {
-		return this.#getInternalAttributeBuffer(attributeType).getVertexData(attributeType);
+		const buffer = this.#getInternalAttributeBuffer(attributeType);
+		if (!buffer) {
+			throw new Error("This mesh does not contain an attribute with the specified type. Either add a vertex state that includes this attribute or add vertex data using setVertexData().");
+		}
+		return buffer.getVertexData(attributeType);
 	}
 
 	// TODO: change the signature so that you can only provide an ArrayBuffer
@@ -324,7 +328,7 @@ export class Mesh {
 	 */
 
 	/**
-	 * @template {boolean} [TCreate = true]
+	 * @template {boolean} [TCreate = false]
 	 * @param {AttributeType} attributeType
 	 * @param {UnusedAttributeBufferOptions<TCreate>} options
 	 * @returns {GetInternalAttributeBufferReturn<TCreate>}
@@ -332,7 +336,7 @@ export class Mesh {
 	#getInternalAttributeBuffer(attributeType, {
 		unusedFormat = Mesh.AttributeFormat.FLOAT32,
 		unusedComponentCount = 3,
-		createUnused = /** @type {TCreate} */ (true),
+		createUnused = /** @type {TCreate} */ (false),
 	} = {}) {
 		for (const buffer of this.#getInternalAttributeBuffers()) {
 			if (buffer.hasAttributeType(attributeType)) {

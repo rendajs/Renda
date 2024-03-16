@@ -319,6 +319,18 @@ Deno.test({
 });
 
 Deno.test({
+	name: "getVertexData() throws for non existent unused attributes",
+	fn() {
+		const mesh = new Mesh();
+		mesh.setVertexCount(1);
+
+		assertThrows(() => {
+			mesh.getVertexData(Mesh.AttributeType.POSITION);
+		}, Error, "This mesh does not contain an attribute with the specified type. Either add a vertex state that includes this attribute or add vertex data using setVertexData().")
+	}
+})
+
+Deno.test({
 	name: "setVertexData() for attribute in VertexState with vector 2",
 	fn() {
 		const mesh = new Mesh();
