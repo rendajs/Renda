@@ -17,7 +17,7 @@ Deno.test({
 	fn() {
 		const buffer1 = new InternalMeshAttributeBuffer({
 			isUnused: true,
-			attributes: [
+			attributeSettings: [
 				{
 					attributeType: Mesh.AttributeType.POSITION,
 					componentCount: 3,
@@ -44,7 +44,7 @@ Deno.test({
 	fn() {
 		const buffer1 = new InternalMeshAttributeBuffer({
 			isUnused: true,
-			attributes: [
+			attributeSettings: [
 				{
 					attributeType: Mesh.AttributeType.POSITION,
 					componentCount: 3,
@@ -87,7 +87,7 @@ Deno.test({
 	name: "attribute data is cloned",
 	fn() {
 		const buffer = new InternalMeshAttributeBuffer({
-			attributes: [
+			attributeSettings: [
 				{
 					attributeType: Mesh.AttributeType.POSITION,
 					componentCount: 3,
@@ -104,6 +104,6 @@ Deno.test({
 		});
 
 		const clone = buffer.clone();
-		assertNotStrictEquals(buffer.attributes[0], clone.attributes[0]);
+		assertEquals(buffer.attributeSettings, clone.attributeSettings);
 	},
 });

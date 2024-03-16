@@ -105,7 +105,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 			const buffer = decomposer.getBuffer(bufferLength);
 			mesh.copyBufferData({
 				arrayBuffer: buffer,
-				attributes,
+				attributeSettings: attributes,
 			});
 		}
 
@@ -146,7 +146,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		const buffers = Array.from(liveAsset.getAttributeBuffers());
 		composer.appendUint16(buffers.length);
 		for (const buffer of buffers) {
-			const attributes = buffer.attributes;
+			const attributes = buffer.attributeSettings;
 			composer.appendUint16(attributes.length);
 			for (const attribute of attributes) {
 				composer.appendUint16(attribute.attributeType);

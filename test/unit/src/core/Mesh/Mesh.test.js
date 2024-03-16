@@ -326,9 +326,9 @@ Deno.test({
 
 		assertThrows(() => {
 			mesh.getVertexData(Mesh.AttributeType.POSITION);
-		}, Error, "This mesh does not contain an attribute with the specified type. Either add a vertex state that includes this attribute or add vertex data using setVertexData().")
-	}
-})
+		}, Error, "This mesh does not contain an attribute with the specified type. Either add a vertex state that includes this attribute or add vertex data using setVertexData().");
+	},
+});
 
 Deno.test({
 	name: "setVertexData() for attribute in VertexState with vector 2",
@@ -417,9 +417,9 @@ Deno.test({
 		const buffer2 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
 		assertExists(buffer2);
 		assertEquals(buffer2.isUnused, true);
-		assertEquals(buffer2.attributes.length, 1);
-		assertEquals(buffer2.attributes[0].componentCount, 1);
-		assertEquals(buffer2.attributes[0].format, Mesh.AttributeFormat.INT32);
+		assertEquals(buffer2.attributeSettings.length, 1);
+		assertEquals(buffer2.attributeSettings[0].componentCount, 1);
+		assertEquals(buffer2.attributeSettings[0].format, Mesh.AttributeFormat.INT32);
 	},
 });
 

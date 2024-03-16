@@ -33,4 +33,8 @@ export class MeshAttributeBuffer {
 	get isUnused() {
 		return this.#internalAttributeBuffer.isUnused;
 	}
+
+	get attributeSettings() {
+		return this.#internalAttributeBuffer.attributeSettings;
+	}
 }

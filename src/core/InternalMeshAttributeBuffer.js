@@ -52,20 +52,25 @@ export class InternalMeshAttributeBuffer {
 	/**
 	 * @param {object} [options]
 	 * @param {number?} [options.arrayStride]
-	 * @param {MeshAttributeSettings[]} [options.attributes]
+	 * @param {MeshAttributeSettings[]} [options.attributeSettings]
 	 * @param {boolean} [options.isUnused]
 	 * @param {ArrayBuffer} [options.arrayBuffer]
 	 */
 	constructor({
 		arrayStride = null,
-		attributes = [],
+		attributeSettings = [],
 		isUnused = false,
 		arrayBuffer = new ArrayBuffer(0),
 	} = {}) {
-		if (isUnused && attributes.length != 1) {
+		if (isUnused && attributeSettings.length != 1) {
 			throw new Error("Unused attribute buffers must have exactly 1 attribute.");
 		}
-		this.attributes = attributes;
+		/** @type {MeshAttributeSettings[]} */
+		this.attributeSettings = structuredClone(attributeSettings);
+		Object.freeze(this.attributeSettings);
+		for (const setting of this.attributeSettings) {
+			Object.freeze(setting);
+		}
 		this.#isUnused = isUnused;
 
 		this.#buffer = arrayBuffer;
@@ -89,7 +94,7 @@ export class InternalMeshAttributeBuffer {
 			this.#arrayStride = arrayStride;
 		} else {
 			this.#arrayStride = 0;
-			for (const attribute of this.attributes) {
+			for (const attribute of this.attributeSettings) {
 				const neededBytes = attribute.componentCount * Mesh.getByteLengthForAttributeFormat(attribute.format);
 				this.#arrayStride = Math.max(this.#arrayStride, attribute.offset + neededBytes);
 			}
@@ -119,7 +124,7 @@ export class InternalMeshAttributeBuffer {
 	 * @returns {MeshAttributeSettings?}
 	 */
 	getAttributeSettings(attributeType) {
-		for (const attribute of this.attributes) {
+		for (const attribute of this.attributeSettings) {
 			if (attribute.attributeType == attributeType) {
 				return attribute;
 			}
@@ -353,7 +358,7 @@ export class InternalMeshAttributeBuffer {
 	clone() {
 		const newBuffer = new InternalMeshAttributeBuffer({
 			arrayStride: this.arrayStride,
-			attributes: structuredClone(this.attributes),
+			attributeSettings: this.attributeSettings,
 			arrayBuffer: structuredClone(this.buffer),
 			isUnused: this.#isUnused,
 		});

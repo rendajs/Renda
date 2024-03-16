@@ -306,7 +306,7 @@ export class Mesh {
 		// it back into a buffer, if the buffer doesn't need to be changed it
 		// can simply copy or move all the bytes at once
 
-		for (const attribute of attributeBuffer.attributes) {
+		for (const attribute of attributeBuffer.attributeSettings) {
 			if (attribute.attributeType == null) {
 				// TODO: handle converting attribute data when the attribute type is not specified
 				continue;
@@ -347,7 +347,7 @@ export class Mesh {
 		if (!createUnused) return /** @type {GetInternalAttributeBufferReturn<TCreate>} */ (null);
 
 		const unusedBuffer = new InternalMeshAttributeBuffer({
-			attributes: [
+			attributeSettings: [
 				{
 					offset: 0,
 					format: unusedFormat,
@@ -387,7 +387,9 @@ export class Mesh {
 	 * @param {AttributeType} attributeType
 	 */
 	getAttributeBufferForType(attributeType) {
-		return this.#getInternalAttributeBuffer(attributeType, { createUnused: false });
+		const internalBuffer = this.#getInternalAttributeBuffer(attributeType, { createUnused: false });
+		if (!internalBuffer) return null;
+		return internalBuffer.exposedAttributeBuffer;
 	}
 
 	/**
@@ -414,7 +416,7 @@ export class Mesh {
 				}
 				const buffer = new InternalMeshAttributeBuffer({
 					arrayStride: bufferDescriptor.arrayStride,
-					attributes,
+					attributeSettings: attributes,
 				});
 				if (this.vertexCount) buffer.setVertexCount(this.vertexCount);
 				this.#buffers.push(buffer);
