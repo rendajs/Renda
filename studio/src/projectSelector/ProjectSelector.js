@@ -103,6 +103,19 @@ export class ProjectSelector {
 		this.updateRecentProjectsUi();
 		this.deleteProjectsNotWorthSaving();
 		this.openMostRecentProject();
+
+		/**
+		 * @typedef {Event & {prompt: () => Promise<{outcome: "accepted" | "dismissed"}>}} BeforeInstallPromptEvent
+		 */
+
+		window.addEventListener("beforeinstallprompt", (e) => {
+			const event = /** @type {BeforeInstallPromptEvent} */ (e);
+			event.preventDefault();
+			const { buttonEl } = this.createAction("Install Renda Studio", async () => {
+				await event.prompt();
+				buttonEl.remove();
+			});
+		});
 	}
 
 	/**
