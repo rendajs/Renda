@@ -92,20 +92,20 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		mesh.setVertexCount(decomposer.getUint32());
 		const bufferCount = decomposer.getUint16();
 		for (let i = 0; i < bufferCount; i++) {
-			const attributes = [];
+			const attributeSettings = [];
 			const attributeCount = decomposer.getUint16();
 			for (let j = 0; j < attributeCount; j++) {
 				const attributeType = decomposer.getUint16();
 				const format = decomposer.getUint8();
 				const componentCount = decomposer.getUint8();
 				const offset = decomposer.getUint32();
-				attributes.push({ offset, format, componentCount, attributeType });
+				attributeSettings.push({ offset, format, componentCount, attributeType });
 			}
 			const bufferLength = decomposer.getUint32();
 			const buffer = decomposer.getBuffer(bufferLength);
 			mesh.copyBufferData({
 				arrayBuffer: buffer,
-				attributes,
+				attributeSettings,
 			});
 		}
 
@@ -143,10 +143,10 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		}
 
 		composer.appendUint32(liveAsset.vertexCount);
-		const buffers = Array.from(liveAsset.getBuffers());
+		const buffers = Array.from(liveAsset.getAttributeBuffers());
 		composer.appendUint16(buffers.length);
 		for (const buffer of buffers) {
-			const attributes = buffer.attributes;
+			const attributes = buffer.attributeSettings;
 			composer.appendUint16(attributes.length);
 			for (const attribute of attributes) {
 				composer.appendUint16(attribute.attributeType);

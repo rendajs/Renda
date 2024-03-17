@@ -72,7 +72,7 @@ export class AssetLoaderTypeMesh extends AssetLoaderType {
 			const buffer = decomposer.getBuffer(bufferLength);
 			mesh.copyBufferData({
 				arrayBuffer: buffer,
-				attributes,
+				attributeSettings: attributes,
 			});
 		}
 		return mesh;

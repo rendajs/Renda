@@ -11,7 +11,7 @@ export class CachedMeshData {
 
 		// todo: remove old bufferdata when the list of buffers changes
 		this.buffers = [];
-		for (const meshBuffer of mesh.getBuffers(false)) {
+		for (const meshBuffer of mesh.getAttributeBuffers(false)) {
 			const bufferData = new CachedMeshBufferData(meshBuffer, this);
 			this.buffers.push(bufferData);
 		}
@@ -64,7 +64,7 @@ export class CachedMeshData {
 	}
 
 	getIndexedBufferGpuCommands() {
-		// todo: support for dynamic indexbuffer updates using GPUBufferUsage.COPY_DST and device.queue.writeBuffer
+		// todo: support for dynamic indexBuffer updates using GPUBufferUsage.COPY_DST and device.queue.writeBuffer
 		if (this.indexBufferDirty) {
 			this.createIndexGpuBuffer();
 		}

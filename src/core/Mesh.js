@@ -1,24 +1,18 @@
 import { DEBUG_INCLUDE_ERROR_MESSAGES, DEBUG_INCLUDE_ERROR_THROWS } from "../engineDefines.js";
 import { neverNoOp } from "../util/neverNoOp.js";
-import { MeshAttributeBuffer } from "./MeshAttributeBuffer.js";
+import { InternalMeshAttributeBuffer } from "./InternalMeshAttributeBuffer.js";
 
 // TODO: make these an enum
 /** @typedef {number} AttributeType */
 /** @typedef {number} AttributeFormat */
 /** @typedef {number} IndexFormat */
 
-/**
- * @typedef UnusedAttributeBufferOptions
- * @property {AttributeFormat} [unusedFormat = Mesh.AttributeFormat.FLOAT32]
- * @property {number} [unusedComponentCount = 3]
- */
-
 /** @typedef {() => void} OnIndexBufferChangeCallback */
 
 export class Mesh {
-	/** @type {MeshAttributeBuffer[]} */
+	/** @type {InternalMeshAttributeBuffer[]} */
 	#buffers = [];
-	/** @type {Map<number, MeshAttributeBuffer>} */
+	/** @type {Map<number, InternalMeshAttributeBuffer>} */
 	#unusedBuffers = new Map();
 
 	/** @type {import("../rendering/VertexState.js").VertexState?} */
@@ -43,22 +37,37 @@ export class Mesh {
 	}
 
 	#vertexCount = 0;
+	/**
+	 * The total number of vertices in the mesh.
+	 * This is not necessarily the total amount of vertices that are being rendered.
+	 * If an indexBuffer is used, it is possible for some vertices to be rendered more than once
+	 * and even for some vertices to not be rendered at all.
+	 */
 	get vertexCount() {
 		return this.#vertexCount;
 	}
 
 	#indexFormat = Mesh.IndexFormat.UINT_16;
+	/**
+	 * Whether the index buffer is stored as 16 bit or 32 bit integers.
+	 * If a 16 bit index buffer is used, the mesh can't be used to render more than 65536 vertices.
+	 * Use {@linkcode setIndexFormat} to change the index format.
+	 */
 	get indexFormat() {
 		return this.#indexFormat;
 	}
 
 	#indexBuffer = new ArrayBuffer(0);
+	/**
+	 * The raw index buffer. You may modify this directly for low level control.
+	 * Make sure to call {@linkcode fireIndexBufferChanged} to notify any users of the mesh about the change.
+	 */
 	get indexBuffer() {
 		return this.#indexBuffer;
 	}
 
 	destructor() {
-		for (const buffer of this.getBuffers()) {
+		for (const buffer of this.#getInternalAttributeBuffers()) {
 			buffer.destructor();
 		}
 	}
@@ -139,8 +148,9 @@ export class Mesh {
 	}
 
 	/**
-	 * This changes the index format of the mesh. If an index buffer has already
-	 * been set, it will be converted to the new format.
+	 * Sets whether the index buffer is stored as 16 bit or 32 bit integers.
+	 * If a 16 bit index buffer is used, the mesh can't be used to render more than 65536 vertices.
+	 * If an index buffer has already been set, it will be converted to the new format.
 	 * @param {IndexFormat} indexFormat
 	 */
 	setIndexFormat(indexFormat) {
@@ -173,6 +183,8 @@ export class Mesh {
 	}
 
 	/**
+	 * Places the provided index data in the underlying index buffer.
+	 * For large meshes it's best to manipulate {@linkcode indexBuffer} directly.
 	 * @param {ArrayBufferLike | number[]} data
 	 */
 	setIndexData(data) {
@@ -227,9 +239,12 @@ export class Mesh {
 		} else {
 			throw new TypeError("invalid data type");
 		}
-		this.#fireIndexBufferChanged();
+		this.fireIndexBufferChanged();
 	}
 
+	/**
+	 * Iterates over the current values in the index buffer.
+	 */
 	*getIndexData() {
 		const dataView = this.#getIndexBufferDataView();
 
@@ -252,37 +267,72 @@ export class Mesh {
 	}
 
 	/**
+	 * Before providing vertex data, you need use this to tell the mesh how large you want the underlying buffers to be.
+	 * This resizes existing buffers so that they fit the vertices of the provided amount.
+	 * If the data provided with {@linkcode setVertexData} is bigger than the current vertex count, an error will be thrown.
 	 * @param {number} vertexCount
 	 */
 	setVertexCount(vertexCount) {
 		this.#vertexCount = vertexCount;
-		for (const buffer of this.getBuffers()) {
+		for (const buffer of this.#getInternalAttributeBuffers()) {
 			buffer.setVertexCount(vertexCount);
 		}
 	}
 
 	/**
+	 * @template {boolean} TCreate
+	 * @typedef UnusedAttributeBufferOptions
+	 * @property {AttributeFormat} [unusedFormat = Mesh.AttributeFormat.FLOAT32]
+	 * @property {number} [unusedComponentCount = 3]
+	 * @property {TCreate} [createUnused]
+	 */
+
+	/**
+	 * Assigns vertex data to the underlying array buffer.
+	 * For large meshes it's best to use {@linkcode getAttributeBufferForType} and manipulate its buffer directly.
+	 *
+	 * When using {@linkcode setVertexData}, is best to call {@linkcode setVertexState} first before providing vertex data, otherwise an 'unused' buffer will be created.
+	 * Unused buffers store vertex data in the most basic format, but once you assign a `VertexState`, this format may be converted.
+	 * If you assign a `VertexState` first, the vertex data will be written in the correct format right away.
+	 *
+	 * If you still wish to store vertex data in 'unused' buffers,
+	 * make sure to provide a `unusedFormat` and a `unusedComponentCount` to avoid errors.
 	 * @param {AttributeType} attributeType
 	 * @param {ArrayBufferLike | number[] | import("../math/Vec2.js").Vec2[] | import("../math/Vec3.js").Vec3[] | import("../math/Vec4.js").Vec4[]} data
-	 * @param {UnusedAttributeBufferOptions} [opts]
+	 * @param {UnusedAttributeBufferOptions<any>} [opts]
 	 */
 	setVertexData(attributeType, data, opts) {
-		const buffer = this.getBufferForAttributeType(attributeType, opts);
+		const buffer = this.#getInternalAttributeBuffer(attributeType, {
+			...opts,
+			createUnused: true,
+		});
 		buffer.setVertexData(attributeType, data, Boolean(this.#vertexState));
+	}
+
+	/**
+	 * Iterates over the vertex data of the specified attribute.
+	 * @param {AttributeType} attributeType
+	 */
+	getVertexData(attributeType) {
+		const buffer = this.#getInternalAttributeBuffer(attributeType);
+		if (!buffer) {
+			throw new Error("This mesh does not contain an attribute with the specified type. Either add a vertex state that includes this attribute or add vertex data using setVertexData().");
+		}
+		return buffer.getVertexData(attributeType);
 	}
 
 	// TODO: change the signature so that you can only provide an ArrayBuffer
 	// I don't think it makes sense to expose isUnused functionality here.
 	/**
-	 * @param {ConstructorParameters<typeof MeshAttributeBuffer>[0]} attributeBufferOpts
+	 * @param {ConstructorParameters<typeof InternalMeshAttributeBuffer>[0]} attributeBufferOpts
 	 */
 	copyBufferData(attributeBufferOpts) {
-		const attributeBuffer = new MeshAttributeBuffer(attributeBufferOpts);
+		const attributeBuffer = new InternalMeshAttributeBuffer(attributeBufferOpts);
 		this.copyAttributeBufferData(attributeBuffer);
 	}
 
 	/**
-	 * @param {MeshAttributeBuffer} attributeBuffer
+	 * @param {InternalMeshAttributeBuffer} attributeBuffer
 	 */
 	copyAttributeBufferData(attributeBuffer) {
 		// todo: there's probably still some performance that can be gained here
@@ -290,7 +340,7 @@ export class Mesh {
 		// it back into a buffer, if the buffer doesn't need to be changed it
 		// can simply copy or move all the bytes at once
 
-		for (const attribute of attributeBuffer.attributes) {
+		for (const attribute of attributeBuffer.attributeSettings) {
 			if (attribute.attributeType == null) {
 				// TODO: handle converting attribute data when the attribute type is not specified
 				continue;
@@ -305,21 +355,33 @@ export class Mesh {
 	}
 
 	/**
-	 * @param {AttributeType} attributeType
-	 * @param {UnusedAttributeBufferOptions} options
+	 * @template {boolean} TCreate
+	 * @typedef {TCreate extends true ?
+	 * 	InternalMeshAttributeBuffer :
+	 * 	InternalMeshAttributeBuffer | null} GetInternalAttributeBufferReturn
 	 */
-	getBufferForAttributeType(attributeType, {
+
+	/**
+	 * @template {boolean} [TCreate = false]
+	 * @param {AttributeType} attributeType
+	 * @param {UnusedAttributeBufferOptions<TCreate>} options
+	 * @returns {GetInternalAttributeBufferReturn<TCreate>}
+	 */
+	#getInternalAttributeBuffer(attributeType, {
 		unusedFormat = Mesh.AttributeFormat.FLOAT32,
 		unusedComponentCount = 3,
+		createUnused = /** @type {TCreate} */ (false),
 	} = {}) {
-		for (const buffer of this.getBuffers()) {
+		for (const buffer of this.#getInternalAttributeBuffers()) {
 			if (buffer.hasAttributeType(attributeType)) {
-				return buffer;
+				return /** @type {GetInternalAttributeBufferReturn<TCreate>} */ (buffer);
 			}
 		}
 
-		const unusedBuffer = new MeshAttributeBuffer({
-			attributes: [
+		if (!createUnused) return /** @type {GetInternalAttributeBufferReturn<TCreate>} */ (null);
+
+		const unusedBuffer = new InternalMeshAttributeBuffer({
+			attributeSettings: [
 				{
 					offset: 0,
 					format: unusedFormat,
@@ -331,14 +393,14 @@ export class Mesh {
 		});
 		unusedBuffer.setVertexCount(this.vertexCount);
 		this.#unusedBuffers.set(attributeType, unusedBuffer);
-		return unusedBuffer;
+		return /** @type {GetInternalAttributeBufferReturn<TCreate>} */ (unusedBuffer);
 	}
 
 	/**
 	 * @param {boolean} includeUnused
-	 * @returns {Generator<MeshAttributeBuffer>}
+	 * @returns {Generator<InternalMeshAttributeBuffer>}
 	 */
-	*getBuffers(includeUnused = true) {
+	*#getInternalAttributeBuffers(includeUnused = true) {
 		for (const buffer of this.#buffers) {
 			yield buffer;
 		}
@@ -350,12 +412,39 @@ export class Mesh {
 	}
 
 	/**
+	 * Iterates over all AttributeBuffers.
+	 * This gives you more low level access to the underlying vertex buffers.
+	 */
+	*getAttributeBuffers(includeUnused = true) {
+		for (const buffer of this.#getInternalAttributeBuffers(includeUnused)) {
+			yield buffer.exposedAttributeBuffer;
+		}
+	}
+
+	/**
+	 * Returns an AttributeBuffer for the provided attribute type.
+	 * This gives you more low level access to the underlying vertex buffer of the attribute.
+	 * Note that attribute buffers may contain multiple attributes in a single buffer.
+	 * In that case, the returned buffer may also include extra vertex data for an attribute type that you didn't request.
+	 * @param {AttributeType} attributeType
+	 */
+	getAttributeBufferForType(attributeType) {
+		const internalBuffer = this.#getInternalAttributeBuffer(attributeType, { createUnused: false });
+		if (!internalBuffer) return null;
+		return internalBuffer.exposedAttributeBuffer;
+	}
+
+	/**
+	 * Provides a VertexState describing the format in which vertex buffers should be stored.
+	 * If the mesh already contains existing vertex buffers,
+	 * these will be converted to match the format of the new VertexState.
+	 * Therefore, it's usually best to call {@linkcode setVertexState} first before making calls to {@linkcode setVertexData}.
 	 * @param {import("../rendering/VertexState.js").VertexState?} vertexState
 	 */
 	setVertexState(vertexState) {
 		this.#vertexState = vertexState;
 
-		const oldBuffers = Array.from(this.getBuffers());
+		const oldBuffers = Array.from(this.#getInternalAttributeBuffers());
 		this.#buffers = [];
 		this.#unusedBuffers.clear();
 
@@ -371,9 +460,9 @@ export class Mesh {
 						attributeType,
 					});
 				}
-				const buffer = new MeshAttributeBuffer({
+				const buffer = new InternalMeshAttributeBuffer({
 					arrayStride: bufferDescriptor.arrayStride,
-					attributes,
+					attributeSettings: attributes,
 				});
 				if (this.vertexCount) buffer.setVertexCount(this.vertexCount);
 				this.#buffers.push(buffer);
@@ -385,6 +474,9 @@ export class Mesh {
 		}
 	}
 
+	/**
+	 * Makes a copy of the mesh and all of it's buffers.
+	 */
 	clone() {
 		const newMesh = new Mesh();
 		newMesh.setVertexState(this.#vertexState);
@@ -401,13 +493,28 @@ export class Mesh {
 	}
 
 	/**
+	 * Registers a callback which fires when the underlying index buffer has changed.
+	 *
+	 * This is only fired when index data is modified using {@linkcode setIndexData}.
+	 * If you plan on manually making modifications to the underlying {@linkcode indexBuffer},
+	 * you should call {@linkcode fireIndexBufferChanged} once you're done.
+	 *
+	 * If you wish to receive updates when a vertex buffer is changed,
+	 * you should use {@linkcode getAttributeBufferForType} and register a callback
+	 * using `onBufferChanged` on the returned `MeshAttributeBuffer`.
 	 * @param {OnIndexBufferChangeCallback} cb
 	 */
 	onIndexBufferChange(cb) {
 		this.#onIndexBufferChangeCbs.add(cb);
 	}
 
-	#fireIndexBufferChanged() {
+	/**
+	 * Call this after making a change to the underlying index buffer.
+	 * This notifies users of the mesh such as renderers that the mesh has changed
+	 * and that cache needs to be invalidated or that the buffer needs to be
+	 * reuploaded to the gpu.
+	 */
+	fireIndexBufferChanged() {
 		for (const cb of this.#onIndexBufferChangeCbs) {
 			cb();
 		}
