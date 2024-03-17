@@ -151,7 +151,7 @@ button.project-selector-button[disabled] {
 	color: var(--default-text-color-disabled-context-menu);
 }
 
-.project-selector-button:hover:not([disabled]) {
+.project-selector-button:hover:not([disabled]):not(:active) {
 	background-color: var(--default-button-color);
 	color: var(--default-button-text-color);
 }
