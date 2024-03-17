@@ -290,7 +290,7 @@ export class InternalMeshAttributeBuffer {
 	*getVertexData(attributeType) {
 		const attributeSettings = this.getAttributeSettings(attributeType);
 		if (!attributeSettings) {
-			throw new Error("The attribute does not contain the specified attribute type.")
+			throw new Error("The attribute does not contain the specified attribute type.");
 		}
 
 		const dataView = this.#getDataView();

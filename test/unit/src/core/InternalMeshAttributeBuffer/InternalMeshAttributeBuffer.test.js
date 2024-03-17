@@ -776,7 +776,7 @@ Deno.test({
 
 		assertThrows(() => {
 			Array.from(buffer.getVertexData(Mesh.AttributeType.COLOR));
-		}, Error, "The attribute does not contain the specified attribute type.")
+		}, Error, "The attribute does not contain the specified attribute type.");
 	},
 });
 
