@@ -767,6 +767,20 @@ Deno.test({
 });
 
 Deno.test({
+	name: "getVertexData() should throw when the provided attribute is not in the buffer",
+	fn() {
+		const buffer = new InternalMeshAttributeBuffer({
+			attributeSettings: [{ offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION }],
+		});
+		buffer.setVertexCount(0);
+
+		assertThrows(() => {
+			Array.from(buffer.getVertexData(Mesh.AttributeType.COLOR));
+		}, Error, "The attribute does not contain the specified attribute type.")
+	},
+});
+
+Deno.test({
 	name: "getVertexData() yielding numbers",
 	fn() {
 		const buffer = new InternalMeshAttributeBuffer({
