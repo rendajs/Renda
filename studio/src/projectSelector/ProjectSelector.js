@@ -111,9 +111,9 @@ export class ProjectSelector {
 		window.addEventListener("beforeinstallprompt", (e) => {
 			const event = /** @type {BeforeInstallPromptEvent} */ (e);
 			event.preventDefault();
-			const { buttonEl } = this.createAction("Install Renda Studio", async () => {
+			const { listItemEl } = this.createAction("Install Renda Studio", async () => {
 				await event.prompt();
-				buttonEl.remove();
+				listItemEl.remove();
 			});
 		});
 	}
@@ -160,6 +160,7 @@ export class ProjectSelector {
 		button.textContent = name;
 		button.addEventListener("click", onClick);
 		return {
+			listItemEl: item,
 			buttonEl: button,
 		};
 	}

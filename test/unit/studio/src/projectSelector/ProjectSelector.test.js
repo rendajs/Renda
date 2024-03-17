@@ -45,6 +45,50 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Shows install button when beforeinstallprompt event fires",
+	async fn() {
+		const { projectSelector, uninstall } = basicSetup();
+
+		try {
+			assertEquals(projectSelector.actionsListEl.children.length, 3);
+
+			let resolvePrompt = () => {};
+
+			class BeforeInstallPromptEvent extends Event {
+				constructor() {
+					super("beforeinstallprompt", {
+						cancelable: true,
+					});
+				}
+				prompt() {
+					/** @type {Promise<void>} */
+					const promise = new Promise((r) => {
+						resolvePrompt = r;
+					});
+					return promise;
+				}
+			}
+
+			const event = new BeforeInstallPromptEvent();
+			const promptSpy = spy(event, "prompt");
+			window.dispatchEvent(event);
+			assertEquals(projectSelector.actionsListEl.children.length, 4);
+			assertEquals(event.defaultPrevented, true);
+
+			const installButton = projectSelector.actionsListEl.children[3].children[0];
+			installButton.dispatchEvent(new Event("click"));
+			assertSpyCalls(promptSpy, 1);
+			assertEquals(projectSelector.actionsListEl.children.length, 4);
+			resolvePrompt();
+			await waitForMicrotasks();
+			assertEquals(projectSelector.actionsListEl.children.length, 3);
+		} finally {
+			await uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "Creates an empty project on studio load",
 	async fn() {
 		const { projectSelector, openNewDbProjectSpy, triggerStudioLoad, uninstall } = basicSetup();
