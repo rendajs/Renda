@@ -10,6 +10,11 @@ import { SelectionGroup } from "./SelectionGroup.js";
 
 /**
  * Manages SelectionGroups and provides event callbacks that cover all groups.
+ * The idea here is that multiple 'groups' can be created, while only one of these groups can be active at a time.
+ * This way, one content window can create a selection group and maintain that selection while the user
+ * makes a selection in another content window.
+ * When the user switches focus to another window, the selection group of that window can be activated,
+ * and any listener (such as the properties window) can update its content based on the current selection.
  */
 export class SelectionManager {
 	constructor() {
