@@ -1,8 +1,6 @@
-import { BASIC_ENTITY_UUID, basicTest } from "./shared.js";
+import { basicTest } from "./shared.js";
 import { ContentWindowEntityEditor } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import { assertEquals } from "std/testing/asserts.ts";
-import { waitForMicrotasks } from "../../../../../../../src/util/waitForMicroTasks.js";
-import { EntityChangeType } from "../../../../../../../studio/src/assets/EntityAssetManager.js";
 import { Entity, Quat, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../../../src/mod.js";
 
 function createEntitiesForGizmoTests() {
