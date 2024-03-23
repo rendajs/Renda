@@ -116,6 +116,13 @@ Deno.test({
 				expected: "Get the iPad App",
 			},
 			{
+				// Android Galaxy S5
+				userAgent: "Mozilla/5.0 (Linux; Android 6.0.1; SM-G903F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36",
+				platform: "Linux armv8l",
+				maxTouchPoints: 5,
+				expected: "Get the Android App",
+			},
+			{
 				// Safari macOs
 				userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
 				platform: "MacIntel",
