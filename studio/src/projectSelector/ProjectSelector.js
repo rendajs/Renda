@@ -111,7 +111,22 @@ export class ProjectSelector {
 		window.addEventListener("beforeinstallprompt", (e) => {
 			const event = /** @type {BeforeInstallPromptEvent} */ (e);
 			event.preventDefault();
-			const { listItemEl } = this.createAction("Install Renda Studio", async () => {
+			let text = "Install Renda Studio";
+			const ua = navigator.userAgent;
+			if (/iphone|ipod/i.test(ua)) {
+				text = "Get the iOS App";
+			} else if (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) {
+				text = "Get the iPad App";
+			} else if (/android/i.test(ua)) {
+				text = "Get the Android App";
+			} else if (/mac os x/i.test(ua)) {
+				text = "Get the Mac App";
+			} else if (/windows/i.test(ua)) {
+				text = "Get the Windows App";
+			} else if (/linux/i.test(ua)) {
+				text = "Get the Linux App";
+			}
+			const { listItemEl } = this.createAction(text, async () => {
 				await event.prompt();
 				listItemEl.remove();
 			});

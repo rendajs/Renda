@@ -44,6 +44,34 @@ Deno.test({
 	},
 });
 
+function fireInstallPromptEvent() {
+	let resolvePromptFn = () => {};
+
+	class BeforeInstallPromptEvent extends Event {
+		constructor() {
+			super("beforeinstallprompt", {
+				cancelable: true,
+			});
+		}
+		prompt() {
+			/** @type {Promise<void>} */
+			const promise = new Promise((r) => {
+				resolvePromptFn = r;
+			});
+			return promise;
+		}
+	}
+
+	function resolvePrompt() {
+		resolvePromptFn();
+	}
+
+	const event = new BeforeInstallPromptEvent();
+	const promptSpy = spy(event, "prompt");
+	window.dispatchEvent(event);
+	return { event, promptSpy, resolvePrompt };
+}
+
 Deno.test({
 	name: "Shows install button when beforeinstallprompt event fires",
 	async fn() {
@@ -52,30 +80,12 @@ Deno.test({
 		try {
 			assertEquals(projectSelector.actionsListEl.children.length, 3);
 
-			let resolvePrompt = () => {};
-
-			class BeforeInstallPromptEvent extends Event {
-				constructor() {
-					super("beforeinstallprompt", {
-						cancelable: true,
-					});
-				}
-				prompt() {
-					/** @type {Promise<void>} */
-					const promise = new Promise((r) => {
-						resolvePrompt = r;
-					});
-					return promise;
-				}
-			}
-
-			const event = new BeforeInstallPromptEvent();
-			const promptSpy = spy(event, "prompt");
-			window.dispatchEvent(event);
+			const { event, promptSpy, resolvePrompt } = fireInstallPromptEvent();
 			assertEquals(projectSelector.actionsListEl.children.length, 4);
 			assertEquals(event.defaultPrevented, true);
 
 			const installButton = projectSelector.actionsListEl.children[3].children[0];
+			assertEquals(installButton.textContent, "Install Renda Studio");
 			installButton.dispatchEvent(new Event("click"));
 			assertSpyCalls(promptSpy, 1);
 			assertEquals(projectSelector.actionsListEl.children.length, 4);
@@ -84,6 +94,103 @@ Deno.test({
 			assertEquals(projectSelector.actionsListEl.children.length, 3);
 		} finally {
 			await uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Install button has the right text depeding on the os",
+	async fn() {
+		/** @type {{userAgent: string, platform: string, maxTouchPoints: number, expected: string}[]} */
+		const tests = [
+			{
+				userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+				platform: "iPhone",
+				maxTouchPoints: 5,
+				expected: "Get the iOS App",
+			},
+			{
+				userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+				platform: "MacIntel",
+				maxTouchPoints: 5,
+				expected: "Get the iPad App",
+			},
+			{
+				// Android Galaxy S5
+				userAgent: "Mozilla/5.0 (Linux; Android 6.0.1; SM-G903F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36",
+				platform: "Linux armv8l",
+				maxTouchPoints: 5,
+				expected: "Get the Android App",
+			},
+			{
+				// Safari macOs
+				userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+				platform: "MacIntel",
+				maxTouchPoints: 0,
+				expected: "Get the Mac App",
+			},
+			{
+				// Chrome macOS
+				userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+				platform: "MacIntel",
+				maxTouchPoints: 0,
+				expected: "Get the Mac App",
+			},
+			{
+				// Chrome Windows
+				userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+				platform: "Win32",
+				maxTouchPoints: 1,
+				expected: "Get the Windows App",
+			},
+			{
+				// Linux
+				userAgent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+				platform: "Linux x86_64",
+				maxTouchPoints: 0,
+				expected: "Get the Linux App",
+			},
+		];
+
+		for (const test of tests) {
+			const oldUserAgent = navigator.userAgent;
+			const oldPlatform = navigator.platform;
+			const oldMaxTouchPoints = navigator.maxTouchPoints;
+			const { projectSelector, uninstall } = basicSetup();
+
+			try {
+				Object.defineProperty(navigator, "userAgent", {
+					get: () => test.userAgent,
+					configurable: true,
+				});
+				Object.defineProperty(navigator, "platform", {
+					get: () => test.platform,
+					configurable: true,
+				});
+				Object.defineProperty(navigator, "maxTouchPoints", {
+					get: () => test.maxTouchPoints,
+					configurable: true,
+				});
+				fireInstallPromptEvent();
+				assertEquals(projectSelector.actionsListEl.children.length, 4);
+
+				const installButton = projectSelector.actionsListEl.children[3].children[0];
+				assertEquals(installButton.textContent, test.expected);
+			} finally {
+				Object.defineProperty(navigator, "userAgent", {
+					get: () => oldUserAgent,
+					configurable: true,
+				});
+				Object.defineProperty(navigator, "platform", {
+					get: () => oldPlatform,
+					configurable: true,
+				});
+				Object.defineProperty(navigator, "maxTouchPoints", {
+					get: () => oldMaxTouchPoints,
+					configurable: true,
+				});
+				await uninstall();
+			}
 		}
 	},
 });
