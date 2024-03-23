@@ -762,9 +762,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			const pivotDragMatrix = Mat4.multiplyMatrices(dragMatrix, pivotMatrix);
 			pivotDragMatrix.premultiplyMatrix(pivotMatrix.inverse());
 			for (const entity of entities) {
-				const newEntityMatrix = entity.worldMatrix.clone();
-				newEntityMatrix.multiplyMatrix(pivotDragMatrix);
-				entity.worldMatrix = newEntityMatrix;
+				entity.worldMatrix.multiplyMatrix(pivotDragMatrix);
 				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		}

@@ -1,7 +1,8 @@
 import { basicTest } from "./shared.js";
 import { ContentWindowEntityEditor } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
-import { assertEquals } from "std/testing/asserts.ts";
-import { Entity, Quat, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../../../src/mod.js";
+import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
+import { Entity, Quat, TranslationGizmo, Vec3, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../../../src/mod.js";
+import { stub } from "std/testing/mock.ts";
 
 function createEntitiesForGizmoTests() {
 	const root = new Entity("root");
@@ -152,6 +153,51 @@ Deno.test({
 			});
 
 			assertVecAlmostEquals(root.scale, [1, 2, 3]);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Dragging a translation gizmo",
+	async fn() {
+		const { args, uninstall } = basicTest();
+		try {
+			const contentWindow = new ContentWindowEntityEditor(...args);
+
+			/** @type {import("../../../../../../../src/gizmos/gizmos/TranslationGizmo.js").TranslationGizmoDragCallback[]} */
+			const onDragCbs = [];
+
+			/** @type {import("std/testing/mock.ts").Stub<import("../../../../../../../src/mod.js").GizmoManager, [...args: any[]], import("../../../../../../../src/mod.js").Gizmo>} */
+			const addGizmoStub = stub(contentWindow.gizmos, "addGizmo", (...args) => {
+				const gizmo = addGizmoStub.original.bind(contentWindow.gizmos)(...args);
+				if (gizmo instanceof TranslationGizmo) {
+					stub(gizmo, "onDrag", (cb) => {
+						onDragCbs.push(cb);
+					});
+				}
+				return gizmo;
+			});
+
+			const { root } = createEntitiesForGizmoTests();
+			contentWindow.editingEntity = root;
+
+			contentWindow.selectionGroup.changeSelection({
+				added: [createMockEntitySelection(root)],
+			});
+
+			const gizmos = Array.from(contentWindow.gizmos.gizmos);
+			assertEquals(gizmos.length, 1);
+			assertInstanceOf(gizmos[0], TranslationGizmo);
+
+			assertEquals(onDragCbs.length, 1);
+			onDragCbs[0]({
+				localDelta: new Vec3(0, 1, 0),
+				worldDelta: new Vec3(0, 1, 0),
+			});
+
+			assertVecAlmostEquals(root.pos, [0, 1, 0]);
 		} finally {
 			uninstall();
 		}
