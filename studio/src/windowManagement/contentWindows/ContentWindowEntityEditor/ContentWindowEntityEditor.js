@@ -699,7 +699,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			if (this.transformationSpace == "global") {
 				matrix = Mat4.createTranslation(entity.worldPos);
 			} else if (this.transformationSpace == "local") {
-				matrix = entity.worldMatrix;
+				matrix = entity.worldMatrix.clone();
 				matrix.premultiplyMatrix(Mat4.createScale(matrix.getScale()).invert());
 			} else {
 				throw new Error(`Unknown transformation space: "${this.transformationSpace}"`);
@@ -762,9 +762,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			const pivotDragMatrix = Mat4.multiplyMatrices(dragMatrix, pivotMatrix);
 			pivotDragMatrix.premultiplyMatrix(pivotMatrix.inverse());
 			for (const entity of entities) {
-				const newEntityMatrix = entity.worldMatrix;
-				newEntityMatrix.multiplyMatrix(pivotDragMatrix);
-				entity.worldMatrix = newEntityMatrix;
+				entity.worldMatrix.multiplyMatrix(pivotDragMatrix);
 				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		}
@@ -804,7 +802,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					const componentConstructor = /** @type {typeof import("../../../../../src/mod.js").Component} */ (component.constructor);
 					componentGizmos = this.studioInstance.componentGizmosManager.createComponentGizmosInstance(componentConstructor, component, this.gizmos);
 					if (componentGizmos) {
-						componentGizmos.entityMatrixChanged(entity.worldMatrix);
+						componentGizmos.entityMatrixChanged(entity.worldMatrix.clone());
 						linkedComponentGizmos.set(component, componentGizmos);
 					}
 				} else {
@@ -836,7 +834,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const linkedComponentGizmos = this.currentLinkedGizmos.get(entity);
 		if (linkedComponentGizmos) {
 			for (const componentGizmos of linkedComponentGizmos.values()) {
-				componentGizmos.entityMatrixChanged(entity.worldMatrix);
+				componentGizmos.entityMatrixChanged(entity.worldMatrix.clone());
 			}
 		}
 	}
