@@ -7,9 +7,15 @@ import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.
 import { assertPromiseResolved } from "../../../../../../src/util/asserts.js";
 
 /**
+ * @typedef BasicTestContext
+ * @property {(count: number) => void} assertBeforeUnloadListenerCount
+ * @property {(listenerId: number) => void} fireBeforeUnload
+ */
+
+/**
  * Creates a mocked iframe and SharedWorker with the required functionality for the InternalDiscoveryMethod.
  * @param {object} options
- * @param {() => Promise<void>} options.fn The test function to run
+ * @param {(ctx: BasicTestContext) => Promise<void>} options.fn The test function to run
  * @param {string?} [options.assertIframeSrc] If set, makes an assertion that the iframe
  * src gets set to this value.
  * @param {boolean} [options.emulateStudioParent] Emulates a parent window.
@@ -29,6 +35,9 @@ async function basicSetup({
 	try {
 		/** @type {Window[]} */
 		const initializedIframeWindows = [];
+
+		/** @type {(() => void)[]} */
+		const beforeUnloadListeners = [];
 
 		/** @typedef {(e: MessageEvent) => void} MessageEventListener */
 		/** @type {Set<MessageEventListener>} */
@@ -168,15 +177,25 @@ async function basicSetup({
 				const castType = /** @type {string} */ (type);
 				if (type == "message") {
 					parentMessageEventListeners.add(listener);
-				} else if (castType == "unload") {
-					// The Deno test runner fires the unload event after the test is done
-					// ideally we'd write a test for this case but instead I'll just ignore this for now.
+				} else if (castType == "beforeunload") {
+					beforeUnloadListeners.push(/** @type {() => void} */ (listener));
 				} else {
 					originalAddEventListener(...args);
 				}
 			});
 
-			await fn();
+			await fn({
+				fireBeforeUnload(listenerId) {
+					const cb = beforeUnloadListeners[listenerId];
+					if (!cb) {
+						throw new Error("beforeunload listener with the specified id doesn't exist");
+					}
+					cb();
+				},
+				assertBeforeUnloadListenerCount(count) {
+					assertEquals(beforeUnloadListeners.length, count);
+				},
+			});
 
 			if (assertIframeSrc != null && !iframeSrcWasSet) {
 				throw new AssertionError("The test finished and no iframe src has been set");
@@ -375,6 +394,42 @@ Deno.test({
 				await method3.destructor();
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
 				assertEquals(Array.from(method1.availableConnections()), []);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "beforeunload event causes client to get unregistered",
+	async fn() {
+		await basicSetup({
+			async fn({ assertBeforeUnloadListenerCount, fireBeforeUnload }) {
+				const method1 = new InternalDiscoveryMethod("url");
+				const availableChangedSpy = spy();
+				let spyCall = 0;
+				method1.onAvailableConnectionsChanged(availableChangedSpy);
+				await method1.registerClient("inspector");
+
+				assertBeforeUnloadListenerCount(1);
+
+				const method2 = new InternalDiscoveryMethod("url");
+				await method2.registerClient("studio-host");
+
+				assertSpyCalls(availableChangedSpy, ++spyCall);
+				const availableConnections1 = Array.from(method1.availableConnections());
+				assertEquals(availableConnections1.length, 1);
+
+				assertBeforeUnloadListenerCount(2);
+				fireBeforeUnload(1);
+
+				// Wait for message to get sent to service worker
+				await waitForMicrotasks();
+				// Wait for message to be received from service worker
+				await waitForMicrotasks();
+
+				assertSpyCalls(availableChangedSpy, ++spyCall);
+				const availableConnections2 = Array.from(method1.availableConnections());
+				assertEquals(availableConnections2.length, 0);
 			},
 		});
 	},
