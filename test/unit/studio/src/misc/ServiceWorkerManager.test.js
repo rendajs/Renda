@@ -12,7 +12,7 @@ const SERVICE_WORKER_CLIENT_ID = "service worker client id";
  * @property {import("../../../../../studio/sw.js").TypedMessengerWithTypes} messenger
  * @property {import("std/testing/mock.ts").Spy<import("../../../../../studio/src/tasks/TaskManager.js").TaskManager, [taskType: string, taskConfig: unknown, options?: import("../../../../../studio/src/tasks/TaskManager.js").RunTaskOptions | undefined]>} runTaskSpy
  * @property {() => void} fireControllerChange
- * @property {() => void} fireUnload
+ * @property {() => void} fireBeforeUnload
  * @property {() => void} fireTimeout
  * @property {() => void} createInstallingWorker
  * @property {() => void} promoteInstallingWorker
@@ -76,7 +76,7 @@ async function basicTest({
 		/** @type {Set<() => void>} */
 		const onControllerChangeListeners = new Set();
 		/** @type {Set<() => void>} */
-		const unloadListeners = new Set();
+		const beforeUnloadListeners = new Set();
 		/** @type {Set<() => void>} */
 		const updateFoundListeners = new Set();
 
@@ -223,8 +223,8 @@ async function basicTest({
 			stub(window, "addEventListener", (...args) => {
 				const [type, listener] = args;
 				const castType = /** @type {string} */ (type);
-				if (castType == "unload") {
-					unloadListeners.add(/** @type {() => void} */ (listener));
+				if (castType == "beforeunload") {
+					beforeUnloadListeners.add(/** @type {() => void} */ (listener));
 				} else {
 					originalAddEventListener(...args);
 				}
@@ -240,8 +240,8 @@ async function basicTest({
 				fireControllerChange() {
 					onControllerChangeListeners.forEach((cb) => cb());
 				},
-				fireUnload() {
-					unloadListeners.forEach((cb) => cb());
+				fireBeforeUnload() {
+					beforeUnloadListeners.forEach((cb) => cb());
 				},
 				fireTimeout() {
 					if (!setTimeoutCallback) {
@@ -339,7 +339,7 @@ Deno.test({
 				const manager = new ServiceWorkerManager();
 				await manager.init();
 
-				ctx.fireUnload();
+				ctx.fireBeforeUnload();
 				assertSpyCalls(ctx.unregisterClientSpy, 1);
 			},
 		});
