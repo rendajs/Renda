@@ -84,7 +84,7 @@ export function initializeIframe(window) {
 	worker.port.start();
 
 	// Clean up when the page is unloaded or a destructor message is received.
-	window.addEventListener("unload", () => {
+	window.addEventListener("beforeunload", () => {
 		destructor();
 	});
 

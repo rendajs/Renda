@@ -117,7 +117,7 @@ export class ServiceWorkerManager {
 			});
 		}
 
-		window.addEventListener("unload", () => {
+		window.addEventListener("beforeunload", () => {
 			for (const messenger of this.#messengers.values()) {
 				messenger.send.unregisterClient();
 			}
