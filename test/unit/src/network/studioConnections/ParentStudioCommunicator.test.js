@@ -64,12 +64,8 @@ async function basicSetup({
 		await mockSessionAsync(async () => {
 			stub(window, "addEventListener", (...args) => {
 				const [type, listener] = args;
-				const castType = /** @type {string} */ (type);
 				if (type == "message") {
 					parentMessageEventListeners.add(listener);
-				} else if (castType == "unload") {
-					// The Deno test runner fires the unload event after the test is done
-					// ideally we'd write a test for this case but instead I'll just ignore this for now.
 				} else {
 					originalAddEventListener(...args);
 				}

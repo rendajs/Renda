@@ -81,7 +81,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 			await this.iframeMessenger.sendWithOptions.postWorkerMessage({ transfer: data.transfer }, data.sendData, data.transfer);
 		});
 
-		window.addEventListener("unload", () => {
+		window.addEventListener("beforeunload", () => {
 			this.destructor();
 		});
 	}
