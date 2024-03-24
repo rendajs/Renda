@@ -7,6 +7,7 @@ import { IndexedDbStudioFileSystem } from "../util/fileSystems/IndexedDbStudioFi
 export class ProjectSelector {
 	/** @typedef {import("./ProjectManager.js").StoredProjectEntryAny} StoredProjectEntryAny */
 
+	#contentEl;
 	#versionEl;
 	/** @type {HTMLDivElement?} */
 	#updateSpinnerEl = null;
@@ -52,6 +53,9 @@ export class ProjectSelector {
 		this.#versionEl.classList.add("version");
 		this.#versionEl.textContent = `v${RENDA_VERSION_STRING} (beta)`;
 		headerEl.append(this.#versionEl);
+
+		this.#contentEl = document.createElement("main");
+		this.el.append(this.#contentEl);
 
 		this.actionsListEl = this.createList("actions", "Start");
 		this.recentListEl = this.createList("recent", "Recent");
@@ -140,7 +144,7 @@ export class ProjectSelector {
 	createList(name, title) {
 		const containerEl = document.createElement("div");
 		containerEl.classList.add(`project-selector-${name}-list-container`, "project-selector-list-container");
-		this.el.appendChild(containerEl);
+		this.#contentEl.appendChild(containerEl);
 
 		const titleEl = document.createElement("h1");
 		titleEl.textContent = title;
