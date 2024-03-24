@@ -142,7 +142,7 @@ export class ProjectSelector {
 		containerEl.classList.add(`project-selector-${name}-list-container`, "project-selector-list-container");
 		this.el.appendChild(containerEl);
 
-		const titleEl = document.createElement("h4");
+		const titleEl = document.createElement("h1");
 		titleEl.textContent = title;
 		containerEl.appendChild(titleEl);
 

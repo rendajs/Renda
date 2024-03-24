@@ -121,7 +121,7 @@
 	grid-area: recent-list;
 }
 
-.project-selector-list-container > h4 {
+.project-selector-list-container > h1 {
 	font-size: 16px;
 	font-weight: 200;
 	margin: 0;
