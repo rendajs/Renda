@@ -139,7 +139,7 @@
 }
 
 .project-selector-list > li {
-	margin: 4px 0px;
+	margin: 2px 0px;
 }
 
 .project-selector-button {
@@ -153,15 +153,32 @@
 	font-size: var(--default-font-size);
 	font-family: var(--default-font-family);
 }
+
 button.project-selector-button[disabled] {
 	color: var(--default-text-color-disabled-context-menu);
 }
 
+.project-selector-button:hover:not([disabled]) {
+	color: var(--default-button-text-color);
+}
+
 .project-selector-button:hover:not([disabled]):not(:active) {
 	background-color: var(--default-button-color);
-	color: var(--default-button-text-color);
 }
 
 .project-selector-button:active {
 	background-color: var(--default-button-active-color);
+}
+
+.project-selector-button .button-wrap {
+	display: flex;
+	gap: 5px;
+}
+
+.project-selector-button-icon {
+	width: 1lh;
+	height: 1lh;
+	background-repeat: no-repeat;
+	background-position: center;
+	display: inline-block;
 }

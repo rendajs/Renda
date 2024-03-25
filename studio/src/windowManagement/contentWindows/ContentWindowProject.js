@@ -20,7 +20,7 @@ import { getProjectSelectorInstance } from "../../projectSelector/projectSelecto
 export class ContentWindowProject extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:project");
 	static contentWindowUiName = "Project Files";
-	static contentWindowUiIcon = "static/icons/contentWindowTabs/project.svg";
+	static contentWindowUiIcon = "static/icons/folder.svg";
 
 	/** @type {Set<import("../../assets/AssetManager.js").AssetManager>} */
 	#registeredDismissedManagers = new Set();

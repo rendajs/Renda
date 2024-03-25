@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <mask id="mask">
+      <rect x="0" y="0" width="500" height="500" style="fill: black"/>
+      <g style="fill: transparent; stroke: white; stroke-width: 20px;">
+				<ellipse cx="250" cy="130" rx="160" ry="50"></ellipse>
+				<path d="M 90 130 L 90 370 C 90 430 410 430 410 370 L 410 130"></path>
+				<path d="M 90 250 C 90 310 410 310 410 250"></path>
+				<path style="stroke-linecap: round;" d="M 368.681 222.223 C 368.681 222.223 352.51 230.914 329.27 231.323"></path>
+			</g>
+			<ellipse cx="380" cy="400" rx="100" ry="100" fill="black" ></ellipse>
+			<path style="fill: transparent; stroke: white; stroke-width: 20px;" d="M 380 350 L 380 450 M 330 400 L 430 400"></path>
+    </mask>
+  </defs>
+  <rect x="0" y="0" width="500" height="500" mask="url(#mask)" style="fill: black"/>
+</svg>

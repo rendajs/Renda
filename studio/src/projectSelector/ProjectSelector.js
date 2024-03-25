@@ -68,31 +68,43 @@ export class ProjectSelector {
 		 */
 		this.allowOpeningNew = true;
 
-		this.createAction("New Project", async () => {
-			if (this.allowOpeningNew) {
-				this.willOpenProjectAfterLoad();
-				const studio = await this.waitForStudio();
-				studio.projectManager.openNewDbProject(true);
-			}
-			this.setVisibility(false);
+		this.createAction({
+			text: "New Project",
+			iconUrl: "static/icons/newDatabase.svg",
+			onClick: async () => {
+				if (this.allowOpeningNew) {
+					this.willOpenProjectAfterLoad();
+					const studio = await this.waitForStudio();
+					studio.projectManager.openNewDbProject(true);
+				}
+				this.setVisibility(false);
+			},
 		});
 
-		const { buttonEl: openProjectButton } = this.createAction("Open Project", async () => {
-			this.willOpenProjectAfterLoad();
-			const studio = await this.waitForStudio();
-			studio.projectManager.openProjectFromLocalDirectory();
-			this.setVisibility(false);
+		const { buttonEl: openProjectButton } = this.createAction({
+			text: "Open Project",
+			iconUrl: "static/icons/folder.svg",
+			onClick: async () => {
+				this.willOpenProjectAfterLoad();
+				const studio = await this.waitForStudio();
+				studio.projectManager.openProjectFromLocalDirectory();
+				this.setVisibility(false);
+			},
 		});
 		if (!("showDirectoryPicker" in globalThis)) {
 			openProjectButton.disabled = true;
 			openProjectButton.title = "Opening local projects is not supported by your browser.";
 		}
 
-		this.createAction("Connect Remote Project", async () => {
-			this.willOpenProjectAfterLoad();
-			const studio = await this.waitForStudio();
-			studio.projectManager.openNewRemoteProject(true);
-			this.setVisibility(false);
+		this.createAction({
+			text: "Connect to Remote",
+			iconUrl: "static/icons/remoteSignal.svg",
+			onClick: async () => {
+				this.willOpenProjectAfterLoad();
+				const studio = await this.waitForStudio();
+				studio.projectManager.openNewRemoteProject(true);
+				this.setVisibility(false);
+			},
 		});
 
 		/** @type {StoredProjectEntryAny[]?} */
@@ -130,9 +142,13 @@ export class ProjectSelector {
 			} else if (/linux/i.test(ua)) {
 				text = "Get the Linux App";
 			}
-			const { listItemEl } = this.createAction(text, async () => {
-				await event.prompt();
-				listItemEl.remove();
+			const { listItemEl } = this.createAction({
+				text,
+				iconUrl: "static/icons/download.svg",
+				onClick: async () => {
+					await event.prompt();
+					listItemEl.remove();
+				},
 			});
 		});
 	}
@@ -158,26 +174,43 @@ export class ProjectSelector {
 	}
 
 	/**
-	 * @param {string} name
-	 * @param {() => void} onClick
+	 * @param {CreateListButtonOptions} options
 	 */
-	createAction(name, onClick) {
-		return this.createListButton(this.actionsListEl, name, onClick);
+	createAction(options) {
+		return this.createListButton(this.actionsListEl, options);
 	}
 
 	/**
-	 * @param {HTMLUListElement} listEl
-	 * @param {string} name
-	 * @param {() => void} onClick
+	 * @typedef CreateListButtonOptions
+	 * @property {string} text
+	 * @property {string} iconUrl
+	 * @property {() => void} onClick
 	 */
-	createListButton(listEl, name, onClick) {
+
+	/**
+	 * @param {HTMLUListElement} listEl
+	 * @param {CreateListButtonOptions} options
+	 */
+	createListButton(listEl, { iconUrl, text, onClick }) {
 		const item = document.createElement("li");
 		listEl.appendChild(item);
 		const button = document.createElement("button");
 		item.appendChild(button);
 		button.classList.add("project-selector-button");
-		button.textContent = name;
 		button.addEventListener("click", onClick);
+
+		const buttonWrap = document.createElement("span");
+		buttonWrap.classList.add("button-wrap");
+		button.append(buttonWrap);
+
+		const iconEl = document.createElement("div");
+		iconEl.classList.add("project-selector-button-icon");
+		iconEl.style.backgroundImage = `url(${iconUrl})`;
+		buttonWrap.append(iconEl);
+
+		const textEl = document.createElement("span");
+		textEl.textContent = text;
+		buttonWrap.append(textEl);
 		return {
 			listItemEl: item,
 			buttonEl: button,
@@ -240,18 +273,16 @@ export class ProjectSelector {
 			if (entry.alias) {
 				text = entry.alias;
 			}
-			const { buttonEl } = this.createListButton(this.recentListEl, text, async () => {
-				this.willOpenProjectAfterLoad();
-				const studio = await this.waitForStudio();
-				studio.projectManager.openExistingProject(entry, true);
-				this.setVisibility(false);
-			});
+			let icon = "";
 			let tooltip = "";
 			if (entry.fileSystemType == "fsa") {
+				icon = "folder";
 				tooltip = "File System on Disk";
 			} else if (entry.fileSystemType == "db") {
+				icon = "database";
 				tooltip = "Stored in Cookies";
 			} else if (entry.fileSystemType == "remote") {
+				icon = "remoteSignal";
 				tooltip = "Remote File System";
 				if (entry.remoteProjectConnectionType == "internal") {
 					tooltip += " (Internal Connection)";
@@ -259,6 +290,16 @@ export class ProjectSelector {
 					tooltip += " (WebRTC Connection)";
 				}
 			}
+			const { buttonEl } = this.createListButton(this.recentListEl, {
+				text,
+				iconUrl: `static/icons/${icon}.svg`,
+				onClick: async () => {
+					this.willOpenProjectAfterLoad();
+					const studio = await this.waitForStudio();
+					studio.projectManager.openExistingProject(entry, true);
+					this.setVisibility(false);
+				},
+			});
 			buttonEl.title = tooltip;
 			buttonEl.addEventListener("contextmenu", (e) => {
 				if (this.loadedStudio) {
