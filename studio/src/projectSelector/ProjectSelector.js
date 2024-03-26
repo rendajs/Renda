@@ -2,6 +2,7 @@ import { RENDA_VERSION_STRING } from "../../../src/engineDefines.js";
 import { IndexedDbUtil } from "../../../src/util/IndexedDbUtil.js";
 import { PromiseWaitHelper } from "../../../src/util/PromiseWaitHelper.js";
 import { createSpinner } from "../ui/spinner.js";
+import { ColorizerFilterManager } from "../util/colorizerFilters/ColorizerFilterManager.js";
 import { IndexedDbStudioFileSystem } from "../util/fileSystems/IndexedDbStudioFileSystem.js";
 
 export class ProjectSelector {
@@ -206,6 +207,7 @@ export class ProjectSelector {
 		const iconEl = document.createElement("div");
 		iconEl.classList.add("project-selector-button-icon");
 		iconEl.style.backgroundImage = `url(${iconUrl})`;
+		ColorizerFilterManager.instance().applyFilter(iconEl, "var(--default-button-text-color)");
 		buttonWrap.append(iconEl);
 
 		const textEl = document.createElement("span");
