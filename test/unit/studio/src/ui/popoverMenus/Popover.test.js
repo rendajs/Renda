@@ -2,7 +2,6 @@ import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocumen
 import { MouseEvent } from "fake-dom/FakeMouseEvent.js";
 import { assertEquals, assertExists } from "std/testing/asserts.ts";
 import { PopoverManager } from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
-import { ColorizerFilterManager } from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
 import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 
 /**
@@ -20,8 +19,7 @@ async function basicPopoverTest(cb) {
 	window.innerWidth = 300;
 	window.innerHeight = 400;
 	try {
-		const colorizerFilterManager = new ColorizerFilterManager();
-		const manager = new PopoverManager(colorizerFilterManager);
+		const manager = new PopoverManager();
 		const popover = manager.addPopover();
 
 		cb({

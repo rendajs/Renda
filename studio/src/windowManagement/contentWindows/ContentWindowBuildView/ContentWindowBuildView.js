@@ -51,14 +51,11 @@ export class ContentWindowBuildView extends ContentWindow {
 
 		window.addEventListener("message", this.onIframeMessage);
 
-		const colorizerFilterManager = this.studioInstance.colorizerFilterManager;
-
 		const playStateButtonsGroup = new ButtonGroup();
 		this.addTopBarEl(playStateButtonsGroup.el);
 
 		this.playButton = new Button({
 			icon: "static/icons/buildView/play.svg",
-			colorizerFilterManager,
 			tooltip: "Run Application",
 			onClick: () => {
 				this.setIsRunning(true);
@@ -68,7 +65,6 @@ export class ContentWindowBuildView extends ContentWindow {
 
 		this.stopButton = new Button({
 			icon: "static/icons/buildView/stop.svg",
-			colorizerFilterManager,
 			onClick: () => {
 				this.setIsRunning(false);
 			},
@@ -77,7 +73,6 @@ export class ContentWindowBuildView extends ContentWindow {
 
 		this.reloadButton = new Button({
 			icon: "static/icons/buildView/reload.svg",
-			colorizerFilterManager,
 			onClick: () => {
 				this.updateFrameSrc(true);
 				this.updateIframeVisibility();
@@ -88,7 +83,6 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.entryPointButton = new PopoverToggleButton({
 			text: "Entry Point",
 			hasDownArrow: true,
-			colorizerFilterManager,
 		}, () => {
 			const assetManager = this.studioInstance.projectManager.assetManager;
 

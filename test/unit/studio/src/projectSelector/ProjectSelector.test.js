@@ -85,7 +85,8 @@ Deno.test({
 			assertEquals(event.defaultPrevented, true);
 
 			const installButton = projectSelector.actionsListEl.children[3].children[0];
-			assertEquals(installButton.textContent, "Install Renda Studio");
+			const installButtonText = installButton.children[0].children[1];
+			assertEquals(installButtonText.textContent, "Install Renda Studio");
 			installButton.dispatchEvent(new Event("click"));
 			assertSpyCalls(promptSpy, 1);
 			assertEquals(projectSelector.actionsListEl.children.length, 4);
@@ -174,7 +175,7 @@ Deno.test({
 				fireInstallPromptEvent();
 				assertEquals(projectSelector.actionsListEl.children.length, 4);
 
-				const installButton = projectSelector.actionsListEl.children[3].children[0];
+				const installButton = projectSelector.actionsListEl.children[3].children[0].children[0].children[1];
 				assertEquals(installButton.textContent, test.expected);
 			} finally {
 				Object.defineProperty(navigator, "userAgent", {

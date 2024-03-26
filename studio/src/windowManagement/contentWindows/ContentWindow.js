@@ -241,7 +241,6 @@ export class ContentWindow {
 
 		const button = new PopoverToggleButton({
 			icon: "static/icons/preferences.svg",
-			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 		}, () => {
 			const popover = this.studioInstance.popoverManager.addPopover(PreferencesPopover, this.studioInstance.preferencesManager, preferenceIds, this.uuid);
 			popover.setNeedsCurtain(needsCurtain);

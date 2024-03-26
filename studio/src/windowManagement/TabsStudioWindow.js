@@ -239,7 +239,6 @@ export class TabsStudioWindow extends StudioWindow {
 				const tabIndex = prevTabCount + i;
 				const contentWindow = this.tabs[tabIndex];
 				const newButton = new Button({
-					colorizerFilterManager: getStudioInstance().colorizerFilterManager,
 					onClick: () => {
 						this.setActiveTabIndex(tabIndex, "user");
 					},
