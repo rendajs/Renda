@@ -1,6 +1,7 @@
 import { getMaybeStudioInstance, getStudioInstance } from "../studioInstance.js";
 import { parseMimeType } from "../util/util.js";
 import { clamp, generateUuid, iLerp } from "../../../src/util/mod.js";
+import { ColorizerFilterManager } from "../util/colorizerFilters/ColorizerFilterManager.js";
 
 /**
  * @typedef TreeViewInitData
@@ -434,11 +435,7 @@ export class TreeView {
 		iconEl.classList.add("tree-view-icon");
 		iconEl.style.backgroundImage = `url(${iconUrl})`;
 
-		const colorizerFilterManager = getMaybeStudioInstance()?.colorizerFilterManager;
-		// TreeViews are sometimes used in tests without a mocked colorizerFilterManager
-		if (colorizerFilterManager) {
-			colorizerFilterManager.applyFilter(iconEl, "var(--default-button-text-color)");
-		}
+		ColorizerFilterManager.instance().applyFilter(iconEl, "var(--default-button-text-color)");
 
 		this.addedIcons.push(iconEl);
 		this.afterEl.appendChild(iconEl);
@@ -1385,18 +1382,14 @@ export class TreeView {
 		}
 		if (this.#focusSelectedShortcutCondition) this.#focusSelectedShortcutCondition.setValue(focusSelected);
 
-		const colorizerFilterManager = getMaybeStudioInstance()?.colorizerFilterManager;
-		// TreeViews are sometimes used in tests without a mocked colorizerFilterManager
-		if (colorizerFilterManager) {
-			let color;
-			if (focusSelected) {
-				color = "var(--selected-text-color)";
-			} else {
-				color = "var(--default-button-text-color)";
-			}
-			for (const iconEl of this.addedIcons) {
-				colorizerFilterManager.applyFilter(iconEl, color);
-			}
+		let color;
+		if (focusSelected) {
+			color = "var(--selected-text-color)";
+		} else {
+			color = "var(--default-button-text-color)";
+		}
+		for (const iconEl of this.addedIcons) {
+			ColorizerFilterManager.instance().applyFilter(iconEl, color);
 		}
 	}
 

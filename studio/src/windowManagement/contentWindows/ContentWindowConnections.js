@@ -13,7 +13,7 @@ import { ContentWindow } from "./ContentWindow.js";
 export class ContentWindowConnections extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:connections");
 	static contentWindowUiName = "Connections";
-	static contentWindowUiIcon = "static/icons/contentWindowTabs/connections.svg";
+	static contentWindowUiIcon = "static/icons/remoteSignal.svg";
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args

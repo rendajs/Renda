@@ -60,17 +60,14 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			items: [
 				{
 					icon: "static/icons/entityEditor/translate.svg",
-					colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 					tooltip: "Translate Mode",
 				},
 				{
 					icon: "static/icons/entityEditor/rotate.svg",
-					colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 					tooltip: "Rotate Mode",
 				},
 				{
 					icon: "static/icons/entityEditor/scale.svg",
-					colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 					tooltip: "Scale Mode",
 				},
 			],
@@ -87,7 +84,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			onClick: () => {
 				this.toggleTransformationSpace();
 			},
-			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			tooltip: "Transformation Space",
 		});
 
@@ -95,7 +91,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			onClick: () => {
 				this.toggleTransformationPivot();
 			},
-			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			tooltip: "Transformation Pivot",
 		});
 		const pivotControlsGroup = new ButtonGroup();

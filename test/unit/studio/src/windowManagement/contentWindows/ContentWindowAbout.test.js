@@ -66,13 +66,6 @@ function basicSetup() {
 	/** @type {Set<() => void>} */
 	const onOpenTabCountChangeCbs = new Set();
 
-	mockStudioInstance.colorizerFilterManager = /** @type {import("../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} */ ({
-		applyFilter(element, cssColor) {
-			return /** @type {import("../../../../../../studio/src/util/colorizerFilters/ColorizerFilterUsageReference.js").ColorizerFilterUsageReference} */ ({
-				destructor() {},
-			});
-		},
-	});
 	mockStudioInstance.serviceWorkerManager = /** @type {import("../../../../../../studio/src/misc/ServiceWorkerManager.js").ServiceWorkerManager} */ ({
 		get installingState() {
 			return installingState;

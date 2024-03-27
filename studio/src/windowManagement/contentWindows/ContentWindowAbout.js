@@ -6,6 +6,7 @@ import { ContentWindow } from "./ContentWindow.js";
 import { getStudioInstance } from "../../studioInstance.js";
 import { createSpinner } from "../../ui/spinner.js";
 import { RENDA_VERSION_STRING } from "../../../../src/engineDefines.js";
+import { ColorizerFilterManager } from "../../util/colorizerFilters/ColorizerFilterManager.js";
 
 export class ContentWindowAbout extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:about");
@@ -31,7 +32,7 @@ export class ContentWindowAbout extends ContentWindow {
 
 		this.#updateCheckEl = document.createElement("div");
 		this.#updateCheckEl.classList.add("update-check-icon");
-		this.#updateCheckFilter = getStudioInstance().colorizerFilterManager.applyFilter(this.#updateCheckEl, "var(--text-color-level0)");
+		this.#updateCheckFilter = ColorizerFilterManager.instance().applyFilter(this.#updateCheckEl, "var(--text-color-level0)");
 		this.#updateEl.append(this.#updateCheckEl);
 
 		this.#updateSpinnerEl = createSpinner();

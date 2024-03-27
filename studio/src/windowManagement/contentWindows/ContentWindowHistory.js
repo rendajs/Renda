@@ -33,7 +33,6 @@ export class ContentWindowHistory extends ContentWindow {
 
 		this.undoButton = new Button({
 			icon: "static/icons/undo.svg",
-			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			onClick: () => {
 				this.studioInstance.historyManager.undo();
 			},
@@ -42,7 +41,6 @@ export class ContentWindowHistory extends ContentWindow {
 
 		this.redoButton = new Button({
 			icon: "static/icons/redo.svg",
-			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			onClick: () => {
 				this.studioInstance.historyManager.redo();
 			},

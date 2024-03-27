@@ -7,7 +7,16 @@ import { generateUuid } from "../../../../src/util/mod.js";
 
 const elementUsageReferenceSym = Symbol("colorizer filter usage reference");
 
+/** @type {ColorizerFilterManager?} */
+let manager = null;
+
 export class ColorizerFilterManager {
+	static instance() {
+		if (manager) return manager;
+		manager = new ColorizerFilterManager();
+		return manager;
+	}
+
 	constructor() {
 		this.containerEl = document.createElement("div");
 		this.containerEl.style.width = "0";
@@ -63,5 +72,19 @@ export class ColorizerFilterManager {
 		const ref = filter.getUsageReference();
 		castEl[elementUsageReferenceSym] = ref;
 		return ref;
+	}
+
+	/**
+	 * Mainly useful for tests.
+	 * Checks if an element currently has a filter applied to it and returns it if so.
+	 * @param {HTMLElement} element
+	 */
+	elementHasFilter(element) {
+		const castEl = /** @type {ElWithSym} */ (element);
+		const ref = castEl[elementUsageReferenceSym];
+		if (ref) {
+			return ref.filter;
+		}
+		return null;
 	}
 }

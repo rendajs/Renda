@@ -15,7 +15,6 @@ import { ProjectManager } from "./projectSelector/ProjectManager.js";
 import { BuiltInDefaultAssetLinksManager } from "./assets/BuiltInDefaultAssetLinksManager.js";
 import { BuiltInAssetManager } from "./assets/BuiltInAssetManager.js";
 import { DragManager } from "./misc/DragManager.js";
-import { ColorizerFilterManager } from "./util/colorizerFilters/ColorizerFilterManager.js";
 import { ServiceWorkerManager } from "./misc/ServiceWorkerManager.js";
 import { IS_DEV_BUILD } from "./studioDefines.js";
 import { DevSocketManager } from "./network/DevSocketManager.js";
@@ -50,8 +49,7 @@ export class Studio {
 		this.preferencesManager.addLocation(new GlobalPreferencesLocation(this.indexedDb));
 
 		this.selectionManager = new SelectionManager();
-		this.colorizerFilterManager = new ColorizerFilterManager();
-		this.popoverManager = new PopoverManager(this.colorizerFilterManager);
+		this.popoverManager = new PopoverManager();
 		this.gestureInProgressManager = new GestureInProgressManager();
 
 		/** @type {KeyboardShortcutManager<typeof autoRegisterShortcutCommands>} */

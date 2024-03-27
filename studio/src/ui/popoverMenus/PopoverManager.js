@@ -1,4 +1,5 @@
 import { waitForEventLoop } from "../../../../src/util/util.js";
+import { ColorizerFilterManager } from "../../util/colorizerFilters/ColorizerFilterManager.js";
 import { ContextMenu } from "./ContextMenu.js";
 import { Popover } from "./Popover.js";
 
@@ -8,15 +9,12 @@ export class PopoverManager {
 	 */
 	#activePopovers = [];
 
-	/**
-	 * @param {import("../../util/colorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} colorizerFilterManager
-	 */
-	constructor(colorizerFilterManager) {
+	constructor() {
 		this.curtainEl = document.createElement("div");
 		this.curtainEl.classList.add("popover-curtain");
 
-		const iconDefaultColorFilter = colorizerFilterManager.getFilter("var(--text-color-level0)");
-		const iconHoverColorFilter = colorizerFilterManager.getFilter("var(--selected-text-color)");
+		const iconDefaultColorFilter = ColorizerFilterManager.instance().getFilter("var(--text-color-level0)");
+		const iconHoverColorFilter = ColorizerFilterManager.instance().getFilter("var(--selected-text-color)");
 
 		// References are kept around to ensure the filters don't get garbage collected.
 		this.iconDefaultColorFilterRef = iconDefaultColorFilter.getUsageReference();

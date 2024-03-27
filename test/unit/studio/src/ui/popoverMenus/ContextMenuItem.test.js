@@ -2,15 +2,13 @@ import { assertEquals } from "std/testing/asserts.ts";
 import { ContextMenuItem } from "../../../../../../studio/src/ui/popoverMenus/ContextMenuItem.js";
 import { ContextMenu } from "../../../../../../studio/src/ui/popoverMenus/ContextMenu.js";
 import { PopoverManager } from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
-import { ColorizerFilterManager } from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
 import { runWithDom } from "../../../shared/runWithDom.js";
 
 /**
  * @returns {ContextMenu}
  */
 function createContextMenu() {
-	const colorizerFilterManager = new ColorizerFilterManager();
-	const popoverManager = new PopoverManager(colorizerFilterManager);
+	const popoverManager = new PopoverManager();
 	return new ContextMenu(popoverManager);
 }
 

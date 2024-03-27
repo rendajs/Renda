@@ -1,4 +1,4 @@
-import { getStudioInstance } from "../studioInstance.js";
+import { ColorizerFilterManager } from "../util/colorizerFilters/ColorizerFilterManager.js";
 
 /**
  * @typedef {import("./propertiesTreeView/types.ts").GuiOptionsBase} PathGuiOptions
@@ -103,7 +103,7 @@ export class PathGui {
 			if (!isLast) {
 				const arrow = document.createElement("span");
 				arrow.textContent = "/";
-				getStudioInstance().colorizerFilterManager.applyFilter(arrow, "var(--text-color-level0)");
+				ColorizerFilterManager.instance().applyFilter(arrow, "var(--text-color-level0)");
 				arrow.classList.add("path-arrow");
 				this.el.appendChild(arrow);
 			}

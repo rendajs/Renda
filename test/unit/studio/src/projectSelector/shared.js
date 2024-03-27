@@ -4,6 +4,7 @@ import { spy, stub } from "std/testing/mock.ts";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
+importer.makeReal("../../../../../src/util/mod.js");
 
 /** @type {import("../../../../../studio/src/projectSelector/ProjectSelector.js")} */
 const ProjectSelectorMod = await importer.import("../../../../../studio/src/projectSelector/ProjectSelector.js");
