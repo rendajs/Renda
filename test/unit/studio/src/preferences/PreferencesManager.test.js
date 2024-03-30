@@ -485,6 +485,39 @@ Deno.test({
 });
 
 Deno.test({
+	name: "The value of a preference takes location priority into account.",
+	fn() {
+		/**
+		 * @param {import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig} config
+		 * @param {unknown} expectedresult
+		 * @param {unknown} unexpectedresult
+		 */
+		function configTest(config, expectedresult, unexpectedresult) {
+			const preferenceName = "pref";
+			const manager = new PreferencesManager();
+			manager.registerPreference(preferenceName, config);
+			const location1 = new PreferencesLocation("workspace");
+			manager.addLocation(location1)
+			const location2 = new PreferencesLocation("project");
+			manager.addLocation(location2)
+			manager.set(preferenceName, unexpectedresult, {location: "workspace"});
+			manager.set(preferenceName, expectedresult, {location: "project"});
+			assertEquals(manager.get(preferenceName, null), expectedresult);
+		}
+		configTest({ type: "boolean" }, true, false);
+		configTest({ type: "number" }, 123, 456);
+		configTest({type: "string"}, "expected", "unexpected");
+		configTest({
+			type: "gui",
+		}, true, false);
+		configTest({
+			type: "enum",
+			enum: ["foo", "bar"]
+		}, "foo", "bar");
+	},
+});
+
+Deno.test({
 	name: "Getting the default location with a global location registered gives a helpful error message",
 	fn() {
 		const preferencesManager = new PreferencesManager({

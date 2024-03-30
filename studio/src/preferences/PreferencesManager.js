@@ -555,6 +555,7 @@ export class PreferencesManager {
 						break;
 					} else if (preferenceConfig.type == "enum" && typeof locationValue == "string" && preferenceConfig.enum.includes(locationValue)) {
 						value = locationValue;
+						break;
 					} else if (preferenceConfig.type == "unknown" || preferenceConfig.type == "gui") {
 						value = locationValue;
 						break;
