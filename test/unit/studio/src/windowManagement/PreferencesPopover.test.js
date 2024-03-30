@@ -45,6 +45,10 @@ function getMocks() {
 		guiPrefWithoutOpts: {
 			type: "gui",
 		},
+		enumPref: {
+			type: "enum",
+			enum: ["foo", "bar"],
+		},
 		unknownPref: {
 			type: "unknown",
 		},
@@ -79,7 +83,7 @@ Deno.test({
 		const { popoverManager, preferencesManager } = getMocks();
 
 		runWithDom(() => {
-			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref", "guiPref", "guiPrefWithCustomLabel", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
+			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref", "guiPref", "guiPrefWithCustomLabel", "enumPref", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
 
 			assertTreeViewStructureEquals(popover.preferencesTreeView, {
 				children: [
@@ -122,6 +126,14 @@ Deno.test({
 						propertiesValue: undefined,
 						disabled: false,
 						propertiesTooltip: "Default location: Global",
+					},
+					{
+						propertiesLabel: "Enum Pref",
+						isPropertiesEntry: true,
+						propertiesType: "dropdown",
+						propertiesValue: "foo",
+						disabled: false,
+						propertiesTooltip: "Default value: foo\nDefault location: Global\nFinal value: foo",
 					},
 					{
 						propertiesLabel: "Allowed Locations Pref",

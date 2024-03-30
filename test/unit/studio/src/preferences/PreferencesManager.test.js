@@ -70,6 +70,10 @@ function createManager() {
 			},
 			default: [1, 2, 3],
 		}),
+		enumPref: pref({
+			type: "enum",
+			enum: ["foo", "bar"],
+		}),
 	});
 
 	const mockWindowManager = createMockWindowManager();
@@ -152,12 +156,14 @@ Deno.test({
 			uiName: "Pref",
 			allowedLocations: null,
 			guiOpts: null,
+			enumItems: [],
 		});
 		configTest("namespace.myPreference", { type: "number" }, {
 			type: "number",
 			uiName: "My Preference",
 			allowedLocations: null,
 			guiOpts: null,
+			enumItems: [],
 		});
 		configTest("namespace.explicitName", {
 			type: "string",
@@ -167,6 +173,7 @@ Deno.test({
 			uiName: "Hello",
 			allowedLocations: null,
 			guiOpts: null,
+			enumItems: [],
 		});
 		configTest("endswithdot.", {
 			type: "string",
@@ -176,6 +183,7 @@ Deno.test({
 			uiName: "Hello",
 			allowedLocations: null,
 			guiOpts: null,
+			enumItems: [],
 		});
 		configTest("allowedLocations", {
 			type: "string",
@@ -185,6 +193,7 @@ Deno.test({
 			uiName: "Allowed Locations",
 			allowedLocations: ["global"],
 			guiOpts: null,
+			enumItems: [],
 		});
 		configTest("guiOpts.gui", {
 			type: "gui",
@@ -204,6 +213,17 @@ Deno.test({
 					label: "This will not be removed",
 				},
 			},
+			enumItems: [],
+		});
+		configTest("enum", {
+			type: "enum",
+			enum: ["foo", "bar"],
+		}, {
+			type: "enum",
+			enumItems: ["foo", "bar"],
+			allowedLocations: null,
+			guiOpts: null,
+			uiName: "Enum",
 		});
 
 		const manager = new PreferencesManager();
@@ -217,7 +237,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "preference without a default value set return the correct type",
+	name: "preferences return the correct type based on their default value",
 	fn() {
 		/**
 		 * @param {string} preferenceName
@@ -257,6 +277,25 @@ Deno.test({
 			type: "gui",
 			default: "default",
 		}, "default");
+		configTest("enumWithoutDefault", {
+			type: "enum",
+			enum: ["foo", "bar"],
+		}, "foo");
+		configTest("enumWithInvalidDefault", {
+			type: "enum",
+			enum: ["foo", "bar"],
+			default: "invalid",
+		}, "foo");
+		configTest("enumWithDefault", {
+			type: "enum",
+			enum: ["foo", "bar"],
+			default: "bar",
+		}, "bar");
+		configTest("enumWithoutItems", {
+			type: "enum",
+			enum: [],
+			default: "bar",
+		}, "");
 
 		const manager = new PreferencesManager();
 		const castInvalidType = /** @type {"unknown"} */ ("invalid type");
@@ -325,6 +364,7 @@ Deno.test({
 		assertEquals(manager.get("unknownPref1", null), { some: "data" });
 		assertEquals(manager.get("unknownPref2", null), [1, 2, 3]);
 		assertEquals(manager.get("guiPref", null), [1, 2, 3]);
+		assertEquals(manager.get("enumPref", null), "foo");
 
 		manager.set("boolPref1", true);
 		manager.set("boolPref2", false);
@@ -335,6 +375,7 @@ Deno.test({
 		manager.set("unknownPref1", { someOther: "data" });
 		manager.set("unknownPref2", { not: "an array" });
 		manager.set("guiPref", [4, 5, 6]);
+		manager.set("enumPref", "bar");
 
 		const boolPref1 = manager.get("boolPref1", null);
 		assertEquals(boolPref1, true);
@@ -346,6 +387,7 @@ Deno.test({
 		assertEquals(manager.get("unknownPref1", null), { someOther: "data" });
 		assertEquals(manager.get("unknownPref2", null), { not: "an array" });
 		assertEquals(manager.get("guiPref", null), [4, 5, 6]);
+		assertEquals(manager.get("enumPref", null), "bar");
 
 		// Verify that the type is a boolean and nothing else
 		assertIsType(true, boolPref1);
