@@ -497,22 +497,22 @@ Deno.test({
 			const manager = new PreferencesManager();
 			manager.registerPreference(preferenceName, config);
 			const location1 = new PreferencesLocation("workspace");
-			manager.addLocation(location1)
+			manager.addLocation(location1);
 			const location2 = new PreferencesLocation("project");
-			manager.addLocation(location2)
-			manager.set(preferenceName, unexpectedresult, {location: "workspace"});
-			manager.set(preferenceName, expectedresult, {location: "project"});
+			manager.addLocation(location2);
+			manager.set(preferenceName, unexpectedresult, { location: "workspace" });
+			manager.set(preferenceName, expectedresult, { location: "project" });
 			assertEquals(manager.get(preferenceName, null), expectedresult);
 		}
 		configTest({ type: "boolean" }, true, false);
 		configTest({ type: "number" }, 123, 456);
-		configTest({type: "string"}, "expected", "unexpected");
+		configTest({ type: "string" }, "expected", "unexpected");
 		configTest({
 			type: "gui",
 		}, true, false);
 		configTest({
 			type: "enum",
-			enum: ["foo", "bar"]
+			enum: ["foo", "bar"],
 		}, "foo", "bar");
 	},
 });
