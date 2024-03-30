@@ -41,7 +41,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		this.addPreferencesButton([
 			"entityEditor.autosaveEntities",
-			"entityEditor",
 			"entityEditor.invertScrollOrbitX",
 			"entityEditor.invertScrollOrbitY",
 			"entityEditor.showGrid",

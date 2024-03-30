@@ -17,11 +17,6 @@ const autoRegisterPreferences = /** @type {const} */ ({
 		type: "boolean",
 		default: true,
 	}),
-	entityEditor: pref({
-		type: "enum",
-		enum: ["foo", "bar"],
-		default: "foo",
-	}),
 	"entityEditor.invertScrollOrbitX": pref({
 		type: "boolean",
 	}),
