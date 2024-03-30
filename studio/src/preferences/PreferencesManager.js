@@ -6,6 +6,7 @@ import { ContentWindowPreferencesLocation } from "./preferencesLocation/ContentW
  * @property {boolean} boolean
  * @property {number} number
  * @property {string} string
+ * @property {string} enum
  * @property {unknown} gui
  * @property {unknown} unknown
  */
@@ -13,21 +14,17 @@ import { ContentWindowPreferencesLocation } from "./preferencesLocation/ContentW
 /** @typedef {keyof PreferenceTypesMap} PreferenceValueTypes */
 /**
  * @template {PreferenceValueTypes} T
- * @typedef {T extends PreferenceValueTypes ? PreferenceConfigGeneric<T> : never} PreferenceConfigHelper
+ * @typedef {T extends PreferenceValueTypes ? PreferenceConfigGeneric<T, PreferenceTypesMap[T]> : never} PreferenceConfigHelper
  */
 
 /**
- * @template {PreferenceValueTypes} [T = PreferenceValueTypes]
- * @template {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions | null} [TGuiOpts = null]
- * @typedef PreferenceConfigGeneric
- * @property {T} type
+ * @typedef PreferenceConfigBase
  * @property {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} [guiOpts]
  * @property {string} [uiName] The name of the setting that is shown in UI.
  * When not set, the UI name will be inferred from the setting name:
  * - If the name contains dots, only the characters after the last dot is used.
  * - Camel case will be converted to title case using `prettifyVariableName()`.
  * @property {string} [description] Description that is shown in UI explaining what the setting does.
- * @property {PreferenceTypesMap[T]} [default]
  * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [defaultLocation] The default
  * location where the preference will be stored. This defaults to "global" when not set.
  * When modifying preferences, the user can choose where the modified value should be stored.
@@ -36,7 +33,17 @@ import { ContentWindowPreferencesLocation } from "./preferencesLocation/ContentW
  * only the provided locations can be modified for this preference. Any other locations will be greyed out for the user,
  * and trying to set these programmatically will result in an error.
  */
-/** @typedef {PreferenceConfigHelper<PreferenceValueTypes>} PreferenceConfig */
+
+/**
+ * @template {string} T
+ * @template TDefault
+ * @typedef {{type: T, default?: TDefault} & PreferenceConfigBase} PreferenceConfigGeneric
+ */
+
+/**
+ * @typedef {PreferenceConfigGeneric<"enum", string> & {enum: string[]}} EnumPreferenceConfig
+ */
+/** @typedef {PreferenceConfigHelper<Exclude<PreferenceValueTypes, "enum">> | EnumPreferenceConfig} PreferenceConfig */
 
 /**
  * - `"initial"` Events are guaranteed to fire once when you register the event listener for the first time.
@@ -193,13 +200,22 @@ export class PreferencesManager {
 		if (config.allowedLocations) {
 			allowedLocations = Array.from(config.allowedLocations);
 		}
+
 		let guiOpts = null;
 		if (config.type == "gui" && config.guiOpts) {
 			guiOpts = config.guiOpts;
 		}
+
+		/** @type {string[]} */
+		let enumItems = [];
+		if (config.type == "enum") {
+			enumItems = config.enum;
+		}
+
 		return {
 			type: config.type,
 			guiOpts,
+			enumItems,
 			uiName,
 			allowedLocations,
 		};
@@ -232,6 +248,13 @@ export class PreferencesManager {
 			return value || 0;
 		} else if (preferenceConfig.type == "string") {
 			return value || "";
+		} else if (preferenceConfig.type == "enum") {
+			const value = preferenceConfig.default;
+			if (value && preferenceConfig.enum.includes(value)) {
+				return value;
+			} else {
+				return preferenceConfig.enum[0] || "";
+			}
 		} else if (preferenceConfig.type == "unknown" || preferenceConfig.type == "gui") {
 			return value;
 		} else {
@@ -528,6 +551,9 @@ export class PreferencesManager {
 						value = locationValue;
 						break;
 					} else if (preferenceConfig.type == "string" && typeof locationValue == "string") {
+						value = locationValue;
+						break;
+					} else if (preferenceConfig.type == "enum" && typeof locationValue == "string" && preferenceConfig.enum.includes(locationValue)) {
 						value = locationValue;
 						break;
 					} else if (preferenceConfig.type == "unknown" || preferenceConfig.type == "gui") {
