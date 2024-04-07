@@ -10,10 +10,9 @@ import {assertMatAlmostEquals} from "../../../../shared/asserts.js";
 function createMockEngineAssetsManager() {
 	return /** @type {import("../../../../../../src/mod.js").EngineAssetsManager} */ ({
 		watchAsset(uuid, options, onAssetChangeCb) {
-			if (uuid == CLUSTER_BOUNDS_SHADER_ASSET_UUID) {
-				onAssetChangeCb(new ShaderSource(""));
-			} else if (uuid == CLUSTER_LIGHTS_SHADER_ASSET_UUID) {
-				onAssetChangeCb(new ShaderSource(""));
+			if (uuid == CLUSTER_BOUNDS_SHADER_ASSET_UUID || uuid == CLUSTER_LIGHTS_SHADER_ASSET_UUID) {
+				const source = /** @type {any} */ (new ShaderSource(""));
+				onAssetChangeCb(source);
 			}
 		},
 	});
