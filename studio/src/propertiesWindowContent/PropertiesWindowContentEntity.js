@@ -26,17 +26,6 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 
 		const entitySection = this.treeView.addCollapsable("Entity");
 
-		this.editingModeGui = entitySection.addItem({
-			type: "buttonSelector",
-			guiOpts: {
-				label: "Editing mode",
-				items: ["global", "instance"],
-			},
-		});
-		this.editingModeGui.onValueChange(() => {
-			this.updateTransformationValues();
-		});
-
 		this.positionProperty = entitySection.addItem({
 			type: "vec3",
 			guiOpts: {
@@ -47,11 +36,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
 			for (const { entity } of this.currentSelection) {
-				if (this.editingModeGui.value == "global") {
-					entity.pos = changeEvent.value;
-				} else if (this.editingModeGui.value == "instance") {
-					throw new Error("Not implemented");
-				}
+				entity.pos = changeEvent.value;
 				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		});
@@ -66,11 +51,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
 			for (const { entity } of this.currentSelection) {
-				if (this.editingModeGui.value == "global") {
-					entity.rot.setFromAxisAngle(changeEvent.value);
-				} else if (this.editingModeGui.value == "instance") {
-					throw new Error("Not implemented");
-				}
+				entity.rot.setFromAxisAngle(changeEvent.value);
 				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		});
@@ -85,11 +66,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
 			for (const { entity } of this.currentSelection) {
-				if (this.editingModeGui.value == "global") {
-					entity.scale = changeEvent.value;
-				} else if (this.editingModeGui.value == "instance") {
-					throw new Error("Not implemented");
-				}
+				entity.scale = changeEvent.value;
 				this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntityTransform(entity, this);
 			}
 		});
@@ -178,14 +155,10 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		if (!this.currentSelection) return;
 
 		// todo: support multiple selections
-		if (this.editingModeGui.value == "global") {
-			const entity = this.currentSelection[0].entity;
-			this.positionProperty.setValue(entity.pos);
-			this.rotationProperty.setValue(entity.rot.toAxisAngle());
-			this.scaleProperty.setValue(entity.scale);
-		} else if (this.editingModeGui.value == "instance") {
-			throw new Error("Not implemented");
-		}
+		const entity = this.currentSelection[0].entity;
+		this.positionProperty.setValue(entity.pos);
+		this.rotationProperty.setValue(entity.rot.toAxisAngle());
+		this.scaleProperty.setValue(entity.scale);
 	}
 
 	refreshComponents() {
