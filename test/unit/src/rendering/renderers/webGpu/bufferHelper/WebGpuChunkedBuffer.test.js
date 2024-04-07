@@ -2,7 +2,7 @@ import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {WebGpuChunkedBuffer} from "../../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBuffer.js";
 import {assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {Vec3} from "../../../../../../../src/mod.js";
-import {runWithWebGpuConstants} from "../shared/webGpuConstants.js";
+import {runWithWebGpu} from "../shared/WebGpuApi.js";
 
 class MockGPUBuffer {
 	/**
@@ -43,7 +43,7 @@ function basicTest({fn}) {
 
 	const writeBufferSpy = spy(device.queue, "writeBuffer");
 
-	runWithWebGpuConstants(() => {
+	runWithWebGpu(() => {
 		fn({
 			device,
 			writeBufferSpy,

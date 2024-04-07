@@ -371,7 +371,7 @@ export class WebGpuRenderer extends Renderer {
 		this.#viewsChunkedBufferGroup.appendMatrix(inverseProjectionMatrix);
 		this.#viewsChunkedBufferGroup.appendMatrix(viewMatrix);
 		this.#viewsChunkedBufferGroup.appendMatrix(viewProjectionMatrix);
-		this.#viewsChunkedBufferGroup.appendMathType(new Vec4(camera.clipNear, camera.clipFar));
+		this.#viewsChunkedBufferGroup.appendMathType(new Vec4(camera.clipNear, camera.clipFar, 0, 0));
 
 		this.#viewsChunkedBuffer.writeAllGroupsToGpu();
 
