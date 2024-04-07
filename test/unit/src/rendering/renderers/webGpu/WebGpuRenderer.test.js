@@ -1,5 +1,5 @@
 import {assertAlmostEquals, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
-import {CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID, CameraComponent, ClusteredLightsConfig, CustomMaterialData, Entity, Mat4, Material, MaterialMap, Mesh, MeshComponent, ShaderSource, VertexState, WebGpuMaterialMapType, WebGpuPipelineConfig, WebGpuRenderer, createCube} from "../../../../../../src/mod.js";
+import {CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID, CameraComponent, ClusteredLightsConfig, CustomMaterialData, Entity, Mat4, Material, MaterialMap, Mesh, MeshComponent, RenderOutputConfig, ShaderSource, VertexState, WebGpuMaterialMapType, WebGpuPipelineConfig, WebGpuRenderer, createCube} from "../../../../../../src/mod.js";
 import {WebGpuChunkedBufferGroup} from "../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBufferGroup.js";
 import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
 import {getInstalledMockGpu, runWithWebGpuAsync} from "./shared/WebGpuApi.js";
@@ -24,6 +24,20 @@ function createMockDomTarget() {
 		swapChainFormat: "rgba8unorm",
 		width: 128,
 		height: 256,
+		outputConfig: new RenderOutputConfig(),
+		getRenderPassDescriptor() {
+			return {
+				colorAttachments: /** @type {Iterable<GPURenderPassColorAttachment | null>} */ ([
+					{
+						view: /** @type {GPUTextureView} */ ({}),
+						resolveTarget: /** @type {GPUTextureView} */ ({}),
+						loadOp: "clear",
+						clearValue: {r: 0, g: 0, b: 0, a: 1},
+						storeOp: "store",
+					},
+				]),
+			};
+		},
 	});
 }
 
@@ -155,7 +169,6 @@ Deno.test({
 
 Deno.test({
 	name: "view uniforms buffer gets the correct data",
-	only: true,
 	async fn() {
 		await runWithWebGpuAsync(async () => {
 			const engineAssetsManager = createMockEngineAssetsManager();
@@ -224,6 +237,50 @@ Deno.test({
 			assertEquals(unused4, 0);
 			const unused5 = view.getFloat32(300, true);
 			assertEquals(unused5, 0);
+		});
+	},
+});
+
+Deno.test({
+	name: "object uniforms buffer gets the correct data",
+	async fn() {
+		await runWithWebGpuAsync(async () => {
+			const engineAssetsManager = createMockEngineAssetsManager();
+			const gpu = getInstalledMockGpu();
+			const renderer = new WebGpuRenderer(engineAssetsManager);
+			await renderer.init();
+			const device = gpu.assertHasSingleDevice();
+			const writeBufferSpy = spy(device.queue, "writeBuffer");
+
+			const domTarget = createMockDomTarget();
+			const scene = new Entity();
+			const {camComponent, cam} = createCam();
+			cam.pos.set(1, 2, 3);
+			scene.add(cam);
+
+			const vertexState = createVertexState();
+			const cubeEntity = scene.add(new Entity("cube"));
+			cubeEntity.pos.set(4, 5, 6);
+			const meshComponent = cubeEntity.addComponent(MeshComponent);
+			meshComponent.mesh = createCube({vertexState});
+			const {material} = createMaterial();
+			meshComponent.materials = [material];
+
+			renderer.render(domTarget, camComponent);
+
+			assertEquals(writeBufferSpy.calls[3].args[0].label, "objectUniforms-chunk0");
+			const viewUniformsBuffer = writeBufferSpy.calls[3].args[2];
+			assertInstanceOf(viewUniformsBuffer, ArrayBuffer);
+			const view = new DataView(viewUniformsBuffer);
+
+			const expectedViewMatrix = cam.worldMatrix.inverse();
+			const expectedViewProjectionMatrix = Mat4.multiplyMatrices(expectedViewMatrix, camComponent.projectionMatrix);
+			const expectedMvpMatrix = Mat4.multiplyMatrices(cubeEntity.worldMatrix, expectedViewProjectionMatrix);
+			const mvpMatrix = extractMatrixFromDataView(view, 0);
+			assertMatAlmostEquals(mvpMatrix, expectedMvpMatrix);
+
+			const worldMatrix = extractMatrixFromDataView(view, 64);
+			assertMatAlmostEquals(worldMatrix, cubeEntity.worldMatrix);
 		});
 	},
 });

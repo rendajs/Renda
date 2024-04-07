@@ -7,4 +7,6 @@ export class GPUQueue {
 	 * @param {number} size
 	 */
 	writeBuffer(buffer, bufferOffset, data, dataOffset, size) {}
+
+	submit() {}
 }
