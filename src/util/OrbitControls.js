@@ -1,6 +1,9 @@
 import { Quat } from "../math/Quat.js";
 import { Vec2 } from "../math/Vec2.js";
 import { Vec3 } from "../math/Vec3.js";
+import { clamp } from "./util.js";
+
+/** @typedef {"zoom" | "orbit"} OrbitControlsScrollBehavior */
 
 export class OrbitControls {
 	/**
@@ -12,6 +15,20 @@ export class OrbitControls {
 
 		this.invertScrollX = false;
 		this.invertScrollY = false;
+		/**
+		 * The behaviour of the scrollwheel.
+		 * - `"zoom"` is recommended when a physical mousewheel is used.
+		 * The camera moves forwards and backwards when scrolling.
+		 * Since the user is using a mouse, they can likely orbit the camera using middle mouse button instead.
+		 * - `"orbit"` is recommended when a precision touchpad is used.
+		 * The user typically scrolls pages using gestures with two finger,
+		 * and scroll events often contain scroll information from two axes.
+		 * This mode allows the user to orbit the camera using this gesture,
+		 * and moving the camera forwards and backwards can be achieved using a
+		 * pinch gesture or by holding the ctrl key.
+		 * @type {OrbitControlsScrollBehavior}
+		 */
+		this.scrollBehavior = "zoom";
 
 		/** @private */
 		this._camTransformDirty = true;
@@ -93,8 +110,8 @@ export class OrbitControls {
 	 * @param {number} deltaY
 	 * @param {MouseEvent} event
 	 */
-	_inputOffset(deltaX, deltaY, event) {
-		if (event.ctrlKey) {
+	_inputOffset(deltaX, deltaY, event, forceZoom = false) {
+		if (event.ctrlKey || forceZoom) {
 			this.lookDist += deltaY * 0.01;
 		} else if (event.shiftKey) {
 			const xDir = Vec3.right.rotate(this.lookRot).multiply(deltaX * 0.01);
@@ -112,10 +129,24 @@ export class OrbitControls {
 	 * @param {WheelEvent} e
 	 */
 	_onWheel(e) {
+		let dx = e.deltaX;
+		let dy = e.deltaY;
+		if (e.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+			dx *= 8;
+			dy *= 8;
+		} else if (e.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+			dx *= 36;
+			dy *= 36;
+		}
 		e.preventDefault();
-		const dx = this.invertScrollX ? -e.deltaX : e.deltaX;
-		const dy = this.invertScrollY ? -e.deltaY : e.deltaY;
-		this._inputOffset(dx, dy, e);
+		if (this.scrollBehavior == "zoom") {
+			dy = clamp(dy, -36, 36);
+			this._inputOffset(0, dy, e, true);
+		} else if (this.scrollBehavior == "orbit") {
+			dx = this.invertScrollX ? -dx : dx;
+			dy = this.invertScrollY ? -dy : dy;
+			this._inputOffset(dx, dy, e);
+		}
 	}
 
 	/**

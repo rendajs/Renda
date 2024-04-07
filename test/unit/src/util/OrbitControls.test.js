@@ -2,10 +2,26 @@ import { assertEquals } from "std/testing/asserts.ts";
 import { assertSpyCalls, stub } from "std/testing/mock.ts";
 import { Entity, OrbitControls, Quat, Vec3 } from "../../../../src/mod.js";
 import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../src/util/asserts.js";
-import { runWithDom } from "../../studio/shared/runWithDom.js";
+import { runWithDom as runWithDomPartial } from "../../studio/shared/runWithDom.js";
 import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
 import { WheelEvent } from "fake-dom/FakeWheelEvent.js";
 import { PointerEvent } from "fake-dom/FakePointerEvent.js";
+
+/**
+ * @param {() => void} fn
+ */
+function runWithDom(fn) {
+	runWithDomPartial(() => {
+		const oldWheelEvent = globalThis.WheelEvent;
+		globalThis.WheelEvent = WheelEvent;
+
+		try {
+			fn();
+		} finally {
+			globalThis.WheelEvent = oldWheelEvent;
+		}
+	});
+}
 
 /**
  * After making a change, the transform should be dirty.
@@ -55,7 +71,92 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Wheel event with ctrl key adjusts the distance",
+	name: "scrollBehavior is set to zoom by default",
+	fn() {
+		runWithDom(() => {
+			const cam = new Entity();
+			const el = new HtmlElement();
+			const controls = new OrbitControls(cam, el);
+
+			assertLoopCall(controls);
+
+			el.dispatchEvent(new WheelEvent("wheel", {
+				deltaY: 1,
+			}));
+
+			assertLoopCall(controls);
+			assertEquals(controls.lookDist, 3.01);
+
+			el.dispatchEvent(new WheelEvent("wheel", {
+				deltaX: 1,
+			}));
+
+			assertLoopCall(controls);
+			assertEquals(controls.lookDist, 3.01);
+		});
+	},
+});
+
+Deno.test({
+	name: "Settings scrollBehavior to zoom causes wheel event to adjusts the distance",
+	fn() {
+		runWithDom(() => {
+			const cam = new Entity();
+			const el = new HtmlElement();
+			const controls = new OrbitControls(cam, el);
+			controls.scrollBehavior = "zoom";
+
+			assertLoopCall(controls);
+
+			el.dispatchEvent(new WheelEvent("wheel", {
+				deltaY: 1,
+			}));
+
+			assertLoopCall(controls);
+			assertEquals(controls.lookDist, 3.01);
+
+			el.dispatchEvent(new WheelEvent("wheel", {
+				deltaX: 1,
+			}));
+
+			assertLoopCall(controls);
+			assertEquals(controls.lookDist, 3.01);
+		});
+	},
+});
+
+Deno.test({
+	name: "Wheel events with DOM_DELTA_LINE and DOM_DELTA_PAGE are normalized",
+	fn() {
+		runWithDom(() => {
+			const cam = new Entity();
+			const el = new HtmlElement();
+			const controls = new OrbitControls(cam, el);
+			controls.scrollBehavior = "zoom";
+
+			assertLoopCall(controls);
+
+			el.dispatchEvent(new WheelEvent("wheel", {
+				deltaY: 1,
+				deltaMode: WheelEvent.DOM_DELTA_LINE,
+			}));
+
+			assertLoopCall(controls);
+			assertEquals(controls.lookDist, 3.08);
+
+			el.dispatchEvent(new WheelEvent("wheel", {
+				deltaY: 1,
+				deltaMode: WheelEvent.DOM_DELTA_PAGE,
+			}));
+
+			assertLoopCall(controls);
+			assertEquals(controls.lookDist, 3.44);
+		});
+	},
+});
+
+Deno.test({
+	name: "Settings scrollBehavior to orbit causes wheel event with ctrl key to adjusts the distance",
 	fn() {
 		runWithDom(() => {
 			const cam = new Entity();
@@ -84,12 +185,13 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Wheel event with shift key adjusts the position",
+	name: "Settings scrollBehavior to orbit causes wheel event with shift key to adjusts the position",
 	fn() {
 		runWithDom(() => {
 			const cam = new Entity();
 			const el = new HtmlElement();
 			const controls = new OrbitControls(cam, el);
+			controls.scrollBehavior = "orbit";
 
 			assertLoopCall(controls);
 
@@ -113,12 +215,13 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Wheel event without keys adjusts the orbit",
+	name: "Settings scrollBehavior to orbit causes wheel event without keys to adjusts the orbit",
 	fn() {
 		runWithDom(() => {
 			const cam = new Entity();
 			const el = new HtmlElement();
 			const controls = new OrbitControls(cam, el);
+			controls.scrollBehavior = "orbit";
 
 			assertLoopCall(controls);
 
