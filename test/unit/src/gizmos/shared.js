@@ -1,7 +1,7 @@
-import {GizmoManager} from "../../../../src/gizmos/GizmoManager.js";
-import {CameraComponent, Material, Sphere, Vec3, VertexState} from "../../../../src/mod.js";
-import {Entity} from "../../../../src/core/Entity.js";
-import {spy} from "std/testing/mock.ts";
+import { GizmoManager } from "../../../../src/gizmos/GizmoManager.js";
+import { CameraComponent, Material, Sphere, Vec3, VertexState } from "../../../../src/mod.js";
+import { Entity } from "../../../../src/core/Entity.js";
+import { spy } from "std/testing/mock.ts";
 
 export class FakeEngineAssetsManager {
 	/**
@@ -34,7 +34,7 @@ export class FakeGizmo {
 	}
 }
 const Gizmo = /** @type {any} */(FakeGizmo);
-export {Gizmo};
+export { Gizmo };
 
 export function initBasicSetup() {
 	const cameraObject = new Entity();
@@ -46,7 +46,7 @@ export function initBasicSetup() {
 	const draggable = manager.createDraggable("move");
 	const sphere = new Sphere();
 	draggable.addRaycastShape(sphere);
-	return {manager, draggable, cam};
+	return { manager, draggable, cam };
 }
 
 /**
@@ -86,7 +86,7 @@ export class FakeGizmoDraggable {
 	 * @param {boolean} isHovering
 	 */
 	fireIsHoveringChange(isHovering) {
-		this.onIsHoveringChangeCbs.forEach(cb => cb(isHovering));
+		this.onIsHoveringChangeCbs.forEach((cb) => cb(isHovering));
 	}
 
 	/**
@@ -100,7 +100,7 @@ export class FakeGizmoDraggable {
 	 * @param {TDragEvent} event
 	 */
 	fireOnDrag(event) {
-		this.#onDragCbs.forEach(cb => cb(event));
+		this.#onDragCbs.forEach((cb) => cb(event));
 	}
 
 	/**
@@ -111,7 +111,7 @@ export class FakeGizmoDraggable {
 	}
 
 	fireOnDragEnd() {
-		this.#onDragEndCbs.forEach(cb => cb());
+		this.#onDragEndCbs.forEach((cb) => cb());
 	}
 }
 

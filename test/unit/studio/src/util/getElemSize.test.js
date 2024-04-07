@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {getElementSize} from "../../../../../studio/src/util/util.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { getElementSize } from "../../../../../studio/src/util/util.js";
 
 /**
  * @param {number} offsetWidth
@@ -8,9 +8,9 @@ import {getElementSize} from "../../../../../studio/src/util/util.js";
  */
 async function setup(offsetWidth, offsetHeight, styleMap) {
 	const originalGetComputedStyle = globalThis.getComputedStyle;
-	const fakeEl = /** @type {HTMLElement} */ ({offsetWidth, offsetHeight});
+	const fakeEl = /** @type {HTMLElement} */ ({ offsetWidth, offsetHeight });
 
-	globalThis.getComputedStyle = /** @type {typeof getComputedStyle} */ (el => {
+	globalThis.getComputedStyle = /** @type {typeof getComputedStyle} */ ((el) => {
 		if (el != fakeEl) {
 			throw new Error("Wrong element");
 		}
@@ -18,7 +18,7 @@ async function setup(offsetWidth, offsetHeight, styleMap) {
 			/**
 			 * @param {string} name
 			 */
-			getPropertyValue: name => {
+			getPropertyValue: (name) => {
 				return styleMap[name] || "";
 			},
 		};
@@ -35,7 +35,7 @@ async function setup(offsetWidth, offsetHeight, styleMap) {
 Deno.test({
 	name: "No extra styles",
 	fn: async () => {
-		const {el, uninstall} = await setup(10, 10, {});
+		const { el, uninstall } = await setup(10, 10, {});
 
 		try {
 			const result = getElementSize(el);
@@ -49,7 +49,7 @@ Deno.test({
 Deno.test({
 	name: "All styles",
 	fn: async () => {
-		const {el, uninstall} = await setup(10, 10, {
+		const { el, uninstall } = await setup(10, 10, {
 			"margin-left": "10px",
 			"margin-right": "10px",
 			"margin-top": "10px",
@@ -78,7 +78,7 @@ Deno.test({
 Deno.test({
 	name: "Different values",
 	fn: async () => {
-		const {el, uninstall} = await setup(10, 10, {
+		const { el, uninstall } = await setup(10, 10, {
 			"margin-left": "10px",
 			"margin-right": "20px",
 			"margin-top": "30px",

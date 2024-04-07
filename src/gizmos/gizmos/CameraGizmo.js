@@ -1,8 +1,8 @@
-import {Gizmo} from "./Gizmo.js";
-import {Mesh} from "../../core/Mesh.js";
-import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
-import {Vec3} from "../../math/Vec3.js";
-import {Vec4} from "../../math/Vec4.js";
+import { Gizmo } from "./Gizmo.js";
+import { Mesh } from "../../core/Mesh.js";
+import { MeshComponent } from "../../components/builtIn/MeshComponent.js";
+import { Vec3 } from "../../math/Vec3.js";
+import { Vec4 } from "../../math/Vec4.js";
 
 export class CameraGizmo extends Gizmo {
 	/**
@@ -57,7 +57,7 @@ export class CameraGizmo extends Gizmo {
 			new Vec3(1, 1, 1),
 		];
 		const inverse = projection.inverse();
-		const positionsFrustum = positionsCube.map(pos => {
+		const positionsFrustum = positionsCube.map((pos) => {
 			const pos4 = new Vec4(pos);
 			pos4.multiplyMatrix(inverse);
 			pos4.divide(pos4.w);

@@ -1,7 +1,7 @@
-import {ComponentGizmos} from "./ComponentGizmos.js";
-import {CameraClusterDataGizmo, CameraComponent, CameraGizmo, CameraIconGizmo, Vec3} from "../../../../src/mod.js";
-import {SingleInstancePromise} from "../../../../src/util/SingleInstancePromise.js";
-import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../../src/studioDefines.js";
+import { ComponentGizmos } from "./ComponentGizmos.js";
+import { CameraClusterDataGizmo, CameraComponent, CameraGizmo, CameraIconGizmo, Vec3 } from "../../../../src/mod.js";
+import { SingleInstancePromise } from "../../../../src/util/SingleInstancePromise.js";
+import { ENABLE_WEBGPU_CLUSTERED_LIGHTS } from "../../../../src/engineDefines.js";
 
 /**
  * @extends {ComponentGizmos<CameraComponent, [CameraIconGizmo, CameraGizmo, CameraClusterDataGizmo]>}

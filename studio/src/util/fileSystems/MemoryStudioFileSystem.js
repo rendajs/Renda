@@ -1,5 +1,5 @@
-import {StudioFileSystem} from "./StudioFileSystem.js";
-import {MemoryFileSystemWritableFileStream} from "./MemoryFileSystemWritableFileStream.js";
+import { StudioFileSystem } from "./StudioFileSystem.js";
+import { MemoryFileSystemWritableFileStream } from "./MemoryFileSystemWritableFileStream.js";
 
 /** @typedef {MemoryStudioFileSystemFilePointer | MemoryStudioFileSystemDirPointer} MemoryStudioFileSystemPointer */
 /**
@@ -74,7 +74,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 			}
 			/** @type {MemoryStudioFileSystemPointer[]} */
 			const children = currentObject.children;
-			let child = children.find(c => c.name == name);
+			let child = children.find((c) => c.name == name);
 			if (!child) {
 				if (!create) {
 					throwError("not-found", 1);
@@ -117,7 +117,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 	async readDir(path) {
 		const files = [];
 		const directories = [];
-		const {pointer} = this.getObjectPointer(path, {
+		const { pointer } = this.getObjectPointer(path, {
 			errorMessageActionName: "read",
 		});
 		if (pointer.isFile) {
@@ -131,7 +131,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 				directories.push(child.name);
 			}
 		}
-		return {files, directories};
+		return { files, directories };
 	}
 
 	/**
@@ -168,11 +168,11 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 			throw new Error("Assertion failed, newBasename doesn't exist.");
 		}
 
-		const {pointer: oldParentPointer} = this.getObjectPointer(oldParentPath, {
+		const { pointer: oldParentPointer } = this.getObjectPointer(oldParentPath, {
 			errorMessageActionName: "delete",
 		});
 		if (oldParentPointer.isFile) notFoundError();
-		const index = oldParentPointer.children.findIndex(child => child.name == oldBasename);
+		const index = oldParentPointer.children.findIndex((child) => child.name == oldBasename);
 		if (index == -1) notFoundError();
 		const movingPointer = oldParentPointer.children[index];
 
@@ -190,7 +190,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 			}
 		}
 
-		const {pointer: newParentPointer} = this.getObjectPointer(newParentPath, {
+		const { pointer: newParentPointer } = this.getObjectPointer(newParentPath, {
 			create: true,
 			createType: movingPointer.isFile ? "file" : "dir",
 		});
@@ -215,7 +215,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 
 		// If the destination already exists, we need to overwrite it,
 		// so we remove the existing entry
-		const existingIndex = newParentPointer.children.findIndex(child => child.name == newBasename);
+		const existingIndex = newParentPointer.children.findIndex((child) => child.name == newBasename);
 		if (existingIndex >= 0) {
 			newParentPointer.children.splice(existingIndex, 1);
 		}
@@ -243,7 +243,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path) {
-		const {pointer} = this.getObjectPointer(path, {
+		const { pointer } = this.getObjectPointer(path, {
 			errorMessageActionName: "read",
 		});
 		if (!pointer.isFile) {
@@ -259,7 +259,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 	 */
 	async writeFile(path, file) {
 		path = [...path];
-		const {pointer, created} = this.getObjectPointer(path, {
+		const { pointer, created } = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
 			errorMessageActionName: "write",
@@ -287,7 +287,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<FileSystemWritableFileStream>}
 	 */
 	async writeFileStream(path, keepExistingData = false) {
-		const {pointer} = this.getObjectPointer(path, {
+		const { pointer } = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
 			errorMessageActionName: "write",
@@ -316,7 +316,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 		}
 
 		if (!recursive) {
-			const {pointer} = this.getObjectPointer(path, {
+			const { pointer } = this.getObjectPointer(path, {
 				errorMessageActionName: "delete",
 			});
 			if (!pointer.isFile) {
@@ -327,11 +327,11 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 		const parentPath = path.slice(0, -1);
 		const basename = path.at(-1);
 		if (!basename) notFoundError();
-		const {pointer: parentPointer} = this.getObjectPointer(parentPath, {
+		const { pointer: parentPointer } = this.getObjectPointer(parentPath, {
 			errorMessageActionName: "delete",
 		});
 		if (parentPointer.isFile) notFoundError();
-		const index = parentPointer.children.findIndex(child => child.name == basename);
+		const index = parentPointer.children.findIndex((child) => child.name == basename);
 		if (index == -1) notFoundError();
 		parentPointer.children.splice(index, 1);
 
@@ -350,7 +350,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 	 */
 	async isFile(path) {
 		try {
-			const {pointer} = this.getObjectPointer(path);
+			const { pointer } = this.getObjectPointer(path);
 			return pointer.isFile;
 		} catch {
 			return false;
@@ -364,7 +364,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 	 */
 	async isDir(path) {
 		try {
-			const {pointer} = this.getObjectPointer(path);
+			const { pointer } = this.getObjectPointer(path);
 			return !pointer.isFile;
 		} catch {
 			return false;
@@ -395,7 +395,7 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 			children: [],
 		};
 		for (const [path, file] of Object.entries(structure)) {
-			const {pointer} = this.getObjectPointer(path.split("/"), {
+			const { pointer } = this.getObjectPointer(path.split("/"), {
 				create: true,
 				createType: "file",
 			});

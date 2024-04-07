@@ -1,7 +1,7 @@
-import {contentWindowHistorySheet} from "../../styles/shadowStyles.js";
-import {Button} from "../../ui/Button.js";
-import {ButtonGroup} from "../../ui/ButtonGroup.js";
-import {ContentWindow} from "./ContentWindow.js";
+import { contentWindowHistorySheet } from "../../styles/shadowStyles.js";
+import { Button } from "../../ui/Button.js";
+import { ButtonGroup } from "../../ui/ButtonGroup.js";
+import { ContentWindow } from "./ContentWindow.js";
 
 const svgNs = "http://www.w3.org/2000/svg";
 
@@ -16,7 +16,7 @@ export class ContentWindowHistory extends ContentWindow {
 	constructor(...args) {
 		super(...args);
 
-		this.shadow = this.contentEl.attachShadow({mode: "open"});
+		this.shadow = this.contentEl.attachShadow({ mode: "open" });
 		this.shadow.adoptedStyleSheets = [contentWindowHistorySheet];
 		this.graphEl = document.createElementNS(svgNs, "svg");
 		this.graphEl.classList.add("graph");
@@ -33,7 +33,6 @@ export class ContentWindowHistory extends ContentWindow {
 
 		this.undoButton = new Button({
 			icon: "static/icons/undo.svg",
-			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			onClick: () => {
 				this.studioInstance.historyManager.undo();
 			},
@@ -42,7 +41,6 @@ export class ContentWindowHistory extends ContentWindow {
 
 		this.redoButton = new Button({
 			icon: "static/icons/redo.svg",
-			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			onClick: () => {
 				this.studioInstance.historyManager.redo();
 			},

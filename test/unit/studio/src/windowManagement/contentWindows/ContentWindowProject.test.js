@@ -1,17 +1,17 @@
 import "../../../shared/initializeStudio.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {ContentWindowProject} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowProject.js";
-import {assertTreeViewStructureEquals, getValidateDragResult} from "../../../shared/treeViewUtil.js";
-import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, resolvesNext, stub} from "std/testing/mock.ts";
-import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
-import {DragManager} from "../../../../../../studio/src/misc/DragManager.js";
-import {Entity} from "../../../../../../src/mod.js";
-import {DragEvent} from "fake-dom/FakeDragEvent.js";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { ContentWindowProject } from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowProject.js";
+import { assertTreeViewStructureEquals, getValidateDragResult } from "../../../shared/treeViewUtil.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, resolvesNext, stub } from "std/testing/mock.ts";
+import { PreferencesManager } from "../../../../../../studio/src/preferences/PreferencesManager.js";
+import { DragManager } from "../../../../../../studio/src/misc/DragManager.js";
+import { Entity } from "../../../../../../src/mod.js";
+import { DragEvent } from "fake-dom/FakeDragEvent.js";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
 
@@ -97,7 +97,7 @@ async function basicSetup({
 		 * @param {boolean} granted
 		 */
 		triggerPermissionPromptCbs(granted) {
-			permissionPromptCbs.forEach(cb => cb(granted));
+			permissionPromptCbs.forEach((cb) => cb(granted));
 		},
 		uninstall() {
 			uninstallFakeDocument();
@@ -109,7 +109,7 @@ async function basicSetup({
 Deno.test({
 	name: "Fills the tree view with the files in the project excluding any subdirectories",
 	async fn() {
-		const {contentWindow, uninstall} = await basicSetup({
+		const { contentWindow, uninstall } = await basicSetup({
 			fileSystemStructure: {
 				"fileA.txt": "a",
 				"fileB.txt": "b",
@@ -147,7 +147,7 @@ Deno.test({
 Deno.test({
 	name: "Files are shown in alphabetical order with folders at the top",
 	async fn() {
-		const {contentWindow, uninstall} = await basicSetup({
+		const { contentWindow, uninstall } = await basicSetup({
 			fileSystemStructure: {
 				// The order of these has been picked specifically to cause the
 				// test to fail when the items are not inserted in the same
@@ -196,7 +196,7 @@ Deno.test({
 Deno.test({
 	name: "Root tree view is expanded when the assetmanager is already loaded",
 	async fn() {
-		const {contentWindow, uninstall} = await basicSetup({
+		const { contentWindow, uninstall } = await basicSetup({
 			assetSettingsLoaded: true,
 			treeViewAction: "none",
 		});
@@ -212,7 +212,7 @@ Deno.test({
 Deno.test({
 	name: "Root tree view is collapsed when permission is denied",
 	async fn() {
-		const {contentWindow, triggerPermissionPromptCbs, uninstall} = await basicSetup();
+		const { contentWindow, triggerPermissionPromptCbs, uninstall } = await basicSetup();
 
 		try {
 			assertEquals(contentWindow.treeView.expanded, true);
@@ -227,7 +227,7 @@ Deno.test({
 Deno.test({
 	name: "Activates the selection group when the content window is activated",
 	async fn() {
-		const {contentWindow, mockSelectionGroup, uninstall} = await basicSetup();
+		const { contentWindow, mockSelectionGroup, uninstall } = await basicSetup();
 
 		try {
 			const activateSpy = stub(mockSelectionGroup, "activate", () => {});
@@ -242,7 +242,7 @@ Deno.test({
 Deno.test({
 	name: "Hovering a dragged item does nothing on files",
 	async fn() {
-		const {contentWindow, uninstall} = await basicSetup({
+		const { contentWindow, uninstall } = await basicSetup({
 			fileSystemStructure: {
 				"folder/file.txt": "a",
 				"file.txt": "a",
@@ -261,7 +261,7 @@ Deno.test({
 Deno.test({
 	name: "Hovering an external file on folders accepts the event",
 	async fn() {
-		const {contentWindow, uninstall} = await basicSetup({
+		const { contentWindow, uninstall } = await basicSetup({
 			fileSystemStructure: {
 				"folder/file.txt": "a",
 			},
@@ -281,7 +281,7 @@ Deno.test({
 Deno.test({
 	name: "Hovering an outliner treeview on folders accepts the event",
 	async fn() {
-		const {contentWindow, dragManager, mockAssetManager, uninstall} = await basicSetup({
+		const { contentWindow, dragManager, mockAssetManager, uninstall } = await basicSetup({
 			fileSystemStructure: {
 				"folder/file.txt": "a",
 			},
@@ -316,7 +316,7 @@ Deno.test({
 Deno.test({
 	name: "Hovering an outliner treeview rejects when the entity is already an entity asset",
 	async fn() {
-		const {contentWindow, dragManager, mockAssetManager, uninstall} = await basicSetup({
+		const { contentWindow, dragManager, mockAssetManager, uninstall } = await basicSetup({
 			fileSystemStructure: {
 				"folder/file.txt": "a",
 			},
@@ -354,7 +354,7 @@ Deno.test({
 Deno.test({
 	name: "Dropping an outliner treeview turns it into an entity asset",
 	async fn() {
-		const {contentWindow, dragManager, mockAssetManager, uninstall} = await basicSetup({
+		const { contentWindow, dragManager, mockAssetManager, uninstall } = await basicSetup({
 			fileSystemStructure: {
 				"folder/file.txt": "a",
 			},
@@ -365,7 +365,7 @@ Deno.test({
 				getLinkedAssetUuid(entity) {},
 				replaceTrackedEntity(uuid, entity) {},
 			});
-			const {projectAsset: createdProjectAsset} = createMockProjectAsset();
+			const { projectAsset: createdProjectAsset } = createMockProjectAsset();
 			const createNewAssetSpy = stub(mockAssetManager, "createNewAsset", resolvesNext([createdProjectAsset]));
 			const makeUuidPersistentSpy = stub(mockAssetManager, "makeAssetUuidPersistent", async () => {});
 
@@ -398,7 +398,7 @@ Deno.test({
 Deno.test({
 	name: "Dropping an external file writes it to disk",
 	async fn() {
-		const {contentWindow, mockFileSystem, uninstall} = await basicSetup({
+		const { contentWindow, mockFileSystem, uninstall } = await basicSetup({
 			fileSystemStructure: {
 				"folder/file.txt": "a",
 			},

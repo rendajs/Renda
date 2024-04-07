@@ -1,4 +1,4 @@
-import {TimeoutError} from "../TimeoutError.js";
+import { TimeoutError } from "../TimeoutError.js";
 
 /**
  * @template {TypedMessengerSignatures} TReq
@@ -128,6 +128,7 @@ import {TimeoutError} from "../TimeoutError.js";
  * Otherwise the call from the other end would result in a promise that never resolves, but also isn't garbage collected.
  *
  * Alternatively you could set a `timeout` or `globalTimeout`, causing the promise to reject once the timeout is reached.
+ * @property {() => void} [afterSendHook]
  */
 
 /**
@@ -451,10 +452,10 @@ export class TypedMessenger {
 	 * @param {TRes} responseHandlers
 	 */
 	initializeWorker(worker, responseHandlers) {
-		this.setSendHandler(data => {
+		this.setSendHandler((data) => {
 			worker.postMessage(data.sendData, data.transfer);
 		});
-		worker.addEventListener("message", event => {
+		worker.addEventListener("message", (event) => {
 			this.handleReceivedMessage(event.data);
 		});
 		this.setResponseHandlers(responseHandlers);
@@ -478,12 +479,12 @@ export class TypedMessenger {
 	 * @param {TRes} responseHandlers
 	 */
 	initializeWorkerContext(responseHandlers) {
-		this.setSendHandler(data => {
+		this.setSendHandler((data) => {
 			globalThis.postMessage(data.sendData, {
 				transfer: data.transfer,
 			});
 		});
-		globalThis.addEventListener("message", event => {
+		globalThis.addEventListener("message", (event) => {
 			this.handleReceivedMessage(event.data);
 		});
 		this.setResponseHandlers(responseHandlers);
@@ -506,7 +507,7 @@ export class TypedMessenger {
 	 * @param {boolean} [options.waitForOpen]
 	 */
 	initializeWebSocket(webSocket, responseHandlers) {
-		this.setSendHandler(async data => {
+		this.setSendHandler(async (data) => {
 			if (webSocket.readyState == WebSocket.CONNECTING) {
 				/** @type {Promise<void>} */
 				const promise = new Promise((resolve, reject) => {
@@ -529,7 +530,7 @@ export class TypedMessenger {
 			}
 			webSocket.send(JSON.stringify(data.sendData));
 		});
-		webSocket.addEventListener("message", async message => {
+		webSocket.addEventListener("message", async (message) => {
 			try {
 				if (typeof message.data == "string") {
 					const parsed = JSON.parse(message.data);
@@ -604,13 +605,16 @@ export class TypedMessenger {
 			}
 
 			const castReturn = /** @type {TypedMessengerRequestHandlerReturn} */ (returnValue);
-			if (castReturn && !didThrow && typeof castReturn == "object" && "$respondOptions" in castReturn && castReturn.$respondOptions) {
-				const options = castReturn.$respondOptions;
-				if (options.respond == false) {
+			let respondOptions;
+			if (castReturn && typeof castReturn == "object" && "$respondOptions" in castReturn && castReturn.$respondOptions) {
+				respondOptions = castReturn.$respondOptions;
+			}
+			if (!didThrow && respondOptions) {
+				if (respondOptions.respond == false) {
 					return;
 				}
-				transfer = options.transfer || [];
-				returnValue = options.returnValue;
+				transfer = respondOptions.transfer || [];
+				returnValue = respondOptions.returnValue;
 			}
 
 			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type>} */ ({
@@ -623,6 +627,10 @@ export class TypedMessenger {
 				},
 				transfer,
 			}));
+
+			if (respondOptions && respondOptions.afterSendHook) {
+				respondOptions.afterSendHook();
+			}
 		} else if (data.direction == "response") {
 			const cbs = this.onRequestIdMessageCbs.get(data.id);
 			if (cbs) {
@@ -717,7 +725,7 @@ export class TypedMessenger {
 				promise = new Promise(() => {});
 			} else {
 				promise = new Promise((resolve, reject) => {
-					this.onResponseMessage(requestId, message => {
+					this.onResponseMessage(requestId, (message) => {
 						if (message.didThrow) {
 							/** @type {unknown} */
 							let rejectValue = message.returnValue;
@@ -755,10 +763,10 @@ export class TypedMessenger {
 					reject(new TimeoutError("TypedMessenger response timed out."));
 				}, timeout);
 
-				responsePromise.then(result => {
+				responsePromise.then((result) => {
 					resolve(result);
 					globalThis.clearTimeout(createdTimeout);
-				}).catch(err => {
+				}).catch((err) => {
 					reject(err);
 					globalThis.clearTimeout(createdTimeout);
 				});

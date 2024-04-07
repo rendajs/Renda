@@ -1,4 +1,4 @@
-import {dev} from "./dev.js";
+import { dev } from "./dev.js";
 
 await dev({
 	needsTypes: true,

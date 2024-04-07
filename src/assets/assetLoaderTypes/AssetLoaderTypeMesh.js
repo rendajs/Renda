@@ -1,7 +1,7 @@
-import {AssetLoaderType} from "./AssetLoaderType.js";
-import {Mesh} from "../../core/Mesh.js";
-import {BinaryDecomposer} from "../../util/BinaryDecomposer.js";
-import {VertexState} from "../../rendering/VertexState.js";
+import { AssetLoaderType } from "./AssetLoaderType.js";
+import { Mesh } from "../../core/Mesh.js";
+import { BinaryDecomposer } from "../../util/BinaryDecomposer.js";
+import { VertexState } from "../../rendering/VertexState.js";
 
 /**
  * @extends {AssetLoaderType<Mesh>}
@@ -66,13 +66,13 @@ export class AssetLoaderTypeMesh extends AssetLoaderType {
 				const format = decomposer.getUint8();
 				const componentCount = decomposer.getUint8();
 				const offset = decomposer.getUint32();
-				attributes.push({offset, format, componentCount, attributeType});
+				attributes.push({ offset, format, componentCount, attributeType });
 			}
 			const bufferLength = decomposer.getUint32();
 			const buffer = decomposer.getBuffer(bufferLength);
 			mesh.copyBufferData({
 				arrayBuffer: buffer,
-				attributes,
+				attributeSettings: attributes,
 			});
 		}
 		return mesh;

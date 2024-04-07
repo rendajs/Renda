@@ -1,10 +1,10 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { BASIC_PROJECTASSETTYPE, basicSetup } from "./shared.js";
 
 Deno.test({
 	name: "json with metadata",
 	async fn() {
-		const {projectAsset, mocks: {fileSystem}, uninstall} = basicSetup({
+		const { projectAsset, mocks: { fileSystem }, uninstall } = basicSetup({
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
 				path: ["path", "to", "asset"],
@@ -12,7 +12,7 @@ Deno.test({
 		});
 
 		try {
-			await projectAsset.writeAssetData({num: 123, str: "foo"});
+			await projectAsset.writeAssetData({ num: 123, str: "foo" });
 			const rawFileData = await fileSystem.readJson(["path", "to", "asset"]);
 			assertEquals(rawFileData, {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -36,7 +36,7 @@ Deno.test({
 Deno.test({
 	name: "json with metadata, empty object",
 	async fn() {
-		const {projectAsset, mocks: {fileSystem}, uninstall} = basicSetup({
+		const { projectAsset, mocks: { fileSystem }, uninstall } = basicSetup({
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
 				path: ["path", "to", "asset"],

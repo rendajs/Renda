@@ -1,16 +1,17 @@
-import {rollup} from "rollup";
-import {copy, ensureDir, walk} from "std/fs/mod.ts";
+import { rollup } from "rollup";
+import { copy, ensureDir, walk } from "std/fs/mod.ts";
 import * as path from "std/path/mod.ts";
-import {minify} from "terser";
-import {setCwd} from "chdir-anywhere";
-import {importAssertionsPlugin} from "https://esm.sh/rollup-plugin-import-assert@2.1.0?pin=v87";
-import {importAssertions} from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
+import { minify } from "terser";
+import { setCwd } from "chdir-anywhere";
+import { importAssertionsPlugin } from "https://esm.sh/rollup-plugin-import-assert@2.1.0?pin=v87";
+import { importAssertions } from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
 import postcss from "https://deno.land/x/postcss@8.4.13/mod.js";
 import postcssUrl from "npm:postcss-url@10.1.3";
 import resolveUrlObjects from "npm:rollup-plugin-resolve-url-objects@0.0.4";
-import {dev} from "./dev.js";
-import {buildEngine} from "./buildEngine.js";
-import {toHashString} from "std/crypto/mod.ts";
+import { dev } from "./dev.js";
+import { buildEngineSource } from "./buildEngine.js";
+import { toHashString } from "std/crypto/mod.ts";
+import { overrideDefines } from "./shared/overrideDefinesPlugin.js";
 
 await dev({
 	needsDependencies: true,
@@ -21,7 +22,7 @@ Deno.chdir("../studio");
 
 const outputPath = path.resolve("dist/");
 try {
-	await Deno.remove(outputPath, {recursive: true});
+	await Deno.remove(outputPath, { recursive: true });
 } catch {
 	// Already removed
 }
@@ -32,7 +33,7 @@ await copy("internalDiscovery.html", path.resolve(outputPath, "internalDiscovery
 await copy("static/", path.resolve(outputPath, "static/"));
 await copy("builtInAssets/", path.resolve(outputPath, "builtInAssets/"));
 
-const engineSource = await buildEngine();
+const engineSource = await buildEngineSource();
 const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(engineSource));
 const hashString = toHashString(hash).slice(0, 8);
 const engineFileName = `renda-${hashString}.js`;
@@ -55,27 +56,6 @@ async function setHtmlAttribute(filePath, tagComment, attributeValue, attribute 
 	const newData = html.substring(0, startPos) + attributeValue + html.substring(endPos, html.length);
 	const textEncoder = new TextEncoder();
 	await Deno.writeFile(filePath, textEncoder.encode(newData));
-}
-
-/**
- * @param {string} definesFilePath
- * @param {Object<string, unknown>} defines
- * @returns {import("rollup").Plugin}
- */
-function overrideDefines(definesFilePath, defines) {
-	return {
-		name: "studio-replace-defines",
-		transform(code, id) {
-			if (id.endsWith(definesFilePath)) {
-				for (const [name, value] of Object.entries(defines)) {
-					const re = new RegExp(name + "\\s?=.+;?$", "gm");
-					code = code.replace(re, `${name} = ${JSON.stringify(value)};`);
-				}
-				return code;
-			}
-			return null;
-		},
-	};
 }
 
 /**
@@ -169,13 +149,13 @@ const bundle = await rollup({
 		importAssertionsPlugin(),
 	],
 	acornInjectPlugins: [importAssertions],
-	onwarn: message => {
+	onwarn: (message) => {
 		if (message.code == "CIRCULAR_DEPENDENCY") return;
 		console.error(message.message);
 	},
 	preserveEntrySignatures: false,
 });
-const {output} = await bundle.write({
+const { output } = await bundle.write({
 	dir: outputPath,
 	format: "esm",
 	entryFileNames: "[name]-[hash].js",

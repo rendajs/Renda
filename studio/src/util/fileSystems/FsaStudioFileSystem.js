@@ -1,5 +1,5 @@
-import {SingleInstancePromise} from "../../../../src/util/SingleInstancePromise.js";
-import {StudioFileSystem} from "./StudioFileSystem.js";
+import { SingleInstancePromise } from "../../../../src/util/SingleInstancePromise.js";
+import { StudioFileSystem } from "./StudioFileSystem.js";
 
 export class FsaStudioFileSystem extends StudioFileSystem {
 	/**
@@ -67,7 +67,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	} = {}) {
 		let handle = /** @type {FileSystemHandle} */ (this.handle);
 		for (let i = 0; i <= path.length; i++) {
-			const hasPermission = await this.verifyHandlePermission(handle, {writable, prompt, error: false});
+			const hasPermission = await this.verifyHandlePermission(handle, { writable, prompt, error: false });
 			if (!hasPermission) return false;
 
 			if (i == path.length) return true;
@@ -107,9 +107,9 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	async waitForPermission(path, {
 		writable = true,
 	} = {}) {
-		const hasPermission = await this.getPermission(path, {writable});
+		const hasPermission = await this.getPermission(path, { writable });
 		if (hasPermission) return;
-		await new Promise(resolve => {
+		await new Promise((resolve) => {
 			this.onPermissionGrantedListeners.add({
 				resolve,
 				path,
@@ -128,7 +128,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 		for (const listener of this.onPermissionGrantedListeners) {
 			if (!listener.writable || listener.writable == writable) {
 				(async () => {
-					if (await this.getPermission(listener.path, {writable: listener.writable})) {
+					if (await this.getPermission(listener.path, { writable: listener.writable })) {
 						listener.resolve();
 						this.onPermissionGrantedListeners.delete(listener);
 					}
@@ -152,7 +152,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 		error = true,
 	} = {}) {
 		const mode = /** @type {"read" | "readwrite"} */ (writable ? "readwrite" : "read");
-		const opts = {mode};
+		const opts = { mode };
 		if (await handle.queryPermission(opts) == "granted") return true;
 		if (prompt) {
 			if (await handle.requestPermission(opts) == "granted") {
@@ -180,12 +180,12 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 		errorMessageActionName = "perform action",
 		errorMessagePath = path,
 	} = {}) {
-		let {handle} = this;
+		let { handle } = this;
 		let parsedPathDepth = 0;
 		for (const dirName of path) {
 			parsedPathDepth++;
 
-			await this.verifyHandlePermission(handle, {writable: create});
+			await this.verifyHandlePermission(handle, { writable: create });
 			// Check if the directory already exists, so that we can fire a
 			// different event type if it doesn't.
 			let created = false;
@@ -195,7 +195,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 				created = true;
 			}
 			try {
-				handle = await handle.getDirectoryHandle(dirName, {create});
+				handle = await handle.getDirectoryHandle(dirName, { create });
 			} catch (error) {
 				if (overrideError) {
 					const pathStr = errorMessagePath.join("/");
@@ -213,7 +213,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 
 					const atText = pathStr == failurePathStr ? "" : ` "${pathStr}"`;
 					const message = `Failed to ${errorMessageActionName}${atText}${end}`;
-					throw new Error(message, {cause: error});
+					throw new Error(message, { cause: error });
 				} else {
 					throw error;
 				}
@@ -227,7 +227,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 				});
 			}
 		}
-		await this.verifyHandlePermission(handle, {writable: create});
+		await this.verifyHandlePermission(handle, { writable: create });
 		return handle;
 	}
 
@@ -244,13 +244,13 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 		overrideError = true,
 		errorMessageActionName = "perform action",
 	} = {}) {
-		const {dirPath, fileName} = this.splitDirFileName(path);
+		const { dirPath, fileName } = this.splitDirFileName(path);
 		const dirHandle = await this.getDirHandle(dirPath, {
 			create, overrideError,
 			errorMessageActionName,
 			errorMessagePath: path,
 		});
-		await this.verifyHandlePermission(dirHandle, {writable: create});
+		await this.verifyHandlePermission(dirHandle, { writable: create });
 		let fileHandle = null;
 		let created = false;
 		try {
@@ -267,7 +267,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 				created = true;
 			}
 
-			fileHandle = await dirHandle.getFileHandle(fileName, {create});
+			fileHandle = await dirHandle.getFileHandle(fileName, { create });
 
 			// Now set the timestamp to the actual current time, since creating
 			// the file likely took less than a second. If we don't do this
@@ -290,12 +290,12 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 					}
 				}
 				const message = `Failed to ${errorMessageActionName}${end}`;
-				throw new Error(message, {cause: error});
+				throw new Error(message, { cause: error });
 			} else {
 				throw error;
 			}
 		}
-		return {fileHandle, created};
+		return { fileHandle, created };
 	}
 
 	/**
@@ -327,7 +327,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 */
 	async createDir(path) {
 		path = [...path];
-		await this.getDirHandle(path, {create: true, errorMessageActionName: "createDir"});
+		await this.getDirHandle(path, { create: true, errorMessageActionName: "createDir" });
 	}
 
 	/**
@@ -370,7 +370,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 			await this.verifyHandlePermission(handle);
 			if (i == path.length - 1) {
 				await this.verifyHandlePermission(handle);
-				await handle.removeEntry(name, {recursive});
+				await handle.removeEntry(name, { recursive });
 			} else {
 				handle = await handle.getDirectoryHandle(name);
 			}
@@ -389,7 +389,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	splitDirFileName(path) {
 		const dirPath = path.slice(0, path.length - 1);
 		const fileName = path[path.length - 1];
-		return {dirPath, fileName};
+		return { dirPath, fileName };
 	}
 
 	/**
@@ -401,7 +401,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 		let cbs = this.currentlyGettingFileCbs.get(jointPath);
 		if (cbs) {
 			const cbs2 = cbs;
-			return await new Promise((resolve, reject) => cbs2.add({resolve, reject}));
+			return await new Promise((resolve, reject) => cbs2.add({ resolve, reject }));
 		} else {
 			cbs = new Set();
 			this.currentlyGettingFileCbs.set(jointPath, cbs);
@@ -409,21 +409,21 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 		let fileContent;
 		let catchedError;
 		try {
-			const {fileHandle} = await this.getFileHandle(path, {
+			const { fileHandle } = await this.getFileHandle(path, {
 				errorMessageActionName: "read",
 			});
-			await this.verifyHandlePermission(fileHandle, {writable: false});
+			await this.verifyHandlePermission(fileHandle, { writable: false });
 			fileContent = await fileHandle.getFile();
 		} catch (e) {
 			catchedError = e;
 		}
 		if (catchedError) {
-			for (const {reject} of cbs) {
+			for (const { reject } of cbs) {
 				reject(catchedError);
 			}
 		} else {
 			if (!fileContent) throw new Error("Assertion failed, fileContent is undefined");
-			for (const {resolve} of cbs) {
+			for (const { resolve } of cbs) {
 				resolve(fileContent);
 			}
 		}
@@ -442,7 +442,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 */
 	async writeFile(path, file) {
 		path = [...path];
-		const {fileStream, created} = await this.#writeFileStreamInternal(path, false, "write");
+		const { fileStream, created } = await this.#writeFileStreamInternal(path, false, "write");
 		if (fileStream.locked) {
 			throw new Error("File is locked, writing after lock is not yet implemented");
 		}
@@ -463,7 +463,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async writeFileStream(path, keepExistingData = false) {
-		const {fileStream} = await this.#writeFileStreamInternal(path, keepExistingData, "write");
+		const { fileStream } = await this.#writeFileStreamInternal(path, keepExistingData, "write");
 		return fileStream;
 	}
 
@@ -473,13 +473,13 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 * @param {string} errorMessageActionName
 	 */
 	async #writeFileStreamInternal(path, keepExistingData, errorMessageActionName) {
-		const {fileHandle, created} = await this.getFileHandle(path, {
+		const { fileHandle, created } = await this.getFileHandle(path, {
 			create: true,
 			errorMessageActionName,
 		});
 		await this.verifyHandlePermission(fileHandle);
-		const fileStream = await fileHandle.createWritable({keepExistingData});
-		return {fileStream, created};
+		const fileStream = await fileHandle.createWritable({ keepExistingData });
+		return { fileStream, created };
 	}
 
 	/**
@@ -488,7 +488,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 */
 	async isFile(path) {
 		try {
-			await this.getFileHandle(path, {overrideError: false});
+			await this.getFileHandle(path, { overrideError: false });
 		} catch (e) {
 			if (e instanceof DOMException && (e.name == "TypeMismatchError" || e.name == "NotFoundError")) {
 				return false;
@@ -505,7 +505,7 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 */
 	async isDir(path) {
 		try {
-			await this.getDirHandle(path, {overrideError: false});
+			await this.getDirHandle(path, { overrideError: false });
 		} catch (e) {
 			if (e instanceof DOMException && (e.name == "TypeMismatchError" || e.name == "NotFoundError")) {
 				return false;
@@ -545,21 +545,21 @@ export class FsaStudioFileSystem extends StudioFileSystem {
 	 * @returns {Promise<boolean>} True if the file/dir and all of it's children were checked correctly.
 	 */
 	async traverseWatchTree(watchTree, dirHandle, collectedChanges, traversedPath = []) {
-		if (!await this.verifyHandlePermission(dirHandle, {prompt: false, writable: false, error: false})) {
+		if (!await this.verifyHandlePermission(dirHandle, { prompt: false, writable: false, error: false })) {
 			return false;
 		}
 		let allChecked = true;
 		const deletedNodes = new Set(watchTree.children.keys());
 		for await (const [name, handle] of dirHandle.entries()) {
 			deletedNodes.delete(name);
-			if (!await this.verifyHandlePermission(handle, {prompt: false, writable: false, error: false})) {
+			if (!await this.verifyHandlePermission(handle, { prompt: false, writable: false, error: false })) {
 				allChecked = false;
 				continue;
 			}
 			const childNode = watchTree.children.get(name);
 			if (handle.kind == "file") {
 				const file = await handle.getFile();
-				const {lastModified} = file;
+				const { lastModified } = file;
 				if (childNode && childNode.init && childNode.lastModified < lastModified) {
 					collectedChanges.push({
 						external: true,

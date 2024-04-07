@@ -1,0 +1,36 @@
+# Publishes a package to jsr when a GitHub release is created
+name: Publish jsr
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to assign to the published package'
+        type: string
+        required: true
+
+env:
+  # be sure to also update these in other workflows
+  DENO_DIR: deno_dir
+  DENO_VERSION: "1.40.3"
+
+permissions:
+  contents: read
+  id-token: write # The OIDC ID token is used for authentication with JSR.
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@041b854f97b325bd60e53e9dc2de9cb9f9ac0cba
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
+      - name: Build package
+        run: deno task build-jsr-package ${{ github.event.release.tag_name }} ${{ inputs.version }}
+
+      - name: Publish to jsr
+        run: cd jsrPackage && npx jsr publish --allow-dirty

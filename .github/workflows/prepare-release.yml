@@ -1,0 +1,64 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to prepare'
+        type: string
+        required: true
+
+env:
+  # be sure to also update these in other workflows
+  DENO_DIR: deno_dir
+  DENO_VERSION: "1.40.3"
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    environment:
+      name: Staging
+      url: https://staging.renda.studio/
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@041b854f97b325bd60e53e9dc2de9cb9f9ac0cba
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
+      - name: Verify version
+        run: deno run scripts/shared/verifyVersion.js ${{ inputs.version }}
+
+      - name: Lint
+        run: deno task lint --all
+
+      - name: Type check
+        run: deno task check
+
+      - name: Run unit tests
+        run: deno task test test/unit --coverage
+
+      - name: Run e2e tests
+        run: deno task test test/e2e
+
+      - name: Build engine
+        run: deno task build-engine
+
+      - name: Build studio
+        env:
+          BUILD_COMMIT_SHA: ${{ inputs.build-commit-sha }}
+        run: deno task build-studio
+
+      - name: Tar build files
+        run: |
+          cd studio/dist
+          tar -czf ../../build_files.tar *
+
+      - name: Deploy Studio to staging
+        env:
+          STAGING_DEPLOY_TOKEN: ${{ secrets.STAGING_DEPLOY_TOKEN }}
+          VERSION_STRING: ${{ inputs.version }}
+        run: |
+          curl -X POST --fail -H "Authorization: DeployToken $STAGING_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/staging?version=$VERSION_STRING"

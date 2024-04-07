@@ -1,4 +1,4 @@
-import {GPUAdapter} from "./GPUAdapter.js";
+import { GPUAdapter } from "./GPUAdapter.js";
 
 export class GPU {
 	/** @type {GPUAdapter[]} */

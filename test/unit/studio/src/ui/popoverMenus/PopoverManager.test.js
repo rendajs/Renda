@@ -1,16 +1,14 @@
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {assertEquals, assertExists, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Popover} from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
-import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
-import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { FakeMouseEvent } from "fake-dom/FakeMouseEvent.js";
+import { assertEquals, assertExists, assertInstanceOf, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { Popover } from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
+import { PopoverManager } from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
+import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
 
 function basicManager() {
 	installFakeDocument();
-	const colorizerFilterManager = new ColorizerFilterManager();
-	const manager = new PopoverManager(colorizerFilterManager);
+	const manager = new PopoverManager();
 	return {
 		manager,
 		uninstall() {
@@ -22,7 +20,7 @@ function basicManager() {
 Deno.test({
 	name: "popover creation",
 	async fn() {
-		const {manager, uninstall} = basicManager();
+		const { manager, uninstall } = basicManager();
 		try {
 			assertEquals(manager.curtainEl.parentElement, null);
 
@@ -82,7 +80,7 @@ Deno.test({
 testTypes({
 	name: "addPopover has the correct return type and parameter types",
 	fn() {
-		const {manager} = basicManager();
+		const { manager } = basicManager();
 
 		const result1 = manager.addPopover();
 
@@ -123,7 +121,7 @@ testTypes({
 Deno.test({
 	name: "context menu creation",
 	fn() {
-		const {manager, uninstall} = basicManager();
+		const { manager, uninstall } = basicManager();
 		try {
 			assertEquals(manager.curtainEl.parentElement, null);
 
@@ -148,7 +146,7 @@ Deno.test({
 Deno.test({
 	name: "popover without a curtain",
 	async fn() {
-		const {manager, uninstall} = basicManager();
+		const { manager, uninstall } = basicManager();
 		try {
 			const popover = manager.addPopover();
 			popover.setNeedsCurtain(false);

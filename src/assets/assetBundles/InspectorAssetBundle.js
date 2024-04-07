@@ -1,4 +1,4 @@
-import {AssetBundle} from "./AssetBundle.js";
+import { AssetBundle } from "./AssetBundle.js";
 
 /**
  * An InspectorAssetBundle serves as a replacement for bundles which are normally used in production.

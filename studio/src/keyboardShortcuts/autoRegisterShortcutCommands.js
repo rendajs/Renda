@@ -70,4 +70,4 @@ const autoRegisterShortcutCommands = /** @type {const} */ ({
 });
 
 /** @typedef {keyof autoRegisterShortcutCommands} AutoRegisterShortcutCommands */
-export {autoRegisterShortcutCommands};
+export { autoRegisterShortcutCommands };

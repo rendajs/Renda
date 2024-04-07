@@ -1,4 +1,4 @@
-import {PreferencesLocation} from "./PreferencesLocation.js";
+import { PreferencesLocation } from "./PreferencesLocation.js";
 
 export class GlobalPreferencesLocation extends PreferencesLocation {
 	#db;

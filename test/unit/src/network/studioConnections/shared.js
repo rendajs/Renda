@@ -1,6 +1,6 @@
-import {spy} from "std/testing/mock.ts";
-import {MessageHandler} from "../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js";
-import {StudioConnection} from "../../../../../src/network/studioConnections/StudioConnection.js";
+import { spy } from "std/testing/mock.ts";
+import { MessageHandler } from "../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js";
+import { StudioConnection } from "../../../../../src/network/studioConnections/StudioConnection.js";
 
 export class ExtendedMessageHandler extends MessageHandler {
 	/** @type {Set<(data: any) => void | Promise<void>>} */
@@ -69,10 +69,10 @@ export class ExtendedMessageHandler extends MessageHandler {
  * @param {ExtendedMessageHandler} messageHandlerB
  */
 export function connectMessageHandlers(messageHandlerA, messageHandlerB) {
-	messageHandlerA.onSendCalled(async data => {
+	messageHandlerA.onSendCalled(async (data) => {
 		await messageHandlerB.handleMessageReceived(data);
 	});
-	messageHandlerB.onSendCalled(async data => {
+	messageHandlerB.onSendCalled(async (data) => {
 		await messageHandlerA.handleMessageReceived(data);
 	});
 	messageHandlerA.setStatus("connected");
@@ -85,16 +85,16 @@ export function connectMessageHandlers(messageHandlerA, messageHandlerB) {
  * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").ConnectionRequestAcceptOptions<TReliableRespondHandlers>} handlersA
  * @param {import("../../../../../src/network/studioConnections/DiscoveryManager.js").ConnectionRequestAcceptOptions<TReliableRequestHandlers>} handlersB
  */
-export function createLinkedStudioConnections(handlersA, handlersB, {supportsSerialization = false} = {}) {
-	const messageHandlerA = new ExtendedMessageHandler({supportsSerialization});
+export function createLinkedStudioConnections(handlersA, handlersB, { supportsSerialization = false } = {}) {
+	const messageHandlerA = new ExtendedMessageHandler({ supportsSerialization });
 	/** @type {StudioConnection<TReliableRespondHandlers, TReliableRequestHandlers>} */
 	const connectionA = new StudioConnection(messageHandlerA, handlersA);
 
-	const messageHandlerB = new ExtendedMessageHandler({supportsSerialization});
+	const messageHandlerB = new ExtendedMessageHandler({ supportsSerialization });
 	/** @type {StudioConnection<TReliableRequestHandlers, TReliableRespondHandlers>} */
 	const connectionB = new StudioConnection(messageHandlerB, handlersB);
 
 	connectMessageHandlers(messageHandlerA, messageHandlerB);
 
-	return {connectionA, connectionB, messageHandlerA, messageHandlerB};
+	return { connectionA, connectionB, messageHandlerA, messageHandlerB };
 }

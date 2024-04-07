@@ -1,15 +1,15 @@
-import {runE2eTest} from "../../../shared/runE2eTest.js";
-import {loadE2eProject, openRemoteProject, waitForProjectOpen} from "../../shared/project.js";
-import {getPage} from "../../../shared/browser.js";
-import {waitForStudioLoad} from "../../shared/studio.js";
-import {acceptFirstIncomingConnection, clickSingleAvailableConnectButton} from "../../shared/contentWindows/connections.js";
-import {openContentWindow} from "../../shared/windowManagement.js";
-import {waitForAssetExists} from "../../shared/contentWindows/project.js";
+import { runE2eTest } from "../../../shared/runE2eTest.js";
+import { loadE2eProject, openRemoteProject, waitForProjectOpen } from "../../shared/project.js";
+import { getPage } from "../../../shared/browser.js";
+import { waitForStudioLoad } from "../../shared/studio.js";
+import { acceptFirstIncomingConnection, clickSingleAvailableConnectButton } from "../../shared/contentWindows/connections.js";
+import { openContentWindow } from "../../shared/windowManagement.js";
+import { waitForAssetExists } from "../../shared/contentWindows/project.js";
 
 await runE2eTest({
 	name: "Assets are loaded via the InspectorAssetBundle",
 	async fn() {
-		const {page: page1, createPage} = await getPage();
+		const { page: page1, createPage } = await getPage();
 
 		const page2 = await createPage();
 		await waitForStudioLoad(page2);

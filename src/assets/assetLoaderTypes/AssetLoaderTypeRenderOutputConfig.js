@@ -1,6 +1,6 @@
-import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
-import {StorageType} from "../../util/binarySerialization.js";
-import {RenderOutputConfig} from "../../rendering/RenderOutputConfig.js";
+import { AssetLoaderTypeGenericStructure } from "./AssetLoaderTypeGenericStructure.js";
+import { StorageType } from "../../util/binarySerialization.js";
+import { RenderOutputConfig } from "../../rendering/RenderOutputConfig.js";
 
 const binarySerializationOpts = {
 	structure: {

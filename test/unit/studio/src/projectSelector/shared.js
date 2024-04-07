@@ -1,18 +1,19 @@
-import {Importer} from "fake-imports";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {spy, stub} from "std/testing/mock.ts";
+import { Importer } from "fake-imports";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { spy, stub } from "std/testing/mock.ts";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
+importer.makeReal("../../../../../src/util/mod.js");
 
 /** @type {import("../../../../../studio/src/projectSelector/ProjectSelector.js")} */
 const ProjectSelectorMod = await importer.import("../../../../../studio/src/projectSelector/ProjectSelector.js");
-const {ProjectSelector} = ProjectSelectorMod;
+const { ProjectSelector } = ProjectSelectorMod;
 
-const {forcePendingOperations: forcePendingOperationsImported, IndexedDbUtil} = await importer.import("../../../../../src/util/IndexedDbUtil.js");
+const { forcePendingOperations: forcePendingOperationsImported, IndexedDbUtil } = await importer.import("../../../../../src/util/IndexedDbUtil.js");
 const forcePendingOperations = /** @type {typeof import("../../shared/MockIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
-export {forcePendingOperations, ProjectSelector};
+export { forcePendingOperations, ProjectSelector };
 
 /**
  * @param {object} [options]
@@ -62,7 +63,7 @@ export function basicSetup({
 		},
 	});
 
-	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async fromUserGesture => {});
+	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async (fromUserGesture) => {});
 	const openProjectFromLocalDirectorySpy = stub(mockStudio.projectManager, "openProjectFromLocalDirectory", async () => {});
 	const restartClientsSpy = spy(mockStudio.serviceWorkerManager, "restartClients");
 
@@ -78,7 +79,7 @@ export function basicSetup({
 	 */
 	function setInstallingState(newState) {
 		installingState = newState;
-		installingStateChangeCbs.forEach(cb => cb());
+		installingStateChangeCbs.forEach((cb) => cb());
 	}
 
 	/**

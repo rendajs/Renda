@@ -1,4 +1,4 @@
-import {uuidToBinary} from "../../../../../src/mod.js";
+import { uuidToBinary } from "../../../../../src/mod.js";
 
 /**
  * @param {import("../../../../../src/mod.js").UuidString[]} assetUuids
@@ -13,7 +13,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 	// fill header with zeros
 	const emptyHeader = new ArrayBuffer(headerByteLength);
 	if (useFileStream) {
-		await messenger.sendWithOptions.writeFile({transfer: [emptyHeader]}, fileStreamId, emptyHeader);
+		await messenger.sendWithOptions.writeFile({ transfer: [emptyHeader] }, fileStreamId, emptyHeader);
 	}
 
 	const header = new ArrayBuffer(headerByteLength);
@@ -40,7 +40,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 		const assetDataResult = await messenger.send.getBundledAssetData(assetUuid);
 		if (!assetDataResult) continue;
 
-		const {assetData, assetTypeUuid} = assetDataResult;
+		const { assetData, assetTypeUuid } = assetDataResult;
 
 		const binaryUuid = uuidToBinary(assetUuid);
 		headerIntView.set(new Uint8Array(binaryUuid), headerCursor);
@@ -78,7 +78,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 	}
 
 	if (useFileStream) {
-		await messenger.sendWithOptions.writeFile({transfer: [header]}, fileStreamId, {
+		await messenger.sendWithOptions.writeFile({ transfer: [header] }, fileStreamId, {
 			type: "write",
 			position: 0,
 			data: header,

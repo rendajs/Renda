@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {ColorizerFilterUsageReference} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterUsageReference.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { ColorizerFilterUsageReference } from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterUsageReference.js";
 
 Deno.test("Destructor should notify the filter", () => {
 	let notifyCallCount = 0;

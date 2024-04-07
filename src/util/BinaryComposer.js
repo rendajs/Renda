@@ -1,4 +1,4 @@
-import {uuidToBinary} from "./binarySerialization.js";
+import { uuidToBinary } from "./binarySerialization.js";
 
 export class BinaryComposer {
 	constructor({

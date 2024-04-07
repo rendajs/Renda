@@ -1,10 +1,11 @@
+import { ColorizerFilterManager } from "../util/colorizerFilters/ColorizerFilterManager.js";
+
 /**
  * @template TCallbacksContext
  * @typedef {object} ButtonGuiOptionsType
  * @property {string} [text = ""] The text to show on the button.
  * @property {string} [icon = ""] The icon to show on the button.
  * @property {string} [tooltip = ""] The text to show when hovering over the button.
- * @property {import("../util/colorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager?} [colorizerFilterManager = null] The colorizer filter manager if you want theme support for icons to work.
  * @property {boolean} [hasDownArrow = false] Whether the button should show a down arrow.
  * @property {((ctx: TCallbacksContext) => any)?} [onClick = null] The function to call when the button is clicked.
  * @property {boolean} [draggable = false] Whether the button should be draggable.
@@ -38,7 +39,6 @@ export class Button {
 		text = "",
 		icon = "",
 		tooltip = "",
-		colorizerFilterManager = null,
 		hasDownArrow = false,
 		onClick = null,
 		draggable = false,
@@ -47,9 +47,8 @@ export class Button {
 	} = {}) {
 		this.iconUrl = icon;
 		this.#hasDownArrow = hasDownArrow;
-		this.colorizerFilterManager = colorizerFilterManager;
 		this.currentText = text;
-		const {el, iconEl, textEl} = this.createButtonEl();
+		const { el, iconEl, textEl } = this.createButtonEl();
 		this.el = el;
 		this.iconEl = iconEl;
 		this.textEl = textEl;
@@ -106,7 +105,7 @@ export class Button {
 			this.#applyIconToEl(downArrowEl, "static/icons/generic/buttonDownArrow.svg");
 		}
 
-		return {el, iconEl, textEl};
+		return { el, iconEl, textEl };
 	}
 
 	click() {
@@ -144,7 +143,7 @@ export class Button {
 		if (visible == this.#visible) return;
 		this.#visible = visible;
 		this.el.classList.toggle("hidden", !visible);
-		this.#onVisibilityChangeCbs.forEach(cb => cb(visible));
+		this.#onVisibilityChangeCbs.forEach((cb) => cb(visible));
 	}
 
 	get visible() {
@@ -180,8 +179,8 @@ export class Button {
 	#applyIconToEl(el, iconUrl) {
 		el.style.backgroundImage = `url(${iconUrl})`;
 		el.style.display = iconUrl ? "" : "none";
-		if (iconUrl && this.colorizerFilterManager) {
-			this.colorizerFilterManager.applyFilter(el, "var(--default-button-text-color)");
+		if (iconUrl) {
+			ColorizerFilterManager.instance().applyFilter(el, "var(--default-button-text-color)");
 		}
 	}
 
@@ -227,7 +226,7 @@ export class Button {
 	 */
 	dragStart(e) {
 		if (!this.dragFeedbackEl) {
-			const {el}	= this.createButtonEl();
+			const { el }	= this.createButtonEl();
 			this.dragFeedbackEl = el;
 			el.style.position = "absolute";
 			el.style.transform = "translateX(-100%)";

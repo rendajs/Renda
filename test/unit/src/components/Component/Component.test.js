@@ -1,6 +1,6 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {Mesh} from "../../../../../src/mod.js";
-import {getBasicExtendedComponent} from "./shared.js";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { Mesh } from "../../../../../src/mod.js";
+import { getBasicExtendedComponent } from "./shared.js";
 
 Deno.test({
 	name: "Component without any constructor properties",

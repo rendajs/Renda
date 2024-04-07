@@ -1,13 +1,13 @@
-import {GPUBindGroup} from "./GPUBindGroup.js";
-import {GPUBindGroupLayout} from "./GPUBindGroupLayout.js";
-import {GPUBuffer} from "./GPUBuffer.js";
-import {GPUCommandEncoder} from "./GPUCommandEncoder.js";
-import {GPUComputePipeline} from "./GPUComputePipeline.js";
-import {GPUPipelineLayout} from "./GPUPipelineLayout.js";
-import {GPUQueue} from "./GPUQueue.js";
-import {GPURenderPipeline} from "./GPURenderPipeline.js";
-import {GPUSampler} from "./GPUSampler.js";
-import {GPUSupportedLimits} from "./GPUSupportedLimits.js";
+import { GPUBindGroup } from "./GPUBindGroup.js";
+import { GPUBindGroupLayout } from "./GPUBindGroupLayout.js";
+import { GPUBuffer } from "./GPUBuffer.js";
+import { GPUCommandEncoder } from "./GPUCommandEncoder.js";
+import { GPUComputePipeline } from "./GPUComputePipeline.js";
+import { GPUPipelineLayout } from "./GPUPipelineLayout.js";
+import { GPUQueue } from "./GPUQueue.js";
+import { GPURenderPipeline } from "./GPURenderPipeline.js";
+import { GPUSampler } from "./GPUSampler.js";
+import { GPUSupportedLimits } from "./GPUSupportedLimits.js";
 
 export class GPUDevice {
 	get limits() {

@@ -1,6 +1,6 @@
-import {spy} from "std/testing/mock.ts";
-import {DiscoveryMethod} from "../../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js";
-import {MessageHandler} from "../../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js";
+import { spy } from "std/testing/mock.ts";
+import { DiscoveryMethod } from "../../../../../../../src/network/studioConnections/discoveryMethods/DiscoveryMethod.js";
+import { MessageHandler } from "../../../../../../../src/network/studioConnections/messageHandlers/MessageHandler.js";
 
 /** @type {Set<ExtendedMessageHandler>} */
 const createdMessageHandlers = new Set();

@@ -1,9 +1,9 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals} from "std/testing/asserts.ts";
-import {GestureInProgressManager} from "../../../../../studio/src/misc/GestureInProgressManager.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { assertEquals } from "std/testing/asserts.ts";
+import { GestureInProgressManager } from "../../../../../studio/src/misc/GestureInProgressManager.js";
 
 /** @param {boolean} gestureInProgress */
-const callbackSignature = gestureInProgress => {};
+const callbackSignature = (gestureInProgress) => {};
 
 Deno.test({
 	name: "Fires callback when it is registered",
@@ -36,7 +36,7 @@ Deno.test({
 		const spyFn = spy(callbackSignature);
 		manager.onGestureInProgressChange(spyFn);
 
-		const {stopGesture} = manager.startGesture();
+		const { stopGesture } = manager.startGesture();
 		assertSpyCalls(spyFn, 2);
 		assertSpyCall(spyFn, 1, {
 			args: [true],
@@ -65,11 +65,11 @@ Deno.test({
 
 		assertEquals(manager.gestureInProgress, false);
 
-		const {stopGesture: stop1} = manager.startGesture();
+		const { stopGesture: stop1 } = manager.startGesture();
 		assertEquals(manager.gestureInProgress, true);
 		assertSpyCalls(spyFn, 2);
 
-		const {stopGesture: stop2} = manager.startGesture();
+		const { stopGesture: stop2 } = manager.startGesture();
 		assertEquals(manager.gestureInProgress, true);
 		assertSpyCalls(spyFn, 2);
 

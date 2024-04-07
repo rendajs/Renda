@@ -1,4 +1,4 @@
-import {Entity} from "../../core/Entity.js";
+import { Entity } from "../../core/Entity.js";
 
 /**
  * Parses a list of scenes and puts them into a single entity.
@@ -11,13 +11,13 @@ export function parseScenes(scenes, nodes, hooks) {
 	/** @type {Map<Entity, number>} */
 	const entityNodeIds = new Map();
 	for (const scene of scenes) {
-		const {sceneEntity, createdEntities} = parseScene(scene, nodes, hooks);
+		const { sceneEntity, createdEntities } = parseScene(scene, nodes, hooks);
 		entity.add(sceneEntity);
 		for (const [nodeId, node] of createdEntities) {
 			entityNodeIds.set(node, nodeId);
 		}
 	}
-	return {entity, entityNodeIds};
+	return { entity, entityNodeIds };
 }
 
 /**
@@ -99,7 +99,7 @@ function parseNodeRecursive(nodeId, nodes, createdEntities, hooks) {
 	}
 
 	if (hooks.node) {
-		hooks.node({entity, nodeData, nodeId});
+		hooks.node({ entity, nodeData, nodeId });
 	}
 
 	return entity;

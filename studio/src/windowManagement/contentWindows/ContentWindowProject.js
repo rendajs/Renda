@@ -1,8 +1,8 @@
-import {ContentWindow} from "./ContentWindow.js";
-import {TreeView} from "../../ui/TreeView.js";
-import {Button} from "../../ui/Button.js";
-import {handleDuplicateFileName, parseMimeType} from "../../util/util.js";
-import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorInstance.js";
+import { ContentWindow } from "./ContentWindow.js";
+import { TreeView } from "../../ui/TreeView.js";
+import { Button } from "../../ui/Button.js";
+import { handleDuplicateFileName, parseMimeType } from "../../util/util.js";
+import { getProjectSelectorInstance } from "../../projectSelector/projectSelectorInstance.js";
 
 /**
  * @typedef {object} DraggingProjectAssetData
@@ -20,7 +20,7 @@ import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorI
 export class ContentWindowProject extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:project");
 	static contentWindowUiName = "Project Files";
-	static contentWindowUiIcon = "static/icons/contentWindowTabs/project.svg";
+	static contentWindowUiIcon = "static/icons/folder.svg";
 
 	/** @type {Set<import("../../assets/AssetManager.js").AssetManager>} */
 	#registeredDismissedManagers = new Set();
@@ -174,7 +174,7 @@ export class ContentWindowProject extends ContentWindow {
 			this.initialUpdateTreeView();
 			this.updateRootName();
 			this.treeView.renameable = fs.rootNameSetSupported;
-			fs.onRootNameChange(newName => {
+			fs.onRootNameChange((newName) => {
 				this.treeView.name = newName;
 			});
 		}
@@ -210,7 +210,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	async initialUpdateTreeView() {
-		await this.fileSystem.waitForPermission([], {writable: false});
+		await this.fileSystem.waitForPermission([], { writable: false });
 		await this.updateTreeView();
 		this.treeViewInit = true;
 		this.updateInit();
@@ -223,7 +223,7 @@ export class ContentWindowProject extends ContentWindow {
 	async waitForInit() {
 		if (this.isInit) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.onInitCbs.add(r));
+		const promise = new Promise((r) => this.onInitCbs.add(r));
 		await promise;
 	}
 
@@ -231,7 +231,7 @@ export class ContentWindowProject extends ContentWindow {
 		if (!this.isInit) return;
 		if (this.initCbsCalled) return;
 		this.initCbsCalled = true;
-		this.onInitCbs.forEach(cb => cb());
+		this.onInitCbs.forEach((cb) => cb());
 	}
 
 	/**
@@ -267,7 +267,7 @@ export class ContentWindowProject extends ContentWindow {
 	 * should already be updated so you generally won't need to use this.
 	 */
 	async updateTreeViewRange(end, start = null, updateAll = false) {
-		let {treeView} = this;
+		let { treeView } = this;
 		if (start) {
 			const childTreeView = this.treeView.findChildFromNamesPath(start);
 			if (!childTreeView) {
@@ -309,16 +309,16 @@ export class ContentWindowProject extends ContentWindow {
 	async updateTreeViewRecursive(treeView, path) {
 		if (this.destructed) return;
 		if (treeView.collapsed) return;
-		const hasPermissions = await this.fileSystem.getPermission(path, {writable: false});
+		const hasPermissions = await this.fileSystem.getPermission(path, { writable: false });
 		if (!hasPermissions) return;
 		const fileTree = await this.fileSystem.readDir(path);
 		if (this.destructed) return;
 
 		// Determine the order of the files and directories.
 		const sortedFiles = [...fileTree.files];
-		sortedFiles.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base"}));
+		sortedFiles.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 		const sortedDirectories = [...fileTree.directories];
-		sortedDirectories.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base"}));
+		sortedDirectories.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 		const childOrder = [...sortedDirectories, ...sortedFiles];
 
 		for (const dir of sortedDirectories) {
@@ -360,7 +360,7 @@ export class ContentWindowProject extends ContentWindow {
 	async waitForTreeViewUpdate() {
 		if (this.#updatingTreeViewSyms.size == 0) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => {
+		const promise = new Promise((r) => {
 			this.#updatingTreeViewCbs.add(r);
 		});
 		await promise;
@@ -368,7 +368,7 @@ export class ContentWindowProject extends ContentWindow {
 
 	#fireTreeViewUpdateWhenDone() {
 		if (this.#updatingTreeViewSyms.size > 0) return;
-		this.#updatingTreeViewCbs.forEach(cb => cb());
+		this.#updatingTreeViewCbs.forEach((cb) => cb());
 		this.#updatingTreeViewCbs.clear();
 	}
 
@@ -395,7 +395,7 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent} e
 	 */
-	#onFileChange = async e => {
+	#onFileChange = async (e) => {
 		const parentPath = e.path.slice(0, -1);
 		await this.updateTreeView(parentPath);
 	};
@@ -425,7 +425,7 @@ export class ContentWindowProject extends ContentWindow {
 
 	getSelectedParentPathForCreate() {
 		let selectedPath = [];
-		let {treeView} = this;
+		let { treeView } = this;
 		for (const selectedItem of this.treeView.getSelectedItems()) {
 			if (!selectedItem.alwaysShowArrow && selectedItem.parent) {
 				treeView = selectedItem.parent;
@@ -612,7 +612,7 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewValidateDragEvent} e
 	 */
-	#onTreeViewValidateDrag = async e => {
+	#onTreeViewValidateDrag = async (e) => {
 		// Only allow dropping on folders.
 		if (!e.target.alwaysShowArrow) {
 			e.reject();
@@ -655,7 +655,7 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
-	#onTreeViewDrop = async e => {
+	#onTreeViewDrop = async (e) => {
 		if (!e.rawEvent.dataTransfer) return;
 		const path = this.pathFromTreeView(e.target);
 		for (const file of e.rawEvent.dataTransfer.files) {
@@ -680,8 +680,8 @@ export class ContentWindowProject extends ContentWindow {
 	 */
 	async onTreeViewRearrange(e) {
 		for (const movedItem of e.movedItems) {
-			const oldPath = movedItem.oldTreeViewsPath.map(t => t.name).slice(1);
-			const newPath = movedItem.newTreeViewsPath.map(t => t.name).slice(1);
+			const oldPath = movedItem.oldTreeViewsPath.map((t) => t.name).slice(1);
+			const newPath = movedItem.newTreeViewsPath.map((t) => t.name).slice(1);
 			await this.fileSystem.move(oldPath, newPath);
 			const assetManager = await this.studioInstance.projectManager.getAssetManager();
 			await assetManager.assetMoved(oldPath, newPath);

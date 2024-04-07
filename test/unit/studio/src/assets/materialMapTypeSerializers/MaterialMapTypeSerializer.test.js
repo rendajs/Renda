@@ -1,6 +1,6 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {MaterialMapTypeSerializer} from "../../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
-import {MaterialMapType} from "../../../../../../src/rendering/MaterialMapType.js";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { MaterialMapTypeSerializer } from "../../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
+import { MaterialMapType } from "../../../../../../src/rendering/MaterialMapType.js";
 
 const mockContext = /** @type {import("../../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({});
 

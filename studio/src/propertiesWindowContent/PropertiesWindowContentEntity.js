@@ -1,10 +1,10 @@
-import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
-import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
-import {Button} from "../ui/Button.js";
-import {DroppableGui} from "../ui/DroppableGui.js";
-import {ProjectAssetTypeEntity} from "../assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {EntitySelection} from "../misc/EntitySelection.js";
-import {EntityChangeType} from "../assets/EntityAssetManager.js";
+import { PropertiesWindowContent } from "./PropertiesWindowContent.js";
+import { PropertiesTreeView } from "../ui/propertiesTreeView/PropertiesTreeView.js";
+import { Button } from "../ui/Button.js";
+import { DroppableGui } from "../ui/DroppableGui.js";
+import { ProjectAssetTypeEntity } from "../assets/projectAssetType/ProjectAssetTypeEntity.js";
+import { EntitySelection } from "../misc/EntitySelection.js";
+import { EntityChangeType } from "../assets/EntityAssetManager.js";
 
 export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 	/** @type {import("../../../src/mod.js").Entity[]} */
@@ -43,10 +43,10 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				label: "Position",
 			},
 		});
-		this.positionProperty.onValueChange(changeEvent => {
+		this.positionProperty.onValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
-			for (const {entity} of this.currentSelection) {
+			for (const { entity } of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.pos = changeEvent.value;
 				} else if (this.editingModeGui.value == "instance") {
@@ -62,10 +62,10 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				label: "Rotation",
 			},
 		});
-		this.rotationProperty.onValueChange(changeEvent => {
+		this.rotationProperty.onValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
-			for (const {entity} of this.currentSelection) {
+			for (const { entity } of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.rot.setFromAxisAngle(changeEvent.value);
 				} else if (this.editingModeGui.value == "instance") {
@@ -81,10 +81,10 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				label: "Scale",
 			},
 		});
-		this.scaleProperty.onValueChange(changeEvent => {
+		this.scaleProperty.onValueChange((changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 			if (!this.currentSelection) return;
-			for (const {entity} of this.currentSelection) {
+			for (const { entity } of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.scale = changeEvent.value;
 				} else if (this.editingModeGui.value == "instance") {
@@ -105,7 +105,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 						text: component.componentName || component.uuid || "",
 						onClick: async () => {
 							if (!this.currentSelection) return;
-							for (const {entity} of this.currentSelection) {
+							for (const { entity } of this.currentSelection) {
 								const componentInstance = entity.addComponent(component, {}, {
 									studioOpts: {
 										studioAssetTypeManager: this.studioInstance.projectAssetTypeManager,
@@ -167,7 +167,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 	/**
 	 * @param {import("../assets/EntityAssetManager.js").OnTrackedEntityChangeEvent} e
 	 */
-	#onTrackedEntityChange = e => {
+	#onTrackedEntityChange = (e) => {
 		if (e.source == this) return;
 		if (e.type & EntityChangeType.Transform) {
 			this.updateTransformationValues();
@@ -194,7 +194,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 
 		/** @type {import("../../../src/components/Component.js").Component[]} */
 		const componentGroups = [];
-		for (const {entity} of this.currentSelection) {
+		for (const { entity } of this.currentSelection) {
 			for (const component of entity.components) {
 				componentGroups.push(component);
 			}
@@ -204,7 +204,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			const componentName = componentConstructor?.name || componentConstructor?.uuid || "<unknown>";
 			const componentUI = this.componentsSection.addCollapsable(componentName);
 			componentUI.renderContainer = true;
-			componentUI.addEventListener("contextmenu", e => {
+			componentUI.addEventListener("contextmenu", (e) => {
 				e.showContextMenu([
 					{
 						text: "Remove",
@@ -224,7 +224,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 				componentUI.generateFromSerializableStructure(serializableStructure);
 				const castComponentGroup = /** @type {any} */ (componentGroup);
 				componentUI.fillSerializableStructureValues(castComponentGroup, {
-					beforeValueSetHook: ({value, setOnObject, setOnObjectKey}) => {
+					beforeValueSetHook: ({ value, setOnObject, setOnObjectKey }) => {
 						if (value) {
 							const castValue = /** @type {any} */ (value);
 							if (this.studioInstance.projectAssetTypeManager.constructorHasAssetType(castValue.constructor)) {
@@ -238,10 +238,10 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 						return value;
 					},
 				});
-				componentUI.onChildValueChange(e => {
+				componentUI.onChildValueChange((e) => {
 					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.target);
 					if (!propertyName) return;
-					const scriptValueFromGui = e.target.getValue({purpose: "script"});
+					const scriptValueFromGui = e.target.getValue({ purpose: "script" });
 					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.target);
 					if (componentGroup.entity) {
 						this.studioInstance.projectManager.assetManager?.entityAssetManager.updateEntity(componentGroup.entity, EntityChangeType.ComponentProperty, this);

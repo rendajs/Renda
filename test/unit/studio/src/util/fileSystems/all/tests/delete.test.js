@@ -1,9 +1,9 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {assertPromiseResolved} from "../../../../../../shared/asserts.js";
-import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
-import {registerOnChangeSpy} from "../../shared.js";
-import {testAll} from "../shared.js";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { assertPromiseResolved } from "../../../../../../../../src/util/asserts.js";
+import { waitForMicrotasks } from "../../../../../../../../src/util/waitForMicroTasks.js";
+import { registerOnChangeSpy } from "../../shared.js";
+import { testAll } from "../shared.js";
 
 testAll({
 	name: "delete() should delete files and fire onChange",
@@ -22,7 +22,7 @@ testAll({
 		await deletePromise;
 
 		let hasFile1 = false;
-		const {directories} = await fs.readDir(["root"]);
+		const { directories } = await fs.readDir(["root"]);
 		for (const name of directories) {
 			if (name == "file1") {
 				hasFile1 = true;

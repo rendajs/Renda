@@ -1,5 +1,5 @@
-import {SingleInstancePromise} from "../../../../../src/mod.js";
-import {Button} from "../../../ui/Button.js";
+import { SingleInstancePromise } from "../../../../../src/mod.js";
+import { Button } from "../../../ui/Button.js";
 
 export class EntitySavingManager {
 	/** @typedef {import("../../../../../src/mod.js").Entity} Entity */

@@ -1,6 +1,6 @@
-import {TypedMessenger} from "../../../src/util/TypedMessenger/TypedMessenger.js";
-import {ENGINE_SOURCE_PATH} from "../studioDefines.js";
-import {getStudioInstance} from "../studioInstance.js";
+import { TypedMessenger } from "../../../src/util/TypedMessenger/TypedMessenger.js";
+import { ENGINE_SOURCE_PATH } from "../studioDefines.js";
+import { getStudioInstance } from "../studioInstance.js";
 
 const UP_TO_DATE_DURATION_MS = 30_000;
 
@@ -78,7 +78,7 @@ const messageHandlers = {
 	openTabCountChanged(newOpenTabCount) {
 		if (openTabCount != newOpenTabCount) {
 			openTabCount = newOpenTabCount;
-			onOpenTabCountChangeCbs.forEach(cb => cb());
+			onOpenTabCountChangeCbs.forEach((cb) => cb());
 		}
 	},
 };
@@ -106,7 +106,7 @@ export class ServiceWorkerManager {
 
 	constructor() {
 		if (this.supported) {
-			navigator.serviceWorker.addEventListener("message", async e => {
+			navigator.serviceWorker.addEventListener("message", async (e) => {
 				if (e.source instanceof ServiceWorker) {
 					const messenger = this.#getOrCreateServiceWorkerMessenger(e.source);
 					messenger.handleReceivedMessage(e.data);
@@ -117,7 +117,7 @@ export class ServiceWorkerManager {
 			});
 		}
 
-		window.addEventListener("unload", () => {
+		window.addEventListener("beforeunload", () => {
 			for (const messenger of this.#messengers.values()) {
 				messenger.send.unregisterClient();
 			}
@@ -172,7 +172,7 @@ export class ServiceWorkerManager {
 		if (!messenger) {
 			messenger = new TypedMessenger();
 
-			messenger.setSendHandler(async data => {
+			messenger.setSendHandler(async (data) => {
 				serviceWorker.postMessage(data.sendData, data.transfer);
 			});
 			messenger.setResponseHandlers(messageHandlers);
@@ -201,7 +201,7 @@ export class ServiceWorkerManager {
 
 		if (this.#installingState != state) {
 			this.#installingState = state;
-			this.#onInstallingStateChangeCbs.forEach(cb => cb());
+			this.#onInstallingStateChangeCbs.forEach((cb) => cb());
 		}
 	}
 

@@ -1,5 +1,6 @@
 import "./styles/projectSelectorStyles.js";
-import {getProjectSelectorInstance, initProjectSelector} from "./projectSelector/projectSelectorInstance.js";
+import { getProjectSelectorInstance, initProjectSelector } from "./projectSelector/projectSelectorInstance.js";
+import { IS_DEV_BUILD } from "./studioDefines.js";
 export {};
 
 initProjectSelector();
@@ -24,7 +25,7 @@ globalThis["projectSelector"] = projectSelector;
 		import("../../src/math/mod.js"),
 		import("../../src/core/mod.js"),
 	];
-	promises.forEach(async promise => {
+	promises.forEach(async (promise) => {
 		const mod = await promise;
 		for (const [key, value] of Object.entries(mod)) {
 			globalRenda[key] = value;
@@ -44,9 +45,11 @@ globalThis["studio"] = null;
 	}
 })();
 
-/** @type {import("./util/e2e/mod.js")?} */
-globalThis["e2e"] = null;
-(async () => {
-	const module = await import("./util/e2e/mod.js");
-	globalThis["e2e"] = module;
-})();
+if (IS_DEV_BUILD) {
+	/** @type {import("./util/e2e/mod.js")?} */
+	globalThis["e2e"] = null;
+	(async () => {
+		const module = await import("./util/e2e/mod.js");
+		globalThis["e2e"] = module;
+	})();
+}

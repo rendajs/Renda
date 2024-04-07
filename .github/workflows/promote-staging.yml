@@ -1,0 +1,17 @@
+name: Promote Staging to Production
+
+on:
+  workflow_dispatch
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    environment:
+      name: Production
+      url: https://renda.studio/
+    steps:
+      - name: Promote Staging to Production
+        env:
+          PRODUCTION_DEPLOY_TOKEN: ${{ secrets.PRODUCTION_DEPLOY_TOKEN }}
+        run: |
+          curl -X POST --fail -H "Authorization: DeployToken $PRODUCTION_DEPLOY_TOKEN" "https://deploy.renda.studio/production"

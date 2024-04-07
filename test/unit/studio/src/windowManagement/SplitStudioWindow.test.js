@@ -1,9 +1,9 @@
-import {SplitStudioWindow} from "../../../../../studio/src/windowManagement/SplitStudioWindow.js";
-import {runWithDom} from "../../shared/runWithDom.js";
-import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {GestureInProgressManager} from "../../../../../studio/src/misc/GestureInProgressManager.js";
-import {assertEquals} from "std/testing/asserts.ts";
-import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
+import { SplitStudioWindow } from "../../../../../studio/src/windowManagement/SplitStudioWindow.js";
+import { runWithDom } from "../../shared/runWithDom.js";
+import { MouseEvent } from "fake-dom/FakeMouseEvent.js";
+import { GestureInProgressManager } from "../../../../../studio/src/misc/GestureInProgressManager.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { injectMockStudioInstance } from "../../../../../studio/src/studioInstance.js";
 
 /**
  * @typedef SplitStudioWindowTestContext
@@ -26,7 +26,7 @@ function basicTest({
 		try {
 			const mockWindowManager = /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 			const studioWindow = new SplitStudioWindow(mockWindowManager);
-			fn({studioWindow, studio: mockStudio});
+			fn({ studioWindow, studio: mockStudio });
 		} finally {
 			injectMockStudioInstance(null);
 		}
@@ -37,7 +37,7 @@ Deno.test({
 	name: "Starts a GestureInProgress when resizing",
 	fn() {
 		basicTest({
-			fn({studioWindow, studio}) {
+			fn({ studioWindow, studio }) {
 				let callCount = 0;
 				studio.gestureInProgressManager.onGestureInProgressChange(() => callCount++);
 				assertEquals(callCount, 1);
@@ -67,7 +67,7 @@ Deno.test({
 	name: "Stops current GestureInProgress when destructed",
 	fn() {
 		basicTest({
-			fn({studioWindow, studio}) {
+			fn({ studioWindow, studio }) {
 				studioWindow.resizer.dispatchEvent(new MouseEvent("mousedown"));
 				assertEquals(studio.gestureInProgressManager.gestureInProgress, true);
 

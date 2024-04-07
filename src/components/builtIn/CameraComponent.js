@@ -1,11 +1,11 @@
-import {StorageType} from "../../util/binarySerialization.js";
-import {RenderOutputConfig} from "../../rendering/RenderOutputConfig.js";
-import {ClusteredLightsConfig} from "../../rendering/ClusteredLightsConfig.js";
-import {STUDIO_DEFAULTS_IN_COMPONENTS} from "../../studioDefines.js";
-import {Component} from "../Component.js";
-import {Vec4} from "../../math/Vec4.js";
-import {Mat4} from "../../math/Mat4.js";
-import {getRaycastRayFromScreenPos, screenToWorldPos, worldToScreenPos} from "../../util/cameraUtil.js";
+import { StorageType } from "../../util/binarySerialization.js";
+import { RenderOutputConfig } from "../../rendering/RenderOutputConfig.js";
+import { ClusteredLightsConfig } from "../../rendering/ClusteredLightsConfig.js";
+import { STUDIO_DEFAULTS_IN_COMPONENTS } from "../../engineDefines.js";
+import { Component } from "../Component.js";
+import { Vec4 } from "../../math/Vec4.js";
+import { Mat4 } from "../../math/Mat4.js";
+import { getRaycastRayFromScreenPos, screenToWorldPos, worldToScreenPos } from "../../util/cameraUtil.js";
 
 export class CameraComponent extends Component {
 	static get componentName() {

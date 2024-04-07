@@ -121,8 +121,8 @@ export function parseBindings(shaderSource) {
 	const parsedBindings = [];
 	/** @type {{wlslType: string, mappableValueType: BindingType}[]} */
 	const variableTypes = [
-		{wlslType: "sampler", mappableValueType: "sampler"},
-		{wlslType: "texture_2d", mappableValueType: "texture2d"},
+		{ wlslType: "sampler", mappableValueType: "sampler" },
+		{ wlslType: "texture_2d", mappableValueType: "texture2d" },
 	];
 	for (const varType of variableTypes) {
 		let varRegex = "";

@@ -1,9 +1,9 @@
-import {Mat4} from "../math/Mat4.js";
-import {Quat} from "../math/Quat.js";
-import {Vec3} from "../math/Vec3.js";
-import {Component} from "../components/Component.js";
-import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../studioDefines.js";
-import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
+import { Mat4 } from "../math/Mat4.js";
+import { Quat } from "../math/Quat.js";
+import { Vec3 } from "../math/Vec3.js";
+import { Component } from "../components/Component.js";
+import { ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT } from "../engineDefines.js";
+import { ComponentTypeManager } from "../components/ComponentTypeManager.js";
 
 /**
  * @typedef {object} CreateEntityOptions
@@ -451,17 +451,11 @@ export class Entity {
 	 */
 	_onLocalMatrixChange() {
 		if (this._ignoreLocalMatrixChanges) return;
-		const {pos, rot, scale} = this._localMatrix.decompose();
+		const { pos, rot, scale } = this._localMatrix.decompose();
 		this.pos = pos;
 		this.rot = rot;
 		this.scale = scale;
 		this._localMatrixDirty = false;
-
-		// Mat4.decompose() doesn't extract negative scales correctly right now.
-		// Because of this, it's possible for the world matrix of children not
-		// to get marked as dirty when the scale changes from -1,-1,-1 to 1,1,1 for example.
-		// To fix that, we manually mark them as dirty.
-		this._markWorldMatrixDirty();
 	}
 
 	get worldMatrix() {
@@ -530,7 +524,7 @@ export class Entity {
 	updateWorldPosRotScaleIfDirty() {
 		this.updateWorldMatrixIfDirty();
 		if (!this._worldPosRotScaleDirty) return;
-		const {pos, rot, scale} = this._worldMatrix.decompose();
+		const { pos, rot, scale } = this._worldMatrix.decompose();
 		this._ignoreWorldChanges = true;
 		this._worldPos.set(pos);
 		this._worldRot.set(rot);
@@ -668,7 +662,7 @@ export class Entity {
 	 * @param {number} index
 	 * @param {boolean} keepWorldPosition
 	 */
-	addAtIndex(child, index = -1, keepWorldPosition = false) {
+	addAtIndex(child, index, keepWorldPosition = false) {
 		if (index < 0) {
 			index = this._children.length + index + 1;
 		}
@@ -766,11 +760,10 @@ export class Entity {
 	*traverseDown({
 		filter = null,
 	} = {}) {
+		if (filter && !filter(this)) return;
 		yield this;
 		for (const child of this._children) {
-			if (filter == null || filter(child)) {
-				yield* child.traverseDown({filter});
-			}
+			yield* child.traverseDown({ filter });
 		}
 	}
 
@@ -801,11 +794,10 @@ export class Entity {
 	*traverseUp({
 		filter = null,
 	} = {}) {
+		if (filter && !filter(this)) return;
 		yield this;
 		if (this.parent) {
-			if (filter == null || filter(this.parent)) {
-				yield* this.parent.traverseUp({filter});
-			}
+			yield* this.parent.traverseUp({ filter });
 		}
 	}
 
@@ -839,23 +831,23 @@ export class Entity {
 	 * @param {number[]} indexPath
 	 * @returns {Entity?}
 	 */
-	getEntityByIndicesPath(indexPath, startFrom = 0) {
+	getChildByIndicesPath(indexPath, startFrom = 0) {
 		if (startFrom >= indexPath.length) return this;
 		const index = indexPath[startFrom];
 		if (index < 0 || index > this._children.length) return null;
 		const child = this.children[index];
-		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
+		return child.getChildByIndicesPath(indexPath, startFrom + 1);
 	}
 
 	/**
 	 * Returns an array of numbers that represent the indices that lead to this entity.
-	 * The result will be an array that can essentially be passed to {@linkcode getEntityByIndicesPath} on the root entity,
+	 * The result will be an array that can essentially be passed to {@linkcode getChildByIndicesPath} on the root entity,
 	 * which should then return this entity.
 	 * @param {object} [options]
 	 * @param {Entity} [options.forcedRoot] The root at which the returned array starts,
 	 * when provided the indices array will start at this entity instead of the default root entity.
 	 */
-	getIndicesPath({forcedRoot} = {}) {
+	getIndicesPath({ forcedRoot } = {}) {
 		/** @type {number[]} */
 		const indices = [];
 		for (const child of this.traverseUp()) {
@@ -873,7 +865,7 @@ export class Entity {
 	 * Recursively searches for an entity with the given name and returns it.
 	 * @param {string} name
 	 */
-	getEntityByName(name) {
+	getChildByName(name) {
 		for (const child of this.traverseDown()) {
 			if (child.name == name) return child;
 		}
@@ -888,7 +880,7 @@ export class Entity {
 	 */
 	clone(options = {}) {
 		if (options.cloneChildHook) {
-			const result = options.cloneChildHook({child: this, options});
+			const result = options.cloneChildHook({ child: this, options });
 			if (result === false) {
 				throw new Error("cloneChildHook cannot return false for the root entity.");
 			}
@@ -914,7 +906,7 @@ export class Entity {
 
 		const cloneChildHook = options.cloneChildHook || (() => null);
 		for (const child of this.children) {
-			let clonedChild = cloneChildHook({child, options});
+			let clonedChild = cloneChildHook({ child, options });
 			if (clonedChild === false) continue;
 			if (clonedChild == null || clonedChild == undefined) {
 				// eslint-disable-next-line no-underscore-dangle

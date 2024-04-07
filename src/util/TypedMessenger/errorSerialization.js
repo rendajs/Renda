@@ -109,7 +109,7 @@ export function aggregateErrorDeserialization(error, context) {
  */
 export function errorSerializationHelper(error, hooks) {
 	for (const hook of hooks) {
-		const result = hook(error, {hooks});
+		const result = hook(error, { hooks });
 		if (result) return result;
 	}
 }

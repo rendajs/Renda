@@ -1,9 +1,9 @@
-import {AssetBundleRange} from "./DownloadableAssetBundleRange.js";
-import {SingleInstancePromise} from "../../util/SingleInstancePromise.js";
-import {PromiseWaitHelper} from "../../util/PromiseWaitHelper.js";
-import {streamAsyncIterator} from "../../util/util.js";
-import {binaryToUuid} from "../../util/binarySerialization.js";
-import {AssetBundle} from "./AssetBundle.js";
+import { AssetBundleRange } from "./DownloadableAssetBundleRange.js";
+import { SingleInstancePromise } from "../../util/SingleInstancePromise.js";
+import { PromiseWaitHelper } from "../../util/PromiseWaitHelper.js";
+import { streamAsyncIterator } from "../../util/util.js";
+import { binaryToUuid } from "../../util/binarySerialization.js";
+import { AssetBundle } from "./AssetBundle.js";
 
 /** @typedef {(progress: number) => void} OnProgressCallback */
 
@@ -34,7 +34,7 @@ export class DownloadableAssetBundle extends AssetBundle {
 		/** @private @type {Set<OnProgressCallback>} */
 		this.onProgressCbs = new Set();
 
-		this.downloadInstance = new SingleInstancePromise(async () => await this.downloadLogic(), {once: true});
+		this.downloadInstance = new SingleInstancePromise(async () => await this.downloadLogic(), { once: true });
 		this.headerWait = new PromiseWaitHelper();
 
 		this.downloadBuffer = null;
@@ -102,7 +102,7 @@ export class DownloadableAssetBundle extends AssetBundle {
 					const byteStart = prevAssetByteEnd;
 					const byteEnd = prevAssetByteEnd + assetSize;
 					prevAssetByteEnd = byteEnd;
-					this.assetRanges.set(uuid, new AssetBundleRange({typeUuid, byteStart, byteEnd}));
+					this.assetRanges.set(uuid, new AssetBundleRange({ typeUuid, byteStart, byteEnd }));
 				}
 				this.headerWait.fire();
 			}
@@ -169,6 +169,6 @@ export class DownloadableAssetBundle extends AssetBundle {
 		if (!this.downloadBuffer) throw new Error("Assertion failed, downloadbuffer is null");
 		const buffer = this.downloadBuffer.slice(range.byteStart, range.byteEnd);
 		const type = range.typeUuid;
-		return {buffer, type};
+		return { buffer, type };
 	}
 }

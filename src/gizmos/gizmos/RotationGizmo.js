@@ -1,11 +1,11 @@
-import {Mesh} from "../../core/Mesh.js";
-import {Vec3} from "../../math/Vec3.js";
-import {Entity} from "../../core/Entity.js";
-import {Gizmo} from "./Gizmo.js";
-import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
-import {blueColor, greenColor, hoverColor, redColor} from "./colors.js";
-import {Sphere} from "../../math/shapes/Sphere.js";
-import {Quat} from "../../math/Quat.js";
+import { Mesh } from "../../core/Mesh.js";
+import { Vec3 } from "../../math/Vec3.js";
+import { Entity } from "../../core/Entity.js";
+import { Gizmo } from "./Gizmo.js";
+import { MeshComponent } from "../../components/builtIn/MeshComponent.js";
+import { blueColor, greenColor, hoverColor, redColor } from "./colors.js";
+import { Sphere } from "../../math/shapes/Sphere.js";
+import { Quat } from "../../math/Quat.js";
 
 /**
  * @typedef RotationGizmoDragEvent
@@ -87,7 +87,7 @@ export class RotationGizmo extends Gizmo {
 
 		this.circleMesh.destructor();
 
-		for (const {draggable} of this.createdCircles) {
+		for (const { draggable } of this.createdCircles) {
 			this.gizmoManager.removeDraggable(draggable);
 		}
 	}
@@ -153,7 +153,7 @@ export class RotationGizmo extends Gizmo {
 		draggable.entity.scale.set(raycastScale);
 		const sphere = new Sphere();
 		draggable.addRaycastShape(sphere);
-		draggable.onIsHoveringChange(isHovering => {
+		draggable.onIsHoveringChange((isHovering) => {
 			if (isHovering) {
 				colorInstance.set(hoverColor);
 			} else {
@@ -161,11 +161,11 @@ export class RotationGizmo extends Gizmo {
 			}
 			this.gizmoNeedsRender();
 		});
-		draggable.onDrag(e => {
+		draggable.onDrag((e) => {
 			this.rot.preMultiply(e.worldDelta);
 			this.gizmoNeedsRender();
 			const localDelta = Quat.fromAxisAngle(axis, e.localDelta);
-			this.onDragCbs.forEach(cb => cb({
+			this.onDragCbs.forEach((cb) => cb({
 				localDelta,
 				worldDelta: e.worldDelta,
 			}));

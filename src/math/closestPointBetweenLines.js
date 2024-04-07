@@ -1,4 +1,4 @@
-import {Vec3} from "./Vec3.js";
+import { Vec3 } from "./Vec3.js";
 
 /**
  * Takes two lines and returns a point on the first line that is closest to the second line.

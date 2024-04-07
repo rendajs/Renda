@@ -1,4 +1,4 @@
-import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../studioDefines.js";
+import { ENGINE_ASSETS_LIVE_UPDATES_SUPPORT } from "../engineDefines.js";
 
 /** @typedef {Parameters<import("./AssetLoader.js").AssetLoader["getAsset"]>} GetAssetArgs */
 /** @typedef {(...args: GetAssetArgs) => any} GetEngineAssetHandler */
@@ -93,7 +93,7 @@ export class EngineAssetsManager {
 		if (!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;
 		const cbs = this.watchingAssetCbs.get(uuid);
 		if (cbs) {
-			for (const {cb, options} of cbs) {
+			for (const { cb, options } of cbs) {
 				const asset = await this.getAsset(uuid, /** @type {{}} */ (options));
 				cb(asset);
 			}

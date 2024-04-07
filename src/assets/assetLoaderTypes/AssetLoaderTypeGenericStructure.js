@@ -1,5 +1,5 @@
-import {AssetLoaderType} from "./AssetLoaderType.js";
-import {binaryToObject, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
+import { AssetLoaderType } from "./AssetLoaderType.js";
+import { binaryToObject, binaryToObjectWithAssetLoader } from "../../util/binarySerialization.js";
 
 /**
  * @template {import("../../util/binarySerialization.js").ObjectToBinaryOptions<any>} TSerializationOptions

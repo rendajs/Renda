@@ -1,4 +1,4 @@
-import {MemoryStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { MemoryStudioFileSystem } from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 
 export async function createBasicFs() {
 	const fs = new MemoryStudioFileSystem();

@@ -1,13 +1,13 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, stub} from "std/testing/mock.ts";
-import {NumericGui} from "../../../../../studio/src/ui/NumericGui.js";
-import {runWithDom} from "../../shared/runWithDom.js";
-import {WheelEvent} from "fake-dom/FakeWheelEvent.js";
-import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {FocusEvent} from "fake-dom/FakeFocusEvent.js";
-import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
-import {KeyboardShortcutManager} from "../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js";
-import {createOnChangeEventSpy} from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, stub } from "std/testing/mock.ts";
+import { NumericGui } from "../../../../../studio/src/ui/NumericGui.js";
+import { runWithDom } from "../../shared/runWithDom.js";
+import { WheelEvent } from "fake-dom/FakeWheelEvent.js";
+import { MouseEvent } from "fake-dom/FakeMouseEvent.js";
+import { FocusEvent } from "fake-dom/FakeFocusEvent.js";
+import { injectMockStudioInstance } from "../../../../../studio/src/studioInstance.js";
+import { KeyboardShortcutManager } from "../../../../../studio/src/keyboardShortcuts/KeyboardShortcutManager.js";
+import { createOnChangeEventSpy } from "./shared.js";
 
 /**
  * @typedef NumericGuiTestContext
@@ -22,13 +22,13 @@ function basicTest(fn) {
 		const keyboardShortcutManager = new KeyboardShortcutManager();
 		keyboardShortcutManager.registerCommand("numericGui.incrementAtCaret", {});
 		keyboardShortcutManager.registerCommand("numericGui.decrementAtCaret", {});
-		keyboardShortcutManager.registerCondition("numericGui.hasFocus", {type: "boolean"});
+		keyboardShortcutManager.registerCondition("numericGui.hasFocus", { type: "boolean" });
 		const studio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 			keyboardShortcutManager,
 		});
 		injectMockStudioInstance(studio);
 		try {
-			fn({keyboardShortcutManager});
+			fn({ keyboardShortcutManager });
 		} finally {
 			injectMockStudioInstance(null);
 		}
@@ -42,7 +42,7 @@ Deno.test({
 			const numericGui = new NumericGui();
 			stub(numericGui.el, "blur");
 
-			const wheelEvent = new WheelEvent("wheel", {deltaY: 1});
+			const wheelEvent = new WheelEvent("wheel", { deltaY: 1 });
 			numericGui.el.dispatchEvent(wheelEvent);
 
 			assertEquals(numericGui.el.classList.contains("no-cursor"), true);
@@ -57,7 +57,7 @@ Deno.test({
 			const numericGui = new NumericGui();
 			stub(numericGui.el, "blur");
 
-			const wheelEvent = new WheelEvent("wheel", {deltaY: 1});
+			const wheelEvent = new WheelEvent("wheel", { deltaY: 1 });
 			numericGui.el.dispatchEvent(wheelEvent);
 			const mouseEvent = new MouseEvent("mousemove");
 			numericGui.el.dispatchEvent(mouseEvent);
@@ -70,7 +70,7 @@ Deno.test({
 Deno.test({
 	name: "Focus updates shortcut condition",
 	fn() {
-		basicTest(({keyboardShortcutManager}) => {
+		basicTest(({ keyboardShortcutManager }) => {
 			const condition = keyboardShortcutManager.getCondition("numericGui.hasFocus");
 
 			const numericGui1 = new NumericGui();
@@ -96,7 +96,7 @@ Deno.test({
 Deno.test({
 	name: "Adjusts value using arrow keys",
 	fn() {
-		basicTest(({keyboardShortcutManager}) => {
+		basicTest(({ keyboardShortcutManager }) => {
 			const numericGui = new NumericGui();
 			stub(numericGui.el, "setSelectionRange");
 			const onChangeSpy = createOnChangeEventSpy(numericGui);

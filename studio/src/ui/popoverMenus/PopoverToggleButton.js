@@ -1,4 +1,4 @@
-import {Button} from "../Button.js";
+import { Button } from "../Button.js";
 
 /**
  * @template {import("./Popover.js").Popover} T
@@ -17,7 +17,7 @@ export class PopoverToggleButton extends Button {
 
 		super({
 			...buttonArgs,
-			onClick: ctx => {
+			onClick: (ctx) => {
 				if (!this.#popoverInstance || this.#popoverInstance.destructed) {
 					this.#popoverInstance = onPopoverRequiredCallback();
 					this.#popoverInstance.setPos(this);

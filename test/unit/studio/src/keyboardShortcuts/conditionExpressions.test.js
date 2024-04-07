@@ -1,5 +1,5 @@
-import {assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {parseExpression, verifyExpression} from "../../../../../studio/src/keyboardShortcuts/conditionExpressions.js";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
+import { parseExpression, verifyExpression } from "../../../../../studio/src/keyboardShortcuts/conditionExpressions.js";
 
 /** @type {Object<string, string[] | boolean | null>} */
 const basicConditions = {
@@ -25,7 +25,7 @@ function expressionAstTest(expression, expectedAst, expectedResult, options) {
 		fn() {
 			const ast = parseExpression(expression);
 			assertEquals(ast, expectedAst);
-			const result = verifyExpression(ast, name => {
+			const result = verifyExpression(ast, (name) => {
 				return basicConditions[name] || false;
 			});
 			assertEquals(result, expectedResult);

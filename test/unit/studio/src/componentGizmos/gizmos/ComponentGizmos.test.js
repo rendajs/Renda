@@ -1,6 +1,6 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {ComponentGizmos} from "../../../../../../studio/src/componentGizmos/gizmos/ComponentGizmos.js";
-import {Gizmo} from "../../../../../../src/mod.js";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { ComponentGizmos } from "../../../../../../studio/src/componentGizmos/gizmos/ComponentGizmos.js";
+import { Gizmo } from "../../../../../../src/mod.js";
 
 const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
 const mockComponent = /** @type {import("../../../../../../src/mod.js").Component} */ ({});
@@ -37,7 +37,7 @@ class ExtendedComponentGizmos extends ComponentGizmos {
 Deno.test({
 	name: "creating a ComponentGizmos instance automatically creates the required gizmos",
 	fn() {
-		const {mockGizmoManager, addGizmoCalls} = getMockGizmoManager();
+		const { mockGizmoManager, addGizmoCalls } = getMockGizmoManager();
 		const componentGizmos = new ExtendedComponentGizmos(mockStudio, mockComponent, mockGizmoManager);
 
 		assertEquals(componentGizmos.createdGizmos.length, 1);
@@ -49,7 +49,7 @@ Deno.test({
 Deno.test({
 	name: "destructor removes the created gizmos from the manager",
 	fn() {
-		const {mockGizmoManager, removeGizmoCalls} = getMockGizmoManager();
+		const { mockGizmoManager, removeGizmoCalls } = getMockGizmoManager();
 		const componentGizmos = new ExtendedComponentGizmos(mockStudio, mockComponent, mockGizmoManager);
 
 		componentGizmos.destructor();

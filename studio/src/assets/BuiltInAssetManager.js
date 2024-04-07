@@ -1,9 +1,9 @@
-import {ProjectAsset} from "./ProjectAsset.js";
-import {arrayBufferToBase64, toFormattedJsonString} from "../../../src/mod.js";
-import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
-import {IS_DEV_BUILD} from "../studioDefines.js";
-import {AssetManager} from "./AssetManager.js";
-import {getStudioInstance} from "../studioInstance.js";
+import { ProjectAsset } from "./ProjectAsset.js";
+import { arrayBufferToBase64, toFormattedJsonString } from "../../../src/mod.js";
+import { SingleInstancePromise } from "../../../src/util/SingleInstancePromise.js";
+import { IS_DEV_BUILD } from "../studioDefines.js";
+import { AssetManager } from "./AssetManager.js";
+import { getStudioInstance } from "../studioInstance.js";
 
 /**
  * @typedef {(uuid: import("../../../src/mod.js").UuidString) => any} BuiltInAssetChangeCallback
@@ -49,7 +49,7 @@ export class BuiltInAssetManager {
 				}
 				assetData.isBuiltIn = true;
 				const assetManager = await getStudioInstance().projectManager.getAssetManager();
-				const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(assetManager, projectAssetTypeManager, this, null, {uuid, ...assetData});
+				const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(assetManager, projectAssetTypeManager, this, null, { uuid, ...assetData });
 				if (projectAsset) {
 					projectAsset.onLiveAssetNeedsReplacement(() => {
 						if (!this.onAssetChangeCbs) return;
@@ -75,7 +75,7 @@ export class BuiltInAssetManager {
 	init(devSocket) {
 		if (IS_DEV_BUILD) {
 			this.devSocket = devSocket;
-			devSocket.addListener("builtInAssetChange", data => {
+			devSocket.addListener("builtInAssetChange", (data) => {
 				const asset = this.assets.get(data.uuid);
 				if (asset) {
 					asset.fileChangedExternally();

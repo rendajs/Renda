@@ -1,6 +1,6 @@
-import {TypedMessenger} from "../../../util/TypedMessenger/TypedMessenger.js";
-import {InternalMessageHandler} from "../messageHandlers/InternalMessageHandler.js";
-import {DiscoveryMethod} from "./DiscoveryMethod.js";
+import { TypedMessenger } from "../../../util/TypedMessenger/TypedMessenger.js";
+import { InternalMessageHandler } from "../messageHandlers/InternalMessageHandler.js";
+import { DiscoveryMethod } from "./DiscoveryMethod.js";
 
 /**
  * @fileoverview This DiscoveryMethod allows connecting to other clients within the same browser using a SharedWorker.
@@ -31,7 +31,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 		/** @private */
 		this.destructed = false;
 
-		window.addEventListener("message", e => {
+		window.addEventListener("message", (e) => {
 			if (!e.data) return;
 			if (e.source == this.iframe.contentWindow) {
 				this.iframeMessenger.handleReceivedMessage(e.data);
@@ -39,9 +39,9 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 		});
 
 		/** @private @type {(id: string) => void} */
-		this._resolveClientUuidPromise = id => {};
+		this._resolveClientUuidPromise = (id) => {};
 		/** @private @type {Promise<string>} */
-		this._clientUuidPromise = new Promise(resolve => {
+		this._clientUuidPromise = new Promise((resolve) => {
 			this._resolveClientUuidPromise = resolve;
 		});
 
@@ -61,7 +61,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 		 */
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this._getIframeRequestHandlers());
-		this.iframeMessenger.setSendHandler(async data => {
+		this.iframeMessenger.setSendHandler(async (data) => {
 			await this._waitForIframeLoad();
 			if (!this.iframe.contentWindow) {
 				throw new Error("Failed to send message to internal discovery: iframe is not loaded.");
@@ -77,11 +77,11 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 		 */
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
-		this.workerMessenger.setSendHandler(async data => {
-			await this.iframeMessenger.sendWithOptions.postWorkerMessage({transfer: data.transfer}, data.sendData, data.transfer);
+		this.workerMessenger.setSendHandler(async (data) => {
+			await this.iframeMessenger.sendWithOptions.postWorkerMessage({ transfer: data.transfer }, data.sendData, data.transfer);
 		});
 
-		window.addEventListener("unload", () => {
+		window.addEventListener("beforeunload", () => {
 			this.destructor();
 		});
 	}
@@ -93,13 +93,13 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 		return {
 			inspectorDiscoveryLoaded: () => {
 				this.iframeLoaded = true;
-				this.onIframeLoadCbs.forEach(cb => cb());
+				this.onIframeLoadCbs.forEach((cb) => cb());
 				this.onIframeLoadCbs.clear();
 			},
 			/**
 			 * @param {any} data
 			 */
-			workerToParentWindowMessage: data => {
+			workerToParentWindowMessage: (data) => {
 				this.workerMessenger.handleReceivedMessage(data);
 			},
 		};
@@ -117,26 +117,26 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 			 * @param {import("../DiscoveryManager.js").ConnectionRequestData} connectionRequestData
 			 */
 			addActiveConnection: (otherClientUuid, initiatedByMe, port, connectionRequestData) => {
-				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionRequestData, port, accepted => {
+				this.addActiveConnection(otherClientUuid, initiatedByMe, connectionRequestData, port, (accepted) => {
 					this.workerMessenger.send.connectionRequestPermissionResult(otherClientUuid, accepted);
 				});
 			},
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableConnection[]} connections
 			 */
-			setAvailableConnections: connections => {
+			setAvailableConnections: (connections) => {
 				this.setAvailableConnections(connections);
 			},
 			/**
 			 * @param {import("../DiscoveryManager.js").AvailableConnection} availableConnectionData
 			 */
-			addAvailableConnection: availableConnectionData => {
+			addAvailableConnection: (availableConnectionData) => {
 				this.addAvailableConnection(availableConnectionData);
 			},
 			/**
 			 * @param {import("../../../mod.js").UuidString} clientUuid
 			 */
-			removeAvailableConnection: clientUuid => {
+			removeAvailableConnection: (clientUuid) => {
 				this.removeAvailableConnection(clientUuid);
 			},
 			/**
@@ -172,7 +172,7 @@ export class InternalDiscoveryMethod extends DiscoveryMethod {
 	async _waitForIframeLoad() {
 		if (this.iframeLoaded) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.onIframeLoadCbs.add(r));
+		const promise = new Promise((r) => this.onIframeLoadCbs.add(r));
 		await promise;
 	}
 

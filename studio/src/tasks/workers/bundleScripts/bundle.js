@@ -1,5 +1,5 @@
 import transpiledRollup from "../../../../deps/rollup.browser.js";
-import {resolvePlugin} from "./resolvePlugin.js";
+import { resolvePlugin } from "./resolvePlugin.js";
 import resolveUrlObjects from "../../../../deps/rollup-plugin-resolve-url-objects.js";
 
 const rollup = /** @type {import("rollup")} */ (transpiledRollup);
@@ -21,9 +21,9 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
  * @param {BundleOptions} options
  * @param {import("./mod.js").BundleScriptsMessenger} messenger
  */
-export async function bundle({inputPaths, outputPath, readScriptCallbackId, servicesSource}, messenger) {
+export async function bundle({ inputPaths, outputPath, readScriptCallbackId, servicesSource }, messenger) {
 	/** @type {import("./resolvePlugin.js").GetScriptContentFn} */
-	const getScriptContentFn = async path => {
+	const getScriptContentFn = async (path) => {
 		const result = await messenger.send.getScriptContent(path, readScriptCallbackId);
 		if (result == null) {
 			throw new Error(`Failed to read script ${path}`);
@@ -42,7 +42,7 @@ export async function bundle({inputPaths, outputPath, readScriptCallbackId, serv
 		],
 		preserveEntrySignatures: false,
 	});
-	const {output: rollupOutput} = await bundle.generate({
+	const { output: rollupOutput } = await bundle.generate({
 		format: "esm",
 		sourcemap: true,
 	});

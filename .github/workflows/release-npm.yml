@@ -3,6 +3,12 @@ name: Publish npm
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to assign to the published package'
+        type: string
+        required: true
 
 env:
   # be sure to also update these in other workflows
@@ -13,7 +19,6 @@ permissions: {}
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    environment: publish_npm
     steps:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
@@ -23,7 +28,7 @@ jobs:
           deno-version: ${{ env.DENO_VERSION }}
 
       - name: Build package
-        run: deno task build-npm-package ${{ github.event.release.tag_name }}
+        run: deno task build-npm-package ${{ github.event.release.tag_name }} ${{ inputs.version }}
 
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c

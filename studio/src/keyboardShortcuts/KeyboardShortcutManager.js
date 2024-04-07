@@ -1,5 +1,5 @@
-import {ShortcutCommand} from "./ShortcutCommand.js";
-import {ShortcutCondition} from "./ShortcutCondition.js";
+import { ShortcutCommand } from "./ShortcutCommand.js";
+import { ShortcutCondition } from "./ShortcutCondition.js";
 
 const modifierKeysOrder = ["cmd", "ctrl", "alt", "shift"];
 
@@ -68,10 +68,10 @@ export class KeyboardShortcutManager {
 		/** @type {Map<string, Set<CommandCallback>>} */
 		this.commandListeners = new Map();
 
-		document.body.addEventListener("keydown", e => {
+		document.body.addEventListener("keydown", (e) => {
 			this.onKeyEvent(e, true);
 		});
-		document.body.addEventListener("keyup", e => {
+		document.body.addEventListener("keyup", (e) => {
 			this.onKeyEvent(e, false);
 		});
 	}

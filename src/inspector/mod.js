@@ -1,1 +1,1 @@
-export {InspectorManager} from "./InspectorManager.js";
+export { InspectorManager } from "./InspectorManager.js";

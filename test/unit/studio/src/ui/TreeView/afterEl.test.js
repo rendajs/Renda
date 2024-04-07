@@ -1,30 +1,21 @@
 import "../../../shared/initializeStudio.js";
-import {TreeView} from "../../../../../../studio/src/ui/TreeView.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
-import {FocusEvent} from "fake-dom/FakeFocusEvent.js";
-import {runWithDom} from "../../../shared/runWithDom.js";
-import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
+import { TreeView } from "../../../../../../studio/src/ui/TreeView.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
+import { FocusEvent } from "fake-dom/FakeFocusEvent.js";
+import { runWithDom } from "../../../shared/runWithDom.js";
+import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
+import { ColorizerFilterManager } from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
 
 /**
  * @param {() => void} fn
  */
 function basictest(fn) {
 	runWithDom(() => {
-		const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
-			colorizerFilterManager: {
-				applyFilter(element, cssColor) {
-					element.dataset.currentColorFilter = cssColor;
-				},
-			},
-		});
 		const originalNode = globalThis.Node;
 		globalThis.Node = /** @type {any} */ (HtmlElement);
-		injectMockStudioInstance(mockStudio);
 		try {
 			fn();
 		} finally {
-			injectMockStudioInstance(null);
 			globalThis.Node = originalNode;
 		}
 	});
@@ -61,7 +52,9 @@ Deno.test({
 				for (const iconEl of treeView.afterEl.children) {
 					assertInstanceOf(iconEl, HtmlElement);
 
-					assertEquals(iconEl.dataset.currentColorFilter, cssColor);
+					const filter = ColorizerFilterManager.instance().elementHasFilter(iconEl);
+					const color = filter?.cssColor || "";
+					assertEquals(color, cssColor);
 				}
 			}
 

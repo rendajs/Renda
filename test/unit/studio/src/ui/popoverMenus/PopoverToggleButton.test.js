@@ -1,7 +1,7 @@
-import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
-import {PopoverToggleButton} from "../../../../../../studio/src/ui/popoverMenus/PopoverToggleButton.js";
-import {runWithDom} from "../../../shared/runWithDom.js";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import { assertEquals, assertExists, assertStrictEquals } from "std/testing/asserts.ts";
+import { PopoverToggleButton } from "../../../../../../studio/src/ui/popoverMenus/PopoverToggleButton.js";
+import { runWithDom } from "../../../shared/runWithDom.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 
 function createPopover() {
 	const popover = /** @type {import("../../../../../../studio/src/ui/popoverMenus/Popover.js").Popover} */ ({

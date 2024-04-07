@@ -92,4 +92,4 @@ export function assertIsType(expectedType, actualType) {}
  * @param {string} options.name
  * @param {() => void | Promise<void>} options.fn
  */
-export function testTypes({name, fn}) {}
+export function testTypes({ name, fn }) {}

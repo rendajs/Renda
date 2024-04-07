@@ -1,7 +1,7 @@
-import {assertAlmostEquals, assertEquals} from "std/testing/asserts.ts";
-import {Vec2} from "../../../../../src/mod.js";
-import {basicSetup} from "./shared.js";
-import {ScaleGizmoDraggable} from "../../../../../src/gizmos/draggables/ScaleGizmoDraggable.js";
+import { assertAlmostEquals, assertEquals } from "std/testing/asserts.ts";
+import { Vec2 } from "../../../../../src/mod.js";
+import { basicSetup } from "./shared.js";
+import { ScaleGizmoDraggable } from "../../../../../src/gizmos/draggables/ScaleGizmoDraggable.js";
 
 /**
  * @param {Vec2} screenPosFrom
@@ -9,11 +9,11 @@ import {ScaleGizmoDraggable} from "../../../../../src/gizmos/draggables/ScaleGiz
  * @param {number} expectedDelta
  */
 function movementTest(screenPosFrom, screenPosTo, expectedDelta) {
-	const {mockGizmoManager, mockPointerDevice, mockCamera} = basicSetup();
+	const { mockGizmoManager, mockPointerDevice, mockCamera } = basicSetup();
 	const draggable = new ScaleGizmoDraggable(mockGizmoManager);
 	/** @type {import("../../../../../src/gizmos/draggables/ScaleGizmoDraggable.js").ScaleGizmoDragEvent[]} */
 	const calls = [];
-	draggable.onDrag(event => {
+	draggable.onDrag((event) => {
 		calls.push(event);
 	});
 

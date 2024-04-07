@@ -1,15 +1,21 @@
-import {InternalDiscoveryMethod} from "../../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
-import {assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
-import {initializeIframe} from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
-import {initializeWorker} from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
-import {AssertionError, assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {assertPromiseResolved} from "../../../../shared/asserts.js";
+import { InternalDiscoveryMethod } from "../../../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
+import { assertSpyCalls, mockSessionAsync, spy, stub } from "std/testing/mock.ts";
+import { initializeIframe } from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
+import { initializeWorker } from "../../../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
+import { AssertionError, assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
+import { assertPromiseResolved } from "../../../../../../src/util/asserts.js";
+
+/**
+ * @typedef BasicTestContext
+ * @property {(count: number) => void} assertBeforeUnloadListenerCount
+ * @property {(listenerId: number) => void} fireBeforeUnload
+ */
 
 /**
  * Creates a mocked iframe and SharedWorker with the required functionality for the InternalDiscoveryMethod.
  * @param {object} options
- * @param {() => Promise<void>} options.fn The test function to run
+ * @param {(ctx: BasicTestContext) => Promise<void>} options.fn The test function to run
  * @param {string?} [options.assertIframeSrc] If set, makes an assertion that the iframe
  * src gets set to this value.
  * @param {boolean} [options.emulateStudioParent] Emulates a parent window.
@@ -29,6 +35,9 @@ async function basicSetup({
 	try {
 		/** @type {Window[]} */
 		const initializedIframeWindows = [];
+
+		/** @type {(() => void)[]} */
+		const beforeUnloadListeners = [];
 
 		/** @typedef {(e: MessageEvent) => void} MessageEventListener */
 		/** @type {Set<MessageEventListener>} */
@@ -53,7 +62,7 @@ async function basicSetup({
 				},
 				parent: {
 					postMessage(message, options) {
-						parentMessageEventListeners.forEach(listener => {
+						parentMessageEventListeners.forEach((listener) => {
 							const event = /** @type {MessageEvent} */ ({
 								data: message,
 								source: messageEventSource,
@@ -75,7 +84,7 @@ async function basicSetup({
 				 * @param {any} message
 				 */
 				createMessageEvent(message) {
-					messageListeners.forEach(listener => {
+					messageListeners.forEach((listener) => {
 						const event = new MessageEvent("message", {
 							data: message,
 						});
@@ -115,7 +124,7 @@ async function basicSetup({
 							assertEquals(value, assertIframeSrc);
 						}
 						iframeSrcWasSet = true;
-						const {createMessageEvent} = createIframeWithWindow(contentWindow);
+						const { createMessageEvent } = createIframeWithWindow(contentWindow);
 						createMessageEventFn = createMessageEvent;
 					},
 				});
@@ -152,7 +161,7 @@ async function basicSetup({
 				createdMessagePorts.add(sharedWorkerChannel.port2);
 				this.port = sharedWorkerChannel.port1;
 
-				sharedWorkerConnectCallbacks.forEach(listener => {
+				sharedWorkerConnectCallbacks.forEach((listener) => {
 					const mockEvent = /** @type {MessageEvent} */ ({
 						ports: /** @type {readonly MessagePort[]} */ ([sharedWorkerChannel.port2]),
 					});
@@ -168,15 +177,25 @@ async function basicSetup({
 				const castType = /** @type {string} */ (type);
 				if (type == "message") {
 					parentMessageEventListeners.add(listener);
-				} else if (castType == "unload") {
-					// The Deno test runner fires the unload event after the test is done
-					// ideally we'd write a test for this case but instead I'll just ignore this for now.
+				} else if (castType == "beforeunload") {
+					beforeUnloadListeners.push(/** @type {() => void} */ (listener));
 				} else {
 					originalAddEventListener(...args);
 				}
 			});
 
-			await fn();
+			await fn({
+				fireBeforeUnload(listenerId) {
+					const cb = beforeUnloadListeners[listenerId];
+					if (!cb) {
+						throw new Error("beforeunload listener with the specified id doesn't exist");
+					}
+					cb();
+				},
+				assertBeforeUnloadListenerCount(count) {
+					assertEquals(beforeUnloadListeners.length, count);
+				},
+			});
 
 			if (assertIframeSrc != null && !iframeSrcWasSet) {
 				throw new AssertionError("The test finished and no iframe src has been set");
@@ -187,7 +206,7 @@ async function basicSetup({
 		window.parent = previousParent;
 		globalThis.SharedWorker = previousSharedWorker;
 
-		createdMessagePorts.forEach(p => p.close());
+		createdMessagePorts.forEach((p) => p.close());
 	}
 }
 
@@ -228,7 +247,7 @@ Deno.test({
 				/** @type {(clientId: string) => void} */
 				let resolveStudioClientId = () => {};
 				/** @type {Promise<string>} */
-				const studioClientId = new Promise(resolve => {
+				const studioClientId = new Promise((resolve) => {
 					resolveStudioClientId = resolve;
 				});
 				method2.onAvailableConnectionsChanged(() => {
@@ -380,6 +399,42 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "beforeunload event causes client to get unregistered",
+	async fn() {
+		await basicSetup({
+			async fn({ assertBeforeUnloadListenerCount, fireBeforeUnload }) {
+				const method1 = new InternalDiscoveryMethod("url");
+				const availableChangedSpy = spy();
+				let spyCall = 0;
+				method1.onAvailableConnectionsChanged(availableChangedSpy);
+				await method1.registerClient("inspector");
+
+				assertBeforeUnloadListenerCount(1);
+
+				const method2 = new InternalDiscoveryMethod("url");
+				await method2.registerClient("studio-host");
+
+				assertSpyCalls(availableChangedSpy, ++spyCall);
+				const availableConnections1 = Array.from(method1.availableConnections());
+				assertEquals(availableConnections1.length, 1);
+
+				assertBeforeUnloadListenerCount(2);
+				fireBeforeUnload(1);
+
+				// Wait for message to get sent to service worker
+				await waitForMicrotasks();
+				// Wait for message to be received from service worker
+				await waitForMicrotasks();
+
+				assertSpyCalls(availableChangedSpy, ++spyCall);
+				const availableConnections2 = Array.from(method1.availableConnections());
+				assertEquals(availableConnections2.length, 0);
+			},
+		});
+	},
+});
+
 /** @type {(handler: import("../../../../../../src/network/studioConnections/messageHandlers/InternalMessageHandler.js").InternalMessageHandler) => void} */
 const onCreatedSpySignature = () => {};
 
@@ -432,7 +487,7 @@ Deno.test({
 				assertEquals(handler2.otherClientUuid, method1ClientId);
 				assertEquals(handler2.clientType, "studio-host");
 				assertEquals(handler2.initiatedByMe, false);
-				assertEquals(handler2.connectionRequestData, {token: "token"});
+				assertEquals(handler2.connectionRequestData, { token: "token" });
 				assertEquals(handler2.projectMetadata, {
 					fileSystemHasWritePermissions: true,
 					name: "project name",
@@ -449,16 +504,16 @@ Deno.test({
 				// Ideally we'd use waitForMicrotasks, but since messages are being sent via a MessagePort,
 				// waiting for microtasks doesn't necessarily guarantee that all messages have been sent.
 				/** @type {Promise<void>} */
-				const connectedPromise1 = new Promise(resolve => {
-					handler1.onStatusChange(status => {
+				const connectedPromise1 = new Promise((resolve) => {
+					handler1.onStatusChange((status) => {
 						if (status == "connected") {
 							resolve();
 						}
 					});
 				});
 				/** @type {Promise<void>} */
-				const connectedPromise2 = new Promise(resolve => {
-					handler2.onStatusChange(status => {
+				const connectedPromise2 = new Promise((resolve) => {
+					handler2.onStatusChange((status) => {
 						if (status == "connected") {
 							resolve();
 						}
@@ -533,16 +588,16 @@ Deno.test({
 				// Ideally we'd use waitForMicrotasks, but since messages are being sent via a MessagePort,
 				// waiting for microtasks doesn't necessarily guarantee that all messages have been sent.
 				/** @type {Promise<void>} */
-				const connectedPromise1 = new Promise(resolve => {
-					handler1.onStatusChange(status => {
+				const connectedPromise1 = new Promise((resolve) => {
+					handler1.onStatusChange((status) => {
 						if (status == "outgoing-permission-rejected") {
 							resolve();
 						}
 					});
 				});
 				/** @type {Promise<void>} */
-				const connectedPromise2 = new Promise(resolve => {
-					handler2.onStatusChange(status => {
+				const connectedPromise2 = new Promise((resolve) => {
+					handler2.onStatusChange((status) => {
 						if (status == "connected") {
 							resolve();
 						}

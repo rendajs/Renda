@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {MemoryStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { MemoryStudioFileSystem } from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 
 Deno.test({
 	name: "basic structure",

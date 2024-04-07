@@ -1,6 +1,6 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {IterableWeakSet} from "../../../../src/util/IterableWeakSet.js";
-import {forceCleanup, runWithMockWeakRef} from "../../shared/mockWeakRef.js";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { IterableWeakSet } from "../../../../src/util/IterableWeakSet.js";
+import { forceCleanup, runWithMockWeakRef } from "../../shared/mockWeakRef.js";
 
 Deno.test({
 	name: "Constructing with values and iterating over them",

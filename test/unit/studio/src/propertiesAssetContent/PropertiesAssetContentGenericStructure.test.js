@@ -1,13 +1,13 @@
 import "../../shared/initializeStudio.js";
-import {PropertiesAssetContentGenericStructure} from "../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
-import {runWithDom, runWithDomAsync} from "../../shared/runWithDom.js";
-import {assertTreeViewStructureEquals} from "../../shared/treeViewUtil.js";
-import {assertEquals, assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
-import {PropertiesTreeViewEntry} from "../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
-import {TextGui} from "../../../../../studio/src/ui/TextGui.js";
-import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
+import { PropertiesAssetContentGenericStructure } from "../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
+import { runWithDom, runWithDomAsync } from "../../shared/runWithDom.js";
+import { assertTreeViewStructureEquals } from "../../shared/treeViewUtil.js";
+import { assertEquals, assertInstanceOf, assertThrows } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { createMockProjectAsset } from "../../shared/createMockProjectAsset.js";
+import { PropertiesTreeViewEntry } from "../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
+import { TextGui } from "../../../../../studio/src/ui/TextGui.js";
+import { waitForMicrotasks } from "../../../../../src/util/waitForMicroTasks.js";
 
 const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({});
 
@@ -60,7 +60,7 @@ Deno.test({
 				},
 			}, mockAssetType);
 
-			const {projectAsset: mockAsset} = createMockProjectAsset({
+			const { projectAsset: mockAsset } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					foo: "bar",
 				},

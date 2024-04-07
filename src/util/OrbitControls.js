@@ -1,6 +1,6 @@
-import {Quat} from "../math/Quat.js";
-import {Vec2} from "../math/Vec2.js";
-import {Vec3} from "../math/Vec3.js";
+import { Quat } from "../math/Quat.js";
+import { Vec2 } from "../math/Vec2.js";
+import { Vec3 } from "../math/Vec3.js";
 
 export class OrbitControls {
 	/**
@@ -83,7 +83,7 @@ export class OrbitControls {
 	 */
 	addEventElement(elem) {
 		this._addedEventElements.push(elem);
-		elem.addEventListener("wheel", this._boundOnWheel, {passive: false});
+		elem.addEventListener("wheel", this._boundOnWheel, { passive: false });
 		elem.addEventListener("pointerdown", this._boundOnPointerDown);
 	}
 

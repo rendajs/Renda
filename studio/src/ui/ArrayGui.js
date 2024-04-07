@@ -1,6 +1,6 @@
-import {PropertiesTreeView} from "./propertiesTreeView/PropertiesTreeView.js";
-import {ButtonGroup} from "./ButtonGroup.js";
-import {Button} from "./Button.js";
+import { PropertiesTreeView } from "./propertiesTreeView/PropertiesTreeView.js";
+import { ButtonGroup } from "./ButtonGroup.js";
+import { Button } from "./Button.js";
 
 /**
  * @template {import("./propertiesTreeView/types.ts").GuiTypes} T
@@ -117,7 +117,7 @@ export class ArrayGui {
 			},
 		};
 		const addedItem = this.treeView.addItem(addItemOpts);
-		addedItem.onValueChange(changeEvent => {
+		addedItem.onValueChange((changeEvent) => {
 			this.#fireValueChange(changeEvent.trigger);
 		});
 		if (this.disabled) addedItem.setDisabled(true);
@@ -207,7 +207,7 @@ export class ArrayGui {
 	 * @param {import("./propertiesTreeView/types.ts").ChangeEventTriggerType} trigger
 	 */
 	#fireValueChange(trigger) {
-		this.#onValueChangeCbs.forEach(cb => cb({
+		this.#onValueChangeCbs.forEach((cb) => cb({
 			trigger,
 			value: this.value,
 		}));

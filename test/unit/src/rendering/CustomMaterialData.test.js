@@ -1,7 +1,7 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {CustomMaterialData, Renderer} from "../../../../src/mod.js";
-import {assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {assertIsType, testTypes} from "../../shared/typeAssertions.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { CustomMaterialData, Renderer } from "../../../../src/mod.js";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
+import { assertIsType, testTypes } from "../../shared/typeAssertions.js";
 
 class ExtendedRenderer extends Renderer {
 	_customMaterialDataSignature = /** @type {(num: number, str: string) => string} */ (/** @type {unknown} */ (null));

@@ -1,6 +1,6 @@
-import {StudioWindow} from "./StudioWindow.js";
-import {clamp01, mapValue} from "../../../src/util/mod.js";
-import {getStudioInstance} from "../studioInstance.js";
+import { StudioWindow } from "./StudioWindow.js";
+import { clamp01, mapValue } from "../../../src/util/mod.js";
+import { getStudioInstance } from "../studioInstance.js";
 
 export class SplitStudioWindow extends StudioWindow {
 	/** @type {{stopGesture: () => void}?} */
@@ -107,13 +107,13 @@ export class SplitStudioWindow extends StudioWindow {
 	/**
 	 * @param {MouseEvent} e
 	 */
-	#onResizerMove = e => {
+	#onResizerMove = (e) => {
 		if (!this.resizeStartBounds) return;
 		this.calculateNewPercentage(
 			this.splitHorizontal ? this.resizeStartBounds.top : this.resizeStartBounds.left,
 			this.splitHorizontal ? this.resizeStartBounds.bottom : this.resizeStartBounds.right,
 			this.splitHorizontal ? e.clientY : e.clientX,
-			"user"
+			"user",
 		);
 	};
 
@@ -200,7 +200,7 @@ export class SplitStudioWindow extends StudioWindow {
 		}
 		newWindow.setParent(this);
 		this.updateEls();
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 	}
 
 	/**
@@ -210,6 +210,6 @@ export class SplitStudioWindow extends StudioWindow {
 		super.onResized(trigger);
 		if (this.windowA) this.windowA.onResized(trigger);
 		if (this.windowB) this.windowB.onResized(trigger);
-		this.fireWorkspaceChangeCbs({trigger});
+		this.fireWorkspaceChangeCbs({ trigger });
 	}
 }

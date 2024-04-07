@@ -1,4 +1,4 @@
-import {GPUDevice} from "./GPUDevice.js";
+import { GPUDevice } from "./GPUDevice.js";
 
 export class GPUAdapter {
 	/** @type {GPUDevice[]} */

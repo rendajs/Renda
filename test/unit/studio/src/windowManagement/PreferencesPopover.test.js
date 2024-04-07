@@ -1,12 +1,12 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
-import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
-import {PreferencesPopover} from "../../../../../studio/src/windowManagement/PreferencesPopover.js";
-import {runWithDom} from "../../shared/runWithDom.js";
-import {ContentWindowPreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
-import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
-import {assertTreeViewStructureEquals} from "../../shared/treeViewUtil.js";
-import {PropertiesTreeViewEntry} from "../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { assertInstanceOf, assertThrows } from "std/testing/asserts.ts";
+import { PreferencesManager } from "../../../../../studio/src/preferences/PreferencesManager.js";
+import { PreferencesPopover } from "../../../../../studio/src/windowManagement/PreferencesPopover.js";
+import { runWithDom } from "../../shared/runWithDom.js";
+import { ContentWindowPreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
+import { PreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
+import { assertTreeViewStructureEquals } from "../../shared/treeViewUtil.js";
+import { PropertiesTreeViewEntry } from "../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 
 function getMockPopoverManager() {
 	return /** @type {import("../../../../../studio/src/ui/popoverMenus/PopoverManager.js").PopoverManager} */ ({});
@@ -45,6 +45,10 @@ function getMocks() {
 		guiPrefWithoutOpts: {
 			type: "gui",
 		},
+		enumPref: {
+			type: "enum",
+			enum: ["foo", "bar"],
+		},
 		unknownPref: {
 			type: "unknown",
 		},
@@ -70,16 +74,16 @@ function getMocks() {
 	const contentWindowWorkspaceLocation = new ContentWindowPreferencesLocation("contentwindow-workspace", mockWindowManager, CONTENT_WINDOW_UUID);
 	preferencesManager.addLocation(contentWindowWorkspaceLocation);
 
-	return {popoverManager, preferencesManager};
+	return { popoverManager, preferencesManager };
 }
 
 Deno.test({
 	name: "Is filled with the initialized preference ids",
 	fn() {
-		const {popoverManager, preferencesManager} = getMocks();
+		const { popoverManager, preferencesManager } = getMocks();
 
 		runWithDom(() => {
-			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref", "guiPref", "guiPrefWithCustomLabel", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
+			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref", "guiPref", "guiPrefWithCustomLabel", "enumPref", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
 
 			assertTreeViewStructureEquals(popover.preferencesTreeView, {
 				children: [
@@ -124,6 +128,14 @@ Deno.test({
 						propertiesTooltip: "Default location: Global",
 					},
 					{
+						propertiesLabel: "Enum Pref",
+						isPropertiesEntry: true,
+						propertiesType: "dropdown",
+						propertiesValue: "foo",
+						disabled: false,
+						propertiesTooltip: "Default value: foo\nDefault location: Global\nFinal value: foo",
+					},
+					{
 						propertiesLabel: "Allowed Locations Pref",
 						isPropertiesEntry: true,
 						propertiesType: "string",
@@ -140,7 +152,7 @@ Deno.test({
 Deno.test({
 	name: "Adding a gui pref with missing guiOpts throws",
 	fn() {
-		const {popoverManager, preferencesManager} = getMocks();
+		const { popoverManager, preferencesManager } = getMocks();
 
 		runWithDom(() => {
 			assertThrows(() => {
@@ -153,7 +165,7 @@ Deno.test({
 Deno.test({
 	name: "Changing location updates values",
 	fn() {
-		const {popoverManager, preferencesManager} = getMocks();
+		const { popoverManager, preferencesManager } = getMocks();
 
 		runWithDom(() => {
 			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "numPref", "strPref", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
@@ -202,7 +214,7 @@ Deno.test({
 Deno.test({
 	name: "Values changed via ui are saved",
 	fn() {
-		const {popoverManager, preferencesManager} = getMocks();
+		const { popoverManager, preferencesManager } = getMocks();
 		const setSpy = spy(preferencesManager, "set");
 
 		runWithDom(() => {
@@ -211,7 +223,7 @@ Deno.test({
 
 			assertInstanceOf(numEntry, PropertiesTreeViewEntry);
 			assertSpyCalls(setSpy, 0);
-			numEntry.setValue(123, {trigger: "user"});
+			numEntry.setValue(123, { trigger: "user" });
 			assertSpyCalls(setSpy, 1);
 			assertSpyCall(setSpy, 0, {
 				args: [
@@ -225,7 +237,7 @@ Deno.test({
 			popover.locationDropDown.setValue(1);
 			popover.locationDropDown.el.dispatchEvent(new Event("change"));
 
-			numEntry.setValue(456, {trigger: "user"});
+			numEntry.setValue(456, { trigger: "user" });
 			assertSpyCalls(setSpy, 2);
 			assertSpyCall(setSpy, 1, {
 				args: [
@@ -239,7 +251,7 @@ Deno.test({
 			popover.locationDropDown.setValue(0);
 			popover.locationDropDown.el.dispatchEvent(new Event("change"));
 
-			numEntry.setValue(789, {trigger: "user"});
+			numEntry.setValue(789, { trigger: "user" });
 			assertSpyCalls(setSpy, 3);
 			assertSpyCall(setSpy, 2, {
 				args: [
@@ -256,7 +268,7 @@ Deno.test({
 Deno.test({
 	name: "Throws when a preference with 'unknown' type is added",
 	fn() {
-		const {popoverManager, preferencesManager} = getMocks();
+		const { popoverManager, preferencesManager } = getMocks();
 
 		runWithDom(() => {
 			assertThrows(() => {
@@ -269,7 +281,7 @@ Deno.test({
 Deno.test({
 	name: "Default location tooltip is only shown when default location is selected",
 	fn() {
-		const {popoverManager, preferencesManager} = getMocks();
+		const { popoverManager, preferencesManager } = getMocks();
 
 		runWithDom(() => {
 			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["boolPref", "allowedLocationsPref"], CONTENT_WINDOW_UUID);
@@ -306,7 +318,7 @@ Deno.test({
 Deno.test({
 	name: "Shows modified locations in tooltip",
 	fn() {
-		const {popoverManager, preferencesManager} = getMocks();
+		const { popoverManager, preferencesManager } = getMocks();
 
 		runWithDom(() => {
 			const popover = new PreferencesPopover(popoverManager, preferencesManager, ["numPref"], CONTENT_WINDOW_UUID);
@@ -323,7 +335,7 @@ Final value: 42`,
 				],
 			});
 
-			numEntry.setValue(123, {trigger: "user"});
+			numEntry.setValue(123, { trigger: "user" });
 
 			assertTreeViewStructureEquals(popover.preferencesTreeView, {
 				children: [
@@ -349,7 +361,7 @@ Final value: 123`,
 				],
 			});
 
-			numEntry.setValue(456, {trigger: "user"});
+			numEntry.setValue(456, { trigger: "user" });
 
 			assertTreeViewStructureEquals(popover.preferencesTreeView, {
 				children: [
@@ -374,7 +386,7 @@ Final value: 456`,
 				],
 			});
 
-			numEntry.setValue(789, {trigger: "user"});
+			numEntry.setValue(789, { trigger: "user" });
 
 			assertTreeViewStructureEquals(popover.preferencesTreeView, {
 				children: [

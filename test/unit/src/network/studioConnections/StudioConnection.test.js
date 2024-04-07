@@ -1,7 +1,7 @@
-import {assert, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
-import {StudioConnection} from "../../../../../src/network/studioConnections/StudioConnection.js";
-import {assertSpyCalls} from "std/testing/mock.ts";
-import {ExtendedMessageHandler, connectMessageHandlers} from "./shared.js";
+import { assert, assertEquals, assertInstanceOf, assertRejects } from "std/testing/asserts.ts";
+import { StudioConnection } from "../../../../../src/network/studioConnections/StudioConnection.js";
+import { assertSpyCalls } from "std/testing/mock.ts";
+import { ExtendedMessageHandler, connectMessageHandlers } from "./shared.js";
 
 Deno.test({
 	name: "Exposes properties from the message handler",
@@ -33,17 +33,17 @@ Deno.test({
 Deno.test({
 	name: "Messages are directly passed to the other end when serialization is supported",
 	async fn() {
-		const messageHandlerA = new ExtendedMessageHandler({supportsSerialization: true});
+		const messageHandlerA = new ExtendedMessageHandler({ supportsSerialization: true });
 		new StudioConnection(messageHandlerA, {
 			reliableResponseHandlers: {
 				/**
 				 * @param {number} num
 				 */
-				foo: num => num,
+				foo: (num) => num,
 			},
 		});
 
-		const messageHandlerB = new ExtendedMessageHandler({supportsSerialization: true});
+		const messageHandlerB = new ExtendedMessageHandler({ supportsSerialization: true });
 		const connectionB = new StudioConnection(messageHandlerB, {});
 
 		connectMessageHandlers(messageHandlerA, messageHandlerB);
@@ -67,7 +67,7 @@ Deno.test({
 				/**
 				 * @param {number} num
 				 */
-				foo: num => num,
+				foo: (num) => num,
 			},
 		});
 
@@ -95,10 +95,10 @@ Deno.test({
 				/**
 				 * @param {number} num
 				 */
-				foo: num => num,
+				foo: (num) => num,
 			},
 			requestDeserializers: {
-				foo: buffer => {
+				foo: (buffer) => {
 					const view = new DataView(buffer);
 					return [view.getUint8(0)];
 				},
@@ -111,7 +111,7 @@ Deno.test({
 				/**
 				 * @param {number} num
 				 */
-				foo: num => {
+				foo: (num) => {
 					const buffer = new ArrayBuffer(1);
 					const view = new DataView(buffer);
 					view.setUint8(0, num);
@@ -138,13 +138,13 @@ Deno.test({
 				/**
 				 * @param {number} num
 				 */
-				foo: num => num,
+				foo: (num) => num,
 			},
 			responseSerializers: {
 				/**
 				 * @param {number} num
 				 */
-				foo: num => {
+				foo: (num) => {
 					const buffer = new ArrayBuffer(1);
 					const view = new DataView(buffer);
 					view.setUint8(0, num);
@@ -156,7 +156,7 @@ Deno.test({
 		const messageHandlerB = new ExtendedMessageHandler();
 		const connectionB = new StudioConnection(messageHandlerB, {
 			responseDeserializers: {
-				foo: buffer => {
+				foo: (buffer) => {
 					const view = new DataView(buffer);
 					return view.getUint8(0);
 				},
@@ -181,7 +181,7 @@ Deno.test({
 				/**
 				 * @param {number} num
 				 */
-				foo: num => num,
+				foo: (num) => num,
 			},
 			requestDeserializers: {},
 		});
@@ -201,7 +201,7 @@ Deno.test({
 				/**
 				 * @param {number} num
 				 */
-				foo: num => num,
+				foo: (num) => num,
 			},
 		});
 
@@ -211,7 +211,7 @@ Deno.test({
 				/**
 				 * @param {number} num
 				 */
-				foo: num => {
+				foo: (num) => {
 					const buffer = new ArrayBuffer(1);
 					const view = new DataView(buffer);
 					view.setUint8(0, num);
@@ -237,13 +237,13 @@ Deno.test({
 				/**
 				 * @param {number} num
 				 */
-				foo: num => num,
+				foo: (num) => num,
 			},
 			responseSerializers: {
 				/**
 				 * @param {number} num
 				 */
-				foo: num => {
+				foo: (num) => {
 					const buffer = new ArrayBuffer(1);
 					const view = new DataView(buffer);
 					view.setUint8(0, num);

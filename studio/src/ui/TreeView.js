@@ -1,6 +1,7 @@
-import {getMaybeStudioInstance, getStudioInstance} from "../studioInstance.js";
-import {parseMimeType} from "../util/util.js";
-import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
+import { getMaybeStudioInstance, getStudioInstance } from "../studioInstance.js";
+import { parseMimeType } from "../util/util.js";
+import { clamp, generateUuid, iLerp } from "../../../src/util/mod.js";
+import { ColorizerFilterManager } from "../util/colorizerFilters/ColorizerFilterManager.js";
 
 /**
  * @typedef TreeViewInitData
@@ -434,11 +435,7 @@ export class TreeView {
 		iconEl.classList.add("tree-view-icon");
 		iconEl.style.backgroundImage = `url(${iconUrl})`;
 
-		const colorizerFilterManager = getMaybeStudioInstance()?.colorizerFilterManager;
-		// TreeViews are sometimes used in tests without a mocked colorizerFilterManager
-		if (colorizerFilterManager) {
-			colorizerFilterManager.applyFilter(iconEl, "var(--default-button-text-color)");
-		}
+		ColorizerFilterManager.instance().applyFilter(iconEl, "var(--default-button-text-color)");
 
 		this.addedIcons.push(iconEl);
 		this.afterEl.appendChild(iconEl);
@@ -800,8 +797,8 @@ export class TreeView {
 				}
 			}
 			if (studio) {
-				const {el, x, y} = studio.dragManager.createDragFeedbackText({
-					text: draggingItems.map(item => item.name),
+				const { el, x, y } = studio.dragManager.createDragFeedbackText({
+					text: draggingItems.map((item) => item.name),
 				});
 				this.#currenDragFeedbackText = el;
 				e.dataTransfer.setDragImage(el, x, y);
@@ -880,7 +877,7 @@ export class TreeView {
 					if (!this.#validateDragItemForRearrange(item)) continue;
 
 					const promise = (async () => {
-						const dataId = await new Promise(r => item.getAsString(r));
+						const dataId = await new Promise((r) => item.getAsString(r));
 						const studio = getMaybeStudioInstance();
 						if (!studio) return null;
 						const draggingData = /** @type {TreeViewDraggingData} */ (studio.dragManager.getDraggingData(dataId));
@@ -894,11 +891,11 @@ export class TreeView {
 			if (promises.length <= 0) return;
 
 			const draggingItems = await Promise.all(promises);
-			const flatDraggingItemsNonNull = draggingItems.flat().filter(item => item != null);
+			const flatDraggingItemsNonNull = draggingItems.flat().filter((item) => item != null);
 			const flatDraggingItems = /** @type {TreeView[]} */ (flatDraggingItemsNonNull);
 
-			const oldIndicesPaths = flatDraggingItems.map(item => item.getIndicesPath());
-			const oldTreeViewsPath = flatDraggingItems.map(item => item.getTreeViewsPath());
+			const oldIndicesPaths = flatDraggingItems.map((item) => item.getIndicesPath());
+			const oldTreeViewsPath = flatDraggingItems.map((item) => item.getTreeViewsPath());
 
 			if (dragPosition == "middle") {
 				// Prevent items from moving inside themselves.
@@ -990,8 +987,8 @@ export class TreeView {
 				}
 			}
 
-			const newIndicesPaths = flatDraggingItems.map(item => item.getIndicesPath());
-			const newTreeViewsPath = flatDraggingItems.map(item => item.getTreeViewsPath());
+			const newIndicesPaths = flatDraggingItems.map((item) => item.getIndicesPath());
+			const newTreeViewsPath = flatDraggingItems.map((item) => item.getTreeViewsPath());
 
 			const movedItems = [];
 			for (let i = 0; i < oldIndicesPaths.length; i++) {
@@ -1078,7 +1075,7 @@ export class TreeView {
 		const parsed = parseMimeType(item.type);
 		if (!parsed) return false;
 
-		const {type, subType, parameters} = parsed;
+		const { type, subType, parameters } = parsed;
 		if (type == "text" && subType == "renda") {
 			const root = this.findRoot();
 			const castRoot = /** @type {TreeViewWithDragRoot} */ (root);
@@ -1304,7 +1301,7 @@ export class TreeView {
 					this.updateDataRenameValue();
 				});
 				// use "focusout" instead of "blur" to ensure the "focusout" event bubbles to the root treeview
-				textEl.addEventListener("focusout", e => {
+				textEl.addEventListener("focusout", (e) => {
 					this.#lastTextFocusOutWasFromRow = e.relatedTarget == this.rowEl;
 					if (this.#lastTextFocusOutWasFromRow) {
 						this.#lastTextFocusOutTime = Date.now();
@@ -1385,18 +1382,14 @@ export class TreeView {
 		}
 		if (this.#focusSelectedShortcutCondition) this.#focusSelectedShortcutCondition.setValue(focusSelected);
 
-		const colorizerFilterManager = getMaybeStudioInstance()?.colorizerFilterManager;
-		// TreeViews are sometimes used in tests without a mocked colorizerFilterManager
-		if (colorizerFilterManager) {
-			let color;
-			if (focusSelected) {
-				color = "var(--selected-text-color)";
-			} else {
-				color = "var(--default-button-text-color)";
-			}
-			for (const iconEl of this.addedIcons) {
-				colorizerFilterManager.applyFilter(iconEl, color);
-			}
+		let color;
+		if (focusSelected) {
+			color = "var(--selected-text-color)";
+		} else {
+			color = "var(--default-button-text-color)";
+		}
+		for (const iconEl of this.addedIcons) {
+			ColorizerFilterManager.instance().applyFilter(iconEl, color);
 		}
 	}
 
@@ -1445,7 +1438,7 @@ export class TreeView {
 	 * Event registered on the root when the treeview is selectable.
 	 * @param {FocusEvent} e
 	 */
-	#onFocusIn = e => {
+	#onFocusIn = (e) => {
 		this.#handleFocusWithinChange(e.target);
 	};
 
@@ -1453,7 +1446,7 @@ export class TreeView {
 	 * Event registered on the root when the treeview is selectable.
 	 * @param {FocusEvent} e
 	 */
-	#onFocusOut = e => {
+	#onFocusOut = (e) => {
 		this.#handleFocusWithinChange(e.relatedTarget);
 	};
 
@@ -1660,7 +1653,7 @@ export class TreeView {
 	 * @returns {string[]} List of TreeView names.
 	 */
 	getNamesPath() {
-		return this.getTreeViewsPath().map(treeView => treeView.name);
+		return this.getTreeViewsPath().map((treeView) => treeView.name);
 	}
 
 	/**
@@ -1758,7 +1751,7 @@ export class TreeView {
 		const eventData = {
 			rawEvent: e,
 			target: this,
-			showContextMenu: structure => {
+			showContextMenu: (structure) => {
 				if (eventExpired) {
 					throw new Error("showContextMenu should be called from within the contextmenu event");
 				}

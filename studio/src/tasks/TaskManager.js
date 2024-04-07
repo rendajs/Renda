@@ -1,8 +1,8 @@
-import {ProjectAssetTypeTask} from "../assets/projectAssetType/ProjectAssetTypeTask.js";
-import {getStudioInstance} from "../studioInstance.js";
-import {autoRegisterTaskTypes} from "./autoRegisterTaskTypes.js";
-import {fillEnvironmentVariables} from "./environmentVariables.js";
-import {Task} from "./task/Task.js";
+import { ProjectAssetTypeTask } from "../assets/projectAssetType/ProjectAssetTypeTask.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { autoRegisterTaskTypes } from "./autoRegisterTaskTypes.js";
+import { fillEnvironmentVariables } from "./environmentVariables.js";
+import { Task } from "./task/Task.js";
 
 /**
  * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(path: import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath, assertionOptions: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>>} ReadAssetFromPathSignature
@@ -108,7 +108,7 @@ export class TaskManager {
 		if (!castConstructor.type) {
 			throw new Error("Tried to register task (" + castConstructor.name + ") with no type value, override the static type value in order for this task to function properly.");
 		}
-		if (!castConstructor.type.includes(":") || castConstructor.type.split(":").filter(s => Boolean(s)).length < 2) {
+		if (!castConstructor.type.includes(":") || castConstructor.type.split(":").filter((s) => Boolean(s)).length < 2) {
 			throw new Error("Tried to register task (" + castConstructor.name + ") without a namespace in the type value.");
 		}
 
@@ -200,7 +200,7 @@ export class TaskManager {
 		 * @template {import("../assets/AssetManager.js").AssetAssertionOptions} T
 		 * @param {import("../assets/AssetManager.js").AssetAssertionOptionsToProjectAsset<T>?} asset
 		 */
-		const runDependencyTasksAndRead = async asset => {
+		const runDependencyTasksAndRead = async (asset) => {
 			if (!asset) return null;
 			const taskAsset = this.#touchedTaskAssets.get(asset);
 			if (taskAsset) {
@@ -222,7 +222,7 @@ export class TaskManager {
 			 * @param {T} [assertionOptions]
 			 */
 			async readAssetFromPath(path, assertionOptions) {
-				const asset = await assetManager?.getProjectAssetFromPath(path, {assertionOptions}) || null;
+				const asset = await assetManager?.getProjectAssetFromPath(path, { assertionOptions }) || null;
 				const result = await runDependencyTasksAndRead(asset);
 				return /** @type {import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>} */ (result);
 			},
@@ -236,7 +236,7 @@ export class TaskManager {
 				const result = await runDependencyTasksAndRead(asset);
 				return /** @type {import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>} */ (result);
 			},
-			runDependencyTaskAsset: async uuid => {
+			runDependencyTaskAsset: async (uuid) => {
 				const taskAsset = await assetManager?.getProjectAssetFromUuid(uuid, {
 					assertAssetType: [ProjectAssetTypeTask],
 				});

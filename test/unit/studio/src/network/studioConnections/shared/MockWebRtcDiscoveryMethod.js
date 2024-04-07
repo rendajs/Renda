@@ -1,4 +1,4 @@
-import {ExtendedDiscoveryMethod} from "../../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
+import { ExtendedDiscoveryMethod } from "../../../../../src/network/studioConnections/discoveryMethods/shared/ExtendedDiscoveryMethod.js";
 
 /** @type {Set<WebRtcDiscoveryMethod>} */
 const createdDiscoveryMethods = new Set();
@@ -41,6 +41,6 @@ export class WebRtcDiscoveryMethod extends ExtendedDiscoveryMethod {
 	 */
 	setStatus(status) {
 		this.status = status;
-		this.#onStatusChangeCbs.forEach(cb => cb(status));
+		this.#onStatusChangeCbs.forEach((cb) => cb(status));
 	}
 }

@@ -1,8 +1,8 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {TaskGenerateHtml} from "../../../../../../studio/src/tasks/task/TaskGenerateHtml.js";
-import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
-import {getBasicRunTaskReadAssetOptions} from "./shared.js";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { TaskGenerateHtml } from "../../../../../../studio/src/tasks/task/TaskGenerateHtml.js";
+import { MemoryStudioFileSystem } from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { createMockProjectAsset } from "../../../shared/createMockProjectAsset.js";
+import { getBasicRunTaskReadAssetOptions } from "./shared.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 
@@ -11,7 +11,7 @@ function basicSetup({
 } = {}) {
 	const fileSystem = /** @type {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} */ (new MemoryStudioFileSystem());
 
-	const {projectAsset: mockProjectAsset} = createMockProjectAsset({
+	const { projectAsset: mockProjectAsset } = createMockProjectAsset({
 		readAssetDataReturnValue: "abc$VAR1def$VAR1ghi$VAR2jkl",
 	});
 
@@ -69,7 +69,7 @@ function assertResult(runTaskReturn, htmlContent) {
 Deno.test({
 	name: "Basic task",
 	async fn() {
-		const {task} = basicSetup();
+		const { task } = basicSetup();
 
 		const result = await task.runTask(basicRunTaskOptions);
 		assertResult(result, "abc$VAR1def$VAR1ghi$VAR2jkl");
@@ -79,7 +79,7 @@ Deno.test({
 Deno.test({
 	name: "Some replacements",
 	async fn() {
-		const {task} = basicSetup();
+		const { task } = basicSetup();
 
 		const result = await task.runTask({
 			...basicRunTaskOptions,
@@ -105,7 +105,7 @@ Deno.test({
 Deno.test({
 	name: "Missing find value",
 	async fn() {
-		const {task} = basicSetup();
+		const { task } = basicSetup();
 
 		const result = await task.runTask({
 			...basicRunTaskOptions,
@@ -126,7 +126,7 @@ Deno.test({
 Deno.test({
 	name: "Missing replacement value",
 	async fn() {
-		const {task} = basicSetup();
+		const { task } = basicSetup();
 
 		const result = await task.runTask({
 			...basicRunTaskOptions,
@@ -147,7 +147,7 @@ Deno.test({
 Deno.test({
 	name: "Missing template uuid",
 	async fn() {
-		const {task} = basicSetup();
+		const { task } = basicSetup();
 
 		await assertRejects(async () => {
 			await task.runTask({
@@ -165,7 +165,7 @@ Deno.test({
 Deno.test({
 	name: "Missing template asset",
 	async fn() {
-		const {task} = basicSetup({
+		const { task } = basicSetup({
 			assetExists: false,
 		});
 

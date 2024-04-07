@@ -1,7 +1,7 @@
-import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {stub} from "std/testing/mock.ts";
-import {IndexedDbStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js";
+import { createBasicFs, createFs, forcePendingOperations } from "./shared.js";
+import { assertEquals, assertExists } from "std/testing/asserts.ts";
+import { stub } from "std/testing/mock.ts";
+import { IndexedDbStudioFileSystem } from "../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js";
 
 Deno.test({
 	name: "assertDbExists() should throw after using deleteDb()",
@@ -34,7 +34,7 @@ Deno.test({
 Deno.test({
 	name: "createDir() the same path twice at the same time shouldn't create extra entries",
 	async fn() {
-		const {fs, getEntryCount} = await createBasicFs();
+		const { fs, getEntryCount } = await createBasicFs();
 		const originalEntryCount = getEntryCount();
 		const promise1 = fs.createDir(["root", "created", "dir1"]);
 		const promise2 = fs.createDir(["root", "created", "dir1"]);
@@ -49,7 +49,7 @@ Deno.test({
 Deno.test({
 	name: "Multiple writeFile() calls run in sequence",
 	async fn() {
-		const {fs, getEntryCount} = await createBasicFs({
+		const { fs, getEntryCount } = await createBasicFs({
 			disableStructuredClone: true,
 		});
 		const originalEntryCount = getEntryCount();

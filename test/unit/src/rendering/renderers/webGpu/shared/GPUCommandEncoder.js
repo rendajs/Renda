@@ -1,5 +1,5 @@
-import {GPUComputePassEncoder} from "./GPUComputePassEncoder.js";
-import {GPURenderPassEncoder} from "./GPURenderPassEncoder.js";
+import { GPUComputePassEncoder } from "./GPUComputePassEncoder.js";
+import { GPURenderPassEncoder } from "./GPURenderPassEncoder.js";
 
 export class GPUCommandEncoder {
 	beginRenderPass() {

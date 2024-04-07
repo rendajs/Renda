@@ -1,5 +1,5 @@
-import {Material} from "../../rendering/Material.js";
-import {getGltfTextureData} from "./getTexture.js";
+import { Material } from "../../rendering/Material.js";
+import { getGltfTextureData } from "./getTexture.js";
 
 /** @typedef {(materialId: number | undefined) => Promise<Material>} GetMaterialFn */
 
@@ -90,7 +90,7 @@ export async function getMaterialHelper(jsonData, materialId, materialsCache, {
 	}
 
 	if (hooks.material) {
-		hooks.material({material, materialData, materialId});
+		hooks.material({ material, materialData, materialId });
 	}
 
 	return material;

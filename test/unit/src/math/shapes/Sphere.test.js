@@ -1,6 +1,6 @@
-import {assertEquals, assertExists, assertNotStrictEquals} from "std/testing/asserts.ts";
-import {Sphere, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
-import {assertAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
+import { assertEquals, assertExists, assertNotStrictEquals } from "std/testing/asserts.ts";
+import { Sphere, Vec2, Vec3, Vec4 } from "../../../../../src/mod.js";
+import { assertAlmostEquals, assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "Should be radius 1, pos 0,0,0 by default",

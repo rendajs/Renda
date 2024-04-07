@@ -1,7 +1,7 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {TypedMessenger} from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {assertSpyCalls, stub} from "std/testing/mock.ts";
-import {assertPromiseResolved} from "../../../../shared/asserts.js";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { TypedMessenger } from "../../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { assertSpyCalls, stub } from "std/testing/mock.ts";
+import { assertPromiseResolved } from "../../../../../../src/util/asserts.js";
 
 class FakeWebSocket extends EventTarget {
 	/** @type {FakeWebSocket?} */
@@ -56,7 +56,7 @@ function createLinkedWebSockets({
 		socketB.open();
 	}
 
-	return {socketA, socketB};
+	return { socketA, socketB };
 }
 
 /**
@@ -81,14 +81,14 @@ function createLinkedMessengers(socketA, socketB, handlersA, handlersB) {
 	messengerA.initializeWebSocket(socketA, handlersA);
 	messengerB.initializeWebSocket(socketB, handlersB);
 
-	return {messengerA, messengerB};
+	return { messengerA, messengerB };
 }
 
 Deno.test({
 	name: "initializeWebSocket()",
 	async fn() {
-		const {socketA, socketB} = createLinkedWebSockets();
-		const {messengerB} = createLinkedMessengers(socketA, socketB, {
+		const { socketA, socketB } = createLinkedWebSockets();
+		const { messengerB } = createLinkedMessengers(socketA, socketB, {
 			foo() {
 				return "foo";
 			},
@@ -102,8 +102,8 @@ Deno.test({
 Deno.test({
 	name: "websocket messages aren't sent until the connection is open",
 	async fn() {
-		const {socketA, socketB} = createLinkedWebSockets({open: false});
-		const {messengerB} = createLinkedMessengers(socketA, socketB, {
+		const { socketA, socketB } = createLinkedWebSockets({ open: false });
+		const { messengerB } = createLinkedMessengers(socketA, socketB, {
 			foo() {
 				return "foo";
 			},
@@ -121,8 +121,8 @@ Deno.test({
 Deno.test({
 	name: "sending rejects when the connection gives an error",
 	async fn() {
-		const {socketA, socketB} = createLinkedWebSockets({open: false});
-		const {messengerB} = createLinkedMessengers(socketA, socketB, {
+		const { socketA, socketB } = createLinkedWebSockets({ open: false });
+		const { messengerB } = createLinkedMessengers(socketA, socketB, {
 			foo() {
 				return "foo";
 			},

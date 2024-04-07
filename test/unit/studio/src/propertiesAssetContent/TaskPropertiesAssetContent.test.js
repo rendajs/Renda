@@ -1,13 +1,13 @@
 import "../../shared/initializeStudio.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {PropertiesAssetContentTask, environmentVariablesStructure} from "../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentTask.js";
-import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
-import {createTreeViewStructure} from "../../../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
-import {Task} from "../../../../../studio/src/tasks/task/Task.js";
-import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
-import {PropertiesTreeViewEntry} from "../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
-import {TextGui} from "../../../../../studio/src/ui/TextGui.js";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { PropertiesAssetContentTask, environmentVariablesStructure } from "../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentTask.js";
+import { createMockProjectAsset } from "../../shared/createMockProjectAsset.js";
+import { createTreeViewStructure } from "../../../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
+import { Task } from "../../../../../studio/src/tasks/task/Task.js";
+import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
+import { PropertiesTreeViewEntry } from "../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
+import { TextGui } from "../../../../../studio/src/ui/TextGui.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 
 /**
  * @param {object} options
@@ -75,7 +75,7 @@ function basicSetup({
 		readAssetDataReturnValue.taskConfig = taskConfigAssetData;
 	}
 
-	const {projectAsset: mockProjectAsset} = createMockProjectAsset({
+	const { projectAsset: mockProjectAsset } = createMockProjectAsset({
 		readAssetDataReturnValue,
 	});
 
@@ -92,7 +92,7 @@ Deno.test({
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup({
+			const { assetContent, mockProjectAsset } = basicSetup({
 				useBasicEnvironmentVariables: true,
 			});
 
@@ -118,7 +118,7 @@ Deno.test({
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup({
+			const { assetContent, mockProjectAsset } = basicSetup({
 				environmentVariablesAssetData: {
 					foo: "",
 				},
@@ -146,7 +146,7 @@ Deno.test({
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup({
+			const { assetContent, mockProjectAsset } = basicSetup({
 				useBasicTaskConfig: true,
 			});
 
@@ -168,7 +168,7 @@ Deno.test({
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup();
+			const { assetContent, mockProjectAsset } = basicSetup();
 
 			await assetContent.selectionUpdated([mockProjectAsset]);
 
@@ -191,14 +191,14 @@ Deno.test({
 			class NoConfigTask extends Task {
 				static type = "namespace:noconfigtasktype";
 			}
-			const {assetContent, mockProjectAsset} = basicSetup({
+			const { assetContent, mockProjectAsset } = basicSetup({
 				useBasicTaskConfig: true,
 				extraTaskTypes: [NoConfigTask],
 			});
 
 			await assetContent.selectionUpdated([mockProjectAsset]);
 
-			const {projectAsset: mockProjectAsset2} = createMockProjectAsset({
+			const { projectAsset: mockProjectAsset2 } = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: NoConfigTask.type,
 				},
@@ -228,7 +228,7 @@ Deno.test({
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup({
+			const { assetContent, mockProjectAsset } = basicSetup({
 				useBasicEnvironmentVariables: true,
 			});
 
@@ -265,7 +265,7 @@ Deno.test({
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup({
+			const { assetContent, mockProjectAsset } = basicSetup({
 				useBasicEnvironmentVariables: true,
 			});
 
@@ -332,7 +332,7 @@ Deno.test({
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup({
+			const { assetContent, mockProjectAsset } = basicSetup({
 				useBasicTaskConfig: true,
 			});
 
@@ -364,7 +364,7 @@ Deno.test({
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup({
+			const { assetContent, mockProjectAsset } = basicSetup({
 				useBasicTaskConfig: true,
 			});
 

@@ -1,6 +1,6 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {Mat4, Vec2, Vec3, Vec4} from "../../../../../../../src/mod.js";
-import {WebGpuChunkedBufferGroup} from "../../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBufferGroup.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { Mat4, Vec2, Vec3, Vec4 } from "../../../../../../../src/mod.js";
+import { WebGpuChunkedBufferGroup } from "../../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBufferGroup.js";
 
 /**
  * @param {WebGpuChunkedBufferGroup} group

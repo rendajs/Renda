@@ -1,7 +1,7 @@
-import {assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {Entity, Mat4, Quat, Vec3} from "../../../../../src/mod.js";
-import {assertMatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
+import { assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { Entity, Mat4, Quat, Vec3 } from "../../../../../src/mod.js";
+import { assertMatAlmostEquals, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 // ==== Local transformations ==================================================
 
@@ -240,7 +240,7 @@ Deno.test({
 	name: "setting local matrix via constructor options",
 	fn() {
 		const matrix = Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2), new Vec3(4, 5, 6));
-		const entity = new Entity({localMatrix: matrix});
+		const entity = new Entity({ localMatrix: matrix });
 		assertEquals(entity.localMatrix.toArray(), matrix.toArray());
 		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
 		assertVecAlmostEquals(entity.rot.toAxisAngle(), [Math.PI / 2, 0, 0]);
@@ -356,7 +356,7 @@ Deno.test({
 	name: "setting world matrix via constructor options",
 	fn() {
 		const matrix = Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2), new Vec3(4, 5, 6));
-		const entity = new Entity({worldMatrix: matrix});
+		const entity = new Entity({ worldMatrix: matrix });
 		assertEquals(entity.worldMatrix.toArray(), matrix.toArray());
 		assertVecAlmostEquals(entity.pos, [1, 2, 3]);
 		assertVecAlmostEquals(entity.rot.toAxisAngle(), [Math.PI / 2, 0, 0]);
@@ -371,7 +371,7 @@ Deno.test({
 		parent.pos.set(1, 2, 3);
 
 		const matrix = Mat4.createTranslation(4, 5, 6);
-		const entity = new Entity({worldMatrix: matrix, parent});
+		const entity = new Entity({ worldMatrix: matrix, parent });
 
 		assertVecAlmostEquals(entity.pos, [3, 3, 3]);
 		assertVecAlmostEquals(entity.worldPos, [4, 5, 6]);
@@ -397,7 +397,7 @@ Deno.test({
 		const parent = new Entity();
 		parent.pos.set(1, 2, 3);
 
-		const entity = new Entity({parent});
+		const entity = new Entity({ parent });
 
 		entity.worldMatrix = Mat4.createTranslation(4, 5, 6);
 
@@ -555,6 +555,50 @@ Deno.test({
 });
 
 Deno.test({
+	name: "The local scale and rotation of negatively scaled entities doesn't change when setting the rotation",
+	fn() {
+		const root = new Entity("root");
+		const entity = root.add(new Entity());
+		entity.scale.set(-1, 1, 1);
+		assertMatAlmostEquals(entity.worldMatrix, [-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+
+		// When we rotate the object slightly, the world scale and rot match the local transformation.
+		entity.rot.set(Quat.fromAxisAngle(0, 1, 0, 0.1));
+		assertVecAlmostEquals(entity.worldScale, [-1, 1, 1]);
+		assertQuatAlmostEquals(entity.worldRot, Quat.fromAxisAngle(0, 1, 0, 0.1));
+		assertVecAlmostEquals(entity.scale, [-1, 1, 1]);
+		assertQuatAlmostEquals(entity.rot, Quat.fromAxisAngle(0, 1, 0, 0.1));
+
+		// But when we rotate too far, the worldScale will change.
+		// This is because the worldScale and worldRot get extracted from the world matrix,
+		// which doesn't contain information about which axis the object was scaled on.
+		// The local rotation and scale, however, should never be changed in this case.
+		// The only thing that is allowed to change local position/rotation/scale is when setting
+		// the localMatrix or worldMatrix.
+		entity.rot.set(Quat.fromAxisAngle(0, 1, 0, 2));
+		assertVecAlmostEquals(entity.worldScale, [1, 1, -1]);
+		assertQuatAlmostEquals(entity.worldRot, Quat.fromAxisAngle(0, 1, 0, 2 - Math.PI));
+		assertVecAlmostEquals(entity.scale, [-1, 1, 1]);
+		assertQuatAlmostEquals(entity.rot, Quat.fromAxisAngle(0, 1, 0, 2));
+	},
+});
+
+Deno.test({
+	name: "setting the a local matrix with a negative scale maintains that scale where possible",
+	fn() {
+		const entity = new Entity();
+		entity.localMatrix.set(Mat4.createScale(new Vec3(-1, 1, 1)));
+		assertVecAlmostEquals(entity.scale, [-1, 1, 1]);
+		entity.localMatrix.set(Mat4.createScale(new Vec3(1, -1, 1)));
+		assertVecAlmostEquals(entity.scale, [1, -1, 1]);
+		entity.localMatrix.set(Mat4.createScale(new Vec3(1, 1, -1)));
+		assertVecAlmostEquals(entity.scale, [1, 1, -1]);
+		entity.localMatrix.set(Mat4.createScale(new Vec3(-1, -1, -1)));
+		assertVecAlmostEquals(entity.scale, [-1, -1, -1]);
+	},
+});
+
+Deno.test({
 	name: "compute worldMatrix when entity is added as child",
 	fn() {
 		const parent = new Entity();
@@ -650,25 +694,6 @@ Deno.test({
 
 		childB.worldMatrix.set(new Mat4());
 		assertMatAlmostEquals(childC.worldMatrix, new Mat4());
-	},
-});
-
-Deno.test({
-	name: "setting world matrix affects children when scaling negatively",
-	fn() {
-		// At the time of writing, decomposing negatively scaled matrices means the sign is lost.
-		// So Mat4.createScale(-1, 1, 1) and Mat4.createScale(1, 1, 1) both return a scale of (1,1,1) when calling decompose()
-		// As a result changing the scale of a Entity.worldMatrix doesn't cause the worldmatrices
-		// of children to get marked as dirty.
-		const root = new Entity("root");
-		const childA = root.add(new Entity("A")); // The entity we will be moving up
-		const childB = childA.add(new Entity("B")); // The entity we will reset (i.e. move down again)
-
-		childA.worldMatrix.set(Mat4.createScale(-1, 1, 1));
-		assertMatAlmostEquals(childB.worldMatrix, Mat4.createScale(-1, 1, 1));
-
-		childA.worldMatrix.set(new Mat4());
-		assertMatAlmostEquals(childB.worldMatrix, new Mat4());
 	},
 });
 

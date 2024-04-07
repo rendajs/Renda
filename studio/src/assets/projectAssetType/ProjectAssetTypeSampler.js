@@ -1,6 +1,6 @@
-import {AssetLoaderTypeSampler, addressModeTypes, filterModeTypes} from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeSampler.js";
-import {Sampler} from "../../../../src/rendering/Sampler.js";
-import {ProjectAssetType} from "./ProjectAssetType.js";
+import { AssetLoaderTypeSampler, addressModeTypes, filterModeTypes } from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeSampler.js";
+import { Sampler } from "../../../../src/rendering/Sampler.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
 
 /**
  * @typedef SamplerAssetData

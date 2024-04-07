@@ -1,6 +1,6 @@
-import {assertEquals, assertNotEquals} from "std/testing/asserts.ts";
-import {CameraComponent, Entity, Vec2, Vec3} from "../../../../../src/mod.js";
-import {assertAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
+import { assertEquals, assertNotEquals } from "std/testing/asserts.ts";
+import { CameraComponent, Entity, Vec2, Vec3 } from "../../../../../src/mod.js";
+import { assertAlmostEquals, assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "updateProjectionMatrixIfEnabled, autoUpdateProjectionMatrix is true",
@@ -145,7 +145,7 @@ Deno.test({
 		cam.clipNear = 1;
 		cam.clipFar = 10;
 
-		const {start, dir} = cam.getRaycastRayFromScreenPos(new Vec2(0.75, 0.75));
+		const { start, dir } = cam.getRaycastRayFromScreenPos(new Vec2(0.75, 0.75));
 
 		assertVecAlmostEquals(start, [0.5, 1.5, -1]);
 		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir is not normalized");
@@ -161,7 +161,7 @@ Deno.test({
 		cam.clipNear = 1;
 		cam.clipFar = 10;
 
-		const {start, dir} = cam.getRaycastRayFromScreenPos(new Vec2(0.75, 0.75));
+		const { start, dir } = cam.getRaycastRayFromScreenPos(new Vec2(0.75, 0.75));
 
 		assertVecAlmostEquals(start, [0.5, 0.5, -1], 0.0001);
 		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir is not normalized");

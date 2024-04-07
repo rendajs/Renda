@@ -1,5 +1,5 @@
-import {createFileSystemClientHandlers, createFileSystemHostHandlers, createFileSystemRequestDeserializers, createFileSystemRequestSerializers, createFileSystemResponseDeserializers, createFileSystemResponseSerializers} from "./responseHandlers/fileSystem.js";
-import {createAssetsHandlers} from "./responseHandlers/assets.js";
+import { createFileSystemClientHandlers, createFileSystemHostHandlers, createFileSystemRequestDeserializers, createFileSystemRequestSerializers, createFileSystemResponseDeserializers, createFileSystemResponseSerializers } from "./responseHandlers/fileSystem.js";
+import { createAssetsHandlers } from "./responseHandlers/assets.js";
 
 /** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<ExtractResponseHandlers<typeof createStudioClientHandlers>, ExtractResponseHandlers<typeof createStudioHostHandlers>>} StudioClientHostConnection */
 /** @typedef {import("../../../../src/network/studioConnections/StudioConnection.js").StudioConnection<ExtractResponseHandlers<typeof createStudioHostHandlers>, ExtractResponseHandlers<typeof createStudioClientHandlers>>} StudioHostClientConnection */

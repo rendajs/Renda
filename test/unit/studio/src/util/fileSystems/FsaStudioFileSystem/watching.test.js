@@ -1,7 +1,7 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {registerOnChangeSpy} from "../shared.js";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {createBasicFs} from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { registerOnChangeSpy } from "../shared.js";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { createBasicFs } from "./shared.js";
 
 /**
  * @param  {Parameters<typeof createBasicFs>} args
@@ -12,17 +12,17 @@ async function initListener(...args) {
 
 	await basicFs.fs.updateWatchTreeInstance.waitForFinishIfRunning();
 
-	return {...basicFs, onChangeSpy};
+	return { ...basicFs, onChangeSpy };
 }
 
 Deno.test({
 	name: "No external changes when loading for the first time",
 	fn: async () => {
-		const {fs} = createBasicFs();
+		const { fs } = createBasicFs();
 
 		/** @type {import("../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent[]} */
 		const changeEvents = [];
-		fs.onChange(e => changeEvents.push(e));
+		fs.onChange((e) => changeEvents.push(e));
 		fs.suggestCheckExternalChanges();
 
 		assertEquals(changeEvents.length, 0);
@@ -32,7 +32,7 @@ Deno.test({
 Deno.test({
 	name: "Changed file",
 	fn: async () => {
-		const {fs, fileHandle1, onChangeSpy} = await initListener();
+		const { fs, fileHandle1, onChangeSpy } = await initListener();
 
 		fileHandle1.mockLastModifiedValue(1);
 		fs.suggestCheckExternalChanges();
@@ -55,7 +55,7 @@ Deno.test({
 Deno.test({
 	name: "Removed file",
 	fn: async () => {
-		const {fs, onlyFilesDirHandle, onChangeSpy} = await initListener();
+		const { fs, onlyFilesDirHandle, onChangeSpy } = await initListener();
 
 		onlyFilesDirHandle.removeEntry("subfile1");
 		fs.suggestCheckExternalChanges();
@@ -78,7 +78,7 @@ Deno.test({
 Deno.test({
 	name: "Created file",
 	fn: async () => {
-		const {fs, onlyFilesDirHandle, onChangeSpy} = await initListener();
+		const { fs, onlyFilesDirHandle, onChangeSpy } = await initListener();
 
 		onlyFilesDirHandle.addFakeEntry("file", "newfile");
 		fs.suggestCheckExternalChanges();
@@ -101,7 +101,7 @@ Deno.test({
 Deno.test({
 	name: "Created directory",
 	fn: async () => {
-		const {fs, onlyFilesDirHandle, onChangeSpy} = await initListener();
+		const { fs, onlyFilesDirHandle, onChangeSpy } = await initListener();
 
 		onlyFilesDirHandle.addFakeEntry("directory", "newdir");
 		fs.suggestCheckExternalChanges();
@@ -124,7 +124,7 @@ Deno.test({
 Deno.test({
 	name: "Removed directory",
 	fn: async () => {
-		const {fs, onlyDirsDirHandle, onChangeSpy} = await initListener();
+		const { fs, onlyDirsDirHandle, onChangeSpy } = await initListener();
 
 		onlyDirsDirHandle.removeEntry("subdir1");
 		fs.suggestCheckExternalChanges();
@@ -147,7 +147,7 @@ Deno.test({
 Deno.test({
 	name: "No permission",
 	fn: async () => {
-		const {fs, onlyFilesDirHandle, onChangeSpy} = await initListener(basicFs => {
+		const { fs, onlyFilesDirHandle, onChangeSpy } = await initListener((basicFs) => {
 			basicFs.rootDirHandle.mockPermissionState("denied");
 		});
 
@@ -162,7 +162,7 @@ Deno.test({
 Deno.test({
 	name: "Permission granted after prompt, should not cause change events",
 	fn: async () => {
-		const {fs, fileHandle1, onChangeSpy} = await initListener(basicFs => {
+		const { fs, fileHandle1, onChangeSpy } = await initListener((basicFs) => {
 			basicFs.rootHandle.mockPermissionState("prompt", "granted");
 		});
 
@@ -184,7 +184,7 @@ Deno.test({
 Deno.test({
 	name: "Permission partially granted",
 	fn: async () => {
-		const {fs, onChangeSpy, onlyFilesDirHandle, onlyDirsDirHandle} = await initListener(basicFs => {
+		const { fs, onChangeSpy, onlyFilesDirHandle, onlyDirsDirHandle } = await initListener((basicFs) => {
 			basicFs.onlyDirsDirHandle.mockPermissionState("denied");
 		});
 
@@ -210,7 +210,7 @@ Deno.test({
 Deno.test({
 	name: "Creating files from application shouldn't trigger external change events",
 	fn: async () => {
-		const {fs, onChangeSpy} = await initListener();
+		const { fs, onChangeSpy } = await initListener();
 
 		fs.suggestCheckExternalChanges();
 		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
@@ -237,7 +237,7 @@ Deno.test({
 Deno.test({
 	name: "Getting write file stream shouldn't trigger watch events",
 	fn: async () => {
-		const {fs, onChangeSpy} = await initListener();
+		const { fs, onChangeSpy } = await initListener();
 
 		fs.suggestCheckExternalChanges();
 		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
@@ -254,7 +254,7 @@ Deno.test({
 Deno.test({
 	name: "Creating file in recursive subdirectory from application shouldn't trigger external change events",
 	fn: async () => {
-		const {fs, onChangeSpy} = await initListener();
+		const { fs, onChangeSpy } = await initListener();
 
 		fs.suggestCheckExternalChanges();
 		await fs.updateWatchTreeInstance.waitForFinishIfRunning();

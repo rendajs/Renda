@@ -1,4 +1,4 @@
-import {Mesh} from "../../../../../src/mod.js";
+import { Mesh } from "../../../../../src/mod.js";
 
 export class FakeVertexState {
 	/**
@@ -24,6 +24,7 @@ export const mockVertexStateSingleAttribute = /** @type {import("../../../../../
 		]),
 	},
 ]));
+
 export const mockVertexStateTwoAttributes = /** @type {import("../../../../../src/mod.js").VertexState} */ (new FakeVertexState([
 	{
 		attributes: new Map([
@@ -43,6 +44,38 @@ export const mockVertexStateTwoAttributes = /** @type {import("../../../../../sr
 					offset: 12,
 					format: Mesh.AttributeFormat.FLOAT32,
 					componentCount: 3,
+				},
+			],
+		]),
+	},
+]));
+
+export const mockVertexStateUv = /** @type {import("../../../../../src/mod.js").VertexState} */ (new FakeVertexState([
+	{
+		attributes: new Map([
+			[
+				Mesh.AttributeType.UV1,
+				{
+					attributeType: Mesh.AttributeType.UV1,
+					offset: 0,
+					format: Mesh.AttributeFormat.FLOAT32,
+					componentCount: 2,
+				},
+			],
+		]),
+	},
+]));
+
+export const mockVertexStateColor = /** @type {import("../../../../../src/mod.js").VertexState} */ (new FakeVertexState([
+	{
+		attributes: new Map([
+			[
+				Mesh.AttributeType.COLOR,
+				{
+					attributeType: Mesh.AttributeType.COLOR,
+					offset: 0,
+					format: Mesh.AttributeFormat.FLOAT32,
+					componentCount: 4,
 				},
 			],
 		]),

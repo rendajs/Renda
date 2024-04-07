@@ -1,4 +1,4 @@
-import {AssetBundle} from "../../../../src/mod.js";
+import { AssetBundle } from "../../../../src/mod.js";
 
 export class TestAssetBundle extends AssetBundle {
 	/** @type {Set<import("../../../../src/mod.js").UuidString>} */
@@ -22,7 +22,7 @@ export class TestAssetBundle extends AssetBundle {
 	async waitForAssetAvailable(uuid) {
 		if (this.#availableAssets.has(uuid)) return true;
 		/** @type {Promise<boolean>} */
-		const promise = new Promise(r => {
+		const promise = new Promise((r) => {
 			let cbs = this.onAssetAvailableCbs.get(uuid);
 			if (!cbs) {
 				cbs = new Set();
@@ -45,7 +45,7 @@ export class TestAssetBundle extends AssetBundle {
 		}
 		const cbs = this.onAssetAvailableCbs.get(uuid);
 		if (cbs) {
-			cbs.forEach(cb => cb(available));
+			cbs.forEach((cb) => cb(available));
 		}
 	}
 
@@ -78,6 +78,6 @@ export class TestAssetBundle extends AssetBundle {
 		const type = this.mockAssetTypes.get(uuid);
 		if (!type) return null;
 		const buffer = this.mockAssetBuffers.get(uuid) || new ArrayBuffer(0);
-		return {buffer, type};
+		return { buffer, type };
 	}
 }

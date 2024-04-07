@@ -1,19 +1,19 @@
-import {getMockArgs} from "./shared.js";
-import {ContentWindowDefaultAssetLinks} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowDefaultAssetLinks.js";
-import {runWithDomAsync} from "../../../shared/runWithDom.js";
-import {stub} from "std/testing/mock.ts";
-import {createMockAssetManager} from "../../../shared/createMockAssetManager.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
-import {runWithMockStudioAsync} from "../../../shared/runWithMockStudio.js";
-import {PropertiesTreeViewEntry} from "../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
+import { getMockArgs } from "./shared.js";
+import { ContentWindowDefaultAssetLinks } from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowDefaultAssetLinks.js";
+import { runWithDomAsync } from "../../../shared/runWithDom.js";
+import { stub } from "std/testing/mock.ts";
+import { createMockAssetManager } from "../../../shared/createMockAssetManager.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
+import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
+import { runWithMockStudioAsync } from "../../../shared/runWithMockStudio.js";
+import { PropertiesTreeViewEntry } from "../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 
 function basicSetup() {
-	const {args, mockStudioInstance} = getMockArgs();
+	const { args, mockStudioInstance } = getMockArgs();
 	mockStudioInstance.projectManager = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({});
 	stub(mockStudioInstance.projectManager, "waitForAssetListsLoad");
 
-	const {assetManager} = createMockAssetManager();
+	const { assetManager } = createMockAssetManager();
 	assetManager.defaultAssetLinks = new Map();
 	stub(mockStudioInstance.projectManager, "getAssetManager", async () => assetManager);
 	stub(mockStudioInstance.projectManager, "assertAssetManagerExists", () => assetManager);
@@ -36,7 +36,7 @@ Deno.test({
 	name: "Shows registered default asset links",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const {args, registeredAssetLinks, studio} = basicSetup();
+			const { args, registeredAssetLinks, studio } = basicSetup();
 
 			registeredAssetLinks.add({
 				defaultAssetUuid: "default asset uuid",

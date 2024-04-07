@@ -3,7 +3,7 @@
  * @module
  */
 
-import {Vec3} from "../../math/Vec3.js";
+import { Vec3 } from "../../math/Vec3.js";
 
 export const whiteColor = new Vec3(1, 1, 1);
 export const redColor = new Vec3(1, 0.15, 0.15);

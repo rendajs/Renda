@@ -1,9 +1,9 @@
-import {assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
-import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
-import {ServiceWorkerManager} from "../../../../../studio/src/misc/ServiceWorkerManager.js";
-import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
+import { assertEquals, assertInstanceOf, assertRejects } from "std/testing/asserts.ts";
+import { injectMockStudioInstance } from "../../../../../studio/src/studioInstance.js";
+import { ServiceWorkerManager } from "../../../../../studio/src/misc/ServiceWorkerManager.js";
+import { MemoryStudioFileSystem } from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub } from "std/testing/mock.ts";
 
 const SERVICE_WORKER_CLIENT_ID = "service worker client id";
 
@@ -12,7 +12,7 @@ const SERVICE_WORKER_CLIENT_ID = "service worker client id";
  * @property {import("../../../../../studio/sw.js").TypedMessengerWithTypes} messenger
  * @property {import("std/testing/mock.ts").Spy<import("../../../../../studio/src/tasks/TaskManager.js").TaskManager, [taskType: string, taskConfig: unknown, options?: import("../../../../../studio/src/tasks/TaskManager.js").RunTaskOptions | undefined]>} runTaskSpy
  * @property {() => void} fireControllerChange
- * @property {() => void} fireUnload
+ * @property {() => void} fireBeforeUnload
  * @property {() => void} fireTimeout
  * @property {() => void} createInstallingWorker
  * @property {() => void} promoteInstallingWorker
@@ -76,7 +76,7 @@ async function basicTest({
 		/** @type {Set<() => void>} */
 		const onControllerChangeListeners = new Set();
 		/** @type {Set<() => void>} */
-		const unloadListeners = new Set();
+		const beforeUnloadListeners = new Set();
 		/** @type {Set<() => void>} */
 		const updateFoundListeners = new Set();
 
@@ -100,12 +100,12 @@ async function basicTest({
 		const unregisterClientSpy = spy(handlers, "unregisterClient");
 		const skipWaitingSpy = spy(handlers, "skipWaiting");
 		messenger.setResponseHandlers(handlers);
-		messenger.setSendHandler(data => {
+		messenger.setSendHandler((data) => {
 			const event = /** @type {MessageEvent} */ ({
 				data: data.sendData,
 				source: activeWorker,
 			});
-			onMessageListeners.forEach(listener => listener(event));
+			onMessageListeners.forEach((listener) => listener(event));
 		});
 
 		class MockServiceWorker {
@@ -132,7 +132,7 @@ async function basicTest({
 			}
 
 			fireStateChange() {
-				this.#onStateChangeListeners.forEach(cb => cb());
+				this.#onStateChangeListeners.forEach((cb) => cb());
 			}
 		}
 
@@ -223,8 +223,8 @@ async function basicTest({
 			stub(window, "addEventListener", (...args) => {
 				const [type, listener] = args;
 				const castType = /** @type {string} */ (type);
-				if (castType == "unload") {
-					unloadListeners.add(/** @type {() => void} */ (listener));
+				if (castType == "beforeunload") {
+					beforeUnloadListeners.add(/** @type {() => void} */ (listener));
 				} else {
 					originalAddEventListener(...args);
 				}
@@ -238,10 +238,10 @@ async function basicTest({
 				unregisterClientSpy,
 				skipWaitingSpy,
 				fireControllerChange() {
-					onControllerChangeListeners.forEach(cb => cb());
+					onControllerChangeListeners.forEach((cb) => cb());
 				},
-				fireUnload() {
-					unloadListeners.forEach(cb => cb());
+				fireBeforeUnload() {
+					beforeUnloadListeners.forEach((cb) => cb());
 				},
 				fireTimeout() {
 					if (!setTimeoutCallback) {
@@ -254,7 +254,7 @@ async function basicTest({
 				},
 				createInstallingWorker() {
 					installingWorker = new MockServiceWorker();
-					updateFoundListeners.forEach(cb => cb());
+					updateFoundListeners.forEach((cb) => cb());
 				},
 				promoteInstallingWorker() {
 					if (!installingWorker) {
@@ -274,7 +274,7 @@ async function basicTest({
 				},
 				setUpdatePromisePending(pending) {
 					if (pending) {
-						updatePromise = new Promise(r => {
+						updatePromise = new Promise((r) => {
 							resolveUpdatePromise = r;
 						});
 					} else {
@@ -282,7 +282,7 @@ async function basicTest({
 					}
 				},
 				waitForMicrotasks() {
-					return new Promise(r => originalSetTimeout(r, 0));
+					return new Promise((r) => originalSetTimeout(r, 0));
 				},
 			});
 		})();
@@ -339,7 +339,7 @@ Deno.test({
 				const manager = new ServiceWorkerManager();
 				await manager.init();
 
-				ctx.fireUnload();
+				ctx.fireBeforeUnload();
 				assertSpyCalls(ctx.unregisterClientSpy, 1);
 			},
 		});

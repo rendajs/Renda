@@ -1,14 +1,14 @@
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { assertEquals, assertInstanceOf, assertStrictEquals } from "std/testing/asserts.ts";
 import "../../../shared/initializeStudio.js";
-import {ProjectAssetTypeMaterialMap} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterialMap.js";
-import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
-import {createMockDependencies, getMockRecursionTracker} from "./shared.js";
-import {MaterialMapType} from "../../../../../../src/rendering/MaterialMapType.js";
-import {MaterialMapTypeSerializer} from "../../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
-import {AssetLoaderTypeMaterialMap, MaterialMapTypeLoader, StorageType, Vec2, Vec3, Vec4} from "../../../../../../src/mod.js";
-import {Texture} from "../../../../../../src/core/Texture.js";
-import {Sampler} from "../../../../../../src/rendering/Sampler.js";
+import { ProjectAssetTypeMaterialMap } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterialMap.js";
+import { MaterialMap } from "../../../../../../src/rendering/MaterialMap.js";
+import { createMockDependencies, getMockRecursionTracker } from "./shared.js";
+import { MaterialMapType } from "../../../../../../src/rendering/MaterialMapType.js";
+import { MaterialMapTypeSerializer } from "../../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
+import { AssetLoaderTypeMaterialMap, MaterialMapTypeLoader, StorageType, Vec2, Vec3, Vec4 } from "../../../../../../src/mod.js";
+import { Texture } from "../../../../../../src/core/Texture.js";
+import { Sampler } from "../../../../../../src/rendering/Sampler.js";
 
 const BASIC_MATERIAL_MAP_TYPE_ID = "ab277387-dbf9-4744-874e-bf423e19fdce";
 const BASIC_TEXTURE_UUID = "bedadb6f-b5c8-414e-baef-6cf76a229ce5";
@@ -68,7 +68,7 @@ function basicSetup({
 	extraMappableValues = [],
 	readAssetDataReturnValue = {},
 } = {}) {
-	const {projectAssetTypeArgs, studio, assetManager, projectAsset} = createMockDependencies();
+	const { projectAssetTypeArgs, studio, assetManager, projectAsset } = createMockDependencies();
 
 	class ExtendedMaterialMapType extends MaterialMapType {
 		/**
@@ -91,7 +91,7 @@ function basicSetup({
 		 * @param {any} liveAsset
 		 */
 		static async saveLiveAssetData(context, liveAsset) {
-			return {label: "material map type custom data"};
+			return { label: "material map type custom data" };
 		}
 
 		/**
@@ -186,10 +186,10 @@ function basicSetup({
 Deno.test({
 	name: "getLiveAssetData() with null",
 	async fn() {
-		const {projectAssetType} = basicSetup();
+		const { projectAssetType } = basicSetup();
 		const recursionTracker = getMockRecursionTracker();
 
-		const {liveAsset} = await projectAssetType.getLiveAssetData(null, recursionTracker);
+		const { liveAsset } = await projectAssetType.getLiveAssetData(null, recursionTracker);
 		assertInstanceOf(liveAsset, MaterialMap);
 	},
 });
@@ -197,10 +197,10 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() without maps property",
 	async fn() {
-		const {projectAssetType} = basicSetup();
+		const { projectAssetType } = basicSetup();
 		const recursionTracker = getMockRecursionTracker();
 
-		const {liveAsset} = await projectAssetType.getLiveAssetData({}, recursionTracker);
+		const { liveAsset } = await projectAssetType.getLiveAssetData({}, recursionTracker);
 		assertInstanceOf(liveAsset, MaterialMap);
 	},
 });
@@ -208,11 +208,11 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() with a map without mapped values",
 	async fn() {
-		const {projectAssetType, ExtendedMaterialMapType} = basicSetup();
+		const { projectAssetType, ExtendedMaterialMapType } = basicSetup();
 		const recursionTracker = getMockRecursionTracker();
-		const customData = {label: "material map type custom data"};
+		const customData = { label: "material map type custom data" };
 
-		const {liveAsset} = await projectAssetType.getLiveAssetData({
+		const { liveAsset } = await projectAssetType.getLiveAssetData({
 			maps: [
 				{
 					mapTypeId: BASIC_MATERIAL_MAP_TYPE_ID,
@@ -230,12 +230,12 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData() with a map and mapped values",
 	async fn() {
-		const {projectAssetType, ExtendedMaterialMapType, ExtendedMaterialMapTypeSerializer, assetManager} = basicSetup();
+		const { projectAssetType, ExtendedMaterialMapType, ExtendedMaterialMapTypeSerializer, assetManager } = basicSetup();
 		const recursionTracker = getMockRecursionTracker();
-		const customData = {label: "material map type custom data"};
+		const customData = { label: "material map type custom data" };
 		const textureLiveAsset = new Texture(new Blob());
 		const samplerLiveAsset = new Sampler();
-		stub(assetManager, "getLiveAsset", async uuid => {
+		stub(assetManager, "getLiveAsset", async (uuid) => {
 			if (uuid == BASIC_TEXTURE_UUID) {
 				return textureLiveAsset;
 			} else if (uuid == BASIC_SAMPLER_UUID) {
@@ -246,37 +246,37 @@ Deno.test({
 		stub(ExtendedMaterialMapTypeSerializer, "getMappableValues", async () => {
 			/** @type {import("../../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} */
 			const values = [
-				{name: "num", type: "number"},
-				{name: "vec2", type: "vec2"},
-				{name: "vec3", type: "vec3"},
-				{name: "vec4", type: "vec4"},
-				{name: "enum", type: "enum", enumOptions: ["option1", "option2", "option3"]},
-				{name: "numHidden", type: "number"},
-				{name: "vec2Hidden", type: "vec2"},
-				{name: "vec3Hidden", type: "vec3"},
-				{name: "vec4Hidden", type: "vec4"},
-				{name: "enumHidden", type: "enum", enumOptions: ["option1", "option2", "option3"]},
-				{name: "numWithSetDefault", type: "number"},
-				{name: "vec2withSetDefault", type: "vec2"},
-				{name: "vec3withSetDefault", type: "vec3"},
-				{name: "vec4withSetDefault", type: "vec4"},
-				{name: "enumWithSetDefault", type: "enum", enumOptions: ["option1", "option2", "option3"]},
-				{name: "numWithDefaultDefault", type: "number", defaultValue: 1},
-				{name: "vec2withDefaultDefault", type: "vec2", defaultValue: new Vec2(1, 2)},
-				{name: "vec3withDefaultDefault", type: "vec3", defaultValue: new Vec3(1, 2, 3)},
-				{name: "vec4withDefaultDefault", type: "vec4", defaultValue: new Vec4(1, 2, 3, 4)},
-				{name: "enumWithDefaultDefault", type: "enum", enumOptions: ["option1", "option2", "option3"], defaultValue: "option2"},
-				{name: "numAllDefault", type: "number"},
-				{name: "vec2AllDefault", type: "vec2"},
-				{name: "vec2AllDefaultWithDefaultDefault", type: "vec2", defaultValue: new Vec2(1, 2)},
-				{name: "enumAllDefaultWithDefaultDefault", type: "enum", enumOptions: ["option1", "option2", "option3"], defaultValue: "option2"},
-				{name: "texture2d", type: "texture2d"},
-				{name: "sampler", type: "sampler"},
+				{ name: "num", type: "number" },
+				{ name: "vec2", type: "vec2" },
+				{ name: "vec3", type: "vec3" },
+				{ name: "vec4", type: "vec4" },
+				{ name: "enum", type: "enum", enumOptions: ["option1", "option2", "option3"] },
+				{ name: "numHidden", type: "number" },
+				{ name: "vec2Hidden", type: "vec2" },
+				{ name: "vec3Hidden", type: "vec3" },
+				{ name: "vec4Hidden", type: "vec4" },
+				{ name: "enumHidden", type: "enum", enumOptions: ["option1", "option2", "option3"] },
+				{ name: "numWithSetDefault", type: "number" },
+				{ name: "vec2withSetDefault", type: "vec2" },
+				{ name: "vec3withSetDefault", type: "vec3" },
+				{ name: "vec4withSetDefault", type: "vec4" },
+				{ name: "enumWithSetDefault", type: "enum", enumOptions: ["option1", "option2", "option3"] },
+				{ name: "numWithDefaultDefault", type: "number", defaultValue: 1 },
+				{ name: "vec2withDefaultDefault", type: "vec2", defaultValue: new Vec2(1, 2) },
+				{ name: "vec3withDefaultDefault", type: "vec3", defaultValue: new Vec3(1, 2, 3) },
+				{ name: "vec4withDefaultDefault", type: "vec4", defaultValue: new Vec4(1, 2, 3, 4) },
+				{ name: "enumWithDefaultDefault", type: "enum", enumOptions: ["option1", "option2", "option3"], defaultValue: "option2" },
+				{ name: "numAllDefault", type: "number" },
+				{ name: "vec2AllDefault", type: "vec2" },
+				{ name: "vec2AllDefaultWithDefaultDefault", type: "vec2", defaultValue: new Vec2(1, 2) },
+				{ name: "enumAllDefaultWithDefaultDefault", type: "enum", enumOptions: ["option1", "option2", "option3"], defaultValue: "option2" },
+				{ name: "texture2d", type: "texture2d" },
+				{ name: "sampler", type: "sampler" },
 			];
 			return values;
 		});
 
-		const {liveAsset} = await projectAssetType.getLiveAssetData({
+		const { liveAsset } = await projectAssetType.getLiveAssetData({
 			maps: [
 				{
 					mapTypeId: BASIC_MATERIAL_MAP_TYPE_ID,
@@ -482,7 +482,7 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with null",
 	async fn() {
-		const {projectAssetType} = basicSetup();
+		const { projectAssetType } = basicSetup();
 
 		const assetData = await projectAssetType.saveLiveAssetData(null, null);
 
@@ -493,7 +493,7 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with material map without maps",
 	async fn() {
-		const {projectAssetType} = basicSetup();
+		const { projectAssetType } = basicSetup();
 		const liveAsset = new MaterialMap();
 
 		const assetData = await projectAssetType.saveLiveAssetData(liveAsset, null);
@@ -505,7 +505,7 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with material map with one map",
 	async fn() {
-		const {projectAssetType, ExtendedMaterialMapType, UnregisteredExtendedMaterialMapType} = basicSetup();
+		const { projectAssetType, ExtendedMaterialMapType, UnregisteredExtendedMaterialMapType } = basicSetup();
 		const registeredMapType = new ExtendedMaterialMapType();
 		const unregisteredMapType = new UnregisteredExtendedMaterialMapType();
 		/** @type {import("../../../../../../src/rendering/MaterialMap.js").MaterialMapTypeData[]} */
@@ -519,7 +519,7 @@ Deno.test({
 				mappedValues: {},
 			},
 		];
-		const liveAsset = new MaterialMap({materialMapTypes});
+		const liveAsset = new MaterialMap({ materialMapTypes });
 
 		const assetData = await projectAssetType.saveLiveAssetData(liveAsset, null);
 
@@ -527,7 +527,7 @@ Deno.test({
 			maps: [
 				{
 					mapTypeId: BASIC_MATERIAL_MAP_TYPE_ID,
-					customData: {label: "material map type custom data"},
+					customData: { label: "material map type custom data" },
 				},
 			],
 		});
@@ -539,7 +539,7 @@ Deno.test({
  * @param {typeof MaterialMapTypeLoader} options.ExtendedMaterialMapTypeLoader
  * @param {import("../../../../../../src/mod.js").AssetLoader["getAsset"]} [options.getAssetFn]
  */
-function createBasicMaterialMapLoader({ExtendedMaterialMapTypeLoader, getAssetFn}) {
+function createBasicMaterialMapLoader({ ExtendedMaterialMapTypeLoader, getAssetFn }) {
 	const mockAssetLoader = /** @type {import("../../../../../../src/mod.js").AssetLoader} */ ({
 		getAsset: getAssetFn || (async () => {}),
 	});
@@ -551,7 +551,7 @@ function createBasicMaterialMapLoader({ExtendedMaterialMapTypeLoader, getAssetFn
 Deno.test({
 	name: "createBundledAssetData()",
 	async fn() {
-		const {projectAssetType, studio, assetManager, ExtendedMaterialMapTypeSerializer, ExtendedMaterialMapTypeLoader, MapType} = basicSetup({
+		const { projectAssetType, studio, assetManager, ExtendedMaterialMapTypeSerializer, ExtendedMaterialMapTypeLoader, MapType } = basicSetup({
 			readAssetDataReturnValue: {
 				maps: [
 					{
@@ -594,13 +594,13 @@ Deno.test({
 			args: [
 				studio,
 				assetManager,
-				{foo: "bar"},
+				{ foo: "bar" },
 			],
 		});
 
 		assertInstanceOf(buffer, ArrayBuffer);
 
-		const materialMapLoader = createBasicMaterialMapLoader({ExtendedMaterialMapTypeLoader});
+		const materialMapLoader = createBasicMaterialMapLoader({ ExtendedMaterialMapTypeLoader });
 		const materialMap = await materialMapLoader.parseBuffer(buffer);
 		assertEquals(materialMap.mapTypes.size, 1);
 		const mapTypeInstance = materialMap.getMapTypeInstance(MapType);
@@ -653,7 +653,7 @@ Deno.test({
 		assertEquals(mappedNumProperty, [
 			[
 				MapType,
-				{mappedName: "num", defaultValue: 42, mappedType: "number"},
+				{ mappedName: "num", defaultValue: 42, mappedType: "number" },
 			],
 		]);
 
@@ -661,7 +661,7 @@ Deno.test({
 		assertEquals(mappedV4Property, [
 			[
 				MapType,
-				{mappedName: "v4", defaultValue: new Vec4(1, 2, 3, 4), mappedType: "vec4"},
+				{ mappedName: "v4", defaultValue: new Vec4(1, 2, 3, 4), mappedType: "vec4" },
 			],
 		]);
 
@@ -669,7 +669,7 @@ Deno.test({
 		assertEquals(mappedEnumProperty, [
 			[
 				MapType,
-				{mappedName: "enum", defaultValue: "option3", mappedType: "enum"},
+				{ mappedName: "enum", defaultValue: "option3", mappedType: "enum" },
 			],
 		]);
 	},
@@ -678,7 +678,7 @@ Deno.test({
 Deno.test({
 	name: "Bundled asset data with color texture",
 	async fn() {
-		const {projectAssetType, projectAsset, ExtendedMaterialMapTypeLoader, MapType} = basicSetup({
+		const { projectAssetType, projectAsset, ExtendedMaterialMapTypeLoader, MapType } = basicSetup({
 			mappableValues: [
 				{
 					name: "tex",
@@ -707,7 +707,7 @@ Deno.test({
 		const buffer = await projectAssetType.createBundledAssetData();
 		assertInstanceOf(buffer, ArrayBuffer);
 
-		const materialMapLoader = createBasicMaterialMapLoader({ExtendedMaterialMapTypeLoader});
+		const materialMapLoader = createBasicMaterialMapLoader({ ExtendedMaterialMapTypeLoader });
 		const materialMap = await materialMapLoader.parseBuffer(buffer);
 		const mappedDatas = Array.from(materialMap.getMappedDatasForMapType(MapType));
 		assertEquals(mappedDatas, [
@@ -725,7 +725,7 @@ Deno.test({
 	async fn() {
 		const sampler = new Sampler();
 		const texture = new Texture(new Blob());
-		const {projectAssetType, assetManager, ExtendedMaterialMapTypeLoader, MapType} = basicSetup({
+		const { projectAssetType, assetManager, ExtendedMaterialMapTypeLoader, MapType } = basicSetup({
 			mappableValues: [
 				{
 					name: "samp",
@@ -752,7 +752,7 @@ Deno.test({
 				],
 			},
 		});
-		stub(assetManager, "getLiveAsset", async uuid => {
+		stub(assetManager, "getLiveAsset", async (uuid) => {
 			if (uuid == BASIC_SAMPLER_UUID) {
 				return sampler;
 			} else if (uuid == BASIC_TEXTURE_UUID) {
@@ -795,7 +795,7 @@ Deno.test({
 	name: "getReferencedAssetUuids()",
 	async fn() {
 		const duplicateSampler = new Sampler();
-		const {projectAssetType, ExtendedMaterialMapTypeSerializer} = basicSetup({
+		const { projectAssetType, ExtendedMaterialMapTypeSerializer } = basicSetup({
 			extraMappableValues: [
 				{
 					name: "duplicate",
@@ -841,7 +841,7 @@ Deno.test({
 
 		assertSpyCalls(getReferencedAssetUuidsSpy, 1);
 		assertSpyCall(getReferencedAssetUuidsSpy, 0, {
-			args: [{foo: "bar"}],
+			args: [{ foo: "bar" }],
 		});
 	},
 });
@@ -849,7 +849,7 @@ Deno.test({
 Deno.test({
 	name: "Enum with no options has an empty string as default value",
 	async fn() {
-		const {projectAssetType, ExtendedMaterialMapType} = basicSetup({
+		const { projectAssetType, ExtendedMaterialMapType } = basicSetup({
 			mappableValues: [
 				{
 					name: "enum",
@@ -860,7 +860,7 @@ Deno.test({
 		});
 		const recursionTracker = getMockRecursionTracker();
 
-		const {liveAsset} = await projectAssetType.getLiveAssetData({
+		const { liveAsset } = await projectAssetType.getLiveAssetData({
 			maps: [
 				{
 					mapTypeId: BASIC_MATERIAL_MAP_TYPE_ID,

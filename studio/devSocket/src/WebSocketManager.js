@@ -1,4 +1,4 @@
-import {serve} from "https://deno.land/std@0.127.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.127.0/http/server.ts";
 
 export class WebSocketManager {
 	constructor() {
@@ -13,9 +13,9 @@ export class WebSocketManager {
 	 * @param {number} port
 	 */
 	async startServer(port) {
-		serve(request => {
+		serve((request) => {
 			return this.handleRequest(request);
-		}, {port});
+		}, { port });
 		console.log(`DevSocket listening on port ${port}`);
 	}
 
@@ -23,9 +23,9 @@ export class WebSocketManager {
 	 * @param {Request} request
 	 */
 	handleRequest(request) {
-		const {socket, response} = Deno.upgradeWebSocket(request);
+		const { socket, response } = Deno.upgradeWebSocket(request);
 		this.activeConnections.add(socket);
-		socket.addEventListener("message", e => {
+		socket.addEventListener("message", (e) => {
 			this.handleWebSocketMessage(e);
 		});
 		socket.addEventListener("close", () => {
@@ -39,7 +39,7 @@ export class WebSocketManager {
 	 * @param {any} data
 	 */
 	sendAllConnections(op, data) {
-		const str = JSON.stringify({op, data});
+		const str = JSON.stringify({ op, data });
 		for (const connection of this.activeConnections) {
 			connection.send(str);
 		}

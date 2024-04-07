@@ -1,10 +1,10 @@
-import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import {MaterialMap} from "../../../src/rendering/MaterialMap.js";
-import {MATERIAL_MAP_PERSISTENCE_KEY} from "../assets/projectAssetType/ProjectAssetTypeMaterial.js";
-import {DEFAULT_MATERIAL_MAP_UUID} from "../assets/builtinAssetUuids.js";
-import {Texture} from "../../../src/core/Texture.js";
-import {Sampler} from "../../../src/rendering/Sampler.js";
-import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
+import { PropertiesAssetContent } from "./PropertiesAssetContent.js";
+import { MaterialMap } from "../../../src/rendering/MaterialMap.js";
+import { MATERIAL_MAP_PERSISTENCE_KEY } from "../assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import { DEFAULT_MATERIAL_MAP_UUID } from "../assets/builtinAssetUuids.js";
+import { Texture } from "../../../src/core/Texture.js";
+import { Sampler } from "../../../src/rendering/Sampler.js";
+import { SingleInstancePromise } from "../../../src/util/SingleInstancePromise.js";
 
 /**
  * @typedef {object} MaterialAssetData
@@ -33,14 +33,14 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				defaultValue: DEFAULT_MATERIAL_MAP_UUID,
 			},
 		});
-		this.mapTreeView.onValueChange(async changeEvent => {
+		this.mapTreeView.onValueChange(async (changeEvent) => {
 			if (changeEvent.trigger != "user") return;
 
 			// todo: support multiselect
 			const asset = this.currentSelection[0];
-			const {liveAsset: material} = await asset.getLiveAssetData();
+			const { liveAsset: material } = await asset.getLiveAssetData();
 
-			const mapAsset = this.mapTreeView.getValue({purpose: "script"});
+			const mapAsset = this.mapTreeView.getValue({ purpose: "script" });
 			material.setMaterialMap(mapAsset);
 
 			await this.loadMapValues();
@@ -86,7 +86,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	async saveAsset() {
 		// todo: handle multiple selected items or no selection
 		const asset = this.currentSelection[0];
-		const {liveAsset} = await asset.getLiveAssetData();
+		const { liveAsset } = await asset.getLiveAssetData();
 		if (liveAsset) {
 			await asset.saveLiveAssetData();
 		}
@@ -153,7 +153,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			if (value !== undefined) {
 				entry.setValue(value);
 			}
-			entry.onValueChange(async changeEvent => {
+			entry.onValueChange(async (changeEvent) => {
 				if (changeEvent.trigger != "user") return;
 				const newValue = entry.getValue({
 					purpose: "script",
@@ -163,7 +163,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 
 				// todo: support multiselect
 				const asset = this.currentSelection[0];
-				const {liveAsset: material} = await asset.getLiveAssetData();
+				const { liveAsset: material } = await asset.getLiveAssetData();
 				material.setProperty(valueData.name, newValue);
 
 				this.notifyEntityEditorsMaterialChanged();

@@ -1,7 +1,7 @@
-import {TypedMessenger} from "../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {ProjectAssetTypeJavascript} from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
-import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
-import {Task} from "./Task.js";
+import { TypedMessenger } from "../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { ProjectAssetTypeJavascript } from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
+import { createTreeViewStructure } from "../../ui/propertiesTreeView/createStructureHelpers.js";
+import { Task } from "./Task.js";
 
 /**
  * @typedef TaskBundleScriptsConfig
@@ -62,7 +62,7 @@ export class TaskBundleScripts extends Task {
 	/**
 	 * @param {import("./Task.js").RunTaskOptions<TaskBundleScriptsConfig>} options
 	 */
-	async runTask({config, readAssetFromPath}) {
+	async runTask({ config, readAssetFromPath }) {
 		const entryPoints = config?.entryPoints || [];
 		if (entryPoints.length <= 0) {
 			throw new Error("Failed to run task: no entry points provided");
@@ -75,7 +75,7 @@ export class TaskBundleScripts extends Task {
 		/**
 		 * @param {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
-		const readScriptCallback = async path => {
+		const readScriptCallback = async (path) => {
 			return await readAssetFromPath(path, {
 				assertAssetType: ProjectAssetTypeJavascript,
 			});

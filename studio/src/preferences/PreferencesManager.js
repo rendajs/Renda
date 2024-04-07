@@ -1,11 +1,12 @@
-import {prettifyVariableName} from "../util/util.js";
-import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWindowPreferencesLocation.js";
+import { prettifyVariableName } from "../util/util.js";
+import { ContentWindowPreferencesLocation } from "./preferencesLocation/ContentWindowPreferencesLocation.js";
 
 /**
  * @typedef PreferenceTypesMap
  * @property {boolean} boolean
  * @property {number} number
  * @property {string} string
+ * @property {string} enum
  * @property {unknown} gui
  * @property {unknown} unknown
  */
@@ -13,21 +14,17 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
 /** @typedef {keyof PreferenceTypesMap} PreferenceValueTypes */
 /**
  * @template {PreferenceValueTypes} T
- * @typedef {T extends PreferenceValueTypes ? PreferenceConfigGeneric<T> : never} PreferenceConfigHelper
+ * @typedef {T extends PreferenceValueTypes ? PreferenceConfigGeneric<T, PreferenceTypesMap[T]> : never} PreferenceConfigHelper
  */
 
 /**
- * @template {PreferenceValueTypes} [T = PreferenceValueTypes]
- * @template {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions | null} [TGuiOpts = null]
- * @typedef PreferenceConfigGeneric
- * @property {T} type
+ * @typedef PreferenceConfigBase
  * @property {import("../ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} [guiOpts]
  * @property {string} [uiName] The name of the setting that is shown in UI.
  * When not set, the UI name will be inferred from the setting name:
  * - If the name contains dots, only the characters after the last dot is used.
  * - Camel case will be converted to title case using `prettifyVariableName()`.
  * @property {string} [description] Description that is shown in UI explaining what the setting does.
- * @property {PreferenceTypesMap[T]} [default]
  * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [defaultLocation] The default
  * location where the preference will be stored. This defaults to "global" when not set.
  * When modifying preferences, the user can choose where the modified value should be stored.
@@ -36,7 +33,17 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
  * only the provided locations can be modified for this preference. Any other locations will be greyed out for the user,
  * and trying to set these programmatically will result in an error.
  */
-/** @typedef {PreferenceConfigHelper<PreferenceValueTypes>} PreferenceConfig */
+
+/**
+ * @template {string} T
+ * @template TDefault
+ * @typedef {{type: T, default?: TDefault} & PreferenceConfigBase} PreferenceConfigGeneric
+ */
+
+/**
+ * @typedef {PreferenceConfigGeneric<"enum", string> & {enum: string[]}} EnumPreferenceConfig
+ */
+/** @typedef {PreferenceConfigHelper<Exclude<PreferenceValueTypes, "enum">> | EnumPreferenceConfig} PreferenceConfig */
 
 /**
  * - `"initial"` Events are guaranteed to fire once when you register the event listener for the first time.
@@ -193,13 +200,22 @@ export class PreferencesManager {
 		if (config.allowedLocations) {
 			allowedLocations = Array.from(config.allowedLocations);
 		}
+
 		let guiOpts = null;
 		if (config.type == "gui" && config.guiOpts) {
 			guiOpts = config.guiOpts;
 		}
+
+		/** @type {string[]} */
+		let enumItems = [];
+		if (config.type == "enum") {
+			enumItems = config.enum;
+		}
+
 		return {
 			type: config.type,
 			guiOpts,
+			enumItems,
 			uiName,
 			allowedLocations,
 		};
@@ -232,6 +248,13 @@ export class PreferencesManager {
 			return value || 0;
 		} else if (preferenceConfig.type == "string") {
 			return value || "";
+		} else if (preferenceConfig.type == "enum") {
+			const value = preferenceConfig.default;
+			if (value && preferenceConfig.enum.includes(value)) {
+				return value;
+			} else {
+				return preferenceConfig.enum[0] || "";
+			}
 		} else if (preferenceConfig.type == "unknown" || preferenceConfig.type == "gui") {
 			return value;
 		} else {
@@ -258,7 +281,7 @@ export class PreferencesManager {
 			/**
 			 * @param {string} key
 			 */
-			const onPreferenceLoaded = key => {
+			const onPreferenceLoaded = (key) => {
 				const castKey = /** @type {PreferenceTypes} */ (key);
 				this.#runAndFireEvents({
 					preference: castKey,
@@ -284,7 +307,7 @@ export class PreferencesManager {
 	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation} location
 	 */
 	removeLocation(location) {
-		this.#registeredLocations = this.#registeredLocations.filter(l => l != location);
+		this.#registeredLocations = this.#registeredLocations.filter((l) => l != location);
 		const handler = this.#onPreferenceLoadedHandlers.get(location);
 		if (handler) location.removeOnPreferenceLoaded(handler);
 	}
@@ -312,7 +335,7 @@ export class PreferencesManager {
 	#getLocationAndConfig(preference, locationOptions) {
 		const preferenceConfig = this.#getPreferenceConfig(preference);
 		const locationType = locationOptions?.location || this.#getDefaultLocationFromConfig(preferenceConfig);
-		const location = this.#registeredLocations.find(location => {
+		const location = this.#registeredLocations.find((location) => {
 			if (location.locationType != locationType) return false;
 			if (location instanceof ContentWindowPreferencesLocation) {
 				if (!locationOptions?.contentWindowUuid) return false;
@@ -327,7 +350,7 @@ export class PreferencesManager {
 				throw new Error(`"${locationType}" preference location was not found.`);
 			}
 		}
-		return {location, preferenceConfig};
+		return { location, preferenceConfig };
 	}
 
 	/**
@@ -345,7 +368,7 @@ export class PreferencesManager {
 	 * @param {SetPreferenceOptions} [setPreferenceOptions]
 	 */
 	reset(preference, setPreferenceOptions) {
-		return this.#changeLocationAndFireEvents(preference, setPreferenceOptions, location => {
+		return this.#changeLocationAndFireEvents(preference, setPreferenceOptions, (location) => {
 			location.delete(preference);
 		});
 	}
@@ -389,7 +412,7 @@ export class PreferencesManager {
 	 * @param {(location: import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation, config: PreferenceConfig) => void} cb
 	 */
 	#changeLocationAndFireEvents(preference, setPreferenceOptions, cb) {
-		const {location, preferenceConfig} = this.#getLocationAndConfig(preference, setPreferenceOptions);
+		const { location, preferenceConfig } = this.#getLocationAndConfig(preference, setPreferenceOptions);
 		const trigger = setPreferenceOptions?.performedByUser ? "user" : "application";
 		this.#runAndFireEvents({
 			preference,
@@ -420,20 +443,20 @@ export class PreferencesManager {
 	 * from the first value query. The second value (after the callback) will be queried without any excluded locations
 	 * and will be comapred against the first value query.
 	 */
-	#runAndFireEvents({preference, eventLocationType, eventTrigger, cb, excludeLocations}) {
+	#runAndFireEvents({ preference, eventLocationType, eventTrigger, cb, excludeLocations }) {
 		/** @type {Map<import("../../../src/mod.js").UuidString, unknown>} */
 		const oldLocationValues = new Map();
 
 		for (const uuid of this.#getContentWindowLocationUuids()) {
-			const {value} = this.#getInternal(preference, uuid, {excludeLocations, assertRegistered: false});
+			const { value } = this.#getInternal(preference, uuid, { excludeLocations, assertRegistered: false });
 			oldLocationValues.set(uuid, value);
 		}
-		const {value: oldWindowLessValue} = this.#getInternal(preference, null, {excludeLocations, assertRegistered: false});
+		const { value: oldWindowLessValue } = this.#getInternal(preference, null, { excludeLocations, assertRegistered: false });
 
 		if (cb) cb();
 
 		for (const [uuid, oldValue] of oldLocationValues) {
-			const {value: newValue} = this.#getInternal(preference, uuid, {assertRegistered: false});
+			const { value: newValue } = this.#getInternal(preference, uuid, { assertRegistered: false });
 			if (newValue != oldValue) {
 				this.#fireChangeEvent(preference, uuid, {
 					location: eventLocationType,
@@ -443,7 +466,7 @@ export class PreferencesManager {
 			}
 		}
 
-		const {value: newWindowLessValue} = this.#getInternal(preference, null, {assertRegistered: false});
+		const { value: newWindowLessValue } = this.#getInternal(preference, null, { assertRegistered: false });
 		if (newWindowLessValue != oldWindowLessValue) {
 			this.#fireChangeEvent(preference, null, {
 				location: eventLocationType,
@@ -452,7 +475,7 @@ export class PreferencesManager {
 			});
 		}
 
-		this.#onChangeAnyCallbacks.forEach(cb => {
+		this.#onChangeAnyCallbacks.forEach((cb) => {
 			cb({
 				location: eventLocationType,
 				trigger: eventTrigger,
@@ -477,7 +500,7 @@ export class PreferencesManager {
 	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid
 	 */
 	get(preference, contentWindowUuid) {
-		const {value, foundContentWindowLocation} = this.#getInternal(preference, contentWindowUuid);
+		const { value, foundContentWindowLocation } = this.#getInternal(preference, contentWindowUuid);
 		if (contentWindowUuid && !foundContentWindowLocation) {
 			this.#throwContentWindowUuidNotFound(contentWindowUuid);
 		}
@@ -530,6 +553,9 @@ export class PreferencesManager {
 					} else if (preferenceConfig.type == "string" && typeof locationValue == "string") {
 						value = locationValue;
 						break;
+					} else if (preferenceConfig.type == "enum" && typeof locationValue == "string" && preferenceConfig.enum.includes(locationValue)) {
+						value = locationValue;
+						break;
 					} else if (preferenceConfig.type == "unknown" || preferenceConfig.type == "gui") {
 						value = locationValue;
 						break;
@@ -537,7 +563,7 @@ export class PreferencesManager {
 				}
 			}
 		}
-		return {value, foundContentWindowLocation};
+		return { value, foundContentWindowLocation };
 	}
 
 	/**
@@ -561,7 +587,7 @@ export class PreferencesManager {
 		contentWindowUuid,
 	} = {}) {
 		const preferenceConfig = this.#getPreferenceConfig(preference);
-		const {location} = this.#getLocationAndConfig(preference, {
+		const { location } = this.#getLocationAndConfig(preference, {
 			location: locationName || undefined,
 			contentWindowUuid,
 		});
@@ -668,7 +694,7 @@ export class PreferencesManager {
 
 		const callbacks = contentWindowCallbacks.get(contentWindowUuid);
 		if (!callbacks) return;
-		callbacks.forEach(cb => cb(event));
+		callbacks.forEach((cb) => cb(event));
 	}
 }
 

@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {bufferToHex, hashBuffer} from "../../../../src/util/bufferUtil.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { bufferToHex, hashBuffer } from "../../../../src/util/bufferUtil.js";
 
 Deno.test({
 	name: "bufferToHex",
@@ -27,7 +27,7 @@ Deno.test({
 		/** @type {{algorithm: AlgorithmIdentifier, bufferLength: number}[]} */
 		const digestCalls = [];
 		crypto.subtle.digest = async (algorithm, buffer) => {
-			digestCalls.push({algorithm, bufferLength: buffer.byteLength});
+			digestCalls.push({ algorithm, bufferLength: buffer.byteLength });
 			const castBuffer = /** @type {Uint8Array} */ (buffer);
 			return castBuffer.buffer;
 		};
@@ -36,9 +36,9 @@ Deno.test({
 			const result2 = await hashBuffer(new Uint8Array([0, 1, 2]), "SHA-256");
 			const result3 = await hashBuffer(new Uint8Array([1, 2, 3]), "SHA-512");
 			assertEquals(digestCalls, [
-				{algorithm: "SHA-256", bufferLength: 2},
-				{algorithm: "SHA-256", bufferLength: 3},
-				{algorithm: "SHA-512", bufferLength: 3},
+				{ algorithm: "SHA-256", bufferLength: 2 },
+				{ algorithm: "SHA-256", bufferLength: 3 },
+				{ algorithm: "SHA-512", bufferLength: 3 },
 			]);
 			assertEquals(result1, "0001");
 			assertEquals(result2, "000102");

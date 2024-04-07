@@ -1,9 +1,9 @@
-import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
-import {StorageType} from "../../../../src/util/binarySerialization.js";
-import {WebGpuPipelineConfig} from "../../../../src/mod.js";
-import {WebGpuMaterialMapType} from "../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
-import {ProjectAssetTypeWebGpuPipelineConfig} from "../projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
-import {parseBindings, parseMaterialUniforms} from "../../../../src/util/wgslParsing.js";
+import { MaterialMapTypeSerializer } from "./MaterialMapTypeSerializer.js";
+import { StorageType } from "../../../../src/util/binarySerialization.js";
+import { WebGpuPipelineConfig } from "../../../../src/mod.js";
+import { WebGpuMaterialMapType } from "../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
+import { ProjectAssetTypeWebGpuPipelineConfig } from "../projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
+import { parseBindings, parseMaterialUniforms } from "../../../../src/util/wgslParsing.js";
 
 const FORWARD_PIPELINE_CONFIG_PERSISTENCE_KEY = "webgpumaptype.forwardpipelineconfig";
 
@@ -65,7 +65,7 @@ export class MaterialMapTypeSerializerWebGpu extends MaterialMapTypeSerializer {
 		if (!shader) return;
 
 		const materialUniforms = parseMaterialUniforms(shader.source);
-		for (const {identifier, type} of materialUniforms) {
+		for (const { identifier, type } of materialUniforms) {
 			/** @type {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum} */
 			let newType;
 			if (type == "unknown") {
@@ -79,7 +79,7 @@ export class MaterialMapTypeSerializerWebGpu extends MaterialMapTypeSerializer {
 			});
 		}
 
-		for (const {identifier, type, group} of parseBindings(shader.source)) {
+		for (const { identifier, type, group } of parseBindings(shader.source)) {
 			if (group != 1) continue;
 			mappableValues.set(identifier, {
 				name: identifier,
@@ -108,7 +108,7 @@ export class MaterialMapTypeSerializerWebGpu extends MaterialMapTypeSerializer {
 				forwardPipelineConfig = await forwardPipelineConfigAsset.getLiveAsset();
 			}
 		}
-		return new WebGpuMaterialMapType({forwardPipelineConfig});
+		return new WebGpuMaterialMapType({ forwardPipelineConfig });
 	}
 
 	/**

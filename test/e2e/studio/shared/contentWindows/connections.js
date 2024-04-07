@@ -1,7 +1,7 @@
-import {ElementHandle} from "puppeteer";
-import {click} from "../../../shared/util.js";
-import {getContentWindowElement, waitForContentWindowElement} from "../contentWindows.js";
-import {log} from "../../../shared/log.js";
+import { ElementHandle } from "puppeteer";
+import { click } from "../../../shared/util.js";
+import { getContentWindowElement, waitForContentWindowElement } from "../contentWindows.js";
+import { log } from "../../../shared/log.js";
 
 /**
  * Gets a reference to the first available ContentWindowConnections instance.

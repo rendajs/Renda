@@ -1,11 +1,10 @@
-import {assertAlmostEquals, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
-import {CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID, CameraComponent, ClusteredLightsConfig, CustomMaterialData, Entity, Mat4, Material, MaterialMap, Mesh, MeshComponent, RenderOutputConfig, ShaderSource, VertexState, WebGpuMaterialMapType, WebGpuPipelineConfig, WebGpuRenderer, createCube} from "../../../../../../src/mod.js";
-import {WebGpuChunkedBufferGroup} from "../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBufferGroup.js";
-import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
-import {getInstalledMockGpu, runWithWebGpuAsync} from "./shared/WebGpuApi.js";
-import {WebGpuRendererError} from "../../../../../../src/rendering/renderers/webGpu/WebGpuRendererError.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertMatAlmostEquals} from "../../../../shared/asserts.js";
+import { assertAlmostEquals, assertEquals, assertInstanceOf, assertRejects } from "std/testing/asserts.ts";
+import { CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID, CameraComponent, ClusteredLightsConfig, CustomMaterialData, Entity, Mat4, Material, MaterialMap, Mesh, MeshComponent, RenderOutputConfig, ShaderSource, VertexState, WebGpuMaterialMapType, WebGpuPipelineConfig, WebGpuRenderer, assertMatAlmostEquals, createCube } from "../../../../../../src/mod.js";
+import { WebGpuChunkedBufferGroup } from "../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBufferGroup.js";
+import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
+import { getInstalledMockGpu, runWithWebGpuAsync } from "./shared/WebGpuApi.js";
+import { WebGpuRendererError } from "../../../../../../src/rendering/renderers/webGpu/WebGpuRendererError.js";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
 
 function createMockEngineAssetsManager() {
 	return /** @type {import("../../../../../../src/mod.js").EngineAssetsManager} */ ({
@@ -32,7 +31,7 @@ function createMockDomTarget() {
 						view: /** @type {GPUTextureView} */ ({}),
 						resolveTarget: /** @type {GPUTextureView} */ ({}),
 						loadOp: "clear",
-						clearValue: {r: 0, g: 0, b: 0, a: 1},
+						clearValue: { r: 0, g: 0, b: 0, a: 1 },
 						storeOp: "store",
 					},
 				]),
@@ -45,7 +44,7 @@ function createCam() {
 	const cam = new Entity();
 	const camComponent = cam.addComponent(CameraComponent);
 	camComponent.clusteredLightsConfig = new ClusteredLightsConfig();
-	return {camComponent, cam};
+	return { camComponent, cam };
 }
 
 function createVertexState() {
@@ -96,7 +95,7 @@ function createMaterial() {
 		],
 	});
 	material.setMaterialMap(materialMap);
-	return {material};
+	return { material };
 }
 
 /**
@@ -117,7 +116,7 @@ testTypes({
 		const engineAssetsManager = createMockEngineAssetsManager();
 		const renderer = new WebGpuRenderer(engineAssetsManager);
 		const customData = new CustomMaterialData();
-		customData.registerCallback(renderer, group => {
+		customData.registerCallback(renderer, (group) => {
 			// Verify that the type is a string and nothing else
 			const realGroup = new WebGpuChunkedBufferGroup();
 			assertIsType(realGroup, group);
@@ -155,7 +154,7 @@ Deno.test({
 			const writeBufferSpy = spy(device.queue, "writeBuffer");
 
 			const domTarget = createMockDomTarget();
-			const {camComponent} = createCam();
+			const { camComponent } = createCam();
 			renderer.render(domTarget, camComponent);
 
 			// Even though they're not needed, uniform and light buffers are written anyway.
@@ -180,15 +179,15 @@ Deno.test({
 
 			const domTarget = createMockDomTarget();
 			const scene = new Entity();
-			const {camComponent, cam} = createCam();
+			const { camComponent, cam } = createCam();
 			cam.pos.set(1, 2, 3);
 			scene.add(cam);
 
 			const vertexState = createVertexState();
 			const cubeEntity = scene.add(new Entity("cube"));
 			const meshComponent = cubeEntity.addComponent(MeshComponent);
-			meshComponent.mesh = createCube({vertexState});
-			const {material} = createMaterial();
+			meshComponent.mesh = createCube({ vertexState });
+			const { material } = createMaterial();
 			meshComponent.materials = [material];
 
 			renderer.render(domTarget, camComponent);
@@ -254,7 +253,7 @@ Deno.test({
 
 			const domTarget = createMockDomTarget();
 			const scene = new Entity();
-			const {camComponent, cam} = createCam();
+			const { camComponent, cam } = createCam();
 			cam.pos.set(1, 2, 3);
 			scene.add(cam);
 
@@ -262,8 +261,8 @@ Deno.test({
 			const cubeEntity = scene.add(new Entity("cube"));
 			cubeEntity.pos.set(4, 5, 6);
 			const meshComponent = cubeEntity.addComponent(MeshComponent);
-			meshComponent.mesh = createCube({vertexState});
-			const {material} = createMaterial();
+			meshComponent.mesh = createCube({ vertexState });
+			const { material } = createMaterial();
 			meshComponent.materials = [material];
 
 			renderer.render(domTarget, camComponent);

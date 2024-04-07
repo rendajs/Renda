@@ -1,4 +1,4 @@
-import {prettifyVariableName} from "../util/util.js";
+import { prettifyVariableName } from "../util/util.js";
 
 /**
  * @typedef {object} DropDownGuiOptionsType

@@ -1,8 +1,8 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {SingleInstancePromise} from "../../../../src/mod.js";
-import {assertPromiseResolved} from "../../shared/asserts.js";
-import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
+import { assertEquals, assertRejects } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
+import { SingleInstancePromise } from "../../../../src/mod.js";
+import { assertPromiseResolved } from "../../../../src/util/asserts.js";
+import { waitForMicrotasks } from "../../../../src/util/waitForMicroTasks.js";
 
 function basicSpyFn() {
 	/** @type {((result: string) => void)?} */
@@ -10,9 +10,9 @@ function basicSpyFn() {
 	/**
 	 * @param {string} param
 	 */
-	const fn = async param => {
+	const fn = async (param) => {
 		/** @type {Promise<string>} */
-		const promise = new Promise(r => {
+		const promise = new Promise((r) => {
 			resolvePromise = r;
 		});
 		const promiseResult = await promise;
@@ -38,7 +38,7 @@ Deno.test({
 		/**
 		 * @param {number} x
 		 */
-		const fn = x => x;
+		const fn = (x) => x;
 		const instance = new SingleInstancePromise(fn);
 
 		const result = await instance.run(1337);
@@ -49,7 +49,7 @@ Deno.test({
 Deno.test({
 	name: "Calling run while already running",
 	async fn() {
-		const {spyFn, resolvePromise} = basicSpyFn();
+		const { spyFn, resolvePromise } = basicSpyFn();
 		const instance = new SingleInstancePromise(spyFn);
 
 		const promise1 = instance.run("run1");
@@ -77,9 +77,9 @@ Deno.test({
 		/**
 		 * @param {number} x
 		 */
-		const spyFn = x => x;
+		const spyFn = (x) => x;
 		const fn = spy(spyFn);
-		const instance = new SingleInstancePromise(fn, {once: true});
+		const instance = new SingleInstancePromise(fn, { once: true });
 
 		await instance.run(123);
 		await instance.run(456);
@@ -95,8 +95,8 @@ Deno.test({
 Deno.test({
 	name: "Calling while already running with once: true",
 	async fn() {
-		const {spyFn, resolvePromise} = basicSpyFn();
-		const instance = new SingleInstancePromise(spyFn, {once: true});
+		const { spyFn, resolvePromise } = basicSpyFn();
+		const instance = new SingleInstancePromise(spyFn, { once: true });
 
 		const promise1 = instance.run("run1");
 		const promise2 = instance.run("run2");
@@ -136,7 +136,7 @@ async function runOnceMatrix(test) {
 	}
 	{
 		const basic = basicSpyFn();
-		const instance = new SingleInstancePromise(basic.spyFn, {once: true});
+		const instance = new SingleInstancePromise(basic.spyFn, { once: true });
 		await test({
 			instance,
 			once: true,
@@ -172,7 +172,7 @@ Deno.test({
 Deno.test({
 	name: "waitForFinish throws when once is true",
 	async fn() {
-		const instance = new SingleInstancePromise(async () => {}, {once: true});
+		const instance = new SingleInstancePromise(async () => {}, { once: true });
 		await assertRejects(async () => {
 			await instance.waitForFinish();
 		}, Error, "waitForFinish() would stay pending forever when once has been set, use waitForFinishOnce() instead.");
@@ -182,7 +182,7 @@ Deno.test({
 Deno.test({
 	name: "waitForFinishOnce resolves when the first run is done",
 	async fn() {
-		await runOnceMatrix(async ({instance, resolvePromise}) => {
+		await runOnceMatrix(async ({ instance, resolvePromise }) => {
 			const promise1 = instance.waitForFinishOnce();
 			await assertPromiseResolved(promise1, false);
 			instance.run("");
@@ -204,7 +204,7 @@ Deno.test({
 Deno.test({
 	name: "waitForFinishIfRunning resolves when the function is not running",
 	async fn() {
-		await runOnceMatrix(async ({instance, resolvePromise, once}) => {
+		await runOnceMatrix(async ({ instance, resolvePromise, once }) => {
 			const promise1 = instance.waitForFinishIfRunning();
 			await assertPromiseResolved(promise1, true);
 			await assertPromiseResolved(instance.waitForFinishIfRunning(), true);
@@ -257,7 +257,7 @@ Deno.test({
 Deno.test({
 	name: "promises are resolved in the correct order",
 	async fn() {
-		await runOnceMatrix(async ({instance, resolvePromise}) => {
+		await runOnceMatrix(async ({ instance, resolvePromise }) => {
 			/** @type {number[]} */
 			const order = [];
 			const promise1 = instance.run("run1");

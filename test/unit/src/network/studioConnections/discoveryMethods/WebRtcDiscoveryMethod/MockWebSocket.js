@@ -1,6 +1,6 @@
-import {AssertionError, assertEquals} from "std/testing/asserts.ts";
-import {spy} from "std/testing/mock.ts";
-import {TypedMessenger} from "../../../../../../../src/mod.js";
+import { AssertionError, assertEquals } from "std/testing/asserts.ts";
+import { spy } from "std/testing/mock.ts";
+import { TypedMessenger } from "../../../../../../../src/mod.js";
 
 /** @type {Set<MockWebSocket>} */
 const createdWebSockets = new Set();
@@ -49,11 +49,11 @@ export class MockWebSocket extends EventTarget {
 		this.#endpoint = endpoint;
 
 		/** @param {import("../../../../../../../src/network/studioConnections/DiscoveryManager.js").ClientType} clientType */
-		const registerClient = clientType => {};
+		const registerClient = (clientType) => {};
 		this.registerClientSpy = spy(registerClient);
 
 		/** @param {import("../../../../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionProjectMetadata} projectMetada */
-		const setProjectMetadata = projectMetada => {};
+		const setProjectMetadata = (projectMetada) => {};
 		this.setProjectMetadataSpy = spy(setProjectMetadata);
 
 		/**
@@ -63,25 +63,25 @@ export class MockWebSocket extends EventTarget {
 		const relayMessage = (otherClientUuid, data) => {};
 		this.relayMessageSpy = spy(relayMessage);
 
-		this.#messenger.setSendHandler(data => {
+		this.#messenger.setSendHandler((data) => {
 			this.dispatchEvent(new MessageEvent("message", {
 				data: JSON.stringify(data.sendData),
 			}));
 		});
 		this.#messenger.setResponseHandlers({
-			registerClient: clientType => {
+			registerClient: (clientType) => {
 				this.registerClientSpy(clientType);
 			},
 			relayMessage: (otherClientUuid, data) => {
 				this.relayMessageSpy(otherClientUuid, data);
 				return {
-					$respondOptions: {respond: false},
+					$respondOptions: { respond: false },
 				};
 			},
-			setProjectMetadata: projectMetadata => {
+			setProjectMetadata: (projectMetadata) => {
 				this.setProjectMetadataSpy(projectMetadata);
 				return {
-					$respondOptions: {respond: false},
+					$respondOptions: { respond: false },
 				};
 			},
 		});

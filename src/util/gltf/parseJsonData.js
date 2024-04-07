@@ -1,12 +1,12 @@
-import {MAJOR_GLTF_PARSER_VERSION, MINOR_GLTF_PARSER_VERSION} from "./constants.js";
-import {parseScenes} from "./parseNodeHierarchy.js";
-import {applyMeshComponents} from "./applyMeshComponents.js";
-import {getMaterialHelper} from "./getMaterial.js";
-import {Material} from "../../rendering/Material.js";
-import {MaterialMap} from "../../rendering/MaterialMap.js";
-import {getTextureHelper} from "./getTexture.js";
-import {getSamplerHelper} from "./getSampler.js";
-import {getBufferHelper} from "./getBuffer.js";
+import { MAJOR_GLTF_PARSER_VERSION, MINOR_GLTF_PARSER_VERSION } from "./constants.js";
+import { parseScenes } from "./parseNodeHierarchy.js";
+import { applyMeshComponents } from "./applyMeshComponents.js";
+import { getMaterialHelper } from "./getMaterial.js";
+import { Material } from "../../rendering/Material.js";
+import { MaterialMap } from "../../rendering/MaterialMap.js";
+import { getTextureHelper } from "./getTexture.js";
+import { getSamplerHelper } from "./getSampler.js";
+import { getBufferHelper } from "./getBuffer.js";
 
 /**
  * @typedef ParseJsonDataOptions
@@ -97,7 +97,7 @@ export async function parseJsonData(jsonData, {
 		throw new Error("Parsing gltf without scenes is not supported yet");
 	}
 
-	return {entity};
+	return { entity };
 }
 
 /**
@@ -108,12 +108,12 @@ export async function parseJsonData(jsonData, {
  */
 function assertAssetVersion(json) {
 	if (json.asset.minVersion !== undefined) {
-		const {major, minor} = parseVersionString(json.asset.minVersion);
+		const { major, minor } = parseVersionString(json.asset.minVersion);
 		if (major > MAJOR_GLTF_PARSER_VERSION || minor > MINOR_GLTF_PARSER_VERSION) {
 			throw new Error("The asset requires a newer glTF version: " + json.asset.minVersion);
 		}
 	}
-	const {major} = parseVersionString(json.asset.version);
+	const { major } = parseVersionString(json.asset.version);
 	if (major !== MAJOR_GLTF_PARSER_VERSION) {
 		throw new Error("The asset targets a higher major glTF version: " + json.asset.version);
 	}
@@ -132,5 +132,5 @@ function parseVersionString(str) {
 	if (isNaN(major) || isNaN(minor)) {
 		throw new Error("Failed to parse glTF version string: " + str);
 	}
-	return {major, minor};
+	return { major, minor };
 }

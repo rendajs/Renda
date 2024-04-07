@@ -1,6 +1,6 @@
-import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Entity, LightComponent} from "../../../../../src/mod.js";
-import {assertVecAlmostEquals} from "../../../shared/asserts.js";
+import { assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { Entity, LightComponent } from "../../../../../src/mod.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 function createBasicEntity() {
 	const entity = new Entity("root");
@@ -10,7 +10,7 @@ function createBasicEntity() {
 	entity.add(child2);
 	const subChild = new Entity("subChild");
 	child2.add(subChild);
-	return {entity, child1, child2, subChild};
+	return { entity, child1, child2, subChild };
 }
 
 /**
@@ -41,7 +41,7 @@ function assertExactClone(sourceEntity, resultEntity) {
 Deno.test({
 	name: "Entity with some children",
 	fn() {
-		const {entity} = createBasicEntity();
+		const { entity } = createBasicEntity();
 		const result = entity.clone();
 		assertExactClone(entity, result);
 	},
@@ -80,10 +80,10 @@ Deno.test({
 Deno.test({
 	name: "Clone with cloneChildHook, returning false omits children",
 	fn() {
-		const {entity} = createBasicEntity();
+		const { entity } = createBasicEntity();
 
 		const result = entity.clone({
-			cloneChildHook({child}) {
+			cloneChildHook({ child }) {
 				if (child.name == "child2") {
 					return false;
 				}
@@ -102,11 +102,11 @@ Deno.test({
 Deno.test({
 	name: "Clone with cloneChildHook, returning the child without cloning doesn't clone it",
 	fn() {
-		const {entity} = createBasicEntity();
+		const { entity } = createBasicEntity();
 
 		const originalChild2 = entity.children[1];
 		const result = entity.clone({
-			cloneChildHook({child}) {
+			cloneChildHook({ child }) {
 				if (child.name == "child2") {
 					return child;
 				}
@@ -126,10 +126,10 @@ Deno.test({
 Deno.test({
 	name: "Clone with cloneChildHook, returning null or undefined clones the child as usual",
 	fn() {
-		const {entity} = createBasicEntity();
+		const { entity } = createBasicEntity();
 
 		const result = entity.clone({
-			cloneChildHook({child, options}) {
+			cloneChildHook({ child, options }) {
 				if (child.name == "child1") {
 					return null;
 				} else if (child.name == "child2") {
@@ -151,7 +151,7 @@ Deno.test({
 
 		let callCount = 0;
 		const result = entity1.clone({
-			cloneChildHook({child}) {
+			cloneChildHook({ child }) {
 				callCount++;
 				if (child === entity1) return entity2;
 			},
@@ -171,7 +171,7 @@ Deno.test({
 
 		assertThrows(() => {
 			entity1.clone({
-				cloneChildHook({child}) {
+				cloneChildHook({ child }) {
 					if (child === entity1) return false;
 				},
 			});

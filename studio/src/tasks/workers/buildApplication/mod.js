@@ -1,4 +1,4 @@
-import {TypedMessenger} from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 
 /** @typedef {typeof responseHandlers} BuildApplicationMessengerResponseHandlers */
 
@@ -33,7 +33,7 @@ const responseHandlers = {
 		/** @type {import("../../task/Task.js").RunTaskCreateAssetData[]} */
 		const writeAssets = [];
 
-		const {servicesScript, usedAssets: usedServicesAssets} = await messenger.send.generateServices({
+		const { servicesScript, usedAssets: usedServicesAssets } = await messenger.send.generateServices({
 			contextId,
 			usedAssetsUuids,
 			entryPointUuids: [config.entryPoint],
@@ -59,7 +59,7 @@ const responseHandlers = {
 			});
 		}
 		const castWriteAssets = /** @type {import("../../task/Task.js").RunTaskCreateAssetData<import("../bundleScripts/bundle.js").RunTaskCreateAssetBundleScriptsCustomData>[]} */ (scriptBundle.writeAssets);
-		const bundledEntryPoints = castWriteAssets.filter(a => a.customData?.isEntry);
+		const bundledEntryPoints = castWriteAssets.filter((a) => a.customData?.isEntry);
 		if (bundledEntryPoints.length != 1) {
 			throw new Error("Assertion failed: bundled scripts contain more than one entry point");
 		}
@@ -72,7 +72,7 @@ const responseHandlers = {
 		});
 
 		/** @type {import("../../task/Task.js").RunTaskReturn} */
-		const taskResult = {writeAssets};
+		const taskResult = { writeAssets };
 
 		return taskResult;
 	},

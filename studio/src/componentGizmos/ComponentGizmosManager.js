@@ -1,6 +1,6 @@
-import {getStudioInstance} from "../studioInstance.js";
-import {autoRegisterComponentGizmos} from "./autoRegisterComponentGizmos.js";
-import {ComponentGizmos} from "./gizmos/ComponentGizmos.js";
+import { getStudioInstance } from "../studioInstance.js";
+import { autoRegisterComponentGizmos } from "./autoRegisterComponentGizmos.js";
+import { ComponentGizmos } from "./gizmos/ComponentGizmos.js";
 
 export class ComponentGizmosManager {
 	/** @typedef {import("../../../src/components/Component.js").ComponentConstructor} ComponentConstructor */

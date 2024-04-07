@@ -1,8 +1,8 @@
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {BooleanGui} from "../../../../../studio/src/ui/BooleanGui.js";
-import {runWithDom} from "../../shared/runWithDom.js";
-import {createOnChangeEventSpy} from "./shared.js";
-import {assertEquals} from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls } from "std/testing/mock.ts";
+import { BooleanGui } from "../../../../../studio/src/ui/BooleanGui.js";
+import { runWithDom } from "../../shared/runWithDom.js";
+import { createOnChangeEventSpy } from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
 
 Deno.test({
 	name: "Setting to true by user",

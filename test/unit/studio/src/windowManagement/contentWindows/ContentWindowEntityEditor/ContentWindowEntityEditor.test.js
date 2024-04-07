@@ -1,15 +1,15 @@
-import {BASIC_ENTITY_UUID, basicTest} from "./shared.js";
-import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
-import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
-import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {EntityChangeType} from "../../../../../../../studio/src/assets/EntityAssetManager.js";
-import {Entity} from "../../../../../../../src/mod.js";
+import { BASIC_ENTITY_UUID, basicTest } from "./shared.js";
+import { ContentWindowEntityEditor } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
+import { assertEquals, assertExists, assertStrictEquals } from "std/testing/asserts.ts";
+import { waitForMicrotasks } from "../../../../../../../src/util/waitForMicroTasks.js";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { EntityChangeType } from "../../../../../../../studio/src/assets/EntityAssetManager.js";
+import { Entity } from "../../../../../../../src/mod.js";
 
 Deno.test({
 	name: "Has an empty entity by default",
 	async fn() {
-		const {args, uninstall} = basicTest();
+		const { args, uninstall } = basicTest();
 		try {
 			const contentWindow = new ContentWindowEntityEditor(...args);
 			contentWindow.setProjectPreferencesLocationData({});
@@ -25,15 +25,15 @@ Deno.test({
 Deno.test({
 	name: "Shows the grid when toggled",
 	async fn() {
-		const {args, mockStudioInstance, uninstall} = basicTest();
+		const { args, mockStudioInstance, uninstall } = basicTest();
 		try {
 			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", false);
 			const contentWindow = new ContentWindowEntityEditor(...args);
 			contentWindow.setProjectPreferencesLocationData({});
 
-			assertEquals(contentWindow.editorScene.getEntityByName("grid"), null);
+			assertEquals(contentWindow.editorScene.getChildByName("grid"), null);
 			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", true);
-			assertExists(contentWindow.editorScene.getEntityByName("grid"));
+			assertExists(contentWindow.editorScene.getChildByName("grid"));
 		} finally {
 			uninstall();
 		}
@@ -42,16 +42,16 @@ Deno.test({
 Deno.test({
 	name: "Hides the grid when untoggled",
 	async fn() {
-		const {args, mockStudioInstance, uninstall} = basicTest();
+		const { args, mockStudioInstance, uninstall } = basicTest();
 		try {
 			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", true);
 
 			const contentWindow = new ContentWindowEntityEditor(...args);
 			contentWindow.setProjectPreferencesLocationData({});
 
-			assertExists(contentWindow.editorScene.getEntityByName("grid"));
+			assertExists(contentWindow.editorScene.getChildByName("grid"));
 			mockStudioInstance.preferencesManager.set("entityEditor.showGrid", false);
-			assertEquals(contentWindow.editorScene.getEntityByName("grid"), null);
+			assertEquals(contentWindow.editorScene.getChildByName("grid"), null);
 		} finally {
 			uninstall();
 		}
@@ -61,7 +61,7 @@ Deno.test({
 Deno.test({
 	name: "Rerenders the scene when an entity is changed from another window",
 	async fn() {
-		const {args, assetManager, uninstall} = basicTest();
+		const { args, assetManager, uninstall } = basicTest();
 		try {
 			const entityAssetManager = assetManager.entityAssetManager;
 			const contentWindow = new ContentWindowEntityEditor(...args);
@@ -121,7 +121,7 @@ Deno.test({
 Deno.test({
 	name: "Marks the entity as dirty when making a change",
 	async fn() {
-		const {args, assetManager, uninstall} = basicTest();
+		const { args, assetManager, uninstall } = basicTest();
 		try {
 			const entityAssetManager = assetManager.entityAssetManager;
 			const contentWindow = new ContentWindowEntityEditor(...args);
@@ -161,7 +161,7 @@ Deno.test({
 Deno.test({
 	name: "Doesn't mark entities as dirty when the entity is not a project asset",
 	async fn() {
-		const {args, assetManager, uninstall} = basicTest();
+		const { args, assetManager, uninstall } = basicTest();
 		try {
 			const entityAssetManager = assetManager.entityAssetManager;
 			const contentWindow = new ContentWindowEntityEditor(...args);
@@ -184,7 +184,7 @@ Deno.test({
 Deno.test({
 	name: "Starts tracking entity changes once the asset manager loads",
 	async fn() {
-		const {args, mockStudioInstance, assetManager, uninstall} = basicTest();
+		const { args, mockStudioInstance, assetManager, uninstall } = basicTest();
 		try {
 			/** @type {Set<import("../../../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback>} */
 			const onLoadCbs = new Set();
@@ -214,7 +214,7 @@ Deno.test({
 			assertSpyCalls(markDirtySpy, expectedCallCount);
 
 			mockStudioInstance.projectManager.assetManager = assetManager;
-			onLoadCbs.forEach(cb => cb(assetManager));
+			onLoadCbs.forEach((cb) => cb(assetManager));
 
 			entityAssetManager.updateEntityTransform(entity, null);
 
@@ -230,7 +230,7 @@ Deno.test({
 Deno.test({
 	name: "Changes editingEntityUuid when it becomes a saved entity asset",
 	async fn() {
-		const {args, assetManager, entityEditorUpdatedSpy, uninstall} = basicTest();
+		const { args, assetManager, entityEditorUpdatedSpy, uninstall } = basicTest();
 		try {
 			const contentWindow = new ContentWindowEntityEditor(...args);
 			const entityAssetManager = assetManager.entityAssetManager;
@@ -256,7 +256,7 @@ Deno.test({
 Deno.test({
 	name: "Unregisters onAssetManagerChange when destructed",
 	async fn() {
-		const {args, mockStudioInstance, assetManager, uninstall} = basicTest();
+		const { args, mockStudioInstance, assetManager, uninstall } = basicTest();
 		try {
 			/** @type {Set<import("../../../../../../../studio/src/projectSelector/ProjectManager.js").OnAssetManagerChangeCallback>} */
 			const onLoadCbs = new Set();
@@ -287,7 +287,7 @@ Deno.test({
 			contentWindow.destructor();
 
 			mockStudioInstance.projectManager.assetManager = assetManager;
-			onLoadCbs.forEach(cb => cb(assetManager));
+			onLoadCbs.forEach((cb) => cb(assetManager));
 
 			entityAssetManager.updateEntityTransform(entity, null);
 

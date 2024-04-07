@@ -1,5 +1,5 @@
-import {SingleInstancePromise} from "../../../../src/mod.js";
-import {PreferencesLocation} from "./PreferencesLocation.js";
+import { SingleInstancePromise } from "../../../../src/mod.js";
+import { PreferencesLocation } from "./PreferencesLocation.js";
 
 /**
  * @fileoverview A preferences location that stores preferences in the project.
@@ -39,7 +39,7 @@ export class FilePreferencesLocation extends PreferencesLocation {
 
 		this.#loadInstance = new SingleInstancePromise(async () => {
 			if (!fromUserGesture) {
-				await this.#fs.waitForPermission(this.#path, {writable: false});
+				await this.#fs.waitForPermission(this.#path, { writable: false });
 			}
 			const isFile = await this.#fs.isFile(this.#path);
 			if (!isFile) {
@@ -79,7 +79,7 @@ export class FilePreferencesLocation extends PreferencesLocation {
 		await this.#fs.writeJson(this.#path, preferencesData);
 		if (!this.#fileExists) {
 			this.#fileExists = true;
-			this.#onFileCreatedCbs.forEach(cb => cb());
+			this.#onFileCreatedCbs.forEach((cb) => cb());
 		}
 	}
 

@@ -1,4 +1,4 @@
-import {spy} from "std/testing/mock.ts";
+import { spy } from "std/testing/mock.ts";
 
 /**
  * @param {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} fs

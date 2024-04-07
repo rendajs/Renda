@@ -1,5 +1,5 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3} from "../../../../src/mod.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3 } from "../../../../src/mod.js";
 
 // todo: better types for generics
 /**
@@ -45,6 +45,6 @@ export class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
 	 */
 	async getLiveAssetData(fileData) {
 		const liveAsset = new ClusteredLightsConfig(fileData);
-		return {liveAsset, studioData: null};
+		return { liveAsset, studioData: null };
 	}
 }

@@ -1,4 +1,4 @@
-import {ContextMenuItem} from "./ContextMenuItem.js";
+import { ContextMenuItem } from "./ContextMenuItem.js";
 
 export class ContextMenuSubmenuItem extends ContextMenuItem {
 	/** @typedef {(submenu: ContextMenu) => void} OnCreateSubmenuCallback */

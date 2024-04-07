@@ -83,7 +83,7 @@ export async function *streamAsyncIterator(stream) {
 	const reader = stream.getReader();
 	try {
 		while (true) {
-			const {done, value} = await reader.read();
+			const { done, value } = await reader.read();
 			if (done) return;
 			yield value;
 		}
@@ -101,7 +101,7 @@ export async function *streamAsyncIterator(stream) {
 export function generateUuid() {
 	let d = new Date().getTime();// Timestamp
 	let d2 = (performance && performance.now && (performance.now() * 1000)) || 0;// Time in microseconds since page-load or 0 if unsupported
-	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+	return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
 		let r = Math.random() * 16;// random number between 0 and 16
 		if (d > 0) {// Use timestamp until depleted
 			r = (d + r) % 16 | 0;
@@ -155,7 +155,7 @@ export function base64ToArrayBuffer(base64) {
  */
 export function waitForEventLoop() {
 	/** @type {Promise<void>} */
-	const promise = new Promise(r => {
+	const promise = new Promise((r) => {
 		setTimeout(() => {
 			r();
 		}, 0);

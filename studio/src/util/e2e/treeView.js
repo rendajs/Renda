@@ -20,7 +20,7 @@ export function getTreeViewPathElement(treeViewElement, itemsPath) {
 		if (typeof itemIdentifier == "number") {
 			child = treeViewChildren[itemIdentifier];
 		} else {
-			child = treeViewChildren.find(child => {
+			child = treeViewChildren.find((child) => {
 				// First check the row name, in case this is a regular TreeView.
 				const row = child.querySelector(".tree-view-row");
 				if (row && row.textContent == itemIdentifier) return true;

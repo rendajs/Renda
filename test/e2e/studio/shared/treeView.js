@@ -1,4 +1,4 @@
-import {assertExists} from "std/testing/asserts.ts";
+import { assertExists } from "std/testing/asserts.ts";
 
 /**
  * Waits until a child element of a tree view exists and returns its row element.

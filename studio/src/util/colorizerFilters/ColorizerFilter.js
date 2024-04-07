@@ -1,11 +1,17 @@
-import {ColorizerFilterUsageReference} from "./ColorizerFilterUsageReference.js";
+import { ColorizerFilterUsageReference } from "./ColorizerFilterUsageReference.js";
 
 export class ColorizerFilter {
+	#cssColor;
+	get cssColor() {
+		return this.#cssColor;
+	}
+
 	/**
 	 * @param {string} cssColor
 	 * @param {HTMLElement} containerEl
 	 */
 	constructor(cssColor, containerEl) {
+		this.#cssColor = cssColor;
 		const ns = "http://www.w3.org/2000/svg";
 		this.svgEl = document.createElementNS(ns, "svg");
 		this.svgEl.setAttribute("xmlns", ns);
@@ -23,7 +29,7 @@ export class ColorizerFilter {
 		feComposite.setAttribute("operator", "in");
 		this.filterEl.appendChild(feComposite);
 
-		this.finalizationRegistry = new FinalizationRegistry(ref => {
+		this.finalizationRegistry = new FinalizationRegistry((ref) => {
 			this.notifyWeakRefDestructed(ref);
 		});
 

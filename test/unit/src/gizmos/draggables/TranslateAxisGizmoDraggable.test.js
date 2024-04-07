@@ -1,17 +1,17 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {TranslateAxisGizmoDraggable} from "../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js";
-import {Vec2} from "../../../../../src/mod.js";
-import {assertVecAlmostEquals} from "../../../shared/asserts.js";
-import {basicSetup} from "./shared.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { TranslateAxisGizmoDraggable } from "../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js";
+import { Vec2 } from "../../../../../src/mod.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
+import { basicSetup } from "./shared.js";
 
 Deno.test({
 	name: "move event with movement",
 	fn() {
-		const {mockGizmoManager, mockPointerDevice, mockCamera} = basicSetup();
+		const { mockGizmoManager, mockPointerDevice, mockCamera } = basicSetup();
 		const draggable = new TranslateAxisGizmoDraggable(mockGizmoManager);
 		/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").TranslateGizmoDragEvent[]} */
 		const calls = [];
-		draggable.onDrag(event => {
+		draggable.onDrag((event) => {
 			calls.push(event);
 		});
 

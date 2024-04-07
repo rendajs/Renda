@@ -1,8 +1,8 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import { assertEquals } from "std/testing/asserts.ts";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 import "../../../shared/initializeStudio.js";
-import {TaskRunMultiple} from "../../../../../../studio/src/tasks/task/TaskRunMultiple.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import { TaskRunMultiple } from "../../../../../../studio/src/tasks/task/TaskRunMultiple.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 
 Deno.test({
 	name: "transformUiToAssetData()",
@@ -58,7 +58,7 @@ Deno.test({
 			},
 		];
 
-		for (const {input, expected} of tests) {
+		for (const { input, expected } of tests) {
 			const actual = TaskRunMultiple.transformUiToAssetData(input);
 			assertEquals(actual, expected);
 		}
@@ -115,7 +115,7 @@ Deno.test({
 			},
 		];
 
-		for (const {input, expected} of tests) {
+		for (const { input, expected } of tests) {
 			const actual = TaskRunMultiple.transformAssetToUiData(input);
 			assertEquals(actual, expected);
 		}
@@ -138,9 +138,9 @@ function basicSetupForRunTask({
 	/**
 	 * @type {import("std/testing/mock.ts").Spy}
 	 */
-	const runDependencyTaskAssetSpy = spy(async uuid => {
+	const runDependencyTaskAssetSpy = spy(async (uuid) => {
 		/** @type {Promise<void>} */
-		const promise = new Promise(cb => dependencyResolveCallbacks.push(cb));
+		const promise = new Promise((cb) => dependencyResolveCallbacks.push(cb));
 		await promise;
 	});
 
@@ -194,7 +194,7 @@ function basicSetupForRunTask({
 Deno.test({
 	name: "runTask single array of parallel tasks",
 	async fn() {
-		const {runDependencyTaskAssetSpy, assertTaskResolving} = basicSetupForRunTask({
+		const { runDependencyTaskAssetSpy, assertTaskResolving } = basicSetupForRunTask({
 			config: {
 				taskGroup: {
 					parallel: true,
@@ -225,7 +225,7 @@ Deno.test({
 Deno.test({
 	name: "runTask single array of non-parallel tasks",
 	async fn() {
-		const {runDependencyTaskAssetSpy, assertTaskResolving, resolveNextDependencies} = basicSetupForRunTask({
+		const { runDependencyTaskAssetSpy, assertTaskResolving, resolveNextDependencies } = basicSetupForRunTask({
 			config: {
 				taskGroup: {
 					parallel: false,
@@ -262,7 +262,7 @@ Deno.test({
 Deno.test({
 	name: "tasks run in parallel by default",
 	async fn() {
-		const {runDependencyTaskAssetSpy, assertTaskResolving} = basicSetupForRunTask({
+		const { runDependencyTaskAssetSpy, assertTaskResolving } = basicSetupForRunTask({
 			config: {
 				taskGroup: {
 					tasks: [
@@ -292,7 +292,7 @@ Deno.test({
 Deno.test({
 	name: "several nested tasks",
 	async fn() {
-		const {runDependencyTaskAssetSpy, assertTaskResolving, resolveNextDependencies} = basicSetupForRunTask({
+		const { runDependencyTaskAssetSpy, assertTaskResolving, resolveNextDependencies } = basicSetupForRunTask({
 			config: {
 				taskGroup: {
 					tasks: [

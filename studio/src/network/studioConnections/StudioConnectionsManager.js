@@ -1,7 +1,7 @@
-import {DiscoveryManager} from "../../../../src/network/studioConnections/DiscoveryManager.js";
-import {InternalDiscoveryMethod} from "../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
-import {WebRtcDiscoveryMethod} from "../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
-import {createStudioClientHandlers, createStudioHostHandlers, createStudioInspectorHandlers} from "./handlers.js";
+import { DiscoveryManager } from "../../../../src/network/studioConnections/DiscoveryManager.js";
+import { InternalDiscoveryMethod } from "../../../../src/network/studioConnections/discoveryMethods/InternalDiscoveryMethod.js";
+import { WebRtcDiscoveryMethod } from "../../../../src/network/studioConnections/discoveryMethods/WebRtcDiscoveryMethod.js";
+import { createStudioClientHandlers, createStudioHostHandlers, createStudioInspectorHandlers } from "./handlers.js";
 
 /**
  * @typedef {import("../../../../src/network/studioConnections/DiscoveryManager.js").AvailableConnectionWithType & {connectionState: import("../../../../src/network/studioConnections/messageHandlers/MessageHandler.js").MessageHandlerStatus}} StudioConnectionData
@@ -54,7 +54,7 @@ export class StudioConnectionsManager {
 		this.#projectManager = projectManager;
 		this.#preferencesManager = preferencesManager;
 
-		const {discoveryManager, internalDiscoveryMethod} = this.#createDiscoveryManager(this.#getDesiredClientType());
+		const { discoveryManager, internalDiscoveryMethod } = this.#createDiscoveryManager(this.#getDesiredClientType());
 		this.#discoveryManager = discoveryManager;
 		this.#internalDiscoveryMethod = internalDiscoveryMethod;
 
@@ -91,7 +91,7 @@ export class StudioConnectionsManager {
 		discoveryManager.onAvailableConnectionsChanged(() => {
 			this.#fireOnConnectionsChanged();
 		});
-		discoveryManager.onConnectionRequest(connectionRequest => {
+		discoveryManager.onConnectionRequest((connectionRequest) => {
 			// TODO: Add an allowlist #751
 			// TODO: Automatically accept connections that are hosted by this studio instance #810
 			let autoAccept = false;
@@ -120,13 +120,13 @@ export class StudioConnectionsManager {
 					/** @type {import("./handlers.js").StudioHostClientConnection} */
 					const connection = connectionRequest.accept(createStudioHostHandlers(fileSystem));
 					// TODO #857 Clean this up when the connection closes
-					fileSystem.onChange(e => {
+					fileSystem.onChange((e) => {
 						connection.messenger.send["fileSystem.changeEvent"](e);
 					});
 					this.#addActiveConnection(connection);
 				};
 			} else if (connectionRequest.clientType == "inspector") {
-				const {token} = connectionRequest.connectionRequestData;
+				const { token } = connectionRequest.connectionRequestData;
 				if (token && this.#connectionTokens.has(token)) {
 					this.#connectionTokens.delete(token);
 					autoAccept = true;
@@ -164,7 +164,7 @@ export class StudioConnectionsManager {
 
 		const internalDiscoveryMethod = discoveryManager.addDiscoveryMethod(InternalDiscoveryMethod, this.#getDefaultInternalDiscoveryUrl());
 
-		return {discoveryManager, internalDiscoveryMethod};
+		return { discoveryManager, internalDiscoveryMethod };
 	}
 
 	#updateDiscoveryManager = () => {
@@ -177,7 +177,7 @@ export class StudioConnectionsManager {
 			this.#webRtcDiscoveryMethod = null;
 			this.#lastSentProjectMetadataWebRtc = null;
 			this.#lastSentProjectMetadataInternal = null;
-			const {discoveryManager, internalDiscoveryMethod} = this.#createDiscoveryManager(desiredClientType);
+			const { discoveryManager, internalDiscoveryMethod } = this.#createDiscoveryManager(desiredClientType);
 			this.#discoveryManager = discoveryManager;
 			this.#internalDiscoveryMethod = internalDiscoveryMethod;
 		}
@@ -187,16 +187,16 @@ export class StudioConnectionsManager {
 		const desiredWebRtcEndpoint = this.#webRtcDiscoveryEndpoint || this.getDefaultWebRtcDiscoveryEndpoint();
 		if (this.#webRtcDiscoveryMethod && (!needsWebRtcDiscovery || this.#webRtcDiscoveryMethod.endpoint != desiredWebRtcEndpoint)) {
 			this.#discoveryManager.removeDiscoveryMethod(this.#webRtcDiscoveryMethod);
-			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb("disconnected"));
+			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach((cb) => cb("disconnected"));
 			this.#webRtcDiscoveryMethod = null;
 		}
 		if (!this.#webRtcDiscoveryMethod && needsWebRtcDiscovery) {
 			this.#webRtcDiscoveryMethod = this.#discoveryManager.addDiscoveryMethod(WebRtcDiscoveryMethod, desiredWebRtcEndpoint);
-			this.#webRtcDiscoveryMethod.onStatusChange(status => {
-				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
+			this.#webRtcDiscoveryMethod.onStatusChange((status) => {
+				this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach((cb) => cb(status));
 			});
 			const status = this.#webRtcDiscoveryMethod.status;
-			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
+			this.#onWebRtcDiscoveryServerStatusChangeCbs.forEach((cb) => cb(status));
 		}
 
 		this.#updateProjectMetadata();
@@ -214,7 +214,7 @@ export class StudioConnectionsManager {
 		if (this.#pendingIncomingConnections.has(connectionId)) {
 			this.rejectIncomingConnection(connectionId);
 		}
-		this.#pendingIncomingConnections.set(connectionId, {acceptHandler, rejectHandler});
+		this.#pendingIncomingConnections.set(connectionId, { acceptHandler, rejectHandler });
 		this.#fireOnConnectionsChanged();
 	}
 
@@ -284,7 +284,7 @@ export class StudioConnectionsManager {
 	}
 
 	#fireOnConnectionsChanged() {
-		this.#onConnectionsChangedCbs.forEach(cb => cb());
+		this.#onConnectionsChangedCbs.forEach((cb) => cb());
 	}
 
 	/**

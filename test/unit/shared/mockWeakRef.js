@@ -33,7 +33,7 @@ class RegistryItem {
 	}
 
 	forceCleanup() {
-		this.onCleanupCbs.forEach(cb => cb());
+		this.onCleanupCbs.forEach((cb) => cb());
 	}
 
 	/**
@@ -90,7 +90,7 @@ class MockWeakRef {
 	 */
 	constructor(target) {
 		this.#target = target;
-		this.#registeredWeakRef = {target};
+		this.#registeredWeakRef = { target };
 		registeredWeakRefs.add(this.#registeredWeakRef);
 	}
 
@@ -121,9 +121,9 @@ class MockWeakMap {
 	 */
 	set(key, value) {
 		if ((typeof key !== "object" && typeof key !== "function" && typeof key !== "symbol") || key === null) throw new TypeError("Invalid value used as weak map key");
-		const registeredWeakRef = {target: key};
+		const registeredWeakRef = { target: key };
 		registeredWeakRefs.add(registeredWeakRef);
-		this.#map.set(key, {value, registeredWeakRef});
+		this.#map.set(key, { value, registeredWeakRef });
 	}
 
 	/**

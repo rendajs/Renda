@@ -1,12 +1,14 @@
-import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
-import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
-import {BUILD_VERSION_STRING} from "../studioDefines.js";
-import {createSpinner} from "../ui/spinner.js";
-import {IndexedDbStudioFileSystem} from "../util/fileSystems/IndexedDbStudioFileSystem.js";
+import { RENDA_VERSION_STRING } from "../../../src/engineDefines.js";
+import { IndexedDbUtil } from "../../../src/util/IndexedDbUtil.js";
+import { PromiseWaitHelper } from "../../../src/util/PromiseWaitHelper.js";
+import { createSpinner } from "../ui/spinner.js";
+import { ColorizerFilterManager } from "../util/colorizerFilters/ColorizerFilterManager.js";
+import { IndexedDbStudioFileSystem } from "../util/fileSystems/IndexedDbStudioFileSystem.js";
 
 export class ProjectSelector {
 	/** @typedef {import("./ProjectManager.js").StoredProjectEntryAny} StoredProjectEntryAny */
 
+	#contentEl;
 	#versionEl;
 	/** @type {HTMLDivElement?} */
 	#updateSpinnerEl = null;
@@ -50,8 +52,11 @@ export class ProjectSelector {
 
 		this.#versionEl = document.createElement("div");
 		this.#versionEl.classList.add("version");
-		this.#versionEl.textContent = `v${BUILD_VERSION_STRING} (beta)`;
+		this.#versionEl.textContent = `v${RENDA_VERSION_STRING} (beta)`;
 		headerEl.append(this.#versionEl);
+
+		this.#contentEl = document.createElement("main");
+		this.el.append(this.#contentEl);
 
 		this.actionsListEl = this.createList("actions", "Start");
 		this.recentListEl = this.createList("recent", "Recent");
@@ -64,31 +69,43 @@ export class ProjectSelector {
 		 */
 		this.allowOpeningNew = true;
 
-		this.createAction("New Project", async () => {
-			if (this.allowOpeningNew) {
-				this.willOpenProjectAfterLoad();
-				const studio = await this.waitForStudio();
-				studio.projectManager.openNewDbProject(true);
-			}
-			this.setVisibility(false);
+		this.createAction({
+			text: "New Project",
+			iconUrl: "static/icons/newDatabase.svg",
+			onClick: async () => {
+				if (this.allowOpeningNew) {
+					this.willOpenProjectAfterLoad();
+					const studio = await this.waitForStudio();
+					studio.projectManager.openNewDbProject(true);
+				}
+				this.setVisibility(false);
+			},
 		});
 
-		const {buttonEl: openProjectButton} = this.createAction("Open Project", async () => {
-			this.willOpenProjectAfterLoad();
-			const studio = await this.waitForStudio();
-			studio.projectManager.openProjectFromLocalDirectory();
-			this.setVisibility(false);
+		const { buttonEl: openProjectButton } = this.createAction({
+			text: "Open Project",
+			iconUrl: "static/icons/folder.svg",
+			onClick: async () => {
+				this.willOpenProjectAfterLoad();
+				const studio = await this.waitForStudio();
+				studio.projectManager.openProjectFromLocalDirectory();
+				this.setVisibility(false);
+			},
 		});
 		if (!("showDirectoryPicker" in globalThis)) {
 			openProjectButton.disabled = true;
 			openProjectButton.title = "Opening local projects is not supported by your browser.";
 		}
 
-		this.createAction("Connect Remote Project", async () => {
-			this.willOpenProjectAfterLoad();
-			const studio = await this.waitForStudio();
-			studio.projectManager.openNewRemoteProject(true);
-			this.setVisibility(false);
+		this.createAction({
+			text: "Connect to Remote",
+			iconUrl: "static/icons/remoteSignal.svg",
+			onClick: async () => {
+				this.willOpenProjectAfterLoad();
+				const studio = await this.waitForStudio();
+				studio.projectManager.openNewRemoteProject(true);
+				this.setVisibility(false);
+			},
 		});
 
 		/** @type {StoredProjectEntryAny[]?} */
@@ -103,6 +120,38 @@ export class ProjectSelector {
 		this.updateRecentProjectsUi();
 		this.deleteProjectsNotWorthSaving();
 		this.openMostRecentProject();
+
+		/**
+		 * @typedef {Event & {prompt: () => Promise<{outcome: "accepted" | "dismissed"}>}} BeforeInstallPromptEvent
+		 */
+
+		window.addEventListener("beforeinstallprompt", (e) => {
+			const event = /** @type {BeforeInstallPromptEvent} */ (e);
+			event.preventDefault();
+			let text = "Install Renda Studio";
+			const ua = navigator.userAgent;
+			if (/iphone|ipod/i.test(ua)) {
+				text = "Get the iOS App";
+			} else if (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) {
+				text = "Get the iPad App";
+			} else if (/android/i.test(ua)) {
+				text = "Get the Android App";
+			} else if (/mac os x/i.test(ua)) {
+				text = "Get the Mac App";
+			} else if (/windows/i.test(ua)) {
+				text = "Get the Windows App";
+			} else if (/linux/i.test(ua)) {
+				text = "Get the Linux App";
+			}
+			const { listItemEl } = this.createAction({
+				text,
+				iconUrl: "static/icons/download.svg",
+				onClick: async () => {
+					await event.prompt();
+					listItemEl.remove();
+				},
+			});
+		});
 	}
 
 	/**
@@ -112,9 +161,9 @@ export class ProjectSelector {
 	createList(name, title) {
 		const containerEl = document.createElement("div");
 		containerEl.classList.add(`project-selector-${name}-list-container`, "project-selector-list-container");
-		this.el.appendChild(containerEl);
+		this.#contentEl.appendChild(containerEl);
 
-		const titleEl = document.createElement("h4");
+		const titleEl = document.createElement("h1");
 		titleEl.textContent = title;
 		containerEl.appendChild(titleEl);
 
@@ -126,27 +175,46 @@ export class ProjectSelector {
 	}
 
 	/**
-	 * @param {string} name
-	 * @param {() => void} onClick
+	 * @param {CreateListButtonOptions} options
 	 */
-	createAction(name, onClick) {
-		return this.createListButton(this.actionsListEl, name, onClick);
+	createAction(options) {
+		return this.createListButton(this.actionsListEl, options);
 	}
 
 	/**
-	 * @param {HTMLUListElement} listEl
-	 * @param {string} name
-	 * @param {() => void} onClick
+	 * @typedef CreateListButtonOptions
+	 * @property {string} text
+	 * @property {string} iconUrl
+	 * @property {() => void} onClick
 	 */
-	createListButton(listEl, name, onClick) {
+
+	/**
+	 * @param {HTMLUListElement} listEl
+	 * @param {CreateListButtonOptions} options
+	 */
+	createListButton(listEl, { iconUrl, text, onClick }) {
 		const item = document.createElement("li");
 		listEl.appendChild(item);
 		const button = document.createElement("button");
 		item.appendChild(button);
 		button.classList.add("project-selector-button");
-		button.textContent = name;
 		button.addEventListener("click", onClick);
+
+		const buttonWrap = document.createElement("span");
+		buttonWrap.classList.add("button-wrap");
+		button.append(buttonWrap);
+
+		const iconEl = document.createElement("div");
+		iconEl.classList.add("project-selector-button-icon");
+		iconEl.style.backgroundImage = `url(${iconUrl})`;
+		ColorizerFilterManager.instance().applyFilter(iconEl, "var(--default-button-text-color)");
+		buttonWrap.append(iconEl);
+
+		const textEl = document.createElement("span");
+		textEl.textContent = text;
+		buttonWrap.append(textEl);
 		return {
+			listItemEl: item,
 			buttonEl: button,
 		};
 	}
@@ -159,14 +227,14 @@ export class ProjectSelector {
 		let databaseNames = null;
 		try {
 			const databases = await indexedDB.databases();
-			const unfilteredNames = databases.map(db => db.name);
-			databaseNames = /** @type {string[]} */ (unfilteredNames.filter(db => Boolean(db)));
+			const unfilteredNames = databases.map((db) => db.name);
+			databaseNames = /** @type {string[]} */ (unfilteredNames.filter((db) => Boolean(db)));
 		} catch {
 			// Some browsers don't support `databases()`, in that case we just don't filter the list.
 		}
 		if (databaseNames) {
 			const certainNames = databaseNames;
-			this.recentProjectsList = this.recentProjectsList.filter(entry => {
+			this.recentProjectsList = this.recentProjectsList.filter((entry) => {
 				if (entry.fileSystemType != "db") return true;
 
 				const dbName = IndexedDbStudioFileSystem.getDbName(entry.projectUuid);
@@ -207,18 +275,16 @@ export class ProjectSelector {
 			if (entry.alias) {
 				text = entry.alias;
 			}
-			const {buttonEl} = this.createListButton(this.recentListEl, text, async () => {
-				this.willOpenProjectAfterLoad();
-				const studio = await this.waitForStudio();
-				studio.projectManager.openExistingProject(entry, true);
-				this.setVisibility(false);
-			});
+			let icon = "";
 			let tooltip = "";
 			if (entry.fileSystemType == "fsa") {
+				icon = "folder";
 				tooltip = "File System on Disk";
 			} else if (entry.fileSystemType == "db") {
+				icon = "database";
 				tooltip = "Stored in Cookies";
 			} else if (entry.fileSystemType == "remote") {
+				icon = "remoteSignal";
 				tooltip = "Remote File System";
 				if (entry.remoteProjectConnectionType == "internal") {
 					tooltip += " (Internal Connection)";
@@ -226,8 +292,18 @@ export class ProjectSelector {
 					tooltip += " (WebRTC Connection)";
 				}
 			}
+			const { buttonEl } = this.createListButton(this.recentListEl, {
+				text,
+				iconUrl: `static/icons/${icon}.svg`,
+				onClick: async () => {
+					this.willOpenProjectAfterLoad();
+					const studio = await this.waitForStudio();
+					studio.projectManager.openExistingProject(entry, true);
+					this.setVisibility(false);
+				},
+			});
 			buttonEl.title = tooltip;
-			buttonEl.addEventListener("contextmenu", e => {
+			buttonEl.addEventListener("contextmenu", (e) => {
 				if (this.loadedStudio) {
 					e.preventDefault();
 					let deleteText = "Remove from Recents";
@@ -283,7 +359,7 @@ export class ProjectSelector {
 	async waitForStudio() {
 		if (this.loadedStudio) return this.loadedStudio;
 
-		return new Promise(r => this.onStudioLoadCbs.add(r));
+		return new Promise((r) => this.onStudioLoadCbs.add(r));
 	}
 
 	/**
@@ -300,7 +376,7 @@ export class ProjectSelector {
 	 */
 	setStudioLoaded(studio) {
 		this.loadedStudio = studio;
-		studio.projectManager.onProjectOpenEntryChange(entry => {
+		studio.projectManager.onProjectOpenEntryChange((entry) => {
 			if (entry) {
 				this.addRecentProjectEntry(entry);
 			}
@@ -342,7 +418,7 @@ export class ProjectSelector {
 			studio.projectManager.openNewDbProject(false);
 			this.allowOpeningNew = false;
 		}
-		this.onStudioLoadCbs.forEach(cb => cb(studio));
+		this.onStudioLoadCbs.forEach((cb) => cb(studio));
 	}
 
 	async deleteProjectsNotWorthSaving() {
@@ -432,14 +508,14 @@ export class ProjectSelector {
 		for (const existingEntry of list) {
 			const promise = (async () => {
 				const same = await this.projectEntryEquals(entry, existingEntry);
-				return {entry: existingEntry, same};
+				return { entry: existingEntry, same };
 			})();
 			promises.push(promise);
 		}
 		const results = await Promise.allSettled(promises);
-		const removeResults = results.filter(r => r.status == "fulfilled" && r.value.same);
+		const removeResults = results.filter((r) => r.status == "fulfilled" && r.value.same);
 		const castRemoveResults = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntryAny, same: boolean}>[]} */ (removeResults);
-		const removeEntries = castRemoveResults.map(r => r.value.entry);
+		const removeEntries = castRemoveResults.map((r) => r.value.entry);
 		for (const entry of removeEntries) {
 			list.splice(list.indexOf(entry), 1);
 		}

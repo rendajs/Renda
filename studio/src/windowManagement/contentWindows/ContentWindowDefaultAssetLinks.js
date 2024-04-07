@@ -1,6 +1,6 @@
-import {ContentWindow} from "./ContentWindow.js";
-import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
-import {createTreeViewEntryOptions, createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
+import { ContentWindow } from "./ContentWindow.js";
+import { PropertiesTreeView } from "../../ui/propertiesTreeView/PropertiesTreeView.js";
+import { createTreeViewEntryOptions, createTreeViewStructure } from "../../ui/propertiesTreeView/createStructureHelpers.js";
 
 export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:defaultAssetLinks");
@@ -117,7 +117,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	/**
 	 * @param {import("../../ui/propertiesTreeView/types.ts").PropertiesTreeViewChangeEvent<any>} changeEvent
 	 */
-	#handleGuiValueChange = changeEvent => {
+	#handleGuiValueChange = (changeEvent) => {
 		if (changeEvent.trigger != "user") return;
 
 		/** @type {import("../../assets/AssetManager.js").SetDefaultBuiltInAssetLinkData[]} */

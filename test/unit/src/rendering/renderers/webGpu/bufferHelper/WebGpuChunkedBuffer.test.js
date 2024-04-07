@@ -1,8 +1,8 @@
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {WebGpuChunkedBuffer} from "../../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBuffer.js";
-import {assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Vec3} from "../../../../../../../src/mod.js";
-import {runWithWebGpu} from "../shared/WebGpuApi.js";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { WebGpuChunkedBuffer } from "../../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBuffer.js";
+import { assertEquals, assertInstanceOf, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { Vec3 } from "../../../../../../../src/mod.js";
+import { runWithWebGpu } from "../shared/WebGpuApi.js";
 
 class MockGPUBuffer {
 	/**
@@ -26,7 +26,7 @@ class MockGPUBuffer {
  * @param {object} options
  * @param {(ctx: WebGpuChunkedBufferTestContext) => void} options.fn
  */
-function basicTest({fn}) {
+function basicTest({ fn }) {
 	/** @type {MockGPUBuffer[]} */
 	const createdBuffers = [];
 
@@ -91,7 +91,7 @@ Deno.test({
 	name: "Two groups are aligned based on groupAlignment",
 	fn() {
 		basicTest({
-			fn({device, writeBufferSpy}) {
+			fn({ device, writeBufferSpy }) {
 				const chunkedBuffer = new WebGpuChunkedBuffer(device, {
 					label: "The label",
 					groupAlignment: 8,
@@ -131,7 +131,7 @@ Deno.test({
 	name: "One groups needs padding, a group next to it is placed inside that padding",
 	fn() {
 		basicTest({
-			fn({device, writeBufferSpy}) {
+			fn({ device, writeBufferSpy }) {
 				const chunkedBuffer = new WebGpuChunkedBuffer(device, {
 					label: "The label",
 					groupAlignment: 4,
@@ -171,7 +171,7 @@ Deno.test({
 	name: "A group that needs padding getting placed at the end of a chunk causes new chunk creation",
 	fn() {
 		basicTest({
-			fn({device, writeBufferSpy}) {
+			fn({ device, writeBufferSpy }) {
 				const chunkedBuffer = new WebGpuChunkedBuffer(device, {
 					label: "The label",
 					groupAlignment: 4,
@@ -214,7 +214,7 @@ Deno.test({
 	name: "Groups that don't fit in a single chunk",
 	fn() {
 		basicTest({
-			fn({device, writeBufferSpy}) {
+			fn({ device, writeBufferSpy }) {
 				const chunkedBuffer = new WebGpuChunkedBuffer(device, {
 					groupAlignment: 4,
 					minChunkSize: 4,
@@ -257,7 +257,7 @@ Deno.test({
 	name: "Group that doesn't fit in minChunkSize",
 	fn() {
 		basicTest({
-			fn({device, writeBufferSpy}) {
+			fn({ device, writeBufferSpy }) {
 				const chunkedBuffer = new WebGpuChunkedBuffer(device, {
 					groupAlignment: 4,
 					minChunkSize: 4,
@@ -300,7 +300,7 @@ Deno.test({
 	name: "getBindGroupEntryLocation() throws when called before writing buffers to the gpu",
 	fn() {
 		basicTest({
-			fn({device}) {
+			fn({ device }) {
 				const chunkedBuffer = new WebGpuChunkedBuffer(device, {
 					groupAlignment: 4,
 					minChunkSize: 4,
@@ -321,7 +321,7 @@ Deno.test({
 	name: "clearGroups() removes all groups",
 	fn() {
 		basicTest({
-			fn({device, writeBufferSpy}) {
+			fn({ device, writeBufferSpy }) {
 				const chunkedBuffer = new WebGpuChunkedBuffer(device, {
 					groupAlignment: 4,
 					minChunkSize: 4,
@@ -362,7 +362,7 @@ Deno.test({
 	name: "calling writeAllGroupsToGpu() reuses previous buffers",
 	fn() {
 		basicTest({
-			fn({device, writeBufferSpy, createdBuffers}) {
+			fn({ device, writeBufferSpy, createdBuffers }) {
 				const chunkedBuffer = new WebGpuChunkedBuffer(device, {
 					groupAlignment: 4,
 					minChunkSize: 4,

@@ -1,6 +1,6 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {PlaceHolderTextureManager} from "../../../../../../src/rendering/renderers/webGpu/PlaceHolderTextureManager.js";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { PlaceHolderTextureManager } from "../../../../../../src/rendering/renderers/webGpu/PlaceHolderTextureManager.js";
 
 function createMockRenderer() {
 	/** @type {GPUTexture[]} */
@@ -45,7 +45,7 @@ function createMockRenderer() {
 Deno.test({
 	name: "Creating the same texture twice returns the same instance",
 	fn() {
-		const {renderer, createTextureSpy, uninstall} = createMockRenderer();
+		const { renderer, createTextureSpy, uninstall } = createMockRenderer();
 
 		try {
 			const manager = new PlaceHolderTextureManager(renderer);
@@ -64,7 +64,7 @@ Deno.test({
 Deno.test({
 	name: "Creating a texture and destructing it",
 	fn() {
-		const {renderer, createTextureSpy, createdTextures, uninstall} = createMockRenderer();
+		const { renderer, createTextureSpy, createdTextures, uninstall } = createMockRenderer();
 
 		try {
 			const manager = new PlaceHolderTextureManager(renderer);

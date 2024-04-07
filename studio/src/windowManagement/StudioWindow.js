@@ -28,13 +28,13 @@ export class StudioWindow {
 		this.windowManager = windowManager;
 		this.isRoot = false;
 
-		this.el.addEventListener("click", e => {
-			this.#onClickWithinCbs.forEach(cb => cb(e));
+		this.el.addEventListener("click", (e) => {
+			this.#onClickWithinCbs.forEach((cb) => cb(e));
 		});
-		this.el.addEventListener("focusin", e => {
+		this.el.addEventListener("focusin", (e) => {
 			this.#updateFocusWithin(e.target);
 		});
-		this.el.addEventListener("focusout", e => {
+		this.el.addEventListener("focusout", (e) => {
 			this.#updateFocusWithin(e.relatedTarget);
 		});
 	}

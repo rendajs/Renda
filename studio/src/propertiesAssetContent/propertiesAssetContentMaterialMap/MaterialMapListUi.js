@@ -1,6 +1,6 @@
-import {Texture} from "../../../../src/core/Texture.js";
-import {Sampler} from "../../../../src/rendering/Sampler.js";
-import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
+import { Texture } from "../../../../src/core/Texture.js";
+import { Sampler } from "../../../../src/rendering/Sampler.js";
+import { PropertiesTreeView } from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 
 /**
  * @typedef {object} MappableItem
@@ -112,7 +112,7 @@ export class MaterialMapListUi {
 			const mapUi = this.createdMapListUis.get(name);
 			if (mapUi) {
 				/** @type {any} */
-				const guiData = {...itemData};
+				const guiData = { ...itemData };
 				if (mapUi.type == "texture2d") {
 					const defaultValue = guiData.defaultValue;
 					if (typeof defaultValue == "string") {
@@ -144,7 +144,7 @@ export class MaterialMapListUi {
 
 		let hasOneOrMoreMappedValues = false;
 		for (const [name, mapUi] of this.createdMapListUis) {
-			const values = mapUi.treeView.getSerializableStructureValues(mapUi.structure, {purpose: "fileStorage"});
+			const values = mapUi.treeView.getSerializableStructureValues(mapUi.structure, { purpose: "fileStorage" });
 			if (values) {
 				if (mapUi.type == "texture2d") {
 					const defaultValue = values.defaultTexture || values.defaultColor;

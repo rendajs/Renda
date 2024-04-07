@@ -1,7 +1,7 @@
-import {locationTypePriorities} from "../preferences/PreferencesManager.js";
-import {DropDownGui} from "../ui/DropDownGui.js";
-import {Popover} from "../ui/popoverMenus/Popover.js";
-import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
+import { locationTypePriorities } from "../preferences/PreferencesManager.js";
+import { DropDownGui } from "../ui/DropDownGui.js";
+import { Popover } from "../ui/popoverMenus/Popover.js";
+import { PropertiesTreeView } from "../ui/propertiesTreeView/PropertiesTreeView.js";
 
 export class PreferencesPopover extends Popover {
 	/** @type {import("../preferences/PreferencesManager.js").PreferencesManager<any>} */
@@ -11,7 +11,7 @@ export class PreferencesPopover extends Popover {
 
 	/**
 	 * @typedef CreatedEntryData
-	 * @property {import("../preferences/PreferencesManager.js").PreferenceValueTypes} type
+	 * @property {import("../preferences/PreferencesManager.js").PreferenceValueTypes | "enum"} type
 	 * @property {import("../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryAny} entry
 	 * @property {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]?} allowedLocations
 	 */
@@ -63,7 +63,7 @@ export class PreferencesPopover extends Popover {
 		this.el.appendChild(this.preferencesTreeView.el);
 
 		for (const id of preferenceIds) {
-			const {uiName, type, allowedLocations, guiOpts} = preferencesManager.getPreferenceUiData(id);
+			const { uiName, type, allowedLocations, guiOpts, enumItems } = preferencesManager.getPreferenceUiData(id);
 			if (type == "unknown") {
 				throw new Error("Preferences with unknown type can not be added to PreferencesPopovers.");
 			}
@@ -78,6 +78,14 @@ export class PreferencesPopover extends Popover {
 				}
 				guiOpts.guiOpts.label = uiName;
 				entry = this.preferencesTreeView.addItem(guiOpts);
+			} else if (type == "enum") {
+				entry = this.preferencesTreeView.addItem({
+					type: "dropdown",
+					guiOpts: {
+						label: uiName,
+						items: enumItems,
+					},
+				});
 			} else {
 				entry = this.preferencesTreeView.addItem({
 					type,
@@ -86,13 +94,13 @@ export class PreferencesPopover extends Popover {
 					},
 				});
 			}
-			entry.onValueChange(changeEvent => {
+			entry.onValueChange((changeEvent) => {
 				if (changeEvent.trigger != "user") return;
 				preferencesManager.set(id, entry.getValue(), {
 					location: this.#getCurrentLocation(),
 					contentWindowUuid,
 				});
-				this.#updateEntries({updateValues: false});
+				this.#updateEntries({ updateValues: false });
 			});
 			this.#createdEntries.set(id, {
 				type,
@@ -108,7 +116,7 @@ export class PreferencesPopover extends Popover {
 	 * @returns {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} The currently selected location type. Or null when the 'default' location has been selected.
 	 */
 	#getCurrentLocation() {
-		const index = this.locationDropDown.getValue({getAsString: false}) - 1;
+		const index = this.locationDropDown.getValue({ getAsString: false }) - 1;
 		/**
 		 * @type {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]}
 		 */
@@ -137,7 +145,7 @@ export class PreferencesPopover extends Popover {
 		}
 
 		const currentLocation = this.#getCurrentLocation();
-		for (const [id, {entry, type, allowedLocations}] of this.#createdEntries) {
+		for (const [id, { entry, type, allowedLocations }] of this.#createdEntries) {
 			if (updateValues) {
 				let value = this.#preferencesManager.getUiValueAtLocation(id, currentLocation, {
 					contentWindowUuid: this.#contentWindowUuid,
@@ -168,7 +176,7 @@ export class PreferencesPopover extends Popover {
 
 				let defaultValueEntry = null;
 				let finalValueEntry = null;
-				if (type == "boolean" || type == "number" || type == "string") {
+				if (type == "boolean" || type == "number" || type == "string" || type == "enum") {
 					let defaultValue = this.#preferencesManager.getDefaultValue(id);
 					let finalValue = this.#preferencesManager.get(id, this.#contentWindowUuid);
 					if (type == "string") {

@@ -1,5 +1,5 @@
-import {bgRed, gray, green, red, yellow} from "std/fmt/colors.ts";
-import {discardCurrentContexts} from "./browser.js";
+import { bgRed, gray, green, red, yellow } from "std/fmt/colors.ts";
+import { discardCurrentContexts } from "./browser.js";
 
 /**
  * @typedef E2eTestConfig
@@ -89,7 +89,7 @@ export async function runE2eTest(config) {
 			if (!developmentModeEnabled) {
 				let createdTimeout;
 				const timeoutPromise = (async () => {
-					await new Promise(resolve => {
+					await new Promise((resolve) => {
 						createdTimeout = setTimeout(resolve, 30_000);
 					});
 					if (testFinished) return;

@@ -1,4 +1,4 @@
-import {ENGINE_SOURCE_PATH} from "../../../studioDefines.js";
+import { ENGINE_SOURCE_PATH } from "../../../studioDefines.js";
 
 /**
  * @typedef {"project" | "engine" | "enginegenerated" | "remote"} ScriptType
@@ -24,7 +24,7 @@ const scriptTypes = [
  * in the file that a user can import via "renda:services".
  * @return {import("rollup").Plugin}
  */
-export function resolvePlugin({getScriptContentFn, servicesSource}) {
+export function resolvePlugin({ getScriptContentFn, servicesSource }) {
 	return {
 		name: "studio-resolve-scripts",
 		resolveId(source, importer, opts) {
@@ -33,7 +33,7 @@ export function resolvePlugin({getScriptContentFn, servicesSource}) {
 			if (importer) {
 				importerInfo = castThis.getModuleInfo(importer);
 			}
-			let {scriptType, sourcePath} = getPathType(source);
+			let { scriptType, sourcePath } = getPathType(source);
 			/** @type {ScriptType?} */
 			const importerType = importerInfo?.meta?.studioResolve?.scriptType ?? null;
 			scriptType = scriptType || importerType || null;

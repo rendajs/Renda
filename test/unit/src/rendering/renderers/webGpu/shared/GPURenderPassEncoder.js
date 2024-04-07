@@ -1,4 +1,4 @@
-import {GPUPassEncoder} from "./GPUPassEncoder.js";
+import { GPUPassEncoder } from "./GPUPassEncoder.js";
 
 export class GPURenderPassEncoder extends GPUPassEncoder {
 	setIndexBuffer() {}

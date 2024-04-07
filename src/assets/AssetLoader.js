@@ -1,6 +1,6 @@
-import {AssetLoaderType} from "./assetLoaderTypes/AssetLoaderType.js";
-import {isUuid} from "../util/util.js";
-import {RecursionTracker} from "./RecursionTracker.js";
+import { AssetLoaderType } from "./assetLoaderTypes/AssetLoaderType.js";
+import { isUuid } from "../util/util.js";
+import { RecursionTracker } from "./RecursionTracker.js";
 
 /**
  * @template {new (...args: any[]) => import("./assetLoaderTypes/AssetLoaderType.js").AssetLoaderType<any, any>} [TLoaderType = new (...args: any[]) => import("./assetLoaderTypes/AssetLoaderType.js").AssetLoaderType<any, any>]
@@ -121,7 +121,7 @@ export class AssetLoader {
 			const searchCount = this.bundles.size;
 			let unavailableCount = 0;
 			for (const bundle of this.bundles) {
-				bundle.waitForAssetAvailable(uuid).then(available => {
+				bundle.waitForAssetAvailable(uuid).then((available) => {
 					if (available) {
 						resolve(bundle);
 					} else {
@@ -139,7 +139,7 @@ export class AssetLoader {
 		}
 		const assetData = await bundleWithAsset.getAsset(uuid);
 		if (!assetData) throw new Error("Assertion failed, expected bundle to return asset data.");
-		const {buffer, type} = assetData;
+		const { buffer, type } = assetData;
 
 		const loaderType = this.registeredLoaderTypes.get(type);
 		if (!loaderType) {

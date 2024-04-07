@@ -1,6 +1,6 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {forceCleanup, forceCleanupAll, runWithMockWeakRef} from "../../shared/mockWeakRef.js";
-import {WeakValueMap} from "../../../../src/util/WeakValueMap.js";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { forceCleanup, forceCleanupAll, runWithMockWeakRef } from "../../shared/mockWeakRef.js";
+import { WeakValueMap } from "../../../../src/util/WeakValueMap.js";
 
 Deno.test({
 	name: "Passed array in constructor is applied",

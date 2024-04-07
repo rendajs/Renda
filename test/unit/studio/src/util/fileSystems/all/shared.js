@@ -1,20 +1,20 @@
-import {FsaStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
-import {MemoryStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
-import {FakeHandle} from "../FsaStudioFileSystem/shared.js";
-import {Importer} from "fake-imports";
-import {generateUuid} from "../../../../../../../src/mod.js";
-import {RemoteStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
-import {createFileSystemClientHandlers, createFileSystemHostHandlers, createFileSystemRequestDeserializers, createFileSystemRequestSerializers, createFileSystemResponseDeserializers, createFileSystemResponseSerializers} from "../../../../../../../studio/src/network/studioConnections/responseHandlers/fileSystem.js";
-import {createLinkedStudioConnections} from "../../../../../src/network/studioConnections/shared.js";
+import { FsaStudioFileSystem } from "../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
+import { MemoryStudioFileSystem } from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import { FakeHandle } from "../FsaStudioFileSystem/shared.js";
+import { Importer } from "fake-imports";
+import { generateUuid } from "../../../../../../../src/mod.js";
+import { RemoteStudioFileSystem } from "../../../../../../../studio/src/util/fileSystems/RemoteStudioFileSystem.js";
+import { createFileSystemClientHandlers, createFileSystemHostHandlers, createFileSystemRequestDeserializers, createFileSystemRequestSerializers, createFileSystemResponseDeserializers, createFileSystemResponseSerializers } from "../../../../../../../studio/src/network/studioConnections/responseHandlers/fileSystem.js";
+import { createLinkedStudioConnections } from "../../../../../src/network/studioConnections/shared.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../../../../shared/MockIndexedDbUtil.js");
 
 /** @type {import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js")} */
 const IndexedDbStudioFileSystemMod = await importer.import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js");
-const {IndexedDbStudioFileSystem} = IndexedDbStudioFileSystemMod;
+const { IndexedDbStudioFileSystem } = IndexedDbStudioFileSystemMod;
 
-const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
+const { forcePendingOperations: forcePendingOperationsImported } = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
 const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../shared/MockIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
 /** @typedef {"fsa" | "indexedDb" | "memory" | "remote" | "serialized-remote"} FileSystemTestTypes */
@@ -39,7 +39,7 @@ function createRemoteFileSystemTestConfig(type, supportsSerialization) {
 		create() {
 			const memoryFs = new MemoryStudioFileSystem();
 			const remoteFs = new RemoteStudioFileSystem();
-			const {connectionA, connectionB} = createLinkedStudioConnections({
+			const { connectionA, connectionB } = createLinkedStudioConnections({
 				reliableResponseHandlers: {
 					...createFileSystemHostHandlers(memoryFs),
 				},
@@ -63,7 +63,7 @@ function createRemoteFileSystemTestConfig(type, supportsSerialization) {
 				supportsSerialization,
 			});
 			remoteFs.setConnection(connectionB);
-			memoryFs.onChange(e => {
+			memoryFs.onChange((e) => {
 				connectionA.messenger.send["fileSystem.changeEvent"](e);
 			});
 			return remoteFs;
@@ -147,7 +147,7 @@ const fileSystems = [
  * @param {FileSystemTest} test
  */
 export function testAll(test) {
-	for (const {type, create, forcePendingOperations} of fileSystems) {
+	for (const { type, create, forcePendingOperations } of fileSystems) {
 		if (test.exclude && test.exclude.includes(type)) continue;
 		let ignore = false;
 		if (test.ignore != undefined) {

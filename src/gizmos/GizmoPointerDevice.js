@@ -1,4 +1,4 @@
-import {domSpaceToScreenSpace} from "../util/cameraUtil.js";
+import { domSpaceToScreenSpace } from "../util/cameraUtil.js";
 
 /**
  * @typedef GizmoPointerEventData

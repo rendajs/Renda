@@ -1,4 +1,4 @@
-import {MaterialMapType} from "../../MaterialMapType.js";
+import { MaterialMapType } from "../../MaterialMapType.js";
 
 export class WebGpuMaterialMapType extends MaterialMapType {
 	/**

@@ -1,18 +1,18 @@
 import "../../../shared/initializeStudio.js";
-import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
-import {ProjectAssetTypeEntity} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {ProjectAssetTypeMaterial} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
-import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {assertIsType, testTypes} from "../../../../shared/typeAssertions.js";
-import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
-import {BASIC_ASSET_PATH, BASIC_PROJECTASSETTYPE, NON_EXISTENT_ASSET_PATH, basicSetup} from "./shared.js";
+import { assertEquals, assertExists, assertRejects } from "std/testing/asserts.ts";
+import { ProjectAssetTypeEntity } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import { ProjectAssetTypeMaterial } from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import { injectMockStudioInstance } from "../../../../../../studio/src/studioInstance.js";
+import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
+import { createMockProjectAssetType } from "../../../shared/createMockProjectAssetType.js";
+import { BASIC_ASSET_PATH, BASIC_PROJECTASSETTYPE, NON_EXISTENT_ASSET_PATH, basicSetup } from "./shared.js";
 
 injectMockStudioInstance(/** @type {any} */ ({}));
 
 Deno.test({
 	name: "getProjectAssetFromPath()",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		const result = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH);
 
@@ -23,7 +23,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromPath() non existent",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		const result = await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH);
 
@@ -34,7 +34,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromPath() non existent, assertExists true",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
 		await assertRejects(async () => {
 			await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
@@ -49,7 +49,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromPath() assert asset type, valid asset type",
 	async fn() {
-		const {assetManager, ProjectAssetType} = await basicSetup();
+		const { assetManager, ProjectAssetType } = await basicSetup();
 
 		const asset = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH, {
 			assertionOptions: {
@@ -64,9 +64,9 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromPath() assert asset type, invalid asset type",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 
-		const {ProjectAssetType: ExpectedProjectAssetType} = createMockProjectAssetType("namespace:expected");
+		const { ProjectAssetType: ExpectedProjectAssetType } = createMockProjectAssetType("namespace:expected");
 
 		await assertRejects(async () => {
 			await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH, {
@@ -81,7 +81,7 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromPath() with registerIfNecessary false",
 	async fn() {
-		const {assetManager, mockFileSystem} = await basicSetup();
+		const { assetManager, mockFileSystem } = await basicSetup();
 
 		mockFileSystem.writeFile(NON_EXISTENT_ASSET_PATH, "test");
 
@@ -107,7 +107,7 @@ Deno.test({
 testTypes({
 	name: "getProjectAssetFromPath() has the correct return types",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const { assetManager } = await basicSetup();
 		const projectAssetUnknown = /** @type {import("../../../../../../studio/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>} */ ({});
 		const projectAssetUnknownOrNull = /** @type {import("../../../../../../studio/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>?} */ ({});
 		const projectAssetMaterial = /** @type {import("../../../../../../studio/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial>} */ ({});

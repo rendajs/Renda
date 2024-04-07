@@ -1,11 +1,11 @@
-import {assertEquals, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {Mesh, MeshAttributeBuffer} from "../../../../../src/mod.js";
-import {fakeMesh} from "./shared.js";
+import { assertEquals, assertNotStrictEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { Mesh } from "../../../../../src/mod.js";
+import { InternalMeshAttributeBuffer } from "../../../../../src/core/InternalMeshAttributeBuffer.js";
 
 Deno.test({
 	name: "clone is not the same reference",
 	fn() {
-		const buffer = new MeshAttributeBuffer(fakeMesh, {});
+		const buffer = new InternalMeshAttributeBuffer({});
 
 		const clone = buffer.clone();
 		assertNotStrictEquals(buffer, clone);
@@ -13,21 +13,11 @@ Deno.test({
 });
 
 Deno.test({
-	name: "mesh reference is copied",
-	fn() {
-		const buffer = new MeshAttributeBuffer(fakeMesh, {});
-
-		const clone = buffer.clone();
-		assertStrictEquals(clone.mesh, fakeMesh);
-	},
-});
-
-Deno.test({
 	name: "isUnused flag is copied",
 	fn() {
-		const buffer1 = new MeshAttributeBuffer(fakeMesh, {
+		const buffer1 = new InternalMeshAttributeBuffer({
 			isUnused: true,
-			attributes: [
+			attributeSettings: [
 				{
 					attributeType: Mesh.AttributeType.POSITION,
 					componentCount: 3,
@@ -40,7 +30,7 @@ Deno.test({
 		const clone1 = buffer1.clone();
 		assertStrictEquals(clone1.isUnused, true);
 
-		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
+		const buffer2 = new InternalMeshAttributeBuffer({
 			isUnused: false,
 		});
 
@@ -52,9 +42,9 @@ Deno.test({
 Deno.test({
 	name: "isUnused flag is copied",
 	fn() {
-		const buffer1 = new MeshAttributeBuffer(fakeMesh, {
+		const buffer1 = new InternalMeshAttributeBuffer({
 			isUnused: true,
-			attributes: [
+			attributeSettings: [
 				{
 					attributeType: Mesh.AttributeType.POSITION,
 					componentCount: 3,
@@ -67,7 +57,7 @@ Deno.test({
 		const clone1 = buffer1.clone();
 		assertStrictEquals(clone1.isUnused, true);
 
-		const buffer2 = new MeshAttributeBuffer(fakeMesh, {
+		const buffer2 = new InternalMeshAttributeBuffer({
 			isUnused: false,
 		});
 
@@ -79,7 +69,7 @@ Deno.test({
 Deno.test({
 	name: "arrayStride is copied",
 	fn() {
-		const buffer = new MeshAttributeBuffer(fakeMesh, {
+		const buffer = new InternalMeshAttributeBuffer({
 			arrayStride: 2,
 		});
 
@@ -96,8 +86,8 @@ Deno.test({
 Deno.test({
 	name: "attribute data is cloned",
 	fn() {
-		const buffer = new MeshAttributeBuffer(fakeMesh, {
-			attributes: [
+		const buffer = new InternalMeshAttributeBuffer({
+			attributeSettings: [
 				{
 					attributeType: Mesh.AttributeType.POSITION,
 					componentCount: 3,
@@ -114,6 +104,6 @@ Deno.test({
 		});
 
 		const clone = buffer.clone();
-		assertNotStrictEquals(buffer.attributes[0], clone.attributes[0]);
+		assertEquals(buffer.attributeSettings, clone.attributeSettings);
 	},
 });

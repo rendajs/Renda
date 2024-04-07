@@ -1,6 +1,6 @@
-import {ContextMenuItem} from "./ContextMenuItem.js";
-import {Button} from "../Button.js";
-import {clamp} from "../../../../src/mod.js";
+import { ContextMenuItem } from "./ContextMenuItem.js";
+import { Button } from "../Button.js";
+import { clamp } from "../../../../src/mod.js";
 
 /**
  * @typedef {HTMLElement | Button | ContextMenuItem | MouseEvent} PopoverSetPosItem
@@ -133,7 +133,7 @@ export class Popover {
 	setNeedsCurtain(needsCurtain) {
 		if (needsCurtain == this.#needsCurtain) return;
 		this.#needsCurtain = needsCurtain;
-		this.#onNeedsCurtainChangeCbs.forEach(cb => cb(needsCurtain));
+		this.#onNeedsCurtainChangeCbs.forEach((cb) => cb(needsCurtain));
 	}
 
 	/**

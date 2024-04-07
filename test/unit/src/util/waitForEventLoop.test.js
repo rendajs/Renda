@@ -1,5 +1,5 @@
-import {waitForEventLoop} from "../../../../src/mod.js";
-import {assertPromiseResolved} from "../../shared/asserts.js";
+import { waitForEventLoop } from "../../../../src/mod.js";
+import { assertPromiseResolved } from "../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "waitForEventLoop()",

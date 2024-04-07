@@ -1,5 +1,5 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {VertexState, createUvSphere} from "../../../../../src/mod.js";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { Mesh, VertexState, createUvSphere } from "../../../../../src/mod.js";
 
 Deno.test({
 	name: "Basic sphere",
@@ -9,8 +9,7 @@ Deno.test({
 			widthSegments: 3,
 		});
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
-		const vertexData = Array.from(positionBuffer.getVertexData(0));
+		const vertexData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(vertexData.length, 9);
 
 		const indexData = Array.from(mesh.getIndexData());
@@ -26,8 +25,7 @@ Deno.test({
 			widthSegments: 10,
 		});
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
-		const vertexData = Array.from(positionBuffer.getVertexData(0));
+		const vertexData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(vertexData.length, 100);
 
 		const indexData = Array.from(mesh.getIndexData());

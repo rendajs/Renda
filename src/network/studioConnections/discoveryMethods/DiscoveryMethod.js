@@ -164,7 +164,7 @@ export class DiscoveryMethod {
 			connectionType: castManager.type,
 		}, ...args);
 		const castInstance = /** @type {InstanceType<TMessageHandler>} */ (instance);
-		this.onConnectionRequestCbs.forEach(cb => cb(castInstance));
+		this.onConnectionRequestCbs.forEach((cb) => cb(castInstance));
 		this.activeConnections.set(otherClientUuid, castInstance);
 		return castInstance;
 	}
@@ -198,7 +198,7 @@ export class DiscoveryMethod {
 	 * @protected
 	 */
 	fireAvailableConnectionsChanged() {
-		this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
+		this.onAvailableConnectionsChangedCbs.forEach((cb) => cb());
 	}
 
 	/**

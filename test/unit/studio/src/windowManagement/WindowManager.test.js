@@ -1,16 +1,16 @@
-import {Importer} from "fake-imports";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assert, assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
-import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
-import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
-import {assertPromiseResolved} from "../../../shared/asserts.js";
-import {assertIsType} from "../../../shared/typeAssertions.js";
-import {createMockPopoverManager, triggerContextMenuItem} from "../../shared/contextMenuHelpers.js";
-import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
-import {WorkspacePreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/WorkspacePreferencesLocation.js";
+import { Importer } from "fake-imports";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { assert, assertEquals, assertInstanceOf, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { MouseEvent } from "fake-dom/FakeMouseEvent.js";
+import { injectMockStudioInstance } from "../../../../../studio/src/studioInstance.js";
+import { PreferencesManager } from "../../../../../studio/src/preferences/PreferencesManager.js";
+import { PreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
+import { assertPromiseResolved } from "../../../../../src/util/asserts.js";
+import { assertIsType } from "../../../shared/typeAssertions.js";
+import { createMockPopoverManager, triggerContextMenuItem } from "../../shared/contextMenuHelpers.js";
+import { waitForMicrotasks } from "../../../../../src/util/waitForMicroTasks.js";
+import { WorkspacePreferencesLocation } from "../../../../../studio/src/preferences/preferencesLocation/WorkspacePreferencesLocation.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
@@ -23,11 +23,11 @@ importer.makeReal("../../../../../studio/src/preferences/preferencesLocation/Wor
 
 /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js")} */
 const WindowManagerMod = await importer.import("../../../../../studio/src/windowManagement/WindowManager.js");
-const {WindowManager} = WindowManagerMod;
+const { WindowManager } = WindowManagerMod;
 
 /** @type {import("../../../../../studio/src/windowManagement/StudioWindow.js")} */
 const StudioWindowMod = await importer.import("../../../../../studio/src/windowManagement/StudioWindow.js");
-const {StudioWindow} = StudioWindowMod;
+const { StudioWindow } = StudioWindowMod;
 const onFocusedWithinChangeSym = Symbol("onFocusedWithinChange");
 
 /** @typedef {import("../../../../../studio/src/windowManagement/StudioWindow.js").StudioWindow & {[onFocusedWithinChangeSym]: Set<(hasFocus: boolean) => void>}} StudioWindowWithSym */
@@ -49,21 +49,21 @@ stub(StudioWindow.prototype, "onFocusedWithinChange", function(cb) {
  */
 function triggerOnFocusedWithinChange(studioWindow) {
 	const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (studioWindow));
-	castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
+	castWindow[onFocusedWithinChangeSym].forEach((cb) => cb(true));
 }
 
 /** @type {import("../../../../../studio/src/windowManagement/SplitStudioWindow.js")} */
 const StudioWindowSplitMod = await importer.import("../../../../../studio/src/windowManagement/SplitStudioWindow.js");
-const {SplitStudioWindow} = StudioWindowSplitMod;
+const { SplitStudioWindow } = StudioWindowSplitMod;
 
 /** @type {import("../../../../../studio/src/windowManagement/TabsStudioWindow.js")} */
 const StudioWindowTabsMod = await importer.import("../../../../../studio/src/windowManagement/TabsStudioWindow.js");
-const {TabsStudioWindow} = StudioWindowTabsMod;
+const { TabsStudioWindow } = StudioWindowTabsMod;
 stub(TabsStudioWindow.prototype, "updateTabSelectorSpacer", () => {});
 
 /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js")} */
 const ContentWindowMod = await importer.import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js");
-const {ContentWindow} = ContentWindowMod;
+const { ContentWindow } = ContentWindowMod;
 
 const CONTENT_WINDOW_UUID_1 = "uuid1";
 const CONTENT_WINDOW_UUID_2 = "uuid2";
@@ -76,7 +76,7 @@ const CONTENT_WINDOW_TYPE_4 = "namespace:content window type 4";
 
 /** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js")} */
 const WorkspaceManagerMod = await importer.import("../../../../../studio/src/windowManagement/WorkspaceManager.js");
-const {WorkspaceManager} = WorkspaceManagerMod;
+const { WorkspaceManager } = WorkspaceManagerMod;
 
 /**
  * @typedef {[name: string, value: string | boolean][]} SetValueCalls
@@ -206,7 +206,7 @@ async function basicSetup({
 Deno.test({
 	name: "Registering content window with wrong class type",
 	async fn() {
-		const {windowManager, cleanup} = await basicSetup();
+		const { windowManager, cleanup } = await basicSetup();
 
 		try {
 			class NotAContentWindow {}
@@ -226,7 +226,7 @@ Deno.test({
 		class MissingType extends ContentWindow {
 		}
 
-		const {windowManager, cleanup} = await basicSetup();
+		const { windowManager, cleanup } = await basicSetup();
 
 		try {
 			assertThrows(() => {
@@ -251,7 +251,7 @@ Deno.test({
 			static contentWindowTypeId = "notype:";
 		}
 
-		const {windowManager, cleanup} = await basicSetup();
+		const { windowManager, cleanup } = await basicSetup();
 
 		try {
 			assertThrows(() => {
@@ -272,7 +272,7 @@ Deno.test({
 Deno.test({
 	name: "loading basic workspace",
 	async fn() {
-		const {windowManager, cleanup} = await basicSetup();
+		const { windowManager, cleanup } = await basicSetup();
 
 		try {
 			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
@@ -287,7 +287,7 @@ Deno.test({
 Deno.test({
 	name: "closing the last tab of a window",
 	async fn() {
-		const {studio, windowManager, cleanup} = await basicSetup({
+		const { studio, windowManager, cleanup } = await basicSetup({
 			getActiveWorkspaceDataReturn: {
 				rootWindow: {
 					type: "split",
@@ -321,7 +321,7 @@ Deno.test({
 		});
 
 		try {
-			const {mockPopoverManager, getLastCreatedStructure} = createMockPopoverManager();
+			const { mockPopoverManager, getLastCreatedStructure } = createMockPopoverManager();
 			studio.popoverManager = mockPopoverManager;
 
 			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
@@ -365,7 +365,7 @@ Deno.test({
 Deno.test({
 	name: "Clicking tab buttons changes the active tab",
 	async fn() {
-		const {windowManager, ContentWindowTab1, ContentWindowTab2, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab1, ContentWindowTab2, cleanup } = await basicSetup();
 
 		try {
 			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
@@ -424,7 +424,7 @@ Deno.test({
 Deno.test({
 	name: "lastClickedContentWindow",
 	async fn() {
-		const {windowManager, shortcutConditionSetValueCalls, cleanup} = await basicSetup();
+		const { windowManager, shortcutConditionSetValueCalls, cleanup } = await basicSetup();
 
 		try {
 			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
@@ -442,7 +442,7 @@ Deno.test({
 Deno.test({
 	name: "lastFocusedContentWindow",
 	async fn() {
-		const {windowManager, shortcutConditionSetValueCalls, cleanup} = await basicSetup();
+		const { windowManager, shortcutConditionSetValueCalls, cleanup } = await basicSetup();
 
 		try {
 			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
@@ -464,7 +464,7 @@ Deno.test({
 		let addLocationSpy;
 		/** @type {import("std/testing/mock.ts").Spy} */
 		let removeLocationSpy;
-		const {cleanup, windowManager} = await basicSetup({
+		const { cleanup, windowManager } = await basicSetup({
 			beforeCreate(studio) {
 				addLocationSpy = spy(studio.preferencesManager, "addLocation");
 				removeLocationSpy = spy(studio.preferencesManager, "removeLocation");
@@ -514,7 +514,7 @@ Deno.test({
 Deno.test({
 	name: "Saves and loads workspace location preferences",
 	async fn() {
-		const {cleanup, windowManager, preferencesManager} = await basicSetup({
+		const { cleanup, windowManager, preferencesManager } = await basicSetup({
 			getActiveWorkspaceDataReturn: {
 				preferences: {
 					workspace: {
@@ -568,7 +568,7 @@ Deno.test({
 Deno.test({
 	name: "Saves and loads workspace content window location preferences",
 	async fn() {
-		const {cleanup, windowManager, preferencesManager} = await basicSetup({
+		const { cleanup, windowManager, preferencesManager } = await basicSetup({
 			getActiveWorkspaceDataReturn: {
 				preferences: {
 					workspace: {
@@ -667,7 +667,7 @@ Deno.test({
 Deno.test({
 	name: "setContentWindowPreferences() loads the preferences on the correct content window",
 	async fn() {
-		const {windowManager, preferencesManager, cleanup} = await basicSetup();
+		const { windowManager, preferencesManager, cleanup } = await basicSetup();
 
 		try {
 			// First we set a few values to verify that they get deleted later on
@@ -734,7 +734,7 @@ Deno.test({
 Deno.test({
 	name: "Flushing content window locations",
 	async fn() {
-		const {windowManager, preferencesManager, cleanup} = await basicSetup();
+		const { windowManager, preferencesManager, cleanup } = await basicSetup();
 
 		try {
 			/** @type {Set<() => void>} */
@@ -743,15 +743,15 @@ Deno.test({
 			/**
 			 * @param {unknown} data
 			 */
-			const flushFn = data => {
+			const flushFn = (data) => {
 				/** @type {Promise<void>} */
-				const promise = new Promise(resolve => {
+				const promise = new Promise((resolve) => {
 					flushPromises.add(resolve);
 				});
 				return promise;
 			};
 			function resolveFlushPromises() {
-				flushPromises.forEach(resolve => resolve());
+				flushPromises.forEach((resolve) => resolve());
 				flushPromises.clear();
 			}
 			const flushSpy = spy(flushFn);
@@ -823,7 +823,7 @@ Deno.test({
 Deno.test({
 	name: "getContentWindows() by id",
 	async fn() {
-		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab2, cleanup } = await basicSetup();
 
 		try {
 			const result = Array.from(windowManager.getContentWindows(CONTENT_WINDOW_TYPE_2));
@@ -857,7 +857,7 @@ Deno.test({
 Deno.test({
 	name: "getContentWindows() by constructor",
 	async fn() {
-		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab2, cleanup } = await basicSetup();
 
 		try {
 			const result = Array.from(windowManager.getContentWindows(ContentWindowTab2));
@@ -879,7 +879,7 @@ Deno.test({
 Deno.test({
 	name: "existing getOrCreateContentWindow() by id",
 	async fn() {
-		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab2, cleanup } = await basicSetup();
 
 		try {
 			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
@@ -914,7 +914,7 @@ Deno.test({
 Deno.test({
 	name: "existing getOrCreateContentWindow() by constructor",
 	async fn() {
-		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab2, cleanup } = await basicSetup();
 
 		try {
 			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
@@ -937,7 +937,7 @@ Deno.test({
 Deno.test({
 	name: "non existent getOrCreateContentWindow() by id",
 	async fn() {
-		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab4, cleanup } = await basicSetup();
 
 		try {
 			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
@@ -954,7 +954,7 @@ Deno.test({
 Deno.test({
 	name: "non existent getOrCreateContentWindow() by constructor",
 	async fn() {
-		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab4, cleanup } = await basicSetup();
 
 		try {
 			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
@@ -971,7 +971,7 @@ Deno.test({
 Deno.test({
 	name: "getMostSuitableContentWindow by id",
 	async fn() {
-		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab2, cleanup } = await basicSetup();
 
 		try {
 			// When no windows of the provided type have been focused, the first one is returned.
@@ -1028,7 +1028,7 @@ Deno.test({
 Deno.test({
 	name: "create using getMostSuitableContentWindow by id",
 	async fn() {
-		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab4, cleanup } = await basicSetup();
 
 		try {
 			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
@@ -1045,7 +1045,7 @@ Deno.test({
 Deno.test({
 	name: "getMostSuitableContentWindow by id, create = false",
 	async fn() {
-		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab2, cleanup } = await basicSetup();
 
 		try {
 			// When no windows of the provided type have been focused, the first one is returned.
@@ -1105,7 +1105,7 @@ Deno.test({
 Deno.test({
 	name: "getMostSuitableContentWindow by constructor",
 	async fn() {
-		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab2, cleanup } = await basicSetup();
 
 		try {
 			// When no windows of the provided type have been focused, the first one is returned.
@@ -1153,7 +1153,7 @@ Deno.test({
 Deno.test({
 	name: "create using getMostSuitableContentWindow by constructor",
 	async fn() {
-		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab4, cleanup } = await basicSetup();
 
 		try {
 			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
@@ -1170,7 +1170,7 @@ Deno.test({
 Deno.test({
 	name: "getMostSuitableContentWindow by constructor, create = false",
 	async fn() {
-		const {windowManager, ContentWindowTab2, ContentWindowTab4, cleanup} = await basicSetup();
+		const { windowManager, ContentWindowTab2, ContentWindowTab4, cleanup } = await basicSetup();
 
 		try {
 			// When no windows of the provided type have been focused, the first one is returned.

@@ -1,6 +1,7 @@
-import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {Mesh, Vec3} from "../../../../../src/mod.js";
-import {mockVertexStateSingleAttribute, mockVertexStateTwoAttributes} from "./shared.js";
+import { assertEquals, assertExists, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { Mesh, Vec2, Vec3, Vec4 } from "../../../../../src/mod.js";
+import { mockVertexStateColor, mockVertexStateSingleAttribute, mockVertexStateTwoAttributes, mockVertexStateUv } from "./shared.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "Mesh should have an index format of UINT16 by default",
@@ -76,28 +77,28 @@ Deno.test({
 });
 
 Deno.test({
-	name: "getDataView() should reuse existing DataView when possible",
+	name: "Changing index buffer should result in new index data",
 	fn() {
 		const mesh = new Mesh();
+		mesh.setIndexFormat(Mesh.IndexFormat.UINT_16);
 
-		const dataView1 = mesh.getDataView();
-		const dataView2 = mesh.getDataView();
+		const buffer1 = new ArrayBuffer(6);
+		const dataView1 = new DataView(buffer1);
+		dataView1.setInt16(0, 1, true);
+		dataView1.setInt16(2, 2, true);
+		dataView1.setInt16(4, 3, true);
+		mesh.setIndexData(buffer1);
 
-		assertStrictEquals(dataView1, dataView2);
-	},
-});
+		assertEquals(Array.from(mesh.getIndexData()), [1, 2, 3]);
 
-Deno.test({
-	name: "getDataView() should create a new DataView when the buffer changed",
-	fn() {
-		const mesh = new Mesh();
+		const buffer2 = new ArrayBuffer(6);
+		const dataView2 = new DataView(buffer2);
+		dataView2.setInt16(0, 4, true);
+		dataView2.setInt16(2, 5, true);
+		dataView2.setInt16(4, 6, true);
+		mesh.setIndexData(buffer2);
 
-		const dataView1 = mesh.getDataView();
-
-		mesh.setIndexData(new ArrayBuffer(0));
-		const dataView2 = mesh.getDataView();
-
-		assertNotStrictEquals(dataView1, dataView2);
+		assertEquals(Array.from(mesh.getIndexData()), [4, 5, 6]);
 	},
 });
 
@@ -243,6 +244,21 @@ Deno.test({
 });
 
 Deno.test({
+	name: "fireIndexBufferChanged should fire onIndexBufferChange",
+	fn() {
+		const mesh = new Mesh();
+
+		let onIndexBufferChangeCallCount = 0;
+		mesh.onIndexBufferChange(() => {
+			onIndexBufferChangeCallCount++;
+		});
+
+		mesh.fireIndexBufferChanged();
+		assertEquals(onIndexBufferChangeCallCount, 1);
+	},
+});
+
+Deno.test({
 	name: "setVertexCount() with single unused attribute",
 	fn() {
 		const mesh = new Mesh();
@@ -254,10 +270,7 @@ Deno.test({
 
 		mesh.setVertexCount(3);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const data = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const data = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(data.length, 3);
 	},
 });
@@ -275,10 +288,7 @@ Deno.test({
 
 		mesh.setVertexCount(3);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const data = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const data = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(data.length, 3);
 	},
 });
@@ -300,13 +310,10 @@ Deno.test({
 
 		mesh.setVertexCount(3);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 2);
-
-		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(positionData.length, 3);
 
-		const normalData = Array.from(buffers[1].getVertexData(Mesh.AttributeType.NORMAL));
+		const normalData = Array.from(mesh.getVertexData(Mesh.AttributeType.NORMAL));
 		assertEquals(normalData.length, 3);
 	},
 });
@@ -321,16 +328,43 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(positionData.length, 2);
 	},
 });
 
 Deno.test({
-	name: "setVertexData() for attribute in VertexState",
+	name: "getVertexData() throws for non existent unused attributes",
+	fn() {
+		const mesh = new Mesh();
+		mesh.setVertexCount(1);
+
+		assertThrows(() => {
+			mesh.getVertexData(Mesh.AttributeType.POSITION);
+		}, Error, "This mesh does not contain an attribute with the specified type. Either add a vertex state that includes this attribute or add vertex data using setVertexData().");
+	},
+});
+
+Deno.test({
+	name: "setVertexData() for attribute in VertexState with vector 2",
+	fn() {
+		const mesh = new Mesh();
+		mesh.setVertexCount(2);
+		mesh.setVertexState(mockVertexStateUv);
+		mesh.setVertexData(Mesh.AttributeType.UV1, [
+			new Vec2(1, 2),
+			new Vec2(3, 4),
+		]);
+
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.UV1));
+		assertEquals(positionData.length, 2);
+		assertVecAlmostEquals(positionData[0], [1, 2]);
+		assertVecAlmostEquals(positionData[1], [3, 4]);
+	},
+});
+
+Deno.test({
+	name: "setVertexData() for attribute in VertexState with vector 3",
 	fn() {
 		const mesh = new Mesh();
 		mesh.setVertexCount(2);
@@ -340,11 +374,28 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers());
-		assertEquals(buffers.length, 1);
-
-		const positionData = Array.from(buffers[0].getVertexData(Mesh.AttributeType.POSITION));
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(positionData.length, 2);
+		assertVecAlmostEquals(positionData[0], [1, 2, 3]);
+		assertVecAlmostEquals(positionData[1], [4, 5, 6]);
+	},
+});
+
+Deno.test({
+	name: "setVertexData() for attribute in VertexState with vector 4",
+	fn() {
+		const mesh = new Mesh();
+		mesh.setVertexCount(2);
+		mesh.setVertexState(mockVertexStateColor);
+		mesh.setVertexData(Mesh.AttributeType.COLOR, [
+			new Vec4(1, 2, 3, 4),
+			new Vec4(5, 6, 7, 8),
+		]);
+
+		const positionData = Array.from(mesh.getVertexData(Mesh.AttributeType.COLOR));
+		assertEquals(positionData.length, 2);
+		assertVecAlmostEquals(positionData[0], [1, 2, 3, 4]);
+		assertVecAlmostEquals(positionData[1], [5, 6, 7, 8]);
 	},
 });
 
@@ -352,10 +403,15 @@ Deno.test({
 	name: "getBufferForAttributeType() should create an unused buffer when it doesn't exist in the VertexState",
 	fn() {
 		const mesh = new Mesh();
+		mesh.setVertexCount(1);
 
-		const result = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
+		const buffer1 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
+		assertEquals(buffer1, null);
 
-		assertEquals(result.isUnused, true);
+		mesh.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(1, 2, 3)]);
+		const buffer2 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
+		assertExists(buffer2);
+		assertEquals(buffer2.isUnused, true);
 	},
 });
 
@@ -363,16 +419,22 @@ Deno.test({
 	name: "getBufferForAttributeType() should create buffers with the specified parameters when it doesn't exist in the VertexState",
 	fn() {
 		const mesh = new Mesh();
+		mesh.setVertexCount(3);
 
-		const result = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION, {
+		const buffer1 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
+		assertEquals(buffer1, null);
+
+		mesh.setVertexData(Mesh.AttributeType.POSITION, [1, 2, 3], {
 			unusedComponentCount: 1,
 			unusedFormat: Mesh.AttributeFormat.INT32,
 		});
 
-		assertEquals(result.isUnused, true);
-		assertEquals(result.attributes.length, 1);
-		assertEquals(result.attributes[0].componentCount, 1);
-		assertEquals(result.attributes[0].format, Mesh.AttributeFormat.INT32);
+		const buffer2 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
+		assertExists(buffer2);
+		assertEquals(buffer2.isUnused, true);
+		assertEquals(buffer2.attributeSettings.length, 1);
+		assertEquals(buffer2.attributeSettings[0].componentCount, 1);
+		assertEquals(buffer2.attributeSettings[0].format, Mesh.AttributeFormat.INT32);
 	},
 });
 
@@ -380,10 +442,13 @@ Deno.test({
 	name: "getBufferForAttributeType() should return the existing buffer when it is unused",
 	fn() {
 		const mesh = new Mesh();
+		mesh.setVertexCount(3);
+		mesh.setVertexData(Mesh.AttributeType.POSITION, []);
 
-		const result1 = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
-		const result2 = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
+		const result1 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
+		const result2 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
 
+		assertExists(result1);
 		assertStrictEquals(result1, result2);
 	},
 });
@@ -399,9 +464,10 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const result1 = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
-		const result2 = mesh.getBufferForAttributeType(Mesh.AttributeType.POSITION);
+		const result1 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
+		const result2 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
 
+		assertExists(result1);
 		assertStrictEquals(result1, result2);
 		assertEquals(result1.isUnused, false);
 	},
@@ -422,7 +488,7 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers());
+		const buffers = Array.from(mesh.getAttributeBuffers());
 
 		assertEquals(buffers.length, 2);
 	},
@@ -443,7 +509,7 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
-		const buffers = Array.from(mesh.getBuffers(false));
+		const buffers = Array.from(mesh.getAttributeBuffers(false));
 
 		assertEquals(buffers.length, 1);
 	},
@@ -464,11 +530,26 @@ Deno.test({
 			new Vec3(4, 5, 6),
 		]);
 
+		const result1 = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
+		assertExists(result1);
+		assertEquals(result1.isUnused, false);
+		const result2 = mesh.getAttributeBufferForType(Mesh.AttributeType.NORMAL);
+		assertExists(result2);
+		assertEquals(result2.isUnused, true);
+		assertEquals(Array.from(mesh.getAttributeBuffers()).length, 2);
+
 		mesh.setVertexState(mockVertexStateTwoAttributes);
 
-		const buffers = Array.from(mesh.getBuffers());
+		assertEquals(Array.from(mesh.getAttributeBuffers()).length, 1);
 
-		assertEquals(buffers.length, 1);
-		assertEquals(buffers[0].attributes.length, 2);
+		const positions = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
+		assertEquals(positions.length, 2);
+		assertVecAlmostEquals(positions[0], [1, 2, 3]);
+		assertVecAlmostEquals(positions[1], [4, 5, 6]);
+
+		const normals = Array.from(mesh.getVertexData(Mesh.AttributeType.NORMAL));
+		assertEquals(normals.length, 2);
+		assertVecAlmostEquals(normals[0], [1, 2, 3]);
+		assertVecAlmostEquals(normals[1], [4, 5, 6]);
 	},
 });

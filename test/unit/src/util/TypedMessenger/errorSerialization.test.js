@@ -1,5 +1,5 @@
-import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
-import {deserializeErrorHook, serializeErrorHook} from "../../../../../src/util/TypedMessenger/errorSerialization.js";
+import { assertEquals, assertExists, assertInstanceOf } from "std/testing/asserts.ts";
+import { deserializeErrorHook, serializeErrorHook } from "../../../../../src/util/TypedMessenger/errorSerialization.js";
 
 Deno.test({
 	name: "Basic error",

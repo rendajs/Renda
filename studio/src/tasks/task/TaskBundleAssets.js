@@ -1,7 +1,7 @@
-import {TypedMessenger} from "../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
-import {bundledAssetDataToArrayBufferOrString} from "../../util/bundledAssetDataToArrayBufferOrString.js";
-import {Task} from "./Task.js";
+import { TypedMessenger } from "../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { createTreeViewStructure } from "../../ui/propertiesTreeView/createStructureHelpers.js";
+import { bundledAssetDataToArrayBufferOrString } from "../../util/bundledAssetDataToArrayBufferOrString.js";
+import { Task } from "./Task.js";
 
 /**
  * @typedef TaskBundleAssetsConfig
@@ -154,7 +154,7 @@ export class TaskBundleAssets extends Task {
 	/**
 	 * @param {import("./Task.js").RunTaskOptions<TaskBundleAssetsConfig>} config
 	 */
-	async runTask({config, allowDiskWrites}) {
+	async runTask({ config, allowDiskWrites }) {
 		if (!config) {
 			throw new Error("Failed to run task: no config provided");
 		}

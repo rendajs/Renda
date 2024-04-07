@@ -1,14 +1,13 @@
-import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
-import {Vec3, VertexState, createPlane} from "../../../../../src/mod.js";
-import {assertVecAlmostEquals} from "../../../shared/asserts.js";
+import { assertEquals, assertInstanceOf, assertStrictEquals } from "std/testing/asserts.ts";
+import { Mesh, Vec3, VertexState, createPlane } from "../../../../../src/mod.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "Basic plane",
 	fn() {
 		const mesh = createPlane();
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
-		const vertexData = Array.from(positionBuffer.getVertexData(0));
+		const vertexData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(vertexData.length, 4);
 
 		const indexData = Array.from(mesh.getIndexData());
@@ -24,8 +23,7 @@ Deno.test({
 			heightSegments: 3,
 		});
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
-		const vertexData = Array.from(positionBuffer.getVertexData(0));
+		const vertexData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(vertexData.length, 24);
 	},
 });
@@ -38,8 +36,7 @@ Deno.test({
 			heightSegments: 2,
 		});
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
-		const vertexData = Array.from(positionBuffer.getVertexData(0));
+		const vertexData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
 		assertEquals(vertexData.length, 9);
 		const indexData = Array.from(mesh.getIndexData());
 		/* eslint-disable array-element-newline */
@@ -61,10 +58,10 @@ Deno.test({
 			height: 3,
 		});
 
-		const positionBuffer = mesh.getBufferForAttributeType(0);
 		const min = new Vec3();
 		const max = new Vec3();
-		for (const vert of positionBuffer.getVertexData(0)) {
+		const vertexData = Array.from(mesh.getVertexData(Mesh.AttributeType.POSITION));
+		for (const vert of vertexData) {
 			assertInstanceOf(vert, Vec3);
 			min.x = Math.min(min.x, vert.x);
 			min.y = Math.min(min.y, vert.y);

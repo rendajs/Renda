@@ -1,15 +1,15 @@
-import {BASIC_ENTITY_UUID, basicTest} from "./shared.js";
-import {ContentWindowEntityEditor} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
-import {assertSpyCalls} from "std/testing/mock.ts";
-import {FakeTime} from "std/testing/time.ts";
-import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
-import {Quat} from "../../../../../../../src/mod.js";
-import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../../../shared/asserts.js";
+import { BASIC_ENTITY_UUID, basicTest } from "./shared.js";
+import { ContentWindowEntityEditor } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
+import { assertSpyCalls } from "std/testing/mock.ts";
+import { FakeTime } from "std/testing/time.ts";
+import { assertEquals, assertExists, assertStrictEquals } from "std/testing/asserts.ts";
+import { Quat } from "../../../../../../../src/mod.js";
+import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../../../src/util/asserts.js";
 
 Deno.test({
 	name: "last loaded entity and orbit controls are saved and loaded",
 	async fn() {
-		const {args, preferencesFlushSpy, entityEditorUpdatedSpy, uninstall} = basicTest();
+		const { args, preferencesFlushSpy, entityEditorUpdatedSpy, uninstall } = basicTest();
 		const time = new FakeTime();
 		try {
 			const contentWindow1 = new ContentWindowEntityEditor(...args);
@@ -70,7 +70,7 @@ Deno.test({
 Deno.test({
 	name: "Orbit controls are not saved when editing a non project entity",
 	async fn() {
-		const {args, preferencesFlushSpy, uninstall} = basicTest();
+		const { args, preferencesFlushSpy, uninstall } = basicTest();
 		const time = new FakeTime();
 		try {
 			const contentWindow = new ContentWindowEntityEditor(...args);

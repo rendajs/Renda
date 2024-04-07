@@ -1,4 +1,4 @@
-import {GPU} from "./GPU.js";
+import { GPU } from "./GPU.js";
 
 /**
  * @param {() => void} fn

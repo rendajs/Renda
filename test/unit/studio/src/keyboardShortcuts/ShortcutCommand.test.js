@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts.ts";
-import {ShortcutCommand} from "../../../../../studio/src/keyboardShortcuts/ShortcutCommand.js";
+import { assertEquals } from "std/testing/asserts.ts";
+import { ShortcutCommand } from "../../../../../studio/src/keyboardShortcuts/ShortcutCommand.js";
 
 /**
  * @typedef ShortcutCommandTestContext
@@ -28,7 +28,7 @@ function basicTest({
 		},
 	});
 	const cmd = new ShortcutCommand(mockShortcutManager, "cmd", commandOpts);
-	fn({cmd});
+	fn({ cmd });
 }
 
 Deno.test({
@@ -43,7 +43,7 @@ Deno.test({
 				commandOpts: {
 					defaultKeys: keys,
 				},
-				fn({cmd}) {
+				fn({ cmd }) {
 					assertEquals(cmd.parsedSequences, expectedSequences);
 				},
 			});
@@ -79,7 +79,7 @@ Deno.test({
 					conditions,
 				},
 				shortcutConditions: basicConditions,
-				fn({cmd}) {
+				fn({ cmd }) {
 					const result = cmd.verifyCondtions();
 					assertEquals(result, expectedResult);
 				},

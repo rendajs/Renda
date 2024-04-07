@@ -1,11 +1,11 @@
-import {assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {fillEnvironmentVariables} from "../../../../../studio/src/tasks/environmentVariables.js";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
+import { fillEnvironmentVariables } from "../../../../../studio/src/tasks/environmentVariables.js";
 
 Deno.test({
 	name: "Basic replacement",
 	fn() {
 		const config = {
-			foo: {bar: "$VAR1"},
+			foo: { bar: "$VAR1" },
 			baz: "(this text is not replaced) $VAR2 (and neither is this)",
 		};
 
@@ -15,7 +15,7 @@ Deno.test({
 		});
 
 		assertEquals(config, {
-			foo: {bar: "hello"},
+			foo: { bar: "hello" },
 			baz: "(this text is not replaced) world (and neither is this)",
 		});
 	},

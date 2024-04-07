@@ -1,5 +1,5 @@
-import {AssetLoaderType} from "./AssetLoaderType.js";
-import {ShaderSource} from "../../rendering/ShaderSource.js";
+import { AssetLoaderType } from "./AssetLoaderType.js";
+import { ShaderSource } from "../../rendering/ShaderSource.js";
 
 // TODO: Make the return type a generic based on whether 'raw' was true.
 
@@ -31,11 +31,29 @@ export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	} = {}) {
 		const decoder = new TextDecoder();
 		const shaderCode = decoder.decode(buffer);
-		if (this.builder && !raw) {
-			const {shaderCode: newShaderCode} = await this.builder.buildShader(shaderCode);
-			return new ShaderSource(newShaderCode);
-		} else {
+		if (raw) {
 			return shaderCode;
+		} else {
+			if (!this.builder) {
+				throw new Error(`Failed to load shader because no shader builder was provided.
+Use AssetLoaderTypeShaderSource.setBuilder() to provide one.
+For example:
+
+	const assetLoader = new AssetLoader();
+	const shaderLoader = assetLoader.registerLoaderType(AssetLoaderTypeShaderSource);
+	const shaderBuilder = new ShaderBuilder();
+	shaderLoader.setBuilder(shaderBuilder);
+
+Alternatively, you can load the shader with the 'raw' flag set:
+
+	const result = await this.#assetLoader.getAsset("<your asset uuid>", {
+		assetOpts: {raw: true},
+		createNewInstance: true,
+	});
+`);
+			}
+			const { shaderCode: newShaderCode } = await this.builder.buildShader(shaderCode);
+			return new ShaderSource(newShaderCode);
 		}
 	}
 
@@ -56,7 +74,7 @@ export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	 */
 	async onShaderUuidRequested(uuid) {
 		const shader = await this.assetLoader.getAsset(uuid, {
-			assetOpts: {raw: true},
+			assetOpts: { raw: true },
 			// createNewInstance is required because this will return a raw string
 			// and raw strings can't be cached used WeakRefs
 			createNewInstance: true,

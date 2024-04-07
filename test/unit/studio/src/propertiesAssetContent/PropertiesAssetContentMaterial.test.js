@@ -1,15 +1,15 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {stub} from "std/testing/mock.ts";
+import { assertEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { stub } from "std/testing/mock.ts";
 import "../../shared/initializeStudio.js";
-import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
-import {Material, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
-import {createMockKeyboardShortcutManager} from "../../shared/mockKeyboardShortcutManager.js";
-import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";
-import {Importer} from "fake-imports";
-import {castTreeView} from "../../shared/mockTreeView/castTreeView.js";
-import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
-import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
-import {Texture} from "../../../../../src/core/Texture.js";
+import { createMockProjectAsset } from "../../shared/createMockProjectAsset.js";
+import { Material, Vec2, Vec3, Vec4 } from "../../../../../src/mod.js";
+import { createMockKeyboardShortcutManager } from "../../shared/mockKeyboardShortcutManager.js";
+import { MaterialMap } from "../../../../../src/rendering/MaterialMap.js";
+import { Importer } from "fake-imports";
+import { castTreeView } from "../../shared/mockTreeView/castTreeView.js";
+import { waitForMicrotasks } from "../../../../../src/util/waitForMicroTasks.js";
+import { MATERIAL_MAP_PERSISTENCE_KEY } from "../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import { Texture } from "../../../../../src/core/Texture.js";
 
 const DEFAULT_ASSET_MAP_UUID = "default-asset-map-uuid";
 
@@ -29,10 +29,10 @@ importer.fakeModule("../../../../../studio/src/assets/projectAssetType/ProjectAs
 importer.makeReal("../../../../../src/core/Texture.js");
 /** @type {import("../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentMaterial.js")} */
 const PropertiesAssetContentMaterialImport = await importer.import("../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
-const {PropertiesAssetContentMaterial} = PropertiesAssetContentMaterialImport;
+const { PropertiesAssetContentMaterial } = PropertiesAssetContentMaterialImport;
 
 function basicSetup() {
-	const {keyboardShortcutManager} = createMockKeyboardShortcutManager();
+	const { keyboardShortcutManager } = createMockKeyboardShortcutManager();
 
 	let didCallNotifyMaterialChanged = false;
 
@@ -73,7 +73,7 @@ function basicSetup() {
 	/** @type {(EmbeddedParentAssetCall | null)[]} */
 	const setEmbeddedParentAssetCalls = [];
 	assetContent.mapTreeView.gui.setEmbeddedParentAsset = (parentAsset, persistenceKey) => {
-		setEmbeddedParentAssetCalls.push({parentAsset, persistenceKey});
+		setEmbeddedParentAssetCalls.push({ parentAsset, persistenceKey });
 	};
 	assetContent.mapTreeView.gui.removeEmbeddedAssetSupport = () => {
 		setEmbeddedParentAssetCalls.push(null);
@@ -92,8 +92,8 @@ function basicSetup() {
 Deno.test({
 	name: "load material without a material map",
 	async fn() {
-		const {assetContent} = basicSetup();
-		const {projectAsset: mockMaterialAsset} = createMockProjectAsset({
+		const { assetContent } = basicSetup();
+		const { projectAsset: mockMaterialAsset } = createMockProjectAsset({
 			liveAsset: new Material(),
 		});
 		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
@@ -109,10 +109,10 @@ Deno.test({
 Deno.test({
 	name: "load material with a material map",
 	async fn() {
-		const {assetContent} = basicSetup();
+		const { assetContent } = basicSetup();
 		const materialMap = new MaterialMap();
 		const material = new Material(materialMap);
-		const {projectAsset: mockMaterialAsset} = createMockProjectAsset({
+		const { projectAsset: mockMaterialAsset } = createMockProjectAsset({
 			liveAsset: material,
 		});
 		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
@@ -130,7 +130,7 @@ Deno.test({
 Deno.test({
 	name: "load material with a material map and properties",
 	async fn() {
-		const {assetContent, mockStudio} = basicSetup();
+		const { assetContent, mockStudio } = basicSetup();
 		stub(mockStudio.materialMapTypeSerializerManager, "getMapValuesForMapAssetUuid", async () => {
 			/** @type {import("../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} */
 			const values = [
@@ -191,7 +191,7 @@ Deno.test({
 		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 		const materialMap = new MaterialMap();
 		const material = new Material(materialMap);
-		const {projectAsset: mockMaterialAsset} = createMockProjectAsset({
+		const { projectAsset: mockMaterialAsset } = createMockProjectAsset({
 			liveAsset: material,
 		});
 
@@ -284,9 +284,9 @@ Deno.test({
 Deno.test({
 	name: "save data when maptreeview value changes",
 	async fn() {
-		const {assetContent, getDidCallNotifyMaterialChanged} = basicSetup();
+		const { assetContent, getDidCallNotifyMaterialChanged } = basicSetup();
 		const material = new Material();
-		const {projectAsset: mockMaterialAsset, getSaveLiveAssetDataCallCount} = createMockProjectAsset({
+		const { projectAsset: mockMaterialAsset, getSaveLiveAssetDataCallCount } = createMockProjectAsset({
 			liveAsset: material,
 		});
 		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
@@ -297,7 +297,7 @@ Deno.test({
 		const mockTreeView = castTreeView(assetContent.mapTreeView);
 		const materialMap = new MaterialMap();
 		mockTreeView.mock.setGetValueReturn(materialMap);
-		mockTreeView.mock.fireOnValueChangeCbs({value: DEFAULT_ASSET_MAP_UUID, trigger: "user"});
+		mockTreeView.mock.fireOnValueChangeCbs({ value: DEFAULT_ASSET_MAP_UUID, trigger: "user" });
 
 		await waitForMicrotasks();
 
@@ -310,7 +310,7 @@ Deno.test({
 Deno.test({
 	name: "maptreeview value change does not save data when the ui values are still loading",
 	async fn() {
-		const {assetContent, getDidCallNotifyMaterialChanged} = basicSetup();
+		const { assetContent, getDidCallNotifyMaterialChanged } = basicSetup();
 		const material = new Material();
 		const {
 			projectAsset: mockMaterialAsset,
@@ -326,7 +326,7 @@ Deno.test({
 		const mockTreeView = castTreeView(assetContent.mapTreeView);
 		const materialMap = new MaterialMap();
 		mockTreeView.mock.setGetValueReturn(materialMap);
-		mockTreeView.mock.fireOnValueChangeCbs({value: DEFAULT_ASSET_MAP_UUID, trigger: "application"});
+		mockTreeView.mock.fireOnValueChangeCbs({ value: DEFAULT_ASSET_MAP_UUID, trigger: "application" });
 
 		triggerLiveAssetReturns();
 		await waitForMicrotasks();
@@ -346,11 +346,11 @@ Deno.test({
 Deno.test({
 	name: "selecting multiple items resets materialmap droppable embedded asset parent",
 	async fn() {
-		const {assetContent, setEmbeddedParentAssetCalls} = basicSetup();
-		const {projectAsset: mockMaterialAsset1} = createMockProjectAsset({
+		const { assetContent, setEmbeddedParentAssetCalls } = basicSetup();
+		const { projectAsset: mockMaterialAsset1 } = createMockProjectAsset({
 			liveAsset: new Material(),
 		});
-		const {projectAsset: mockMaterialAsset2} = createMockProjectAsset({
+		const { projectAsset: mockMaterialAsset2 } = createMockProjectAsset({
 			liveAsset: new Material(),
 		});
 		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
@@ -361,9 +361,9 @@ Deno.test({
 		await assetContent.selectionUpdated([mockMaterialAsset2]);
 
 		assertEquals(setEmbeddedParentAssetCalls, [
-			{parentAsset: mockMaterialAsset1, persistenceKey: "materialMap"},
+			{ parentAsset: mockMaterialAsset1, persistenceKey: "materialMap" },
 			null,
-			{parentAsset: mockMaterialAsset2, persistenceKey: "materialMap"},
+			{ parentAsset: mockMaterialAsset2, persistenceKey: "materialMap" },
 		]);
 		assertStrictEquals(setEmbeddedParentAssetCalls[0]?.parentAsset, mockMaterialAsset1);
 		assertStrictEquals(setEmbeddedParentAssetCalls[2]?.parentAsset, mockMaterialAsset2);

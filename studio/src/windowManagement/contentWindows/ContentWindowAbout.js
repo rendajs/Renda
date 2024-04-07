@@ -1,10 +1,12 @@
-import {BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT, BUILD_VERSION_STRING} from "../../studioDefines.js";
-import {licenses} from "../../misc/thirdPartyLicenses.js";
-import {Button} from "../../ui/Button.js";
-import {TreeView} from "../../ui/TreeView.js";
-import {ContentWindow} from "./ContentWindow.js";
-import {getStudioInstance} from "../../studioInstance.js";
-import {createSpinner} from "../../ui/spinner.js";
+import { BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT } from "../../studioDefines.js";
+import { licenses } from "../../misc/thirdPartyLicenses.js";
+import { Button } from "../../ui/Button.js";
+import { TreeView } from "../../ui/TreeView.js";
+import { ContentWindow } from "./ContentWindow.js";
+import { getStudioInstance } from "../../studioInstance.js";
+import { createSpinner } from "../../ui/spinner.js";
+import { RENDA_VERSION_STRING } from "../../../../src/engineDefines.js";
+import { ColorizerFilterManager } from "../../util/colorizerFilters/ColorizerFilterManager.js";
 
 export class ContentWindowAbout extends ContentWindow {
 	static contentWindowTypeId = /** @type {const} */ ("renda:about");
@@ -30,7 +32,7 @@ export class ContentWindowAbout extends ContentWindow {
 
 		this.#updateCheckEl = document.createElement("div");
 		this.#updateCheckEl.classList.add("update-check-icon");
-		this.#updateCheckFilter = getStudioInstance().colorizerFilterManager.applyFilter(this.#updateCheckEl, "var(--text-color-level0)");
+		this.#updateCheckFilter = ColorizerFilterManager.instance().applyFilter(this.#updateCheckEl, "var(--text-color-level0)");
 		this.#updateEl.append(this.#updateCheckEl);
 
 		this.#updateSpinnerEl = createSpinner();
@@ -63,7 +65,7 @@ export class ContentWindowAbout extends ContentWindow {
 		const month = day * 365 / 12;
 		const year = day * 365;
 		const elapsed = BUILD_DATE - Date.now();
-		const rtf = new Intl.RelativeTimeFormat("en", {numeric: "auto"});
+		const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 		let relativeDateStr = "";
 		if (-elapsed < minute) {
 			relativeDateStr = rtf.format(Math.floor(elapsed / second), "second");
@@ -85,7 +87,7 @@ export class ContentWindowAbout extends ContentWindow {
 		}
 
 		const html = `
-			Version: v${BUILD_VERSION_STRING} (beta)
+			Version: v${RENDA_VERSION_STRING} (beta)
 			<br>
 			Branch: ${BUILD_GIT_BRANCH}
 			<br>

@@ -1,7 +1,7 @@
-import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
-import {ListeningGizmoPointerElement} from "../../../../src/gizmos/ListeningGizmoPointerElement.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
-import {PointerEvent} from "fake-dom/FakePointerEvent.js";
+import { assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
+import { ListeningGizmoPointerElement } from "../../../../src/gizmos/ListeningGizmoPointerElement.js";
+import { HtmlElement } from "fake-dom/FakeHtmlElement.js";
+import { PointerEvent } from "fake-dom/FakePointerEvent.js";
 
 function createMockGizmoManager() {
 	/** @type {{mockDevice: unknown}[]} */
@@ -12,7 +12,7 @@ function createMockGizmoManager() {
 			createdDeviceCount++;
 			const mockDevice = /** @type {import("../../../../src/gizmos/GizmoPointerDevice.js").GizmoPointerDevice} */ ({
 				handle2dEvent(camera, element, event) {
-					handle2dEventCalls.push({mockDevice});
+					handle2dEventCalls.push({ mockDevice });
 				},
 			});
 			return mockDevice;
@@ -35,7 +35,7 @@ const stubCamera = /** @type {import("../../../../src/mod.js").CameraComponent} 
 Deno.test({
 	name: "onPointerEvent throws when not listening",
 	fn() {
-		const {mockGizmoManager} = createMockGizmoManager();
+		const { mockGizmoManager } = createMockGizmoManager();
 		const pointerElement = new ListeningGizmoPointerElement(mockGizmoManager, stubElement, stubCamera);
 
 		const event = new PointerEvent("pointermove");
@@ -56,7 +56,7 @@ Deno.test({
 Deno.test({
 	name: "multiple pointermove events uses the same pointer device",
 	fn() {
-		const {mockGizmoManager, getHandle2dEventCalls} = createMockGizmoManager();
+		const { mockGizmoManager, getHandle2dEventCalls } = createMockGizmoManager();
 		const pointerElement = new ListeningGizmoPointerElement(mockGizmoManager, stubElement, stubCamera);
 		pointerElement.addEventListeners();
 
@@ -75,14 +75,14 @@ Deno.test({
 Deno.test({
 	name: "create multiple pointer devices for different pointerIds",
 	fn() {
-		const {mockGizmoManager, getCreatedDeviceCount} = createMockGizmoManager();
+		const { mockGizmoManager, getCreatedDeviceCount } = createMockGizmoManager();
 		const pointerElement = new ListeningGizmoPointerElement(mockGizmoManager, stubElement, stubCamera);
 		pointerElement.addEventListeners();
 
-		const event1 = new PointerEvent("pointermove", {pointerId: 1});
+		const event1 = new PointerEvent("pointermove", { pointerId: 1 });
 		pointerElement.onPointerEvent(event1);
 
-		const event2 = new PointerEvent("pointermove", {pointerId: 2});
+		const event2 = new PointerEvent("pointermove", { pointerId: 2 });
 		pointerElement.onPointerEvent(event2);
 
 		const deviceCount = getCreatedDeviceCount();
@@ -93,7 +93,7 @@ Deno.test({
 Deno.test({
 	name: "pointermove event gets passed on to the pointer device",
 	fn() {
-		const {mockGizmoManager, getHandle2dEventCalls} = createMockGizmoManager();
+		const { mockGizmoManager, getHandle2dEventCalls } = createMockGizmoManager();
 		const pointerElement = new ListeningGizmoPointerElement(mockGizmoManager, stubElement, stubCamera);
 		pointerElement.addEventListeners();
 
@@ -107,7 +107,7 @@ Deno.test({
 Deno.test({
 	name: "pointerdown event gets passed on to the pointer device",
 	fn() {
-		const {mockGizmoManager, getHandle2dEventCalls} = createMockGizmoManager();
+		const { mockGizmoManager, getHandle2dEventCalls } = createMockGizmoManager();
 		const pointerElement = new ListeningGizmoPointerElement(mockGizmoManager, stubElement, stubCamera);
 		pointerElement.addEventListeners();
 
@@ -121,7 +121,7 @@ Deno.test({
 Deno.test({
 	name: "pointerup event gets passed on to the pointer device",
 	fn() {
-		const {mockGizmoManager, getHandle2dEventCalls} = createMockGizmoManager();
+		const { mockGizmoManager, getHandle2dEventCalls } = createMockGizmoManager();
 		const pointerElement = new ListeningGizmoPointerElement(mockGizmoManager, stubElement, stubCamera);
 		pointerElement.addEventListeners();
 

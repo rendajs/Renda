@@ -55,7 +55,7 @@ export class SelectionGroup {
 			}
 		}
 
-		this.onSelectionChangeCbs.forEach(cb => cb(changes));
+		this.onSelectionChangeCbs.forEach((cb) => cb(changes));
 	}
 
 	/**

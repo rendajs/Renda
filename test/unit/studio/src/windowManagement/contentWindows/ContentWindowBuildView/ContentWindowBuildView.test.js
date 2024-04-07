@@ -1,9 +1,9 @@
-import {getMockArgs} from "../shared.js";
-import {ContentWindowBuildView} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js";
-import {runWithDomAsync} from "../../../../shared/runWithDom.js";
-import {GestureInProgressManager} from "../../../../../../../studio/src/misc/GestureInProgressManager.js";
-import {TypedMessenger} from "../../../../../../../src/util/TypedMessenger/TypedMessenger.js";
-import {assertEquals} from "std/testing/asserts.ts";
+import { getMockArgs } from "../shared.js";
+import { ContentWindowBuildView } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js";
+import { runWithDomAsync } from "../../../../shared/runWithDom.js";
+import { GestureInProgressManager } from "../../../../../../../studio/src/misc/GestureInProgressManager.js";
+import { TypedMessenger } from "../../../../../../../src/util/TypedMessenger/TypedMessenger.js";
+import { assertEquals } from "std/testing/asserts.ts";
 
 /**
  * @param {ContentWindowBuildView} buildview
@@ -25,7 +25,7 @@ function installIframeContentWindow(buildview) {
 	// @ts-ignore
 	iframeEl.contentWindow = iframeContentWindow;
 
-	iframeWindowMessenger.setSendHandler(data => {
+	iframeWindowMessenger.setSendHandler((data) => {
 		const event = /** @type {MessageEvent} */ ({
 			data: data.sendData,
 			source: iframeContentWindow,
@@ -35,7 +35,7 @@ function installIframeContentWindow(buildview) {
 		buildview.onIframeMessage(event);
 	});
 
-	return {iframeWindowMessenger};
+	return { iframeWindowMessenger };
 }
 
 Deno.test({
@@ -48,7 +48,7 @@ Deno.test({
 			});
 
 			try {
-				const {args, mockStudioInstance} = getMockArgs();
+				const { args, mockStudioInstance } = getMockArgs();
 				mockStudioInstance.gestureInProgressManager = new GestureInProgressManager();
 				mockStudioInstance.studioConnectionsManager = /** @type {import("../../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */ ({
 					getInternalClientUuid() {
@@ -60,7 +60,7 @@ Deno.test({
 				});
 
 				const contentWindow = new ContentWindowBuildView(...args);
-				const {iframeWindowMessenger} = installIframeContentWindow(contentWindow);
+				const { iframeWindowMessenger } = installIframeContentWindow(contentWindow);
 
 				const result = await iframeWindowMessenger.send.requestDesiredStudioConnectionMethod();
 				assertEquals(result, {

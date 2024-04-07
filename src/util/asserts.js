@@ -1,6 +1,13 @@
-import {AssertionError, assert} from "std/testing/asserts.ts";
-import {Mat4, Quat, Vec2, Vec3, Vec4} from "../../../src/mod.js";
-import {waitForMicrotasks as waitForMicrotasksFn} from "./waitForMicroTasks.js";
+import { Mat4 } from "../math/Mat4.js";
+import { Quat } from "../math/Quat.js";
+import { Vec2 } from "../math/Vec2.js";
+import { Vec3 } from "../math/Vec3.js";
+import { Vec4 } from "../math/Vec4.js";
+import { waitForMicrotasks as waitForMicrotasksFn } from "./waitForMicroTasks.js";
+
+export class AssertionError extends Error {
+	name = "AssertionError";
+}
 
 /**
  * Make an assertion that `actual` and `expected` are almost numbers.
@@ -44,7 +51,7 @@ function arrayToVector(arrayOrVector, msg) {
 		return new Vec4(arrayOrVector[0], arrayOrVector[1], arrayOrVector[2], arrayOrVector[3]);
 	}
 	if (msg) throw new AssertionError(msg);
-	throw new AssertionError(`${arrayOrVector} is not a vector`);
+	throw new AssertionError(`${arrayOrVector} has an unexpected length`);
 }
 
 /**
@@ -89,10 +96,7 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg
 		if (msg) {
 			throw new AssertionError(msg);
 		}
-		if (!expected) {
-			throw new AssertionError(`Expected ${expectedVec} but got ${expected}`);
-		}
-		throw new AssertionError(`Two vectors are not of the same type: ${actual.constructor.name} and ${expected.constructor.name}`);
+		throw new AssertionError(`Two vectors are not of the same type: ${actualVec.constructor.name} and ${expectedVec.constructor.name}`);
 	}
 	if (dist > tolerance || hasNaN) {
 		let message = msg;
@@ -195,6 +199,8 @@ export async function assertPromiseResolved(promise, expected) {
 		resolved = true;
 	})();
 	await waitForMicrotasksFn();
-	const msg = expected ? "Expected the promise to be resolved" : "Expected the promise to not be resolved";
-	assert(resolved == expected, msg);
+	if (resolved != expected) {
+		const msg = expected ? "Expected the promise to be resolved" : "Expected the promise to not be resolved";
+		throw new AssertionError(msg);
+	}
 }

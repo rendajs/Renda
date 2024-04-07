@@ -1,1 +1,1 @@
-export {Sphere} from "./Sphere.js";
+export { Sphere } from "./Sphere.js";

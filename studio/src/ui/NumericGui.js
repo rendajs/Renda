@@ -1,4 +1,4 @@
-import {getMaybeStudioInstance} from "../studioInstance.js";
+import { getMaybeStudioInstance } from "../studioInstance.js";
 
 /**
  * @typedef {object} NumericGuiOptionsType
@@ -129,7 +129,7 @@ export class NumericGui {
 		this.el.addEventListener("focus", this.boundOnFocus);
 		this.el.addEventListener("blur", this.boundOnBlur);
 		this.el.addEventListener("mousedown", this.boundOnMouseDown);
-		this.el.addEventListener("wheel", this.boundOnWheel, {passive: false});
+		this.el.addEventListener("wheel", this.boundOnWheel, { passive: false });
 		this.el.addEventListener("input", this.#onInput);
 
 		const studio = getMaybeStudioInstance();
@@ -229,7 +229,7 @@ export class NumericGui {
 	}
 
 	isDefaultValue() {
-		return this.getValue() == this.defaultValue || this.getValue({mapNumericValuesToStrings: true}) == this.defaultValue;
+		return this.getValue() == this.defaultValue || this.getValue({ mapNumericValuesToStrings: true }) == this.defaultValue;
 	}
 
 	/**
@@ -260,7 +260,7 @@ export class NumericGui {
 	}
 
 	updateTextValue() {
-		const value = this.getValue({mapNumericValuesToStrings: true});
+		const value = this.getValue({ mapNumericValuesToStrings: true });
 		if (typeof value == "string") {
 			this.el.value = value;
 		} else {
@@ -361,7 +361,7 @@ export class NumericGui {
 		const desiredAfterDotLength = Math.max(oldAfterDotLength, deltaAfterDotLength);
 		const roundAmount = 10 ** desiredAfterDotLength;
 		newValue = Math.round(newValue * roundAmount) / roundAmount;
-		this.setValue(newValue, {trigger: "user"});
+		this.setValue(newValue, { trigger: "user" });
 	}
 
 	/**
@@ -385,7 +385,7 @@ export class NumericGui {
 
 	#onInput = () => {
 		const value = this.parseCurrentValue();
-		this.setValue(value, {updateTextValue: false, trigger: "user"});
+		this.setValue(value, { updateTextValue: false, trigger: "user" });
 	};
 
 	parseCurrentValue() {
@@ -410,7 +410,7 @@ export class NumericGui {
 	/**
 	 * @param {number} delta
 	 */
-	#handleCaretAdjust = delta => {
+	#handleCaretAdjust = (delta) => {
 		if (document.activeElement != this.el) return;
 		const value = this.el.value;
 		const caretPos = this.el.selectionStart;
@@ -496,7 +496,7 @@ export class NumericGui {
 			return beforeDotLengthMatch.groups.whole.length;
 		} else {
 			if (!beforeDotLengthMatch || !beforeDotLengthMatch.groups) return 0;
-			const {decimal} = beforeDotLengthMatch.groups;
+			const { decimal } = beforeDotLengthMatch.groups;
 			if (!beforeDotLengthMatch || !decimal) return 0;
 			return decimal.length;
 		}

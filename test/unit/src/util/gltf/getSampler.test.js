@@ -1,6 +1,6 @@
-import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
-import {Sampler} from "../../../../../src/rendering/Sampler.js";
-import {CLAMP_TO_EDGE, LINEAR, LINEAR_MIPMAP_LINEAR, LINEAR_MIPMAP_NEAREST, MIRRORED_REPEAT, NEAREST, NEAREST_MIPMAP_LINEAR, NEAREST_MIPMAP_NEAREST, getSamplerHelper} from "../../../../../src/util/gltf/getSampler.js";
+import { assertEquals, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
+import { Sampler } from "../../../../../src/rendering/Sampler.js";
+import { CLAMP_TO_EDGE, LINEAR, LINEAR_MIPMAP_LINEAR, LINEAR_MIPMAP_NEAREST, MIRRORED_REPEAT, NEAREST, NEAREST_MIPMAP_LINEAR, NEAREST_MIPMAP_NEAREST, getSamplerHelper } from "../../../../../src/util/gltf/getSampler.js";
 
 /**
  * @param {object} options
@@ -11,7 +11,7 @@ function basicSetup({
 } = {}) {
 	/** @type {import("../../../../../src/util/gltf/gltfParsing.js").GltfJsonData} */
 	const jsonData = {
-		asset: {version: "2.0"},
+		asset: { version: "2.0" },
 		samplers: [samplerData],
 	};
 
@@ -36,7 +36,7 @@ function basicSetup({
 Deno.test({
 	name: "Returns the default sampler when the index is undefined",
 	async fn() {
-		const {jsonData, samplersCache, defaultSampler, basicOptions} = basicSetup();
+		const { jsonData, samplersCache, defaultSampler, basicOptions } = basicSetup();
 		delete jsonData.samplers;
 		const result = await getSamplerHelper(jsonData, undefined, samplersCache, basicOptions);
 
@@ -47,11 +47,11 @@ Deno.test({
 Deno.test({
 	name: "Throws when no default sampler is set and the index is undefined",
 	async fn() {
-		const {jsonData, samplersCache} = basicSetup();
+		const { jsonData, samplersCache } = basicSetup();
 		delete jsonData.samplers;
 
 		await assertRejects(async () => {
-			await getSamplerHelper(jsonData, undefined, samplersCache, {defaultSampler: null});
+			await getSamplerHelper(jsonData, undefined, samplersCache, { defaultSampler: null });
 		}, Error, "A texture without a sampler was referenced and no default sampler has been provided.");
 	},
 });
@@ -59,7 +59,7 @@ Deno.test({
 Deno.test({
 	name: "Throws when the sampler id doesn't exist",
 	async fn() {
-		const {jsonData, samplersCache, basicOptions} = basicSetup();
+		const { jsonData, samplersCache, basicOptions } = basicSetup();
 
 		await assertRejects(async () => {
 			await getSamplerHelper(jsonData, 12345, samplersCache, basicOptions);
@@ -70,7 +70,7 @@ Deno.test({
 Deno.test({
 	name: "Throws when the json doesn't contain samplers",
 	async fn() {
-		const {jsonData, samplersCache, basicOptions} = basicSetup();
+		const { jsonData, samplersCache, basicOptions } = basicSetup();
 		delete jsonData.samplers;
 
 		await assertRejects(async () => {
@@ -82,7 +82,7 @@ Deno.test({
 Deno.test({
 	name: "Uses cached samplers",
 	async fn() {
-		const {jsonData, samplersCache, basicOptions} = basicSetup();
+		const { jsonData, samplersCache, basicOptions } = basicSetup();
 
 		const cachedSampler = new Sampler();
 		samplersCache.set(0, cachedSampler);
@@ -96,7 +96,7 @@ Deno.test({
 Deno.test({
 	name: "Creating a sampler with the default sampler options",
 	async fn() {
-		const {jsonData, samplersCache, basicOptions} = basicSetup();
+		const { jsonData, samplersCache, basicOptions } = basicSetup();
 
 		const result = await getSamplerHelper(jsonData, 0, samplersCache, basicOptions);
 
@@ -112,7 +112,7 @@ Deno.test({
 Deno.test({
 	name: "Creating a sampler with different address modes",
 	async fn() {
-		const {jsonData, samplersCache, basicOptions} = basicSetup({
+		const { jsonData, samplersCache, basicOptions } = basicSetup({
 			samplerData: {
 				wrapS: CLAMP_TO_EDGE,
 				wrapT: MIRRORED_REPEAT,
@@ -130,7 +130,7 @@ Deno.test({
 Deno.test({
 	name: "Creating a sampler with nearest filters",
 	async fn() {
-		const {jsonData, samplersCache, basicOptions} = basicSetup({
+		const { jsonData, samplersCache, basicOptions } = basicSetup({
 			samplerData: {
 				magFilter: NEAREST,
 				minFilter: NEAREST_MIPMAP_NEAREST,
@@ -148,7 +148,7 @@ Deno.test({
 Deno.test({
 	name: "Creating a sampler with LINEAR_MIPMAP_NEAREST",
 	async fn() {
-		const {jsonData, samplersCache, basicOptions} = basicSetup({
+		const { jsonData, samplersCache, basicOptions } = basicSetup({
 			samplerData: {
 				magFilter: NEAREST,
 				minFilter: LINEAR_MIPMAP_NEAREST,
@@ -166,7 +166,7 @@ Deno.test({
 Deno.test({
 	name: "Creating a sampler with NEAREST_MIPMAP_LINEAR",
 	async fn() {
-		const {jsonData, samplersCache, basicOptions} = basicSetup({
+		const { jsonData, samplersCache, basicOptions } = basicSetup({
 			samplerData: {
 				magFilter: NEAREST,
 				minFilter: NEAREST_MIPMAP_LINEAR,
@@ -184,7 +184,7 @@ Deno.test({
 Deno.test({
 	name: "Creating a sampler with LINEAR_MIPMAP_LINEAR",
 	async fn() {
-		const {jsonData, samplersCache, basicOptions} = basicSetup({
+		const { jsonData, samplersCache, basicOptions } = basicSetup({
 			samplerData: {
 				magFilter: LINEAR,
 				minFilter: LINEAR_MIPMAP_LINEAR,

@@ -1,14 +1,14 @@
-import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
-import {PreferencesManager} from "../../../../../../../studio/src/preferences/PreferencesManager.js";
-import {ContentWindowPreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
-import {injectMockStudioInstance} from "../../../../../../../studio/src/studioInstance.js";
-import {BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID, EntryPointPopover, getSelectedEntityEntryPoint, getSelectedScriptEntryPoint} from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/EntryPointPopover.js";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {PreferencesLocation} from "../../../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
-import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
-import {assertTreeViewStructureEquals} from "../../../../shared/treeViewUtil.js";
-import {PropertiesTreeViewEntry} from "../../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
-import {ButtonSelectorGui} from "../../../../../../../studio/src/ui/ButtonSelectorGui.js";
+import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
+import { PreferencesManager } from "../../../../../../../studio/src/preferences/PreferencesManager.js";
+import { ContentWindowPreferencesLocation } from "../../../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
+import { injectMockStudioInstance } from "../../../../../../../studio/src/studioInstance.js";
+import { BASIC_SCRIPT_ENTRY_POINT_BUILTIN_ASSET_UUID, EntryPointPopover, getSelectedEntityEntryPoint, getSelectedScriptEntryPoint } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/EntryPointPopover.js";
+import { installFakeDocument, uninstallFakeDocument } from "fake-dom/FakeDocument.js";
+import { PreferencesLocation } from "../../../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
+import { waitForMicrotasks } from "../../../../../../../src/util/waitForMicroTasks.js";
+import { assertTreeViewStructureEquals } from "../../../../shared/treeViewUtil.js";
+import { PropertiesTreeViewEntry } from "../../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
+import { ButtonSelectorGui } from "../../../../../../../studio/src/ui/ButtonSelectorGui.js";
 
 const DEFAULT_CONTENT_WINDOW_UUID = "content window uuid";
 const ENTRY_POINT_UUID_1 = "entry point uuid 1";
@@ -106,7 +106,7 @@ function getTreeViewGuis(treeView) {
 	const scriptGui = scriptEntry.gui;
 	assertInstanceOf(scriptGui, ButtonSelectorGui);
 
-	return {entityGui, scriptGui};
+	return { entityGui, scriptGui };
 }
 
 /**
@@ -139,7 +139,7 @@ function assertTreeViewState(treeView, {
 			},
 		],
 	});
-	const {entityGui, scriptGui} = getTreeViewGuis(treeView);
+	const { entityGui, scriptGui } = getTreeViewGuis(treeView);
 	assertEquals(entityGui.items, entityItems);
 	assertEquals(scriptGui.items, scriptItems);
 }
@@ -147,7 +147,7 @@ function assertTreeViewState(treeView, {
 Deno.test({
 	name: "Starts with an empty list",
 	fn() {
-		const {args, uninstall} = basicTest();
+		const { args, uninstall } = basicTest();
 		try {
 			const popover = new EntryPointPopover(...args);
 			assertTreeViewState(popover.treeView, {
@@ -165,7 +165,7 @@ Deno.test({
 Deno.test({
 	name: "Has the default entries selected when no preference exists",
 	async fn() {
-		const {args, preferencesManager, uninstall} = basicTest();
+		const { args, preferencesManager, uninstall } = basicTest();
 		try {
 			preferencesManager.set("buildView.availableEntityEntryPoints", [
 				ENTRY_POINT_UUID_1,
@@ -199,7 +199,7 @@ Deno.test({
 Deno.test({
 	name: "Loads the list and selected entrypoint",
 	async fn() {
-		const {args, preferencesManager, uninstall} = basicTest();
+		const { args, preferencesManager, uninstall } = basicTest();
 		try {
 			preferencesManager.set("buildView.availableEntityEntryPoints", [
 				ENTRY_POINT_UUID_1,
@@ -243,7 +243,7 @@ Deno.test({
 Deno.test({
 	name: "Changes selected entrypoint when clicking",
 	async fn() {
-		const {args, preferencesManager, uninstall} = basicTest();
+		const { args, preferencesManager, uninstall } = basicTest();
 		try {
 			preferencesManager.set("buildView.availableEntityEntryPoints", [
 				ENTRY_POINT_UUID_1,
@@ -259,7 +259,7 @@ Deno.test({
 
 			const popover = new EntryPointPopover(...args);
 			await waitForMicrotasks();
-			const {entityGui, scriptGui} = getTreeViewGuis(popover.treeView);
+			const { entityGui, scriptGui } = getTreeViewGuis(popover.treeView);
 			entityGui.setValue("asset2.json");
 			scriptGui.setValue("asset2.json");
 			assertEquals(getSelectedEntityEntryPoint(preferencesManager, DEFAULT_CONTENT_WINDOW_UUID), ENTRY_POINT_UUID_2);
@@ -273,7 +273,7 @@ Deno.test({
 Deno.test({
 	name: "getSelectedScriptEntryPoint() returns the right value",
 	fn() {
-		const {preferencesManager, uninstall} = basicTest();
+		const { preferencesManager, uninstall } = basicTest();
 		try {
 			preferencesManager.set("buildView.availableScriptEntryPoints", [
 				ENTRY_POINT_UUID_1,

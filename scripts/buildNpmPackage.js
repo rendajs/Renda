@@ -1,10 +1,15 @@
 import * as fs from "std/fs/mod.ts";
 import * as path from "std/path/mod.ts";
-import {buildEngine} from "./buildEngine.js";
-import {setCwd} from "chdir-anywhere";
+import { buildEngine } from "./buildEngine.js";
+import { setCwd } from "chdir-anywhere";
+import { parseVersionArg } from "./shared/parseVersionArgs.js";
+import { verifyVersion } from "./shared/verifyVersion.js";
 
 setCwd();
 const destination = path.resolve("..", "npmPackage");
+
+const version = parseVersionArg();
+verifyVersion(version);
 
 try {
 	await Deno.remove(destination, {
@@ -16,15 +21,8 @@ try {
 await fs.ensureDir(destination);
 
 const distPath = path.resolve(destination, "dist");
-const engineSource = await buildEngine();
-await fs.ensureDir(distPath);
-await Deno.writeTextFile(path.resolve(distPath, "renda.js"), engineSource);
+await buildEngine(distPath);
 
-let version = Deno.args[0];
-if (version && version.startsWith("v")) version = version.slice(1);
-if (!version) {
-	throw new Error("No version provided, specify the package.json version using the first command. I.e. `deno task build-npm-package 1.2.3`");
-}
 const packageJson = JSON.stringify({
 	name: "renda",
 	version,

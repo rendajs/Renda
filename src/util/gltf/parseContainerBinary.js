@@ -64,5 +64,5 @@ export function parseContainerBinary(data) {
 
 	const json = JSON.parse(new TextDecoder().decode(jsonBinary));
 	const binary = chunks.get(ChunkType.BIN) ?? null;
-	return {json, binary};
+	return { json, binary };
 }

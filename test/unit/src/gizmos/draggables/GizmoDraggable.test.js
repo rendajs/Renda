@@ -1,8 +1,8 @@
-import {assertEquals, assertNotEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {GizmoDraggable} from "../../../../../src/gizmos/draggables/GizmoDraggable.js";
-import {CameraComponent, Entity, Sphere, Vec2, Vec3} from "../../../../../src/mod.js";
-import {assertVecAlmostEquals} from "../../../shared/asserts.js";
+import { assertEquals, assertNotEquals, assertStrictEquals } from "std/testing/asserts.ts";
+import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { GizmoDraggable } from "../../../../../src/gizmos/draggables/GizmoDraggable.js";
+import { CameraComponent, Entity, Sphere, Vec2, Vec3 } from "../../../../../src/mod.js";
+import { assertVecAlmostEquals } from "../../../../../src/util/asserts.js";
 
 const mockGizmoManager = /** @type {import("../../../../../src/mod.js").GizmoManager} */ ({});
 
@@ -154,7 +154,7 @@ Deno.test({
 		/** @type {boolean[]} */
 		const cbResults = [];
 
-		draggable.onIsHoveringChange(isHovering => {
+		draggable.onIsHoveringChange((isHovering) => {
 			cbResults.push(draggable.isHovering);
 		});
 
@@ -172,7 +172,7 @@ Deno.test({
 		/** @type {boolean[]} */
 		const cbResults = [];
 
-		draggable.onIsHoveringChange(isHovering => {
+		draggable.onIsHoveringChange((isHovering) => {
 			cbResults.push(draggable.isHovering);
 		});
 
@@ -350,7 +350,7 @@ Deno.test({
 		/** @type {object[]} */
 		const callbackEvents = [];
 		/** @type {(e: object) => void} */
-		const cb = e => {
+		const cb = (e) => {
 			callbackEvents.push(e);
 		};
 		draggable.onDrag(cb);
@@ -370,7 +370,7 @@ Deno.test({
 		/** @type {object[]} */
 		const callbackEvents = [];
 		/** @type {(e: object) => void} */
-		const cb = e => {
+		const cb = (e) => {
 			callbackEvents.push(e);
 		};
 

@@ -1,7 +1,7 @@
-import {AssetLoaderType} from "./AssetLoaderType.js";
-import {StorageType, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
-import {Material} from "../../rendering/Material.js";
-import {MaterialMap} from "../../rendering/MaterialMap.js";
+import { AssetLoaderType } from "./AssetLoaderType.js";
+import { StorageType, binaryToObjectWithAssetLoader } from "../../util/binarySerialization.js";
+import { Material } from "../../rendering/Material.js";
+import { MaterialMap } from "../../rendering/MaterialMap.js";
 
 /**
  * @extends {AssetLoaderType<Material>}

@@ -1,4 +1,4 @@
-import {assertIsType} from "./typeAssertions.js";
+import { assertIsType } from "./typeAssertions.js";
 
 // These are some tests to verify if the documentation of `assertType()` is correct.
 

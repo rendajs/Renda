@@ -1,4 +1,4 @@
-import {IndexedDbStudioFileSystem} from "../fileSystems/IndexedDbStudioFileSystem.js";
+import { IndexedDbStudioFileSystem } from "../fileSystems/IndexedDbStudioFileSystem.js";
 
 /**
  * @deprecated Use the function in `test/e2e/studio/shared/indexedDb.js` instead.

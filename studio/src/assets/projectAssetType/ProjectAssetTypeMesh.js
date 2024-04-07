@@ -1,7 +1,7 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {PropertiesAssetContentMesh} from "../../propertiesAssetContent/PropertiesAssetContentMesh.js";
-import {BinaryComposer, BinaryDecomposer, Mesh, createUvSphere} from "../../../../src/mod.js";
-import {ProjectAssetTypeVertexState} from "./ProjectAssetTypeVertexState.js";
+import { ProjectAssetType } from "./ProjectAssetType.js";
+import { PropertiesAssetContentMesh } from "../../propertiesAssetContent/PropertiesAssetContentMesh.js";
+import { BinaryComposer, BinaryDecomposer, Mesh, createUvSphere } from "../../../../src/mod.js";
+import { ProjectAssetTypeVertexState } from "./ProjectAssetTypeVertexState.js";
 
 /**
  * @typedef {object} ProjectAssetTypeMeshStudioData
@@ -61,14 +61,14 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		// todo: remove all of this and reuse the code in AssetLoaderTypeMesh
 		const arrayBuffer = await blob.arrayBuffer();
 		const decomposer = new BinaryDecomposer(arrayBuffer);
-		if (decomposer.getUint32() != this.magicHeader) return {liveAsset: null, studioData: null};
+		if (decomposer.getUint32() != this.magicHeader) return { liveAsset: null, studioData: null };
 		if (decomposer.getUint16() != 1) {
 			throw new Error("mesh version is too new");
 		}
 		const mesh = new Mesh();
 
 		const vertexStateUuid = decomposer.getUuid();
-		if (!vertexStateUuid) return {liveAsset: null, studioData: null};
+		if (!vertexStateUuid) return { liveAsset: null, studioData: null };
 		const layoutProjectAsset = await this.assetManager.getProjectAssetFromUuid(vertexStateUuid, {
 			assertAssetType: ProjectAssetTypeVertexState,
 		});
@@ -92,20 +92,20 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		mesh.setVertexCount(decomposer.getUint32());
 		const bufferCount = decomposer.getUint16();
 		for (let i = 0; i < bufferCount; i++) {
-			const attributes = [];
+			const attributeSettings = [];
 			const attributeCount = decomposer.getUint16();
 			for (let j = 0; j < attributeCount; j++) {
 				const attributeType = decomposer.getUint16();
 				const format = decomposer.getUint8();
 				const componentCount = decomposer.getUint8();
 				const offset = decomposer.getUint32();
-				attributes.push({offset, format, componentCount, attributeType});
+				attributeSettings.push({ offset, format, componentCount, attributeType });
 			}
 			const bufferLength = decomposer.getUint32();
 			const buffer = decomposer.getBuffer(bufferLength);
 			mesh.copyBufferData({
 				arrayBuffer: buffer,
-				attributes,
+				attributeSettings,
 			});
 		}
 
@@ -143,10 +143,10 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		}
 
 		composer.appendUint32(liveAsset.vertexCount);
-		const buffers = Array.from(liveAsset.getBuffers());
+		const buffers = Array.from(liveAsset.getAttributeBuffers());
 		composer.appendUint16(buffers.length);
 		for (const buffer of buffers) {
-			const attributes = buffer.attributes;
+			const attributes = buffer.attributeSettings;
 			composer.appendUint16(attributes.length);
 			for (const attribute of attributes) {
 				composer.appendUint16(attribute.attributeType);
@@ -181,7 +181,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 	 * @returns {Promise<ArrayBuffer?>}
 	 */
 	async createBundledAssetData(assetSettingOverrides = {}) {
-		const {liveAsset, studioData} = await this.projectAsset.getLiveAssetData();
+		const { liveAsset, studioData } = await this.projectAsset.getLiveAssetData();
 		if (!liveAsset) return null;
 		let vertexStateUuid = studioData?.vertexStateUuid;
 		if (!vertexStateUuid) return null;
