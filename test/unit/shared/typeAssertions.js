@@ -23,8 +23,8 @@
  * a type error is emitted.
  * For instance, if you pass in something with the type `string | null`, you'd get a type
  * error:
- * ```js
- * const isMaybeString = true ? null : "";
+ * ```ts
+ * const isMaybeString = "" as "" | null;
  * assertIsType("", isMaybeString);
  * ```
  *
@@ -50,14 +50,14 @@
  * If you are working with unions, you need a few more checks.
  * For instance, say you want to verify if a type is `"yes" | "no"` you could do
  * ```js
- * const yesOrNo = true ? "yes" : "no";
+ * const yesOrNo = "yes" as "yes" | "no";
  * assertIsType(yesOrNo, typeYouWishToCheck);
  * ```
  * But it is entirely possible that `typeYouWishToCheck` has the type `"yes"`, without any `"no"`.
  * To handle this, you can flip the two arguments around and check for each type
  * of the union that you want it to contain:
  * ```js
- * const yesOrNo = true ? "yes" : "no";
+ * const yesOrNo = "yes" as "yes" | "no";
  * assertIsType(yesOrNo, typeYouWishToCheck);
  * assertIsType(typeYouWishToCheck, "yes");
  * assertIsType(typeYouWishToCheck, "no");

@@ -112,6 +112,12 @@ export class PreferencesManager {
 	 * 							never :
 	 * 						never :
 	 * 					never :
+	 * 				Type extends "enum" ?
+	 * 					TRegisteredPreferences[T] extends {enum: string[]} ?
+	 * 						TRegisteredPreferences[T]["enum"] extends (infer TEnum)[] ?
+	 * 							TEnum :
+	 * 							never :
+	 * 						never :
 	 * 				import("./PreferencesManager.js").PreferenceTypesMap[Type] :
 	 * 			never :
 	 * 		never :
