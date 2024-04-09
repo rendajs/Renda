@@ -1,4 +1,4 @@
-import { assertEquals } from "std/testing/asserts.ts";
+import { assertEquals, assertThrows } from "std/testing/asserts.ts";
 import { assertSpyCalls, stub } from "std/testing/mock.ts";
 import { Entity, OrbitControls, Quat, Vec3 } from "../../../../src/mod.js";
 import { assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../src/util/asserts.js";
@@ -33,11 +33,130 @@ function assertLoopCall(controls) {
 	assertEquals(controls.loop(), false);
 }
 
+/**
+ * Asserts that a deltaY wheel event causes zooming and a deltaX event is ignored.
+ * @param {HTMLElement} eventElement
+ * @param {OrbitControls} controls
+ * @param {WheelEventInit} [wheelEventInitExtra]
+ */
+function assertWheelChangesLookDist(eventElement, controls, wheelEventInitExtra) {
+	eventElement.dispatchEvent(new WheelEvent("wheel", {
+		deltaY: 1,
+		...wheelEventInitExtra,
+	}));
+
+	assertLoopCall(controls);
+	assertEquals(controls.lookDist, 3.01);
+
+	eventElement.dispatchEvent(new WheelEvent("wheel", {
+		deltaX: 1,
+		ctrlKey: true,
+		...wheelEventInitExtra,
+	}));
+
+	assertLoopCall(controls);
+	assertEquals(controls.lookDist, 3.01);
+}
+
+/**
+ * Asserts that a both a deltaY and deltaX wheel event causes panning.
+ * @param {HTMLElement} eventElement
+ * @param {OrbitControls} controls
+ * @param {WheelEventInit} [wheelEventInitExtra]
+ */
+function assertWheelChangesPosition(eventElement, controls, wheelEventInitExtra) {
+	eventElement.dispatchEvent(new WheelEvent("wheel", {
+		deltaY: 1,
+		...wheelEventInitExtra,
+	}));
+
+	assertLoopCall(controls);
+	assertVecAlmostEquals(controls.lookPos, [0, -0.01, 0]);
+
+	eventElement.dispatchEvent(new WheelEvent("wheel", {
+		deltaX: 1,
+		...wheelEventInitExtra,
+	}));
+
+	assertLoopCall(controls);
+	assertVecAlmostEquals(controls.lookPos, [0.01, -0.01, 0]);
+}
+
+/**
+ * Asserts that a both a deltaY and deltaX wheel event causes changing the orbit.
+ * @param {HTMLElement} eventElement
+ * @param {OrbitControls} controls
+ * @param {WheelEventInit} [wheelEventInitExtra]
+ */
+function assertWheelChangesOrbit(eventElement, controls, wheelEventInitExtra) {
+	eventElement.dispatchEvent(new WheelEvent("wheel", {
+		deltaY: 1,
+		...wheelEventInitExtra,
+	}));
+	assertLoopCall(controls);
+	assertQuatAlmostEquals(controls.lookRot, Quat.fromAxisAngle(1, 0, 0, 0.01));
+
+	controls.invertScrollY = true;
+	eventElement.dispatchEvent(new WheelEvent("wheel", {
+		deltaY: 1,
+		...wheelEventInitExtra,
+	}));
+	assertLoopCall(controls);
+	assertQuatAlmostEquals(controls.lookRot, Quat.identity);
+
+	eventElement.dispatchEvent(new WheelEvent("wheel", {
+		deltaX: 1,
+		...wheelEventInitExtra,
+	}));
+	assertLoopCall(controls);
+	assertQuatAlmostEquals(controls.lookRot, Quat.fromAxisAngle(0, 1, 0, 0.01));
+
+	controls.invertScrollX = true;
+	eventElement.dispatchEvent(new WheelEvent("wheel", {
+		deltaX: 1,
+		...wheelEventInitExtra,
+	}));
+	assertLoopCall(controls);
+	assertQuatAlmostEquals(controls.lookRot, Quat.identity);
+}
+
+function createMockScrollHardwareDetector() {
+	/**
+	 * @typedef Extras
+	 * @property {(type: import("../../../../src/util/ScrollHardwareDetector.js").ScrollHardwareType) => void} setEstimatedType
+	 */
+
+	/** @type {import("../../../../src/util/ScrollHardwareDetector.js").ScrollHardwareType} */
+	let estimatedType = "unknown";
+
+	const detector = /** @type {import("../../../../src/mod.js").ScrollHardwareDetector & Extras} */ ({
+		get estimatedType() {
+			return estimatedType;
+		},
+		handleWheelEvent(event) {},
+		setEstimatedType(type) {
+			estimatedType = type;
+		},
+	});
+	return detector;
+}
+
+function basicSetup() {
+	const cam = new Entity();
+	const eventElement = new HtmlElement();
+	const scrollHardwareDetector = createMockScrollHardwareDetector();
+	const controls = new OrbitControls(cam, {
+		eventElement,
+		scrollHardwareDetector,
+	});
+	return { cam, eventElement, scrollHardwareDetector, controls };
+}
+
 Deno.test({
 	name: "Has the right default location",
 	fn() {
 		const cam = new Entity();
-		const controls = new OrbitControls(cam);
+		const controls = new OrbitControls(cam, { scrollHardwareDetector: createMockScrollHardwareDetector() });
 		assertVecAlmostEquals(controls.lookPos, [0, 0, 0]);
 		assertQuatAlmostEquals(controls.lookRot, new Quat());
 		assertEquals(controls.lookDist, 3);
@@ -48,7 +167,7 @@ Deno.test({
 	name: "Setting location via setter",
 	fn() {
 		const cam = new Entity();
-		const controls = new OrbitControls(cam);
+		const controls = new OrbitControls(cam, { scrollHardwareDetector: createMockScrollHardwareDetector() });
 
 		// First loop is always dirty
 		assertLoopCall(controls);
@@ -71,56 +190,91 @@ Deno.test({
 });
 
 Deno.test({
-	name: "scrollBehavior is set to zoom by default",
+	name: "Setting scrollHardwareDetector to null without setting scrollBehavior throws",
+	fn() {
+		const cam = new Entity();
+		assertThrows(() => {
+			new OrbitControls(cam, {
+				scrollHardwareDetector: null,
+			});
+		}, Error, "scrollHardwareDetector was set to null but no scrollBehavior was configured. Set `scrollBehavior` to something other than 'auto' (which is the default).");
+	},
+});
+
+Deno.test({
+	name: "Setting scrollHardwareDetector to null while setting scrollBehavior to 'auto' throws",
+	fn() {
+		const cam = new Entity();
+		assertThrows(() => {
+			new OrbitControls(cam, {
+				scrollHardwareDetector: null,
+				scrollBehavior: "auto",
+			});
+		}, Error, "scrollBehavior was set to 'auto' but scrollHardwareDetector was explicitly set to null. Automatic scroll mode detection requires a ScrollHardwareDetector.");
+	},
+});
+
+Deno.test({
+	name: "Setting scrollBehavior to 'auto' without a ScrollHardwareDetector throws",
+	fn() {
+		const cam = new Entity();
+		const controls = new OrbitControls(cam, {
+			scrollHardwareDetector: null,
+			scrollBehavior: "orbit",
+		});
+		assertThrows(() => {
+			controls.scrollBehavior = "auto";
+		}, Error, "Can't set scrollBehavior to 'auto' because `scrollHardwareDetector` was explicitly set to null in the constructor.");
+	},
+});
+
+Deno.test({
+	name: "scrollBehavior is set to auto by default",
 	fn() {
 		runWithDom(() => {
-			const cam = new Entity();
-			const el = new HtmlElement();
-			const controls = new OrbitControls(cam, el);
-
-			assertLoopCall(controls);
-
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaY: 1,
-			}));
-
-			assertLoopCall(controls);
-			assertEquals(controls.lookDist, 3.01);
-
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaX: 1,
-			}));
-
-			assertLoopCall(controls);
-			assertEquals(controls.lookDist, 3.01);
+			const { controls } = basicSetup();
+			assertEquals(controls.scrollBehavior, "auto");
 		});
 	},
 });
 
 Deno.test({
-	name: "Settings scrollBehavior to zoom causes wheel event to adjusts the distance",
+	name: "Setting scrollBehavior to zoom causes wheel event to adjusts the distance",
 	fn() {
 		runWithDom(() => {
-			const cam = new Entity();
-			const el = new HtmlElement();
-			const controls = new OrbitControls(cam, el);
+			const { eventElement, scrollHardwareDetector, controls } = basicSetup();
+			scrollHardwareDetector.setEstimatedType("touchpad");
 			controls.scrollBehavior = "zoom";
 
 			assertLoopCall(controls);
+			assertWheelChangesLookDist(eventElement, controls);
+		});
+	},
+});
 
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaY: 1,
-			}));
+Deno.test({
+	name: "Setting scrollBehavior to orbit causes wheel event with ctrl key to adjusts the distance",
+	fn() {
+		runWithDom(() => {
+			const { eventElement, scrollHardwareDetector, controls } = basicSetup();
+			scrollHardwareDetector.setEstimatedType("mouse");
+			controls.scrollBehavior = "orbit";
 
 			assertLoopCall(controls);
-			assertEquals(controls.lookDist, 3.01);
+			assertWheelChangesLookDist(eventElement, controls, { ctrlKey: true });
+		});
+	},
+});
 
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaX: 1,
-			}));
+Deno.test({
+	name: "Estimated type is touchpad causes wheel event with ctrl key to adjusts the distance",
+	fn() {
+		runWithDom(() => {
+			const { eventElement, scrollHardwareDetector, controls } = basicSetup();
+			scrollHardwareDetector.setEstimatedType("touchpad");
 
 			assertLoopCall(controls);
-			assertEquals(controls.lookDist, 3.01);
+			assertWheelChangesLookDist(eventElement, controls, { ctrlKey: true });
 		});
 	},
 });
@@ -130,13 +284,16 @@ Deno.test({
 	fn() {
 		runWithDom(() => {
 			const cam = new Entity();
-			const el = new HtmlElement();
-			const controls = new OrbitControls(cam, el);
+			const eventElement = new HtmlElement();
+			const controls = new OrbitControls(cam, {
+				eventElement,
+				scrollHardwareDetector: createMockScrollHardwareDetector(),
+			});
 			controls.scrollBehavior = "zoom";
 
 			assertLoopCall(controls);
 
-			el.dispatchEvent(new WheelEvent("wheel", {
+			eventElement.dispatchEvent(new WheelEvent("wheel", {
 				deltaY: 1,
 				deltaMode: WheelEvent.DOM_DELTA_LINE,
 			}));
@@ -144,7 +301,7 @@ Deno.test({
 			assertLoopCall(controls);
 			assertEquals(controls.lookDist, 3.08);
 
-			el.dispatchEvent(new WheelEvent("wheel", {
+			eventElement.dispatchEvent(new WheelEvent("wheel", {
 				deltaY: 1,
 				deltaMode: WheelEvent.DOM_DELTA_PAGE,
 			}));
@@ -156,100 +313,71 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Settings scrollBehavior to orbit causes wheel event with ctrl key to adjusts the distance",
+	name: "Setting scrollBehavior to orbit causes wheel event with shift key to adjusts the position",
 	fn() {
 		runWithDom(() => {
-			const cam = new Entity();
-			const el = new HtmlElement();
-			const controls = new OrbitControls(cam, el);
+			const { eventElement, scrollHardwareDetector, controls } = basicSetup();
+			scrollHardwareDetector.setEstimatedType("mouse");
+			controls.scrollBehavior = "orbit";
 
 			assertLoopCall(controls);
-
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaY: 1,
-				ctrlKey: true,
-			}));
-
-			assertLoopCall(controls);
-			assertEquals(controls.lookDist, 3.01);
-
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaX: 1,
-				ctrlKey: true,
-			}));
-
-			assertLoopCall(controls);
-			assertEquals(controls.lookDist, 3.01);
+			assertWheelChangesPosition(eventElement, controls, { shiftKey: true });
 		});
 	},
 });
 
 Deno.test({
-	name: "Settings scrollBehavior to orbit causes wheel event with shift key to adjusts the position",
+	name: "Setting scrollBehavior to orbit causes wheel event without keys to adjusts the orbit",
 	fn() {
 		runWithDom(() => {
-			const cam = new Entity();
-			const el = new HtmlElement();
-			const controls = new OrbitControls(cam, el);
+			const { eventElement, scrollHardwareDetector, controls } = basicSetup();
+			scrollHardwareDetector.setEstimatedType("mouse");
 			controls.scrollBehavior = "orbit";
 
 			assertLoopCall(controls);
-
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaY: 1,
-				shiftKey: true,
-			}));
-
-			assertLoopCall(controls);
-			assertVecAlmostEquals(controls.lookPos, [0, -0.01, 0]);
-
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaX: 1,
-				shiftKey: true,
-			}));
-
-			assertLoopCall(controls);
-			assertVecAlmostEquals(controls.lookPos, [0.01, -0.01, 0]);
+			assertWheelChangesOrbit(eventElement, controls);
 		});
 	},
 });
 
 Deno.test({
-	name: "Settings scrollBehavior to orbit causes wheel event without keys to adjusts the orbit",
+	name: "Touchpads change the orbit when scrollbehavior is auto",
 	fn() {
 		runWithDom(() => {
-			const cam = new Entity();
-			const el = new HtmlElement();
-			const controls = new OrbitControls(cam, el);
-			controls.scrollBehavior = "orbit";
+			const { eventElement, scrollHardwareDetector, controls } = basicSetup();
+			scrollHardwareDetector.setEstimatedType("touchpad");
+			controls.scrollBehavior = "auto";
 
 			assertLoopCall(controls);
+			assertWheelChangesOrbit(eventElement, controls);
+		});
+	},
+});
 
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaY: 1,
-			}));
-			assertLoopCall(controls);
-			assertQuatAlmostEquals(controls.lookRot, Quat.fromAxisAngle(1, 0, 0, 0.01));
+Deno.test({
+	name: "Mice change the zoom when scrollbehavior is auto",
+	fn() {
+		runWithDom(() => {
+			const { eventElement, scrollHardwareDetector, controls } = basicSetup();
+			scrollHardwareDetector.setEstimatedType("mouse");
+			controls.scrollBehavior = "auto";
 
-			controls.invertScrollY = true;
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaY: 1,
-			}));
 			assertLoopCall(controls);
-			assertQuatAlmostEquals(controls.lookRot, Quat.identity);
+			assertWheelChangesLookDist(eventElement, controls);
+		});
+	},
+});
 
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaX: 1,
-			}));
-			assertLoopCall(controls);
-			assertQuatAlmostEquals(controls.lookRot, Quat.fromAxisAngle(0, 1, 0, 0.01));
+Deno.test({
+	name: "Scrolling changes the zoom when estimated hardware type is unknown",
+	fn() {
+		runWithDom(() => {
+			const { eventElement, scrollHardwareDetector, controls } = basicSetup();
+			scrollHardwareDetector.setEstimatedType("unknown");
+			controls.scrollBehavior = "auto";
 
-			controls.invertScrollX = true;
-			el.dispatchEvent(new WheelEvent("wheel", {
-				deltaX: 1,
-			}));
 			assertLoopCall(controls);
-			assertQuatAlmostEquals(controls.lookRot, Quat.identity);
+			assertWheelChangesLookDist(eventElement, controls);
 		});
 	},
 });
@@ -261,7 +389,10 @@ Deno.test({
 			const cam = new Entity();
 			const el1 = new HtmlElement();
 			const el2 = new HtmlElement();
-			const controls = new OrbitControls(cam, el1);
+			const controls = new OrbitControls(cam, {
+				eventElement: el1,
+				scrollHardwareDetector: createMockScrollHardwareDetector(),
+			});
 			controls.addEventElement(el2);
 
 			assertLoopCall(controls);
@@ -296,12 +427,15 @@ Deno.test({
 		runWithDom(() => {
 			const setCaptureSpy = stub(document.body, "setPointerCapture");
 			const cam = new Entity();
-			const el = new HtmlElement();
-			const controls = new OrbitControls(cam, el);
+			const eventElement = new HtmlElement();
+			const controls = new OrbitControls(cam, {
+				eventElement,
+				scrollHardwareDetector: createMockScrollHardwareDetector(),
+			});
 
 			assertLoopCall(controls);
 
-			el.dispatchEvent(new PointerEvent("pointerdown", {
+			eventElement.dispatchEvent(new PointerEvent("pointerdown", {
 				clientX: 10,
 				clientY: 10,
 				button: 1,

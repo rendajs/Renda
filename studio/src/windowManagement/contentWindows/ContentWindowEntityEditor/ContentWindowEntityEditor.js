@@ -41,6 +41,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		this.addPreferencesButton([
 			"entityEditor.autosaveEntities",
+			"entityEditor.scrollBehavior",
 			"entityEditor.invertScrollOrbitX",
 			"entityEditor.invertScrollOrbitY",
 			"entityEditor.showGrid",
@@ -165,7 +166,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.markRenderDirty();
 		});
 
-		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
+		this.orbitControls = new OrbitControls(this.editorCamera, {
+			eventElement: renderTargetElement,
+			scrollHardwareDetector: this.studioInstance.scrollHardwareDetector,
+		});
 		/**
 		 * Flag to check whether the current orbit values have been touched
 		 * and should be written to disk.
@@ -173,6 +177,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.orbitControlsValuesDirty = false;
 		this.lastOrbitControlsValuesChangeTime = 0;
 
+		this.studioInstance.preferencesManager.onChange("entityEditor.scrollBehavior", this.uuid, (e) => {
+			this.orbitControls.scrollBehavior = e.value;
+		});
 		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitX", this.uuid, (e) => {
 			this.orbitControls.invertScrollX = e.value;
 		});

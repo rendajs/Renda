@@ -17,6 +17,20 @@ const autoRegisterPreferences = /** @type {const} */ ({
 		type: "boolean",
 		default: true,
 	}),
+	"entityEditor.scrollBehavior": pref({
+		type: "enum",
+		enum: /** @type {["auto", "zoom", "orbit"]} */ (["auto", "zoom", "orbit"]),
+		description: `The behaviour of the scrollwheel.
+- "zoom" is recommended when a physical mousewheel is used.
+The camera moves forwards and backwards when scrolling.
+Since the user is using a mouse, they can likely orbit the camera using middle mouse button instead.
+- "orbit" is recommended when a precision touchpad is used.
+The user typically scrolls pages using gestures with two finger,
+and scroll events often contain scroll information from two axes.
+This mode allows the user to orbit the camera using this gesture,
+and moving the camera forwards and backwards can be achieved using a
+pinch gesture or by holding the ctrl key.`,
+	}),
 	"entityEditor.invertScrollOrbitX": pref({
 		type: "boolean",
 	}),

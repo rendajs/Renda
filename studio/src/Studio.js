@@ -27,6 +27,7 @@ import { GlobalPreferencesLocation } from "./preferences/preferencesLocation/Glo
 import { GestureInProgressManager } from "./misc/GestureInProgressManager.js";
 import { WebGpuRendererError } from "../../src/rendering/renderers/webGpu/WebGpuRendererError.js";
 import { StudioConnectionsManager } from "./network/studioConnections/StudioConnectionsManager.js";
+import { ScrollHardwareDetector } from "../../src/util/ScrollHardwareDetector.js";
 
 export class Studio {
 	constructor() {
@@ -70,6 +71,7 @@ export class Studio {
 		this.builtInDefaultAssetLinksManager = new BuiltInDefaultAssetLinksManager();
 		this.builtInAssetManager = new BuiltInAssetManager(this.projectAssetTypeManager);
 		this.dragManager = new DragManager();
+		this.scrollHardwareDetector = new ScrollHardwareDetector();
 		this.serviceWorkerManager = new ServiceWorkerManager();
 
 		if (IS_DEV_BUILD) {

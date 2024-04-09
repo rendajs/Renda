@@ -102,3 +102,57 @@ Deno.test({
 		}
 	},
 });
+
+Deno.test({
+	name: "Changing scrollBehavior pref changes orbit controls scroll behavior",
+	async fn() {
+		const { args, mockStudioInstance, uninstall } = basicTest();
+		try {
+			mockStudioInstance.preferencesManager.set("entityEditor.scrollBehavior", "orbit");
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			contentWindow.setProjectPreferencesLocationData({});
+
+			assertEquals(contentWindow.orbitControls.scrollBehavior, "orbit");
+			mockStudioInstance.preferencesManager.set("entityEditor.scrollBehavior", "zoom");
+			assertEquals(contentWindow.orbitControls.scrollBehavior, "zoom");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Changing invertScrollOrbitX pref changes orbit controls invertScrollOrbitX",
+	async fn() {
+		const { args, mockStudioInstance, uninstall } = basicTest();
+		try {
+			mockStudioInstance.preferencesManager.set("entityEditor.invertScrollOrbitX", true);
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			contentWindow.setProjectPreferencesLocationData({});
+
+			assertEquals(contentWindow.orbitControls.invertScrollX, true);
+			mockStudioInstance.preferencesManager.set("entityEditor.invertScrollOrbitX", false);
+			assertEquals(contentWindow.orbitControls.invertScrollX, false);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Changing invertScrollOrbitY pref changes orbit controls invertScrollOrbitY",
+	async fn() {
+		const { args, mockStudioInstance, uninstall } = basicTest();
+		try {
+			mockStudioInstance.preferencesManager.set("entityEditor.invertScrollOrbitY", true);
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			contentWindow.setProjectPreferencesLocationData({});
+
+			assertEquals(contentWindow.orbitControls.invertScrollY, true);
+			mockStudioInstance.preferencesManager.set("entityEditor.invertScrollOrbitY", false);
+			assertEquals(contentWindow.orbitControls.invertScrollY, false);
+		} finally {
+			uninstall();
+		}
+	},
+});
