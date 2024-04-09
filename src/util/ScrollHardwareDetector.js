@@ -108,7 +108,15 @@ export class ScrollHardwareDetector {
 			this.#currentGestureDetermined = true;
 		}
 
-		if (Math.abs(e.deltaY) <= 1) {
+		// It seems like scrollwheel gestures from a mouse are pretty much always higher than 4.
+		// On Chrome Windows it is at least 33.
+		// On Firefox Windows it is at least 36
+		// On Edge Windows it is at least 200
+		// On Firefox macOS it is at least 16
+		// On Chrome/Safari macOS it is awfully close to 4, but it's just about a bit higher than that.
+		// On touchpads the delta MAY be higher than 4 when the user scrolls quickly,
+		// so we'll want to set this check as high as possible to prevent touchpads getting detected as mouse.
+		if (Math.abs(e.deltaY) <= 4) {
 			this.#setEstimatedType("touchpad");
 			this.#currentGestureDetermined = true;
 		}

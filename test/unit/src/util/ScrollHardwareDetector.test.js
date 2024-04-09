@@ -115,14 +115,14 @@ Deno.test({
 });
 
 Deno.test({
-	name: "scrolling one pixel or less detects a touchpad",
+	name: "scrolling 4 pixels or less detects a touchpad",
 	fn() {
 		setupTest({
 			fn({ eventTarget }) {
 				const detector = new ScrollHardwareDetector();
 
 				eventTarget.dispatchEvent(new WheelEvent("wheel", {
-					deltaY: 1,
+					deltaY: 4,
 				}));
 				assertEquals(detector.estimatedType, "touchpad");
 			},
