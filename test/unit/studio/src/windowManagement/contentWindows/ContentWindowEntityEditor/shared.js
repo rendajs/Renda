@@ -31,6 +31,7 @@ export function basicTest() {
 	mockStudioInstance.engineAssetManager = /** @type {import("../../../../../../../src/mod.js").EngineAssetsManager} */ ({
 		watchAsset(assetUuid, options, cb) {},
 	});
+	mockStudioInstance.scrollHardwareDetector = /** @type {import("../../../../../../../src/mod.js").ScrollHardwareDetector} */ ({});
 	/** @type {Map<string, import("../../../../../../../studio/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>>} */
 	const getProjectAssetFromUuidResults = new Map();
 	const assetManager = /** @type {import("../../../../../../../studio/src/assets/AssetManager.js").AssetManager} */ ({
@@ -72,6 +73,7 @@ export function basicTest() {
 
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.autosaveEntities", { type: "boolean" });
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.showGrid", { type: "boolean" });
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.scrollBehavior", { type: "enum", enum: ["auto", "zoom", "orbit"] });
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitX", { type: "boolean" });
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitY", { type: "boolean" });
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookPos", {

@@ -1280,3 +1280,25 @@ Deno.test({
 		assertSpyCalls(contentWindowSpyFn, 1);
 	},
 });
+
+testTypes({
+	name: "enum values are inferred",
+	fn() {
+		const manager = new PreferencesManager({
+			enumPref: {
+				type: "enum",
+				enum: /** @type {["foo", "bar"]} */ (["foo", "bar"]),
+			},
+		});
+
+		const enumResult = manager.get("enumPref", "uuid");
+		const fooBar = /** @type {"foo" | "bar"} */ ("foo");
+		// Verify that the type is "foo" | "bar" and nothing else
+		assertIsType(fooBar, enumResult);
+		assertIsType(enumResult, "foo");
+		assertIsType(enumResult, "bar");
+
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, enumResult);
+	},
+});

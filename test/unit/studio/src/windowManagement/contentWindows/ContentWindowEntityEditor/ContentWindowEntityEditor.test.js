@@ -39,6 +39,7 @@ Deno.test({
 		}
 	},
 });
+
 Deno.test({
 	name: "Hides the grid when untoggled",
 	async fn() {

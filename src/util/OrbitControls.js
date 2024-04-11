@@ -1,13 +1,66 @@
+import { DEBUG_INCLUDE_ERROR_MESSAGES, DEBUG_INCLUDE_ERROR_THROWS } from "../engineDefines.js";
 import { Quat } from "../math/Quat.js";
 import { Vec2 } from "../math/Vec2.js";
 import { Vec3 } from "../math/Vec3.js";
+import { neverNoOp } from "./neverNoOp.js";
+import { clamp } from "./util.js";
+
+/** @typedef {"auto" | "zoom" | "orbit"} OrbitControlsScrollBehavior */
 
 export class OrbitControls {
+	/** @type {OrbitControlsScrollBehavior} */
+	#scrollBehavior = "auto";
+
 	/**
-	 * @param {import("../core/Entity.js").Entity} cameraEntity
-	 * @param {HTMLElement} [eventElement]
+	 * The behaviour of the scrollwheel.
+	 * - `"auto"` Automatically detects the desired behavior based on the `ScrollHardwareDetector`
+	 * that was provided in the constructor.
+	 * - `"zoom"` is recommended when a physical mousewheel is used.
+	 * The camera moves forwards and backwards when scrolling.
+	 * Since the user is using a mouse, they can likely orbit the camera using middle mouse button instead.
+	 * - `"orbit"` is recommended when a precision touchpad is used.
+	 * The user typically scrolls pages using gestures with two finger,
+	 * and scroll events often contain scroll information from two axes.
+	 * This mode allows the user to orbit the camera using this gesture,
+	 * and moving the camera forwards and backwards can be achieved using a
+	 * pinch gesture or by holding the ctrl key.
 	 */
-	constructor(cameraEntity, eventElement) {
+	get scrollBehavior() {
+		return this.#scrollBehavior;
+	}
+
+	set scrollBehavior(value) {
+		if (DEBUG_INCLUDE_ERROR_THROWS && value == "auto" && !this.#scrollHardwareDetector) {
+			if (DEBUG_INCLUDE_ERROR_MESSAGES) {
+				throw new Error("Can't set scrollBehavior to 'auto' because `scrollHardwareDetector` was explicitly set to null in the constructor.");
+			} else {
+				throw new Error();
+			}
+		}
+		this.#scrollBehavior = value;
+	}
+
+	#scrollHardwareDetector;
+
+	/**
+	 * @param {import("../core/Entity.js").Entity} cameraEntity The camera that needs to be moved.
+	 * @param {object} options
+	 * @param {HTMLElement} [options.eventElement] Providing this value is equivalent to calling `orbitControls.addEventElement()`.
+	 * @param {import("./ScrollHardwareDetector.js").ScrollHardwareDetector?} options.scrollHardwareDetector If you plan on creating multiple OrbitControls instances,
+	 * you should reuse a single ScrollHardwareDetector instance for a better user experience.
+	 * This ScrollHardwareDetector is used for detecting the desired scroll behavior when
+	 * {@linkcode scrollBehavior} is set to `"auto"` (which is the default).
+	 * You may also explicitly set this to `null` if you know in advance that you won't
+	 * be setting it to `"auto"`, but you should set `scrollBehavior` to something other
+	 * than `"auto"` in these OrbitControls constructor options, otherwise an error will be thrown.
+	 * @param {OrbitControlsScrollBehavior} [options.scrollBehavior] See {@linkcode scrollBehavior}.
+	 */
+	constructor(cameraEntity, {
+		eventElement,
+		scrollHardwareDetector,
+		scrollBehavior,
+	}) {
+		this.#scrollHardwareDetector = scrollHardwareDetector;
 		this.camera = cameraEntity;
 
 		this.invertScrollX = false;
@@ -37,6 +90,19 @@ export class OrbitControls {
 		/** @private */
 		this._boundBodyOnPointerMove = this._bodyOnPointerMove.bind(this);
 		this._lastPointerPos = new Vec2();
+
+		if (!this.#scrollHardwareDetector && DEBUG_INCLUDE_ERROR_THROWS) {
+			if (DEBUG_INCLUDE_ERROR_MESSAGES) {
+				if (!scrollBehavior) {
+					throw new Error("scrollHardwareDetector was set to null but no scrollBehavior was configured. Set `scrollBehavior` to something other than 'auto' (which is the default).");
+				} else if (scrollBehavior == "auto") {
+					throw new Error("scrollBehavior was set to 'auto' but scrollHardwareDetector was explicitly set to null. Automatic scroll mode detection requires a ScrollHardwareDetector.");
+				}
+			} else {
+				throw new Error();
+			}
+		}
+		this.scrollBehavior = scrollBehavior || "auto";
 
 		/** @private @type {HTMLElement[]} */
 		this._addedEventElements = [];
@@ -93,8 +159,8 @@ export class OrbitControls {
 	 * @param {number} deltaY
 	 * @param {MouseEvent} event
 	 */
-	_inputOffset(deltaX, deltaY, event) {
-		if (event.ctrlKey) {
+	_inputOffset(deltaX, deltaY, event, forceZoom = false) {
+		if (event.ctrlKey || forceZoom) {
 			this.lookDist += deltaY * 0.01;
 		} else if (event.shiftKey) {
 			const xDir = Vec3.right.rotate(this.lookRot).multiply(deltaX * 0.01);
@@ -112,10 +178,46 @@ export class OrbitControls {
 	 * @param {WheelEvent} e
 	 */
 	_onWheel(e) {
+		let dx = e.deltaX;
+		let dy = e.deltaY;
+		if (e.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+			dx *= 8;
+			dy *= 8;
+		} else if (e.deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+			dx *= 36;
+			dy *= 36;
+		}
 		e.preventDefault();
-		const dx = this.invertScrollX ? -e.deltaX : e.deltaX;
-		const dy = this.invertScrollY ? -e.deltaY : e.deltaY;
-		this._inputOffset(dx, dy, e);
+		if (this.#scrollHardwareDetector) {
+			this.#scrollHardwareDetector.handleWheelEvent(e);
+		}
+		let behavior = this.#scrollBehavior;
+		if (behavior == "auto") {
+			if (!this.#scrollHardwareDetector) {
+				if (DEBUG_INCLUDE_ERROR_THROWS) {
+					if (DEBUG_INCLUDE_ERROR_MESSAGES) {
+						throw new Error("Assertion failed, behavior is auto without a hardware detector");
+					} else {
+						throw new Error();
+					}
+				} else {
+					neverNoOp();
+				}
+			}
+			if (this.#scrollHardwareDetector.estimatedType == "touchpad") {
+				behavior = "orbit";
+			} else {
+				behavior = "zoom";
+			}
+		}
+		if (behavior == "zoom") {
+			dy = clamp(dy, -36, 36);
+			this._inputOffset(0, dy, e, true);
+		} else if (behavior == "orbit") {
+			dx = this.invertScrollX ? -dx : dx;
+			dy = this.invertScrollY ? -dy : dy;
+			this._inputOffset(dx, dy, e);
+		}
 	}
 
 	/**
