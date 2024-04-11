@@ -1,8 +1,8 @@
 import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
 import { CachedMaterialData } from "../../../../../../src/rendering/renderers/webGpu/CachedMaterialData.js";
-import { runWithWebGpuConstants } from "./shared/webGpuConstants.js";
 import { assertEquals, assertExists, assertStrictEquals } from "std/testing/asserts.ts";
 import { WebGpuMaterialMapType } from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
+import { runWithWebGpu } from "./shared/WebGpuApi.js";
 
 /**
  * @typedef MockPipelineLayout
@@ -54,7 +54,7 @@ function createMocks({
 Deno.test({
 	name: "The uniforms BindGroupLayout is created and cached",
 	fn() {
-		runWithWebGpuConstants(() => {
+		runWithWebGpu(() => {
 			const { mockRenderer, mockDevice, mockMaterial } = createMocks();
 			const createBindGroupLayoutSpy = spy(mockDevice, "createBindGroupLayout");
 			const cachedData = new CachedMaterialData(mockRenderer, mockMaterial);
@@ -89,7 +89,7 @@ Deno.test({
 Deno.test({
 	name: "getForwardPipelineConfig() is null without a configured pipeline config",
 	fn() {
-		runWithWebGpuConstants(() => {
+		runWithWebGpu(() => {
 			const { mockRenderer } = createMocks();
 
 			const mockMaterial1 = /** @type {import("../../../../../../src/mod.js").Material} */ ({});
@@ -112,7 +112,7 @@ Deno.test({
 Deno.test({
 	name: "getForwardPipelineConfig() is created and cached",
 	fn() {
-		runWithWebGpuConstants(() => {
+		runWithWebGpu(() => {
 			const { mockRenderer } = createMocks();
 
 			const mockPipelineConfig = /** @type {import("../../../../../../src/mod.js").WebGpuPipelineConfig} */ ({});
@@ -143,7 +143,7 @@ Deno.test({
 Deno.test({
 	name: "getPipelineLayout() is null when there is no device",
 	fn() {
-		runWithWebGpuConstants(() => {
+		runWithWebGpu(() => {
 			const { mockMaterial, mockRenderer } = createMocks({ hasDevice: false });
 
 			const cachedData = new CachedMaterialData(mockRenderer, mockMaterial);
@@ -155,7 +155,7 @@ Deno.test({
 Deno.test({
 	name: "getPipelineLayout() is null when there is no viewBindGroupLayout",
 	fn() {
-		runWithWebGpuConstants(() => {
+		runWithWebGpu(() => {
 			const { mockMaterial, mockRenderer } = createMocks({ hasViewBindGroupLayout: false });
 
 			const cachedData = new CachedMaterialData(mockRenderer, mockMaterial);
@@ -167,7 +167,7 @@ Deno.test({
 Deno.test({
 	name: "getPipelineLayout() is null when there is no objectUniformsBindGroupLayout",
 	fn() {
-		runWithWebGpuConstants(() => {
+		runWithWebGpu(() => {
 			const { mockMaterial, mockRenderer } = createMocks({ hasObjectUniformsBindGroupLayout: false });
 
 			const cachedData = new CachedMaterialData(mockRenderer, mockMaterial);
@@ -179,7 +179,7 @@ Deno.test({
 Deno.test({
 	name: "getPipelineLayout() is null when there is no material uniforms bind group layout",
 	fn() {
-		runWithWebGpuConstants(() => {
+		runWithWebGpu(() => {
 			const { mockMaterial, mockRenderer } = createMocks();
 
 			const cachedData = new CachedMaterialData(mockRenderer, mockMaterial);
@@ -192,7 +192,7 @@ Deno.test({
 Deno.test({
 	name: "getPipelineLayout() is created and cached",
 	fn() {
-		runWithWebGpuConstants(() => {
+		runWithWebGpu(() => {
 			const { mockMaterial, mockDevice, mockRenderer } = createMocks();
 			const createPipelineLayoutSpy = spy(mockDevice, "createPipelineLayout");
 

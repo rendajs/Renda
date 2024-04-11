@@ -2,7 +2,7 @@ import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 import { assertEquals, assertExists } from "std/testing/asserts.ts";
 import { Mesh } from "../../../../../../src/mod.js";
 import { CachedMeshData } from "../../../../../../src/rendering/renderers/webGpu/CachedMeshData.js";
-import { runWithWebGpuConstants } from "./shared/webGpuConstants.js";
+import { runWithWebGpu } from "./shared/WebGpuApi.js";
 
 function createMocks({
 	hasDevice = true,
@@ -46,7 +46,7 @@ function createMocks({
 Deno.test({
 	name: "Index buffers are 4 byte aligned",
 	fn() {
-		runWithWebGpuConstants(() => {
+		runWithWebGpu(() => {
 			const { mockRenderer, createBufferSpy, createdBuffers } = createMocks();
 			const mesh = new Mesh();
 			mesh.setIndexData([1, 2, 3]);

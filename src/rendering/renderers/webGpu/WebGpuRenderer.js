@@ -360,7 +360,7 @@ export class WebGpuRenderer extends Renderer {
 		this.#objectsChunkedBuffer.clearGroups();
 
 		const viewMatrix = camera.entity.worldMatrix.inverse();
-		const vpMatrix = Mat4.multiplyMatrices(viewMatrix, camera.projectionMatrix);
+		const viewProjectionMatrix = Mat4.multiplyMatrices(viewMatrix, camera.projectionMatrix);
 		const inverseProjectionMatrix = camera.projectionMatrix.inverse();
 
 		// todo, only update when something changed
@@ -370,7 +370,8 @@ export class WebGpuRenderer extends Renderer {
 		this.#viewsChunkedBufferGroup.appendMatrix(camera.projectionMatrix);
 		this.#viewsChunkedBufferGroup.appendMatrix(inverseProjectionMatrix);
 		this.#viewsChunkedBufferGroup.appendMatrix(viewMatrix);
-		this.#viewsChunkedBufferGroup.appendMathType(new Vec4(camera.clipNear, camera.clipFar));
+		this.#viewsChunkedBufferGroup.appendMatrix(viewProjectionMatrix);
+		this.#viewsChunkedBufferGroup.appendMathType(new Vec4(camera.clipNear, camera.clipFar, 0, 0));
 
 		this.#viewsChunkedBuffer.writeAllGroupsToGpu();
 
@@ -602,9 +603,8 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 					const group = this.#objectsChunkedBuffer.createGroup();
 					meshChunkedBufferGroups.set(component, group);
 
-					const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
+					const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, viewProjectionMatrix);
 					group.appendMatrix(mvpMatrix);
-					group.appendMatrix(vpMatrix);
 					group.appendMatrix(worldMatrix);
 				}
 			}

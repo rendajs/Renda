@@ -14,7 +14,7 @@ struct VertexOutput {
 fn main(input : VertexInput) -> VertexOutput {
 	var vertOut : VertexOutput;
 	var modelPos = vec4<f32>(input.position, 1.0);
-	vertOut.position = modelUniforms.mvp * modelPos;
-	vertOut.vWorldPos = (modelUniforms.m * modelPos).xyz;
+	vertOut.position = modelUniforms.mvpMatrix * modelPos;
+	vertOut.vWorldPos = (modelUniforms.modelMatrix * modelPos).xyz;
 	return vertOut;
 }

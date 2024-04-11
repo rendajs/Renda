@@ -20,11 +20,11 @@ struct VertexOutput {
 @vertex
 fn main(input : VertexInput) -> VertexOutput {
 	var vertOut : VertexOutput;
-	vertOut.position = modelUniforms.mvp * input.position;
-	vertOut.vWorldPos = (modelUniforms.m * input.position).xyz;
-	vertOut.vNormal = normalize(modelUniforms.m * vec4<f32>(input.normal, 0.0)).xyz;
+	vertOut.position = modelUniforms.mvpMatrix * input.position;
+	vertOut.vWorldPos = (modelUniforms.modelMatrix * input.position).xyz;
+	vertOut.vNormal = normalize(modelUniforms.modelMatrix * vec4<f32>(input.normal, 0.0)).xyz;
 	vertOut.vUv1 = input.uv1;
-	vertOut.vTangent = normalize(modelUniforms.m * vec4<f32>(input.tangent, 0.0)).xyz;
+	vertOut.vTangent = normalize(modelUniforms.modelMatrix * vec4<f32>(input.tangent, 0.0)).xyz;
 	vertOut.vBitangent = normalize(cross(vertOut.vNormal, vertOut.vTangent));
 	return vertOut;
 }
