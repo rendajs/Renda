@@ -1,6 +1,7 @@
 import { assertEquals } from "std/testing/asserts.ts";
 import { ScrollHardwareDetector } from "../../../../src/util/ScrollHardwareDetector.js";
 import { WheelEvent } from "fake-dom/FakeWheelEvent.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 
 /**
  * @typedef ScrollHardwareDetectorTestContext
@@ -241,6 +242,50 @@ Deno.test({
 					deltaY: 5,
 				}));
 				assertEquals(detector.estimatedType, "mouse");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Events fire when the state changes",
+	fn() {
+		setupTest({
+			fn({ tick }) {
+				const detector = new ScrollHardwareDetector();
+				/** @type {import("../../../../src/util/ScrollHardwareDetector.js").OnEstimatedTypeChangeCallback} */
+				const spySignature = () => {};
+				const spyFn1 = spy(spySignature);
+				const spyFn2 = spy(spySignature);
+				detector.onEstimatedTypeChange(spyFn1);
+				detector.onEstimatedTypeChange(spyFn2);
+
+				detector.handleWheelEvent(new WheelEvent("wheel", {
+					deltaX: 1,
+				}));
+				assertSpyCalls(spyFn1, 1);
+				assertSpyCalls(spyFn2, 1);
+				assertSpyCall(spyFn1, 0, {
+					args: ["touchpad"],
+				});
+
+				tick(1000);
+				detector.handleWheelEvent(new WheelEvent("wheel", {
+					deltaY: 10,
+				}));
+				assertSpyCalls(spyFn1, 2);
+				assertSpyCalls(spyFn2, 2);
+				assertSpyCall(spyFn1, 1, {
+					args: ["mouse"],
+				});
+
+				detector.removeOnEstimatedTypeChange(spyFn1);
+				tick(1000);
+				detector.handleWheelEvent(new WheelEvent("wheel", {
+					deltaX: 1,
+				}));
+				assertSpyCalls(spyFn1, 2);
+				assertSpyCalls(spyFn2, 3);
 			},
 		});
 	},
