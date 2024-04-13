@@ -42,7 +42,7 @@ export class StudioConnectionsManager {
 	 * But pages created by the build view should always be allowed.
 	 * Therefore, we create tokens for every page created by the build view.
 	 * Inspectors can provide these tokens when connecting, and we'll always allow the connection when the token is valid.
-	 * @type {Set<string>}
+	 * @type {Set<import("../../../../src/mod.js").UuidString>}
 	 */
 	#connectionTokens = new Set();
 
@@ -397,7 +397,7 @@ export class StudioConnectionsManager {
 	 * regardless of its origin, the connection type, or whether internal connections are enabled.
 	 */
 	createConnectionToken() {
-		const token = crypto.randomUUID();
+		const token = /** @type {import("../../../../src/mod.js").UuidString} */ (crypto.randomUUID());
 		this.#connectionTokens.add(token);
 		return token;
 	}
