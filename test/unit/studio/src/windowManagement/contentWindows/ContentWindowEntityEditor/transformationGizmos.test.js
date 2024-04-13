@@ -1,7 +1,7 @@
 import { basicTest } from "./shared.js";
 import { ContentWindowEntityEditor } from "../../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.js";
 import { assertEquals, assertInstanceOf } from "std/testing/asserts.ts";
-import { Entity, Quat, TranslationGizmo, Vec3, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../../../src/mod.js";
+import { Entity, Quat, RotationGizmo, TranslationGizmo, Vec3, assertQuatAlmostEquals, assertVecAlmostEquals } from "../../../../../../../src/mod.js";
 import { stub } from "std/testing/mock.ts";
 
 function createEntitiesForGizmoTests() {
@@ -198,6 +198,52 @@ Deno.test({
 			});
 
 			assertVecAlmostEquals(root.pos, [0, 1, 0]);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Dragging a rotation gizmo",
+	async fn() {
+		const { args, uninstall } = basicTest();
+		try {
+			const contentWindow = new ContentWindowEntityEditor(...args);
+			contentWindow.setTransformationMode("rotate");
+
+			/** @type {import("../../../../../../../src/gizmos/gizmos/RotationGizmo.js").RotationGizmoDragCallback[]} */
+			const onDragCbs = [];
+
+			/** @type {import("std/testing/mock.ts").Stub<import("../../../../../../../src/mod.js").GizmoManager, [...args: any[]], import("../../../../../../../src/mod.js").Gizmo>} */
+			const addGizmoStub = stub(contentWindow.gizmos, "addGizmo", (...args) => {
+				const gizmo = addGizmoStub.original.bind(contentWindow.gizmos)(...args);
+				if (gizmo instanceof RotationGizmo) {
+					stub(gizmo, "onDrag", (cb) => {
+						onDragCbs.push(cb);
+					});
+				}
+				return gizmo;
+			});
+
+			const { root } = createEntitiesForGizmoTests();
+			contentWindow.editingEntity = root;
+
+			contentWindow.selectionGroup.changeSelection({
+				added: [createMockEntitySelection(root)],
+			});
+
+			const gizmos = Array.from(contentWindow.gizmos.gizmos);
+			assertEquals(gizmos.length, 1);
+			assertInstanceOf(gizmos[0], RotationGizmo);
+
+			assertEquals(onDragCbs.length, 1);
+			onDragCbs[0]({
+				localDelta: Quat.fromAxisAngle(0, 1, 0, 0.2),
+				worldDelta: Quat.fromAxisAngle(0, 1, 0, 0.2),
+			});
+
+			assertQuatAlmostEquals(root.rot, Quat.fromAxisAngle(0, 1, 0, 0.2));
 		} finally {
 			uninstall();
 		}

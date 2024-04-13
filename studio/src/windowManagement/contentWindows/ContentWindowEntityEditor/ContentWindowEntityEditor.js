@@ -626,7 +626,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				} else if (this.transformationMode == "rotate") {
 					gizmo = this.gizmos.addGizmo(RotationGizmo);
 					gizmo.onDrag((e) => {
-						const localMatrix = e.localDelta.toMat4();
+						const localMatrix = Mat4.createRotation(e.localDelta);
 						this.dragSelectedEntities(localMatrix);
 					});
 				} else if (this.transformationMode == "scale") {
