@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --unstable --no-check --allow-run --allow-read --allow-write --allow-env --allow-net
 
-import { join } from "std/path/mod.ts";
+import { join, resolve } from "std/path/mod.ts";
 import { setCwd } from "chdir-anywhere";
 import { dev } from "./dev.js";
 import { parseArgs } from "../test/shared/testArgs.js";
@@ -9,6 +9,7 @@ setCwd();
 Deno.chdir("..");
 
 const DENO_COVERAGE_DIR = ".coverage/denoCoverage";
+const DENO_HTML_COVERAGE_DIR = ".coverage/html";
 const FAKE_IMPORTS_COVERAGE_DIR = ".coverage/fakeImportsCoverageMap";
 
 /**
@@ -42,11 +43,7 @@ await dev({
 
 const { inspect } = parseArgs();
 
-let needsCoverage = Deno.args.includes("--coverage") || Deno.args.includes("-c");
-const needsHtmlCoverageReport = Deno.args.includes("--html");
-if (needsHtmlCoverageReport) {
-	needsCoverage = true;
-}
+const needsCoverage = Deno.args.includes("--coverage") || Deno.args.includes("-c");
 
 /** @type {string[][]} */
 const testCommands = [];
@@ -116,41 +113,36 @@ if (needsCoverage) {
 
 	console.log("Generating cov.lcov...");
 	const includeRegex = `^file://${Deno.cwd()}/(src|studio/src|studio/devSocket/src)`;
-	const coverageProcess = new Deno.Command(Deno.execPath(), {
+	const lcovCommand = new Deno.Command(Deno.execPath(), {
 		args: ["coverage", DENO_COVERAGE_DIR, "--lcov", `--include=${includeRegex}`],
 		stdout: "piped",
+		stderr: "piped",
 	});
-	const coverageOutput = await coverageProcess.output();
-	if (!coverageOutput.success) {
-		Deno.exit(coverageOutput.code);
+	const lcovOutput = await lcovCommand.output();
+	if (!lcovOutput.success) {
+		Deno.exit(lcovOutput.code);
 	}
-	await Deno.writeFile(".coverage/cov.lcov", coverageOutput.stdout);
+	await Deno.writeFile(".coverage/cov.lcov", lcovOutput.stdout);
 
-	if (needsHtmlCoverageReport) {
-		console.log("Generating HTML coverage report...");
-		let genHtmlCommand = null;
-		try {
-			genHtmlCommand = new Deno.Command("genhtml", {
-				args: ["-o", ".coverage/html", ".coverage/cov.lcov"],
-				stdout: "inherit",
-				stderr: "inherit",
-			});
-		} catch {
-			console.error("%cERROR%c Failed to generate html report, is lcov not installed?", "color: red", "");
-			let installCmd = null;
-			if (Deno.build.os == "darwin") {
-				installCmd = "brew install lcov";
-			}
-			// I'm not sure how to install it on other platforms, feel free to add more here.
-			if (installCmd) {
-				console.log(`Try installing it with: %c${installCmd}`, "color: black; background-color: grey");
-			}
-		}
-		if (genHtmlCommand) {
-			const genHtmlOutput = await genHtmlCommand.output();
-			if (!genHtmlOutput.success) {
-				Deno.exit(genHtmlOutput.code);
-			}
+	console.log("Generating HTML coverage report...");
+	const htmlCoverageCommand = new Deno.Command(Deno.execPath(), {
+		args: ["coverage", DENO_COVERAGE_DIR, "--html", `--include=${includeRegex}`],
+		stdout: "piped",
+		stderr: "piped",
+	});
+	const htmlOutput = await htmlCoverageCommand.output();
+	if (!htmlOutput.success) {
+		Deno.exit(htmlOutput.code);
+	}
+
+	try {
+		await Deno.remove(DENO_HTML_COVERAGE_DIR, { recursive: true });
+	} catch (e) {
+		if (e instanceof Deno.errors.NotFound) {
+			// Already removed
+		} else {
+			throw e;
 		}
 	}
+	await Deno.rename(resolve(DENO_COVERAGE_DIR, "html"), DENO_HTML_COVERAGE_DIR);
 }
