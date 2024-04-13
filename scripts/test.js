@@ -29,7 +29,7 @@ async function removeMaybeDirectory(path) {
  * @type {string?}
  */
 let filteredTests = null;
-if (Deno.args.length > 0 && !Deno.args[0].startsWith("--")) {
+if (Deno.args.length > 0 && !Deno.args[0].startsWith("-")) {
 	filteredTests = Deno.args[0];
 }
 
