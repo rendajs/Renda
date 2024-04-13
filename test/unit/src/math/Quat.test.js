@@ -18,19 +18,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "toMat4()",
-	fn() {
-		const quat = Quat.fromAxisAngle(0, 1, 0, Math.PI * 0.5);
-		const v1 = Vec3.forward.rotate(quat);
-
-		const mat = quat.toMat4();
-		const v2 = new Vec3(0, 0, 1).multiply(mat);
-
-		assertVecAlmostEquals(v1, v2);
-	},
-});
-
-Deno.test({
 	name: "toString()",
 	fn() {
 		const vec = new Quat(1, 2, 3, 4);

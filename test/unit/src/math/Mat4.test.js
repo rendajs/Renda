@@ -206,6 +206,36 @@ Deno.test({
 });
 
 Deno.test({
+	name: "createTranslation",
+	fn() {
+		const mat = Mat4.createTranslation(1, 2, 3);
+		assertVecAlmostEquals(mat.getTranslation(), [1, 2, 3]);
+	},
+});
+
+Deno.test({
+	name: "createRotation",
+	fn() {
+		const quat = Quat.fromAxisAngle(0, 1, 0, Math.PI * 0.5);
+		const v1 = Vec3.forward.rotate(quat);
+
+		const mat = Mat4.createRotation(quat);
+		const v2 = new Vec3(0, 0, 1).multiply(mat);
+
+		assertVecAlmostEquals(v1, v2);
+	},
+});
+
+Deno.test({
+	name: "createScale",
+	fn() {
+		const mat = Mat4.createScale(1, 2, 3);
+
+		assertVecAlmostEquals(mat.getScale(), [1, 2, 3]);
+	},
+});
+
+Deno.test({
 	name: "multiplyMatrices",
 	fn() {
 		// Assert that the description in the jsdoc is correct:

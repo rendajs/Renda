@@ -450,6 +450,35 @@ export class Mat4 {
 	}
 
 	/**
+	 * @param  {import("./Quat.js").QuatParameters} args
+	 */
+	static createRotation(...args) {
+		const q = new Quat(...args);
+
+		// https://github.com/toji/gl-matrix/blob/6866ae93d19bbff032139941cbfe0ae68c4cdead/src/gl-matrix/mat4.js#L1186
+		const x2 = q.x + q.x;
+		const y2 = q.y + q.y;
+		const z2 = q.z + q.z;
+
+		const xx = q.x * x2;
+		const yx = q.y * x2;
+		const yy = q.y * y2;
+		const zx = q.z * x2;
+		const zy = q.z * y2;
+		const zz = q.z * z2;
+		const wx = q.w * x2;
+		const wy = q.w * y2;
+		const wz = q.w * z2;
+
+		return new Mat4([
+			[1 - yy - zz, yx + wz, zx - wy, 0],
+			[yx - wz, 1 - xx - zz, zy + wx, 0],
+			[zx + wy, zy - wx, 1 - xx - yy, 0],
+			[0, 0, 0, 1],
+		]);
+	}
+
+	/**
 	 * @param  {import("./Vec3.js").Vec3Parameters} args
 	 */
 	static createScale(...args) {

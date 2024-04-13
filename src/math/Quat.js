@@ -1,4 +1,3 @@
-import { Mat4 } from "./Mat4.js";
 import { Vec2 } from "./Vec2.js";
 import { Vec3 } from "./Vec3.js";
 import { Vec4 } from "./Vec4.js";
@@ -199,30 +198,6 @@ export class Quat {
 		const vec = new Vec3(x, y, z);
 		vec.magnitude = angle;
 		return vec;
-	}
-
-	toMat4() {
-		// https://github.com/toji/gl-matrix/blob/6866ae93d19bbff032139941cbfe0ae68c4cdead/src/gl-matrix/mat4.js#L1186
-		const x2 = this.x + this.x;
-		const y2 = this.y + this.y;
-		const z2 = this.z + this.z;
-
-		const xx = this.x * x2;
-		const yx = this.y * x2;
-		const yy = this.y * y2;
-		const zx = this.z * x2;
-		const zy = this.z * y2;
-		const zz = this.z * z2;
-		const wx = this.w * x2;
-		const wy = this.w * y2;
-		const wz = this.w * z2;
-
-		return new Mat4([
-			[1 - yy - zz, yx + wz, zx - wy, 0],
-			[yx - wz, 1 - xx - zz, zy + wx, 0],
-			[zx + wy, zy - wx, 1 - xx - yy, 0],
-			[0, 0, 0, 1],
-		]);
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
