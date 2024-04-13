@@ -120,7 +120,7 @@ testTypes({
 
 Deno.test({
 	name: "context menu creation",
-	fn() {
+	async fn() {
 		const { manager, uninstall } = basicManager();
 		try {
 			assertEquals(manager.curtainEl.parentElement, null);
@@ -137,6 +137,10 @@ Deno.test({
 
 			assertEquals(manager.removePopover(contextMenu), true);
 			assertEquals(manager.removePopover(contextMenu), false);
+
+			// Some extra code is run in the next event loop when creating a popover.
+			// We need to wait for this code to run, otherwise the test sanitizer will complain.
+			await waitForMicrotasks();
 		} finally {
 			uninstall();
 		}

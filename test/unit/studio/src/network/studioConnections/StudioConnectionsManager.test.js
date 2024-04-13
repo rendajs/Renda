@@ -50,7 +50,7 @@ async function basicTest({
 	let randomUuid = 0;
 	const mockUuid = stub(crypto, "randomUUID", () => {
 		randomUuid++;
-		return "random_uuid_" + randomUuid;
+		return /** @type {`${string}-${string}-${string}-${string}-${string}`} */ ("random_uuid_" + randomUuid);
 	});
 	const oldLocation = window.location;
 	try {

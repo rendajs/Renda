@@ -161,7 +161,7 @@ export function binaryToUuid(buffer, offset = 0) {
 		if (i == 3 || i == 5 || i == 7 || i == 9) str += "-";
 	}
 	if (allZeros) return null;
-	return str;
+	return /** @type {import("./util.js").UuidString} */ (str);
 }
 
 /**
