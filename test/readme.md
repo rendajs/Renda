@@ -14,7 +14,6 @@ The test script takes some optional parameters:
 - `-i`, `--inspect` to wait for a debugger to connect, this also automatically disables headless mode for e2e tests, disables e2e test timeouts, and forces e2e tests to run only once.
 - `-h`, `--headless` toggles the default headless behaviour. Headless mode is disabled by default unless `-i` or `--inspect` have been specified.
 - `-c`, `--coverage` generates a coverage file in `.lcov` format. This is useful if your IDE supports it.
-- `--html` generates a coverage file in `.html` format. `genhtml` needs to be installed for this to work. The generated html can be found at `.coverage/html`.
 
 ## Unit tests
 
