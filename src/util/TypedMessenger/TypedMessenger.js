@@ -621,7 +621,7 @@ export class TypedMessenger {
 				"sendData": {
 					"direction": "response",
 					"id": data["id"],
-					"didThrow": didThrow,
+					didThrow,
 					"type": data["type"],
 					returnValue,
 				},
@@ -747,8 +747,8 @@ export class TypedMessenger {
 				"sendData": {
 					"direction": "request",
 					"id": requestId,
-					"type": type,
-					"args": args,
+					type,
+					args,
 				},
 				transfer: sendOptions.transfer || [],
 			}));
