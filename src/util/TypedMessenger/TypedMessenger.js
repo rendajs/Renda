@@ -623,7 +623,7 @@ export class TypedMessenger {
 					"id": data["id"],
 					"didThrow": didThrow,
 					"type": data["type"],
-					returnValue,
+					"returnValue": returnValue,
 				},
 				transfer,
 			}));
@@ -728,7 +728,7 @@ export class TypedMessenger {
 					this.onResponseMessage(requestId, (message) => {
 						if (message["didThrow"]) {
 							/** @type {unknown} */
-							let rejectValue = message.returnValue;
+							let rejectValue = message["returnValue"];
 							if (this.deserializeErrorHook) {
 								rejectValue = this.deserializeErrorHook(rejectValue);
 							}
@@ -737,7 +737,7 @@ export class TypedMessenger {
 							}
 							reject(rejectValue);
 						} else {
-							resolve(message.returnValue);
+							resolve(message["returnValue"]);
 						}
 					});
 				});
