@@ -18,7 +18,7 @@ function createClientServerHandlerPair(clientRequestHandlers, serverRequestHandl
 	const serverMessenger = new TypedMessenger();
 
 	clientMessenger.setSendHandler((data) => {
-		const castSendData = /** @type {import("../../shared/minifiedRenda.js").TypedMessengerMessageSendData<TServerHandlers, TClientHandlers>} */ (data.sendData);
+		const castSendData = /** @type {import("../../shared/minifiedRenda.js").TypedMessengerMessageSendData<TServerHandlers, TClientHandlers>} */ (data["sendData"]);
 		serverMessenger["handleReceivedMessage"](castSendData);
 	});
 	serverMessenger["setSendHandler"]((data) => {
@@ -79,6 +79,23 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await clientMessenger.send.throws();
+		});
+	},
+});
+
+Deno.test({
+	name: "A client handler that throws",
+	async fn() {
+		const clientRequestHandlers = {
+			throws: () => {
+				throw new Error("oh no");
+			},
+		};
+
+		const { serverMessenger } = createClientServerHandlerPair(clientRequestHandlers, {});
+
+		await assertRejects(async () => {
+			await serverMessenger.send.throws();
 		});
 	},
 });

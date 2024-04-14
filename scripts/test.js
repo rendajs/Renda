@@ -169,7 +169,7 @@ if (needsMinifiedTests) {
 						module: true,
 						properties: {
 							debug,
-							keep_quoted: true,
+							keep_quoted: "strict",
 							reserved: ["Deno", "test", "fn"],
 						},
 					},

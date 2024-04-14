@@ -587,7 +587,7 @@ export class TypedMessenger {
 			if (!this.sendHandler) {
 				throw new Error("Failed to handle message, no send handler set. Make sure to call `setSendHandler` before handling messages.");
 			}
-			const handler = this.responseHandlers[data.type];
+			const handler = this.responseHandlers[data["type"]];
 			let returnValue;
 			/** @type {Transferable[]} */
 			let transfer = [];
@@ -618,11 +618,11 @@ export class TypedMessenger {
 			}
 
 			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type>} */ ({
-				sendData: {
+				"sendData": {
 					"direction": "response",
-					id: data.id,
+					"id": data["id"],
 					didThrow,
-					type: data.type,
+					"type": data["type"],
 					returnValue,
 				},
 				transfer,
@@ -632,13 +632,13 @@ export class TypedMessenger {
 				respondOptions.afterSendHook();
 			}
 		} else if (data["direction"] == "response") {
-			const cbs = this.onRequestIdMessageCbs.get(data.id);
+			const cbs = this.onRequestIdMessageCbs.get(data["id"]);
 			if (cbs) {
 				for (const cb of cbs) {
 					cb(data);
 				}
 			}
-			this.onRequestIdMessageCbs.delete(data.id);
+			this.onRequestIdMessageCbs.delete(data["id"]);
 		}
 	}
 
@@ -744,9 +744,9 @@ export class TypedMessenger {
 			}
 
 			await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
-				sendData: {
+				"sendData": {
 					"direction": "request",
-					id: requestId,
+					"id": requestId,
 					type,
 					args,
 				},
