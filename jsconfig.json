@@ -27,7 +27,8 @@
 		"test/**/*.ts",
 	],
 	"exclude": [
-		"test/e2e/studio/projects/"
+		"test/e2e/studio/projects/",
+		"test/minified/out"
 	],
 	"files": [
 		"src/mod.js",

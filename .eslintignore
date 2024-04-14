@@ -10,3 +10,4 @@ deno_dir
 studio/src/styles/projectSelectorStyles.js
 studio/src/styles/studioStyles.js
 studio/src/styles/shadowStyles.js
+test/minified/out

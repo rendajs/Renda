@@ -1,9 +1,13 @@
 #!/usr/bin/env -S deno run --unstable --no-check --allow-run --allow-read --allow-write --allow-env --allow-net
 
-import { join, resolve } from "std/path/mod.ts";
+import * as path from "std/path/mod.ts";
+import * as fs from "std/fs/mod.ts";
 import { setCwd } from "chdir-anywhere";
 import { dev } from "./dev.js";
 import { parseArgs } from "../test/shared/testArgs.js";
+import { buildEngine } from "./buildEngine.js";
+import { rollup } from "rollup";
+import { rollupTerserPlugin } from "./shared/rollupTerserPlugin.js";
 
 setCwd();
 Deno.chdir("..");
@@ -35,6 +39,7 @@ if (Deno.args.length > 0 && !Deno.args[0].startsWith("-")) {
 }
 
 const needsUnitTests = !filteredTests || filteredTests.startsWith("test/unit");
+const needsMinifiedTests = !filteredTests || filteredTests.startsWith("test/minified");
 const needsE2eTests = !filteredTests || filteredTests.startsWith("test/e2e");
 
 await dev({
@@ -60,13 +65,125 @@ if (needsUnitTests) {
 		await removeMaybeDirectory(DENO_COVERAGE_DIR);
 		await removeMaybeDirectory(FAKE_IMPORTS_COVERAGE_DIR);
 		denoTestArgs.push(`--coverage=${DENO_COVERAGE_DIR}`);
-		const coverageMapPath = join(Deno.cwd(), FAKE_IMPORTS_COVERAGE_DIR);
+		const coverageMapPath = path.join(Deno.cwd(), FAKE_IMPORTS_COVERAGE_DIR);
 		applicationCmdArgs.add(`--fi-coverage-map=${coverageMapPath}`);
 	}
 	denoTestArgs.push(filteredTests || "test/unit/");
 	if (inspect) denoTestArgs.push("--inspect-brk");
 	const cmd = [...denoTestArgs, "--", ...applicationCmdArgs];
 	testCommands.push(cmd);
+}
+
+// Minified tests
+if (needsMinifiedTests) {
+	const testMinifiedDir = path.resolve("test/minified");
+	const testsDir = path.resolve(testMinifiedDir, "tests");
+	const outDir = path.resolve(testMinifiedDir, "out");
+	const engineDir = path.resolve(outDir, "engine");
+	const testOutDir = path.resolve(outDir, "tests");
+	const minifiedRendaPath = path.resolve(testMinifiedDir, "shared/minifiedRenda.js");
+	const unminifiedRendaPath = path.resolve(testMinifiedDir, "shared/unminifiedRenda.js");
+
+	const noBuildFlag = Deno.args.includes("--no-build");
+
+	const denoTestArgs = [Deno.execPath(), "test", "--no-check", "--allow-env", "--allow-read", "--allow-net", "--parallel"];
+
+	if (noBuildFlag) {
+		denoTestArgs.push(filteredTests || "test/minified/tests/");
+	} else {
+		denoTestArgs.push("test/minified/out/tests/");
+
+		try {
+			await Deno.remove(outDir, { recursive: true });
+		} catch (e) {
+			if (e instanceof Deno.errors.NotFound) {
+				// Already removed
+			} else {
+				throw e;
+			}
+		}
+
+		await buildEngine(engineDir);
+
+		/**
+		 * @returns {import("rollup").Plugin}
+		 */
+		function rollupRedirectBuildPlugin() {
+			return {
+				name: "redirectBuild",
+				async resolveId(id, importer) {
+					if (importer) {
+						const dirname = path.dirname(importer);
+						const resolved = path.resolve(dirname, id);
+						if (resolved == minifiedRendaPath) {
+							return path.resolve(engineDir, "renda.js");
+						} else if (resolved == unminifiedRendaPath) {
+							// We want to allow tests to export from both the built and non-built library.
+							// This allows us to simulate situations such as minified client code that wants to
+							// communicate with non-minified server code.
+							// By marking ./src/unminifiedRenda.js as external, we make sure that the build of our tests
+							// keep referencing this file directly, as opposed to including its contents in the bundle.
+							// But we do have to rewrite the imported path, since bundled tests will live at another location.
+							const newResolved = path.relative(testOutDir, unminifiedRendaPath);
+							return {
+								id: newResolved,
+								external: true,
+							};
+						}
+					}
+					// Treat std as external
+					if (id.startsWith("std/")) {
+						return false;
+					}
+					return null;
+				},
+			};
+		}
+
+		const testFiles = [];
+		for await (const entry of fs.walk(testsDir)) {
+			if (entry.name.endsWith(".test.js")) {
+				const relative = path.relative(testsDir, entry.path);
+				if (relative.startsWith("out/")) continue;
+				testFiles.push(entry.path);
+			}
+		}
+		const bundle = await rollup({
+			input: testFiles,
+			plugins: [rollupRedirectBuildPlugin()],
+		});
+		const debug = Deno.args.includes("--debug") || Deno.args.includes("-d") || inspect;
+		await bundle.write({
+			dir: testOutDir,
+			plugins: [
+				rollupTerserPlugin({
+					/* eslint-disable camelcase */
+					module: true,
+					keep_classnames: debug,
+					keep_fnames: debug,
+					compress: {
+						drop_debugger: false,
+					},
+					sourceMap: debug,
+					mangle: {
+						module: true,
+						properties: {
+							debug,
+							keep_quoted: true,
+							reserved: ["Deno", "test", "fn"],
+						},
+					},
+					output: {
+						beautify: debug,
+					},
+					/* eslint-enable camelcase */
+				}),
+			],
+		});
+	}
+
+	if (inspect) denoTestArgs.push("--inspect-brk");
+	testCommands.push(denoTestArgs);
 }
 
 // E2e tests
@@ -144,5 +261,5 @@ if (needsCoverage) {
 			throw e;
 		}
 	}
-	await Deno.rename(resolve(DENO_COVERAGE_DIR, "html"), DENO_HTML_COVERAGE_DIR);
+	await Deno.rename(path.resolve(DENO_COVERAGE_DIR, "html"), DENO_HTML_COVERAGE_DIR);
 }
