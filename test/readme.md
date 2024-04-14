@@ -11,10 +11,10 @@ You can optionally provide a path to only run a specific portion of the test sui
 
 The test script takes some optional parameters:
 
-- `-i`, `--inspect` to wait for a debugger to connect, this also automatically disables headless mode for e2e tests, disables e2e test timeouts, and forces e2e tests to run only once.
+- `-i`, `--inspect` to wait for a debugger to connect, this also automatically enables debug mode in minified tests, disables headless mode for e2e tests, disables e2e test timeouts, and forces e2e tests to run only once.
 - `-h`, `--headless` toggles the default headless behaviour. Headless mode is disabled by default unless `-i` or `--inspect` have been specified.
 - `-c`, `--coverage` generates a coverage file in `.lcov` format. This is useful if your IDE supports it.
-- `-d`, `--debug` when running minified tests, the tests are not minified as much. This makes it easier to debug issues.
+- `-d`, `--debug` when running minified tests, the tests are not minified as much. This makes it easier to debug issues. This flag is automatically set when `-i` or `--inspect` have been provided.
 - `--no-build` when running minified tests, no minified build is made at all. This makes it easier to debug issues.
 
 ## Unit tests
