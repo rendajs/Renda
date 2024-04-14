@@ -580,7 +580,7 @@ export class TypedMessenger {
 	 * @param {TypedMessengerMessageSendData<TRes, TReq>} data
 	 */
 	async handleReceivedMessage(data) {
-		if (data.direction == "request") {
+		if (data["direction"] == "request") {
 			if (!this.responseHandlers) {
 				throw new Error("Failed to handle message, no request handlers set. Make sure to call `setResponseHandlers` before handling messages.");
 			}
@@ -594,7 +594,7 @@ export class TypedMessenger {
 			let didThrow = false;
 			if (handler) {
 				try {
-					returnValue = await handler(...data.args);
+					returnValue = await handler(...data["args"]);
 				} catch (e) {
 					returnValue = e;
 					if (this.serializeErrorHook) {
@@ -619,7 +619,7 @@ export class TypedMessenger {
 
 			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type>} */ ({
 				sendData: {
-					direction: "response",
+					"direction": "response",
 					id: data.id,
 					didThrow,
 					type: data.type,
@@ -631,7 +631,7 @@ export class TypedMessenger {
 			if (respondOptions && respondOptions.afterSendHook) {
 				respondOptions.afterSendHook();
 			}
-		} else if (data.direction == "response") {
+		} else if (data["direction"] == "response") {
 			const cbs = this.onRequestIdMessageCbs.get(data.id);
 			if (cbs) {
 				for (const cb of cbs) {
@@ -726,7 +726,7 @@ export class TypedMessenger {
 			} else {
 				promise = new Promise((resolve, reject) => {
 					this.onResponseMessage(requestId, (message) => {
-						if (message.didThrow) {
+						if (message["didThrow"]) {
 							/** @type {unknown} */
 							let rejectValue = message.returnValue;
 							if (this.deserializeErrorHook) {
@@ -745,7 +745,7 @@ export class TypedMessenger {
 
 			await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
 				sendData: {
-					direction: "request",
+					"direction": "request",
 					id: requestId,
 					type,
 					args,
