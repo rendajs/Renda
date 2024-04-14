@@ -79,7 +79,7 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await clientMessenger.send.throws();
-		});
+		}, Error, "oh no");
 	},
 });
 
@@ -96,6 +96,6 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await serverMessenger.send.throws();
-		});
+		}, Error, "oh no");
 	},
 });
