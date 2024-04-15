@@ -406,10 +406,9 @@ export class TypedMessenger {
 		 * ## Example
 		 *
 		 * ```js
-		 * const result = await messenger.proxy.myFunction(1, 2, 3);
+		 * const result = await messenger.send.myFunction(1, 2, 3);
 		 * ```
-		 * where `myFunction` is the name of one of the functions provided in {@linkcode initialize} or {@linkcode setResponseHandlers}.
-		 *
+		 * where `myFunction` is the name of one of the functions provided in {@linkcode setResponseHandlers} or one of the `initialize` methods.
 		 */
 		this.send = /** @type {TypedMessengerProxy<TReq>} */ (proxy);
 
