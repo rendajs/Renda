@@ -2,6 +2,7 @@ import { assertEquals, assertRejects, assertStrictEquals } from "std/testing/ass
 import { TypedMessenger as MinifiedTypedMessenger } from "../../shared/minifiedRenda.js";
 import { TypedMessenger } from "../../shared/unminifiedRenda.js";
 import { stub } from "std/testing/mock.ts";
+import { createLinkedWebSockets } from "../../../unit/src/util/TypedMessenger/TypedMessenger/shared/websockets.js";
 
 /**
  * Creates two typed messengers. One of which uses minified code (the client),
@@ -102,7 +103,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "initializeWorker",
+	name: "initializeWorker()",
 	async fn() {
 		/** @type {Transferable[]} */
 		const clientTransferredRefs = [];
@@ -196,7 +197,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "initializeWorkerContext",
+	name: "initializeWorkerContext()",
 	async fn() {
 		/** @type {Transferable[]} */
 		const clientTransferredRefs = [];
@@ -287,5 +288,41 @@ Deno.test({
 		} finally {
 			postMessageStub.restore();
 		}
+	},
+});
+
+Deno.test({
+	name: "initializeWebSocket()",
+	async fn() {
+		const clientHandlers = {
+			/**
+			 * @param {number} x
+			 */
+			foo: (x) => x,
+		};
+
+		const serverHandlers = {
+			/**
+			 * @param {number} x
+			 */
+			bar: (x) => x,
+		};
+
+		/** @type {TypedMessenger<typeof clientHandlers, typeof serverHandlers>} */
+		const clientMessenger = new MinifiedTypedMessenger();
+
+		/** @type {TypedMessenger<typeof serverHandlers, typeof clientHandlers>} */
+		const serverMessenger = new TypedMessenger();
+
+		const { socketA, socketB } = createLinkedWebSockets();
+
+		clientMessenger.initializeWebSocket(socketA.castWebSocket(), clientHandlers);
+		serverMessenger["initializeWebSocket"](socketB.castWebSocket(), serverHandlers);
+
+		const resultA = await serverMessenger.send.foo(42);
+		assertEquals(resultA, 42);
+
+		const resultB = await clientMessenger.send.bar(42);
+		assertEquals(resultB, 42);
 	},
 });

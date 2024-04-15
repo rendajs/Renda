@@ -527,7 +527,7 @@ export class TypedMessenger {
 				});
 				await promise;
 			}
-			webSocket.send(JSON.stringify(data.sendData));
+			webSocket.send(JSON.stringify(data["sendData"]));
 		});
 		webSocket.addEventListener("message", async (message) => {
 			try {
