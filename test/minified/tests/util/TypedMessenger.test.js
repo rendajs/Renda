@@ -130,10 +130,12 @@ Deno.test({
 			bar: (x) => {
 				/** @type {import("../../shared/unminifiedRenda.js").TypedMessengerRequestHandlerReturn} */
 				const returnValue = {
-					$respondOptions: {
-						transfer: [x],
-						returnValue: x,
+					/* eslint-disable quote-props */
+					"$respondOptions": {
+						"transfer": [x],
+						"returnValue": x,
 					},
+					/* eslint-enable quote-props */
 				};
 				return returnValue;
 			},
