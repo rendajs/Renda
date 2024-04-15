@@ -453,7 +453,7 @@ export class TypedMessenger {
 	 */
 	initializeWorker(worker, responseHandlers) {
 		this.setSendHandler((data) => {
-			worker.postMessage(data.sendData, data.transfer);
+			worker.postMessage(data["sendData"], data["transfer"]);
 		});
 		worker.addEventListener("message", (event) => {
 			this.handleReceivedMessage(event.data);
