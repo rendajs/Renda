@@ -151,6 +151,10 @@ if (needsMinifiedTests) {
 		const bundle = await rollup({
 			input: testFiles,
 			plugins: [rollupRedirectBuildPlugin()],
+			onwarn: (message) => {
+				if (message.code == "CIRCULAR_DEPENDENCY") return;
+				console.error(message.message);
+			},
 		});
 		const debug = Deno.args.includes("--debug") || Deno.args.includes("-d") || inspect;
 		await bundle.write({
