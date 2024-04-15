@@ -1,6 +1,7 @@
 import { assertEquals, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
 import { TypedMessenger as MinifiedTypedMessenger } from "../../shared/minifiedRenda.js";
 import { TypedMessenger } from "../../shared/unminifiedRenda.js";
+import { stub } from "std/testing/mock.ts";
 
 /**
  * Creates two typed messengers. One of which uses minified code (the client),
@@ -191,5 +192,100 @@ Deno.test({
 		assertStrictEquals(workerTransferredRefs[1], objectB);
 		assertEquals(clientTransferredRefs.length, 2);
 		assertStrictEquals(clientTransferredRefs[1], objectB);
+	},
+});
+
+Deno.test({
+	name: "initializeWorkerContext",
+	async fn() {
+		/** @type {Transferable[]} */
+		const clientTransferredRefs = [];
+		/** @type {Transferable[]} */
+		const workerTransferredRefs = [];
+
+		const clientHandlers = {
+			/**
+			 * @param {ArrayBuffer} x
+			 */
+			bar: (x) => {
+				/** @type {import("../../shared/unminifiedRenda.js").TypedMessengerRequestHandlerReturn} */
+				const returnValue = {
+					/* eslint-disable quote-props */
+					"$respondOptions": {
+						"transfer": [x],
+						"returnValue": x,
+					},
+					/* eslint-enable quote-props */
+				};
+				return returnValue;
+			},
+		};
+
+		const workerHandlers = {
+			/**
+			 * @param {ArrayBuffer} x
+			 */
+			foo: (x) => {
+				/** @type {import("../../shared/unminifiedRenda.js").TypedMessengerRequestHandlerReturn} */
+				const returnValue = {
+					$respondOptions: {
+						transfer: [x],
+						returnValue: x,
+					},
+				};
+				return returnValue;
+			},
+		};
+
+		/** @type {TypedMessenger<typeof clientHandlers, typeof workerHandlers>} */
+		let clientMessenger;
+		const postMessageStub = stub(globalThis, "postMessage", (message, options) => {
+			clientMessenger["handleReceivedMessage"](message);
+			if (options?.transfer) {
+				for (const item of options.transfer) {
+					clientTransferredRefs.push(item);
+				}
+			}
+		});
+
+		try {
+			clientMessenger = new TypedMessenger();
+			clientMessenger["setResponseHandlers"](clientHandlers);
+			clientMessenger["setSendHandler"]((data) => {
+				for (const item of data["transfer"]) {
+					workerTransferredRefs.push(item);
+				}
+				globalThis.dispatchEvent(new MessageEvent("message", {
+					data: data["sendData"],
+				}));
+			});
+
+			/** @type {TypedMessenger<typeof workerHandlers, typeof clientHandlers>} */
+			const workerMessenger = new MinifiedTypedMessenger();
+
+			workerMessenger.initializeWorkerContext(workerHandlers);
+
+			const objectA = new ArrayBuffer(0);
+			const resultA = await clientMessenger["sendWithOptions"].foo({
+				transfer: [objectA],
+			}, objectA);
+			assertStrictEquals(resultA, objectA);
+			assertEquals(workerTransferredRefs.length, 1);
+			assertStrictEquals(workerTransferredRefs[0], objectA);
+			assertEquals(clientTransferredRefs.length, 1);
+			assertStrictEquals(clientTransferredRefs[0], objectA);
+
+			const objectB = new ArrayBuffer(0);
+			const resultB = await workerMessenger.sendWithOptions.bar({
+				transfer: [objectB],
+			}, objectB);
+			assertStrictEquals(resultB, objectB);
+			assertEquals(workerTransferredRefs.length, 2);
+			assertStrictEquals(workerTransferredRefs[1], objectB);
+			assertEquals(clientTransferredRefs.length, 2);
+			assertStrictEquals(clientTransferredRefs[1], objectB);
+		} finally {
+			postMessageStub.restore();
+		}
 	},
 });

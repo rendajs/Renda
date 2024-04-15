@@ -480,8 +480,8 @@ export class TypedMessenger {
 	 */
 	initializeWorkerContext(responseHandlers) {
 		this.setSendHandler((data) => {
-			globalThis.postMessage(data.sendData, {
-				transfer: data.transfer,
+			globalThis.postMessage(data["sendData"], {
+				transfer: data["transfer"],
 			});
 		});
 		globalThis.addEventListener("message", (event) => {
