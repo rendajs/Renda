@@ -189,7 +189,7 @@ module.exports = {
 		"no-useless-constructor": "error",
 		"no-useless-rename": "error",
 		"no-var": "error",
-		"object-shorthand": "error",
+		"object-shorthand": ["error", "always", {avoidQuotes: true}],
 		"prefer-arrow-callback": "error",
 		"prefer-const": ["error", {destructuring: "all"}],
 		"prefer-numeric-literals": "error",

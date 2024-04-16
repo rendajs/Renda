@@ -11,9 +11,11 @@ You can optionally provide a path to only run a specific portion of the test sui
 
 The test script takes some optional parameters:
 
-- `-i`, `--inspect` to wait for a debugger to connect, this also automatically disables headless mode for e2e tests, disables e2e test timeouts, and forces e2e tests to run only once.
+- `-i`, `--inspect` to wait for a debugger to connect, this also automatically enables debug mode in minified tests, disables headless mode for e2e tests, disables e2e test timeouts, and forces e2e tests to run only once.
 - `-h`, `--headless` toggles the default headless behaviour. Headless mode is disabled by default unless `-i` or `--inspect` have been specified.
 - `-c`, `--coverage` generates a coverage file in `.lcov` format. This is useful if your IDE supports it.
+- `-d`, `--debug` when running minified tests, the tests are not minified as much. This makes it easier to debug issues. This flag is automatically set when `-i` or `--inspect` has been provided.
+- `--no-build` when running minified tests, no minified build is made at all. This makes it easier to debug issues.
 
 ## Unit tests
 
@@ -36,6 +38,21 @@ It is pretty lightweight so as to not slow tests down.
 But because of this you might run into situations that have not been mocked.
 If what you would like to mock is too much of an edge case, it's best to mock the missing functionality within the test file that needs it.
 Otherwise it's better to open up a PR in [`fake-dom`](https://github.com/jespertheend/fake-dom).
+
+## Minified tests
+
+We want to make sure Renda stays usable in minified applications with mangled properties.
+The 'minified' tests located at `/test/minified` check for any regressions regarding the mangling of properties.
+Before these tests are run, a minified build of all the tests is made.
+
+These tests can't be filtered from the command line, so you have to either run all of them or use the `only` property of `Deno.test`.
+
+You may also run the tests without making a minified build using the `--no-build` argument.
+With this flag it becomes possible to only run a subset of the tests but the code may differ from the minified build.
+Specifically, properties are no longer mangled, so tests are more likely to pass.
+But on top of that, some tests also make use of both both minified and unminified class instances from Renda.
+These imports will point to the same module without a build,
+whereas it would point to two different modules in the minified version.
 
 ## E2e tests
 

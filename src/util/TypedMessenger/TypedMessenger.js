@@ -406,10 +406,9 @@ export class TypedMessenger {
 		 * ## Example
 		 *
 		 * ```js
-		 * const result = await messenger.proxy.myFunction(1, 2, 3);
+		 * const result = await messenger.send.myFunction(1, 2, 3);
 		 * ```
-		 * where `myFunction` is the name of one of the functions provided in {@linkcode initialize} or {@linkcode setResponseHandlers}.
-		 *
+		 * where `myFunction` is the name of one of the functions provided in {@linkcode setResponseHandlers} or one of the `initialize` methods.
 		 */
 		this.send = /** @type {TypedMessengerProxy<TReq>} */ (proxy);
 
@@ -453,7 +452,7 @@ export class TypedMessenger {
 	 */
 	initializeWorker(worker, responseHandlers) {
 		this.setSendHandler((data) => {
-			worker.postMessage(data.sendData, data.transfer);
+			worker.postMessage(data["sendData"], data["transfer"]);
 		});
 		worker.addEventListener("message", (event) => {
 			this.handleReceivedMessage(event.data);
@@ -480,8 +479,8 @@ export class TypedMessenger {
 	 */
 	initializeWorkerContext(responseHandlers) {
 		this.setSendHandler((data) => {
-			globalThis.postMessage(data.sendData, {
-				transfer: data.transfer,
+			globalThis.postMessage(data["sendData"], {
+				transfer: data["transfer"],
 			});
 		});
 		globalThis.addEventListener("message", (event) => {
@@ -528,7 +527,7 @@ export class TypedMessenger {
 				});
 				await promise;
 			}
-			webSocket.send(JSON.stringify(data.sendData));
+			webSocket.send(JSON.stringify(data["sendData"]));
 		});
 		webSocket.addEventListener("message", async (message) => {
 			try {
@@ -580,21 +579,21 @@ export class TypedMessenger {
 	 * @param {TypedMessengerMessageSendData<TRes, TReq>} data
 	 */
 	async handleReceivedMessage(data) {
-		if (data.direction == "request") {
+		if (data["direction"] == "request") {
 			if (!this.responseHandlers) {
 				throw new Error("Failed to handle message, no request handlers set. Make sure to call `setResponseHandlers` before handling messages.");
 			}
 			if (!this.sendHandler) {
 				throw new Error("Failed to handle message, no send handler set. Make sure to call `setSendHandler` before handling messages.");
 			}
-			const handler = this.responseHandlers[data.type];
+			const handler = this.responseHandlers[data["type"]];
 			let returnValue;
 			/** @type {Transferable[]} */
 			let transfer = [];
 			let didThrow = false;
 			if (handler) {
 				try {
-					returnValue = await handler(...data.args);
+					returnValue = await handler(...data["args"]);
 				} catch (e) {
 					returnValue = e;
 					if (this.serializeErrorHook) {
@@ -618,12 +617,12 @@ export class TypedMessenger {
 			}
 
 			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type>} */ ({
-				sendData: {
-					direction: "response",
-					id: data.id,
-					didThrow,
-					type: data.type,
-					returnValue,
+				"sendData": {
+					"direction": "response",
+					"id": data["id"],
+					"didThrow": didThrow,
+					"type": data["type"],
+					"returnValue": returnValue,
 				},
 				transfer,
 			}));
@@ -631,14 +630,14 @@ export class TypedMessenger {
 			if (respondOptions && respondOptions.afterSendHook) {
 				respondOptions.afterSendHook();
 			}
-		} else if (data.direction == "response") {
-			const cbs = this.onRequestIdMessageCbs.get(data.id);
+		} else if (data["direction"] == "response") {
+			const cbs = this.onRequestIdMessageCbs.get(data["id"]);
 			if (cbs) {
 				for (const cb of cbs) {
 					cb(data);
 				}
 			}
-			this.onRequestIdMessageCbs.delete(data.id);
+			this.onRequestIdMessageCbs.delete(data["id"]);
 		}
 	}
 
@@ -726,9 +725,9 @@ export class TypedMessenger {
 			} else {
 				promise = new Promise((resolve, reject) => {
 					this.onResponseMessage(requestId, (message) => {
-						if (message.didThrow) {
+						if (message["didThrow"]) {
 							/** @type {unknown} */
-							let rejectValue = message.returnValue;
+							let rejectValue = message["returnValue"];
 							if (this.deserializeErrorHook) {
 								rejectValue = this.deserializeErrorHook(rejectValue);
 							}
@@ -737,18 +736,18 @@ export class TypedMessenger {
 							}
 							reject(rejectValue);
 						} else {
-							resolve(message.returnValue);
+							resolve(message["returnValue"]);
 						}
 					});
 				});
 			}
 
 			await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
-				sendData: {
-					direction: "request",
-					id: requestId,
-					type,
-					args,
+				"sendData": {
+					"direction": "request",
+					"id": requestId,
+					"type": type,
+					"args": args,
 				},
 				transfer: sendOptions.transfer || [],
 			}));

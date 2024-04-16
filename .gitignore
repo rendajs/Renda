@@ -6,3 +6,4 @@ npm_packages
 deno.lock
 npmPackage
 jsrPackage
+test/minified/out/
