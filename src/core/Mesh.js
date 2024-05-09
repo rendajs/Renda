@@ -509,6 +509,14 @@ export class Mesh {
 	}
 
 	/**
+	 * Unregisters an {@linkcode onIndexBufferChange} callback.
+	 * @param {OnIndexBufferChangeCallback} cb
+	 */
+	removeOnIndexBufferChange(cb) {
+		this.#onIndexBufferChangeCbs.delete(cb);
+	}
+
+	/**
 	 * Call this after making a change to the underlying index buffer.
 	 * This notifies users of the mesh such as renderers that the mesh has changed
 	 * and that cache needs to be invalidated or that the buffer needs to be

@@ -249,10 +249,15 @@ Deno.test({
 		const mesh = new Mesh();
 
 		let onIndexBufferChangeCallCount = 0;
-		mesh.onIndexBufferChange(() => {
+		const onChangeFn = () => {
 			onIndexBufferChangeCallCount++;
-		});
+		};
+		mesh.onIndexBufferChange(onChangeFn);
 
+		mesh.fireIndexBufferChanged();
+		assertEquals(onIndexBufferChangeCallCount, 1);
+
+		mesh.removeOnIndexBufferChange(onChangeFn);
 		mesh.fireIndexBufferChanged();
 		assertEquals(onIndexBufferChangeCallCount, 1);
 	},

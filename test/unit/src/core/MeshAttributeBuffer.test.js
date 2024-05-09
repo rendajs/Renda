@@ -32,13 +32,21 @@ Deno.test({
 		]);
 		assertEquals(buffer.arrayStride, 12);
 
-		let onBufferChangedCalled = false;
-		buffer.onBufferChanged(() => {
-			onBufferChangedCalled = true;
-		});
+		let onBufferChangedCallCount = 0;
+		const onChange = () => {
+			onBufferChangedCallCount++;
+		};
+		buffer.onBufferChanged(onChange);
 
 		internalBuffer.setVertexCount(2);
+		assertEquals(onBufferChangedCallCount, 1);
 
-		assertEquals(onBufferChangedCalled, true);
+		internalBuffer.setVertexCount(42);
+		assertEquals(onBufferChangedCallCount, 2);
+
+		buffer.removeOnBufferChanged(onChange);
+
+		internalBuffer.setVertexCount(123);
+		assertEquals(onBufferChangedCallCount, 2);
 	},
 });

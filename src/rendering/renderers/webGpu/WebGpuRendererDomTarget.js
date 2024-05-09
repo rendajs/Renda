@@ -55,6 +55,9 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 		this.generateTextures();
 	}
 
+	/**
+	 * @override
+	 */
 	getElement() {
 		return this.canvas;
 	}
