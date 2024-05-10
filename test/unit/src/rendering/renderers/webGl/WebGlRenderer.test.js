@@ -2,7 +2,7 @@ import { assertEquals, assertRejects, assertStrictEquals } from "std/testing/ass
 import { CustomMaterialData, Entity, Material, MaterialMap, Mesh, ShaderSource, VertexState, WebGlMaterialConfig, WebGlMaterialMapType, WebGlRenderer, WebGlRendererError } from "../../../../../../src/mod.js";
 import { assertHasSingleContext, runWithWebGlMocksAsync, setWebGlContextSupported } from "./shared/webGlMocks.js";
 import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
-import { createCam, createCubeEntity } from "../shared/sceneUtil.js";
+import { createCam, createCubeEntity, createVertexState } from "../shared/sceneUtil.js";
 import { assertLogEntryEquals, assertLogEquals } from "./shared/WebGlCommandLog.js";
 
 async function basicRendererSetup() {
@@ -31,7 +31,13 @@ function createMaterial() {
 		materialMapTypes: [
 			{
 				mapType: materialMapType,
-				mappedValues: {},
+				mappedValues: {
+					cullMode: {
+						mappedType: "enum",
+						defaultValue: "back",
+						mappedName: "cullMode",
+					},
+				},
 			},
 		],
 	});
@@ -189,7 +195,7 @@ Deno.test({
 
 			const { material } = createMaterial();
 
-			const { mesh } = createCubeEntity(scene, vertexState, material);
+			const { mesh } = createCubeEntity({ scene, vertexState, material });
 
 			domTarget.render(camComponent);
 
@@ -256,6 +262,54 @@ Deno.test({
 					name: "drawElements",
 					args: ["GL_TRIANGLES", 36, "GL_UNSIGNED_SHORT", 0],
 				},
+			]);
+		});
+	},
+});
+
+Deno.test({
+	name: "Material cull mode",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+			const vertexState = createVertexState();
+
+			const { material: materialA } = createMaterial();
+			createCubeEntity({ scene, material: materialA, vertexState });
+
+			const { material: materialB } = createMaterial();
+			materialB.setProperty("cullMode", "front");
+			createCubeEntity({ scene, material: materialB, vertexState });
+
+			const { material: materialC } = createMaterial();
+			materialC.setProperty("cullMode", "front");
+			createCubeEntity({ scene, material: materialC, vertexState });
+
+			const { material: materialD } = createMaterial();
+			materialD.setProperty("cullMode", "none");
+			createCubeEntity({ scene, material: materialD, vertexState });
+
+			const { material: materialE } = createMaterial();
+			materialE.setProperty("cullMode", "back");
+			createCubeEntity({ scene, material: materialE, vertexState });
+
+			domTarget.render(camComponent);
+
+			const cullCommands = commandLog.getFilteredCommands("cullFace", "enable", "disable")
+				.filter((e) => {
+					if (e.name == "enable" || e.name == "disable") {
+						if (e.args[0] != "GL_CULL_FACE") return false;
+					}
+					return true;
+				});
+
+			assertLogEquals(cullCommands, [
+				{ name: "enable", args: ["GL_CULL_FACE"] },
+				{ name: "cullFace", args: ["GL_BACK"] },
+				{ name: "cullFace", args: ["GL_FRONT"] },
+				{ name: "disable", args: ["GL_CULL_FACE"] },
+				{ name: "enable", args: ["GL_CULL_FACE"] },
+				{ name: "cullFace", args: ["GL_BACK"] },
 			]);
 		});
 	},

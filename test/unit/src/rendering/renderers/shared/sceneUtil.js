@@ -40,11 +40,12 @@ export function createVertexState() {
 }
 
 /**
- * @param {Entity} scene
- * @param {VertexState} vertexState
- * @param {import("../../../../../../src/mod.js").Material} material
+ * @param {object} options
+ * @param {Entity} options.scene
+ * @param {import("../../../../../../src/mod.js").Material} options.material
+ * @param {VertexState} options.vertexState
  */
-export function createCubeEntity(scene, vertexState, material) {
+export function createCubeEntity({ scene, material, vertexState }) {
 	const cubeEntity = scene.add(new Entity("cube"));
 	const meshComponent = cubeEntity.addComponent(MeshComponent);
 	meshComponent.mesh = createCube({ vertexState });
