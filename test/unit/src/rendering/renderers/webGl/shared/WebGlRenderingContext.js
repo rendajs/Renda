@@ -10,11 +10,29 @@ export class WebGlCommandLog {
 	/** @type {CommandLogEntry[]} */
 	log = [];
 
+	clear() {
+		this.log = [];
+	}
+
 	/**
 	 * @param {number} count
 	 */
 	assertCount(count) {
 		assertEquals(this.log.length, count);
+	}
+
+	/**
+	 * @param  {...string} commands
+	 */
+	getFilteredCommands(...commands) {
+		return this.log.filter((c) => commands.includes(c.name));
+	}
+
+	/**
+	 * @param  {...string} commands
+	 */
+	getFilteredArgs(...commands) {
+		return this.log.filter((c) => commands.includes(c.name)).map((c) => c.args);
 	}
 }
 

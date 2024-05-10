@@ -27,9 +27,9 @@ Deno.test({
 			const domTarget = renderer.createDomTarget();
 
 			const { camComponent } = createCam();
-			renderer.render(domTarget, camComponent);
+			domTarget.render(camComponent);
 
-			const commandLog = assertHasSingleContext();
+			const { commandLog } = assertHasSingleContext();
 			commandLog.assertCount(5);
 
 			assertEquals(commandLog.log, [
@@ -53,6 +53,52 @@ Deno.test({
 					name: "depthFunc",
 					args: ["WEBGL_CONSTANT_LESS"],
 				},
+			]);
+		});
+	},
+});
+
+Deno.test({
+	name: "Main canvas resizes to that of the largest dom target",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const renderer = new WebGlRenderer();
+			await renderer.init();
+
+			const { commandLog, canvas } = assertHasSingleContext();
+
+			const domTargetA = renderer.createDomTarget();
+			domTargetA.resize(100, 200);
+			assertEquals(canvas.width, 100);
+			assertEquals(canvas.height, 200);
+
+			const domTargetB = renderer.createDomTarget();
+			domTargetB.resize(300, 400);
+			assertEquals(canvas.width, 300);
+			assertEquals(canvas.height, 400);
+
+			const { camComponent } = createCam();
+			domTargetA.render(camComponent);
+			domTargetB.render(camComponent);
+
+			const commands1 = commandLog.getFilteredArgs("viewport");
+			assertEquals(commands1, [
+				[0, 200, 100, 200],
+				[0, 0, 300, 400],
+			]);
+			commandLog.clear();
+
+			domTargetB.resize(1, 1);
+			assertEquals(canvas.width, 100);
+			assertEquals(canvas.height, 200);
+
+			domTargetA.render(camComponent);
+			domTargetB.render(camComponent);
+
+			const commands2 = commandLog.getFilteredArgs("viewport");
+			assertEquals(commands2, [
+				[0, 0, 100, 200],
+				[0, 199, 1, 1],
 			]);
 		});
 	},

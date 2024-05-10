@@ -36,6 +36,9 @@ export class WebGlRenderer extends Renderer {
 		return this.#gl;
 	}
 
+	/** @type {Set<WebGlRendererDomTarget>} */
+	#domTargets = new Set();
+
 	/** @type {WeakMap<import("../../Material.js").Material, CachedMaterialData>} */
 	#cachedMaterialData = new WeakMap();
 
@@ -100,6 +103,30 @@ export class WebGlRenderer extends Renderer {
 			throw new WebGlRendererError("not-supported", "Failed to get WebGL context.");
 		}
 		this.#isInit = true;
+	}
+
+	/**
+	 * @override
+	 */
+	createDomTarget() {
+		const domTarget = super.createDomTarget();
+		this.#domTargets.add(domTarget);
+		domTarget.onResize(() => {
+			if (!this.#canvas) return;
+			let width = 1;
+			let height = 1;
+			for (const target of this.#domTargets) {
+				width = Math.max(width, target.width);
+				height = Math.max(height, target.height);
+			}
+			if (this.#canvas.width != width) {
+				this.#canvas.width = width;
+			}
+			if (this.#canvas.height != height) {
+				this.#canvas.height = height;
+			}
+		});
+		return domTarget;
 	}
 
 	/**

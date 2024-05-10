@@ -284,6 +284,9 @@ export class WebGpuRenderer extends Renderer {
 		await promise;
 	}
 
+	/**
+	 * @override
+	 */
 	createDomTarget() {
 		const domTarget = super.createDomTarget();
 		this.configureSwapChainAsync(domTarget);

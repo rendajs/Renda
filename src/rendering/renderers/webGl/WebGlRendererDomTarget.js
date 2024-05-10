@@ -4,6 +4,9 @@ export class WebGlRendererDomTarget extends RendererDomTarget {
 	#canvas;
 	#ctx;
 
+	/** @type {Set<() => void>} */
+	#onResizeCbs = new Set();
+
 	/**
 	 * @param {import("./WebGlRenderer.js").WebGlRenderer} renderer
 	 */
@@ -33,6 +36,15 @@ export class WebGlRendererDomTarget extends RendererDomTarget {
 		super.resize(w, h);
 		this.#canvas.width = w;
 		this.#canvas.height = h;
+		this.#onResizeCbs.forEach((cb) => cb());
+	}
+
+	/**
+	 * Registers a callback that is fired when `resize` is called.
+	 * @param {() => void} cb
+	 */
+	onResize(cb) {
+		this.#onResizeCbs.add(cb);
 	}
 
 	/**
