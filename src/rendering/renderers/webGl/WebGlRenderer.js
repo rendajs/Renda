@@ -11,6 +11,9 @@ import { MultiKeyWeakMap } from "../../../util/MultiKeyWeakMap.js";
 import { Mesh } from "../../../core/Mesh.js";
 import { CachedProgramData } from "./CachedProgramData.js";
 
+/**
+ * @extends {Renderer<WebGlRendererDomTarget>}
+ */
 export class WebGlRenderer extends Renderer {
 	static get domTargetConstructor() {
 		return WebGlRendererDomTarget;
@@ -94,7 +97,7 @@ export class WebGlRenderer extends Renderer {
 		this.#canvas = document.createElement("canvas");
 		this.#gl = this.#canvas.getContext("webgl");
 		if (!this.#gl) {
-			throw new WebGlRendererError("not-supported", "Failed to get webgl context");
+			throw new WebGlRendererError("not-supported", "Failed to get WebGL context.");
 		}
 		this.#isInit = true;
 	}
@@ -308,7 +311,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 			}
 		}
 
-		domTarget.asdf(this.#canvas);
+		domTarget.drawImage(this.#canvas);
 	}
 
 	/**

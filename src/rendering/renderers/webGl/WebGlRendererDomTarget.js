@@ -38,7 +38,7 @@ export class WebGlRendererDomTarget extends RendererDomTarget {
 	/**
 	 * @param {HTMLCanvasElement} canvas
 	 */
-	asdf(canvas) {
+	drawImage(canvas) {
 		this.#ctx.drawImage(canvas, 0, 0);
 	}
 }
