@@ -4,7 +4,7 @@ import { createWebGlRenderingContext } from "./WebGlRenderingContext.js";
 const oldDocument = globalThis.document;
 let installed = false;
 
-/** @type {{canvas: HTMLCanvasElement, context: WebGLRenderingContext, commandLog: import("./WebGlRenderingContext.js").WebGlCommandLog}[]} */
+/** @type {{canvas: HTMLCanvasElement, context: WebGLRenderingContext, commandLog: import("./WebGlCommandLog.js").WebGlCommandLog}[]} */
 let createdContexts = [];
 
 export function installWebGlMocks() {

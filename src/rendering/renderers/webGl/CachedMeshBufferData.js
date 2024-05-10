@@ -4,7 +4,7 @@ export class CachedMeshBufferData {
 	#meshBuffer;
 	#cachedMeshData;
 
-	#bufferDirty = false;
+	#bufferDirty = true;
 	/** @type {WebGLBuffer?} */
 	#gpuBuffer = null;
 
@@ -15,8 +15,6 @@ export class CachedMeshBufferData {
 	constructor(meshBuffer, meshData) {
 		this.#meshBuffer = meshBuffer;
 		this.#cachedMeshData = meshData;
-
-		this.#createGpuBuffer();
 
 		meshBuffer.onBufferChanged(this.#onBufferChanged);
 	}
@@ -41,12 +39,6 @@ export class CachedMeshBufferData {
 		if (!this.#gpuBuffer) throw new Error("Failed to create buffer.");
 		const bufferType = gl.ARRAY_BUFFER;
 		gl.bindBuffer(bufferType, this.#gpuBuffer);
-		// gl.bufferData(bufferType, new Float32Array([
-		// 	-2, -2, 0.5,
-		// 	-2, 2, 0.5,
-		// 	2, 2, 0.5,
-		// 	2, -2, 0.5,
-		// ]), gl.STATIC_DRAW);
 		gl.bufferData(bufferType, this.#meshBuffer.buffer, gl.STATIC_DRAW);
 	}
 

@@ -135,17 +135,8 @@ export class WebGlRenderer extends Renderer {
 	 * @param {import("../../../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 */
 	render(domTarget, camera) {
-		if (!this.#isInit) return;
-		if (!this.#canvas) return;
 		const gl = this.#gl;
-		if (!gl) return;
-
-		if (domTarget.width > this.#canvas.width) {
-			this.#canvas.width = domTarget.width;
-		}
-		if (domTarget.height > this.#canvas.height) {
-			this.#canvas.height = domTarget.height;
-		}
+		if (!this.#isInit || !this.#canvas || !gl) return;
 
 		if (camera.autoUpdateAspectRatio) {
 			camera.aspectRatio = domTarget.width / domTarget.height;

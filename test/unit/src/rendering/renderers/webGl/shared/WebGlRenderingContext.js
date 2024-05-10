@@ -1,40 +1,6 @@
-import { assertEquals } from "std/testing/asserts.ts";
+import { WebGlCommandLog } from "./WebGlCommandLog.js";
 
-export class WebGlCommandLog {
-	/**
-	 * @typedef CommandLogEntry
-	 * @property {string} name
-	 * @property {unknown[]} args
-	 */
-
-	/** @type {CommandLogEntry[]} */
-	log = [];
-
-	clear() {
-		this.log = [];
-	}
-
-	/**
-	 * @param {number} count
-	 */
-	assertCount(count) {
-		assertEquals(this.log.length, count);
-	}
-
-	/**
-	 * @param  {...string} commands
-	 */
-	getFilteredCommands(...commands) {
-		return this.log.filter((c) => commands.includes(c.name));
-	}
-
-	/**
-	 * @param  {...string} commands
-	 */
-	getFilteredArgs(...commands) {
-		return this.log.filter((c) => commands.includes(c.name)).map((c) => c.args);
-	}
-}
+export class WebGlObject {}
 
 export function createWebGlRenderingContext() {
 	const commandLog = new WebGlCommandLog();
@@ -45,14 +11,16 @@ export function createWebGlRenderingContext() {
 				return undefined;
 			}
 			if (prop.toUpperCase() == prop) {
-				return "WEBGL_CONSTANT_" + prop;
+				return "GL_" + prop;
 			}
 
 			/**
 			 * @param  {...unknown[]} args
 			 */
 			const spyFunction = (...args) => {
-				commandLog.log.push({ name: prop, args });
+				const obj = new WebGlObject();
+				commandLog.log.push({ name: prop, args, createdObject: obj });
+				return obj;
 			};
 			return spyFunction;
 		},

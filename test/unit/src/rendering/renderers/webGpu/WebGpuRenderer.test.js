@@ -1,11 +1,11 @@
 import { assertAlmostEquals, assertEquals, assertInstanceOf, assertRejects } from "std/testing/asserts.ts";
-import { CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID, CustomMaterialData, Entity, Mat4, MeshComponent, RenderOutputConfig, ShaderSource, WebGpuRenderer, assertMatAlmostEquals, createCube } from "../../../../../../src/mod.js";
+import { CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID, CustomMaterialData, Entity, Mat4, Material, MaterialMap, MeshComponent, RenderOutputConfig, ShaderSource, WebGpuMaterialMapType, WebGpuPipelineConfig, WebGpuRenderer, assertMatAlmostEquals, createCube } from "../../../../../../src/mod.js";
 import { WebGpuChunkedBufferGroup } from "../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBufferGroup.js";
 import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
 import { getInstalledMockGpu, runWithWebGpuAsync } from "./shared/WebGpuApi.js";
 import { WebGpuRendererError } from "../../../../../../src/rendering/renderers/webGpu/WebGpuRendererError.js";
 import { assertSpyCalls, spy } from "std/testing/mock.ts";
-import { createCam, createMaterial, createVertexState } from "../shared/sceneUtil.js";
+import { createCam, createVertexState } from "../shared/sceneUtil.js";
 
 function createMockEngineAssetsManager() {
 	return /** @type {import("../../../../../../src/mod.js").EngineAssetsManager} */ ({
@@ -39,6 +39,25 @@ function createMockDomTarget() {
 			};
 		},
 	});
+}
+
+function createMaterial() {
+	const material = new Material();
+	const materialMapType = new WebGpuMaterialMapType();
+	const pipelineConfig = new WebGpuPipelineConfig();
+	pipelineConfig.vertexShader = new ShaderSource("");
+	pipelineConfig.fragmentShader = new ShaderSource("");
+	materialMapType.forwardPipelineConfig = pipelineConfig;
+	const materialMap = new MaterialMap({
+		materialMapTypes: [
+			{
+				mapType: materialMapType,
+				mappedValues: {},
+			},
+		],
+	});
+	material.setMaterialMap(materialMap);
+	return { material };
 }
 
 /**

@@ -1,8 +1,43 @@
-import { assertEquals, assertRejects } from "std/testing/asserts.ts";
-import { CustomMaterialData, WebGlRenderer, WebGlRendererError } from "../../../../../../src/mod.js";
+import { assertEquals, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
+import { CustomMaterialData, Entity, Material, MaterialMap, Mesh, ShaderSource, VertexState, WebGlMaterialConfig, WebGlMaterialMapType, WebGlRenderer, WebGlRendererError } from "../../../../../../src/mod.js";
 import { assertHasSingleContext, runWithWebGlMocksAsync, setWebGlContextSupported } from "./shared/webGlMocks.js";
 import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
-import { createCam } from "../shared/sceneUtil.js";
+import { createCam, createCubeEntity } from "../shared/sceneUtil.js";
+import { assertLogEntryEquals, assertLogEquals } from "./shared/WebGlCommandLog.js";
+
+async function basicRendererSetup() {
+	const renderer = new WebGlRenderer();
+	await renderer.init();
+
+	const domTarget = renderer.createDomTarget();
+	const { cam, camComponent } = createCam();
+
+	const scene = new Entity();
+	scene.add(cam);
+
+	const { commandLog, canvas } = assertHasSingleContext();
+
+	return { renderer, domTarget, camComponent, scene, commandLog, canvas };
+}
+
+function createMaterial() {
+	const material = new Material();
+	const materialMapType = new WebGlMaterialMapType();
+	const materialConfig = new WebGlMaterialConfig();
+	materialConfig.vertexShader = new ShaderSource("");
+	materialConfig.fragmentShader = new ShaderSource("");
+	materialMapType.materialConfig = materialConfig;
+	const materialMap = new MaterialMap({
+		materialMapTypes: [
+			{
+				mapType: materialMapType,
+				mappedValues: {},
+			},
+		],
+	});
+	material.setMaterialMap(materialMap);
+	return { material };
+}
 
 Deno.test({
 	name: "Throws when WebGL isn't supported",
@@ -13,6 +48,25 @@ Deno.test({
 			await assertRejects(async () => {
 				await renderer.init();
 			}, WebGlRendererError, "Failed to get WebGL context.");
+		});
+	},
+});
+
+Deno.test({
+	name: "render() does nothing when not init or not supported",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const renderer = new WebGlRenderer();
+			setWebGlContextSupported(false);
+			const domTarget = renderer.createDomTarget();
+			const { camComponent } = createCam();
+			domTarget.render(camComponent);
+
+			await assertRejects(async () => {
+				await renderer.init();
+			}, WebGlRendererError, "Failed to get WebGL context.");
+
+			domTarget.render(camComponent);
 		});
 	},
 });
@@ -32,7 +86,7 @@ Deno.test({
 			const { commandLog } = assertHasSingleContext();
 			commandLog.assertCount(5);
 
-			assertEquals(commandLog.log, [
+			commandLog.assertLogEquals([
 				{
 					name: "viewport",
 					args: [0, 0, 300, 150],
@@ -47,11 +101,11 @@ Deno.test({
 				},
 				{
 					name: "enable",
-					args: ["WEBGL_CONSTANT_DEPTH_TEST"],
+					args: ["GL_DEPTH_TEST"],
 				},
 				{
 					name: "depthFunc",
-					args: ["WEBGL_CONSTANT_LESS"],
+					args: ["GL_LESS"],
 				},
 			]);
 		});
@@ -99,6 +153,109 @@ Deno.test({
 			assertEquals(commands2, [
 				[0, 0, 100, 200],
 				[0, 199, 1, 1],
+			]);
+		});
+	},
+});
+
+Deno.test({
+	name: "Mesh with single buffer and two attributes",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+
+			const vertexState = new VertexState({
+				buffers: [
+					{
+						stepMode: "vertex",
+						arrayStride: 20,
+						attributes: [
+							{
+								attributeType: Mesh.AttributeType.POSITION,
+								componentCount: 3,
+								format: Mesh.AttributeFormat.FLOAT32,
+								unsigned: false,
+							},
+							{
+								attributeType: Mesh.AttributeType.UV1,
+								componentCount: 2,
+								format: Mesh.AttributeFormat.FLOAT32,
+								unsigned: false,
+							},
+						],
+					},
+				],
+			});
+
+			const { material } = createMaterial();
+
+			const { mesh } = createCubeEntity(scene, vertexState, material);
+
+			domTarget.render(camComponent);
+
+			const { range: indexBufferRange, index: indexBufferIndex } = commandLog.findRange({
+				predicate: (e) => e.name == "createBuffer",
+				endOffset: 2,
+			});
+			assertLogEntryEquals(indexBufferRange[0], { name: "createBuffer" });
+			const indexBuffer = indexBufferRange[0].createdObject;
+
+			assertEquals(indexBufferRange[1].name, "bindBuffer");
+			assertEquals(indexBufferRange[1].args[0], "GL_ELEMENT_ARRAY_BUFFER");
+			assertStrictEquals(indexBufferRange[1].args[1], indexBuffer);
+
+			assertEquals(indexBufferRange[2].name, "bufferData");
+			assertEquals(indexBufferRange[2].args[0], "GL_ELEMENT_ARRAY_BUFFER");
+			assertStrictEquals(indexBufferRange[2].args[1], mesh.indexBuffer);
+			assertEquals(indexBufferRange[2].args[2], "GL_STATIC_DRAW");
+
+			const { range: vertexBufferRange } = commandLog.findRange({
+				predicate: (e, i) => e.name == "createBuffer" && i > indexBufferIndex,
+				endOffset: 2,
+			});
+
+			assertEquals(vertexBufferRange[0].name, "createBuffer");
+			const vertexBuffer = vertexBufferRange[0].createdObject;
+
+			assertEquals(vertexBufferRange[1].name, "bindBuffer");
+			assertEquals(vertexBufferRange[1].args[0], "GL_ARRAY_BUFFER");
+			assertStrictEquals(vertexBufferRange[1].args[1], vertexBuffer);
+
+			assertEquals(vertexBufferRange[2].name, "bufferData");
+			assertEquals(vertexBufferRange[2].args[0], "GL_ARRAY_BUFFER");
+			assertStrictEquals(vertexBufferRange[2].args[1], Array.from(mesh.getAttributeBuffers())[0].buffer);
+			assertEquals(vertexBufferRange[2].args[2], "GL_STATIC_DRAW");
+
+			const { index: drawIndex, range: drawRange } = commandLog.findRange({
+				predicate: (e) => e.name == "drawElements",
+				startOffset: -4,
+			});
+
+			commandLog.assertLastBoundBuffer("GL_ELEMENT_ARRAY_BUFFER", indexBuffer, drawIndex);
+			commandLog.assertLastBoundBuffer("GL_ARRAY_BUFFER", vertexBuffer, drawIndex);
+
+			// TODO: I'm pretty sure the offset parameter of vertexAttribPointer is wrong here.
+			assertLogEquals(drawRange, [
+				{
+					name: "vertexAttribPointer",
+					args: [0, 3, "GL_FLOAT", false, 20, 0],
+				},
+				{
+					name: "enableVertexAttribArray",
+					args: [0],
+				},
+				{
+					name: "vertexAttribPointer",
+					args: [1, 2, "GL_FLOAT", false, 20, 0],
+				},
+				{
+					name: "enableVertexAttribArray",
+					args: [1],
+				},
+				{
+					name: "drawElements",
+					args: ["GL_TRIANGLES", 36, "GL_UNSIGNED_SHORT", 0],
+				},
 			]);
 		});
 	},

@@ -1,4 +1,4 @@
-import { CameraComponent, ClusteredLightsConfig, Entity, Material, MaterialMap, Mesh, ShaderSource, VertexState, WebGpuMaterialMapType, WebGpuPipelineConfig } from "../../../../../../src/mod.js";
+import { CameraComponent, ClusteredLightsConfig, Entity, Mesh, MeshComponent, VertexState, createCube } from "../../../../../../src/mod.js";
 
 export function createCam() {
 	const cam = new Entity();
@@ -39,21 +39,16 @@ export function createVertexState() {
 	return vertexState;
 }
 
-export function createMaterial() {
-	const material = new Material();
-	const materialMapType = new WebGpuMaterialMapType();
-	const pipelineConfig = new WebGpuPipelineConfig();
-	pipelineConfig.vertexShader = new ShaderSource("");
-	pipelineConfig.fragmentShader = new ShaderSource("");
-	materialMapType.forwardPipelineConfig = pipelineConfig;
-	const materialMap = new MaterialMap({
-		materialMapTypes: [
-			{
-				mapType: materialMapType,
-				mappedValues: {},
-			},
-		],
-	});
-	material.setMaterialMap(materialMap);
-	return { material };
+/**
+ * @param {Entity} scene
+ * @param {VertexState} vertexState
+ * @param {import("../../../../../../src/mod.js").Material} material
+ */
+export function createCubeEntity(scene, vertexState, material) {
+	const cubeEntity = scene.add(new Entity("cube"));
+	const meshComponent = cubeEntity.addComponent(MeshComponent);
+	meshComponent.mesh = createCube({ vertexState });
+	meshComponent.materials = [material];
+
+	return { mesh: meshComponent.mesh, cubeEntity };
 }
