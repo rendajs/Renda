@@ -40,6 +40,22 @@ export class CustomMaterialData {
 	 */
 
 	/**
+	 * You can register different callbacks for each renderer you want to support.
+	 *
+	 * ## Usage
+	 * ```js
+	 * const webGpuRenderer = new WebGpuRenderer(engineAssetsManager);
+	 * const webGlRenderer = new WebGlRenderer();
+	 * const customData = new CustomMaterialData();
+	 * customData.registerCallback(webGpuRenderer, (group) => {
+	 * 	// ...
+	 * });
+	 * customData.registerCallback(webGlRenderer, (gl, location) => {
+	 * 	// ...
+	 * });
+	 * ```
+	 * Consult the documentation of `_customMaterialDataSignature` on the renderer that you use for
+	 * more info on what your callback should look like.
 	 * @template {ObjectWithSignature} T
 	 * @param {T} renderer
 	 * @param {T["_customMaterialDataSignature"]} callback

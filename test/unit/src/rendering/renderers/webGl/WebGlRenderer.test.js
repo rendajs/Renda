@@ -20,7 +20,13 @@ async function basicRendererSetup() {
 	return { renderer, domTarget, camComponent, scene, commandLog, canvas };
 }
 
-function createMaterial() {
+/**
+ * @param {object} options
+ * @param {import("../../../../../../src/mod.js").MaterialMapMappedValues} [options.mappedValues]
+ */
+function createMaterial({
+	mappedValues = {},
+} = {}) {
 	const material = new Material();
 	const materialMapType = new WebGlMaterialMapType();
 	const materialConfig = new WebGlMaterialConfig();
@@ -31,13 +37,7 @@ function createMaterial() {
 		materialMapTypes: [
 			{
 				mapType: materialMapType,
-				mappedValues: {
-					cullMode: {
-						mappedType: "enum",
-						defaultValue: "back",
-						mappedName: "cullMode",
-					},
-				},
+				mappedValues,
 			},
 		],
 	});
@@ -274,22 +274,30 @@ Deno.test({
 			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
 			const vertexState = createVertexState();
 
-			const { material: materialA } = createMaterial();
+			/** @type {import("../../../../../../src/mod.js").MaterialMapMappedValues} */
+			const mappedValues = {
+				cullMode: {
+					mappedType: "enum",
+					defaultValue: "back",
+					mappedName: "cullMode",
+				},
+			};
+			const { material: materialA } = createMaterial({ mappedValues });
 			createCubeEntity({ scene, material: materialA, vertexState });
 
-			const { material: materialB } = createMaterial();
+			const { material: materialB } = createMaterial({ mappedValues });
 			materialB.setProperty("cullMode", "front");
 			createCubeEntity({ scene, material: materialB, vertexState });
 
-			const { material: materialC } = createMaterial();
+			const { material: materialC } = createMaterial({ mappedValues });
 			materialC.setProperty("cullMode", "front");
 			createCubeEntity({ scene, material: materialC, vertexState });
 
-			const { material: materialD } = createMaterial();
+			const { material: materialD } = createMaterial({ mappedValues });
 			materialD.setProperty("cullMode", "none");
 			createCubeEntity({ scene, material: materialD, vertexState });
 
-			const { material: materialE } = createMaterial();
+			const { material: materialE } = createMaterial({ mappedValues });
 			materialE.setProperty("cullMode", "back");
 			createCubeEntity({ scene, material: materialE, vertexState });
 
@@ -311,6 +319,51 @@ Deno.test({
 				{ name: "enable", args: ["GL_CULL_FACE"] },
 				{ name: "cullFace", args: ["GL_BACK"] },
 			]);
+		});
+	},
+});
+
+Deno.test({
+	name: "CustomMaterialData",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { renderer, scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+
+			const vertexState = createVertexState();
+			const { material } = createMaterial({
+				mappedValues: {
+					custom: {
+						mappedName: "custom",
+						mappedType: "custom",
+						defaultValue: null,
+					},
+				},
+			});
+			const customData = new CustomMaterialData();
+			/** @type {{gl: WebGLRenderingContext, location: WebGLUniformLocation}[]} */
+			const calls = [];
+			customData.registerCallback(renderer, (gl, location) => {
+				calls.push({ gl, location });
+				gl.uniform1f(location, 42);
+			});
+			material.setProperty("custom", customData);
+			createCubeEntity({ scene, material, vertexState });
+
+			domTarget.render(camComponent);
+
+			assertEquals(calls.length, 1);
+			assertStrictEquals(calls[0].gl, renderer.getWebGlContext());
+			const { range: uniformRange } = commandLog.findRange({
+				predicate: (e) => {
+					return e.name == "getUniformLocation" && e.args[1] == "materialUniforms_custom";
+				},
+				endOffset: 1,
+			});
+			assertStrictEquals(calls[0].location, uniformRange[0].createdObject);
+			assertStrictEquals(uniformRange[1].args[0], uniformRange[0].createdObject);
+
+			assertEquals(uniformRange[1].name, "uniform1f");
+			assertEquals(uniformRange[1].args[1], 42);
 		});
 	},
 });

@@ -77,7 +77,11 @@ export class WebGlRenderer extends Renderer {
 	 * const customData = new CustomMaterialData();
 	 * myMaterial.setProperty("customData", customData);
 	 * customData.registerCallback(renderer, (gl, location) => {
-	 *
+	 * 	const values = [];
+	 * 	for (const matrix of skinMatrices) {
+	 * 		values.push(...matrix.getFlatArray())
+	 * 	}
+	 * 	gl.uniformMatrix4fv(location, false, values);
 	 * });
 	 * ```
 	 */
