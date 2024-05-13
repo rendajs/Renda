@@ -374,6 +374,13 @@ export class InternalMeshAttributeBuffer {
 		this.#onBufferChangedCbs.add(cb);
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
+	removeOnBufferChanged(cb) {
+		this.#onBufferChangedCbs.delete(cb);
+	}
+
 	#fireBufferChanged() {
 		for (const cb of this.#onBufferChangedCbs) {
 			cb();

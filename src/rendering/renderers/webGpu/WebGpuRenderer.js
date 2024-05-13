@@ -284,6 +284,9 @@ export class WebGpuRenderer extends Renderer {
 		await promise;
 	}
 
+	/**
+	 * @override
+	 */
 	createDomTarget() {
 		const domTarget = super.createDomTarget();
 		this.configureSwapChainAsync(domTarget);
@@ -385,7 +388,7 @@ export class WebGpuRenderer extends Renderer {
 			this.#lightsChunkedBufferGroup.appendEmptyBytes(4);
 		}
 		// The lights struct is currently hardcoded to support 10 lights.
-		// If we make the group to small, webgpu will complain that the buffer is too small.
+		// If we make the group too small, webgpu will complain that the buffer is too small.
 		// So we'll add a bunch of empty bytes to reach 336.
 		// 16 + 32 * 10 = 336
 		// 16 for the initial `lightCount`

@@ -1,10 +1,11 @@
 import { assertAlmostEquals, assertEquals, assertInstanceOf, assertRejects } from "std/testing/asserts.ts";
-import { CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID, CameraComponent, ClusteredLightsConfig, CustomMaterialData, Entity, Mat4, Material, MaterialMap, Mesh, MeshComponent, RenderOutputConfig, ShaderSource, VertexState, WebGpuMaterialMapType, WebGpuPipelineConfig, WebGpuRenderer, assertMatAlmostEquals, createCube } from "../../../../../../src/mod.js";
+import { CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID, CustomMaterialData, Entity, Mat4, Material, MaterialMap, MeshComponent, RenderOutputConfig, ShaderSource, WebGpuMaterialMapType, WebGpuPipelineConfig, WebGpuRenderer, assertMatAlmostEquals, createCube } from "../../../../../../src/mod.js";
 import { WebGpuChunkedBufferGroup } from "../../../../../../src/rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBufferGroup.js";
 import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
 import { getInstalledMockGpu, runWithWebGpuAsync } from "./shared/WebGpuApi.js";
 import { WebGpuRendererError } from "../../../../../../src/rendering/renderers/webGpu/WebGpuRendererError.js";
 import { assertSpyCalls, spy } from "std/testing/mock.ts";
+import { createCam, createVertexState } from "../shared/sceneUtil.js";
 
 function createMockEngineAssetsManager() {
 	return /** @type {import("../../../../../../src/mod.js").EngineAssetsManager} */ ({
@@ -38,45 +39,6 @@ function createMockDomTarget() {
 			};
 		},
 	});
-}
-
-function createCam() {
-	const cam = new Entity();
-	const camComponent = cam.addComponent(CameraComponent);
-	camComponent.clusteredLightsConfig = new ClusteredLightsConfig();
-	return { camComponent, cam };
-}
-
-function createVertexState() {
-	const vertexState = new VertexState({
-		buffers: [
-			{
-				stepMode: "vertex",
-				arrayStride: 12,
-				attributes: [
-					{
-						attributeType: Mesh.AttributeType.POSITION,
-						componentCount: 3,
-						format: Mesh.AttributeFormat.FLOAT32,
-						unsigned: false,
-					},
-				],
-			},
-			{
-				stepMode: "vertex",
-				arrayStride: 16,
-				attributes: [
-					{
-						attributeType: Mesh.AttributeType.COLOR,
-						componentCount: 4,
-						format: Mesh.AttributeFormat.FLOAT32,
-						unsigned: false,
-					},
-				],
-			},
-		],
-	});
-	return vertexState;
 }
 
 function createMaterial() {

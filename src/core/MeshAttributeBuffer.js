@@ -31,6 +31,13 @@ export class MeshAttributeBuffer {
 	}
 
 	/**
+	 * @param {() => void} cb
+	 */
+	removeOnBufferChanged(cb) {
+		this.#internalAttributeBuffer.removeOnBufferChanged(cb);
+	}
+
+	/**
 	 * An attribute buffer is 'unused' when it's attribute type is not configured in the
 	 * `VertexState` of a mesh. The `VertexState` describes how attribute data is stored in the
 	 * underlying ArrayBuffers. Without this information, vertex data is stored in its most basic form.

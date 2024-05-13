@@ -219,14 +219,22 @@ Deno.test({
 		const buffer = new InternalMeshAttributeBuffer({});
 		buffer.setVertexCount(0);
 
-		let onBufferChangedCalled = false;
-		buffer.onBufferChanged(() => {
-			onBufferChangedCalled = true;
-		});
+		let callCount = 0;
+		const onChange = () => {
+			callCount++;
+		};
+		buffer.onBufferChanged(onChange);
 
 		buffer.setVertexCount(1);
+		assertEquals(callCount, 1);
 
-		assertEquals(onBufferChangedCalled, true);
+		buffer.setVertexCount(42);
+		assertEquals(callCount, 2);
+
+		buffer.removeOnBufferChanged(onChange);
+
+		buffer.setVertexCount(123);
+		assertEquals(callCount, 2);
 	},
 });
 
