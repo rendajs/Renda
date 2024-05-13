@@ -44,6 +44,23 @@ export class WebGlCommandLog {
 	}
 
 	/**
+	 * @param {object} options
+	 * @param {(value: CommandLogEntry, index: number) => unknown} options.predicate A function to find a reference log entry.
+	 * @param {boolean} [options.last] Set to true to start searching from the end.
+	 */
+	assertExists({ predicate, last = false }) {
+		let entry;
+		if (last) {
+			entry = this.log.findLast(predicate);
+		} else {
+			entry = this.log.find(predicate);
+		}
+		if (!entry) {
+			throw new Error("The log entry wasn't found.");
+		}
+	}
+
+	/**
 	 * Finds a range of log entries based on a set of parameters.
 	 * @param {object} options
 	 * @param {(value: CommandLogEntry, index: number) => unknown} options.predicate A function to find a reference log entry.

@@ -388,3 +388,75 @@ testTypes({
 		});
 	},
 });
+
+Deno.test({
+	name: "Mesh with uint32 index format",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+
+			const vertexState = new VertexState({
+				buffers: [
+					{
+						stepMode: "vertex",
+						arrayStride: 12,
+						attributes: [
+							{
+								attributeType: Mesh.AttributeType.POSITION,
+								componentCount: 3,
+								format: Mesh.AttributeFormat.FLOAT32,
+								unsigned: false,
+							},
+						],
+					},
+				],
+			});
+
+			const { material } = createMaterial();
+
+			const { mesh } = createCubeEntity({ scene, vertexState, material });
+			mesh.setIndexFormat(Mesh.IndexFormat.UINT_32);
+
+			domTarget.render(camComponent);
+
+			const { range: indexBufferRange } = commandLog.findRange({
+				predicate: (e) => e.name == "createBuffer",
+				endOffset: 2,
+			});
+			assertLogEntryEquals(indexBufferRange[0], { name: "createBuffer" });
+			const indexBuffer = indexBufferRange[0].createdObject;
+
+			assertEquals(indexBufferRange[1].name, "bindBuffer");
+			assertEquals(indexBufferRange[1].args[0], "GL_ELEMENT_ARRAY_BUFFER");
+			assertStrictEquals(indexBufferRange[1].args[1], indexBuffer);
+
+			assertEquals(indexBufferRange[2].name, "bufferData");
+			assertEquals(indexBufferRange[2].args[0], "GL_ELEMENT_ARRAY_BUFFER");
+			assertStrictEquals(indexBufferRange[2].args[1], mesh.indexBuffer);
+			assertEquals(indexBufferRange[2].args[2], "GL_STATIC_DRAW");
+
+			const { range: drawRange, index: drawIndex } = commandLog.findRange({
+				predicate: (e) => e.name == "drawElements",
+			});
+
+			assertLogEquals(drawRange, [
+				{
+					name: "drawElements",
+					args: ["GL_TRIANGLES", 36, "GL_UNSIGNED_INT", 0],
+				},
+			]);
+
+			// Check if OES_element_index_uint was enabled before the draw call
+			commandLog.assertExists({
+				predicate: (e, i) => e.name == "getExtension" && e.args[0] == "OES_element_index_uint" && i < drawIndex,
+			});
+
+			// Make sure the extension is enabled only once.
+			domTarget.render(camComponent);
+			const extensionEntries = commandLog.log.filter((e) => {
+				return e.name == "getExtension" && e.args[0] == "OES_element_index_uint";
+			});
+			assertEquals(extensionEntries.length, 1);
+		});
+	},
+});
