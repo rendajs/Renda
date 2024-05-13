@@ -62,9 +62,13 @@ export class WebGlRenderer extends Renderer {
 	#cullFaceEnabled = false;
 
 	#blendingEnabled = false;
+	/** @type {number?} */
 	#currentBlendSrcRgb = null;
+	/** @type {number?} */
 	#currentBlendDstRgb = null;
+	/** @type {number?} */
 	#currentBlendSrcAlpha = null;
+	/** @type {number?} */
 	#currentBlendDstAlpha = null;
 
 	/**
@@ -476,6 +480,10 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 				dstRgb != this.#currentBlendDstRgb ||
 				dstAlpha != this.#currentBlendDstAlpha
 			) {
+				this.#currentBlendSrcRgb = srcRgb;
+				this.#currentBlendDstRgb = dstRgb;
+				this.#currentBlendSrcAlpha = srcAlpha;
+				this.#currentBlendDstAlpha = dstAlpha;
 				gl.blendFuncSeparate(srcRgb, dstRgb, srcAlpha, dstAlpha);
 			}
 		}

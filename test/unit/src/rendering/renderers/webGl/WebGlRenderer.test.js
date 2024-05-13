@@ -42,7 +42,7 @@ function createMaterial({
 		],
 	});
 	material.setMaterialMap(materialMap);
-	return { material };
+	return { material, materialConfig };
 }
 
 Deno.test({
@@ -318,6 +318,78 @@ Deno.test({
 				{ name: "disable", args: ["GL_CULL_FACE"] },
 				{ name: "enable", args: ["GL_CULL_FACE"] },
 				{ name: "cullFace", args: ["GL_BACK"] },
+			]);
+		});
+	},
+});
+
+Deno.test({
+	name: "Material blend mode",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+			const vertexState = createVertexState();
+
+			const { material: materialA, materialConfig: configA } = createMaterial();
+			configA.blend = {
+				srcFactor: 1, // GL_ONE
+				dstFactor: 1, // GL_ONE
+			};
+			createCubeEntity({ scene, material: materialA, vertexState });
+
+			const { material: materialB } = createMaterial();
+			createCubeEntity({ scene, material: materialB, vertexState });
+
+			const { material: materialC, materialConfig: configC } = createMaterial();
+			configC.blend = {
+				srcFactor: 0, // GL_ZERO
+				dstFactor: 1, // GL_ONE
+			};
+			createCubeEntity({ scene, material: materialC, vertexState });
+
+			const { material: materialD, materialConfig: configD } = createMaterial();
+			configD.blend = {
+				srcFactor: 0, // GL_ZERO
+				dstFactor: 1, // GL_ONE
+				srcFactorAlpha: 1, // GL_ONE
+			};
+			createCubeEntity({ scene, material: materialD, vertexState });
+
+			const { material: materialE, materialConfig: configE } = createMaterial();
+			configE.blend = {
+				srcFactor: 0, // GL_ZERO
+				dstFactor: 1, // GL_ONE
+				srcFactorAlpha: 1, // GL_ONE
+			};
+			createCubeEntity({ scene, material: materialE, vertexState });
+
+			const { material: materialF, materialConfig: configF } = createMaterial();
+			configF.blend = {
+				srcFactor: 0, // GL_ZERO
+				dstFactor: 1, // GL_ONE
+				srcFactorAlpha: 1, // GL_ONE
+				dstFactorAlpha: 0, // GL_ZERO
+			};
+			createCubeEntity({ scene, material: materialF, vertexState });
+
+			domTarget.render(camComponent);
+
+			const blendCommands = commandLog.getFilteredCommands("blendFuncSeparate", "enable", "disable")
+				.filter((e) => {
+					if (e.name == "enable" || e.name == "disable") {
+						if (e.args[0] != "GL_BLEND") return false;
+					}
+					return true;
+				});
+
+			assertLogEquals(blendCommands, [
+				{ name: "enable", args: ["GL_BLEND"] },
+				{ name: "blendFuncSeparate", args: [1, 1, 1, 1] },
+				{ name: "disable", args: ["GL_BLEND"] },
+				{ name: "enable", args: ["GL_BLEND"] },
+				{ name: "blendFuncSeparate", args: [0, 1, 0, 1] },
+				{ name: "blendFuncSeparate", args: [0, 1, 1, 1] },
+				{ name: "blendFuncSeparate", args: [0, 1, 1, 0] },
 			]);
 		});
 	},
