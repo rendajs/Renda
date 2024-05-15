@@ -1,5 +1,5 @@
 import { BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT } from "../../studioDefines.js";
-import { licenses } from "../../misc/thirdPartyLicenses.js";
+import { licenses } from "../../misc/thirdPartyLicenses/mod.js";
 import { Button } from "../../ui/Button.js";
 import { TreeView } from "../../ui/TreeView.js";
 import { ContentWindow } from "./ContentWindow.js";
