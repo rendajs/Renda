@@ -6,8 +6,18 @@ import { uuidToBinary } from "../../../../../src/mod.js";
  * @param {import("./mod.js").BundleScriptsMessenger} messenger
  */
 export async function bundle(assetUuids, fileStreamId, messenger) {
-	const assetHeaderByteLength = 16 + 16 + 4; // 16 bytes for the uuid + 16 bytes for the asset type uuid + 4 bytes for the asset length
-	const headerByteLength = 4 + assetUuids.length * assetHeaderByteLength; // 4 bytes for the asset count + the asset headers
+	// 16 bytes for the uuid
+	// + 16 bytes for the asset type uuid
+	// + 8 bytes for the asset length
+	const assetHeaderByteLength = 16 + 16 + 8;
+
+	// 4 bytes for the magic header 'rAsb'
+	// + 4 bytes for the version
+	// + 8 bytes for the total length of the bundle
+	// + 8 bytes for the asset count
+	// + the asset headers
+	const headerByteLength = 4 + 4 + 8 + 8 + assetUuids.length * assetHeaderByteLength;
+
 	const useFileStream = fileStreamId >= 0;
 
 	// fill header with zeros
@@ -21,8 +31,19 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 	const headerView = new DataView(header);
 
 	let headerCursor = 0;
-	headerView.setUint32(headerCursor, assetUuids.length, true);
+
+	headerView.setUint32(headerCursor, 0x62734172, true); // 'rAsb' magic header
 	headerCursor += 4;
+
+	headerView.setUint32(headerCursor, 1, true);
+	headerCursor += 4;
+
+	// Total length will be set later
+	const totalSizeHeaderIndex = headerCursor;
+	headerCursor += 8;
+
+	headerView.setBigUint64(headerCursor, BigInt(assetUuids.length), true);
+	headerCursor += 8;
 
 	/**
 	 * The Buffers that will be concatenated in case `useFileStream` is false.
@@ -30,6 +51,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 	 */
 	const assetBuffers = [];
 	const textEncoder = new TextEncoder();
+	let totalBundleSize = headerByteLength;
 
 	for (const assetUuid of assetUuids) {
 		// TODO: This makes using a worker kind of pointless, since this is the
@@ -50,14 +72,16 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 		headerIntView.set(new Uint8Array(binaryAssetTypeUuid), headerCursor);
 		headerCursor += 16;
 
-		let dataSizeBytes = 0;
+		let assetSizeBytes = 0;
 		if (assetData instanceof ArrayBuffer) {
-			dataSizeBytes = assetData.byteLength;
+			assetSizeBytes = assetData.byteLength;
 		} else {
-			dataSizeBytes = assetData.length;
+			assetSizeBytes = assetData.length;
 		}
-		headerView.setUint32(headerCursor, dataSizeBytes, true);
-		headerCursor += 4;
+		totalBundleSize += assetSizeBytes;
+
+		headerView.setBigUint64(headerCursor, BigInt(assetSizeBytes), true);
+		headerCursor += 8;
 
 		/** @type {Transferable[]} */
 		const transfer = [];
@@ -76,6 +100,8 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 			assetBuffers.push(buffer);
 		}
 	}
+
+	headerView.setBigUint64(totalSizeHeaderIndex, BigInt(totalBundleSize), true);
 
 	if (useFileStream) {
 		await messenger.sendWithOptions.writeFile({ transfer: [header] }, fileStreamId, {
