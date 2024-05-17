@@ -12,8 +12,6 @@ export class BinaryComposer {
 	getFullBuffer() {
 		if (this.bufferList.length == 0) {
 			return new ArrayBuffer(0);
-		} else if (this.bufferList.length == 1) {
-			return this.bufferList[0];
 		} else {
 			let totalByteLength = 0;
 			for (const chunk of this.bufferList) {
@@ -89,6 +87,24 @@ export class BinaryComposer {
 	appendUint32(value) {
 		const buffer = new ArrayBuffer(4);
 		new DataView(buffer).setUint32(0, value, this.littleEndian);
+		this.appendBuffer(buffer);
+	}
+
+	/**
+	 * @param {bigint} value
+	 */
+	appendBigInt64(value) {
+		const buffer = new ArrayBuffer(8);
+		new DataView(buffer).setBigInt64(0, value, this.littleEndian);
+		this.appendBuffer(buffer);
+	}
+
+	/**
+	 * @param {bigint} value
+	 */
+	appendBigUint64(value) {
+		const buffer = new ArrayBuffer(8);
+		new DataView(buffer).setBigUint64(0, value, this.littleEndian);
 		this.appendBuffer(buffer);
 	}
 
