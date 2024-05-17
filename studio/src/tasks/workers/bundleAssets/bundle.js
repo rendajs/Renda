@@ -3,7 +3,7 @@ import { uuidToBinary } from "../../../../../src/mod.js";
 /**
  * @param {import("../../../../../src/mod.js").UuidString[]} assetUuids
  * @param {number} fileStreamId
- * @param {import("./mod.js").BundleScriptsMessenger} messenger
+ * @param {import("./mod.js").BundleAssetsMessenger} messenger
  */
 export async function bundle(assetUuids, fileStreamId, messenger) {
 	// 16 bytes for the uuid
