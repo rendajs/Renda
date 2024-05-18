@@ -1,16 +1,8 @@
-/**
- * @typedef ThirdPartyLicenseInfo
- * @property {string} libraryName
- * @property {string} homepage
- * @property {string} license
- */
-
-/** @type {ThirdPartyLicenseInfo[]} */
-export const licenses = [
-	{
-		libraryName: "rollup.js",
-		homepage: "https://rollupjs.org/",
-		license: `# Rollup core license
+/** @type {import("./mod.js").ThirdPartyLicenseInfo} */
+export const rollup = {
+	libraryName: "rollup.js",
+	homepage: "https://rollupjs.org/",
+	license: `# Rollup core license
 Rollup is released under the MIT license:
 
 The MIT License (MIT)
@@ -706,5 +698,4 @@ Repository: https://github.com/yargs/yargs-parser.git
 > WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
 > ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 `,
-	},
-];
+};

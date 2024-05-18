@@ -12,6 +12,25 @@ import { AssetBundle } from "./AssetBundle.js";
  * An asset bundle file is typically generated using a 'bundle assets' task in Renda Studio.
  */
 export class DownloadableAssetBundle extends AssetBundle {
+	#url;
+	get url() {
+		return this.#url;
+	}
+
+	/** @type {ArrayBuffer?} */
+	#downloadBuffer = null;
+
+	#downloadInstance;
+	/** @type {Set<OnProgressCallback>} */
+	#onProgressCbs = new Set();
+	#progress = 0;
+	get progress() {
+		return this.#progress;
+	}
+
+	/** @type {Map<import("../../mod.js").UuidString, AssetBundleRange>} */
+	#assetRanges = new Map();
+
 	/**
 	 * Creates a new DownloadableAssetBundle.
 	 *
@@ -26,39 +45,39 @@ export class DownloadableAssetBundle extends AssetBundle {
 	 */
 	constructor(url) {
 		super();
-		this.url = url;
+		this.#url = url;
 
-		/** @private @type {Map<import("../../mod.js").UuidString, AssetBundleRange>} */
-		this.assetRanges = new Map();
-		this.progress = 0;
-		/** @private @type {Set<OnProgressCallback>} */
-		this.onProgressCbs = new Set();
-
-		this.downloadInstance = new SingleInstancePromise(async () => await this.downloadLogic(), { once: true });
+		this.#downloadInstance = new SingleInstancePromise(async () => await this.#downloadLogic(), { once: true });
 		this.headerWait = new PromiseWaitHelper();
-
-		this.downloadBuffer = null;
 	}
 
 	async startDownload() {
-		await this.downloadInstance.run();
+		await this.#downloadInstance.run();
 	}
 
 	async waitForLoad() {
-		await this.downloadInstance.waitForFinishOnce();
+		await this.#downloadInstance.waitForFinishOnce();
 	}
 
-	/**
-	 * @private
-	 */
-	async downloadLogic() {
-		const response = await fetch(this.url);
-		// TODO: #746 don't use content-length header
-		const contentLength = Number(response.headers.get("Content-Length"));
+	async #downloadLogic() {
+		const response = await fetch(this.#url);
 		let receivedLength = 0;
-		const allChunks = new Uint8Array(contentLength);
-		this.downloadBuffer = allChunks.buffer;
-		const bundleDataView = new DataView(allChunks.buffer);
+
+		if (!response.ok) {
+			throw new Error(`Asset bundle request responded with ${response.status} ${response.statusText}`);
+		}
+
+		if (!response.body) {
+			throw new Error("Asset bundle request did not respond with any content");
+		}
+
+		// These values will be set once the content length is known
+		/** @type {Uint8Array?} */
+		let allChunks = null;
+		/** @type {DataView?} */
+		let bundleDataView = null;
+		/** @type {number?} */
+		let totalBundleSize = null;
 
 		let hasParsedAssetCount = false;
 		let assetCount = 0;
@@ -66,26 +85,79 @@ export class DownloadableAssetBundle extends AssetBundle {
 
 		let hasParsedHeader = false;
 
-		// TODO: better error handling when fetch fails
-		if (!response.body) return;
+		/**
+		 * Chunks that have been received before the bundle size was known.
+		 * These will be placed into {@linkcode allChunks} once the size is known.
+		 * @type {Uint8Array[]}
+		 */
+		const unparsedChunks = [];
 
 		// todo: use for await here once it's implemented in most browsers
 		for await (const chunk of streamAsyncIterator(response.body)) {
-			allChunks.set(chunk, receivedLength);
+			if (allChunks) {
+				allChunks.set(chunk, receivedLength);
+			}
 			receivedLength += chunk.length;
 
+			if (!allChunks) {
+				unparsedChunks.push(chunk);
+				const requiredSize = 16;
+				if (receivedLength >= requiredSize) {
+					const temporaryAllChunks = new Uint8Array(requiredSize);
+					let i = 0;
+					for (const chunk of unparsedChunks) {
+						temporaryAllChunks.set(chunk.subarray(0, requiredSize - i), i);
+						i += chunk.byteLength;
+					}
+					const temporaryDataView = new DataView(temporaryAllChunks.buffer);
+
+					const magic = temporaryDataView.getUint32(0, true);
+					if (magic != 0x62734172) {
+						throw new Error(`Asset bundle request did not respond with the correct magic header. The url you provided (${this.#url}) does not point to an asset bundle.`);
+					}
+
+					const version = temporaryDataView.getUint32(4, true);
+					if (version != 1) {
+						throw new Error(`Asset bundle request responded with a future asset bundle version (${version}). This version of Renda only supports asset bundle version 1.`);
+					}
+
+					totalBundleSize = Number(temporaryDataView.getBigUint64(8, true));
+					allChunks = new Uint8Array(totalBundleSize);
+					bundleDataView = new DataView(allChunks.buffer);
+					this.#downloadBuffer = allChunks.buffer;
+
+					let j = 0;
+					for (const chunk of unparsedChunks) {
+						allChunks.set(chunk, j);
+						j += chunk.byteLength;
+					}
+				}
+			}
+
+			if (!allChunks || !bundleDataView || totalBundleSize == null) continue;
+
 			// parse asset count
-			if (!hasParsedAssetCount && receivedLength >= 4) {
+			if (!hasParsedAssetCount && receivedLength >= 24) {
 				hasParsedAssetCount = true;
-				assetCount = bundleDataView.getUint32(0, true);
-				const assetHeaderByteLength = 16 + 16 + 4; // 16 bytes for the uuid + 16 bytes for the asset type uuid + 4 bytes for the asset length
-				headerLength = 4 + assetCount * assetHeaderByteLength;
+				assetCount = Number(bundleDataView.getBigUint64(16, true));
+
+				// 16 bytes for the uuid
+				// + 16 bytes for the asset type uuid
+				// + 8 bytes for the asset length
+				const assetHeaderByteLength = 16 + 16 + 8;
+
+				// 4 bytes for the magic header 'rAsb'
+				// + 4 bytes for the version
+				// + 8 bytes for the total length of the bundle
+				// + 8 bytes for the asset count
+				// + the asset headers
+				headerLength = 4 + 4 + 8 + 8 + assetCount * assetHeaderByteLength;
 			}
 
 			// parse header
 			if (hasParsedAssetCount && !hasParsedHeader && receivedLength >= headerLength) {
 				hasParsedHeader = true;
-				let headerCursor = 4;
+				let headerCursor = 24;
 				let prevAssetByteEnd = headerLength;
 				while (headerCursor < headerLength) {
 					const uuid = binaryToUuid(allChunks.buffer, headerCursor);
@@ -96,26 +168,26 @@ export class DownloadableAssetBundle extends AssetBundle {
 					if (!typeUuid) throw new Error("Failed to parse asset type uuid, uuid is null.");
 					headerCursor += 16;
 
-					const assetSize = bundleDataView.getUint32(headerCursor, true);
-					headerCursor += 4;
+					const assetSize = Number(bundleDataView.getBigUint64(headerCursor, true));
+					headerCursor += 8;
 
 					const byteStart = prevAssetByteEnd;
 					const byteEnd = prevAssetByteEnd + assetSize;
 					prevAssetByteEnd = byteEnd;
-					this.assetRanges.set(uuid, new AssetBundleRange({ typeUuid, byteStart, byteEnd }));
+					this.#assetRanges.set(uuid, new AssetBundleRange({ typeUuid, byteStart, byteEnd }));
 				}
 				this.headerWait.fire();
 			}
 
 			if (hasParsedHeader) {
-				for (const range of this.assetRanges.values()) {
+				for (const range of this.#assetRanges.values()) {
 					range.bundleDataReceived(receivedLength);
 				}
 			}
 
-			this.progress = receivedLength / contentLength;
-			for (const cb of this.onProgressCbs) {
-				cb(this.progress);
+			this.#progress = receivedLength / totalBundleSize;
+			for (const cb of this.#onProgressCbs) {
+				cb(this.#progress);
 			}
 		}
 	}
@@ -124,7 +196,7 @@ export class DownloadableAssetBundle extends AssetBundle {
 	 * @param {OnProgressCallback} cb
 	 */
 	onProgress(cb) {
-		this.onProgressCbs.add(cb);
+		this.#onProgressCbs.add(cb);
 	}
 
 	/**
@@ -140,7 +212,7 @@ export class DownloadableAssetBundle extends AssetBundle {
 	 */
 	async hasAsset(uuid) {
 		await this.waitForHeader();
-		const range = this.assetRanges.get(uuid);
+		const range = this.#assetRanges.get(uuid);
 		return !!range;
 	}
 
@@ -150,7 +222,7 @@ export class DownloadableAssetBundle extends AssetBundle {
 	 */
 	async waitForAssetAvailable(uuid) {
 		await this.waitForHeader();
-		const range = this.assetRanges.get(uuid);
+		const range = this.#assetRanges.get(uuid);
 		if (!range) return false;
 
 		await range.waitForAvailable();
@@ -164,10 +236,10 @@ export class DownloadableAssetBundle extends AssetBundle {
 		const exists = await this.waitForAssetAvailable(uuid);
 		if (!exists) return null;
 
-		const range = this.assetRanges.get(uuid);
+		const range = this.#assetRanges.get(uuid);
 		if (!range) throw new Error("Assertion failed, asset range does not exist");
-		if (!this.downloadBuffer) throw new Error("Assertion failed, downloadbuffer is null");
-		const buffer = this.downloadBuffer.slice(range.byteStart, range.byteEnd);
+		if (!this.#downloadBuffer) throw new Error("Assertion failed, downloadbuffer is null");
+		const buffer = this.#downloadBuffer.slice(range.byteStart, range.byteEnd);
 		const type = range.typeUuid;
 		return { buffer, type };
 	}

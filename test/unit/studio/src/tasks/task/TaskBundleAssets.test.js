@@ -115,7 +115,16 @@ async function basicBundleChecks(bundleBuffer, {
 	assertEquals(bundleBuffer.byteLength, totalByteLength);
 	const decomposer = new BinaryDecomposer(bundleBuffer);
 
-	const actualAssetCount = decomposer.getUint32();
+	const magic = decomposer.getUint32();
+	assertEquals(magic, 0x62734172);
+
+	const version = decomposer.getUint32();
+	assertEquals(version, 1);
+
+	const totalLength = Number(decomposer.getBigUint64());
+	assertEquals(totalLength, totalByteLength);
+
+	const actualAssetCount = Number(decomposer.getBigUint64());
 	assertEquals(actualAssetCount, assetCount);
 
 	if (assetChecks) {
@@ -125,7 +134,7 @@ async function basicBundleChecks(bundleBuffer, {
 		const assetTypeUuid = decomposer.getUuid();
 		assertEquals(assetTypeUuid, assetChecks.assetTypeUuid);
 
-		const assetLength = decomposer.getUint32();
+		const assetLength = Number(decomposer.getBigUint64());
 		assertEquals(assetLength, assetChecks.assetLength);
 
 		const assetData = new Uint8Array(bundleBuffer, decomposer.cursor, assetLength);
@@ -169,9 +178,14 @@ Deno.test({
 			assertEquals(result, {
 				touchedPaths: [["out.rbundle"]],
 			});
-			const outFile = await fileSystem.readFile(["out.rbundle"]);
-			const outBuffer = await outFile.arrayBuffer();
-			assertEquals(outBuffer.byteLength, 4);
+			await basicFileSystemBundleChecks({
+				fileSystem,
+				bundleChecks: {
+					totalByteLength: 24,
+					assetCount: 0,
+					assetChecks: null,
+				},
+			});
 		} finally {
 			cleanup();
 		}
@@ -191,7 +205,7 @@ Deno.test({
 			await basicFileSystemBundleChecks({
 				fileSystem,
 				bundleChecks: {
-					totalByteLength: 44,
+					totalByteLength: 68,
 					assetCount: 1,
 				},
 			});
@@ -224,7 +238,7 @@ Deno.test({
 			await basicFileSystemBundleChecks({
 				fileSystem,
 				bundleChecks: {
-					totalByteLength: 80,
+					totalByteLength: 108,
 					assetCount: 2,
 					assetChecks: null,
 				},
@@ -249,7 +263,7 @@ Deno.test({
 			await basicFileSystemBundleChecks({
 				fileSystem,
 				bundleChecks: {
-					totalByteLength: 44,
+					totalByteLength: 68,
 					assetCount: 1,
 				},
 			});
@@ -273,7 +287,7 @@ Deno.test({
 			await basicFileSystemBundleChecks({
 				fileSystem,
 				bundleChecks: {
-					totalByteLength: 44,
+					totalByteLength: 68,
 					assetCount: 1,
 				},
 			});
@@ -295,7 +309,7 @@ Deno.test({
 			await basicFileSystemBundleChecks({
 				fileSystem,
 				bundleChecks: {
-					totalByteLength: 40,
+					totalByteLength: 64,
 					assetCount: 1,
 					assetChecks: {
 						assetUuid: BASIC_ASSET_UUID,
@@ -339,7 +353,7 @@ Deno.test({
 			assertInstanceOf(result.writeAssets[0].fileData, ArrayBuffer);
 
 			await basicBundleChecks(result.writeAssets[0].fileData, {
-				totalByteLength: 80,
+				totalByteLength: 108,
 				assetCount: 2,
 				assetChecks: null,
 			});
