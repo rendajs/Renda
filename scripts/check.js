@@ -4,6 +4,7 @@ await dev({
 	needsTypes: true,
 	needsTypesSync: true,
 	needsDependencies: true,
+	needsDevDependencies: true,
 });
 
 const command = new Deno.Command(Deno.execPath(), {
