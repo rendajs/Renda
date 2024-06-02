@@ -111,7 +111,7 @@ export async function dev({
 				// required for during development, can be skipped with ci
 				{
 					type: "downloadNpmPackage",
-					package: "typescript@5.0.2",
+					package: "typescript@5.4.5",
 					ignore: !needsDevDependencies,
 				},
 
