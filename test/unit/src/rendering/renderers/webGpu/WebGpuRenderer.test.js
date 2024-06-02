@@ -157,7 +157,8 @@ Deno.test({
 			assertEquals(writeBufferSpy.calls[0].args[0].label, "viewUniforms-chunk0");
 			const viewUniformsBuffer = writeBufferSpy.calls[0].args[2];
 			assertInstanceOf(viewUniformsBuffer, ArrayBuffer);
-			const view = new DataView(viewUniformsBuffer);
+			const castViewUniformsBuffer = /** @type {ArrayBuffer} */ (viewUniformsBuffer);
+			const view = new DataView(castViewUniformsBuffer);
 
 			const screenWidth = view.getFloat32(0, true);
 			assertEquals(screenWidth, 128);
@@ -232,7 +233,8 @@ Deno.test({
 			assertEquals(writeBufferSpy.calls[3].args[0].label, "objectUniforms-chunk0");
 			const viewUniformsBuffer = writeBufferSpy.calls[3].args[2];
 			assertInstanceOf(viewUniformsBuffer, ArrayBuffer);
-			const view = new DataView(viewUniformsBuffer);
+			const castViewUniformsBuffer = /** @type {ArrayBuffer} */ (viewUniformsBuffer);
+			const view = new DataView(castViewUniformsBuffer);
 
 			const expectedViewMatrix = cam.worldMatrix.inverse();
 			const expectedViewProjectionMatrix = Mat4.multiplyMatrices(expectedViewMatrix, camComponent.projectionMatrix);

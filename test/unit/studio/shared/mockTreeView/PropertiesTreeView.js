@@ -6,18 +6,11 @@ export class PropertiesTreeView extends TreeView {
 	constructor() {
 		super();
 
-		/** @type {import("./TreeView.js").TreeViewSpy} */
-		const superSpy = this.spy;
-
 		const generateFromSerializableStructureSpy = spy(this, "generateFromSerializableStructure");
 
-		const newSpy = {
-			...superSpy,
+		this.propertiesTreeViewSpy = {
 			generateFromSerializableStructureSpy,
 		};
-
-		/** @type {typeof newSpy} */
-		this.spy = newSpy;
 	}
 
 	addCollapsable() {
