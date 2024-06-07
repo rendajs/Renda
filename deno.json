@@ -13,10 +13,10 @@
 		"dev": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net scripts/dev.js",
 		"lint": "deno run --allow-env --allow-read --allow-write --allow-sys --allow-run=git scripts/lint.js",
 		"check": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net scripts/check.js",
-		"test": "deno run --allow-run --allow-read --allow-write --allow-env --allow-net scripts/test.js",
-		"build-engine": "deno run --allow-read --allow-write --allow-net --allow-env --allow-ffi scripts/buildEngine.js",
+		"test": "deno run -A scripts/test.js",
+		"build-engine": "deno run -A scripts/buildEngine.js",
 		"build-studio": "deno run -A scripts/buildStudio.js",
-		"build-npm-package": "deno run --allow-read --allow-write --allow-ffi --allow-env scripts/buildNpmPackage.js",
-		"build-jsr-package": "deno run --allow-read --allow-write --allow-ffi --allow-env scripts/buildJsrPackage.js"
+		"build-npm-package": "deno run -A scripts/buildNpmPackage.js",
+		"build-jsr-package": "deno run -A scripts/buildJsrPackage.js"
 	}
 }
