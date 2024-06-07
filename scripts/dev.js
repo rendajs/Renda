@@ -104,38 +104,27 @@ export async function dev({
 	}
 
 	if (needsDependencies || needsDevDependencies) {
-		const { dev } = await import("https://deno.land/x/dev@v0.2.0/mod.js");
+		const { downloadNpmPackage, esmify, addTsNocheck } = await import("https://deno.land/x/dev@v0.4.0/mod.js");
 
-		await dev({
-			actions: [
-				// required for during development, can be skipped with ci
-				{
-					type: "downloadNpmPackage",
-					package: "typescript@5.4.5",
-					ignore: !needsDevDependencies,
-				},
+		if (needsDevDependencies) {
+			await downloadNpmPackage({
+				package: "typescript@5.4.5",
+			});
+		}
 
-				// studio dependencies
-				{
-					type: "downloadNpmPackage",
-					package: "rollup@4.18.0",
-				},
-				{
-					type: "downloadNpmPackage",
-					package: "rollup-plugin-resolve-url-objects@0.0.4",
-					downloadDependencies: true,
-				},
-				{
-					type: "esmify",
-					entryPointPath: "npm_packages/rollup/4.18.0/dist/rollup.browser.js",
-					outputPath: "studio/deps/rollup.browser.js",
-				},
-				{
-					type: "esmify",
-					entryPointPath: "npm_packages/rollup-plugin-resolve-url-objects/0.0.4/main.js",
-					outputPath: "studio/deps/rollup-plugin-resolve-url-objects.js",
-				},
-			],
+		await downloadNpmPackage({
+			package: "@rollup/browser@4.18.0",
+		});
+		await addTsNocheck({
+			path: "npm_packages/@rollup/browser/4.18.0"
+		})
+		await downloadNpmPackage({
+			package: "rollup-plugin-resolve-url-objects@0.0.4",
+			downloadDependencies: true,
+		});
+		await esmify({
+			entryPointPath: "npm_packages/rollup-plugin-resolve-url-objects/0.0.4/main.js",
+			outFile: "studio/deps/rollup-plugin-resolve-url-objects.js",
 		});
 	}
 
