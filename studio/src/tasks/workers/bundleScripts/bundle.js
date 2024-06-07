@@ -2,7 +2,7 @@ import transpiledRollup from "../../../../deps/rollup.browser.js";
 import { resolvePlugin } from "./resolvePlugin.js";
 import resolveUrlObjects from "../../../../deps/rollup-plugin-resolve-url-objects.js";
 
-const rollup = /** @type {import("rollup")} */ (transpiledRollup);
+const rollup = /** @type {import("$rollup")} */ (transpiledRollup);
 
 /**
  * @typedef BundleOptions

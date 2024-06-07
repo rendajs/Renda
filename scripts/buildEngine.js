@@ -1,6 +1,6 @@
 import * as path from "std/path/mod.ts";
 import * as fs from "std/fs/mod.ts";
-import { rollup } from "rollup";
+import { rollup } from "$rollup";
 import cleanup from "rollup-plugin-cleanup";
 import jscc from "rollup-plugin-jscc";
 import { overrideDefines } from "./shared/overrideDefinesPlugin.js";
@@ -37,7 +37,7 @@ async function createBundle() {
 	return bundle;
 }
 
-/** @type {import("rollup").OutputOptions} */
+/** @type {import("$rollup").OutputOptions} */
 const outputOptions = {
 	dir: "dist/",
 	format: "esm",

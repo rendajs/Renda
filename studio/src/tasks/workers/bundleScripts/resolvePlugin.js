@@ -22,13 +22,13 @@ const scriptTypes = [
  * @param {GetScriptContentFn} options.getScriptContentFn
  * @param {string} options.servicesSource The generated code that will be placed
  * in the file that a user can import via "renda:services".
- * @return {import("rollup").Plugin}
+ * @return {import("$rollup").Plugin}
  */
 export function resolvePlugin({ getScriptContentFn, servicesSource }) {
 	return {
 		name: "studio-resolve-scripts",
 		resolveId(source, importer, opts) {
-			const castThis = /** @type {import("rollup").PluginContext} */ (/** @type {unknown} */ (this));
+			const castThis = /** @type {import("$rollup").PluginContext} */ (/** @type {unknown} */ (this));
 			let importerInfo = null;
 			if (importer) {
 				importerInfo = castThis.getModuleInfo(importer);
@@ -76,7 +76,7 @@ export function resolvePlugin({ getScriptContentFn, servicesSource }) {
 			};
 		},
 		async load(id) {
-			const castThis = /** @type {import("rollup").PluginContext} */ (/** @type {unknown} */ (this));
+			const castThis = /** @type {import("$rollup").PluginContext} */ (/** @type {unknown} */ (this));
 			const moduleInfo = castThis.getModuleInfo(id);
 			/** @type {ScriptType?} */
 			const scriptType = moduleInfo?.meta?.studioResolve?.scriptType ?? null;

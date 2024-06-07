@@ -5,7 +5,7 @@ const nameCache = {};
 /**
  * A rollup plugin for minifying builds.
  * @param {import("terser").MinifyOptions} minifyOptions
- * @returns {import("rollup").Plugin}
+ * @returns {import("$rollup").Plugin}
  */
 export function rollupTerserPlugin(minifyOptions = {}) {
 	return {

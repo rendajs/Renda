@@ -118,7 +118,7 @@ export async function dev({
 				// studio dependencies
 				{
 					type: "downloadNpmPackage",
-					package: "rollup@2.60.0",
+					package: "rollup@4.18.0",
 				},
 				{
 					type: "downloadNpmPackage",
@@ -127,7 +127,7 @@ export async function dev({
 				},
 				{
 					type: "esmify",
-					entryPointPath: "npm_packages/rollup/2.60.0/dist/rollup.browser.js",
+					entryPointPath: "npm_packages/rollup/4.18.0/dist/rollup.browser.js",
 					outputPath: "studio/deps/rollup.browser.js",
 				},
 				{
