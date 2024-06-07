@@ -181,11 +181,13 @@ export class ArrayGui {
 		const valueArray = [];
 		for (const item of this.valueItems) {
 			let value = null;
-			const gui = /** @type {import("./propertiesTreeView/PropertiesTreeViewEntry.js").GuiInterface} */ (item.gui);
-			if (gui.getValue) {
-				value = gui.getValue(guiOpts);
+			// @ts-ignore
+			const gui = item.gui;
+			const castGui = /** @type {import("./propertiesTreeView/PropertiesTreeViewEntry.js").GuiInterface} */ (gui);
+			if (castGui.getValue) {
+				value = castGui.getValue(guiOpts);
 			} else {
-				value = gui.value;
+				value = castGui.value;
 			}
 			valueArray.push(value);
 		}
