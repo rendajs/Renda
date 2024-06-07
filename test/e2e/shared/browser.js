@@ -28,7 +28,7 @@ export async function installIfNotInstalled() {
 	// Ideally we would use the revision bundled with puppeteer,
 	// but unfortunately some tests seem to be failing when we do this.
 	// This version seems to work though, so we'll roll with it.
-	const revision = "1235267";
+	const revision = "1287751";
 	let revisionInfo = fetcher.revisionInfo(revision);
 	if (!revisionInfo.local) {
 		console.log(`Downloading chromium ${revision}...`);
