@@ -116,8 +116,8 @@ export async function dev({
 			package: "@rollup/browser@4.18.0",
 		});
 		await addTsNocheck({
-			path: "npm_packages/@rollup/browser/4.18.0"
-		})
+			path: "npm_packages/@rollup/browser/4.18.0",
+		});
 		await downloadNpmPackage({
 			package: "rollup-plugin-resolve-url-objects@0.0.4",
 			downloadDependencies: true,
