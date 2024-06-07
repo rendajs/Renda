@@ -28,7 +28,13 @@ export async function installIfNotInstalled() {
 	// Ideally we would use the revision bundled with puppeteer,
 	// but unfortunately some tests seem to be failing when we do this.
 	// This version seems to work though, so we'll roll with it.
-	const revision = "1287751";
+	let revision;
+	if (Deno.build.os == "windows" || Deno.build.os == "darwin") {
+		revision = "1287751";
+	} else {
+		// Linux seems to have a different snapshot, not sure why
+		revision = "1287757";
+	}
 	let revisionInfo = fetcher.revisionInfo(revision);
 	if (!revisionInfo.local) {
 		console.log(`Downloading chromium ${revision}...`);
