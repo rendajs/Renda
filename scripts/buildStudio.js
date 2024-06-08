@@ -11,6 +11,7 @@ import { buildEngineSource } from "./buildEngine.js";
 import { toHashString } from "std/crypto/mod.ts";
 import { overrideDefines } from "./shared/overrideDefinesPlugin.js";
 import { cssImportAttributesPlugin } from "./shared/rollup-css-import-attribute.js";
+import { resolveWasmUrls } from "./shared/rollup-plugin-wasm-url.js";
 
 await dev({
 	needsDependencies: true,
@@ -142,6 +143,7 @@ const bundle = await rollup({
 	plugins: [
 		overrideDefines("/studio/src/studioDefines.js", studioDefines),
 		resolveUrlObjects(),
+		resolveWasmUrls(),
 		rebaseCssUrl({
 			outputPath,
 		}),
@@ -164,9 +166,7 @@ const entryPointPaths = new Map();
 /** @type {string[]} */
 const createdChunkFiles = [];
 for (const chunkOrAsset of output) {
-	if (chunkOrAsset.type != "chunk") {
-		throw new Error("Assertion failed, unexpected type: " + chunkOrAsset.type);
-	}
+	if (chunkOrAsset.type != "chunk") continue;
 	if (chunkOrAsset.facadeModuleId) {
 		entryPointPaths.set(chunkOrAsset.facadeModuleId, chunkOrAsset.fileName);
 	}

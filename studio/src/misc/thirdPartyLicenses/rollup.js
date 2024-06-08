@@ -54,52 +54,9 @@ License: MIT
 By: Rich Harris
 Repository: rollup/plugins
 
----------------------------------------
-
-## acorn
-License: MIT
-By: Marijn Haverbeke, Ingvar Stepanyan, Adrian Heine
-Repository: https://github.com/acornjs/acorn.git
-
-> MIT License
+> The MIT License (MIT)
 >
-> Copyright (C) 2012-2022 by various contributors (see AUTHORS)
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in
-> all copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-> THE SOFTWARE.
-
----------------------------------------
-
-## acorn-import-assertions
-License: MIT
-By: Sven Sauleau
-Repository: https://github.com/xtuc/acorn-import-assertions
-
----------------------------------------
-
-## acorn-walk
-License: MIT
-By: Marijn Haverbeke, Ingvar Stepanyan, Adrian Heine
-Repository: https://github.com/acornjs/acorn.git
-
-> MIT License
->
-> Copyright (C) 2012-2020 by various contributors (see AUTHORS)
+> Copyright (c) 2019 RollupJS Plugin Contributors (https://github.com/rollup/plugins/graphs/contributors)
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
@@ -151,7 +108,8 @@ Repository: sindresorhus/binary-extensions
 
 > MIT License
 >
-> Copyright (c) 2019 Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com), Paul Miller (https://paulmillr.com)
+> Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+> Copyright (c) Paul Miller (https://paulmillr.com)
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 >
@@ -168,7 +126,7 @@ Repository: micromatch/braces
 
 > The MIT License (MIT)
 >
-> Copyright (c) 2014-2018, Jon Schlinkert.
+> Copyright (c) 2014-present, Jon Schlinkert.
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
@@ -451,7 +409,7 @@ Repository: git+https://github.com/Rich-Harris/is-reference.git
 ## locate-character
 License: MIT
 By: Rich Harris
-Repository: Rich-Harris/locate-character
+Repository: git+https://gitlab.com/Rich-Harris/locate-character.git
 
 ---------------------------------------
 
@@ -615,7 +573,7 @@ Repository: https://github.com/tapjs/signal-exit.git
 
 > The ISC License
 >
-> Copyright (c) 2015, Contributors
+> Copyright (c) 2015-2023 Benjamin Coe, Isaac Z. Schlueter, and Contributors
 >
 > Permission to use, copy, modify, and/or distribute this software
 > for any purpose with or without fee is hereby granted, provided
