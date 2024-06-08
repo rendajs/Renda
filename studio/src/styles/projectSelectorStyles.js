@@ -1,9 +1,9 @@
 // @ts-ignore
-import initialLoad from "./initialLoad.css" assert {type: "css"};
+import initialLoad from "./initialLoad.css" with {type: "css"};
 // @ts-ignore
-import variables from "./variables.css" assert {type: "css"};
+import variables from "./variables.css" with {type: "css"};
 // @ts-ignore
-import projectSelector from "../projectSelector/projectSelector.css" assert {type: "css"};
+import projectSelector from "../projectSelector/projectSelector.css" with {type: "css"};
 
 document.adoptedStyleSheets = [
 	...document.adoptedStyleSheets,

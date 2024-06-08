@@ -1,23 +1,16 @@
 import { TreeView } from "./TreeView.js";
 
 /**
- * @typedef {object} PropertiesTreeViewEntrySpyOnly
+ * @typedef {object} PropertiesTreeViewEntrySpy
  * @property {unknown[][]} setValueCalls
  * @property {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryOptions} constructorOptions
- */
-/**
- * @typedef {import("./TreeView.js").TreeViewSpy & PropertiesTreeViewEntrySpyOnly} PropertiesTreeViewEntrySpy
  */
 
 /**
  * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").GuiTypeInstances} T
- * @typedef {object} PropertiesTreeViewEntryMockObjectOnly
+ * @typedef {object} PropertiesTreeViewEntryMockObject
  * @property {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").PropertiesTreeViewEntryChangeCallback<import("../../../../../studio/src/ui/propertiesTreeView/types.ts").GetValueType<T>>} fireOnValueChangeCbs
  * @property {(value: unknown) => void} setGetValueReturn
- */
-/**
- * @template {import("../../../../../studio/src/ui/propertiesTreeView/types.ts").GuiTypeInstances} T
- * @typedef {import("./TreeView.js").TreeViewMockObject & PropertiesTreeViewEntryMockObjectOnly<T>} PropertiesTreeViewEntryMockObject
  */
 
 /**
@@ -33,20 +26,14 @@ export class PropertiesTreeViewEntry extends TreeView {
 	constructor(opts) {
 		super();
 
-		/** @type {import("./TreeView.js").TreeViewSpy} */
-		const superSpy = this.spy;
 		/** @type {PropertiesTreeViewEntrySpy} */
-		this.spy = {
-			...superSpy,
+		this.propertiesTreeViewEntrySpy = {
 			setValueCalls: [],
 			constructorOptions: opts,
 		};
 
-		/** @type {import("./TreeView.js").TreeViewMockObject} */
-		const superMock = this.mock;
 		/** @type {PropertiesTreeViewEntryMockObject<T>} */
-		this.mock = {
-			...superMock,
+		this.propertiesTreeViewEntryMock = {
 			/**
 			 * @param {any} event
 			 */
@@ -85,7 +72,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	 * @param {unknown[]} args
 	 */
 	setValue(...args) {
-		this.spy.setValueCalls.push(args);
+		this.propertiesTreeViewEntrySpy.setValueCalls.push(args);
 	}
 
 	get value() {

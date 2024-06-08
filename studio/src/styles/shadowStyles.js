@@ -6,10 +6,10 @@
 
 // @ts-nocheck
 
-import contentWindowHistorySheet from "../windowManagement/contentWindows/ContentWindowHistory.css" assert {type: "css"};
+import contentWindowHistorySheet from "../windowManagement/contentWindows/ContentWindowHistory.css" with {type: "css"};
 export {contentWindowHistorySheet};
 
-import contentWindowEntityEditorSheet from "../windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.css" assert {type: "css"};
+import contentWindowEntityEditorSheet from "../windowManagement/contentWindows/ContentWindowEntityEditor/ContentWindowEntityEditor.css" with {type: "css"};
 export {contentWindowEntityEditorSheet};
 
 // HEADS UP: When adding a new import to this file,

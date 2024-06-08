@@ -1,7 +1,7 @@
 /**
  * @param {string} definesFilePath
  * @param {Object<string, unknown>} defines
- * @returns {import("rollup").Plugin}
+ * @returns {import("$rollup").Plugin}
  */
 export function overrideDefines(definesFilePath, defines) {
 	return {

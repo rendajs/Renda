@@ -161,7 +161,7 @@ Deno.test({
 			const expectedStructure = expectedStructures[i];
 			const child = /** @type {import("../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} */ (mapListUi.treeView.children[i]);
 			const childTreeView = castTreeView(child);
-			const generateSpy = childTreeView.spy.generateFromSerializableStructureSpy;
+			const generateSpy = childTreeView.propertiesTreeViewSpy.generateFromSerializableStructureSpy;
 			assertSpyCalls(generateSpy, 1);
 			assertSpyCall(generateSpy, 0, {
 				args: [expectedStructure],
