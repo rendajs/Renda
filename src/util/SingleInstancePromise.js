@@ -8,8 +8,24 @@ export class SingleInstancePromise {
 	/**
 	 * @typedef QueueEntry
 	 * @property {(result: TReturn) => void} resolve
+	 * @property {(result: unknown) => void} reject
 	 * @property {TArgs} args
 	 */
+
+	#promiseFn;
+
+	#once;
+	get once() {
+		return this.#once;
+	}
+
+	/** @type {QueueEntry[]} */
+	#queue = [];
+	#isEmptyingQueue = false;
+	/** @type {{resolved: boolean, result: TReturn} | undefined} */
+	#onceReturnValue = undefined;
+	/** @type {Set<() => void>} */
+	#onFinishCbs = new Set();
 
 	/**
 	 * @param {TFunc} promiseFn
@@ -20,17 +36,10 @@ export class SingleInstancePromise {
 	constructor(promiseFn, {
 		once = false,
 	} = {}) {
-		this.once = once;
-		this.promiseFn = promiseFn;
+		this.#once = once;
+		this.#promiseFn = promiseFn;
 
-		/** @type {QueueEntry[]} */
-		this._queue = [];
-		this._isEmptyingQueue = false;
 		this.hasRun = false;
-		/** @type {TReturn | undefined} */
-		this._onceReturnValue = undefined;
-		/** @type {Set<() => void>} */
-		this._onFinishCbs = new Set();
 	}
 
 	/**
@@ -42,12 +51,16 @@ export class SingleInstancePromise {
 	 * @returns {Promise<TReturn>}
 	 */
 	async run(...args) {
-		if (this.hasRun && this.once) {
-			return /** @type {TReturn} */ (this._onceReturnValue);
+		if (this.hasRun && this.#once && this.#onceReturnValue) {
+			if (this.#onceReturnValue.resolved) {
+				return /** @type {TReturn} */ (this.#onceReturnValue);
+			} else {
+				throw this.#onceReturnValue.result;
+			}
 		}
 
 		/** @type {Promise<TReturn>} */
-		const myPromise = new Promise((resolve) => this._queue.push({ resolve, args }));
+		const myPromise = new Promise((resolve, reject) => this.#queue.push({ resolve, reject, args }));
 		this._emptyQueue();
 		return await myPromise;
 	}
@@ -56,37 +69,55 @@ export class SingleInstancePromise {
 	 * @private
 	 */
 	async _emptyQueue() {
-		if (this._isEmptyingQueue) return;
-		this._isEmptyingQueue = true;
+		if (this.#isEmptyingQueue) return;
+		this.#isEmptyingQueue = true;
 
-		while (this._queue.length > 0) {
-			if (this.once && this.hasRun) {
-				const returnValue = /** @type {TReturn} */ (this._onceReturnValue);
-				this._queue.forEach((entry) => entry.resolve(returnValue));
-				this._queue = [];
+		while (this.#queue.length > 0) {
+			if (this.#once && this.hasRun && this.#onceReturnValue) {
+				if (this.#onceReturnValue.resolved) {
+					const returnValue = /** @type {TReturn} */ (this.#onceReturnValue.result);
+					this.#queue.forEach((entry) => entry.resolve(returnValue));
+				} else {
+					const error = this.#onceReturnValue.result;
+					this.#queue.forEach((entry) => entry.reject(error));
+				}
+				this.#queue = [];
 				break;
 			}
-			const queueCopy = this._queue;
-			this._queue = [];
+			const queueCopy = this.#queue;
+			this.#queue = [];
 
 			const lastEntry = /** @type {QueueEntry} */ (queueCopy.at(-1));
 
-			this._isEmptyingQueue = true;
-			const result = await this.promiseFn(...lastEntry.args);
-			this._isEmptyingQueue = false;
+			this.#isEmptyingQueue = true;
+			let resolved = false;
+			let result;
+			try {
+				result = await this.#promiseFn(...lastEntry.args);
+				resolved = true;
+			} catch (e) {
+				result = e;
+			}
+			this.#isEmptyingQueue = false;
 			this.hasRun = true;
-			this._onFinishCbs.forEach((cb) => cb());
-			this._onFinishCbs.clear();
+			this.#onFinishCbs.forEach((cb) => cb());
+			this.#onFinishCbs.clear();
 
-			if (this.once) {
-				this._onceReturnValue = result;
+			if (this.#once) {
+				this.#onceReturnValue = { resolved, result };
 			}
 
-			for (const { resolve } of queueCopy) {
-				resolve(result);
+			if (resolved) {
+				for (const { resolve } of queueCopy) {
+					resolve(result);
+				}
+			} else {
+				for (const { reject } of queueCopy) {
+					reject(result);
+				}
 			}
 		}
-		this._isEmptyingQueue = false;
+		this.#isEmptyingQueue = false;
 	}
 
 	/**
@@ -111,11 +142,11 @@ export class SingleInstancePromise {
 	 * @returns {Promise<void>}
 	 */
 	async waitForFinish() {
-		if (this.once) {
+		if (this.#once) {
 			throw new Error("waitForFinish() would stay pending forever when once has been set, use waitForFinishOnce() instead.");
 		}
 		/** @type {Promise<void>} */
-		const promise = new Promise((r) => this._onFinishCbs.add(r));
+		const promise = new Promise((r) => this.#onFinishCbs.add(r));
 		await promise;
 	}
 
@@ -146,7 +177,7 @@ export class SingleInstancePromise {
 	async waitForFinishOnce() {
 		if (this.hasRun) return;
 		/** @type {Promise<void>} */
-		const promise = new Promise((r) => this._onFinishCbs.add(r));
+		const promise = new Promise((r) => this.#onFinishCbs.add(r));
 		await promise;
 	}
 
@@ -177,9 +208,9 @@ export class SingleInstancePromise {
 	 * ```
 	 */
 	async waitForFinishIfRunning() {
-		while (this._isEmptyingQueue) {
+		while (this.#isEmptyingQueue) {
 			/** @type {Promise<void>} */
-			const promise = new Promise((r) => this._onFinishCbs.add(r));
+			const promise = new Promise((r) => this.#onFinishCbs.add(r));
 			await promise;
 		}
 	}
