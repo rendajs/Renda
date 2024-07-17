@@ -99,7 +99,7 @@ Deno.test({
 				},
 				{
 					name: "clearColor",
-					args: [0, 0, 0, 1],
+					args: [0, 0, 0, 0],
 				},
 				{
 					name: "clear",
