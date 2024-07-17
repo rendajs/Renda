@@ -182,7 +182,7 @@ export class WebGlRenderer extends Renderer {
 		const viewProjectionMatrix = Mat4.multiplyMatrices(viewMatrix, camera.projectionMatrix);
 
 		gl.viewport(0, this.#canvas.height - domTarget.height, domTarget.width, domTarget.height);
-		gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		gl.clearColor(0.0, 0.0, 0.0, 0.0);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LESS);
