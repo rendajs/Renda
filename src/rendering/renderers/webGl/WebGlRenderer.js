@@ -71,6 +71,8 @@ export class WebGlRenderer extends Renderer {
 	/** @type {number?} */
 	#currentBlendDstAlpha = null;
 
+	#depthMaskEnabled = true;
+
 	/**
 	 * This is a helper type for registering callbacks on CustomMaterialData and should not be called on the renderer directly.
 	 * Calling this directly will lead to runtime errors.
@@ -183,6 +185,7 @@ export class WebGlRenderer extends Renderer {
 
 		gl.viewport(0, this.#canvas.height - domTarget.height, domTarget.width, domTarget.height);
 		gl.clearColor(0.0, 0.0, 0.0, 0.0);
+		this.#setDepthMaskEnabled(true);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LESS);
@@ -253,6 +256,8 @@ export class WebGlRenderer extends Renderer {
 				if (viewUniformLocations.viewProjectionMatrix) {
 					gl.uniformMatrix4fv(viewUniformLocations.viewProjectionMatrix, false, new Float32Array(viewProjectionMatrix.getFlatArrayBuffer("f32").buffer));
 				}
+
+				this.#setDepthMaskEnabled(materialConfig.depthWriteEnabled);
 
 				for (const [material, meshRenderDatas] of materialRenderData.materials) {
 					const cullModeData = material.getMappedPropertyForMapType(WebGlMaterialMapType, "cullMode");
@@ -481,5 +486,15 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 				gl.blendFuncSeparate(srcRgb, dstRgb, srcAlpha, dstAlpha);
 			}
 		}
+	}
+
+	/**
+	 * @param {boolean} depthMaskEnabled
+	 */
+	#setDepthMaskEnabled(depthMaskEnabled) {
+		if (depthMaskEnabled == this.#depthMaskEnabled) return;
+		this.#depthMaskEnabled = depthMaskEnabled;
+		const gl = this.getWebGlContext();
+		gl.depthMask(depthMaskEnabled);
 	}
 }

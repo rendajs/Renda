@@ -576,3 +576,33 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Materials with depthWriteEnabled false disable the depth mask",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+
+			const vertexState = createVertexState();
+
+			const { material, materialConfig } = createMaterial();
+			materialConfig.depthWriteEnabled = false;
+			createCubeEntity({ scene, material, vertexState });
+
+			domTarget.render(camComponent);
+			assertLogEquals(commandLog.getFilteredCommands("depthMask"), [{ name: "depthMask", args: [false] }]);
+
+			commandLog.clear();
+
+			domTarget.render(camComponent);
+			assertLogEquals(commandLog.getFilteredCommands("depthMask", "viewport", "clear"), [
+				{ name: "viewport" },
+				// The depthMask needs to be enabled otherwise the gl.clear(gl.DEPTH_BUFFER_BIT)
+				// command won't have any effect
+				{ name: "depthMask", args: [true] },
+				{ name: "clear" },
+				{ name: "depthMask", args: [false] },
+			]);
+		});
+	},
+});
