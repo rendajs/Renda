@@ -532,3 +532,47 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Materials are rendered by render order",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+
+			const vertexState = createVertexState();
+
+			const { material: materialA, materialConfig: configA } = createMaterial();
+			configA.renderOrder = 0;
+			configA.blend = {
+				srcFactor: 0,
+				dstFactor: 0,
+			};
+			createCubeEntity({ scene, material: materialA, vertexState });
+
+			const { material: materialB, materialConfig: configB } = createMaterial();
+			configB.renderOrder = 1;
+			configB.blend = {
+				srcFactor: 1,
+				dstFactor: 1,
+			};
+			createCubeEntity({ scene, material: materialB, vertexState });
+
+			domTarget.render(camComponent);
+			assertLogEquals(commandLog.getFilteredCommands("blendFuncSeparate"), [
+				{ name: "blendFuncSeparate", args: [0, 0, 0, 0] },
+				{ name: "blendFuncSeparate", args: [1, 1, 1, 1] },
+			]);
+
+			commandLog.clear();
+			// We flip the render order of the two materials to check if the two blend states get flipped.
+			configA.renderOrder = 1;
+			configB.renderOrder = 0;
+
+			domTarget.render(camComponent);
+			assertLogEquals(commandLog.getFilteredCommands("blendFuncSeparate"), [
+				// We don't expect a 1,1,1,1 command because that's already the current blend state
+				{ name: "blendFuncSeparate", args: [0, 0, 0, 0] },
+			]);
+		});
+	},
+});

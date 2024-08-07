@@ -189,18 +189,17 @@ export class WebGlRenderer extends Renderer {
 
 		/**
 		 * @typedef MaterialRenderData
-		 * @property {MeshRenderData[]} meshes
-		 * @property {import("./WebGlMaterialConfig.js").WebGlMaterialConfig} materialConfig
+		 * @property {Map<import("../../Material.js").Material, MeshRenderData[]>} materials
 		 */
 
 		/**
-		 * @typedef ProgramRenderData
-		 * @property {Map<import("../../Material.js").Material, MaterialRenderData>} materialRenderDatas
+		 * @typedef MaterialConfigRenderData
+		 * @property {Map<WebGLProgram, MaterialRenderData>} materialRenderDatas
 		 */
 
-		// Group all meshes by program and material
-		/** @type {Map<WebGLProgram, ProgramRenderData>} */
-		const programRenderDatas = new Map();
+		// Group all meshes by material config
+		/** @type {Map<import("./WebGlMaterialConfig.js").WebGlMaterialConfig, MaterialConfigRenderData>} */
+		const materialConfigRenderDatas = new Map();
 		for (const meshRenderData of meshRenderDatas) {
 			if (!meshRenderData.component.mesh || !meshRenderData.component.mesh.vertexState) continue;
 			for (const material of meshRenderData.component.materials) {
@@ -212,126 +211,121 @@ export class WebGlRenderer extends Renderer {
 
 				const program = this.#getProgram(materialConfig.vertexShader, materialConfig.fragmentShader);
 
-				let programRenderData = programRenderDatas.get(program);
+				let programRenderData = materialConfigRenderDatas.get(materialConfig);
 				if (!programRenderData) {
 					programRenderData = {
 						materialRenderDatas: new Map(),
 					};
-					programRenderDatas.set(program, programRenderData);
+					materialConfigRenderDatas.set(materialConfig, programRenderData);
 				}
 
-				let materialRenderData = programRenderData.materialRenderDatas.get(material);
+				let materialRenderData = programRenderData.materialRenderDatas.get(program);
 				if (!materialRenderData) {
 					materialRenderData = {
-						meshes: [],
-						materialConfig,
+						materials: new Map(),
 					};
-					programRenderData.materialRenderDatas.set(material, materialRenderData);
+					programRenderData.materialRenderDatas.set(program, materialRenderData);
 				}
 
-				materialRenderData.meshes.push(meshRenderData);
+				let meshes = materialRenderData.materials.get(material);
+				if (!meshes) {
+					meshes = [];
+					materialRenderData.materials.set(material, meshes);
+				}
+
+				meshes.push(meshRenderData);
 			}
 		}
 
-		// Sort meshes by program render order
-		const sortedProgramRenderDatas = Array.from(programRenderDatas.entries());
-		// TODO: Users can set the render order on the material config, but we are storing a list of programs.
-		// Essentially what we will want to do is store by program AND render order.
-		// This will make things less performant, for example, a user could have:
-		//  - a material with program A, render order 10
-		//  - a material with program B, render order 20
-		//  - a material with program A again, render order 30
-		// Essentially sandwitching program B between two draw calls with program A.
-		// But if the user has specifically requested this render order, we should respect that request.
+		// Sort material configs by render order
+		const sortedProgramRenderDatas = Array.from(materialConfigRenderDatas.entries());
+		sortedProgramRenderDatas.sort((a, b) => {
+			return a[0].renderOrder - b[0].renderOrder;
+		});
 
-		// sortedProgramRenderDatas.sort((a, b) => {
-		// 	const aConfig = a[1].materialConfig;
-		// 	const bConfig = b[1].materialConfig;
-		// 	return aConfig.renderOrder - bConfig.renderOrder;
-		// });
+		for (const [materialConfig, programRenderData] of sortedProgramRenderDatas) {
+			for (const [program, materialRenderData] of programRenderData.materialRenderDatas) {
+				gl.useProgram(program);
+				const programData = this.#getCachedProgramData(program);
+				const viewUniformLocations = programData.getViewUniformLocations(gl);
+				const modelUniformLocations = programData.getModelUniformLocations(gl);
 
-		for (const [program, programRenderData] of sortedProgramRenderDatas) {
-			gl.useProgram(program);
-
-			const programData = this.#getCachedProgramData(program);
-			const viewUniformLocations = programData.getViewUniformLocations(gl);
-			const modelUniformLocations = programData.getModelUniformLocations(gl);
-
-			if (viewUniformLocations.viewProjectionMatrix) {
-				gl.uniformMatrix4fv(viewUniformLocations.viewProjectionMatrix, false, new Float32Array(viewProjectionMatrix.getFlatArrayBuffer("f32").buffer));
-			}
-
-			for (const [material, materialRenderData] of programRenderData.materialRenderDatas) {
-				const cullModeData = material.getMappedPropertyForMapType(WebGlMaterialMapType, "cullMode");
-				const cullMode = cullModeData?.value ?? "back";
-				if (cullMode == "front") {
-					this.#setCullMode(gl.FRONT);
-				} else if (cullMode == "back") {
-					this.#setCullMode(gl.BACK);
-				} else if (cullMode == "none") {
-					this.#setCullMode(null);
+				if (viewUniformLocations.viewProjectionMatrix) {
+					gl.uniformMatrix4fv(viewUniformLocations.viewProjectionMatrix, false, new Float32Array(viewProjectionMatrix.getFlatArrayBuffer("f32").buffer));
 				}
 
-				this.#setBlendMode(materialRenderData.materialConfig.blend);
+				for (const [material, meshRenderDatas] of materialRenderData.materials) {
+					const cullModeData = material.getMappedPropertyForMapType(WebGlMaterialMapType, "cullMode");
+					const cullMode = cullModeData?.value ?? "back";
+					if (cullMode == "front") {
+						this.#setCullMode(gl.FRONT);
+					} else if (cullMode == "back") {
+						this.#setCullMode(gl.BACK);
+					} else if (cullMode == "none") {
+						this.#setCullMode(null);
+					}
 
-				for (const { mappedData, value } of material.getMappedPropertiesForMapType(WebGlMaterialMapType)) {
-					if (mappedData.mappedName == "cullMode") continue;
-					if (mappedData.mappedType == "custom") {
-						const errorExample = `const customData = new MaterialCustomData();
+					this.#setBlendMode(materialConfig.blend);
+
+					for (const { mappedData, value } of material.getMappedPropertiesForMapType(WebGlMaterialMapType)) {
+						if (mappedData.mappedName == "cullMode") continue;
+						if (mappedData.mappedType == "custom") {
+							const errorExample = `const customData = new MaterialCustomData();
 Material.setProperty("${mappedData.mappedName}", customData)`;
-						if (!value) {
-							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" expected custom data but no property was set on the material. Set one with:\n${errorExample}`);
-						}
-						if (!(value instanceof CustomMaterialData)) {
-							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" expected custom data but the property was a MaterialCustomData instance. Set custom data with:\n${errorExample}`);
-						}
-						const location = programData.getMaterialUniformLocation(gl, mappedData.mappedName);
-						if (location) {
-							value.fireCallback(/** @type {WebGlRenderer} */ (this), gl, location);
-						}
-					} else {
-						throw new Error("Not yet implemented");
-					}
-				}
-
-				for (const { component: meshComponent, worldMatrix } of materialRenderData.meshes) {
-					const mesh = meshComponent.mesh;
-					if (!mesh) continue;
-
-					if (modelUniformLocations.mvpMatrix) {
-						const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, viewProjectionMatrix);
-						gl.uniformMatrix4fv(modelUniformLocations.mvpMatrix, false, new Float32Array(mvpMatrix.getFlatArrayBuffer("f32").buffer));
-					}
-
-					const meshData = this.#getCachedMeshData(mesh);
-					const indexBufferData = meshData.getIndexBufferData();
-					if (indexBufferData) {
-						let indexFormat;
-						if (mesh.indexFormat == Mesh.IndexFormat.UINT_16) {
-							indexFormat = gl.UNSIGNED_SHORT;
-						} else if (mesh.indexFormat == Mesh.IndexFormat.UINT_32) {
-							if (!this.#uint32IndexFormatExtension) {
-								this.#uint32IndexFormatExtension = gl.getExtension("OES_element_index_uint");
+							if (!value) {
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" expected custom data but no property was set on the material. Set one with:\n${errorExample}`);
 							}
-							indexFormat = gl.UNSIGNED_INT;
+							if (!(value instanceof CustomMaterialData)) {
+								throw new Error(`Assertion failed, material property "${mappedData.mappedName}" expected custom data but the property was a MaterialCustomData instance. Set custom data with:\n${errorExample}`);
+							}
+							const location = programData.getMaterialUniformLocation(gl, mappedData.mappedName);
+							if (location) {
+								value.fireCallback(/** @type {WebGlRenderer} */ (this), gl, location);
+							}
 						} else {
-							throw new Error(`Mesh has an invalid index format: ${mesh.indexFormat}`);
+							throw new Error("Not yet implemented");
 						}
-						gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferData.buffer);
+					}
 
-						let i = 0;
-						for (const { buffer, attributes, stride } of meshData.getAttributeBufferData()) {
-							gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-							for (const { componentCount, type, normalized, offset } of attributes) {
-								gl.vertexAttribPointer(i, componentCount, type, normalized, stride, offset);
-								gl.enableVertexAttribArray(i);
-								i++;
+					for (const { component: meshComponent, worldMatrix } of meshRenderDatas) {
+						const mesh = meshComponent.mesh;
+						if (!mesh) continue;
+
+						if (modelUniformLocations.mvpMatrix) {
+							const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, viewProjectionMatrix);
+							gl.uniformMatrix4fv(modelUniformLocations.mvpMatrix, false, new Float32Array(mvpMatrix.getFlatArrayBuffer("f32").buffer));
+						}
+
+						const meshData = this.#getCachedMeshData(mesh);
+						const indexBufferData = meshData.getIndexBufferData();
+						if (indexBufferData) {
+							let indexFormat;
+							if (mesh.indexFormat == Mesh.IndexFormat.UINT_16) {
+								indexFormat = gl.UNSIGNED_SHORT;
+							} else if (mesh.indexFormat == Mesh.IndexFormat.UINT_32) {
+								if (!this.#uint32IndexFormatExtension) {
+									this.#uint32IndexFormatExtension = gl.getExtension("OES_element_index_uint");
+								}
+								indexFormat = gl.UNSIGNED_INT;
+							} else {
+								throw new Error(`Mesh has an invalid index format: ${mesh.indexFormat}`);
 							}
-						}
+							gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferData.buffer);
 
-						gl.drawElements(gl.TRIANGLES, indexBufferData.count, indexFormat, 0);
-					} else {
+							let i = 0;
+							for (const { buffer, attributes, stride } of meshData.getAttributeBufferData()) {
+								gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+								for (const { componentCount, type, normalized, offset } of attributes) {
+									gl.vertexAttribPointer(i, componentCount, type, normalized, stride, offset);
+									gl.enableVertexAttribArray(i);
+									i++;
+								}
+							}
+
+							gl.drawElements(gl.TRIANGLES, indexBufferData.count, indexFormat, 0);
+						} else {
 						// TODO
+						}
 					}
 				}
 			}
