@@ -1,5 +1,5 @@
 import { assertEquals, assertNotStrictEquals } from "std/testing/asserts.ts";
-import { Mat4, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
+import { Mat4, Quat, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
 import { assertAlmostEquals, assertVecAlmostEquals } from "../../../../src/util/asserts.js";
 
 Deno.test({
@@ -36,6 +36,16 @@ Deno.test({
 	fn() {
 		const vec4 = new Vec4([1, 2, 3, 4]);
 		const vec = new Vec4(vec4);
+
+		assertEquals(vec.toArray(), [1, 2, 3, 4]);
+	},
+});
+
+Deno.test({
+	name: "Create with Quat",
+	fn() {
+		const quat = new Quat([1, 2, 3, 4]);
+		const vec = new Vec4(quat);
 
 		assertEquals(vec.toArray(), [1, 2, 3, 4]);
 	},
@@ -150,6 +160,17 @@ Deno.test({
 		const vec4 = new Vec4([1, 2, 3, 4]);
 		const vec = new Vec4();
 		vec.set(vec4);
+
+		assertEquals(vec.toArray(), [1, 2, 3, 4]);
+	},
+});
+
+Deno.test({
+	name: "Set with Quat",
+	fn() {
+		const quat = new Quat([1, 2, 3, 4]);
+		const vec = new Vec4();
+		vec.set(quat);
 
 		assertEquals(vec.toArray(), [1, 2, 3, 4]);
 	},
