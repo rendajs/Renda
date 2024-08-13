@@ -1,15 +1,17 @@
 import { Vec2 } from "./Vec2.js";
 import { Vec3 } from "./Vec3.js";
 import { Mat4 } from "./Mat4.js";
+import { Quat } from "./Quat.js";
 
 /**
  * @typedef {() => Vec4} vec4SetEmptySignature
  * @typedef {(vec: Vec2) => Vec4} vec4SetVec2Signature
  * @typedef {(vec: Vec3) => Vec4} vec4SetVec3Signature
  * @typedef {(vec: Vec4) => Vec4} vec4SetVec4Signature
+ * @typedef {(vec: Quat) => Vec4} vec4SetQuatSignature
  * @typedef {(x?: number, y?: number, z?: number, w?: number) => Vec4} vec4SetNumNumSignature
  * @typedef {(xyzw: number[]) => Vec4} vec4SetArraySignature
- * @typedef {import("./MathTypes.js").MergeParameters<vec4SetEmptySignature | vec4SetVec2Signature | vec4SetVec3Signature | vec4SetVec4Signature | vec4SetNumNumSignature | vec4SetArraySignature>} Vec4Parameters
+ * @typedef {import("./MathTypes.js").MergeParameters<vec4SetEmptySignature | vec4SetVec2Signature | vec4SetVec3Signature | vec4SetVec4Signature | vec4SetQuatSignature | vec4SetNumNumSignature | vec4SetArraySignature>} Vec4Parameters
  */
 
 /**
@@ -73,7 +75,7 @@ export class Vec4 {
 
 		if (args.length == 1) {
 			const arg = args[0];
-			if (arg instanceof Vec4) {
+			if (arg instanceof Vec4 || arg instanceof Quat) {
 				this._x = arg.x;
 				this._y = arg.y;
 				this._z = arg.z;
