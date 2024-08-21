@@ -2,6 +2,7 @@ import { Mesh } from "../../../core/Mesh.js";
 
 export class CachedMeshBufferData {
 	#meshBuffer;
+	#vertexStateBuffer;
 	#cachedMeshData;
 
 	#bufferDirty = true;
@@ -10,10 +11,12 @@ export class CachedMeshBufferData {
 
 	/**
 	 * @param {import("../../../core/MeshAttributeBuffer.js").MeshAttributeBuffer} meshBuffer
+	 * @param {import("../../VertexStateBuffer.js").VertexStateBuffer} vertexStateBuffer
 	 * @param {import("./CachedMeshData.js").CachedMeshData} meshData
 	 */
-	constructor(meshBuffer, meshData) {
+	constructor(meshBuffer, vertexStateBuffer, meshData) {
 		this.#meshBuffer = meshBuffer;
+		this.#vertexStateBuffer = vertexStateBuffer;
 		this.#cachedMeshData = meshData;
 
 		meshBuffer.onBufferChanged(this.#onBufferChanged);
@@ -54,6 +57,7 @@ export class CachedMeshBufferData {
 		}
 
 		const attributes = [];
+		let i = 0;
 		for (const attributeSettings of this.#meshBuffer.attributeSettings) {
 			let type;
 			const normalized = false;
@@ -66,12 +70,19 @@ export class CachedMeshBufferData {
 			} else {
 				throw new Error("Mesh has an unsupported attribute format");
 			}
+			const vertexStateAttribute = this.#vertexStateBuffer.attributes[i];
+			const shaderLocation = vertexStateAttribute.shaderLocation;
+			if (shaderLocation == null || shaderLocation == "auto" || shaderLocation < 0) {
+				throw new Error("Automatic shader locations are not supported in the webgl renderer.");
+			}
 			attributes.push({
 				componentCount: attributeSettings.componentCount,
 				type,
 				normalized,
 				offset: 0, // TODO
+				shaderLocation,
 			});
+			i++;
 		}
 
 		return {

@@ -10,6 +10,7 @@ import { CachedMeshData } from "./CachedMeshData.js";
 import { MultiKeyWeakMap } from "../../../util/MultiKeyWeakMap.js";
 import { Mesh } from "../../../core/Mesh.js";
 import { CachedProgramData } from "./CachedProgramData.js";
+import { parseAttributeLocations } from "./glslParsing.js";
 
 /**
  * @extends {Renderer<WebGlRendererDomTarget>}
@@ -42,16 +43,13 @@ export class WebGlRenderer extends Renderer {
 	/** @type {WeakMap<import("../../Material.js").Material, CachedMaterialData>} */
 	#cachedMaterialData = new WeakMap();
 
-	/** @type {WeakMap<WebGLProgram, CachedProgramData>} */
-	#cachedProgramData = new WeakMap();
-
 	/** @type {WeakMap<import("../../../core/Mesh.js").Mesh, CachedMeshData>} */
 	#cachedMeshDatas = new WeakMap();
 
 	/** @type {MultiKeyWeakMap<[number, import("../../ShaderSource.js").ShaderSource], WebGLShader>} */
 	#cachedShaders = new MultiKeyWeakMap([], { allowNonObjects: true });
 
-	/** @type {MultiKeyWeakMap<[import("../../ShaderSource.js").ShaderSource, import("../../ShaderSource.js").ShaderSource], WebGLProgram>} */
+	/** @type {MultiKeyWeakMap<[import("../../ShaderSource.js").ShaderSource, import("../../ShaderSource.js").ShaderSource], CachedProgramData>} */
 	#cachedPrograms = new MultiKeyWeakMap();
 
 	/** @type {OES_element_index_uint?} */
@@ -197,7 +195,7 @@ export class WebGlRenderer extends Renderer {
 
 		/**
 		 * @typedef MaterialConfigRenderData
-		 * @property {Map<WebGLProgram, MaterialRenderData>} materialRenderDatas
+		 * @property {Map<CachedProgramData, MaterialRenderData>} materialRenderDatas
 		 */
 
 		// Group all meshes by material config
@@ -212,7 +210,7 @@ export class WebGlRenderer extends Renderer {
 				const materialConfig = materialData.getMaterialConfig();
 				if (!materialConfig || !materialConfig.vertexShader || !materialConfig.fragmentShader) continue;
 
-				const program = this.#getProgram(materialConfig.vertexShader, materialConfig.fragmentShader);
+				const program = this.#getCachedProgramData(materialConfig.vertexShader, materialConfig.fragmentShader);
 
 				let programRenderData = materialConfigRenderDatas.get(materialConfig);
 				if (!programRenderData) {
@@ -247,9 +245,8 @@ export class WebGlRenderer extends Renderer {
 		});
 
 		for (const [materialConfig, programRenderData] of sortedProgramRenderDatas) {
-			for (const [program, materialRenderData] of programRenderData.materialRenderDatas) {
-				gl.useProgram(program);
-				const programData = this.#getCachedProgramData(program);
+			for (const [programData, materialRenderData] of programRenderData.materialRenderDatas) {
+				gl.useProgram(programData.program);
 				const viewUniformLocations = programData.getViewUniformLocations(gl);
 				const modelUniformLocations = programData.getModelUniformLocations(gl);
 
@@ -295,6 +292,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 					for (const { component: meshComponent, worldMatrix } of meshRenderDatas) {
 						const mesh = meshComponent.mesh;
 						if (!mesh) continue;
+						if (!mesh.vertexState) continue;
 
 						if (modelUniformLocations.mvpMatrix) {
 							const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, viewProjectionMatrix);
@@ -317,19 +315,20 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 							}
 							gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBufferData.buffer);
 
-							let i = 0;
 							for (const { buffer, attributes, stride } of meshData.getAttributeBufferData()) {
 								gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-								for (const { componentCount, type, normalized, offset } of attributes) {
-									gl.vertexAttribPointer(i, componentCount, type, normalized, stride, offset);
-									gl.enableVertexAttribArray(i);
-									i++;
+								for (const { shaderLocation, componentCount, type, normalized, offset } of attributes) {
+									const index = programData.getAttribLocation(gl, shaderLocation);
+									if (index >= 0) {
+										gl.vertexAttribPointer(index, componentCount, type, normalized, stride, offset);
+										gl.enableVertexAttribArray(index);
+									}
 								}
 							}
 
 							gl.drawElements(gl.TRIANGLES, indexBufferData.count, indexFormat, 0);
 						} else {
-						// TODO
+							// TODO
 						}
 					}
 				}
@@ -350,18 +349,6 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 			material.onDestructor(() => {
 				// TODO: delete created WebGLPrograms
 			});
-		}
-		return data;
-	}
-
-	/**
-	 * @param {WebGLProgram} program
-	 */
-	#getCachedProgramData(program) {
-		let data = this.#cachedProgramData.get(program);
-		if (!data) {
-			data = new CachedProgramData(program);
-			this.#cachedProgramData.set(program, data);
 		}
 		return data;
 	}
@@ -405,7 +392,7 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 	 * @param {import("../../ShaderSource.js").ShaderSource} vertexShaderSource
 	 * @param {import("../../ShaderSource.js").ShaderSource} fragmentShaderSource
 	 */
-	#getProgram(vertexShaderSource, fragmentShaderSource) {
+	#getCachedProgramData(vertexShaderSource, fragmentShaderSource) {
 		const existing = this.#cachedPrograms.get([vertexShaderSource, fragmentShaderSource]);
 		if (existing) return existing;
 
@@ -415,18 +402,9 @@ Material.setProperty("${mappedData.mappedName}", customData)`;
 		const vertexShader = this.#getShader(vertexShaderSource, gl.VERTEX_SHADER);
 		const fragmentShader = this.#getShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
 
-		const program = gl.createProgram();
-		if (!program) throw new Error("Failed to create program");
-
-		gl.attachShader(program, vertexShader);
-		gl.attachShader(program, fragmentShader);
-		gl.linkProgram(program);
-		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-			throw new Error(`Failed to link shader program: ${gl.getProgramInfoLog(program)}`);
-		}
-
-		this.#cachedPrograms.set([vertexShaderSource, fragmentShaderSource], program);
-		return program;
+		const cachedProgramData = new CachedProgramData(gl, vertexShaderSource, fragmentShaderSource, vertexShader, fragmentShader);
+		this.#cachedPrograms.set([vertexShaderSource, fragmentShaderSource], cachedProgramData);
+		return cachedProgramData;
 	}
 
 	/**
