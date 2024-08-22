@@ -93,8 +93,8 @@ jobs:
         with:
           files: .coverage/cov.lcov
           flags: unittests
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          commit_parent: ${{ github.event.pull_request.head.sha }}
 
   minified-tests:
     runs-on: ubuntu-latest
