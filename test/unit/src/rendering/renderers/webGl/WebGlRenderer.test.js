@@ -623,3 +623,63 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Meshes without vertex state are not rendered",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+
+			const { material } = createMaterial();
+			createCubeEntity({ scene, material, vertexState: null });
+
+			domTarget.render(camComponent);
+
+			commandLog.assertLogEquals([
+				{
+					name: "viewport",
+					args: [0, 0, 300, 150],
+				},
+				{
+					name: "clearColor",
+					args: [0, 0, 0, 0],
+				},
+				{
+					name: "clear",
+					args: [0],
+				},
+				{
+					name: "enable",
+					args: ["GL_DEPTH_TEST"],
+				},
+				{
+					name: "depthFunc",
+					args: ["GL_LESS"],
+				},
+			]);
+		});
+	},
+});
+
+Deno.test({
+	name: "An error is thrown when a shader contains duplicate location tags",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent } = await basicRendererSetup();
+
+			const { material } = createMaterial({
+				vertexShader: `
+// @location(0)
+attribute vec3 pos;
+// @location(0)
+attribute vec3 color;
+				`,
+			});
+			createCubeEntity({ scene, material, vertexState: createVertexState() });
+
+			await assertRejects(async () => {
+				domTarget.render(camComponent);
+			}, Error, "Shader contains multiple attributes tagged with @location(0).");
+		});
+	},
+});
