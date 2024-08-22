@@ -4,7 +4,7 @@ import { createWebGlRenderingContext } from "./WebGlRenderingContext.js";
 const oldDocument = globalThis.document;
 let installed = false;
 
-/** @type {{canvas: HTMLCanvasElement, context: WebGLRenderingContext, commandLog: import("./WebGlCommandLog.js").WebGlCommandLog}[]} */
+/** @type {({canvas: HTMLCanvasElement} & ReturnType<typeof createWebGlRenderingContext>)[]} */
 let createdContexts = [];
 
 export function installWebGlMocks() {
@@ -34,9 +34,9 @@ export function installWebGlMocks() {
 					contextRequested = true;
 					if (contextId == "webgl") {
 						if (!webGlContextSupported) return null;
-						const { context, commandLog } = createWebGlRenderingContext();
-						createdContexts.push({ canvas, context, commandLog });
-						return context;
+						const context = createWebGlRenderingContext();
+						createdContexts.push({ canvas, ...context });
+						return context.context;
 					} else if (contextId == "2d") {
 						if (!context2dSupported) return null;
 						return create2dRenderingContext(canvas);
