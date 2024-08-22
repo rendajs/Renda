@@ -39,8 +39,7 @@ export function parseAttributeLocations(shaderSource) {
 	// whitespace
 	attributesRegex += "\\s*";
 	// SEMICOLON
-	attributesRegex += ";"
-
+	attributesRegex += ";";
 
 	/** @type {ParsedAttributeLocation[]} */
 	const parsedLocations = [];

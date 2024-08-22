@@ -203,13 +203,13 @@ Deno.test({
 					attribute vec3 pos;
 					// @location(1)
 					attribute vec2 uv;
-				`
+				`,
 			});
 
 			setAttributeLocations({
 				pos: 0,
 				uv: 1,
-			})
+			});
 
 			const { mesh } = createCubeEntity({ scene, vertexState, material });
 

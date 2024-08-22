@@ -38,7 +38,7 @@ export class CachedProgramData {
 		if (!program) throw new Error("Failed to create program");
 
 		const taggedAttributeLocations = parseTaggedAttributeLocations(vertexShaderSource.source);
-		for (const {identifier, location} of taggedAttributeLocations) {
+		for (const { identifier, location } of taggedAttributeLocations) {
 			if (this.#taggedAttributeLocations.has(location)) {
 				throw new Error(`Shader contains multiple attributes tagged with @location(${location})`);
 			}

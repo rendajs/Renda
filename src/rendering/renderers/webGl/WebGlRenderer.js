@@ -10,7 +10,6 @@ import { CachedMeshData } from "./CachedMeshData.js";
 import { MultiKeyWeakMap } from "../../../util/MultiKeyWeakMap.js";
 import { Mesh } from "../../../core/Mesh.js";
 import { CachedProgramData } from "./CachedProgramData.js";
-import { parseAttributeLocations } from "./glslParsing.js";
 
 /**
  * @extends {Renderer<WebGlRendererDomTarget>}

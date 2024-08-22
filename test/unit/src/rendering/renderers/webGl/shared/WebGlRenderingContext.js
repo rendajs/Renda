@@ -20,7 +20,7 @@ export function createWebGlRenderingContext() {
 				/** @type {WebGLRenderingContext["getAttribLocation"]} */
 				const fn = (program, name) => {
 					return attributeLocations.get(name) ?? -1;
-				}
+				};
 				return fn;
 			}
 
@@ -40,10 +40,10 @@ export function createWebGlRenderingContext() {
 		context: /** @type {WebGLRenderingContext} */ (proxy),
 		commandLog,
 		/**
-		 * @param {Object.<string, number>} locations
+		 * @param {Object<string, number>} locations
 		 */
 		setAttributeLocations(locations) {
 			attributeLocations = new Map(Object.entries(locations));
-		}
+		},
 	};
 }
