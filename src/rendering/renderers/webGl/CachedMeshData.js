@@ -21,12 +21,19 @@ export class CachedMeshData {
 	constructor(mesh, renderer) {
 		this.#mesh = mesh;
 		this.#renderer = renderer;
+		const vertexState = mesh.vertexState;
+		if (!vertexState) {
+			throw new Error("Assertion failed, mesh has no vertex state");
+		}
 
 		// todo: remove old bufferdata when the list of buffers changes
 		this.#buffers = [];
+		let i = 0;
 		for (const meshBuffer of mesh.getAttributeBuffers(false)) {
-			const bufferData = new CachedMeshBufferData(meshBuffer, this);
+			const vertexStateBuffer = vertexState.buffers[i];
+			const bufferData = new CachedMeshBufferData(meshBuffer, vertexStateBuffer, this);
 			this.#buffers.push(bufferData);
+			i++;
 		}
 
 		this.createIndexGpuBuffer();

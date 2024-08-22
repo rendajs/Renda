@@ -15,22 +15,24 @@ async function basicRendererSetup() {
 	const scene = new Entity();
 	scene.add(cam);
 
-	const { commandLog, canvas } = assertHasSingleContext();
+	const context = assertHasSingleContext();
 
-	return { renderer, domTarget, camComponent, scene, commandLog, canvas };
+	return { renderer, domTarget, camComponent, scene, ...context };
 }
 
 /**
  * @param {object} options
  * @param {import("../../../../../../src/mod.js").MaterialMapMappedValues} [options.mappedValues]
+ * @param {string} [options.vertexShader]
  */
 function createMaterial({
 	mappedValues = {},
+	vertexShader = "",
 } = {}) {
 	const material = new Material();
 	const materialMapType = new WebGlMaterialMapType();
 	const materialConfig = new WebGlMaterialConfig();
-	materialConfig.vertexShader = new ShaderSource("");
+	materialConfig.vertexShader = new ShaderSource(vertexShader);
 	materialConfig.fragmentShader = new ShaderSource("");
 	materialMapType.materialConfig = materialConfig;
 	const materialMap = new MaterialMap({
@@ -168,7 +170,7 @@ Deno.test({
 	name: "Mesh with single buffer and two attributes",
 	async fn() {
 		await runWithWebGlMocksAsync(async () => {
-			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+			const { scene, domTarget, camComponent, commandLog, setAttributeLocations } = await basicRendererSetup();
 
 			const vertexState = new VertexState({
 				buffers: [
@@ -181,19 +183,33 @@ Deno.test({
 								componentCount: 3,
 								format: Mesh.AttributeFormat.FLOAT32,
 								unsigned: false,
+								shaderLocation: 0,
 							},
 							{
 								attributeType: Mesh.AttributeType.UV1,
 								componentCount: 2,
 								format: Mesh.AttributeFormat.FLOAT32,
 								unsigned: false,
+								shaderLocation: 1,
 							},
 						],
 					},
 				],
 			});
 
-			const { material } = createMaterial();
+			const { material } = createMaterial({
+				vertexShader: `
+					// @location(0)
+					attribute vec3 pos;
+					// @location(1)
+					attribute vec2 uv;
+				`,
+			});
+
+			setAttributeLocations({
+				pos: 0,
+				uv: 1,
+			});
 
 			const { mesh } = createCubeEntity({ scene, vertexState, material });
 
@@ -478,6 +494,7 @@ Deno.test({
 								componentCount: 3,
 								format: Mesh.AttributeFormat.FLOAT32,
 								unsigned: false,
+								shaderLocation: 0,
 							},
 						],
 					},
@@ -603,6 +620,66 @@ Deno.test({
 				{ name: "clear" },
 				{ name: "depthMask", args: [false] },
 			]);
+		});
+	},
+});
+
+Deno.test({
+	name: "Meshes without vertex state are not rendered",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent, commandLog } = await basicRendererSetup();
+
+			const { material } = createMaterial();
+			createCubeEntity({ scene, material, vertexState: null });
+
+			domTarget.render(camComponent);
+
+			commandLog.assertLogEquals([
+				{
+					name: "viewport",
+					args: [0, 0, 300, 150],
+				},
+				{
+					name: "clearColor",
+					args: [0, 0, 0, 0],
+				},
+				{
+					name: "clear",
+					args: [0],
+				},
+				{
+					name: "enable",
+					args: ["GL_DEPTH_TEST"],
+				},
+				{
+					name: "depthFunc",
+					args: ["GL_LESS"],
+				},
+			]);
+		});
+	},
+});
+
+Deno.test({
+	name: "An error is thrown when a shader contains duplicate location tags",
+	async fn() {
+		await runWithWebGlMocksAsync(async () => {
+			const { scene, domTarget, camComponent } = await basicRendererSetup();
+
+			const { material } = createMaterial({
+				vertexShader: `
+// @location(0)
+attribute vec3 pos;
+// @location(0)
+attribute vec3 color;
+				`,
+			});
+			createCubeEntity({ scene, material, vertexState: createVertexState() });
+
+			await assertRejects(async () => {
+				domTarget.render(camComponent);
+			}, Error, "Shader contains multiple attributes tagged with @location(0).");
 		});
 	},
 });

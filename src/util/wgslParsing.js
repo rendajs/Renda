@@ -200,8 +200,7 @@ export function parseBindings(shaderSource) {
 /**
  * @typedef ParsedVertexInputProperty
  * @property {string} identifier The name of the binding as it appears in the shader.
- * @property {number} location The shader location that should be used when the vertex state
- * has a shader location set to 'auto'.
+ * @property {number} location The shader location that the identifier was tagged with.
  */
 
 /**
