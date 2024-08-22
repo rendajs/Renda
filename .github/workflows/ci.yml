@@ -89,7 +89,7 @@ jobs:
         run: deno task test test/unit --coverage
 
       - name: Codecov
-        uses: codecov/codecov-action@84508663e988701840491b86de86b666e8a86bed
+        uses: codecov/codecov-action@v4
         with:
           files: .coverage/cov.lcov
           flags: unittests
