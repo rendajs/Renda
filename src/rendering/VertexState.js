@@ -72,12 +72,12 @@ export class VertexState {
 
 		for (const buffer of this.buffers) {
 			for (const attribute of buffer.attributes) {
-				const loc = preferredShaderLocationsMap.get(attribute.attributeType);
-				if (loc !== undefined) {
-					if (takenShaderLocations.has(loc)) {
-						throw new Error(`Preferred shader location ${loc} is already taken by an attribute in the VertexState.`);
+				const location = preferredShaderLocationsMap.get(attribute.attributeType);
+				if (location !== undefined && location != attribute.shaderLocation) {
+					if (takenShaderLocations.has(location)) {
+						throw new Error(`Preferred shader location ${location} is already taken by an attribute in the VertexState.`);
 					}
-					takenShaderLocations.add(loc);
+					takenShaderLocations.add(location);
 				}
 			}
 		}
