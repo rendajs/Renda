@@ -28,7 +28,7 @@ import { Mesh } from "../../../core/Mesh.js";
 
 /**
  * @typedef DracoDecoderBuffer
- * @property {(byteArray: Uint8Array, byteLength: number) => void} Init
+ * @property {(encodedBytes: Uint8Array, byteLength: number) => void} Init
  */
 
 /**
@@ -58,7 +58,6 @@ import { Mesh } from "../../../core/Mesh.js";
 /**
  * @typedef DracoPointAttribute
  * @property {() => number} num_components
- * @property {() => number} attribute_type
  * @property {() => number} data_type
  */
 
@@ -68,7 +67,7 @@ import { Mesh } from "../../../core/Mesh.js";
  * @property {Object<string, number>} attributes
  */
 
-const EXTENSION_NAME = "KHR_draco_mesh_compression";
+export const DRACO_EXTENSION_NAME = "KHR_draco_mesh_compression";
 
 /**
  * @param {DracoDecoderModule} decoderModule
@@ -78,12 +77,12 @@ export function draco(decoderModule) {
 	const decoder = new decoderModule.Decoder();
 
 	return {
-		name: EXTENSION_NAME,
+		name: DRACO_EXTENSION_NAME,
 		async handlePrimitive(primitive, gltfContext, primitiveContext) {
 			/* eslint-disable new-cap */
 			/* eslint-disable no-underscore-dangle */
 			if (!primitive.extensions) return;
-			const extensionData = /** @type {GltfDracoExtensionPrimitive | undefined} */ (primitive.extensions[EXTENSION_NAME]);
+			const extensionData = /** @type {GltfDracoExtensionPrimitive | undefined} */ (primitive.extensions[DRACO_EXTENSION_NAME]);
 			if (!extensionData) return;
 
 			const bufferView = await gltfContext.getBufferView(extensionData.bufferView);
