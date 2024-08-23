@@ -2,6 +2,7 @@ import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 import { assertEquals, assertRejects, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
 import { Texture } from "../../../../../src/core/Texture.js";
 import { getGltfTextureData, getTextureHelper } from "../../../../../src/util/gltf/getTexture.js";
+import { createMockParsingContext } from "./shared.js";
 
 function basicSetup() {
 	/** @type {import("../../../../../src/util/gltf/gltfParsing.js").GltfJsonData} */
@@ -12,30 +13,21 @@ function basicSetup() {
 	/** @type {Map<number, Texture>} */
 	const texturesCache = new Map();
 
-	/** @type {import("../../../../../src/util/gltf/getBuffer.js").GetBufferFn} */
-	const getBufferFn = async () => {
-		return new ArrayBuffer(0);
-	};
-
-	/** @type {import("../../../../../src/util/gltf/getTexture.js").GetTextureHelperOptions} */
-	const basicOptions = {
-		getBufferFn,
-	};
+	const parsingContext = createMockParsingContext();
 
 	return {
 		jsonData,
 		texturesCache,
-		basicOptions,
-		getBufferFn,
+		parsingContext,
 	};
 }
 
 Deno.test({
 	name: "getTextureHelper throws when imageId is undefined",
 	async fn() {
-		const { jsonData, texturesCache, basicOptions } = basicSetup();
+		const { jsonData, texturesCache, parsingContext } = basicSetup();
 		await assertRejects(async () => {
-			await getTextureHelper(jsonData, undefined, texturesCache, basicOptions);
+			await getTextureHelper(jsonData, undefined, texturesCache, parsingContext);
 		}, Error, "Tried to reference image with index undefined which is not supported.");
 	},
 });
@@ -43,10 +35,10 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper throws when the texture id doesn't exist",
 	async fn() {
-		const { jsonData, texturesCache, basicOptions } = basicSetup();
+		const { jsonData, texturesCache, parsingContext } = basicSetup();
 
 		await assertRejects(async () => {
-			await getTextureHelper(jsonData, 12345, texturesCache, basicOptions);
+			await getTextureHelper(jsonData, 12345, texturesCache, parsingContext);
 		}, Error, "Tried to reference image with index 12345 but it does not exist.");
 	},
 });
@@ -54,11 +46,11 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper throws when the json doesn't contain textures",
 	async fn() {
-		const { jsonData, texturesCache, basicOptions } = basicSetup();
+		const { jsonData, texturesCache, parsingContext } = basicSetup();
 		delete jsonData.textures;
 
 		await assertRejects(async () => {
-			await getTextureHelper(jsonData, 12345, texturesCache, basicOptions);
+			await getTextureHelper(jsonData, 12345, texturesCache, parsingContext);
 		}, Error, "Tried to reference image with index 12345 but it does not exist.");
 	},
 });
@@ -66,12 +58,12 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper uses cached samplers",
 	async fn() {
-		const { jsonData, texturesCache, basicOptions } = basicSetup();
+		const { jsonData, texturesCache, parsingContext } = basicSetup();
 
 		const cachedSampler = new Texture(new Blob());
 		texturesCache.set(0, cachedSampler);
 
-		const result = await getTextureHelper(jsonData, 0, texturesCache, basicOptions);
+		const result = await getTextureHelper(jsonData, 0, texturesCache, parsingContext);
 
 		assertStrictEquals(result, cachedSampler);
 	},
@@ -80,12 +72,12 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper throws when the image contains neither a uri nor a bufferView property",
 	async fn() {
-		const { jsonData, texturesCache, basicOptions } = basicSetup();
+		const { jsonData, texturesCache, parsingContext } = basicSetup();
 
 		jsonData.images = [{}];
 
 		await assertRejects(async () => {
-			await getTextureHelper(jsonData, 0, texturesCache, basicOptions);
+			await getTextureHelper(jsonData, 0, texturesCache, parsingContext);
 		}, Error, "The image with index 0 contains invalid data. An image should contain one of 'uri' or 'bufferView'.");
 	},
 });
@@ -93,7 +85,7 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper throws when the image contains a bufferView property without a mimetype",
 	async fn() {
-		const { jsonData, texturesCache, basicOptions } = basicSetup();
+		const { jsonData, texturesCache, parsingContext } = basicSetup();
 
 		jsonData.images = [
 			{
@@ -102,7 +94,7 @@ Deno.test({
 		];
 
 		await assertRejects(async () => {
-			await getTextureHelper(jsonData, 0, texturesCache, basicOptions);
+			await getTextureHelper(jsonData, 0, texturesCache, parsingContext);
 		}, Error, "The image with index 0 has no mime type specified, this is required for buffer view images.");
 	},
 });
@@ -110,9 +102,9 @@ Deno.test({
 Deno.test({
 	name: "getTextureHelper creates a texture with a blob from getBufferFn",
 	async fn() {
-		const { jsonData, texturesCache, getBufferFn } = basicSetup();
+		const { jsonData, texturesCache, parsingContext } = basicSetup();
 
-		const getBufferSpy = spy(getBufferFn);
+		const getBufferSpy = spy(parsingContext, "getBuffer");
 
 		jsonData.images = [
 			{
@@ -127,9 +119,7 @@ Deno.test({
 			},
 		];
 
-		const result = await getTextureHelper(jsonData, 0, texturesCache, {
-			getBufferFn: getBufferSpy,
-		});
+		const result = await getTextureHelper(jsonData, 0, texturesCache, parsingContext);
 
 		assertEquals(result.blob.type, "image/png");
 		assertSpyCalls(getBufferSpy, 1);
