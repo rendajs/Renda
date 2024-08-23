@@ -31,6 +31,7 @@ export async function getBufferHelper(jsonData, bufferId, buffersCache, containe
 				const response = await fetch(bufferData.uri);
 				const contentType = response.headers.get("content-type") || "none";
 				if (contentType != "application/octet-stream" && contentType != "application/gltf-buffer") {
+					response.body?.cancel();
 					throw new Error(`Failed to get the buffer with index ${bufferId} because the data uri has the incorrect content type: ${contentType}`);
 				}
 				buffer = await response.arrayBuffer();
@@ -46,7 +47,7 @@ export async function getBufferHelper(jsonData, bufferId, buffersCache, containe
 }
 
 /**
- * Helper function for getting texture data from a gltf file and asserting that
+ * Helper function for getting buffer views from a gltf file and asserting that
  * it actually exists.
  *
  * @param {import("./gltfParsing.js").GltfJsonData} jsonData
@@ -67,12 +68,12 @@ export function getGltfBufferViewData(jsonData, bufferViewId) {
  *
  * @param {import("./gltfParsing.js").GltfJsonData} gltfJsonData
  * @param {number} bufferViewIndex
- * @param {GetBufferFn} getBufferFn
+ * @param {import("./gltfParsing.js").GltfParsingContext} parsingContext
  * @param {number} [byteOffset]
  */
-export async function getBufferViewBuffer(gltfJsonData, bufferViewIndex, getBufferFn, byteOffset = 0) {
+export async function getBufferViewBuffer(gltfJsonData, bufferViewIndex, parsingContext, byteOffset = 0) {
 	const bufferViewData = getGltfBufferViewData(gltfJsonData, bufferViewIndex);
-	const fullBuffer = await getBufferFn(bufferViewData.buffer);
+	const fullBuffer = await parsingContext.getBuffer(bufferViewData.buffer);
 	const bufferViewByteOffset = bufferViewData.byteOffset || 0;
 	const totalByteOffset = bufferViewByteOffset + byteOffset;
 	return fullBuffer.slice(totalByteOffset, totalByteOffset + bufferViewData.byteLength);
