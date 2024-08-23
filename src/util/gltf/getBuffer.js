@@ -31,6 +31,7 @@ export async function getBufferHelper(jsonData, bufferId, buffersCache, containe
 				const response = await fetch(bufferData.uri);
 				const contentType = response.headers.get("content-type") || "none";
 				if (contentType != "application/octet-stream" && contentType != "application/gltf-buffer") {
+					response.body?.cancel();
 					throw new Error(`Failed to get the buffer with index ${bufferId} because the data uri has the incorrect content type: ${contentType}`);
 				}
 				buffer = await response.arrayBuffer();
