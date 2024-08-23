@@ -347,6 +347,16 @@ Deno.test({
 		const extension = {
 			name: "TEST_extension",
 			handlePrimitive(primitive, parsingContext, primitiveContext) {
+				const indexAccessorData = primitiveContext.getIndexAccessorData();
+				assertEquals(indexAccessorData, {
+					format: Mesh.IndexFormat.UINT_32,
+					accessorData: {
+						bufferView: 4,
+						componentType: UNSIGNED_INT,
+						count: 3,
+						type: "SCALAR",
+					},
+				});
 				primitiveContext.setIndexBuffer(Mesh.IndexFormat.UINT_16, new Uint16Array([0, 1, 2]).buffer);
 				primitiveContext.setAttributeBuffer(Mesh.AttributeType.POSITION, new Float32Array([0, 0, 0, 1, 1, 1, 2, 2, 2]).buffer);
 			},
