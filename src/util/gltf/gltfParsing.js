@@ -2,6 +2,26 @@ import { parseContainerBinary } from "./parseContainerBinary.js";
 import { parseJsonData } from "./parseJsonData.js";
 
 /**
+ * @typedef GltfExtension
+ * @property {string} name This is used for validating whether all extensions in `extensionsRequired` are supported.
+ * @property {(gltfPrimitive: GltfMeshPrimitiveData, gltfContext: GltfParsingContext, primitiveContext: GltfPrimitiveParsingContext) => void | Promise<void>} [handlePrimitive]
+ */
+
+/**
+ * @typedef GltfParsingContext
+ * @property {(bufferIndex: number) => Promise<ArrayBuffer>} getBuffer
+ * @property {(bufferViewIndex: number) => Promise<ArrayBuffer>} getBufferView
+ * @property {GltfExtension[]} extensions
+ */
+
+/**
+ * @typedef GltfPrimitiveParsingContext
+ * @property {(name: string, buffer: ArrayBuffer) => void} setAttributeBuffer
+ * @property {(format: number, buffer: ArrayBuffer) => void} setIndexBuffer
+ * @property {() => import("./applyMeshComponents.js").GltfPrimitiveParsingContextIndexAccessorData?} getIndexAccessorData
+ */
+
+/**
  * @typedef ParseGltfHooks
  * @property {(context: ParsedGltfNodeHookContext) => void} [node]
  * @property {(context: ParsedGltfMaterialHookContext) => void} [material]
@@ -231,6 +251,7 @@ import { parseJsonData } from "./parseJsonData.js";
  * @param {import("../../rendering/Material.js").Material?} options.defaultMaterial
  * @param {import("../../rendering/MaterialMap.js").MaterialMap?} options.defaultMaterialMap
  * @param {import("../../rendering/Sampler.js").Sampler?} options.defaultSampler
+ * @param {GltfExtension[]} [options.extensions]
  * @param {ParseGltfHooks} [options.hooks]
  */
 export async function parseGltf(glbBuffer, {
@@ -238,6 +259,7 @@ export async function parseGltf(glbBuffer, {
 	defaultMaterial,
 	defaultMaterialMap,
 	defaultSampler,
+	extensions = [],
 	hooks = {},
 }) {
 	let containerBinary = null;
@@ -255,6 +277,7 @@ export async function parseGltf(glbBuffer, {
 		defaultMaterial,
 		defaultMaterialMap,
 		defaultSampler,
+		extensions,
 		hooks,
 	});
 }

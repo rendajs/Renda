@@ -6,7 +6,7 @@ import { Material } from "../../rendering/Material.js";
 import { MaterialMap } from "../../rendering/MaterialMap.js";
 import { getTextureHelper } from "./getTexture.js";
 import { getSamplerHelper } from "./getSampler.js";
-import { getBufferHelper } from "./getBuffer.js";
+import { getBufferHelper, getBufferViewBuffer } from "./getBuffer.js";
 
 /**
  * @typedef ParseJsonDataOptions
@@ -14,6 +14,7 @@ import { getBufferHelper } from "./getBuffer.js";
  * @property {import("../../rendering/Material.js").Material?} defaultMaterial
  * @property {import("../../rendering/MaterialMap.js").MaterialMap?} defaultMaterialMap
  * @property {import("../../rendering/Sampler.js").Sampler?} defaultSampler
+ * @property {import("./gltfParsing.js").GltfExtension[]} extensions
  * @property {import("./gltfParsing.js").ParseGltfHooks} hooks
  */
 
@@ -26,18 +27,33 @@ export async function parseJsonData(jsonData, {
 	defaultMaterial,
 	defaultMaterialMap,
 	defaultSampler,
+	extensions,
 	hooks,
 }) {
 	assertAssetVersion(jsonData);
 
+	const supportedExtensions = new Set(extensions.map((e) => e.name));
+	if (jsonData.extensionsRequired) {
+		for (const extension of jsonData.extensionsRequired) {
+			if (!supportedExtensions.has(extension)) {
+				throw new Error(`The glTF requires an unsupported extension: "${extension}".`);
+			}
+		}
+	}
+
 	/** @type {Map<number, ArrayBuffer>} */
 	const createdBuffers = new Map();
-	/**
-	 * @param {number} bufferId
-	 */
-	async function getBufferFn(bufferId) {
-		return await getBufferHelper(jsonData, bufferId, createdBuffers, containerBinary);
-	}
+
+	/** @type {import("./gltfParsing.js").GltfParsingContext} */
+	const parsingContext = {
+		getBuffer(bufferIndex) {
+			return getBufferHelper(jsonData, bufferIndex, createdBuffers, containerBinary);
+		},
+		getBufferView(bufferViewIndex) {
+			return getBufferViewBuffer(jsonData, bufferViewIndex, parsingContext);
+		},
+		extensions,
+	};
 
 	/** @type {Map<number, import("../../rendering/Sampler.js").Sampler>} */
 	const createdSamplers = new Map();
@@ -54,9 +70,7 @@ export async function parseJsonData(jsonData, {
 
 	/** @type {import("./getTexture.js").GetTextureFn} */
 	async function getTextureFn(imageId) {
-		return await getTextureHelper(jsonData, imageId, createdTextures, {
-			getBufferFn,
-		});
+		return await getTextureHelper(jsonData, imageId, createdTextures, parsingContext);
 	}
 
 	if (!defaultMaterial) {
@@ -88,8 +102,7 @@ export async function parseJsonData(jsonData, {
 		const scenesResult = parseScenes(jsonData.scenes, jsonData.nodes || [], hooks);
 		entity = scenesResult.entity;
 		const entityNodeIds = scenesResult.entityNodeIds;
-		await applyMeshComponents(jsonData, entityNodeIds, {
-			getBufferFn,
+		await applyMeshComponents(jsonData, entityNodeIds, parsingContext, {
 			getMaterialFn,
 		});
 	} else {

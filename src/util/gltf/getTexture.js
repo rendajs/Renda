@@ -4,11 +4,6 @@ import { getBufferViewBuffer } from "./getBuffer.js";
 /** @typedef {(imageId: number | undefined) => Promise<Texture>} GetTextureFn */
 
 /**
- * @typedef GetTextureHelperOptions
- * @property {import("./getBuffer.js").GetBufferFn} getBufferFn
- */
-
-/**
  * Helper function for parsing and caching glTF textures.
  * There is a bit of a naming mismatch between glTF and our implementation.
  * In glTF there is a concept of textures, samplers and images. Where a texture
@@ -21,11 +16,9 @@ import { getBufferViewBuffer } from "./getBuffer.js";
  * @param {import("./gltfParsing.js").GltfJsonData} jsonData
  * @param {number | undefined} imageId The index of the image to get from the jsonData.
  * @param {Map<number, Texture>} texturesCache
- * @param {GetTextureHelperOptions} options
+ * @param {import("./gltfParsing.js").GltfParsingContext} parsingContext
  */
-export async function getTextureHelper(jsonData, imageId, texturesCache, {
-	getBufferFn,
-}) {
+export async function getTextureHelper(jsonData, imageId, texturesCache, parsingContext) {
 	if (imageId == undefined) {
 		throw new Error("Tried to reference image with index undefined which is not supported.");
 	}
@@ -44,7 +37,7 @@ export async function getTextureHelper(jsonData, imageId, texturesCache, {
 			if (!imageData.mimeType) {
 				throw new Error(`The image with index ${imageId} has no mime type specified, this is required for buffer view images.`);
 			}
-			const buffer = await getBufferViewBuffer(jsonData, imageData.bufferView, getBufferFn);
+			const buffer = await getBufferViewBuffer(jsonData, imageData.bufferView, parsingContext);
 			blob = new Blob([buffer], { type: imageData.mimeType });
 		} else {
 			throw new Error(`The image with index ${imageId} contains invalid data. An image should contain one of 'uri' or 'bufferView'.`);
