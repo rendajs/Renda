@@ -18,11 +18,20 @@ export class MemoryFileSystemWritableFileStream extends WritableStream {
 		if (data instanceof ArrayBuffer || ArrayBuffer.isView(data) || data instanceof Blob || typeof data == "string") {
 			await this.#writeChunk(data);
 		} else if (data.type == "seek") {
+			if (data.position == undefined) {
+				throw new DOMException("Invalid params passed. seek requires a position argument");
+			}
 			return await this.seek(data.position);
 		} else if (data.type == "truncate") {
+			if (data.size == undefined) {
+				throw new DOMException("Invalid params passed. truncate requires a size argument");
+			}
 			return await this.truncate(data.size);
 		} else if (data.type == "write") {
-			if (data.position !== undefined) {
+			if (!data.data) {
+				throw new DOMException("Invalid params passed. write requires a data argument");
+			}
+			if (data.position != undefined) {
 				await this.seek(data.position);
 			}
 			await this.#writeChunk(data.data);

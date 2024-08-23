@@ -1,10 +1,8 @@
-import { rollup } from "rollup";
+import { rollup } from "$rollup";
 import { copy, ensureDir, walk } from "std/fs/mod.ts";
 import * as path from "std/path/mod.ts";
 import { minify } from "terser";
 import { setCwd } from "chdir-anywhere";
-import { importAssertionsPlugin } from "https://esm.sh/rollup-plugin-import-assert@2.1.0?pin=v87";
-import { importAssertions } from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
 import postcss from "https://deno.land/x/postcss@8.4.13/mod.js";
 import postcssUrl from "npm:postcss-url@10.1.3";
 import resolveUrlObjects from "npm:rollup-plugin-resolve-url-objects@0.0.4";
@@ -12,6 +10,8 @@ import { dev } from "./dev.js";
 import { buildEngineSource } from "./buildEngine.js";
 import { toHashString } from "std/crypto/mod.ts";
 import { overrideDefines } from "./shared/overrideDefinesPlugin.js";
+import { cssImportAttributesPlugin } from "./shared/rollup-css-import-attribute.js";
+import { resolveWasmUrls } from "./shared/rollup-plugin-wasm-url.js";
 
 await dev({
 	needsDependencies: true,
@@ -67,7 +67,7 @@ async function setHtmlAttribute(filePath, tagComment, attributeValue, attribute 
 function rebaseCssUrl({
 	outputPath,
 }) {
-	/** @type {import("rollup").Plugin} */
+	/** @type {import("$rollup").Plugin} */
 	const plugin = {
 		name: "rebaseCssUrl",
 		async load(id) {
@@ -143,12 +143,12 @@ const bundle = await rollup({
 	plugins: [
 		overrideDefines("/studio/src/studioDefines.js", studioDefines),
 		resolveUrlObjects(),
+		resolveWasmUrls(),
 		rebaseCssUrl({
 			outputPath,
 		}),
-		importAssertionsPlugin(),
+		cssImportAttributesPlugin(),
 	],
-	acornInjectPlugins: [importAssertions],
 	onwarn: (message) => {
 		if (message.code == "CIRCULAR_DEPENDENCY") return;
 		console.error(message.message);
@@ -166,9 +166,7 @@ const entryPointPaths = new Map();
 /** @type {string[]} */
 const createdChunkFiles = [];
 for (const chunkOrAsset of output) {
-	if (chunkOrAsset.type != "chunk") {
-		throw new Error("Assertion failed, unexpected type: " + chunkOrAsset.type);
-	}
+	if (chunkOrAsset.type != "chunk") continue;
 	if (chunkOrAsset.facadeModuleId) {
 		entryPointPaths.set(chunkOrAsset.facadeModuleId, chunkOrAsset.fileName);
 	}

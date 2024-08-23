@@ -736,6 +736,48 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "rotate()",
+	fn() {
+		const tests = [
+			{ vec: [0, 1], angle: 0, result: [0, 1] },
+			{ vec: [0, 1], angle: Math.PI, result: [0, -1] },
+			{ vec: [1, 0], angle: Math.PI * 0.5, result: [0, 1] },
+			{ vec: [1, 1], angle: Math.PI * 0.5, result: [-1, 1] },
+			{ vec: [0, 0], angle: 100, result: [0, 0] },
+			{ vec: [12, 34], angle: Math.PI * 2, result: [12, 34] },
+			{ vec: [12, 34], angle: 0.1, result: [8.54571, 35.02814] },
+		];
+
+		for (const { vec, angle, result } of tests) {
+			const actual = new Vec2(vec).rotate(angle);
+
+			assertVecAlmostEquals(actual, result);
+		}
+	},
+});
+
+Deno.test({
+	name: "rotate() angle matches the direction of clockwiseAngleTo",
+	fn() {
+		const tests = [
+			[0.123, -0.456],
+			[0.5, 2],
+			[-10, 20],
+			[-10, -20],
+		];
+
+		for (const test of tests) {
+			const vec = new Vec2(test);
+			const newVec = new Vec2(0, 1);
+			const angle = newVec.clockwiseAngleTo(vec);
+			newVec.rotate(angle);
+			newVec.magnitude = vec.magnitude;
+			assertVecAlmostEquals(newVec, test);
+		}
+	},
+});
+
 // ======== onChange Callbacks ========
 
 Deno.test({
@@ -893,6 +935,17 @@ Deno.test({
 		// static cross() shouldn't fire the callback
 		fireResults.push(-1);
 		expectedResult.push(-1);
+
+		vec.set(0, 1);
+		expectedResult.push(0x11);
+
+		vec.rotate(0);
+		// rotating 0 radians shouldn't fire the callback
+		fireResults.push(-1);
+		expectedResult.push(-1);
+
+		vec.rotate(0.5);
+		expectedResult.push(0x11);
 
 		assertEquals(fireResults, expectedResult);
 	},

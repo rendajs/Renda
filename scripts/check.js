@@ -4,10 +4,11 @@ await dev({
 	needsTypes: true,
 	needsTypesSync: true,
 	needsDependencies: true,
+	needsDevDependencies: true,
 });
 
 const command = new Deno.Command(Deno.execPath(), {
-	args: ["run", "--allow-env", "--allow-read", "npm:typescript@5.0.2/tsc", "--noEmit", "-p", "./jsconfig.json"],
+	args: ["run", "--allow-env", "--allow-read", "npm:typescript@5.4.5/tsc", "--noEmit", "-p", "./jsconfig.json"],
 	stdout: "inherit",
 	stderr: "inherit",
 });

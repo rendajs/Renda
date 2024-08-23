@@ -6,7 +6,7 @@ import { setCwd } from "chdir-anywhere";
 import { dev } from "./dev.js";
 import { parseArgs } from "../test/shared/testArgs.js";
 import { buildEngine } from "./buildEngine.js";
-import { rollup } from "rollup";
+import { rollup } from "$rollup";
 import { rollupTerserPlugin } from "./shared/rollupTerserPlugin.js";
 
 setCwd();
@@ -106,7 +106,7 @@ if (needsMinifiedTests) {
 		await buildEngine(engineDir);
 
 		/**
-		 * @returns {import("rollup").Plugin}
+		 * @returns {import("$rollup").Plugin}
 		 */
 		function rollupRedirectBuildPlugin() {
 			return {

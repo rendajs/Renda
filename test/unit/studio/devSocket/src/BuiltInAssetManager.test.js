@@ -68,6 +68,7 @@ function installMockDenoCalls({
 			[Symbol.asyncIterator]() {
 				return /** @type {any} */ (this);
 			},
+			[Symbol.dispose]() {},
 		};
 	};
 

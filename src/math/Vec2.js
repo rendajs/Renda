@@ -474,7 +474,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Computes the cross product between this and another vector and changes the value of this vector.
+	 * Computes the cross product between this and another vector.
 	 *
 	 * [Cross product visualisation](https://www.geogebra.org/m/psMTGDgc) (in 3d)
 	 *
@@ -523,6 +523,36 @@ export class Vec2 {
 		const dot = this.dot(other);
 		other.multiplyScalar(dot);
 		return this.set(other);
+	}
+
+	/**
+	 * Rotates the vector (around 0, 0) and modifies it.
+	 * Positive angles rotate the vector clockwise. (Positive x is right, positive y is down)
+	 *
+	 * For instance, say you have a `Vec2<1, 1>`:
+	 * ```none
+	 * o
+	 *  \
+	 *   \
+	 *    V
+	 * ```
+	 * then calling `rotate(Math.PI * 0.5)` results in a `Vec2<-1, 1>`:
+	 * ```none
+	 *    o
+	 *   /
+	 *  /
+	 * V
+	 * ```
+	 * @param {number} angle Angle in radians.
+	 */
+	rotate(angle) {
+		const cos = Math.cos(angle);
+		const sin = Math.sin(angle);
+
+		return this.set(
+			this._x * cos - this._y * sin,
+			this._x * sin + this._y * cos,
+		);
 	}
 
 	/**

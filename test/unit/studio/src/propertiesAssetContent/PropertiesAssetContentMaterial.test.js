@@ -97,12 +97,12 @@ Deno.test({
 			liveAsset: new Material(),
 		});
 		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
-		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
+		mockMapTreeView.propertiesTreeViewEntryMock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 
 		await assetContent.selectionUpdated([mockMaterialAsset]);
 
 		const mockTreeView = castTreeView(assetContent.mapTreeView);
-		assertEquals(mockTreeView.spy.setValueCalls, [[null]]);
+		assertEquals(mockTreeView.propertiesTreeViewEntrySpy.setValueCalls, [[null]]);
 	},
 });
 
@@ -116,14 +116,14 @@ Deno.test({
 			liveAsset: material,
 		});
 		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
-		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
+		mockMapTreeView.propertiesTreeViewEntryMock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 
 		await assetContent.selectionUpdated([mockMaterialAsset]);
 
 		const mockTreeView = castTreeView(assetContent.mapTreeView);
-		assertEquals(mockTreeView.spy.setValueCalls.length, 1);
-		assertEquals(mockTreeView.spy.setValueCalls[0].length, 1);
-		assertStrictEquals(mockTreeView.spy.setValueCalls[0][0], materialMap);
+		assertEquals(mockTreeView.propertiesTreeViewEntrySpy.setValueCalls.length, 1);
+		assertEquals(mockTreeView.propertiesTreeViewEntrySpy.setValueCalls[0].length, 1);
+		assertStrictEquals(mockTreeView.propertiesTreeViewEntrySpy.setValueCalls[0][0], materialMap);
 	},
 });
 
@@ -188,7 +188,7 @@ Deno.test({
 			return values;
 		});
 		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
-		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
+		mockMapTreeView.propertiesTreeViewEntryMock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 		const materialMap = new MaterialMap();
 		const material = new Material(materialMap);
 		const { projectAsset: mockMaterialAsset } = createMockProjectAsset({
@@ -202,7 +202,7 @@ Deno.test({
 		for (const child of assetContent.mapValuesTreeView.children) {
 			const castChildEntry = /** @type {import("../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} */ (child);
 			const castMockChild = castTreeView(castChildEntry);
-			createdValueOptions.push(castMockChild.spy.constructorOptions);
+			createdValueOptions.push(castMockChild.propertiesTreeViewEntrySpy.constructorOptions);
 		}
 		assertEquals(createdValueOptions, [
 			{
@@ -290,14 +290,14 @@ Deno.test({
 			liveAsset: material,
 		});
 		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
-		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
+		mockMapTreeView.propertiesTreeViewEntryMock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 
 		await assetContent.selectionUpdated([mockMaterialAsset]);
 
 		const mockTreeView = castTreeView(assetContent.mapTreeView);
 		const materialMap = new MaterialMap();
-		mockTreeView.mock.setGetValueReturn(materialMap);
-		mockTreeView.mock.fireOnValueChangeCbs({ value: DEFAULT_ASSET_MAP_UUID, trigger: "user" });
+		mockTreeView.propertiesTreeViewEntryMock.setGetValueReturn(materialMap);
+		mockTreeView.propertiesTreeViewEntryMock.fireOnValueChangeCbs({ value: DEFAULT_ASSET_MAP_UUID, trigger: "user" });
 
 		await waitForMicrotasks();
 
@@ -325,8 +325,8 @@ Deno.test({
 
 		const mockTreeView = castTreeView(assetContent.mapTreeView);
 		const materialMap = new MaterialMap();
-		mockTreeView.mock.setGetValueReturn(materialMap);
-		mockTreeView.mock.fireOnValueChangeCbs({ value: DEFAULT_ASSET_MAP_UUID, trigger: "application" });
+		mockTreeView.propertiesTreeViewEntryMock.setGetValueReturn(materialMap);
+		mockTreeView.propertiesTreeViewEntryMock.fireOnValueChangeCbs({ value: DEFAULT_ASSET_MAP_UUID, trigger: "application" });
 
 		triggerLiveAssetReturns();
 		await waitForMicrotasks();
@@ -354,7 +354,7 @@ Deno.test({
 			liveAsset: new Material(),
 		});
 		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
-		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
+		mockMapTreeView.propertiesTreeViewEntryMock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 
 		await assetContent.selectionUpdated([mockMaterialAsset1]);
 		await assetContent.selectionUpdated([mockMaterialAsset1, mockMaterialAsset2]);

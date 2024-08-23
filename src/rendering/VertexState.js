@@ -42,7 +42,7 @@ export class VertexState {
 	 * @param {object} options
 	 * @param {PreferredShaderLocation[]} [options.preferredShaderLocations] If the vertex state
 	 * has "auto", null or -1 for an attribute, this will be used to determine the shader location.
-	 * If this an attribute with automatic shader location is not present in this list,
+	 * If an attribute with automatic shader location is not present in this list,
 	 * a location will be assigned that hasn't been used yet.
 	 * If this list contains the same attribute type multiple times, an error will be thrown.
 	 * If the list contains a shader location that has already been taken by the vertex state, an error will be thrown.
@@ -72,12 +72,12 @@ export class VertexState {
 
 		for (const buffer of this.buffers) {
 			for (const attribute of buffer.attributes) {
-				const loc = preferredShaderLocationsMap.get(attribute.attributeType);
-				if (loc !== undefined) {
-					if (takenShaderLocations.has(loc)) {
-						throw new Error(`Preferred shader location ${loc} is already taken by an attribute in the VertexState.`);
+				const location = preferredShaderLocationsMap.get(attribute.attributeType);
+				if (location !== undefined && location != attribute.shaderLocation) {
+					if (takenShaderLocations.has(location)) {
+						throw new Error(`Preferred shader location ${location} is already taken by an attribute in the VertexState.`);
 					}
-					takenShaderLocations.add(loc);
+					takenShaderLocations.add(location);
 				}
 			}
 		}

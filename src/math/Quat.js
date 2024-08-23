@@ -279,6 +279,49 @@ export class Quat {
 	}
 
 	/**
+	 * Interpolates between `quatA` and `quatB` without modifying and returns a quaternion with the result.
+	 * @param {Quat} quatA
+	 * @param {Quat} quatB
+	 * @param {number} t
+	 */
+	static slerpQuaternions(quatA, quatB, t) {
+		// https://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
+		if (t == 0) {
+			return quatA.clone();
+		}
+		if (t == 1) {
+			return quatB.clone();
+		}
+
+		let cosHalfTheta = new Vec4(quatA).dot(quatB);
+		if (cosHalfTheta < 0) {
+			quatB.x = -quatB.x;
+			quatB.y = -quatB.y;
+			quatB.w = -quatB.w;
+			cosHalfTheta = -cosHalfTheta;
+		}
+
+		// If quatA = quatB or quatA = -quatB then theta = 0 and we can return quatA
+		if (Math.abs(cosHalfTheta) >= 1) {
+			return quatA.clone();
+		}
+
+		// Calculate temporary values.
+		const halfTheta = Math.acos(cosHalfTheta);
+		const sinHalfTheta = Math.sqrt(1 - cosHalfTheta * cosHalfTheta);
+
+		const ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
+		const ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
+
+		return new Quat(
+			quatA.x * ratioA + quatB.x * ratioB,
+			quatA.y * ratioA + quatB.y * ratioB,
+			quatA.z * ratioA + quatB.z * ratioB,
+			quatA.w * ratioA + quatB.w * ratioB,
+		);
+	}
+
+	/**
 	 * @returns {[x: number, y: number, z: number, w: number]}
 	 */
 	toArray() {

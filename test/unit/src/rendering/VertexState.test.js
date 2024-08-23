@@ -249,6 +249,88 @@ Deno.test({
 });
 
 Deno.test({
+	name: "getDescriptor() prioritizes the shader location from the vertex state over that of the preferredShaderLocations",
+	fn() {
+		/** @type {import("../../../../src/rendering/VertexState.js").VertexStateOptions} */
+		const options = {
+			buffers: [
+				{
+					attributes: [
+						{
+							attributeType: Mesh.AttributeType.POSITION,
+							componentCount: 3,
+							format: Mesh.AttributeFormat.FLOAT32,
+							shaderLocation: 1,
+						},
+						{
+							attributeType: Mesh.AttributeType.COLOR,
+							componentCount: 3,
+							format: Mesh.AttributeFormat.FLOAT32,
+							shaderLocation: 2,
+						},
+					],
+				},
+			],
+		};
+		const vertexState = new VertexState(options);
+
+		const result = vertexState.getDescriptor({
+			preferredShaderLocations: [
+				{ attributeType: Mesh.AttributeType.POSITION, location: 3 },
+				{ attributeType: Mesh.AttributeType.COLOR, location: 4 },
+			],
+		});
+
+		assertEquals(result.buffers.length, 1);
+		const attributes = /** @type {GPUVertexAttribute[]} */ (result.buffers[0].attributes);
+		assertEquals(attributes.length, 2);
+		assertEquals(attributes[0].shaderLocation, 1);
+		assertEquals(attributes[1].shaderLocation, 2);
+	},
+});
+
+Deno.test({
+	name: "getDescriptor() doesn't throw when preferred shader locations are the same as that in the vertexstate",
+	fn() {
+		/** @type {import("../../../../src/rendering/VertexState.js").VertexStateOptions} */
+		const options = {
+			buffers: [
+				{
+					attributes: [
+						{
+							attributeType: Mesh.AttributeType.POSITION,
+							componentCount: 3,
+							format: Mesh.AttributeFormat.FLOAT32,
+							shaderLocation: 1,
+						},
+						{
+							attributeType: Mesh.AttributeType.COLOR,
+							componentCount: 3,
+							format: Mesh.AttributeFormat.FLOAT32,
+							shaderLocation: 2,
+						},
+					],
+				},
+			],
+		};
+		const vertexState = new VertexState(options);
+
+		const result = vertexState.getDescriptor({
+			preferredShaderLocations: [
+				{ attributeType: Mesh.AttributeType.POSITION, location: 1 },
+				{ attributeType: Mesh.AttributeType.COLOR, location: 2 },
+			],
+		});
+
+		assertEquals(result.buffers.length, 1);
+		const attributes = /** @type {GPUVertexAttribute[]} */ (result.buffers[0].attributes);
+		assertEquals(attributes.length, 2);
+		assertEquals(attributes[0].shaderLocation, 1);
+		assertEquals(attributes[1].shaderLocation, 2);
+	},
+});
+
+Deno.test({
 	name: "getDescriptor() uses the first available shader location for automatic shader location attributes",
 	fn() {
 		const vertexState = new VertexState({

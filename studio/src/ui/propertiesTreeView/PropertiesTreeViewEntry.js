@@ -50,7 +50,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	 */
 	static of(opts) {
 		const x = new PropertiesTreeViewEntry(opts);
-		return /** @type {import("./types.ts").TreeViewEntryFactoryReturnType<T>} */ (x);
+		return /** @type {import("./types.ts").TreeViewEntryFactoryReturnType<T>} */ (/** @type {unknown} */ (x));
 	}
 
 	#labelText = "";

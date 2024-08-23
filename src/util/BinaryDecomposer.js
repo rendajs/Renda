@@ -49,6 +49,18 @@ export class BinaryDecomposer {
 		return val;
 	}
 
+	getBigInt64() {
+		const val = this.dataView.getBigInt64(this.cursor, this.littleEndian);
+		this.cursor += 8;
+		return val;
+	}
+
+	getBigUint64() {
+		const val = this.dataView.getBigUint64(this.cursor, this.littleEndian);
+		this.cursor += 8;
+		return val;
+	}
+
 	/**
 	 * @param {number} byteLength
 	 */

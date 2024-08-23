@@ -51,3 +51,23 @@ testAll({
 		}, Error, `Failed to write "root/file1/newfile", "root/file1" is not a directory.`);
 	},
 });
+
+testAll({
+	name: "writing to file streams fail when missing arguments",
+	ignore: ["indexedDb", "fsa", "remote", "serialized-remote"],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		const stream = await fs.writeFileStream(["root", "newfile"]);
+
+		await assertRejects(async () => {
+			await stream.write({ type: "seek" });
+		}, DOMException, "Invalid params passed. seek requires a position argument");
+		await assertRejects(async () => {
+			await stream.write({ type: "truncate" });
+		}, DOMException, "Invalid params passed. truncate requires a size argument");
+		await assertRejects(async () => {
+			await stream.write({ type: "write" });
+		}, DOMException, "Invalid params passed. write requires a data argument");
+	},
+});

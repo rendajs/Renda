@@ -5,15 +5,18 @@ import { assertPromiseResolved } from "../../../../src/util/asserts.js";
 import { waitForMicrotasks } from "../../../../src/util/waitForMicroTasks.js";
 
 function basicSpyFn() {
-	/** @type {((result: string) => void)?} */
-	let resolvePromise = null;
+	/** @type {(result: string) => void} */
+	let resolvePromise;
+	/** @type {(result: Error) => void} */
+	let rejectPromise;
 	/**
 	 * @param {string} param
 	 */
 	const fn = async (param) => {
 		/** @type {Promise<string>} */
-		const promise = new Promise((r) => {
-			resolvePromise = r;
+		const promise = new Promise((resolve, reject) => {
+			resolvePromise = resolve;
+			rejectPromise = reject;
 		});
 		const promiseResult = await promise;
 		return param + promiseResult;
@@ -23,10 +26,14 @@ function basicSpyFn() {
 		/** @param {string} result */
 		async resolvePromise(result) {
 			await waitForMicrotasks();
-			if (!resolvePromise) {
-				throw new Error("Spy function hasn't been called yet");
-			}
 			resolvePromise(result);
+		},
+		/**
+		 * @param {Error} result
+		 */
+		async rejectPromise(result) {
+			await waitForMicrotasks();
+			rejectPromise(result);
 		},
 		spyFn,
 	};
@@ -146,7 +153,7 @@ async function runOnceMatrix(test) {
 }
 
 Deno.test({
-	name: "waitForFinish resolves when the any run is done",
+	name: "waitForFinish resolves when the run is done",
 	async fn() {
 		const basic = basicSpyFn();
 		const instance = new SingleInstancePromise(basic.spyFn);
@@ -166,6 +173,36 @@ Deno.test({
 		await basic.resolvePromise("");
 		await assertPromiseResolved(promise2, true);
 		await assertPromiseResolved(instance.waitForFinish(), false);
+	},
+});
+
+Deno.test({
+	name: "waitForFinish resolves when the function rejects",
+	async fn() {
+		const basic = basicSpyFn();
+		const instance = new SingleInstancePromise(basic.spyFn);
+
+		await assertPromiseResolved(instance.waitForFinish(), false);
+		const assertRejectsPromise1 = assertRejects(async () => {
+			await instance.run("");
+		});
+		const promise = instance.waitForFinish();
+		await assertPromiseResolved(promise, false);
+		await basic.rejectPromise(new Error("The error message"));
+		await assertPromiseResolved(promise, true);
+		await assertPromiseResolved(instance.waitForFinish(), false);
+		await assertRejectsPromise1;
+
+		// Running a second time to make sure that waitForFinish() becomes pending again
+		const assertRejectsPromise2 = assertRejects(async () => {
+			await instance.run("");
+		});
+		const promise2 = instance.waitForFinish();
+		await assertPromiseResolved(promise2, false);
+		await basic.rejectPromise(new Error("second error"));
+		await assertPromiseResolved(promise2, true);
+		await assertPromiseResolved(instance.waitForFinish(), false);
+		await assertRejectsPromise2;
 	},
 });
 
@@ -197,6 +234,34 @@ Deno.test({
 			await assertPromiseResolved(instance.waitForFinishOnce(), true);
 			await resolvePromise("");
 			await assertPromiseResolved(instance.waitForFinishOnce(), true);
+		});
+	},
+});
+
+Deno.test({
+	name: "waitForFinishOnce resolves when the first run rejects",
+	async fn() {
+		await runOnceMatrix(async ({ instance, rejectPromise }) => {
+			const promise1 = instance.waitForFinishOnce();
+			await assertPromiseResolved(promise1, false);
+			const assertRejectsPromise1 = assertRejects(async () => {
+				await instance.run("");
+			});
+			await assertPromiseResolved(promise1, false);
+			await assertPromiseResolved(instance.waitForFinishOnce(), false);
+			await rejectPromise(new Error("First error"));
+			await assertPromiseResolved(promise1, true);
+			await assertPromiseResolved(instance.waitForFinishOnce(), true);
+			await assertRejectsPromise1;
+
+			// Running a second time to make sure that waitForFinish() stays resolved
+			const assertRejectsPromise2 = assertRejects(async () => {
+				await instance.run("");
+			});
+			await assertPromiseResolved(instance.waitForFinishOnce(), true);
+			await rejectPromise(new Error("second error"));
+			await assertPromiseResolved(instance.waitForFinishOnce(), true);
+			await assertRejectsPromise2;
 		});
 	},
 });
@@ -255,6 +320,39 @@ Deno.test({
 });
 
 Deno.test({
+	name: "waitForFinishIfRunning resolves when the function rejects",
+	async fn() {
+		await runOnceMatrix(async ({ instance, rejectPromise, once }) => {
+			const promise1 = instance.waitForFinishIfRunning();
+			await assertPromiseResolved(promise1, true);
+			await assertPromiseResolved(instance.waitForFinishIfRunning(), true);
+			const assertRejectsPromise1 = assertRejects(async () => {
+				await instance.run("");
+			});
+			const promise2 = instance.waitForFinishIfRunning();
+			await assertPromiseResolved(promise2, false);
+			await assertPromiseResolved(instance.waitForFinishIfRunning(), false);
+			await rejectPromise(new Error("first error"));
+			await assertPromiseResolved(promise2, true);
+			await assertPromiseResolved(instance.waitForFinishIfRunning(), true);
+			await assertRejectsPromise1;
+
+			// Running a second time to make sure that waitForFinishIfRunning() becomes pending again
+			const assertRejectsPromise2 = assertRejects(async () => {
+				await instance.run("");
+			});
+			const promise3 = instance.waitForFinishIfRunning();
+			await assertPromiseResolved(promise3, once);
+			await assertPromiseResolved(instance.waitForFinishIfRunning(), once);
+			await rejectPromise(new Error("second error"));
+			await assertPromiseResolved(promise3, true);
+			await assertPromiseResolved(instance.waitForFinishIfRunning(), true);
+			await assertRejectsPromise2;
+		});
+	},
+});
+
+Deno.test({
 	name: "promises are resolved in the correct order",
 	async fn() {
 		await runOnceMatrix(async ({ instance, resolvePromise }) => {
@@ -284,6 +382,26 @@ Deno.test({
 			await promise2;
 			await promise3;
 			assertEquals(order, [1, 2, 3]);
+		});
+	},
+});
+
+Deno.test({
+	name: "run rejects when the fuction rejects",
+	async fn() {
+		await runOnceMatrix(async ({ instance, rejectPromise, once }) => {
+			const assertRejectsPromise1 = assertRejects(async () => {
+				await instance.run();
+			}, Error, "The error message");
+			await rejectPromise(new Error("The error message"));
+			await assertRejectsPromise1;
+
+			const expectedMessage = once ? "The error message" : "The second error message";
+			const assertRejectsPromise2 = assertRejects(async () => {
+				await instance.run();
+			}, Error, expectedMessage);
+			await rejectPromise(new Error("The second error message"));
+			await assertRejectsPromise2;
 		});
 	},
 });

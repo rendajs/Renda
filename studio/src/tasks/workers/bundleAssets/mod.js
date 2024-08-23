@@ -1,7 +1,7 @@
 import { TypedMessenger } from "../../../../../src/util/TypedMessenger/TypedMessenger.js";
 import { bundle } from "./bundle.js";
 
-/** @typedef {typeof messenger} BundleScriptsMessenger */
+/** @typedef {typeof messenger} BundleAssetsMessenger */
 /** @typedef {typeof responseHandlers} BundleAssetsMessengerResponseHandlers */
 
 /** @type {TypedMessenger<BundleAssetsMessengerResponseHandlers, import("../../task/TaskBundleAssets.js").BundleAssetsMessengerResponseHandlers>} */

@@ -1,8 +1,8 @@
-import transpiledRollup from "../../../../deps/rollup.browser.js";
+import { rollup as rollupWithoutTypes } from "../../../../../npm_packages/@rollup/browser/4.18.0/dist/es/rollup.browser.js";
 import { resolvePlugin } from "./resolvePlugin.js";
 import resolveUrlObjects from "../../../../deps/rollup-plugin-resolve-url-objects.js";
 
-const rollup = /** @type {import("rollup")} */ (transpiledRollup);
+const rollup = /** @type {import("$rollup").rollup} */ (rollupWithoutTypes);
 
 /**
  * @typedef BundleOptions
@@ -31,7 +31,7 @@ export async function bundle({ inputPaths, outputPath, readScriptCallbackId, ser
 		return result;
 	};
 
-	const bundle = await rollup.rollup({
+	const bundle = await rollup({
 		input: inputPaths,
 		plugins: [
 			resolvePlugin({

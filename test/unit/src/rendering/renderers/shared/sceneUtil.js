@@ -19,6 +19,7 @@ export function createVertexState() {
 						componentCount: 3,
 						format: Mesh.AttributeFormat.FLOAT32,
 						unsigned: false,
+						shaderLocation: 0,
 					},
 				],
 			},
@@ -31,6 +32,7 @@ export function createVertexState() {
 						componentCount: 4,
 						format: Mesh.AttributeFormat.FLOAT32,
 						unsigned: false,
+						shaderLocation: 1,
 					},
 				],
 			},
@@ -43,7 +45,7 @@ export function createVertexState() {
  * @param {object} options
  * @param {Entity} options.scene
  * @param {import("../../../../../../src/mod.js").Material} options.material
- * @param {VertexState} options.vertexState
+ * @param {VertexState?} options.vertexState
  */
 export function createCubeEntity({ scene, material, vertexState }) {
 	const cubeEntity = scene.add(new Entity("cube"));
