@@ -49,8 +49,8 @@ export async function parseJsonData(jsonData, {
 		getBuffer(bufferIndex) {
 			return getBufferHelper(jsonData, bufferIndex, createdBuffers, containerBinary);
 		},
-		getBufferView(bufferViewIndex) {
-			return getBufferViewBuffer(jsonData, bufferViewIndex, parsingContext);
+		getBufferView(bufferViewIndex, byteOffset = 0) {
+			return getBufferViewBuffer(jsonData, bufferViewIndex, parsingContext, byteOffset);
 		},
 		extensions,
 	};

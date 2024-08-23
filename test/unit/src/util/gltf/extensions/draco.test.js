@@ -196,14 +196,14 @@ Deno.test({
 		/** @type {import("../../../../../../src/mod.js").GltfDracoExtensionPrimitive} */
 		const extensionData = {
 			attributes: {
-				ATTRIBUTE_WITH_DRACO: 0,
+				COLOR_0: 0,
 			},
 			bufferView: 2,
 		};
 		await extension.handlePrimitive({
 			attributes: {
 				POSITION: 0,
-				ATTRIBUTE_WITH_DRACO: 1,
+				COLOR_0: 1,
 			},
 			extensions: {
 				[DRACO_EXTENSION_NAME]: extensionData,
@@ -211,7 +211,7 @@ Deno.test({
 		}, gltfContext, primitiveContext);
 		assertSpyCalls(setIndexBufferSpy, 0);
 		assertSpyCalls(setAttributeBufferSpy, 1);
-		assertEquals(setAttributeBufferSpy.calls[0].args[0], "ATTRIBUTE_WITH_DRACO");
+		assertEquals(setAttributeBufferSpy.calls[0].args[0], Mesh.AttributeType.COLOR);
 		assertEquals(Array.from(new Uint8Array(setAttributeBufferSpy.calls[0].args[1])), attributeBytes);
 	},
 });

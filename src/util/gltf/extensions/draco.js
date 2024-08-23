@@ -1,4 +1,5 @@
 import { Mesh } from "../../../core/Mesh.js";
+import { gltfAttributeNameToRendaAttributeType } from "../applyMeshComponents.js";
 
 /**
  * @typedef DracoDecoderModule
@@ -115,7 +116,9 @@ export function draco(decoderModule) {
 				decoder.GetAttributeDataArrayForAllPoints(mesh, attribute, dataType, byteLength, ptr);
 				const slice = decoderModule.HEAPU8.buffer.slice(ptr, ptr + byteLength);
 				decoderModule._free(ptr);
-				primitiveContext.setAttributeBuffer(attributeName, slice);
+
+				const attributeType = gltfAttributeNameToRendaAttributeType(attributeName);
+				primitiveContext.setAttributeBuffer(attributeType, slice);
 			}
 
 			// Decode index buffer

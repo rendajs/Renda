@@ -2,7 +2,6 @@ import { Mesh } from "../../core/Mesh.js";
 import { MeshComponent } from "../../components/builtIn/MeshComponent.js";
 import { VertexState } from "../../rendering/VertexState.js";
 import { BYTE, FLOAT, SHORT, UNSIGNED_BYTE, UNSIGNED_INT, UNSIGNED_SHORT } from "./constants.js";
-import { getBufferViewBuffer } from "./getBuffer.js";
 
 /**
  * @typedef {CreatedGltfMeshPrimitiveData[]} CreatedGltfMeshData
@@ -86,7 +85,7 @@ async function createMeshFromGltfPrimitive(gltfPrimitive, gltfJsonData, parsingC
 	/** @type {Map<number, ArrayBuffer>} */
 	const meshBuffers = new Map();
 
-	/** @type {Map<string, ArrayBuffer>} */
+	/** @type {Map<number, ArrayBuffer>} */
 	const extensionAttributes = new Map();
 	let extensionIndexBuffer = /** @type {{buffer: ArrayBuffer, format: number}?} */ (null);
 
@@ -100,8 +99,8 @@ async function createMeshFromGltfPrimitive(gltfPrimitive, gltfJsonData, parsingC
 		getIndexAccessorData() {
 			return indexAccessorData;
 		},
-		setAttributeBuffer(name, buffer) {
-			extensionAttributes.set(name, buffer);
+		setAttributeBuffer(attributeType, buffer) {
+			extensionAttributes.set(attributeType, buffer);
 		},
 		setIndexBuffer(format, buffer) {
 			extensionIndexBuffer = { buffer, format };
@@ -124,8 +123,7 @@ async function createMeshFromGltfPrimitive(gltfPrimitive, gltfJsonData, parsingC
 			indicesBuffer = extensionIndexBuffer.buffer;
 			indexFormat = extensionIndexBuffer.format;
 		} else if (accessorData.bufferView != undefined) {
-			const accessorByteOffset = accessorData.byteOffset || 0;
-			indicesBuffer = await getBufferViewBuffer(gltfJsonData, accessorData.bufferView, parsingContext, accessorByteOffset);
+			indicesBuffer = await parsingContext.getBufferView(accessorData.bufferView, accessorData.byteOffset);
 		} else {
 			// According to the spec, we should create an empty buffer with all zeros.
 			let bytesPerComponent;
@@ -147,13 +145,13 @@ async function createMeshFromGltfPrimitive(gltfPrimitive, gltfJsonData, parsingC
 	let vertexCountSet = false;
 	for (const [attributeName, accessorIndex] of Object.entries(gltfPrimitive.attributes)) {
 		const { accessorData, attributeType, format, unsigned, componentCount } = await getVertexAccessorData(gltfJsonData, accessorIndex, attributeName);
-		const extensionBuffer = extensionAttributes.get(attributeName);
+		const extensionBuffer = extensionAttributes.get(attributeType);
 
 		let buffer;
 		if (extensionBuffer) {
 			buffer = extensionBuffer;
 		} else if (accessorData.bufferView != undefined) {
-			buffer = await getBufferViewBuffer(gltfJsonData, accessorData.bufferView, parsingContext, accessorData.byteOffset || 0);
+			buffer = await parsingContext.getBufferView(accessorData.bufferView, accessorData.byteOffset);
 		} else {
 			// According to the spec we're supposed to create a buffer with all zeros.
 			// However, a renda Mesh instance already creates buffers as long as we provide it the right
@@ -234,33 +232,10 @@ async function getVertexAccessorData(gltfJsonData, accessorIndex, attributeName)
 		throw new Error("Accessor component type UNSIGNED_INT is only allowed for index buffers.");
 	}
 
-	let attributeType;
+	const attributeType = gltfAttributeNameToRendaAttributeType(attributeName);
 	let format;
 	let unsigned;
 	let componentCount;
-
-	switch (attributeName) {
-		case "POSITION":
-			attributeType = Mesh.AttributeType.POSITION;
-			break;
-		case "NORMAL":
-			attributeType = Mesh.AttributeType.NORMAL;
-			break;
-		case "TANGENT":
-			attributeType = Mesh.AttributeType.TANGENT;
-			break;
-		case "TEXCOORD_0":
-			attributeType = Mesh.AttributeType.UV1;
-			break;
-		case "TEXCOORD_1":
-			attributeType = Mesh.AttributeType.UV2;
-			break;
-		case "COLOR_0":
-			attributeType = Mesh.AttributeType.COLOR;
-			break;
-		default:
-			throw new Error(`Unknown attribute type: ${attributeName}`);
-	}
 
 	switch (accessorData.componentType) {
 		case BYTE:
@@ -354,4 +329,26 @@ async function getIndexAccessorData(gltfJsonData, accessorIndex) {
 		format,
 		accessorData,
 	};
+}
+
+/**
+ * @param {string} attributeName
+ */
+export function gltfAttributeNameToRendaAttributeType(attributeName) {
+	switch (attributeName) {
+		case "POSITION":
+			return Mesh.AttributeType.POSITION;
+		case "NORMAL":
+			return Mesh.AttributeType.NORMAL;
+		case "TANGENT":
+			return Mesh.AttributeType.TANGENT;
+		case "TEXCOORD_0":
+			return Mesh.AttributeType.UV1;
+		case "TEXCOORD_1":
+			return Mesh.AttributeType.UV2;
+		case "COLOR_0":
+			return Mesh.AttributeType.COLOR;
+		default:
+			throw new Error(`Unknown attribute type: ${attributeName}`);
+	}
 }

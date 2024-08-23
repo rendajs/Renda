@@ -1,6 +1,6 @@
 import { assertEquals, assertExists, assertRejects } from "std/testing/asserts.ts";
-import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
-import { Entity, Material, MeshComponent } from "../../../../../src/mod.js";
+import { assertSpyCall, assertSpyCalls, spy, stub } from "std/testing/mock.ts";
+import { Entity, Material, Mesh, MeshComponent } from "../../../../../src/mod.js";
 import { applyMeshComponents } from "../../../../../src/util/gltf/applyMeshComponents.js";
 import { FLOAT, UNSIGNED_INT, UNSIGNED_SHORT } from "../../../../../src/util/gltf/constants.js";
 import { createMockParsingContext } from "./shared.js";
@@ -51,31 +51,31 @@ function basicSetup({
 			{
 				type: "VEC3",
 				componentType: FLOAT,
-				count: 10,
+				count: 3,
 				bufferView: 0,
 			},
 			{
 				type: "VEC2",
 				componentType: FLOAT,
-				count: 10,
+				count: 3,
 				bufferView: 1,
 			},
 			{
 				type: "VEC2",
 				componentType: FLOAT,
-				count: 10,
+				count: 3,
 				bufferView: 2,
 			},
 			{
 				type: "VEC4",
 				componentType: FLOAT,
-				count: 10,
+				count: 3,
 				bufferView: 3,
 			},
 			{
 				type: indicesAccessorType,
 				componentType: indicesAccessorComponentType,
-				count: 10,
+				count: 3,
 				bufferView: 4,
 			},
 		],
@@ -118,12 +118,30 @@ Deno.test({
 	name: "Basic mesh",
 	async fn() {
 		const { entityNodeIds, entity, basicGltfJsonData, parsingContext, getMaterialFn } = basicSetup();
+
+		stub(parsingContext, "getBufferView", async (bufferViewIndex) => {
+			if (bufferViewIndex == 0) { // position attribute
+				return new Float32Array([0, 0, 0, 1, 1, 1, 2, 2, 2]);
+			} else if (bufferViewIndex == 4) { // Indices buffer
+				return new Uint32Array([0, 1, 2]).buffer;
+			} else {
+				return new ArrayBuffer(0);
+			}
+		});
+
 		await applyMeshComponents(basicGltfJsonData, entityNodeIds, parsingContext, { getMaterialFn });
 
-		const meshComponent = entity.getComponent(MeshComponent);
-		assertExists(meshComponent);
+		const mesh = entity.getComponent(MeshComponent)?.mesh;
+		assertExists(mesh);
 
-		// TODO: assert that the created mesh has the correct data
+		assertEquals(mesh.indexFormat, Mesh.IndexFormat.UINT_32);
+		assertEquals(mesh.indexCount, 3);
+		assertEquals(Array.from(new Uint32Array(mesh.indexBuffer)), [0, 1, 2]);
+
+		const attributeBuffer = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
+		assertExists(attributeBuffer);
+
+		assertEquals(Array.from(new Float32Array(attributeBuffer.buffer)), [0, 0, 0, 1, 1, 1, 2, 2, 2]);
 	},
 });
 
@@ -169,42 +187,6 @@ Deno.test({
 				],
 			}, entityNodeIds, parsingContext, { getMaterialFn });
 		}, Error, "Failed to get accessor with index 123 because it does not exist.");
-	},
-});
-
-Deno.test({
-	name: "Nonexistent bufferview throws",
-	async fn() {
-		const { entityNodeIds, parsingContext, getMaterialFn } = basicSetup();
-		await assertRejects(async () => {
-			await applyMeshComponents({
-				asset: { version: "2.0" },
-				nodes: [
-					{
-						mesh: 0,
-					},
-				],
-				meshes: [
-					{
-						primitives: [
-							{
-								attributes: {
-									POSITION: 0,
-								},
-							},
-						],
-					},
-				],
-				accessors: [
-					{
-						type: "VEC3",
-						componentType: FLOAT,
-						count: 10,
-						bufferView: 123,
-					},
-				],
-			}, entityNodeIds, parsingContext, { getMaterialFn });
-		}, Error, "Tried to reference buffer view with index 123 but it does not exist.");
 	},
 });
 
@@ -353,5 +335,39 @@ Deno.test({
 		assertEquals(attributeBuffers.length, 2);
 		assertEquals(attributeBuffers[0].buffer.byteLength, 240);
 		assertEquals(attributeBuffers[1].buffer.byteLength, 80);
+	},
+});
+
+Deno.test({
+	name: "extension hooks are called and applied",
+	async fn() {
+		const { entity, entityNodeIds, basicGltfJsonData, parsingContext, getMaterialFn } = basicSetup();
+
+		/** @type {import("../../../../../src/util/gltf/gltfParsing.js").GltfExtension} */
+		const extension = {
+			name: "TEST_extension",
+			handlePrimitive(primitive, parsingContext, primitiveContext) {
+				primitiveContext.setIndexBuffer(Mesh.IndexFormat.UINT_16, new Uint16Array([0, 1, 2]).buffer);
+				primitiveContext.setAttributeBuffer(Mesh.AttributeType.POSITION, new Float32Array([0, 0, 0, 1, 1, 1, 2, 2, 2]).buffer);
+			},
+		};
+		const handlePrimitiveSpy = spy(extension, "handlePrimitive");
+		parsingContext.extensions = [extension];
+
+		await applyMeshComponents(basicGltfJsonData, entityNodeIds, parsingContext, { getMaterialFn });
+
+		assertSpyCalls(handlePrimitiveSpy, 1);
+
+		const mesh = entity.getComponent(MeshComponent)?.mesh;
+		assertExists(mesh);
+
+		assertEquals(mesh.indexFormat, Mesh.IndexFormat.UINT_16);
+		assertEquals(mesh.indexCount, 3);
+		assertEquals(Array.from(new Uint16Array(mesh.indexBuffer)), [0, 1, 2]);
+
+		const attributeBuffer = mesh.getAttributeBufferForType(Mesh.AttributeType.POSITION);
+		assertExists(attributeBuffer);
+
+		assertEquals(Array.from(new Float32Array(attributeBuffer.buffer)), [0, 0, 0, 1, 1, 1, 2, 2, 2]);
 	},
 });

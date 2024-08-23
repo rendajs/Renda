@@ -10,13 +10,13 @@ import { parseJsonData } from "./parseJsonData.js";
 /**
  * @typedef GltfParsingContext
  * @property {(bufferIndex: number) => Promise<ArrayBuffer>} getBuffer
- * @property {(bufferViewIndex: number) => Promise<ArrayBuffer>} getBufferView
+ * @property {(bufferViewIndex: number, byteOffset?: number) => Promise<ArrayBuffer>} getBufferView
  * @property {GltfExtension[]} extensions
  */
 
 /**
  * @typedef GltfPrimitiveParsingContext
- * @property {(name: string, buffer: ArrayBuffer) => void} setAttributeBuffer
+ * @property {(attributeType: number, buffer: ArrayBuffer) => void} setAttributeBuffer
  * @property {(format: number, buffer: ArrayBuffer) => void} setIndexBuffer
  * @property {() => import("./applyMeshComponents.js").GltfPrimitiveParsingContextIndexAccessorData?} getIndexAccessorData
  */
