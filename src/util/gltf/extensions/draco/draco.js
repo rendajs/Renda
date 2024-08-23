@@ -80,6 +80,8 @@ export function draco(decoderModule) {
 	return {
 		name: EXTENSION_NAME,
 		async handlePrimitive(primitive, gltfContext, primitiveContext) {
+			/* eslint-disable new-cap */
+			/* eslint-disable no-underscore-dangle */
 			if (!primitive.extensions) return;
 			const extensionData = /** @type {GltfDracoExtensionPrimitive | undefined} */ (primitive.extensions[EXTENSION_NAME]);
 			if (!extensionData) return;
