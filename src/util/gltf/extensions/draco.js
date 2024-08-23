@@ -1,4 +1,4 @@
-import { Mesh } from "../../../../core/Mesh.js";
+import { Mesh } from "../../../core/Mesh.js";
 
 /**
  * @typedef DracoDecoderModule
@@ -72,7 +72,7 @@ const EXTENSION_NAME = "KHR_draco_mesh_compression";
 
 /**
  * @param {DracoDecoderModule} decoderModule
- * @returns {import("../../gltfParsing.js").GltfExtension}
+ * @returns {import("../gltfParsing.js").GltfExtension}
  */
 export function draco(decoderModule) {
 	const decoder = new decoderModule.Decoder();

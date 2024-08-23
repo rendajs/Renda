@@ -1,1 +1,1 @@
-export * from "./draco/mod.js";
+export * from "./draco.js";
