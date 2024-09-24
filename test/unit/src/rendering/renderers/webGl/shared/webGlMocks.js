@@ -1,4 +1,4 @@
-import { create2dRenderingContext } from "./RenderingContext2d.js";
+import { clearCreated2dRenderingContexts, create2dRenderingContext } from "./RenderingContext2d.js";
 import { createWebGlRenderingContext } from "./WebGlRenderingContext.js";
 
 const oldDocument = globalThis.document;
@@ -54,6 +54,8 @@ export function installWebGlMocks() {
 export function uninstallWebGlMocks() {
 	globalThis.document = oldDocument;
 	installed = false;
+	createdContexts = [];
+	clearCreated2dRenderingContexts();
 }
 
 /**
@@ -86,7 +88,7 @@ export function set2dContextSupported(supported) {
 	context2dSupported = supported;
 }
 
-export function assertHasSingleContext() {
+export function assertHasSingleWebGlContext() {
 	if (createdContexts.length != 1) {
 		throw new Error("Expected exactly one webgl context to be created");
 	}
