@@ -1,9 +1,11 @@
 import { assertEquals, assertRejects, assertStrictEquals } from "std/testing/asserts.ts";
 import { CustomMaterialData, Entity, Material, MaterialMap, Mesh, ShaderSource, VertexState, WebGlMaterialConfig, WebGlMaterialMapType, WebGlRenderer, WebGlRendererError } from "../../../../../../src/mod.js";
-import { assertHasSingleContext, runWithWebGlMocksAsync, setWebGlContextSupported } from "./shared/webGlMocks.js";
+import { assertHasSingleWebGlContext, runWithWebGlMocksAsync, setWebGlContextSupported } from "./shared/webGlMocks.js";
 import { assertIsType, testTypes } from "../../../../shared/typeAssertions.js";
 import { createCam, createCubeEntity, createVertexState } from "../shared/sceneUtil.js";
 import { assertLogEntryEquals, assertLogEquals } from "./shared/WebGlCommandLog.js";
+import { assertHasSingle2dRenderingContext } from "./shared/RenderingContext2d.js";
+import { assertSpyCall, assertSpyCalls, spy } from "std/testing/mock.ts";
 
 async function basicRendererSetup() {
 	const renderer = new WebGlRenderer();
@@ -15,7 +17,7 @@ async function basicRendererSetup() {
 	const scene = new Entity();
 	scene.add(cam);
 
-	const context = assertHasSingleContext();
+	const context = assertHasSingleWebGlContext();
 
 	return { renderer, domTarget, camComponent, scene, ...context };
 }
@@ -88,10 +90,25 @@ Deno.test({
 
 			const domTarget = renderer.createDomTarget();
 
+			const context2d = assertHasSingle2dRenderingContext();
+			const { commandLog, canvas: webGlCanvas } = assertHasSingleWebGlContext();
+
+			const clearRectSpy = spy(context2d, "clearRect");
+			const drawImageSpy = spy(context2d, "drawImage");
+
 			const { camComponent } = createCam();
 			domTarget.render(camComponent);
 
-			const { commandLog } = assertHasSingleContext();
+			assertSpyCalls(clearRectSpy, 1);
+			assertSpyCall(clearRectSpy, 0, {
+				args: [0, 0, 300, 150],
+			});
+			assertSpyCalls(drawImageSpy, 1);
+			assertEquals(drawImageSpy.calls[0].args.length, 3);
+			assertStrictEquals(drawImageSpy.calls[0].args[0], webGlCanvas);
+			assertEquals(drawImageSpy.calls[0].args[1], 0);
+			assertEquals(drawImageSpy.calls[0].args[2], 0);
+
 			commandLog.assertCount(5);
 
 			commandLog.assertLogEquals([
@@ -127,7 +144,7 @@ Deno.test({
 			const renderer = new WebGlRenderer();
 			await renderer.init();
 
-			const { commandLog, canvas } = assertHasSingleContext();
+			const { commandLog, canvas } = assertHasSingleWebGlContext();
 
 			const domTargetA = renderer.createDomTarget();
 			domTargetA.resize(100, 200);
