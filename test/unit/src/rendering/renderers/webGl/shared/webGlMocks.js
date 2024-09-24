@@ -54,6 +54,7 @@ export function installWebGlMocks() {
 export function uninstallWebGlMocks() {
 	globalThis.document = oldDocument;
 	installed = false;
+	createdContexts = [];
 	clearCreated2dRenderingContexts();
 }
 
