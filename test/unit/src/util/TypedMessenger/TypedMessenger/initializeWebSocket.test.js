@@ -3,6 +3,7 @@ import { TypedMessenger } from "../../../../../../src/util/TypedMessenger/TypedM
 import { assertSpyCalls, stub } from "std/testing/mock.ts";
 import { assertPromiseResolved } from "../../../../../../src/util/asserts.js";
 import { createLinkedMessengers, createLinkedWebSockets } from "./shared/websockets.js";
+import { waitForMicrotasks } from "../../../../../../src/util/waitForMicroTasks.js";
 
 Deno.test({
 	name: "initializeWebSocket()",
@@ -73,6 +74,31 @@ Deno.test({
 
 			assertSpyCalls(consoleSpy, 1);
 			assertEquals(consoleSpy.calls[0].args[0], "An error occurred while handling a websocket message.");
+		} finally {
+			consoleSpy.restore();
+		}
+	},
+});
+
+Deno.test({
+	name: "Errors due to websocket closing before a response message is sent are caught",
+	async fn() {
+		const consoleSpy = stub(console, "error", () => {});
+
+		try {
+			const { socketA, socketB } = createLinkedWebSockets();
+			const { messengerB } = createLinkedMessengers(socketA, socketB, {
+				foo() {
+					return "foo";
+				},
+			}, {});
+			socketA.close();
+			const sendPromise = messengerB.send.foo();
+
+			await waitForMicrotasks();
+			assertSpyCalls(consoleSpy, 1);
+			assertEquals(consoleSpy.calls[0].args[0], "An error occurred while handling a websocket message.");
+			await assertPromiseResolved(sendPromise, false);
 		} finally {
 			consoleSpy.restore();
 		}

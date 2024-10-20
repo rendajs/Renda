@@ -533,7 +533,7 @@ export class TypedMessenger {
 			try {
 				if (typeof message.data == "string") {
 					const parsed = JSON.parse(message.data);
-					this.handleReceivedMessage(parsed);
+					await this.handleReceivedMessage(parsed);
 				}
 			} catch (e) {
 				console.error("An error occurred while handling a websocket message.", message.data, e);

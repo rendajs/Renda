@@ -14,6 +14,9 @@ class FakeWebSocket extends EventTarget {
 	 * @param {string} data
 	 */
 	send(data) {
+		if (this.#readyState != WebSocket.OPEN) {
+			throw new DOMException("readyState not OPEN", "InvalidStateError");
+		}
 		this.#otherSocket?.dispatchEvent(new MessageEvent("message", {
 			data,
 		}));
@@ -22,6 +25,11 @@ class FakeWebSocket extends EventTarget {
 	open() {
 		this.#readyState = WebSocket.OPEN;
 		this.dispatchEvent(new Event("open"));
+	}
+
+	close() {
+		this.#readyState = WebSocket.CLOSED;
+		this.dispatchEvent(new Event("close"));
 	}
 
 	error() {
