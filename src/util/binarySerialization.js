@@ -204,11 +204,10 @@ export function createObjectToBinaryStructure(structure) {
 
 /**
  * @template {import("./binarySerializationTypes.ts").AllowedStructureFormat} T
- * @param {import("./binarySerializationTypes.ts").StructureToObject<T, true>} data
- * @param {ObjectToBinaryOptions<T>} opts
- * @returns {ArrayBuffer}
+ * @param {ObjectToBinaryOptions<T>} options
+ * @returns {(data: import("./binarySerializationTypes.ts").StructureToObject<T, true>) => ArrayBuffer}
  */
-export function objectToBinary(data, {
+export function createBinarySerializer({
 	structure,
 	nameIds,
 	littleEndian = true,
@@ -220,155 +219,155 @@ export function objectToBinary(data, {
 	assertNonDuplicateNameIds(nameIds);
 	const nameIdsMap = new Map(Object.entries(nameIds));
 
-	const castData = /** @type {object} */ (data);
-	const reoccurringObjectReferences = collectReoccurringReferences(castData, nameIdsMap, false);
+	return (data) => {
+		const castData = /** @type {object} */ (data);
+		const reoccurringObjectReferences = collectReoccurringReferences(castData, nameIdsMap, false);
 
-	/** @type {Set<import("./binarySerializationTypes.ts").AllowedStructureFormat>} */
-	let reoccurringStructureReferences;
-	if (reoccurringObjectReferences.size > 0) {
-		// If any of the objects is used more than once, we need to make sure that
-		// all of the objects that have a reocurring structure are treated as a
-		// reference as well. This is because, when deserializing, there's no way
-		// to know if an object is a reoccurring reference or not.
-		// So when deserializing the assumption is made that if a reference is
-		// reocurring in the structure, it is encoded as a reference id, rather
-		// than an inline object.
-		// Only when the object contains zero reocurring (object) references, we
-		// can set the refIdStorageType in the header bit to NULL, to let the
-		// deserializer know that all of the objects are encoded as inline object
-		// rather than as reference ids.
+		/** @type {Set<import("./binarySerializationTypes.ts").AllowedStructureFormat>} */
+		let reoccurringStructureReferences;
+		if (reoccurringObjectReferences.size > 0) {
+			// If any of the objects is used more than once, we need to make sure that
+			// all of the objects that have a reocurring structure are treated as a
+			// reference as well. This is because, when deserializing, there's no way
+			// to know if an object is a reoccurring reference or not.
+			// So when deserializing the assumption is made that if a reference is
+			// reocurring in the structure, it is encoded as a reference id, rather
+			// than an inline object.
+			// Only when the object contains zero reocurring (object) references, we
+			// can set the refIdStorageType in the header bit to NULL, to let the
+			// deserializer know that all of the objects are encoded as inline object
+			// rather than as reference ids.
 
-		// So we collect the structure references as well
-		reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
-	} else {
-		reoccurringStructureReferences = new Set();
-	}
-
-	const referencesAndStructures = getStoreAsReferenceItems(reoccurringObjectReferences, reoccurringStructureReferences, castData, structure, nameIdsMap);
-
-	/** @type {Map<object, number>} */
-	const referenceIds = new Map();
-	const sortedReferences = [];
-	for (const [ref, structure] of referencesAndStructures) {
-		const id = sortedReferences.length;
-		referenceIds.set(ref, id);
-		sortedReferences.push({ ref, structure });
-	}
-
-	// Only if objects are referenced more than once, will we set the
-	// refIdStorageType to something other than NULL.
-	// That way the deserializer knows it can safely parse data as inline
-	// rather than as ref id when the header bit is set to NULL.
-	// We'll check the size of reoccurringObjectReferences rather than
-	// length of sortedReferences, because the latter will include the root
-	// object regardless of whether it is referenced more than once or not.
-	/** @type {AllStorageTypes} */
-	let refIdStorageType = StorageType.NULL;
-	if (reoccurringObjectReferences.size > 0) {
-		const highestReferenceId = sortedReferences.length;
-		const { type } = requiredStorageTypeForUint(highestReferenceId);
-		refIdStorageType = type;
-	}
-
-	/** @type {BinarySerializationBinaryDigestible[]} */
-	const binaryDigestable = [];
-	for (const { ref, structure } of sortedReferences) {
-		const digestable = generateBinaryDigestable(ref, structure, { referenceIds, nameIdsMap, isInitialItem: true });
-		binaryDigestable.push(digestable);
-	}
-
-	const biggestVariableArrayLength = findBiggestVariableArrayLength(binaryDigestable);
-	const dataContainsVariableLengthArrays = biggestVariableArrayLength >= 0;
-	const { type: arrayLengthStorageType } = requiredStorageTypeForUint(biggestVariableArrayLength);
-
-	const biggestStringLength = 600; // todo
-	const { type: stringLengthStorageType, bytes: stringLengthByteLength } = requiredStorageTypeForUint(biggestStringLength);
-
-	const biggestArrayBufferLength = 600; // todo
-	const { type: arrayBufferLengthStorageType, bytes: arrayBufferLengthByteLength } = requiredStorageTypeForUint(biggestArrayBufferLength);
-
-	const flattened = Array.from(flattenBinaryDigestable(binaryDigestable, arrayLengthStorageType));
-	// console.log(flattened);
-
-	for (const item of flattened) {
-		if (item.type == StorageType.OBJECT || item.type == StorageType.ARRAY) {
-			item.type = refIdStorageType;
-		}
-	}
-
-	const textEncoder = new TextEncoder();
-	let totalByteLength = 0;
-	let hasCustomVariableLengthStorageTypes = false;
-	if (useHeaderByte) {
-		totalByteLength++;
-		variableLengthStorageTypes = {
-			...defaultVariableLengthStorageTypes,
-			...variableLengthStorageTypes,
-		};
-		hasCustomVariableLengthStorageTypes =
-				refIdStorageType != variableLengthStorageTypes.refId ||
-				(arrayLengthStorageType != variableLengthStorageTypes.array && dataContainsVariableLengthArrays) ||
-				stringLengthStorageType != variableLengthStorageTypes.string ||
-				arrayBufferLengthStorageType != variableLengthStorageTypes.arrayBuffer;
-
-		if (hasCustomVariableLengthStorageTypes) totalByteLength++;
-	}
-	for (const item of flattened) {
-		if (transformValueHook) {
-			item.value = transformValueHook({ type: item.type, value: item.value });
-		}
-		const { length, value } = getStructureTypeLength(item.type, {
-			value: item.value,
-			textEncoder, stringLengthByteLength, arrayBufferLengthByteLength,
-		});
-		totalByteLength += length;
-		if (value) item.value = value;
-	}
-
-	const buffer = new ArrayBuffer(totalByteLength);
-	const dataView = new DataView(buffer);
-	let byteOffset = 0;
-
-	if (useHeaderByte) {
-		let headerByte = 0;
-
-		if (hasCustomVariableLengthStorageTypes) {
-			headerByte |= HeaderBits.hasCustomVariableLengthStorageTypes;
+			// So we collect the structure references as well
+			reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+		} else {
+			reoccurringStructureReferences = new Set();
 		}
 
-		byteOffset += setDataViewValue(dataView, headerByte, StorageType.UINT8, byteOffset, { littleEndian });
+		const referencesAndStructures = getStoreAsReferenceItems(reoccurringObjectReferences, reoccurringStructureReferences, castData, structure, nameIdsMap);
 
-		if (hasCustomVariableLengthStorageTypes) {
-			const refIdStorageTypeBits = variableLengthStorageTypeToBits(refIdStorageType);
-			const arrayLengthStorageTypeBits = variableLengthStorageTypeToBits(arrayLengthStorageType);
-			const stringLengthStorageTypeBits = variableLengthStorageTypeToBits(stringLengthStorageType);
-			const arrayBufferLengthStorageTypeBits = variableLengthStorageTypeToBits(arrayBufferLengthStorageType);
-
-			let customStorageTypesByte = 0;
-			customStorageTypesByte |= refIdStorageTypeBits;
-			customStorageTypesByte |= arrayLengthStorageTypeBits << 2;
-			customStorageTypesByte |= stringLengthStorageTypeBits << 4;
-			customStorageTypesByte |= arrayBufferLengthStorageTypeBits << 6;
-
-			byteOffset += setDataViewValue(dataView, customStorageTypesByte, StorageType.UINT8, byteOffset, { littleEndian });
+		/** @type {Map<object, number>} */
+		const referenceIds = new Map();
+		const sortedReferences = [];
+		for (const [ref, structure] of referencesAndStructures) {
+			const id = sortedReferences.length;
+			referenceIds.set(ref, id);
+			sortedReferences.push({ ref, structure });
 		}
-	}
 
-	for (const item of flattened) {
-		const bytesMoved = setDataViewValue(dataView, item.value, item.type, byteOffset, { littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, studioAssetManager });
-		byteOffset += bytesMoved;
-	}
+		// Only if objects are referenced more than once, will we set the
+		// refIdStorageType to something other than NULL.
+		// That way the deserializer knows it can safely parse data as inline
+		// rather than as ref id when the header bit is set to NULL.
+		// We'll check the size of reoccurringObjectReferences rather than
+		// length of sortedReferences, because the latter will include the root
+		// object regardless of whether it is referenced more than once or not.
+		/** @type {AllStorageTypes} */
+		let refIdStorageType = StorageType.NULL;
+		if (reoccurringObjectReferences.size > 0) {
+			const highestReferenceId = sortedReferences.length;
+			const { type } = requiredStorageTypeForUint(highestReferenceId);
+			refIdStorageType = type;
+		}
 
-	return buffer;
+		/** @type {BinarySerializationBinaryDigestible[]} */
+		const binaryDigestable = [];
+		for (const { ref, structure } of sortedReferences) {
+			const digestable = generateBinaryDigestable(ref, structure, { referenceIds, nameIdsMap, isInitialItem: true });
+			binaryDigestable.push(digestable);
+		}
+
+		const biggestVariableArrayLength = findBiggestVariableArrayLength(binaryDigestable);
+		const dataContainsVariableLengthArrays = biggestVariableArrayLength >= 0;
+		const { type: arrayLengthStorageType } = requiredStorageTypeForUint(biggestVariableArrayLength);
+
+		const biggestStringLength = 600; // todo
+		const { type: stringLengthStorageType, bytes: stringLengthByteLength } = requiredStorageTypeForUint(biggestStringLength);
+
+		const biggestArrayBufferLength = 600; // todo
+		const { type: arrayBufferLengthStorageType, bytes: arrayBufferLengthByteLength } = requiredStorageTypeForUint(biggestArrayBufferLength);
+
+		const flattened = Array.from(flattenBinaryDigestable(binaryDigestable, arrayLengthStorageType));
+		// console.log(flattened);
+
+		for (const item of flattened) {
+			if (item.type == StorageType.OBJECT || item.type == StorageType.ARRAY) {
+				item.type = refIdStorageType;
+			}
+		}
+
+		const textEncoder = new TextEncoder();
+		let totalByteLength = 0;
+		let hasCustomVariableLengthStorageTypes = false;
+		if (useHeaderByte) {
+			totalByteLength++;
+			variableLengthStorageTypes = {
+				...defaultVariableLengthStorageTypes,
+				...variableLengthStorageTypes,
+			};
+			hasCustomVariableLengthStorageTypes =
+					refIdStorageType != variableLengthStorageTypes.refId ||
+					(arrayLengthStorageType != variableLengthStorageTypes.array && dataContainsVariableLengthArrays) ||
+					stringLengthStorageType != variableLengthStorageTypes.string ||
+					arrayBufferLengthStorageType != variableLengthStorageTypes.arrayBuffer;
+
+			if (hasCustomVariableLengthStorageTypes) totalByteLength++;
+		}
+		for (const item of flattened) {
+			if (transformValueHook) {
+				item.value = transformValueHook({ type: item.type, value: item.value });
+			}
+			const { length, value } = getStructureTypeLength(item.type, {
+				value: item.value,
+				textEncoder, stringLengthByteLength, arrayBufferLengthByteLength,
+			});
+			totalByteLength += length;
+			if (value) item.value = value;
+		}
+
+		const buffer = new ArrayBuffer(totalByteLength);
+		const dataView = new DataView(buffer);
+		let byteOffset = 0;
+
+		if (useHeaderByte) {
+			let headerByte = 0;
+
+			if (hasCustomVariableLengthStorageTypes) {
+				headerByte |= HeaderBits.hasCustomVariableLengthStorageTypes;
+			}
+
+			byteOffset += setDataViewValue(dataView, headerByte, StorageType.UINT8, byteOffset, { littleEndian });
+
+			if (hasCustomVariableLengthStorageTypes) {
+				const refIdStorageTypeBits = variableLengthStorageTypeToBits(refIdStorageType);
+				const arrayLengthStorageTypeBits = variableLengthStorageTypeToBits(arrayLengthStorageType);
+				const stringLengthStorageTypeBits = variableLengthStorageTypeToBits(stringLengthStorageType);
+				const arrayBufferLengthStorageTypeBits = variableLengthStorageTypeToBits(arrayBufferLengthStorageType);
+
+				let customStorageTypesByte = 0;
+				customStorageTypesByte |= refIdStorageTypeBits;
+				customStorageTypesByte |= arrayLengthStorageTypeBits << 2;
+				customStorageTypesByte |= stringLengthStorageTypeBits << 4;
+				customStorageTypesByte |= arrayBufferLengthStorageTypeBits << 6;
+
+				byteOffset += setDataViewValue(dataView, customStorageTypesByte, StorageType.UINT8, byteOffset, { littleEndian });
+			}
+		}
+
+		for (const item of flattened) {
+			const bytesMoved = setDataViewValue(dataView, item.value, item.type, byteOffset, { littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, studioAssetManager });
+			byteOffset += bytesMoved;
+		}
+		return buffer;
+	};
 }
 
 /**
  * @template {import("./binarySerializationTypes.ts").AllowedStructureFormat} T
- * @param {ArrayBuffer} buffer
- * @param {BinaryToObjectOptions<T>} opts
- * @returns {import("./binarySerializationTypes.ts").StructureToObject<T>}
+ * @param {BinaryToObjectOptions<T>} options
+ * @returns {(buffer: ArrayBuffer) => import("./binarySerializationTypes.ts").StructureToObject<T>}
  */
-export function binaryToObject(buffer, {
+export function createBinaryDeserializer({
 	structure,
 	nameIds,
 	littleEndian = true,
@@ -378,120 +377,147 @@ export function binaryToObject(buffer, {
 }) {
 	assertNonDuplicateNameIds(nameIds);
 
+	const nameIdsMap = new Map(Object.entries(nameIds));
+	const nameIdsMapInverse = new Map(Object.entries(nameIds).map(([k, v]) => [v, k]));
+
 	/** @type {Required<BinarySerializationVariableLengthStorageTypes>} */
 	const useVariableLengthStorageTypes = {
 		...defaultVariableLengthStorageTypes,
 		...variableLengthStorageTypes,
 	};
-	let refIdStorageType = useVariableLengthStorageTypes.refId;
-	let arrayLengthStorageType = useVariableLengthStorageTypes.array;
-	let stringLengthStorageType = useVariableLengthStorageTypes.string;
-	let arrayBufferLengthStorageType = useVariableLengthStorageTypes.arrayBuffer;
 
-	const dataView = new DataView(buffer);
-	let byteOffset = 0;
-	if (useHeaderByte) {
-		const { value: headerByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian });
-		byteOffset += bytesMoved;
-		if (typeof headerByte != "number") throw new Error("Assertion failed, header byte is not a number.");
+	return (buffer) => {
+		let refIdStorageType = useVariableLengthStorageTypes.refId;
+		let arrayLengthStorageType = useVariableLengthStorageTypes.array;
+		let stringLengthStorageType = useVariableLengthStorageTypes.string;
+		let arrayBufferLengthStorageType = useVariableLengthStorageTypes.arrayBuffer;
 
-		const hasCustomVariableLengthStorageTypes = !!(headerByte & HeaderBits.hasCustomVariableLengthStorageTypes);
-
-		if (hasCustomVariableLengthStorageTypes) {
-			const { value: customStorageTypesByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian });
-			if (typeof customStorageTypesByte != "number") throw new Error("Assertion failed, customStorageTypesByte is not a number.");
+		const dataView = new DataView(buffer);
+		let byteOffset = 0;
+		if (useHeaderByte) {
+			const { value: headerByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian });
 			byteOffset += bytesMoved;
+			if (typeof headerByte != "number") throw new Error("Assertion failed, header byte is not a number.");
 
-			const refIdStorageTypeBits = (customStorageTypesByte) & 0b00000011;
-			const arrayLengthStorageTypeBits = (customStorageTypesByte >> 2) & 0b00000011;
-			const stringLengthStorageTypeBits = (customStorageTypesByte >> 4) & 0b00000011;
-			const arrayBufferLengthStorageTypeBits = (customStorageTypesByte >> 6) & 0b00000011;
+			const hasCustomVariableLengthStorageTypes = !!(headerByte & HeaderBits.hasCustomVariableLengthStorageTypes);
 
-			refIdStorageType = variableLengthBitsToStorageType(refIdStorageTypeBits);
-			arrayLengthStorageType = variableLengthBitsToStorageType(arrayLengthStorageTypeBits);
-			stringLengthStorageType = variableLengthBitsToStorageType(stringLengthStorageTypeBits);
-			arrayBufferLengthStorageType = variableLengthBitsToStorageType(arrayBufferLengthStorageTypeBits);
+			if (hasCustomVariableLengthStorageTypes) {
+				const { value: customStorageTypesByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian });
+				if (typeof customStorageTypesByte != "number") throw new Error("Assertion failed, customStorageTypesByte is not a number.");
+				byteOffset += bytesMoved;
+
+				const refIdStorageTypeBits = (customStorageTypesByte) & 0b00000011;
+				const arrayLengthStorageTypeBits = (customStorageTypesByte >> 2) & 0b00000011;
+				const stringLengthStorageTypeBits = (customStorageTypesByte >> 4) & 0b00000011;
+				const arrayBufferLengthStorageTypeBits = (customStorageTypesByte >> 6) & 0b00000011;
+
+				refIdStorageType = variableLengthBitsToStorageType(refIdStorageTypeBits);
+				arrayLengthStorageType = variableLengthBitsToStorageType(arrayLengthStorageTypeBits);
+				stringLengthStorageType = variableLengthBitsToStorageType(stringLengthStorageTypeBits);
+				arrayBufferLengthStorageType = variableLengthBitsToStorageType(arrayBufferLengthStorageTypeBits);
+			}
 		}
-	}
 
-	const nameIdsMap = new Map(Object.entries(nameIds));
-	const nameIdsMapInverse = new Map(Object.entries(nameIds).map(([k, v]) => [v, k]));
-
-	/** @type {Set<import("./binarySerializationTypes.ts").AllowedStructureFormat>} */
-	let reoccurringStructureReferences;
-	if (refIdStorageType == StorageType.NULL) {
-		// If the header bit indicated that there are no objects referenced multiple
-		// times, we won't have to check the structure to see which objects are
-		// coming from the same reference.
-		// This also ensures that when parsing later down the line we don't accidentally
-		// assume that objects are a reference and parse it as a reference id rather
-		// than an inline object.
-		reoccurringStructureReferences = new Set();
-	} else {
-		reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
-	}
-
-	const textDecoder = new TextDecoder();
-	/** @type {Map<number, StructureRefData>} */
-	const structureDataById = new Map();
-	structureDataById.set(0, { structureRef: structure });
-
-	/** @type {CollectedReferenceLink[]} */
-	const collectedReferenceLinks = [];
-
-	const unparsedStructureIds = new Set([0]);
-	let parsingStructureId = 0;
-	while (unparsedStructureIds.size > 0) {
-		const structureData = structureDataById.get(parsingStructureId);
-		if (!structureData) {
-			throw new Error(`Assertion failed, no structure data for id ${parsingStructureId}`);
+		/** @type {Set<import("./binarySerializationTypes.ts").AllowedStructureFormat>} */
+		let reoccurringStructureReferences;
+		if (refIdStorageType == StorageType.NULL) {
+			// If the header bit indicated that there are no objects referenced multiple
+			// times, we won't have to check the structure to see which objects are
+			// coming from the same reference.
+			// This also ensures that when parsing later down the line we don't accidentally
+			// assume that objects are a reference and parse it as a reference id rather
+			// than an inline object.
+			reoccurringStructureReferences = new Set();
+		} else {
+			reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
 		}
-		const structureRef = structureData.structureRef;
-		let reconstructedData = null;
 
-		const { newByteOffset, newReconstructedData } = parseBinaryWithStructure(structureRef, [], reconstructedData, true, {
-			reoccurringStructureReferences,
-			nameIdsMap,
-			dataView,
-			byteOffset,
-			littleEndian,
-			textDecoder,
-			nameIdsMapInverse,
-			transformValueHook,
-			collectedReferenceLinks,
-			parsingStructureId,
-			refIdStorageType,
-			structureDataById,
-			unparsedStructureIds,
-			arrayLengthStorageType,
-			stringLengthStorageType,
-			arrayBufferLengthStorageType,
-		});
-		byteOffset = newByteOffset;
-		reconstructedData = newReconstructedData;
+		const textDecoder = new TextDecoder();
+		/** @type {Map<number, StructureRefData>} */
+		const structureDataById = new Map();
+		structureDataById.set(0, { structureRef: structure });
 
-		structureData.reconstructedData = reconstructedData;
+		/** @type {CollectedReferenceLink[]} */
+		const collectedReferenceLinks = [];
 
-		unparsedStructureIds.delete(parsingStructureId);
-		parsingStructureId++;
-	}
+		const unparsedStructureIds = new Set([0]);
+		let parsingStructureId = 0;
+		while (unparsedStructureIds.size > 0) {
+			const structureData = structureDataById.get(parsingStructureId);
+			if (!structureData) {
+				throw new Error(`Assertion failed, no structure data for id ${parsingStructureId}`);
+			}
+			const structureRef = structureData.structureRef;
+			let reconstructedData = null;
 
-	for (const referenceLink of collectedReferenceLinks) {
-		const { refId, location, injectIntoRefId } = referenceLink;
-		const structureData = structureDataById.get(refId);
-		if (!structureData) throw new Error(`Assertion failed, no structure data found for id ${refId}`);
-		const value = structureData.reconstructedData;
-		const injectIntoStructureData = structureDataById.get(injectIntoRefId);
-		if (!injectIntoStructureData) throw new Error(`Assertion failed, no structure data found for id ${injectIntoRefId}`);
-		let injectIntoRef = injectIntoStructureData.reconstructedData;
-		injectIntoRef = resolveBinaryValueLocation(injectIntoRef || null, { nameIdsMapInverse, value, location });
-		injectIntoStructureData.reconstructedData = injectIntoRef;
-	}
+			const { newByteOffset, newReconstructedData } = parseBinaryWithStructure(structureRef, [], reconstructedData, true, {
+				reoccurringStructureReferences,
+				nameIdsMap,
+				dataView,
+				byteOffset,
+				littleEndian,
+				textDecoder,
+				nameIdsMapInverse,
+				transformValueHook,
+				collectedReferenceLinks,
+				parsingStructureId,
+				refIdStorageType,
+				structureDataById,
+				unparsedStructureIds,
+				arrayLengthStorageType,
+				stringLengthStorageType,
+				arrayBufferLengthStorageType,
+			});
+			byteOffset = newByteOffset;
+			reconstructedData = newReconstructedData;
 
-	const structureData = structureDataById.get(0);
-	if (!structureData) throw new Error("Assertion failed, no structure data found for id 0");
-	if (!structureData.reconstructedData) throw new Error("Assertion failed, structure data for id 0 has no reconstructed data");
-	return /** @type {any} */ (structureData.reconstructedData);
+			structureData.reconstructedData = reconstructedData;
+
+			unparsedStructureIds.delete(parsingStructureId);
+			parsingStructureId++;
+		}
+
+		for (const referenceLink of collectedReferenceLinks) {
+			const { refId, location, injectIntoRefId } = referenceLink;
+			const structureData = structureDataById.get(refId);
+			if (!structureData) throw new Error(`Assertion failed, no structure data found for id ${refId}`);
+			const value = structureData.reconstructedData;
+			const injectIntoStructureData = structureDataById.get(injectIntoRefId);
+			if (!injectIntoStructureData) throw new Error(`Assertion failed, no structure data found for id ${injectIntoRefId}`);
+			let injectIntoRef = injectIntoStructureData.reconstructedData;
+			injectIntoRef = resolveBinaryValueLocation(injectIntoRef || null, { nameIdsMapInverse, value, location });
+			injectIntoStructureData.reconstructedData = injectIntoRef;
+		}
+
+		const structureData = structureDataById.get(0);
+		if (!structureData) throw new Error("Assertion failed, no structure data found for id 0");
+		if (!structureData.reconstructedData) throw new Error("Assertion failed, structure data for id 0 has no reconstructed data");
+		return /** @type {any} */ (structureData.reconstructedData);
+	};
+}
+
+/**
+ * @deprecated Use {@linkcode createBinarySerializer}
+ * @template {import("./binarySerializationTypes.ts").AllowedStructureFormat} T
+ * @param {import("./binarySerializationTypes.ts").StructureToObject<T, true>} data
+ * @param {ObjectToBinaryOptions<T>} options
+ * @returns {ArrayBuffer}
+ */
+export function objectToBinary(data, options) {
+	const serializer = createBinarySerializer(options);
+	return serializer(data);
+}
+
+/**
+ * @deprecated Use {@linkcode createBinaryDeserializer}
+ * @template {import("./binarySerializationTypes.ts").AllowedStructureFormat} T
+ * @param {ArrayBuffer} buffer
+ * @param {BinaryToObjectOptions<T>} options
+ * @returns {import("./binarySerializationTypes.ts").StructureToObject<T>}
+ */
+export function binaryToObject(buffer, options) {
+	const deserializer = createBinaryDeserializer(options);
+	return deserializer(buffer);
 }
 
 /**
