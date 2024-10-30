@@ -381,6 +381,7 @@ export function createBinaryDeserializer({
 	};
 
 	const baseReoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+	const textDecoder = new TextDecoder();
 
 	return (buffer) => {
 		let refIdStorageType = useVariableLengthStorageTypes.refId;
@@ -391,14 +392,14 @@ export function createBinaryDeserializer({
 		const dataView = new DataView(buffer);
 		let byteOffset = 0;
 		if (useHeaderByte) {
-			const { value: headerByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian });
+			const { value: headerByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian, textDecoder });
 			byteOffset += bytesMoved;
 			if (typeof headerByte != "number") throw new Error("Assertion failed, header byte is not a number.");
 
 			const hasCustomVariableLengthStorageTypes = !!(headerByte & HeaderBits.hasCustomVariableLengthStorageTypes);
 
 			if (hasCustomVariableLengthStorageTypes) {
-				const { value: customStorageTypesByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian });
+				const { value: customStorageTypesByte, bytesMoved } = getDataViewValue(dataView, StorageType.UINT8, byteOffset, { littleEndian, textDecoder });
 				if (typeof customStorageTypesByte != "number") throw new Error("Assertion failed, customStorageTypesByte is not a number.");
 				byteOffset += bytesMoved;
 
@@ -426,7 +427,6 @@ export function createBinaryDeserializer({
 			reoccurringStructureReferences = baseReoccurringStructureReferences;
 		}
 
-		const textDecoder = new TextDecoder();
 		/** @type {Map<number, StructureRefData>} */
 		const structureDataById = new Map();
 		structureDataById.set(0, { structureRef: structure });
@@ -1223,7 +1223,7 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 
 	if (typeof structure == "object" && structure != null) {
 		if (!isRootStructure && reoccurringStructureReferences.has(structure)) {
-			const { value: refId, bytesMoved } = getDataViewValue(dataView, refIdStorageType, newByteOffset, { littleEndian });
+			const { value: refId, bytesMoved } = getDataViewValue(dataView, refIdStorageType, newByteOffset, { littleEndian, textDecoder });
 			if (typeof refId != "number") {
 				throw new Error("Assertion failed, unable to get the structure ref id because its type is not a number. This is likely because the refIdStorageType isn't set in the header bit.");
 			}
@@ -1251,7 +1251,7 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 				});
 			} else if (structure[0] == StorageType.UNION_ARRAY) {
 				const typeIndexStorageType = requiredStorageTypeForUint(structure.length).type;
-				const { value: unionIndex, bytesMoved } = getDataViewValue(dataView, typeIndexStorageType, newByteOffset, { littleEndian });
+				const { value: unionIndex, bytesMoved } = getDataViewValue(dataView, typeIndexStorageType, newByteOffset, { littleEndian, textDecoder });
 				if (typeof unionIndex != "number") {
 					throw new Error("Assertion failed, unable to get the type index of an union because its type is not a number.");
 				}
@@ -1270,7 +1270,7 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
 				const castStructure = /** @type {import("./binarySerializationTypes.ts").AllowedStructureFormat[]} */ (structure);
 				const variableArrayLength = castStructure.length == 1;
 				if (variableArrayLength) {
-					const { value: arrayLength, bytesMoved } = getDataViewValue(dataView, arrayLengthStorageType, newByteOffset, { littleEndian });
+					const { value: arrayLength, bytesMoved } = getDataViewValue(dataView, arrayLengthStorageType, newByteOffset, { littleEndian, textDecoder });
 					newByteOffset += bytesMoved;
 					if (arrayLengthStorageType == StorageType.NULL || arrayLength == 0) {
 						reconstructedData = resolveBinaryValueLocation(reconstructedData, {
@@ -1357,15 +1357,15 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
  * @param {boolean} [opts.littleEndian]
  * @param {StorageType} [opts.stringLengthStorageType]
  * @param {StorageType} [opts.arrayBufferLengthStorageType]
- * @param {TextDecoder} [opts.textDecoder]
+ * @param {TextDecoder} opts.textDecoder
  * @returns {{value: unknown, bytesMoved: number}}
  */
 function getDataViewValue(dataView, type, byteOffset, {
 	littleEndian = true,
 	stringLengthStorageType = StorageType.UINT8,
 	arrayBufferLengthStorageType = StorageType.UINT8,
-	textDecoder = new TextDecoder(),
-} = {}) {
+	textDecoder,
+}) {
 	let value = null;
 	let bytesMoved = 0;
 	if (type == StorageType.INT8) {
@@ -1393,7 +1393,7 @@ function getDataViewValue(dataView, type, byteOffset, {
 		value = dataView.getFloat64(byteOffset, littleEndian);
 		bytesMoved = 8;
 	} else if (type == StorageType.STRING) {
-		const { buffer, bytesMoved: newBytesMoved } = getLengthAndBuffer(dataView, byteOffset, stringLengthStorageType, { littleEndian });
+		const { buffer, bytesMoved: newBytesMoved } = getLengthAndBuffer(dataView, byteOffset, stringLengthStorageType, { littleEndian, textDecoder });
 		value = textDecoder.decode(buffer);
 		bytesMoved = newBytesMoved;
 	} else if (type == StorageType.BOOL) {
@@ -1403,7 +1403,7 @@ function getDataViewValue(dataView, type, byteOffset, {
 		value = binaryToUuid(dataView.buffer, byteOffset);
 		bytesMoved = 16;
 	} else if (type == StorageType.ARRAY_BUFFER) {
-		const { buffer, bytesMoved: newBytesMoved } = getLengthAndBuffer(dataView, byteOffset, arrayBufferLengthStorageType, { littleEndian });
+		const { buffer, bytesMoved: newBytesMoved } = getLengthAndBuffer(dataView, byteOffset, arrayBufferLengthStorageType, { littleEndian, textDecoder });
 		value = buffer;
 		bytesMoved = newBytesMoved;
 	} else if (type == StorageType.NULL) {
@@ -1420,9 +1420,10 @@ function getDataViewValue(dataView, type, byteOffset, {
  * @param {StorageType} lengthStorageType
  * @param {object} options
  * @param {boolean} options.littleEndian
+ * @param {TextDecoder} options.textDecoder
  */
-function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, { littleEndian }) {
-	const { value: bufferByteLength, bytesMoved: newBytesMoved } = getDataViewValue(dataView, lengthStorageType, byteOffset, { littleEndian });
+function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, { littleEndian, textDecoder }) {
+	const { value: bufferByteLength, bytesMoved: newBytesMoved } = getDataViewValue(dataView, lengthStorageType, byteOffset, { littleEndian, textDecoder });
 	if (typeof bufferByteLength != "number") throw new Error("Assertion failed, bufferByteLength is not a number. This is likely because the arrayBufferLengthStorageType isn't set in the header bit.");
 	let bytesMoved = newBytesMoved;
 	const bufferStart = byteOffset + bytesMoved;
