@@ -219,32 +219,26 @@ export function createBinarySerializer({
 	assertNonDuplicateNameIds(nameIds);
 	const nameIdsMap = new Map(Object.entries(nameIds));
 
+	const reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+
 	return (data) => {
 		const castData = /** @type {object} */ (data);
 		const reoccurringObjectReferences = collectReoccurringReferences(castData, nameIdsMap, false);
 
-		/** @type {Set<import("./binarySerializationTypes.ts").AllowedStructureFormat>} */
-		let reoccurringStructureReferences;
+		/** @type {Map<object, import("./binarySerializationTypes.ts").AllowedStructureFormat>} */
+		let referencesAndStructures;
 		if (reoccurringObjectReferences.size > 0) {
-			// If any of the objects is used more than once, we need to make sure that
-			// all of the objects that have a reocurring structure are treated as a
-			// reference as well. This is because, when deserializing, there's no way
-			// to know if an object is a reoccurring reference or not.
-			// So when deserializing the assumption is made that if a reference is
-			// reocurring in the structure, it is encoded as a reference id, rather
-			// than an inline object.
-			// Only when the object contains zero reocurring (object) references, we
-			// can set the refIdStorageType in the header bit to NULL, to let the
-			// deserializer know that all of the objects are encoded as inline object
-			// rather than as reference ids.
-
-			// So we collect the structure references as well
-			reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+			referencesAndStructures = getStoreAsReferenceItems(reoccurringObjectReferences, reoccurringStructureReferences, castData, structure, nameIdsMap);
 		} else {
-			reoccurringStructureReferences = new Set();
+			// Normally getStoreAsReferenceItems will return all objects or structures that are referenced multiple times,
+			// even if the object isn't referenced multiple times. However, if none of the objects are referenced,
+			// there's no point in storing objects as reference id and everything can be inlined.
+			// So we might as well set `referencesAndStructures` to a map with only the root, that
+			// way we both skip some unnecessary cycles that would otherwise collect all referenced items,
+			// and this is actually necessary to ensure none of the object references are stored as reference id later.
+			referencesAndStructures = new Map();
+			referencesAndStructures.set(castData, structure);
 		}
-
-		const referencesAndStructures = getStoreAsReferenceItems(reoccurringObjectReferences, reoccurringStructureReferences, castData, structure, nameIdsMap);
 
 		/** @type {Map<object, number>} */
 		const referenceIds = new Map();
@@ -386,6 +380,8 @@ export function createBinaryDeserializer({
 		...variableLengthStorageTypes,
 	};
 
+	const baseReoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+
 	return (buffer) => {
 		let refIdStorageType = useVariableLengthStorageTypes.refId;
 		let arrayLengthStorageType = useVariableLengthStorageTypes.array;
@@ -422,14 +418,12 @@ export function createBinaryDeserializer({
 		let reoccurringStructureReferences;
 		if (refIdStorageType == StorageType.NULL) {
 			// If the header bit indicated that there are no objects referenced multiple
-			// times, we won't have to check the structure to see which objects are
-			// coming from the same reference.
-			// This also ensures that when parsing later down the line we don't accidentally
-			// assume that objects are a reference and parse it as a reference id rather
-			// than an inline object.
+			// times, we want to make sure the `reoccurringStructureReferences` is an empty map.
+			// Otherwise `parseBinaryWithStructure` will assume that objects are a reference and parse
+			// it as a reference id rather than an inline object.
 			reoccurringStructureReferences = new Set();
 		} else {
-			reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+			reoccurringStructureReferences = baseReoccurringStructureReferences;
 		}
 
 		const textDecoder = new TextDecoder();
