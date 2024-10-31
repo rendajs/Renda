@@ -1,5 +1,5 @@
 import { assertEquals, assertStrictEquals, assertThrows } from "std/testing/asserts.ts";
-import { StorageType, binaryToObject, createObjectToBinaryOptions, createObjectToBinaryStructure, objectToBinary } from "../../../../../src/util/binarySerialization.js";
+import { StorageType, binaryToObject, createBinaryDeserializer, createBinarySerializer, createObjectToBinaryOptions, createObjectToBinaryStructure, objectToBinary } from "../../../../../src/util/binarySerialization.js";
 import { basicObjectToBinaryToObjectTest } from "./shared.js";
 
 Deno.test({
@@ -457,5 +457,20 @@ Deno.test({
 				},
 			});
 		}, Error, 'The name ids object contains duplicate ids: "foo1", "foo2", "bar1", "bar2"');
+	},
+});
+
+Deno.test({
+	name: "Reusing a serializer and deserializer",
+	fn() {
+		const nameIds = { foo: 1 };
+		const structure = { foo: StorageType.STRING };
+		const serializer = createBinarySerializer({ structure, nameIds });
+		const deserializer = createBinaryDeserializer({ structure, nameIds });
+
+		const result1 = deserializer(serializer({ foo: "result1" }));
+		assertEquals(result1, { foo: "result1" });
+		const result2 = deserializer(serializer({ foo: "result2" }));
+		assertEquals(result2, { foo: "result2" });
 	},
 });
