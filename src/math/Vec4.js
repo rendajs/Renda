@@ -2,6 +2,7 @@ import { Vec2 } from "./Vec2.js";
 import { Vec3 } from "./Vec3.js";
 import { Mat4 } from "./Mat4.js";
 import { Quat } from "./Quat.js";
+import { lerp } from "../util/util.js";
 
 /**
  * @typedef {() => Vec4} vec4SetEmptySignature
@@ -410,6 +411,29 @@ export class Vec4 {
 		const y = this._y - vector.y;
 		const z = this._z - vector.z;
 		const w = this._w - vector.w;
+		return this.set(x, y, z, w);
+	}
+
+	/**
+	 * @param {Vec4ParameterSingle} vecA
+	 * @param {Vec4ParameterSingle} vecB
+	 * @param {number} t
+	 */
+	static lerp(vecA, vecB, t) {
+		const vA = new Vec4(vecA);
+		return vA.lerp(vecB, t);
+	}
+
+	/**
+	 * @param {Vec4ParameterSingle} vector
+	 * @param {number} t
+	 */
+	lerp(vector, t) {
+		const vecB = new Vec4(vector);
+		const x = lerp(this._x, vecB.x, t);
+		const y = lerp(this._y, vecB.y, t);
+		const z = lerp(this._z, vecB.z, t);
+		const w = lerp(this._w, vecB.w, t);
 		return this.set(x, y, z, w);
 	}
 

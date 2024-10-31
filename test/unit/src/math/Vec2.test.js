@@ -576,6 +576,45 @@ Deno.test({
 });
 
 Deno.test({
+	name: "lerp()",
+	fn() {
+		const tests = [
+			{ a: [1, 1], b: [2, 2], t: 0, result: [1, 1] },
+			{ a: [1, 1], b: [2, 2], t: 0.5, result: [1.5, 1.5] },
+			{ a: [1, 1], b: [2, 2], t: 2, result: [3, 3] },
+			{ a: [0, 1], b: [2, 3], t: 0.5, result: [1, 2] },
+		];
+
+		for (const { a, b, t, result } of tests) {
+			const vec = new Vec2(a);
+			vec.lerp(b, t);
+
+			assertVecAlmostEquals(vec, result);
+		}
+	},
+});
+
+Deno.test({
+	name: "static lerp()",
+	fn() {
+		const tests = [
+			{ a: [1, 1], b: [2, 2], t: 0, result: [1, 1] },
+			{ a: [1, 1], b: [2, 2], t: 0.5, result: [1.5, 1.5] },
+			{ a: [1, 1], b: [2, 2], t: 2, result: [3, 3] },
+			{ a: [0, 1], b: [3, 4], t: 0.5, result: [1.5, 2.5] },
+			{ a: new Vec3(1, 1, 1), b: new Vec4(2, 2, 2, 2), t: 0.5, result: [1.5, 1.5] },
+			{ a: [0, 0, 0], b: [2, 2, 2, 2], t: 0.5, result: [1, 1] },
+		];
+
+		for (const { a, b, t, result } of tests) {
+			const vec = Vec2.lerp(a, b, t);
+
+			assertVecAlmostEquals(vec, result);
+		}
+	},
+});
+
+Deno.test({
 	name: "min()",
 	fn() {
 		const tests = [
@@ -916,6 +955,11 @@ Deno.test({
 		expectedResult.push(0x11);
 
 		vec.subVector(new Vec2(0, 1));
+		expectedResult.push(0x01);
+
+		vec.set(0, 0);
+		vec.lerp([0, 1], 0.5);
+		expectedResult.push(0x11);
 		expectedResult.push(0x01);
 
 		// vec.cross(1, 2, 3);
