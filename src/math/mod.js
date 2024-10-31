@@ -4,4 +4,5 @@ export { Vec4 } from "./Vec4.js";
 export { Mat4 } from "./Mat4.js";
 export { Quat } from "./Quat.js";
 export * from "./shapes/mod.js";
-export { closestPointBetweenLines } from "./closestPointBetweenLines.js";
+export * from "./closestPointBetweenLines.js";
+export * from "./closestPointToLine.js";
