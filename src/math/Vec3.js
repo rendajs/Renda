@@ -1,4 +1,4 @@
-import { clamp } from "../util/util.js";
+import { clamp, lerp } from "../util/util.js";
 import { Mat4 } from "./Mat4.js";
 import { Quat } from "./Quat.js";
 import { Vec2 } from "./Vec2.js";
@@ -431,6 +431,28 @@ export class Vec3 {
 		const x = this._x - vector.x;
 		const y = this._y - vector.y;
 		const z = this._z - vector.z;
+		return this.set(x, y, z);
+	}
+
+	/**
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 * @param {number} t
+	 */
+	static lerp(vecA, vecB, t) {
+		const vA = new Vec3(vecA);
+		return vA.lerp(vecB, t);
+	}
+
+	/**
+	 * @param {Vec3ParameterSingle} vector
+	 * @param {number} t
+	 */
+	lerp(vector, t) {
+		const vecB = new Vec3(vector);
+		const x = lerp(this._x, vecB.x, t);
+		const y = lerp(this._y, vecB.y, t);
+		const z = lerp(this._z, vecB.z, t);
 		return this.set(x, y, z);
 	}
 
