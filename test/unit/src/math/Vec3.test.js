@@ -688,6 +688,7 @@ Deno.test({
 			{ a: [1, 1, 1], b: [2, 2, 2], t: 2, result: [3, 3, 3] },
 			{ a: [0, 1, 2], b: [3, 4, 5], t: 0.5, result: [1.5, 2.5, 3.5] },
 			{ a: new Vec2(1, 1), b: new Vec4(2, 2, 2, 2), t: 0.5, result: [1.5, 1.5, 1] },
+			{ a: [0, 0], b: [2, 2, 2, 2], t: 0.5, result: [1, 1, 1] },
 		];
 
 		for (const { a, b, t, result } of tests) {
