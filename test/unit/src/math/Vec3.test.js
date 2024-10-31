@@ -1090,7 +1090,14 @@ Deno.test({
 		vec.subVector(new Vec3(0, 1, 0));
 		expectedResult.push(0x010);
 
+		vec.set(0, 0, 0);
+		vec.lerp([0, 1, 1], 0.5);
+		expectedResult.push(0x111);
+		expectedResult.push(0x011);
+
+		vec.set(2.5, 8.5, 8.5);
 		vec.cross(1, 2, 3);
+		expectedResult.push(0x111);
 		expectedResult.push(0x111);
 
 		vec.set(1, 2, 3);

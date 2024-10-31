@@ -957,6 +957,11 @@ Deno.test({
 		vec.subVector(new Vec2(0, 1));
 		expectedResult.push(0x01);
 
+		vec.set(0, 0);
+		vec.lerp([0, 1], 0.5);
+		expectedResult.push(0x11);
+		expectedResult.push(0x01);
+
 		// vec.cross(1, 2, 3);
 		// expectedResult.push(0x11);
 
