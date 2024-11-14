@@ -285,31 +285,37 @@ export class Quat {
 	 * @param {number} t
 	 */
 	static slerpQuaternions(quatA, quatB, t) {
+		quatA = quatA.clone();
+		quatB = quatB.clone();
 		// https://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
-		if (t == 0) {
-			return quatA.clone();
-		}
-		if (t == 1) {
-			return quatB.clone();
-		}
+		if (t == 0) return quatA;
+		if (t == 1) return quatB;
 
 		let cosHalfTheta = new Vec4(quatA).dot(quatB);
 		if (cosHalfTheta < 0) {
 			quatB.x = -quatB.x;
 			quatB.y = -quatB.y;
+			quatB.z = -quatB.z;
 			quatB.w = -quatB.w;
 			cosHalfTheta = -cosHalfTheta;
 		}
 
 		// If quatA = quatB or quatA = -quatB then theta = 0 and we can return quatA
-		if (Math.abs(cosHalfTheta) >= 1) {
+		if (cosHalfTheta >= 1) {
 			return quatA.clone();
 		}
 
-		// Calculate temporary values.
 		const halfTheta = Math.acos(cosHalfTheta);
-		const sinHalfTheta = Math.sqrt(1 - cosHalfTheta * cosHalfTheta);
+		const sqrSinHalfTheta = 1 - cosHalfTheta * cosHalfTheta;
 
+		// When sinHalfTheta is very small, we run into precision errors.
+		// It's best to just linearly interpolate the two quaternions in that case
+		if (sqrSinHalfTheta <= Number.EPSILON) {
+			const vec = Vec4.lerp(quatA, quatB, t);
+			return new Quat(vec);
+		}
+
+		const sinHalfTheta = Math.sqrt(sqrSinHalfTheta);
 		const ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
 		const ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
 
